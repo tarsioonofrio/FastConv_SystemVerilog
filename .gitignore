@@ -1,0 +1,14 @@
+debug
+transcript
+vsim*
+work
+xcelium*
+xrun.*
+*.cache
+*.runs
+obj_dir
+*.fst
+*.wcfg
+.simvision
+*.wlf
+.DS_Store
