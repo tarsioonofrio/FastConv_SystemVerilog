@@ -13,8 +13,9 @@ package packConv;
     typedef logic [NBITS-1:0] regC;
 
     // definitions for matrix multiplications
-    typedef regC param25 [0:24];  // array with 25 parameters
-    typedef regC param9  [0:8];   // array with  9 parameters
+    typedef regC param16 [0:16];  // array with 16 parameters
+    typedef regC param8  [0:8];   // array with  8 parameters
+    typedef regC param4  [0:4];   // array with  4 parameters
   
     // definitions for the CSA adders
     typedef regC two_words    [1:0];
@@ -25,7 +26,7 @@ package packConv;
   
     // constants to control the multipliers
     typedef enum  {
-        MU1, MU2, MU3, MU4, MU5
+        MU1, MU2, MU3, MU4
     } mul_states;
 
 endpackage
