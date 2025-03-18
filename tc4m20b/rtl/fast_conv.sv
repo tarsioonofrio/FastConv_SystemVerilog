@@ -11,23 +11,23 @@ module conv_rapida
     parameter int QUANT = 8 
   ) 
   ( input  logic   clk, reset, start,
-    input  param25 inputMAP,   
-    input  param25 weights,    
-    output param9  outputMAP,
+    input  param16 inputMAP,   
+    input  param16 weights,    
+    output param4  outputMAP,
     output logic   data_valid   
  );
 
    timeunit 1ns;
    timeprecision 1ps;
 
-    param25 registers, prodCSA1; 
-    param9 prodCSA2; 
+    param16 registers, prodCSA1; 
+    param8 prodCSA2; 
 
     logic signed [NBITS-1+QUANT:0] partial_product [0:4];   // QUANT more bits for the multipliers
 
-    logic [4:0] m0, m1, m2, m3, m4;
+    logic [4:0] m0, m1, m2, m3;
 
-    typedef enum {IDLE, WR_IFMAP, WR_MC, MU1, MU2, MU3, MU4, MU5, WR_OUT} state_type;
+    typedef enum {IDLE, WR_IFMAP, WR_MC, MU1, MU2, MU3, MU4, WR_OUT} state_type;
 
     state_type EA, PE;
 
@@ -52,8 +52,7 @@ module conv_rapida
             MU1:     PE = MU2;    
             MU2:     PE = MU3;
             MU3:     PE = MU4; 
-            MU4:     PE = MU5;
-            MU5:     PE = WR_OUT;
+            MU4:     PE = WR_OUT;
 
             //MMMA:      PE = WR_OUT; 
             WR_OUT:    PE = IDLE;
@@ -75,18 +74,16 @@ module conv_rapida
     always_comb begin
 
           unique case (EA)
-                MU1: begin m0= 0; m1= 1; m2= 2;  m3= 3; m4= 4; end
-                MU2: begin m0= 5; m1= 6; m2= 7;  m3= 8; m4= 9; end
-                MU3: begin m0=10; m1=11; m2=12;  m3=13; m4=14; end
-                MU4: begin m0=15; m1=16; m2=17;  m3=18; m4=19; end
-                MU5: begin m0=20; m1=21; m2=22;  m3=23; m4=24; end
+                MU1: begin m0=  0; m1=  1; m2= 2;  m3= 3; end
+                MU2: begin m0=  4; m1=  5; m2= 6;  m3= 7; end
+                MU3: begin m0=  8; m1=  9; m2= 10; m3=11; end
+                MU4: begin m0= 12; m1= 13; m2=14;  m3=15; end
          endcase
 
           partial_product[0] = (NBITS+QUANT)'($signed(registers[m0]) * $signed(weights[m0]) );
           partial_product[1] = (NBITS+QUANT)'($signed(registers[m1]) * $signed(weights[m1]) );
           partial_product[2] = (NBITS+QUANT)'($signed(registers[m2]) * $signed(weights[m2]) );
           partial_product[3] = (NBITS+QUANT)'($signed(registers[m3]) * $signed(weights[m3]) );
-          partial_product[4] = (NBITS+QUANT)'($signed(registers[m4]) * $signed(weights[m4]) );
 
     end
 
@@ -112,12 +109,11 @@ module conv_rapida
 
                    WR_MC:      registers <= prodCSA1;
 
-                   MU1, MU2, MU3, MU4, MU5:  begin
+                   MU1, MU2, MU3, MU4:  begin
                               registers[m0] <= (NBITS)'(partial_product[0][NBITS-1+QUANT:QUANT]);
                               registers[m1] <= (NBITS)'(partial_product[1][NBITS-1+QUANT:QUANT]);
                               registers[m2] <= (NBITS)'(partial_product[2][NBITS-1+QUANT:QUANT]);
                               registers[m3] <= (NBITS)'(partial_product[3][NBITS-1+QUANT:QUANT]);
-                              registers[m4] <= (NBITS)'(partial_product[4][NBITS-1+QUANT:QUANT]); 
                         end
 
                    WR_OUT: //begin
