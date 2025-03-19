@@ -20,9 +20,9 @@ module conv_rapida
    timeunit 1ns;
    timeprecision 1ps;
 
-    param16 registers, prod_delta, prod_d; 
-    param8 prod_sigma;
-    param4 prod_s;
+    param16 registers, prod_d0, prod_d1; 
+    param8 prod_a1;
+    param4 prod_a0;
 
     logic signed [NBITS-1+QUANT:0] partial_product [0:4];   // QUANT more bits for the multipliers
 
@@ -65,15 +65,15 @@ module conv_rapida
     //
 
     // Instance of matrix multiplier "C"
-    MatrixDelta mult_matrix_delta(
+    MatrixC0 mult_matrix_d0(
         .P(registers), 
-        .soma(prod_delta)
+        .soma(prod_d0)
     );
 
 
-    MatrixD mult_matrix_d(
-        .P(prod_delta),
-        .soma(prod_d)
+    MatrixC1 mult_matrix_d1(
+        .P(prod_d0),
+        .soma(prod_d1)
     );
 
    // 5 multipliers inside this block
@@ -94,14 +94,14 @@ module conv_rapida
 
 
     // Instance of matrix multiplier "A"
-    MatrixSigma mult_matrix_sigma (
+    MatrixA1 mult_matrix_a1 (
         .P(registers), 
-        .soma(prod_sigma)
+        .soma(prod_a1)
     );
 
-    MatrixS mult_matrix_s (
-        .P(prod_sigma), 
-        .soma(prod_s)
+    MatrixA0 mult_matrix_a0 (
+        .P(prod_a1), 
+        .soma(prod_a0)
     );
 
     // Internal register bank to store intermediate results
@@ -116,8 +116,8 @@ module conv_rapida
                unique case (EA)
                    WR_IFMAP:   registers <= inputMAP;
 
-                   WR_d:      registers <= prod_delta;
-                   WR_D:      registers <= prod_d;
+                   WR_d:      registers <= prod_d0;
+                   WR_D:      registers <= prod_d1;
 
                    MU1, MU2, MU3, MU4:  begin
                               registers[m0] <= (NBITS)'(partial_product[0][NBITS-1+QUANT:QUANT]);
@@ -126,7 +126,7 @@ module conv_rapida
                               registers[m3] <= (NBITS)'(partial_product[3][NBITS-1+QUANT:QUANT]);
                         end
 
-                    WR_S: registers[0:8] <= prod_sigma;
+                    WR_S: registers[0:8] <= prod_a1;
                     WR_OUT: data_valid <= 1;
                endcase
         end
@@ -135,7 +135,7 @@ module conv_rapida
     always_latch begin
       if (EA==WR_OUT) begin
            for (int i = 0; i < 4; i++) 
-                 outputMAP[i] = prod_s[i];   /// saída em latch
+                 outputMAP[i] = prod_a0[i];   /// saída em latch
           end
     end
 
