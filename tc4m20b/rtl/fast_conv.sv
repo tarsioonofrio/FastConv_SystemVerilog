@@ -45,17 +45,17 @@ module conv_rapida
 
     always_comb begin
         unique case (EA)
-            IDLE:      PE = start ? WR_IFMAP : IDLE;
-            WR_IFMAP:  PE = WR_C0;
-            WR_C0:      PE = WR_C1;
-            WR_C1:      PE = MU1;
+            IDLE:     PE = start ? WR_IFMAP : IDLE;
+            WR_IFMAP: PE = WR_C0;
+            WR_C0:    PE = WR_C1;
+            WR_C1:    PE = MU1;
 
             // five state multiplier           
             MU1:     PE = MU2;    
             MU2:     PE = MU3;
             MU3:     PE = MU4; 
             MU4:     PE = WR_A1;
-            WR_A1:    PE = WR_OUT;
+            WR_A1:   PE = WR_OUT;
             WR_OUT:  PE = IDLE;
         endcase
     end
@@ -72,24 +72,23 @@ module conv_rapida
 
 
     MatrixC1 mult_matrix_c1(
-        .P(prod_c0),
+        .P(registers),
         .soma(prod_c1)
     );
 
    // 5 multipliers inside this block
     always_comb begin
           unique case (EA)
-                MU1: begin m0=  0; m1=  1; m2= 2;  m3= 3; end
-                MU2: begin m0=  4; m1=  5; m2= 6;  m3= 7; end
-                MU3: begin m0=  8; m1=  9; m2= 10; m3=11; end
-                MU4: begin m0= 12; m1= 13; m2=14;  m3=15; end
+                MU1: begin m0= 0; m1= 1; m2= 2; m3= 3; end
+                MU2: begin m0= 4; m1= 5; m2= 6; m3= 7; end
+                MU3: begin m0= 8; m1= 9; m2=10; m3=11; end
+                MU4: begin m0=12; m1=13; m2=14; m3=15; end
          endcase
 
           partial_product[0] = (NBITS+QUANT)'($signed(registers[m0]) * $signed(weights[m0]) );
           partial_product[1] = (NBITS+QUANT)'($signed(registers[m1]) * $signed(weights[m1]) );
           partial_product[2] = (NBITS+QUANT)'($signed(registers[m2]) * $signed(weights[m2]) );
           partial_product[3] = (NBITS+QUANT)'($signed(registers[m3]) * $signed(weights[m3]) );
-
     end
 
 
@@ -100,7 +99,7 @@ module conv_rapida
     );
 
     MatrixA0 mult_matrix_a0 (
-        .P(prod_a1), 
+        .P(registers[0:8]), 
         .soma(prod_a0)
     );
 

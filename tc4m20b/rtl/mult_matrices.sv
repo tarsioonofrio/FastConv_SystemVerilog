@@ -27,7 +27,7 @@ module MatrixC0
     assign soma[10] =  P[10] - P[9];
     assign soma[11] =  P[11] - P[9];
 
-    assign soma[12] =  - P[12] - P[14];
+    assign soma[12] =  - P[12] + P[14];
     CSA_2 csa_p13(P[13], P[14], sp13);
     assign soma[13] =  sp13;
     assign soma[14] =  P[10] - P[9];
@@ -46,10 +46,10 @@ module MatrixC1
 
     regC sp4, sp5, sp6, sp7;
 
-    assign soma[0] = P[8]  - P[0];
-    assign soma[1] = P[9]  - P[1];
-    assign soma[2] = P[10] - P[2];
-    assign soma[3] = P[11] - P[3];
+    assign soma[0] =  - P[0] + P[8];
+    assign soma[1] =  - P[1] + P[9];
+    assign soma[2] =  - P[2] + P[10];
+    assign soma[3] =  - P[3] + P[11];
 
     CSA_2 csa_p4 (P[4], P[8], sp4);
     assign soma[4] = sp4;
@@ -60,8 +60,8 @@ module MatrixC1
     CSA_2 csa_p7 (P[7], P[11], sp7);
     assign soma[7] = sp7;
 
-    assign soma[8] =   - P[4] + P[8];
-    assign soma[9] =   - P[5] + P[9];
+    assign soma[8] =  - P[4] + P[8];
+    assign soma[9] =  - P[5] + P[9];
     assign soma[10] =  - P[6] + P[10];
     assign soma[11] =  - P[7] + P[11];
 
