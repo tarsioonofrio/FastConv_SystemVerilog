@@ -8,8 +8,8 @@ module tb;
 
     import packConv::*;
 
-    param25 weight, inputMAP;   
-    param9  outputMAP;
+    param16 weight, inputMAP;   
+    param4  outputMAP;
 
     logic reset, start, data_valid;
     logic clk = 1'b0;
@@ -53,7 +53,7 @@ module tb;
             // Loop para imprimir os valores de outputMAP
             $display("Time: %0t | Data Valid: %b", $time, data_valid);
             $display("OutputMAP Values:");
-            for (int i = 0; i < 9; i = i + 1) begin
+            for (int i = 0; i < 4; i = i + 1) begin
                 $display("outputMAP[%0d] = %d", i, ($signed(outputMAP[i])) );
             end
         end
@@ -66,7 +66,7 @@ module tb;
     // Convert weights 
     genvar i;
     generate
-        for (i = 0; i <= 24; i++) begin 
+        for (i = 0; i < 16; i++) begin 
             assign weight[i] = (NBITS)'($signed(weights[i]));  
         end
     endgenerate;
@@ -88,7 +88,7 @@ module tb;
     
         // Loop de simulação
         for (j = 0; j <=  MAPS.size()-1; j++) begin  
-            for (k = 0; k <= 24; k++) begin      
+            for (k = 0; k < 16; k++) begin      
                  inputMAP[k] = (NBITS)'($signed(MAPS[j][k]));  
             end
             
