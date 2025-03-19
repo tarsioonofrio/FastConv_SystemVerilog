@@ -28,7 +28,7 @@ module conv_rapida
 
     logic [4:0] m0, m1, m2, m3;
 
-    typedef enum {IDLE, WR_IFMAP, WR_d, WR_D, MU1, MU2, MU3, MU4, WR_S, WR_OUT} state_type;
+    typedef enum {IDLE, WR_IFMAP, WR_C0, WR_C1, MU1, MU2, MU3, MU4, WR_A1, WR_OUT} state_type;
 
     state_type EA, PE;
 
@@ -46,16 +46,16 @@ module conv_rapida
     always_comb begin
         unique case (EA)
             IDLE:      PE = start ? WR_IFMAP : IDLE;
-            WR_IFMAP:  PE = WR_d;
-            WR_d:      PE = WR_D;
-            WR_D:      PE = MU1;
+            WR_IFMAP:  PE = WR_C0;
+            WR_C0:      PE = WR_C1;
+            WR_C1:      PE = MU1;
 
             // five state multiplier           
             MU1:     PE = MU2;    
             MU2:     PE = MU3;
             MU3:     PE = MU4; 
-            MU4:     PE = WR_S;
-            WR_S:    PE = WR_OUT;
+            MU4:     PE = WR_A1;
+            WR_A1:    PE = WR_OUT;
             WR_OUT:  PE = IDLE;
         endcase
     end
@@ -116,8 +116,8 @@ module conv_rapida
                unique case (EA)
                    WR_IFMAP:   registers <= inputMAP;
 
-                   WR_d:      registers <= prod_c0;
-                   WR_D:      registers <= prod_c1;
+                   WR_C0:      registers <= prod_c0;
+                   WR_C1:      registers <= prod_c1;
 
                    MU1, MU2, MU3, MU4:  begin
                               registers[m0] <= (NBITS)'(partial_product[0][NBITS-1+QUANT:QUANT]);
@@ -126,7 +126,7 @@ module conv_rapida
                               registers[m3] <= (NBITS)'(partial_product[3][NBITS-1+QUANT:QUANT]);
                         end
 
-                    WR_S: registers[0:8] <= prod_a1;
+                    WR_A1: registers[0:8] <= prod_a1;
                     WR_OUT: data_valid <= 1;
                endcase
         end
