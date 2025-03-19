@@ -20,7 +20,7 @@ module conv_rapida
    timeunit 1ns;
    timeprecision 1ps;
 
-    param16 registers, prod_d0, prod_d1; 
+    param16 registers, prod_c0, prod_c1; 
     param8 prod_a1;
     param4 prod_a0;
 
@@ -65,15 +65,15 @@ module conv_rapida
     //
 
     // Instance of matrix multiplier "C"
-    MatrixC0 mult_matrix_d0(
+    MatrixC0 mult_matrix_c0(
         .P(registers), 
-        .soma(prod_d0)
+        .soma(prod_c0)
     );
 
 
     MatrixC1 mult_matrix_d1(
-        .P(prod_d0),
-        .soma(prod_d1)
+        .P(prod_c0),
+        .soma(prod_c1)
     );
 
    // 5 multipliers inside this block
@@ -116,8 +116,8 @@ module conv_rapida
                unique case (EA)
                    WR_IFMAP:   registers <= inputMAP;
 
-                   WR_d:      registers <= prod_d0;
-                   WR_D:      registers <= prod_d1;
+                   WR_d:      registers <= prodcd0;
+                   WR_D:      registers <= prod_c1;
 
                    MU1, MU2, MU3, MU4:  begin
                               registers[m0] <= (NBITS)'(partial_product[0][NBITS-1+QUANT:QUANT]);
