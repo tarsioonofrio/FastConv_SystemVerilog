@@ -20,14 +20,15 @@ module conv_rapida
    timeunit 1ns;
    timeprecision 1ps;
 
-    param16 registers, prodCSA1; 
-    param8 prodCSA2; 
+    param16 registers, prod_delta, prod_d; 
+    param8 prod_sigma;
+    param4 prod_s;
 
     logic signed [NBITS-1+QUANT:0] partial_product [0:4];   // QUANT more bits for the multipliers
 
     logic [4:0] m0, m1, m2, m3;
 
-    typedef enum {IDLE, WR_IFMAP, WR_MC, MU1, MU2, MU3, MU4, WR_OUT} state_type;
+    typedef enum {IDLE, WR_IFMAP, WR_d, WR_D, MU1, MU2, MU3, MU4, WR_S, WR_OUT} state_type;
 
     state_type EA, PE;
 
@@ -45,17 +46,17 @@ module conv_rapida
     always_comb begin
         unique case (EA)
             IDLE:      PE = start ? WR_IFMAP : IDLE;
-            WR_IFMAP:  PE = WR_MC;
-            WR_MC:     PE = MU1;
+            WR_IFMAP:  PE = WR_d;
+            WR_d:      PE = WR_D;
+            WR_D:      PE = MU1;
 
             // five state multiplier           
             MU1:     PE = MU2;    
             MU2:     PE = MU3;
             MU3:     PE = MU4; 
-            MU4:     PE = WR_OUT;
-
-            //MMMA:      PE = WR_OUT; 
-            WR_OUT:    PE = IDLE;
+            MU4:     PE = WR_S;
+            WR_S:    PE = WR_OUT;
+            WR_OUT:  PE = IDLE;
         endcase
     end
 
@@ -64,15 +65,19 @@ module conv_rapida
     //
 
     // Instance of matrix multiplier "C"
-    MatrixC mult_matrix_C(
+    MatrixDelta mult_matrix_delta(
         .P(registers), 
-        .soma(prodCSA1)
+        .soma(prod_delta)
     );
 
 
+    MatrixD mult_matrix_d(
+        .P(prod_delta),
+        .soma(prod_d)
+    );
+
    // 5 multipliers inside this block
     always_comb begin
-
           unique case (EA)
                 MU1: begin m0=  0; m1=  1; m2= 2;  m3= 3; end
                 MU2: begin m0=  4; m1=  5; m2= 6;  m3= 7; end
@@ -89,11 +94,15 @@ module conv_rapida
 
 
     // Instance of matrix multiplier "A"
-    MatrixA mult_matrix_A (
+    MatrixSigma mult_matrix_sigma (
         .P(registers), 
-        .soma(prodCSA2)
+        .soma(prod_sigma)
     );
 
+    MatrixS mult_matrix_s (
+        .P(prod_sigma), 
+        .soma(prod_s)
+    );
 
     // Internal register bank to store intermediate results
     always_ff @(posedge clk or posedge reset) begin
@@ -107,7 +116,8 @@ module conv_rapida
                unique case (EA)
                    WR_IFMAP:   registers <= inputMAP;
 
-                   WR_MC:      registers <= prodCSA1;
+                   WR_d:      registers <= prod_delta;
+                   WR_D:      registers <= prod_d;
 
                    MU1, MU2, MU3, MU4:  begin
                               registers[m0] <= (NBITS)'(partial_product[0][NBITS-1+QUANT:QUANT]);
@@ -116,19 +126,16 @@ module conv_rapida
                               registers[m3] <= (NBITS)'(partial_product[3][NBITS-1+QUANT:QUANT]);
                         end
 
-                   WR_OUT: //begin
-                       data_valid <= 1;
-                    //  for (int i = 0; i < 9; i++) 
-                    //      outputMAP[i] <= prodCSA2[i];   /// saída registrada
-                    //  end
+                    WR_S: registers[0:8] <= prod_sigma;
+                    WR_OUT: data_valid <= 1;
                endcase
         end
      end
 
     always_latch begin
       if (EA==WR_OUT) begin
-           for (int i = 0; i < 9; i++) 
-                 outputMAP[i] = prodCSA2[i];   /// saída em latch
+           for (int i = 0; i < 4; i++) 
+                 outputMAP[i] = prod_s[i];   /// saída em latch
           end
     end
 

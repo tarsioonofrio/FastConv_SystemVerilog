@@ -51,13 +51,13 @@ module MatrixD
     assign soma[2] =  - P[2] + P[10];
     assign soma[3] =  - P[3] + P[11];
 
-    CSA_2 csa_p5 (P[4], P[8], sp4);
+    CSA_2 csa_p4 (P[4], P[8], sp4);
     assign soma[4] = sp4;
     CSA_2 csa_p5 (P[5], P[9], sp5);
     assign soma[5] = sp5;
-    CSA_2 csa_p5 (P[6], P[10], sp6);
+    CSA_2 csa_p6 (P[6], P[10], sp6);
     assign soma[6] = sp6;
-    CSA_2 csa_p5 (P[7], P[11], sp7);
+    CSA_2 csa_p7 (P[7], P[11], sp7);
     assign soma[7] = sp7;
 
     assign soma[8] =  - P[4] + P[8];
