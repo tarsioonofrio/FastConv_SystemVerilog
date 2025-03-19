@@ -71,7 +71,7 @@ module conv_rapida
     );
 
 
-    MatrixC1 mult_matrix_d1(
+    MatrixC1 mult_matrix_c1(
         .P(prod_c0),
         .soma(prod_c1)
     );
