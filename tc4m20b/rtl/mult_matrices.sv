@@ -124,5 +124,3 @@ module MatrixS
     CSA_2 csa_p3(P[3], P[7], sp3);
     assign soma[3] = sp3 - P[5];
 endmodule
-
-
