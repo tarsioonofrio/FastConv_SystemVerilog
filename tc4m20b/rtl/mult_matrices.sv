@@ -1,4 +1,4 @@
-module MatrixDelta
+module MatrixC0
    import packConv::*;
     (
       input  param16 P,
@@ -35,7 +35,7 @@ module MatrixDelta
 endmodule
 
 
-module MatrixD
+module MatrixC1
    import packConv::*;
     (
       input  param16 P,
@@ -72,7 +72,7 @@ module MatrixD
 endmodule
 
 
-module MatrixSigma
+module MatrixA1
    import packConv::*;
     (
       input  param16 P,
@@ -103,7 +103,7 @@ module MatrixSigma
 endmodule
 
 
-module MatrixS
+module MatrixA0
    import packConv::*;
     (
       input  param8 P,
