@@ -65,18 +65,18 @@ module conv_rapida
     //
 
     // Instance of matrix multiplier "C"
-    MatrixC0 mult_matrix_c0(
+    MatrixC0 matrix_c0(
         .P(registers), 
         .soma(prod_c0)
     );
 
 
-    MatrixC1 mult_matrix_c1(
+    MatrixC1 matrix_c1(
         .P(registers),
         .soma(prod_c1)
     );
 
-   // 5 multipliers inside this block
+   // 4 multipliers inside this block
     always_comb begin
           unique case (EA)
                 MU1: begin m0= 0; m1= 1; m2= 2; m3= 3; end
@@ -93,12 +93,12 @@ module conv_rapida
 
 
     // Instance of matrix multiplier "A"
-    MatrixA1 mult_matrix_a1 (
+    MatrixA1 matrix_a1 (
         .P(registers), 
         .soma(prod_a1)
     );
 
-    MatrixA0 mult_matrix_a0 (
+    MatrixA0 matrix_a0 (
         .P(registers[0:8]), 
         .soma(prod_a0)
     );
