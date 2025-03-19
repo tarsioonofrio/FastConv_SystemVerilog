@@ -116,7 +116,7 @@ module conv_rapida
                unique case (EA)
                    WR_IFMAP:   registers <= inputMAP;
 
-                   WR_d:      registers <= prodcd0;
+                   WR_d:      registers <= prod_c0;
                    WR_D:      registers <= prod_c1;
 
                    MU1, MU2, MU3, MU4:  begin
