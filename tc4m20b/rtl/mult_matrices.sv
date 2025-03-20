@@ -117,10 +117,10 @@ module MatrixA0
     CSA_3 csa_p0(P[0], P[2], P[4], sp0);
     assign soma[0] = sp0;
     CSA_3 csa_p2(P[1], P[3], P[5], sp2);
-    assign soma[2] = sp2;
+    assign soma[1] = sp2;
 
     CSA_2 csa_p1(P[2], P[6], sp1);
-    assign soma[1] = sp1 - P[4];
+    assign soma[2] = sp1 - P[4];
     CSA_2 csa_p3(P[3], P[7], sp3);
     assign soma[3] = sp3 - P[5];
 endmodule
