@@ -28,7 +28,7 @@ module conv_rapida
 
     logic [4:0] m0, m1, m2, m3;
 
-    typedef enum {IDLE, WR_IFMAP, WR_C0, WR_C1, MU1, MU2, MU3, MU4, WR_A1, WR_OUT} state_type;
+    typedef enum {IDLE, WR_IFMAP, WR_C, MU1, MU2, MU3, MU4, WR_OUT} state_type;
 
     state_type EA, PE;
 
