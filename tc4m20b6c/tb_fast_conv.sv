@@ -8,36 +8,26 @@ module tb;
 
     import packConv::*;
 
-    param16 weight, inputMAP;
-    param4  outputMAP;
+    logic_vector[0:15] weight, inputMAP;
+    logic_vector[0:3] outputMAP;
 
     logic reset, start, data_valid;
     logic clk = 1'b0;
 
     // Quantized weights
-    typedef int window_t[0:15];  // Define the 'window' type as an array of integers
+    // typedef int window_t[0:15];  // Define the 'window' type as an array of integers
 
     // Constants for weights (normalized, multiplied by 256)
-    const window_t weights = '{
+    const int weights[] = '{
       0, -384, -128, -512,
       -1152, 2304, 768, 1920,
       -384, 768, 256, 640,
       -1536, 2688, 896, 2048
-
-      // 0, -1, 0, -2,
-      // -4, 9, 3, 7,
-      // -1, 3, 1, 2,
-      // -6, 10, 3, 8
-
-      // 0,  -256, 0,  -512,
-      // -1024, 2304, 768, 1792,
-      // -256, 768, 256, 512,
-      // -1536, 2560, 768, 2048
     };
 
     // 3 input maps
-    typedef window_t maps_array_t[ ];  // Define the 'maps_array' type
-    const maps_array_t MAPS = '{
+    // typedef window_t maps_array_t[ ];  // Define the 'maps_array' type
+    const int MAPS[][] = '{
         '{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}
     };
 
