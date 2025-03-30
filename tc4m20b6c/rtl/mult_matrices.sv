@@ -1,13 +1,13 @@
 module MatrixC0
    import packConv::*;
     (
-      input  param16 P,
-      output param16 soma
+      input  logic_vector[0:15] P,
+      output logic_vector[0:15] soma
     );
     timeunit 1ns;
     timeprecision 1ps;
 
-    regC sp1, sp5, sp9, sp13;
+    logic_vector sp1, sp5, sp9, sp13;
 
     assign soma[0] =  - P[0] + P[2];
     CSA_2 csa_p1 (P[1], P[2],  sp1);
@@ -38,13 +38,13 @@ endmodule
 module MatrixC1
    import packConv::*;
     (
-      input  param16 P,
-      output param16 soma
+      input  logic_vector[0:15] P,
+      output logic_vector[0:15] soma
     );
     timeunit 1ns;
     timeprecision 1ps;
 
-    regC sp4, sp5, sp6, sp7;
+    logic_vector sp4, sp5, sp6, sp7;
 
     assign soma[0] =  - P[0] + P[8];
     assign soma[1] =  - P[1] + P[9];
@@ -75,13 +75,13 @@ endmodule
 module MatrixA1
    import packConv::*;
     (
-      input  param16 P,
-      output param8 soma
+      input  logic_vector[0:15] P,
+      output logic_vector[0:7] soma
     );
     timeunit 1ns;
     timeprecision 1ps;
 
-    regC sp0, sp2, sp4, sp6, sp1, sp3, sp5, sp7;
+    logic_vector sp0, sp2, sp4, sp6, sp1, sp3, sp5, sp7;
 
     CSA_3 csa_p0(P[0], P[1], P[2], sp0);
     assign soma[0] = sp0;
@@ -106,13 +106,13 @@ endmodule
 module MatrixA0
    import packConv::*;
     (
-      input  param8 P,
-      output param4 soma
+      input  logic_vector[0:7] P,
+      output logic_vector[0:3] soma
     );
     timeunit 1ns;
     timeprecision 1ps;
 
-    regC sp0, sp2, sp1, sp3;
+    logic_vector sp0, sp2, sp1, sp3;
 
     CSA_3 csa_p0(P[0], P[2], P[4], sp0);
     assign soma[0] = sp0;

@@ -4,11 +4,13 @@
 #   - inc1
 #   - inc2
 # list of directories to recursively search for SystemVerilog/Verilog sources
-# source_dirs:
+source_dirs:
+    - rtl
+    - ./
 #   - src
 #   - src2
 # if true, recursively search the working directory for files to run diagnostics on
-# default: true
+default: true
 # auto_search_workdir: true|false,
 auto_search_workdir: true,
 # verible tool configuration
@@ -46,3 +48,4 @@ verilator:
 # set log level
 # default: Info
 # log_level: Error|Warn|Info|Debug|Trace
+log_level: Trace
