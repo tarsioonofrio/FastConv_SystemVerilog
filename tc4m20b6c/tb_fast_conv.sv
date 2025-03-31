@@ -65,9 +65,11 @@ module tb;
 
         // print the expected output
         $display("Time: %0t | Data Valid: %b", $time, data_valid);
-        $display("OutputMAP Values:");
         for (int k = 0; k < 4; k = k + 1) begin
-          $display("outputMAP[%0d] = %d", k, $signed(outputMAP[k]), $signed(const_feature_out[j][k]), "\t", $signed(outputMAP[k]) == $signed(const_feature_out[j][k][19:0]));
+          if ($signed(outputMAP[k]) != $signed(const_feature_out[j][k][19:0])) begin
+            $display("OutputMAP Values Error:");
+            $display("outputMAP[%0d] = %d", k, $signed(outputMAP[k]), $signed(const_feature_out[j][k]));
+          end
         end
 
         #100;  // Wait for 100 ns
