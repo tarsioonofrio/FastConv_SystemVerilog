@@ -1,3 +1,4 @@
+DATA = data.sv
 SRCDIR = rtl
 SRC = $(SRCDIR)/pack_conv.sv $(SRCDIR)/csa_lib.sv  $(SRCDIR)/mult_matrices.sv  $(SRCDIR)/fast_conv.sv 
       
@@ -14,12 +15,12 @@ VERILATOR = verilator --trace --binary --exe --top-module $(TOP_MODULE)
 all: $(BIN)
 
 # Regra para compilar e gerar o binário, se algum dos arquivos fonte foi modificado
-$(BIN): $(SRC) $(TB)
-	$(VERILATOR) $(SRC) $(TB) --build
+$(BIN): $(DATA) $(SRC) $(TB)
+	$(VERILATOR) $(DATA) $(SRC) $(TB) --build
 
 # Regra de Lint para verificar erros e warnings sem compilar
 lint:
-	verilator  --timing --lint-only $(SRC) $(TB)
+	verilator  --timing --lint-only $(DATA) $(SRC) $(TB)
 
 # Limpeza dos arquivos gerados
 clean:
