@@ -18,7 +18,7 @@ module tb;
 
   // Instantiate conv_rapida entity
   conv_rapida #(
-    .QUANT(8)
+    .QUANT(QUANT_BITS)
   ) convolucao (
     .clk(clk),
     .reset(reset),
@@ -49,12 +49,12 @@ module tb;
 
     // Convert const_weight
     for (i = 0; i < 16; i++) begin
-      assign weight[i] = (NBITS)'($signed(const_weight[i]));
+      assign weight[i] = (NBITS)'($signed(const_weight[0][i]));
     end
 
     // Loop de simulação
-    for (j = 0; j <=  const_feature_in.size()-1; j++) begin
-        for (k = 0; k < 16; k++) begin
+    for (j = 0; j < const_feature_in.size(); j++) begin
+        for (k = 0; k < const_feature_in[j].size(); k++) begin
               inputMAP[k] = (NBITS)'($signed(const_feature_in[j][k]));
         end
 
