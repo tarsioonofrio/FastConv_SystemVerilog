@@ -1,4 +1,4 @@
-DATA = data.sv
+DATA = data/file-quant/data.sv
 SRCDIR = rtl
 SRC = $(SRCDIR)/pack_conv.sv $(SRCDIR)/csa_lib.sv  $(SRCDIR)/mult_matrices.sv  $(SRCDIR)/fast_conv.sv 
       
