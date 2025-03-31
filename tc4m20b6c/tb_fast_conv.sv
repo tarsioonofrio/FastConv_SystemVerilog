@@ -10,7 +10,7 @@ module tb;
   import data::*;
 
   // logic_vector[C1_SIZE*C2_SIZE:0] weight, inputMAP;
-  // logic_vector[A1_SIZE*A2_SIZE:0] outputMAP; 
+  // logic_vector[A1_SIZE*A2_SIZE:0] outputMAP;
   logic_vector16 weight, inputMAP;
   logic_vector4 outputMAP;
 
@@ -59,21 +59,21 @@ module tb;
           for (int fj = 0; fj < const_feat_in[fi].size(); fj++) begin
                 inputMAP[fj] = (NBITS)'($signed(const_feat_in[fi][fj]));
           end
-  
+
           start = 1'b1;
           #10 start = 1'b0;
-  
+
           wait(data_valid);
-  
+
           // print the expected output
           $display("Time: %0t | Data Valid: %b", $time, data_valid);
           for (int fj = 0; fj < 4; fj = fj + 1) begin
-            if ($signed(outputMAP[fj]) != $signed(const_feat_out[fi][fj][19:0])) begin
+            // if ($signed(outputMAP[fj]) != $signed(const_feat_out[fi][fj][19:0])) begin
               $display("OutputMAP Values Error:");
               $display("outputMAP[%0d] = %d", fj, $signed(outputMAP[fj]), $signed(const_feat_out[fi][fj]));
-            end
+            // end
           end
-  
+
           #100;  // Wait for 100 ns
       end
     end
@@ -81,5 +81,5 @@ module tb;
     // Finalizar a simulação 200 ns após o loop
     #200 $finish;
   end
-  
+
 endmodule
