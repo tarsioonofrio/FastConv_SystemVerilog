@@ -2,6 +2,7 @@
 // FERNANDO MORAES                                             October/2024
 //-------------------------------------------------------------------------
 package packConv;
+  import data::*;
 
   timeunit 1ns;
   timeprecision 1ps;
@@ -12,9 +13,9 @@ package packConv;
   typedef logic [NBITS-1:0] logic_vector;
 
   // definitions for matrix multiplications
-  typedef logic_vector[16:0] logic_vector16;  // array with 16 parameters
-  typedef logic_vector[08:0] logic_vector8;     // array with  8 parameters
-  typedef logic_vector[04:0] logic_vector4;     // array with  4 parameters
+  typedef logic_vector[C1_SIZE*C1_SIZE:0] logic_vector16;  // array with 16 parameters
+  typedef logic_vector[A1_SIZE*A1_SIZE:0] logic_vector4;     // array with  4 parameters
+  typedef logic_vector[A1_SIZE*C1_SIZE:0] logic_vector8;     // array with  8 parameters
 
   // definitions for the CSA adders
   typedef logic_vector[1:0] two_words   ;
