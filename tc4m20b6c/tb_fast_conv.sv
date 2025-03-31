@@ -9,6 +9,8 @@ module tb;
   import packConv::*;
   import data::*;
 
+  // logic_vector[C1_SIZE*C2_SIZE:0] weight, inputMAP;
+  // logic_vector[A1_SIZE*A2_SIZE:0] outputMAP; 
   logic_vector16 weight, inputMAP;
   logic_vector4 outputMAP;
 
