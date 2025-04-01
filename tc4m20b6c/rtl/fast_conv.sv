@@ -8,19 +8,20 @@
 module conv_rapida
      import packConv::*;
  #(
-    parameter int QUANT = 8 
-  ) 
-  ( input  logic   clk, reset, start,
-    input  logic_vector16 inputMAP,   
-    input  logic_vector16 weights,    
+    parameter int QUANT = 8
+  )
+  (
+    input  logic   clk, reset, start,
+    input  logic_vector16 inputMAP,
+    input  logic_vector16 weights,
     output logic_vector4  outputMAP,
-    output logic   data_valid   
+    output logic   data_valid
  );
 
-   timeunit 1ns;
-   timeprecision 1ps;
+  timeunit 1ns;
+  timeprecision 1ps;
 
-    logic_vector16 registers, prod_c0, prod_c1; 
+    logic_vector16 registers, prod_c0, prod_c1;
     logic_vector8 prod_a1;
     logic_vector4 prod_a0;
 

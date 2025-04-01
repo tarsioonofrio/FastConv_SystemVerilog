@@ -6,16 +6,20 @@ package packConv;
 
   timeunit 1ns;
   timeprecision 1ps;
-  
+
 
   parameter int NBITS = 20;   // 32 bits generate too large hardware!!
 
   typedef logic [NBITS-1:0] logic_vector;
 
   // definitions for matrix multiplications
-  typedef logic_vector[C1_SIZE*C1_SIZE:0] logic_vector16;  // array with 16 parameters
-  typedef logic_vector[A1_SIZE*A1_SIZE:0] logic_vector4;     // array with  4 parameters
-  typedef logic_vector[A1_SIZE*C1_SIZE:0] logic_vector8;     // array with  8 parameters
+  typedef logic_vector logic_vector16 [0:C1_SIZE*C1_SIZE];  // array with 16 parameters
+  typedef logic_vector logic_vector4  [0:A1_SIZE*A1_SIZE] ;     // array with  4 parameters
+  typedef logic_vector logic_vector8  [0:A1_SIZE*C1_SIZE] ;     // array with  8 parameters
+
+  // typedef logic_vector logic_vector16 [0:16];  // array with 16 parameters
+  // typedef logic_vector logic_vector4  [0:4] ;     // array with  4 parameters
+  // typedef logic_vector logic_vector8  [0:8] ;     // array with  8 parameters
 
   // definitions for the CSA adders
   typedef logic_vector[1:0] two_words   ;
