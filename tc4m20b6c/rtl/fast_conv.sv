@@ -122,7 +122,7 @@ module conv_rapida
         end
 
         WR_OUT: data_valid <= 1;
-    endcase
+      endcase
     end
   end
 
