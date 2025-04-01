@@ -30,8 +30,8 @@ module MatrixC0
     assign soma[12] =  - P[12] + P[14];
     CSA_2 csa_p13(P[13], P[14], sp13);
     assign soma[13] =  sp13;
-    assign soma[14] =  P[10] - P[9];
-    assign soma[15] =  P[11] - P[9];
+    assign soma[14] =  - P[13] + P[14];
+    assign soma[15] =  - P[13] + P[15];
 endmodule
 
 
