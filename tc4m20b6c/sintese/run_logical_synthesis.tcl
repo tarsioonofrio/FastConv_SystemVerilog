@@ -52,7 +52,7 @@ puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 puts "Load hdl files"
 puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 
-	read_hdl -sv "../rtl/pack_conv.sv ../rtl/csa_lib.sv ../rtl/mult_matrices.sv ../rtl/fast_conv.sv" ${DATA_SV}
+	read_hdl -sv ${DATA_SV} "../rtl/pack_conv.sv ../rtl/csa_lib.sv ../rtl/mult_matrices.sv ../rtl/fast_conv.sv"
 	
 
 
