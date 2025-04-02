@@ -3,7 +3,7 @@
 ###############################################################################
 
 set DATA_SV $::env(DATA_SV)
-set OUT_FILES $::env(OUT_FILES)/results/
+set OUT_FILES [file dirname $DATA_SV]/synth-results/
 
 
 set TOP_MODULE conv_rapida
