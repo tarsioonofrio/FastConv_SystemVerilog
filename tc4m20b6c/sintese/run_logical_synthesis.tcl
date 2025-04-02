@@ -1,8 +1,12 @@
 ###############################################################################
 # TOP 
 ###############################################################################
-set TOP_MODULE conv_rapida
 
+set DATA_SV $::env(DATA_SV)
+set OUT_FILES $::env(OUT_FILES)/results/
+
+
+set TOP_MODULE conv_rapida
 
 puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 puts "Load the pdk using MMMC"
@@ -48,7 +52,7 @@ puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 puts "Load hdl files"
 puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 
-	read_hdl -sv "../rtl/pack_conv.sv ../rtl/csa_lib.sv ../rtl/mult_matrices.sv ../rtl/fast_conv.sv"
+	read_hdl -sv "../rtl/pack_conv.sv ../rtl/csa_lib.sv ../rtl/mult_matrices.sv ../rtl/fast_conv.sv" ${DATA_SV}
 	
 
 
@@ -77,7 +81,6 @@ puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 puts "Write Reports"
 puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 
-    set OUT_FILES ./results
 
 	# Reports clock-gating information for the design
 	report_clock_gating > ${OUT_FILES}/reports/${TOP_MODULE}_clock_gating.rpt
