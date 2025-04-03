@@ -32,7 +32,7 @@ module tb;
   );
 
   // Clock generation - 10 ns
-  always #5 clk = ~clk;
+  always #1 clk = ~clk;
 
   // Test process to iterate over the input maps
   initial begin
@@ -49,14 +49,14 @@ module tb;
     #5 reset = 0;  // Liberar o reset após 5 ns
 
     // Convert const_weight
-    for (int wi = 0; wi < const_weight.size(); wi++) begin
-      for (int wj = 0; wj < const_weight[0].size(); wj++) begin
+    for (int wi = 0; wi < W1_SIZE; wi++) begin
+      for (int wj = 0; wj < W2_SIZE; wj++) begin
         assign weight[wj] = (NBITS)'($signed(const_weight[wi][wj]));
       end
 
       // Loop de simulação
-      for (int fi = 0; fi < const_feat_in.size(); fi++) begin
-          for (int fj = 0; fj < const_feat_in[fi].size(); fj++) begin
+      for (int fi = 0; fi < FIN1_SIZE; fi++) begin
+          for (int fj = 0; fj < FIN2_SIZE; fj++) begin
             inputMAP[fj] = (NBITS)'($signed(const_feat_in[fi][fj]));
           end
 
@@ -66,7 +66,7 @@ module tb;
           wait(data_valid);
 
           $display("Time: %0t | Data Valid: %b", $time, data_valid);
-          for (int fj = 0; fj < 4; fj = fj + 1) begin
+          for (int fj = 0; fj < FOUT2_SIZE; fj = fj + 1) begin
             if ($signed(outputMAP[fj]) != $signed(const_feat_out[fi][fj][19:0])) begin
               $display("Time: %0t | Data Valid: %b", $time, data_valid);
               $display(

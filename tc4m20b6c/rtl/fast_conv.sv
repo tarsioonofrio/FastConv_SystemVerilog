@@ -92,13 +92,13 @@ module conv_rapida
 
   // Instance of matrix multiplier "A"
   MatrixA1 matrix_a1 (
-      .P(registers),
-      .soma(prod_a1)
+    .P(registers),
+    .soma(prod_a1)
   );
 
   MatrixA0 matrix_a0 (
-      .P(prod_a1),
-      .soma(prod_a0)
+    .P(prod_a1),
+    .soma(prod_a0)
   );
 
   // Internal register bank to store intermediate results
