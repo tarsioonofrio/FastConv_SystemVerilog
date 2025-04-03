@@ -2,8 +2,10 @@
 # TOP 
 ###############################################################################
 
-set DATA_SV $::env(DATA_SV)
-set OUT_FILES [file dirname $DATA_SV]/synth-results/
+# set DATA_SV $::env(DATA_SV)
+# set OUT_FILES [file dirname $DATA_SV]/synth-results/
+
+set OUT_FILES results/
 
 
 set TOP_MODULE conv_rapida
@@ -52,7 +54,7 @@ puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 puts "Load hdl files"
 puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 
-	read_hdl -sv ${DATA_SV} "../rtl/pack_conv.sv ../rtl/csa_lib.sv ../rtl/mult_matrices.sv ../rtl/fast_conv.sv"
+	read_hdl -sv "./data.sv ../rtl/pack_conv.sv ../rtl/csa_lib.sv ../rtl/mult_matrices.sv ../rtl/fast_conv.sv"
 	
 
 
