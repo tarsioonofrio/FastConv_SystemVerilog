@@ -8,8 +8,8 @@
 module MatrixA
    import packConv::*;
     (
-      input  param36 P,
-      output param9 soma
+      input  logic_vector36 P,
+      output logic_vector9 soma
     );
 
   timeunit 1ns;
@@ -42,15 +42,15 @@ endmodule
 module MatrixC
    import packConv::*;
     (
-      input  param36 P,
-      output param36 soma
+      input  logic_vector36 P,
+      output logic_vector36 soma
     );
 
   timeunit 1ns;
   timeprecision 1ps;
   
 
-      param36 cp, cn;
+      logic_vector36 cp, cn;
 
 
         CSA_5 sp0 (P[0], P[6], P[7], P[11], P[12],  cp[0]);
