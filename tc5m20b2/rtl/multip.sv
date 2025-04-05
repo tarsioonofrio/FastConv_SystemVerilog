@@ -9,9 +9,9 @@ module mult_iterate
 (   input logic clk,
     input logic reset,
     input mul_states state,
-    input param25 A,
-    input param25 B,
-    output param25 P
+    input logic_vector25 A,
+    input logic_vector25 B,
+    output logic_vector25 P
 ); 
   timeunit 1ns;
   timeprecision 1ps;

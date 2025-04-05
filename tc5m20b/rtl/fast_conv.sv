@@ -11,17 +11,17 @@ module conv_rapida
     parameter int QUANT = 8 
   ) 
   ( input  logic   clk, reset, start,
-    input  param25 inputMAP,   
-    input  param25 weights,    
-    output param9  outputMAP,
+    input  logic_vector25 inputMAP,   
+    input  logic_vector25 weights,    
+    output logic_vector9  outputMAP,
     output logic   data_valid   
  );
 
    timeunit 1ns;
    timeprecision 1ps;
 
-    param25 registers, prodCSA1; 
-    param9 prodCSA2; 
+    logic_vector25 registers, prodCSA1; 
+    logic_vector9 prodCSA2; 
 
     logic signed [NBITS-1+QUANT:0] partial_product [0:4];   // QUANT more bits for the multipliers
 
