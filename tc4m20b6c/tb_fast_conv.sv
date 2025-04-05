@@ -42,7 +42,7 @@ module tb;
     $dumpvars(0, tb);
 
     // Monitor para debug
-    $monitor("** Time: %0t | start: %b | data_valid: %b", $time, start, data_valid);
+    // $monitor("** Time: %0t | start: %b | data_valid: %b", $time, start, data_valid);
 
     //clk = 0;
     reset = 1;
@@ -65,7 +65,7 @@ module tb;
 
           wait(data_valid);
 
-          $display("Time: %0t | Data Valid: %b", $time, data_valid);
+          // $display("Time: %0t | Data Valid: %b", $time, data_valid);
           for (int fj = 0; fj < FOUT2_SIZE; fj = fj + 1) begin
             if ($signed(outputMAP[fj]) != $signed(const_feat_out[fi][fj][19:0])) begin
               $display("Time: %0t | Data Valid: %b", $time, data_valid);
@@ -82,6 +82,15 @@ module tb;
 
     // Finalizar a simulação 200 ns após o loop
     #200 $finish;
+  end
+
+
+  final begin
+    integer log_f;
+    log_f = $fopen("sim_summary.txt", "w");
+    $fdisplay(log_f, "time");
+    $fdisplay(log_f, "%0t", $time);
+    $fclose(log_f);
   end
 
 endmodule

@@ -1,4 +1,5 @@
-DATA = data.sv
+DATA ?= data.sv
+FOLDER := $(dir $(DATA))
 # DATA = data.sv
 SRCDIR = rtl
 SRC = $(SRCDIR)/pack_conv.sv $(SRCDIR)/csa_lib.sv  $(SRCDIR)/mult_matrices.sv  $(SRCDIR)/fast_conv.sv 
@@ -30,6 +31,7 @@ clean:
 # Alvo de execução
 run: all
 	$(BIN)
+	mv sim_summary.txt $(FOLDER)
 
 # Alvo de execução com GTKWave
 view: run
