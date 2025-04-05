@@ -8,17 +8,17 @@
 module conv_standard
      import packConv::*;
   ( input  logic   clk, reset, start,
-    input  param25 inputMAP,   
-    input  param9  weights,    
-    output param9  outputMAP,
+    input  logic_vector25 inputMAP,   
+    input  logic_vector9  weights,    
+    output logic_vector9  outputMAP,
     output logic   data_valid   
  );
 
    timeunit 1ns;
    timeprecision 1ps;
 
-    param9  inputs9; 
-    regC prod;
+    logic_vector9  inputs9; 
+    logic_vector prod;
     logic [4:0] cont_conv, row, col, cont_state;   // 5 bits is enough
     logic start_mac, done_mac;
 
