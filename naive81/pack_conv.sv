@@ -10,17 +10,17 @@ package packConv;
 
     parameter int NBITS = 20;   // 32 bits generate too large hardware!!
 
-    typedef logic [NBITS-1:0] regC;
+    typedef logic [NBITS-1:0] logic_vector;
 
     // definitions for matrix multiplications
-    typedef regC param25 [0:24];  // array with 25 parameters
-    typedef regC param9  [0:8];   // array with  9 parameters
+    typedef logic_vector logic_vector25 [0:24];  // array with 25 parameters
+    typedef logic_vector logic_vector9  [0:8];   // array with  9 parameters
   
     // definitions for the CSA adders
-    typedef regC two_words  [1:0];
-    typedef regC four_words [3:0];
-    typedef regC six_words  [5:0];
-    typedef regC ten_words  [9:0];
+    typedef logic_vector two_words  [1:0];
+    typedef logic_vector four_words [3:0];
+    typedef logic_vector six_words  [5:0];
+    typedef logic_vector ten_words  [9:0];
   
     // constants to control the multipliers
     typedef enum logic [1:0] {

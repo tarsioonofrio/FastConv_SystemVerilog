@@ -57,9 +57,9 @@ endmodule
 module macoperation
      import packConv::*;
 (
-    input param9 inputs9,  
-    input param9 weights9, 
-    output regC  P,            
+    input logic_vector9 inputs9,  
+    input logic_vector9 weights9, 
+    output logic_vector  P,            
     input logic clk,  
     input logic reset,
     input logic start,
@@ -68,7 +68,7 @@ module macoperation
   timeunit 1ns;
   timeprecision 1ps;
   
-  param9 prod;  ////// 9 truncaded multiplierss
+  logic_vector9 prod;  ////// 9 truncaded multiplierss
   
   typedef enum {IDLE, DONE} state;
   state EA, PE;
