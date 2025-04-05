@@ -11,17 +11,17 @@ module conv_rapida
     parameter int QUANT = 8 
   ) 
   ( input  logic   clk, reset, start,
-    input  param25 inputMAP,   
-    input  param25 weights,    
-    output param9  outputMAP,
+    input  logic_vector25 inputMAP,   
+    input  logic_vector25 weights,    
+    output logic_vector9  outputMAP,
     output logic   data_valid   
  );
 
    timeunit 1ns;
    timeprecision 1ps;
 
-    param25 registers, prodCSA1, produto; 
-    param9 prodCSA2; 
+    logic_vector25 registers, prodCSA1, produto; 
+    logic_vector9 prodCSA2; 
 
     typedef enum {IDLE, WR_IFMAP, WR_MC, MMU1, MMU2, MMU3, MMU4, MMU5, WR_MU, WR_OUT} state_type;
     state_type EA, PE;

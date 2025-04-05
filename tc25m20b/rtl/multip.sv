@@ -9,9 +9,9 @@ module mult_iterate
 (   input logic clk,
     input logic reset,
     input mul_states state,
-    input regC A,
-    input regC B,
-    output regC P
+    input logic_vector A,
+    input logic_vector B,
+    output logic_vector P
 ); 
   timeunit 1ns;
   timeprecision 1ps;
@@ -19,7 +19,7 @@ module mult_iterate
                                               
     logic signed [NBITS/2:0] opA, opB;     // half word operators (one extra bit)
     logic signed [NBITS+1+QUANT:0] partial_product; 
-    regC result; 
+    logic_vector result; 
 
     always_ff @(posedge clk or posedge reset) begin
         if (reset) begin

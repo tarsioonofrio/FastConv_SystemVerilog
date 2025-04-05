@@ -8,8 +8,8 @@ module tb;
 
     import packConv::*;
 
-    param25 weight, inputMAP;   
-    param9  outputMAP;
+    logic_vector25 weight, inputMAP;   
+    logic_vector9  outputMAP;
 
     logic reset, start, data_valid;
     logic clk = 1'b0;
