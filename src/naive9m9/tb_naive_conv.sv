@@ -3,103 +3,92 @@
 // -------------------------------------------------------------------------
 module tb;
 
-   timeunit 1ns;
-   timeprecision 1ps;
+  timeunit 1ns;
+  timeprecision 1ps;
 
-    import packConv::*;
+  import packConv::*;
+  import data::*;
 
-    logic_vector25 inputMAP;   
-    logic_vector9  weight, outputMAP;
+  // logic_vector[C1_SIZE*C2_SIZE:0] weight, inputMAP;
+  // logic_vector[A1_SIZE*A2_SIZE:0] outputMAP;
+  logic_vector25 inputMAP;
+  logic_vector9 weight, outputMAP;
 
-    logic reset, start, data_valid;
-    logic clk = 1'b0;
+  logic reset, start, data_valid;
+  logic clk = 1'b0;
 
-    // Quantized weights
-    typedef int window_t[0:24];  // Define the 'window' type as an array of integers
 
-    // weights 
-    const int weights [0:8]  = '{         //  3x3 window with the weights
-        0, 1, 2, 3, 4, 5, 6, 7, 8
-    };
+  // Instantiate conv_rapida entity
+  conv_standard conv_naive (
+    .clk(clk),
+    .reset(reset),
+    .start(start),
+    .inputMAP(inputMAP),
+    .weights(weight),
+    .outputMAP(outputMAP),
+    .data_valid(data_valid)
+  );
 
-    // 3 input maps
-    typedef window_t maps_array_t[ ];  // Define the 'maps_array' type
-    const maps_array_t MAPS = '{
-        '{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24},
-        '{9, 77, 56, -32, 4, 5, 6, 75, 8, 9, 10, 11, -10, -8, 14, 15, -20, 17, 18, 19, -44, 21, 22, 23, 122},
-        '{18, 23, -45, -77, 21, 12, 63, 33, 90, -34, 23, 43, -56, -78, -16, 345, 46, -243, 101, -17, -34, -32, 33, -41, 201},
-        '{100, -200, 300, -400, 500, 600, -700, 800, -900, 1000, 1100, -1200, 1300, -1400, 1500, 1600, -1700, 1800, -1900, 2000, 2100, -2200, 2300, -2400, 2500}
-    };
+  // Clock generation - 10 ns
+  always #1 clk = ~clk;
 
-   
-    // Instantiate conv_rapida entity
-    conv_standard conv_naive (
-        .clk(clk),
-        .reset(reset),
-        .start(start),
-        .inputMAP(inputMAP), 
-        .weights(weight), 
-        .outputMAP(outputMAP),
-        .data_valid(data_valid)
-    );
+  // Test process to iterate over the input maps
+  initial begin
 
-    // print the expected output
-    always @(posedge clk) begin
-        if (data_valid) begin
-            // Loop para imprimir os valores de outputMAP
-            $display("Time: %0t | Data Valid: %b", $time, data_valid);
-            $display("OutputMAP Values:");
-            for (int i = 0; i < 9; i = i + 1) begin
-                $display("outputMAP[%0d] = %d", i, ($signed(outputMAP[i])) );
+    // Configurações iniciais
+    $dumpfile("dump.vcd");  // Arquivo VCD para waveform
+    $dumpvars(0, tb);
+
+    // Monitor para debug
+    // $monitor("** Time: %0t | start: %b | data_valid: %b", $time, start, data_valid);
+
+    //clk = 0;
+    reset = 1;
+    #5 reset = 0;  // Liberar o reset após 5 ns
+
+    // Convert const_weight
+    for (int wi = 0; wi < W1_SIZE; wi++) begin
+      for (int wj = 0; wj < W2_SIZE; wj++) begin
+        assign weight[wj] = (NBITS)'($signed(const_weight[wi][wj]));
+      end
+
+      // Loop de simulação
+      for (int fi = 0; fi < FIN1_SIZE; fi++) begin
+          for (int fj = 0; fj < FIN2_SIZE; fj++) begin
+            inputMAP[fj] = (NBITS)'($signed(const_feat_in[fi][fj]));
+          end
+
+          start = 1'b1;
+          #10 start = 1'b0;
+
+          wait(data_valid);
+
+          // $display("Time: %0t | Data Valid: %b", $time, data_valid);
+          for (int fj = 0; fj < FOUT2_SIZE; fj = fj + 1) begin
+            if ($signed(outputMAP[fj]) != $signed(const_feat_out[fi][fj][19:0])) begin
+              $display("Time: %0t | Data Valid: %b", $time, data_valid);
+              $display(
+                "Values Error: outputMAP[%0d] = %d", fj, $signed(outputMAP[fj]),
+                $signed(const_feat_out[fi][fj])
+                );
             end
-        end
+          end
+
+          #100;  // Wait for 100 ns
+      end
     end
 
+    // Finalizar a simulação 200 ns após o loop
+    #200 $finish;
+  end
 
-    // Clock generation - 10 ns
-    always #5 clk = ~clk;
 
-    // Convert weights 
-    genvar i;
-    generate
-        for (i = 0; i <= 8; i++) begin 
-            assign weight[i] = (NBITS)'($signed(weights[i]));  
-        end
-    endgenerate;
-
-    // Test process to iterate over the input maps
-    initial begin
-        integer j, k;
-    
-        // Configurações iniciais
-        $dumpfile("dump.vcd");  // Arquivo VCD para waveform
-        $dumpvars(0, tb);
-
-        // Monitor para debug
-        $monitor("Time: %0t | start: %b | data_valid: %b  j:%0d", $time, start, data_valid, j);
-
-        //clk = 0;
-        reset = 1;
-        #5 reset = 0;  // Liberar o reset após 5 ns
-    
-        // Loop de simulação
-        for (j = 0; j <=  MAPS.size()-1; j++) begin  
-            for (k = 0; k <= 24; k++) begin      
-                 inputMAP[k] = (NBITS)'($signed(MAPS[j][k]));  
-            end
-            
-            start = 1'b1;
-            #10 start = 1'b0;
-            
-            wait(data_valid);
-
-            #100;  // Wait for 100 ns
-        end
-    
-        // Finalizar a simulação 200 ns após o loop
-        #200 $finish;
-    end
-
+  final begin
+    integer log_f;
+    log_f = $fopen("sim_summary.txt", "w");
+    $fdisplay(log_f, "time");
+    $fdisplay(log_f, "%0t", $time);
+    $fclose(log_f);
+  end
 
 endmodule
-
