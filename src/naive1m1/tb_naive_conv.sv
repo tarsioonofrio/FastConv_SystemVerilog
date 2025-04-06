@@ -7,8 +7,10 @@ module tb;
    timeprecision 1ps;
 
     import packConv::*;
+    import data::*;
 
-    logic_vector25 inputMAP;   
+
+    logic_vector25 inputMAP;
     logic_vector9  weight, outputMAP;
 
     logic reset, start, data_valid;
@@ -17,7 +19,7 @@ module tb;
     // Quantized weights
     typedef int window_t[0:24];  // Define the 'window' type as an array of integers
 
-    // weights 
+    // weights
     const int weights [0:8]  = '{         //  3x3 window with the weights
         0, 1, 2, 3, 4, 5, 6, 7, 8
     };
@@ -31,14 +33,14 @@ module tb;
         '{100, -200, 300, -400, 500, 600, -700, 800, -900, 1000, 1100, -1200, 1300, -1400, 1500, 1600, -1700, 1800, -1900, 2000, 2100, -2200, 2300, -2400, 2500}
     };
 
-   
+
     // Instantiate conv_rapida entity
     conv_standard conv_naive (
         .clk(clk),
         .reset(reset),
         .start(start),
-        .inputMAP(inputMAP), 
-        .weights(weight), 
+        .inputMAP(inputMAP),
+        .weights(weight),
         .outputMAP(outputMAP),
         .data_valid(data_valid)
     );
@@ -59,18 +61,18 @@ module tb;
     // Clock generation - 10 ns
     always #5 clk = ~clk;
 
-    // Convert weights 
+    // Convert weights
     genvar i;
     generate
-        for (i = 0; i <= 8; i++) begin 
-            assign weight[i] = (NBITS)'($signed(weights[i]));  
+        for (i = 0; i < 9; i++) begin
+            assign weight[i] = (NBITS)'($signed(const_weight[0][i]));
         end
     endgenerate;
 
     // Test process to iterate over the input maps
     initial begin
         integer j, k;
-    
+
         // Configurações iniciais
         $dumpfile("dump.vcd");  // Arquivo VCD para waveform
         $dumpvars(0, tb);
@@ -81,25 +83,24 @@ module tb;
         //clk = 0;
         reset = 1;
         #5 reset = 0;  // Liberar o reset após 5 ns
-    
+
         // Loop de simulação
-        for (j = 0; j <=  MAPS.size()-1; j++) begin  
-            for (k = 0; k <= 24; k++) begin      
-                 inputMAP[k] = (NBITS)'($signed(MAPS[j][k]));  
+        for (j = 0; j <  9; j++) begin
+            for (k = 0; k < 25; k++) begin
+                 inputMAP[k] = (NBITS)'($signed(const_feat_in[j][k]));
             end
-            
+
             start = 1'b1;
             #10 start = 1'b0;
-            
+
             wait(data_valid);
 
             #100;  // Wait for 100 ns
         end
-    
+
         // Finalizar a simulação 200 ns após o loop
         #200 $finish;
     end
 
 
 endmodule
-

@@ -1,5 +1,8 @@
+DATA ?= data.sv
+FOLDER := $(dir $(DATA))
+# DATA = data.sv
 SRCDIR = .
-SRC = $(SRCDIR)/pack_conv.sv $(SRCDIR)/mac_op.sv $(SRCDIR)/naive_conv.sv
+SRC = $(DATA) $(SRCDIR)/pack_conv.sv $(SRCDIR)/mac_op.sv $(SRCDIR)/naive_conv.sv
 
 TB = tb_naive_conv.sv
 TOP_MODULE = tb
