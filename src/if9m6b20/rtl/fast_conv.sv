@@ -32,7 +32,7 @@ module conv_rapida
     state_type EA, PE;
 
     //
-    // Control FSM
+    // Control FSM 
     //
     always_ff @(posedge clk or posedge reset) begin
         if (reset) begin

@@ -11,9 +11,9 @@ package packConv;
     typedef logic [NBITS-1:0] logic_vector;
 
     // definitions for matrix multiplications
-    typedef logic_vector [35:0] logic_vector36;   
-    typedef logic_vector [24:0] logic_vector25 ;  
-    typedef logic_vector [8:0] logic_vector9;  
+    typedef logic_vector logic_vector36 [35:0];   
+    typedef logic_vector logic_vector25 [24:0];  
+    typedef logic_vector logic_vector9  [8:0];  
   
     // definitions for the CSA adders
     typedef logic_vector [1:0] two_words;
