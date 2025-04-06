@@ -1,4 +1,4 @@
 # FastConv_SystemVerilog
 
 ## TODO
-- Input feature map must in data.sv be not quantized.
+- Input feature map in data.sv must be not quantized.
