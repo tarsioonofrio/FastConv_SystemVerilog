@@ -8,15 +8,15 @@
 module MatrixA
    import packConv::*;
     (
-      input  logic_vector25 P,
-      output logic_vector9 soma
+      input  type_input P,
+      output type_output soma
     );
 
   timeunit 1ns;
   timeprecision 1ps;
   
 
-      logic_vector25 ap, an;
+      type_input ap, an;
       logic_vector  s1P3, s2P3, s1P8, s2P8, s1P13, s2P13, s1P15, s2P15, s1P16, s2P16, s1P17, s2P17, s1P18, s2P18, s3P18, s4P18, s1P19, s2P19, s1P23, s2P23;
 
       always_comb begin
@@ -83,15 +83,15 @@ endmodule
 module MatrixC
    import packConv::*;
     (
-      input  logic_vector25 P,
-      output logic_vector25 soma
+      input  type_input P,
+      output type_input soma
     );
 
   timeunit 1ns;
   timeprecision 1ps;
   
 
-      logic_vector25 cp, cn;
+      type_input cp, cn;
       logic_vector  s2P0, s1P1, s2P1, s1P2, s2P2, s1P3, s2P3, s1P4, s1P5, s2P5, s1P6, s2P6, s1P7, s2P7, s1P8, s2P8, s1P9, s1P10, s2P10, s1P11, s2P11, s1P12, s2P12, s3P12, s1P13, s2P13, s1P14, s1P15, s2P15, s1P16, s2P16, s1P17, s2P17, s1P18, s2P18, s1P19, s1P20, s1P21, s1P22, s1P23;
 
       always_comb begin

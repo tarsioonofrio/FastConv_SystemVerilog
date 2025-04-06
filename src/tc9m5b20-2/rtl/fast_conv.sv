@@ -3,25 +3,27 @@
 //-------------------------------------------------------------------------
 
 //-------------------------------------------------------------------------
-// FAST CONVOLUTION 
+// FAST CONVOLUTION
 //-------------------------------------------------------------------------
 module conv_rapida
      import packConv::*;
  #(
-    parameter int QUANT = 8 
-  ) 
+    parameter int QUANT = 8
+  )
   ( input  logic   clk, reset, start,
-    input  logic_vector25 inputMAP,   
-    input  logic_vector25 weights,    
-    output logic_vector9  outputMAP,
-    output logic   data_valid   
+    input  type_input inputMAP,
+    input  type_weight weights,
+    output type_output outputMAP,
+    output logic   data_valid
  );
 
    timeunit 1ns;
    timeprecision 1ps;
 
-    logic_vector25 registers, prodCSA1, produto; 
-    logic_vector9 prodCSA2; 
+   type_input registers;
+   type_input prodCSA1;
+   type_input produto;
+   type_output prodCSA2;
 
     typedef enum {IDLE, WR_IFMAP, WR_MC, MMU1, MMU2, MMU3, MMU4, MMU5, WR_MU, WR_OUT} state_type;
     state_type EA, PE;
@@ -47,17 +49,17 @@ module conv_rapida
             WR_IFMAP:  PE = WR_MC;
             WR_MC:     PE = MMU1;
 
-            // four state multiplier           
-            MMU1:     PE = MMU2;    
+            // four state multiplier
+            MMU1:     PE = MMU2;
             MMU2:     PE = MMU3;
-            MMU3:     PE = MMU4; 
+            MMU3:     PE = MMU4;
             MMU4:     PE = MMU5;
             MMU5:     PE = WR_MU;
 
             // store de multiplication resulta
             WR_MU:     PE = WR_OUT;
 
-            //MMMA:      PE = WR_OUT; 
+            //MMMA:      PE = WR_OUT;
             WR_OUT:    PE = IDLE;
         endcase
     end
@@ -68,19 +70,19 @@ module conv_rapida
 
     // Instance of matrix multiplier "C"
     MatrixC mult_matrix_C(
-        .P(registers), 
+        .P(registers),
         .soma(prodCSA1)
     );
 
 
    // 5 multipliers inside this block
     mult_iterate  #(
-        .QUANT(QUANT)  
+        .QUANT(QUANT)
         )  mult (
-            .clk(clk), 
+            .clk(clk),
             .reset(reset),
-            .state(mulState), 
-            .A(registers), 
+            .state(mulState),
+            .A(registers),
             .B(weights),
             .P(produto)
         );
@@ -88,7 +90,7 @@ module conv_rapida
 
     // Instance of matrix multiplier "A"
     MatrixA mult_matrix_A (
-        .P(registers), 
+        .P(registers),
         .soma(prodCSA2)
     );
 
@@ -101,7 +103,7 @@ module conv_rapida
     if (reset) begin
         registers <= '{default: '0};
         data_valid <= 0;
-    end 
+    end
     else begin
            data_valid <= 0;  // default
            if (wen) begin
@@ -111,7 +113,7 @@ module conv_rapida
                    WR_MU:      registers <= produto;
                    WR_OUT: begin
                        data_valid <= 1;
-                       for (int i = 0; i < 9; i++) 
+                       for (int i = 0; i < 9; i++)
                            registers[i] <= prodCSA2[i];
                        end
                endcase
@@ -120,7 +122,7 @@ module conv_rapida
      end
 
     // states for the 'n'  multipliers
-    always_comb 
+    always_comb
     begin
           unique case (EA)
               MMU1: mulState = MU1;
@@ -141,4 +143,3 @@ module conv_rapida
     end
 
 endmodule
-

@@ -3,25 +3,26 @@
 //-------------------------------------------------------------------------
 
 //-------------------------------------------------------------------------
-// FAST CONVOLUTION 
+// FAST CONVOLUTION
 //-------------------------------------------------------------------------
 module conv_rapida
      import packConv::*;
  #(
-    parameter int QUANT = 8 
-  ) 
+    parameter int QUANT = 8
+  )
   ( input  logic   clk, reset, start,
-    input  logic_vector25 inputMAP,   
-    input  logic_vector25 weights,    
-    output logic_vector9  outputMAP,
-    output logic   data_valid   
+    input  type_input inputMAP,
+    input  type_weight weights,
+    output type_output outputMAP,
+    output logic   data_valid
  );
 
    timeunit 1ns;
    timeprecision 1ps;
 
-    logic_vector25 registers, prodCSA1; 
-    logic_vector9 prodCSA2; 
+   type_input registers;
+   type_input prodCSA1;
+   type_output prodCSA2;
 
     logic signed [NBITS-1+QUANT:0] partial_product [0:4];   // QUANT more bits for the multipliers
 
@@ -47,10 +48,10 @@ module conv_rapida
             WR_IFMAP:  PE = WR_MC;
             WR_MC:     PE = MU1;
 
-            // five state multiplier           
-            MU1:     PE = MU2;    
+            // five state multiplier
+            MU1:     PE = MU2;
             MU2:     PE = MU3;
-            MU3:     PE = MU4; 
+            MU3:     PE = MU4;
             MU4:     PE = MU5;
             MU5:     PE = WR_OUT;
 
@@ -64,7 +65,7 @@ module conv_rapida
 
     // Instance of matrix multiplier "C"
     MatrixC mult_matrix_C(
-        .P(registers), 
+        .P(registers),
         .soma(prodCSA1)
     );
 
@@ -89,7 +90,7 @@ module conv_rapida
 
     // Instance of matrix multiplier "A"
     MatrixA mult_matrix_A (
-        .P(registers), 
+        .P(registers),
         .soma(prodCSA2)
     );
 
@@ -98,7 +99,7 @@ module conv_rapida
     if (reset) begin
         registers <= '{default: '0};
         data_valid <= 0;
-    end 
+    end
     else begin
            data_valid <= 0;  // default
                unique case (EA)
@@ -111,12 +112,12 @@ module conv_rapida
                               registers[m1] <= (NBITS)'(partial_product[1][NBITS-1+QUANT:QUANT]);
                               registers[m2] <= (NBITS)'(partial_product[2][NBITS-1+QUANT:QUANT]);
                               registers[m3] <= (NBITS)'(partial_product[3][NBITS-1+QUANT:QUANT]);
-                              registers[m4] <= (NBITS)'(partial_product[4][NBITS-1+QUANT:QUANT]); 
+                              registers[m4] <= (NBITS)'(partial_product[4][NBITS-1+QUANT:QUANT]);
                         end
 
                    WR_OUT: begin
                        data_valid <= 1;
-                       for (int i = 0; i < 9; i++) 
+                       for (int i = 0; i < 9; i++)
                            registers[i] <= prodCSA2[i];
                        end
                endcase
@@ -132,4 +133,3 @@ module conv_rapida
     end
 
 endmodule
-
