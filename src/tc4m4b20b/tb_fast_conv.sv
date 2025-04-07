@@ -11,8 +11,9 @@ module tb;
 
   // logic_vector[C1_SIZE*C2_SIZE:0] weight, inputMAP;
   // logic_vector[A1_SIZE*A2_SIZE:0] outputMAP;
-  logic_vector16 weight, inputMAP;
-  logic_vector4 outputMAP;
+  type_weight weight;
+  type_input inputMAP;
+  type_output outputMAP;
 
   logic reset, start, data_valid;
   logic clk = 1'b0;

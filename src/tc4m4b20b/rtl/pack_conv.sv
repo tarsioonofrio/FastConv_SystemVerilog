@@ -13,9 +13,10 @@ package packConv;
     typedef logic [NBITS-1:0] logic_vector;
 
     // definitions for matrix multiplications
-    typedef logic_vector logic_vector16 [0:16];  // array with 16 parameters
-    typedef logic_vector logic_vector8  [0:8];   // array with  8 parameters
-    typedef logic_vector logic_vector4  [0:4];   // array with  4 parameters
+    typedef logic_vector type_input [0:16];  // array with 16 parameters
+    typedef logic_vector type_weight [0:16];  // array with 16 parameters
+    typedef logic_vector type_matrix  [0:8];   // array with  8 parameters
+    typedef logic_vector type_output  [0:4];   // array with  4 parameters
   
     // definitions for the CSA adders
     typedef logic_vector two_words    [1:0];
