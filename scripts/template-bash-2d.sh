@@ -9,3 +9,8 @@ fast-conv build 2d bind $3
 # quantizate with 4 shifs
 fast-conv quant shift -b $4
 
+sim rand -s 032 -n 032 -d 032
+sim rand -s 064 -n 064 -d 064
+sim rand -s 128 -n 128 -d 128
+sim rand -s 256 -n 256 -d 256
+sim rand -s 512 -n 512 -d 512
