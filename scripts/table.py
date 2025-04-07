@@ -3,7 +3,7 @@ import csv
 from pathlib import Path
 
 parser = argparse.ArgumentParser(description="Process some paths.")
-parser.add_argument("folder", type=Path, help="Path to the folder containing data")
+parser.add_argument("-f", "--folder", type=Path, help="Path to the folder containing data")
 args = parser.parse_args()
 folder = args.folder.name
 src = Path(__file__).parent.parent / "src"
