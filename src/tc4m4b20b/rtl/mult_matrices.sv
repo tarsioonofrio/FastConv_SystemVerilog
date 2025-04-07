@@ -1,8 +1,8 @@
 module MatrixC0
    import packConv::*;
     (
-      input  logic_vector16 P,
-      output logic_vector16 soma
+      input  type_input P,
+      output type_input soma
     );
     timeunit 1ns;
     timeprecision 1ps;
@@ -38,8 +38,8 @@ endmodule
 module MatrixC1
    import packConv::*;
     (
-      input  logic_vector16 P,
-      output logic_vector16 soma
+      input  type_input P,
+      output type_input soma
     );
     timeunit 1ns;
     timeprecision 1ps;
@@ -75,8 +75,8 @@ endmodule
 module MatrixA1
    import packConv::*;
     (
-      input  logic_vector16 P,
-      output logic_vector8 soma
+      input  type_input P,
+      output type_matrix soma
     );
     timeunit 1ns;
     timeprecision 1ps;
@@ -106,8 +106,8 @@ endmodule
 module MatrixA0
    import packConv::*;
     (
-      input  logic_vector8 P,
-      output logic_vector4 soma
+      input  type_matrix P,
+      output type_output soma
     );
     timeunit 1ns;
     timeprecision 1ps;

@@ -12,18 +12,18 @@ module conv_rapida
   )
   (
     input  logic   clk, reset, start,
-    input  logic_vector16 inputMAP,
-    input  logic_vector16 weights,
-    output logic_vector4  outputMAP,
+    input  type_input inputMAP,
+    input  type_input weights,
+    output type_output  outputMAP,
     output logic   data_valid
  );
 
   timeunit 1ns;
   timeprecision 1ps;
 
-  logic_vector16 registers, prod_c0, prod_c1;
-  logic_vector8 prod_a1;
-  logic_vector4 prod_a0;
+  type_input registers, prod_c0, prod_c1;
+  type_matrix prod_a1;
+  type_output prod_a0;
 
   logic signed [NBITS-1+QUANT:0] partial_product[0:4];   // QUANT more bits for the multipliers
 
