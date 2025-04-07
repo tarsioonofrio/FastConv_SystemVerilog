@@ -1,30 +1,30 @@
 module macoperation
      import packConv::*;
 (
-    input logic_vector9 inputs9,  
-    input logic_vector9 weights9, 
-    output logic_vector  P,            
-    input logic clk,  
+    input type_output inputs9,
+    input type_weight weights9,
+    output logic_vector  P,
+    input logic clk,
     input logic reset,
     input logic start,
-    output logic done 
+    output logic done
 );
   timeunit 1ns;
   timeprecision 1ps;
-  
-  logic signed [NBITS*2-1:0] sum ;    
 
-  integer i;          
+  logic signed [NBITS*2-1:0] sum ;
+
+  integer i;
 
   typedef enum {IDLE, RUN, DONE} state;
   state EA, PE;
-   
+
   always_comb begin
        if (EA == DONE) begin
-           P = NBITS'(sum);  
-           done = 1;  
+           P = NBITS'(sum);
+           done = 1;
        end else begin
-           P = 0;  
+           P = 0;
            done = 0;
        end
    end
@@ -41,10 +41,10 @@ module macoperation
 
             if (EA==IDLE) begin
                     if (start) begin
-                        sum <= 0;  
+                        sum <= 0;
                         i <= 0;
                     end
-             end 
+             end
              else if (EA==RUN) begin
                     sum <= sum + (NBITS*2-1)'($signed(inputs9[i] * weights9[i]));
 
@@ -62,7 +62,7 @@ module macoperation
         unique case (EA)
             IDLE: if (start)  PE = RUN;
             RUN:  if (i == 8)  PE = DONE;
-            DONE: PE = IDLE; 
+            DONE: PE = IDLE;
         endcase
     end
 

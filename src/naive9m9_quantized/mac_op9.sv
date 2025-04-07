@@ -60,8 +60,8 @@ endmodule
 module macoperation
      import packConv::*;
 (
-    input logic_vector9 inputs9,  
-    input logic_vector9 weights9, 
+    input type_output inputs9,  
+    input type_output weights9, 
     output logic_vector  P,            
     input logic clk,  
     input logic reset,
@@ -75,7 +75,7 @@ module macoperation
 
   logic signed [8+NBITS-1:0] sum_csa;   // QUANT more bits for the multipliers
 
-  //logic_vector9 prod;  ////// 9 truncaded multiplierss
+  //type_output prod;  ////// 9 truncaded multiplierss
   
   typedef enum {IDLE, DONE} state;
   state EA, PE;
