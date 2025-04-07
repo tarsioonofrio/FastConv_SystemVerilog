@@ -3,21 +3,21 @@
 //-------------------------------------------------------------------------
 
 //-------------------------------------------------------------------------
-// NAIVE CONVOLUTION 
+// NAIVE CONVOLUTION
 //-------------------------------------------------------------------------
 module conv_standard
      import packConv::*;
   ( input  logic   clk, reset, start,
-    input  logic_vector25 inputMAP,   
-    input  logic_vector9  weights,    
-    output logic_vector9  outputMAP,
-    output logic   data_valid   
+    input  type_input inputMAP,
+    input  type_weight weights,
+    output type_output  outputMAP,
+    output logic   data_valid
  );
 
    timeunit 1ns;
    timeprecision 1ps;
 
-    logic_vector9  inputs9; 
+    type_output  inputs9;
     logic_vector prod;
     logic [4:0] cont_conv, row, col, cont_state;   // 5 bits is enough
     logic start_mac, done_mac;
@@ -51,7 +51,7 @@ module conv_standard
 
    // 3x3 MAC operation
     macoperation macOp (
-            .clk(clk), 
+            .clk(clk),
             .reset(reset),
             .start(start_mac),
             .done(done_mac),
@@ -82,19 +82,19 @@ module conv_standard
             if (EA==END) begin
                 // update the sliding widow pointers
                 if (col < 2) begin
-                    col <= col + 1;  
+                    col <= col + 1;
                 end else begin
-                    col <= 0;       
+                    col <= 0;
                     if (row < 2) begin
-                        row <= row + 1;  
+                        row <= row + 1;
                     end else begin
-                        row <= 0;       
+                        row <= 0;
                     end
                 end
              end
         end
     end
-    
+
     // sliding window as a function of the row and col indices
     always_comb begin
         inputs9[0] = inputMAP[row * 5 + col];
@@ -118,11 +118,11 @@ module conv_standard
     end else begin
 
         if (done_mac) begin
-               outputMAP[integer'(cont_conv)] <= prod; 
+               outputMAP[integer'(cont_conv)] <= prod;
                cont_conv <= cont_conv + 1;
         end else if (EA==IDLE) begin
                cont_conv <= 0;
-        end 
+        end
 
         if (cont_conv==9) begin
             data_valid <= 1;
@@ -135,4 +135,3 @@ module conv_standard
 end
 
 endmodule
-

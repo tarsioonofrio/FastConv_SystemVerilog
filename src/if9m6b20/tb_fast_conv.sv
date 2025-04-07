@@ -9,9 +9,9 @@ module tb;
   import packConv::*;
   import data::*;
 
-  logic_vector36  weight;
-  logic_vector25 inputMAP;
-  logic_vector9  outputMAP;
+  type_weight weight;
+  type_input inputMAP;
+  type_output outputMAP;
 
   logic reset, start, data_valid;
   logic clk = 1'b0;
