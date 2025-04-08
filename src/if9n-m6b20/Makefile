@@ -1,9 +1,11 @@
+.PHONY: clean
+
 DATA ?= data.sv
 FOLDER := $(dir $(DATA))
 # DATA = data.sv
 SRCDIR = rtl
-SRC = $(SRCDIR)/pack_conv.sv $(SRCDIR)/csa_lib.sv  $(SRCDIR)/mult_matrices.sv  $(SRCDIR)/fast_conv.sv 
-      
+SRC = $(SRCDIR)/pack_conv.sv $(SRCDIR)/csa_lib.sv  $(SRCDIR)/mult_matrices.sv  $(SRCDIR)/fast_conv.sv
+
 TB = tb_fast_conv.sv
 TOP_MODULE = tb
 
@@ -14,7 +16,7 @@ BIN = $(OBJDIR)/V$(TOP_MODULE)
 VERILATOR = verilator --trace --binary --exe --top-module $(TOP_MODULE)
 
 # Regra principal (default): compilação e construção
-all: $(BIN)
+all: clean $(BIN)
 
 # Regra para compilar e gerar o binário, se algum dos arquivos fonte foi modificado
 $(BIN): $(DATA) $(SRC) $(TB)
