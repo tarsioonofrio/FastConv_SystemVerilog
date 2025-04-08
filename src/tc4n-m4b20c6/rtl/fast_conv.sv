@@ -21,8 +21,9 @@ module conv_rapida
   timeunit 1ns;
   timeprecision 1ps;
 
-  type_input registers, prod_c0, prod_c1;
-  type_matrix prod_a1;
+  type_input registers, prod_c0;
+  type_matrix_c prod_c1;
+  type_matrix_a prod_a1;
   type_output prod_a0;
 
   logic signed [NBITS-1+QUANT:0] partial_product[0:4];   // QUANT more bits for the multipliers
