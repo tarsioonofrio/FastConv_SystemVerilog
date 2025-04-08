@@ -16,7 +16,9 @@ BIN = $(OBJDIR)/V$(TOP_MODULE)
 VERILATOR = verilator --trace --binary --exe --top-module $(TOP_MODULE)
 
 # Regra principal (default): compilação e construção
-all: clean $(BIN)
+all: clean build run
+
+build: $(BIN)
 
 # Regra para compilar e gerar o binário, se algum dos arquivos fonte foi modificado
 $(BIN): $(DATA) $(SRC) $(TB)
@@ -31,10 +33,10 @@ clean:
 	rm -rf $(OBJDIR) dump.vcd
 
 # Alvo de execução
-run: all
+run:
 	$(BIN)
 	mv sim_summary.txt $(FOLDER)
 
 # Alvo de execução com GTKWave
-view: run
+view:
 	gtkwave dump.vcd &
