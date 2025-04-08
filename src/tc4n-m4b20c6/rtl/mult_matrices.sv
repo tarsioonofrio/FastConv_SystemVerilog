@@ -2,7 +2,7 @@ module MatrixC0
    import packConv::*;
     (
       input  type_input P,
-      output type_input soma
+      output type_matrix_c soma
     );
     timeunit 1ns;
     timeprecision 1ps;
@@ -38,8 +38,8 @@ endmodule
 module MatrixC1
    import packConv::*;
     (
-      input  type_input P,
-      output type_input soma
+      input  type_matrix_c P,
+      output type_weight soma
     );
     timeunit 1ns;
     timeprecision 1ps;
@@ -75,7 +75,7 @@ endmodule
 module MatrixA1
    import packConv::*;
     (
-      input  type_input P,
+      input  type_weight P,
       output type_matrix_a soma
     );
     timeunit 1ns;
