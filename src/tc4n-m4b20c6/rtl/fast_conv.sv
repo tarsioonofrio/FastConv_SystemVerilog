@@ -121,7 +121,6 @@ module conv_rapida
           registers[m2] <= (NBITS)'(partial_product[2][NBITS-1+QUANT:QUANT]);
           registers[m3] <= (NBITS)'(partial_product[3][NBITS-1+QUANT:QUANT]);
         end
-
         WR_OUT: data_valid <= 1;
       endcase
     end
