@@ -31,6 +31,7 @@ clean:
 # Alvo de execução
 run: all
 	$(BIN)
+	mv sim_summary.txt $(FOLDER)
 
 # Alvo de execução com GTKWave
 view: run
