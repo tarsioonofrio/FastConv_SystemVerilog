@@ -7,7 +7,7 @@ path = "../src/*/data/time.csv"
 
 # Lista todos os arquivos que correspondem ao padrão
 all_files = glob.glob(path)
-all_files
+
 # Concatena todos os arquivos CSV de uma vez
 df = pd.concat(map(pd.read_csv,glob.glob(path)), ignore_index=True)
 
