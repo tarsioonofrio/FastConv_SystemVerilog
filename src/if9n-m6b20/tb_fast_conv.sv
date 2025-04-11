@@ -37,7 +37,7 @@ module tb;
   initial begin
 
     // Configurações iniciais
-    $dumpfile("dump.vcd");  // Arquivo VCD para waveform
+    $dumpfile("dump.fst");  // Arquivo VCD para waveform
     $dumpvars(0, tb);
 
     // Monitor para debug
@@ -50,7 +50,7 @@ module tb;
     // Convert const_weight
     for (int wi = 0; wi < W1_SIZE; wi++) begin
       for (int wj = 0; wj < W2_SIZE; wj++) begin
-        assign weight[wj] = (NBITS)'($signed(const_weight[wi][wj]));
+        weight[wj] = (NBITS)'($signed(const_weight[wi][wj]));
       end
 
       // Loop de simulação
