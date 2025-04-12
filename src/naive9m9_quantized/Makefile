@@ -1,7 +1,7 @@
 DATA ?= data.sv
 FOLDER := $(dir $(DATA))
 # DATA = data.sv
-SRCDIR = .
+SRCDIR = ./rtl
 SRC = $(DATA) $(SRCDIR)/pack_conv.sv $(SRCDIR)/mac_op9.sv $(SRCDIR)/naive_conv.sv
 
 TB = tb_naive_conv.sv
