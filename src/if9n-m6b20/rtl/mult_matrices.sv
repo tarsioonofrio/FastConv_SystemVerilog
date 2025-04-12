@@ -54,17 +54,9 @@ module MatrixC0
   assign soma[10] = P[7];
   assign soma[11] = P[8];
 
-  assign soma[9] =  P[6];
-  assign soma[10] = P[7];
-  assign soma[11] = P[8];
-
   assign soma[15] = P[11];
   assign soma[16] = P[12];
   assign soma[17] = P[13];
-
-  assign soma[21] = P[16];
-  assign soma[22] = P[17];
-  assign soma[23] = P[18];
 
   assign soma[21] = P[16];
   assign soma[22] = P[17];
