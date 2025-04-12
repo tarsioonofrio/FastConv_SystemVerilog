@@ -72,7 +72,7 @@ module tb;
         integer j, k;
     
         // Configurações iniciais
-        $dumpfile("dump.fst");  // Arquivo VCD para waveform
+        $dumpfile("dump.vcd");  // Arquivo VCD para waveform
         $dumpvars(0, tb);
 
         // Monitor para debug
