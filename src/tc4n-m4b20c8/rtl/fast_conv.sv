@@ -57,6 +57,7 @@ module conv_rapida
             MU4:     PE = WR_A1;
             WR_A1:   PE = WR_OUT;
             WR_OUT:  PE = IDLE;
+            default:   PE = IDLE;
         endcase
     end
 
@@ -82,7 +83,7 @@ module conv_rapida
                 MU1: begin m0= 0; m1= 1; m2= 2; m3= 3; end
                 MU2: begin m0= 4; m1= 5; m2= 6; m3= 7; end
                 MU3: begin m0= 8; m1= 9; m2=10; m3=11; end
-                MU4: begin m0=12; m1=13; m2=14; m3=15; end
+                default: begin m0=12; m1=13; m2=14; m3=15; end
          endcase
 
           partial_product[0] = (NBITS+QUANT)'($signed(registers[m0]) * $signed(weights[m0]) );
@@ -127,6 +128,9 @@ module conv_rapida
 
                     WR_A1: registers[0:8] <= prod_a1;
                     WR_OUT: data_valid <= 1;
+                    default: begin   // necessary - wrong behavior in logic simulation
+                      registers <= registers;
+                    end
                endcase
         end
      end
