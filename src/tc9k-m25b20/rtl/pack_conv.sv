@@ -10,7 +10,7 @@ package packConv;
 
     parameter int NBITS = 20;   // 32 bits generate too large hardware!!
 
-    typedef logic [NBITS-1:0] logic_vector;
+    typedef logic signed[NBITS-1:0] logic_vector;
 
     // definitions for matrix multiplications
     typedef logic_vector type_input  [0:24];  // array with 25 parameters
