@@ -16,7 +16,7 @@ module tb;
   type_output outputMAP;
 
   logic reset, start, data_valid;
-  logic clk = 1'b0;
+  logic clk = 1;
 
 
   // Instantiate conv_rapida entity
