@@ -105,12 +105,8 @@ module conv
       data_valid <= 0;  // default
       unique case (EA)
         WR_IFMAP:
-          registers <= inputMAP;
-          // registers[24:0] <= inputMAP[i];
-          // registers[35:24] <= '{default: '0};;
-          // for (int i = 0; i <25; i++) begin    /// store the IFMAP
-          //   registers[i] <= inputMAP[i];
-          // end
+          registers[24:0] <= inputMAP;
+          // registers[35:24] <= '{default: '0};
         WR_MC:
           registers <= prodCSA1;
         MU1, MU2, MU3, MU4, MU5, MU6:  begin
