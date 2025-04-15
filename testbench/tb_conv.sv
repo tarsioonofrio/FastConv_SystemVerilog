@@ -81,10 +81,11 @@ module tb;
         /* verilator lint_off WIDTHEXPAND */
         if ($signed(outputMAP[fj]) != $signed(const_feat_out[fi][fj])) begin
           /* verilator lint_off WIDTHEXPAND */
-          $display("Time: %0t | Data Valid: %b", $time, data_valid);
+          // $display("Time: %0t | Data Valid: %b", $time, data_valid);
           $display(
-            "Values Error: outputMAP[%0d] = %d", fj, $signed(outputMAP[fj]),
-            $signed(const_feat_out[fi][fj])
+            "Values Error: Time %0t | Data Valid: %b | const_feat_out[%0d][%0d] = %d != %d",
+            $time, data_valid,
+            fi, fj, $signed(const_feat_out[fi][fj]), $signed(outputMAP[fj])
           );
         end
       end
