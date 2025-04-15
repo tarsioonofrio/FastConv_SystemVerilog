@@ -5,7 +5,7 @@
 //-------------------------------------------------------------------------
 // NAIVE CONVOLUTION 
 //-------------------------------------------------------------------------
-module conv_standard
+module conv
      import packConv::*;
   ( input  logic   clk, reset, start,
     input  logic_vector25 inputMAP,   

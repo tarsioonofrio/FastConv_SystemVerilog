@@ -5,8 +5,8 @@
 //-------------------------------------------------------------------------
 // FAST CONVOLUTION
 //-------------------------------------------------------------------------
-module conv_rapida
-     import packConv::*;
+module conv
+  import packConv::*;
  #(
     parameter int QUANT = 8
   )
@@ -103,7 +103,11 @@ module conv_rapida
   else begin
     data_valid <= 0;  // default
         unique case (EA)
-          WR_IFMAP:   registers <= inputMAP;
+          WR_IFMAP:   begin
+            registers <= inputMAP;
+            // registers[24:0] <= inputMAP;
+            // registers[35:24] <= '{default: '0};;
+          end
           WR_MC:      registers <= prodCSA1;
           MU1, MU2, MU3, MU4, MU5:  begin
             registers[m0] <= (NBITS)'(partial_product[0][NBITS-1+QUANT:QUANT]);

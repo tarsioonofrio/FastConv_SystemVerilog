@@ -5,8 +5,8 @@
 //-------------------------------------------------------------------------
 // FAST CONVOLUTION
 //-------------------------------------------------------------------------
-module conv_rapida
-     import packConv::*;
+module conv
+  import packConv::*;
  #(
     parameter int QUANT = 8
   )

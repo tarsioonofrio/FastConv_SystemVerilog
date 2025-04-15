@@ -5,8 +5,11 @@
 //-------------------------------------------------------------------------
 // NAIVE CONVOLUTION
 //-------------------------------------------------------------------------
-module conv_standard
-     import packConv::*;
+module conv
+  import packConv::*;
+  #(
+    parameter int QUANT = 8
+  )
   ( input  logic   clk, reset, start,
     input  type_input inputMAP,
     input  type_weight weights,

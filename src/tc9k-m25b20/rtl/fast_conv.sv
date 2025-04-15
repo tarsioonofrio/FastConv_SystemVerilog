@@ -5,8 +5,8 @@
 //-------------------------------------------------------------------------
 // FAST CONVOLUTION
 //-------------------------------------------------------------------------
-module conv_rapida
-     import packConv::*;
+module conv
+  import packConv::*;
  #(
     parameter int QUANT = 8
   )
@@ -21,9 +21,9 @@ module conv_rapida
    timeprecision 1ps;
 
     type_input registers;
-    type_input prodCSA1; 
-    type_input produto; 
-    type_output prodCSA2; 
+    type_input prodCSA1;
+    type_input produto;
+    type_output prodCSA2;
 
     typedef enum {IDLE, WR_IFMAP, WR_MC, MALBL, MALBH, MAHBL, MAHBH, WR_MU, WR_OUT} state_type;
     state_type EA, PE;

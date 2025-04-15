@@ -17573,11 +17573,7 @@ module macoperation(\inputs9[8] , \inputs9[7] , \inputs9[6] ,
        (mul_87_50_I9_n_429), .A3 (mul_87_50_I9_n_439), .ZN (n_925));
   XNR3UD1BWP30P140 g8085(.A1 (mul_87_50_I9_n_352), .A2
        (mul_87_50_I9_n_264), .A3 (mul_87_50_I9_n_356), .ZN (n_926));
-endmodule
-
-module conv_standard(clk, reset, start, \inputMAP[24] , \inputMAP[23] ,
-     \inputMAP[22] , \inputMAP[21] , \inputMAP[20] , \inputMAP[19] ,
-     \inputMAP[18] , \inputMAP[17] , \inputMAP[16] , \inputMAP[15] ,
+conv
      \inputMAP[14] , \inputMAP[13] , \inputMAP[12] , \inputMAP[11] ,
      \inputMAP[10] , \inputMAP[9] , \inputMAP[8] , \inputMAP[7] ,
      \inputMAP[6] , \inputMAP[5] , \inputMAP[4] , \inputMAP[3] ,

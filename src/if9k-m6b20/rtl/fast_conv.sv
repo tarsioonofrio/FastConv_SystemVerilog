@@ -5,7 +5,7 @@
 //-------------------------------------------------------------------------
 // FAST CONVOLUTION
 //-------------------------------------------------------------------------
-module conv_rapida
+module conv
   import packConv::*;
  #(
     parameter int QUANT = 8
@@ -105,9 +105,12 @@ module conv_rapida
       data_valid <= 0;  // default
       unique case (EA)
         WR_IFMAP:
-          for (int i = 0; i <25; i++) begin    /// store the IFMAP
-            registers[i] <= inputMAP[i];
-          end
+          registers <= inputMAP;
+          // registers[24:0] <= inputMAP[i];
+          // registers[35:24] <= '{default: '0};;
+          // for (int i = 0; i <25; i++) begin    /// store the IFMAP
+          //   registers[i] <= inputMAP[i];
+          // end
         WR_MC:
           registers <= prodCSA1;
         MU1, MU2, MU3, MU4, MU5, MU6:  begin
