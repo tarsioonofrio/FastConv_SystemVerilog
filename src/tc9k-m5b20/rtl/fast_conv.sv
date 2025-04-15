@@ -5,8 +5,8 @@
 //-------------------------------------------------------------------------
 // FAST CONVOLUTION
 //-------------------------------------------------------------------------
-module conv_rapida
-     import packConv::*;
+module conv
+  import packConv::*;
  #(
     parameter int QUANT = 8
   )
@@ -116,7 +116,7 @@ module conv_rapida
           registers[m3] <= (NBITS)'(partial_product[3][NBITS-1+QUANT:QUANT]);
           registers[m4] <= (NBITS)'(partial_product[4][NBITS-1+QUANT:QUANT]);
         end
-  
+
         WR_OUT: //begin
           data_valid <= 1;
         //  for (int i = 0; i < 9; i++)

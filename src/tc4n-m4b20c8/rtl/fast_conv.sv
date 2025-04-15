@@ -3,24 +3,24 @@
 //-------------------------------------------------------------------------
 
 //-------------------------------------------------------------------------
-// FAST CONVOLUTION 
+// FAST CONVOLUTION
 //-------------------------------------------------------------------------
-module conv_rapida
-     import packConv::*;
+module conv
+  import packConv::*;
  #(
-    parameter int QUANT = 8 
-  ) 
+    parameter int QUANT = 8
+  )
   ( input  logic   clk, reset, start,
-    input  type_input inputMAP,   
-    input  type_weight weights,    
+    input  type_input inputMAP,
+    input  type_weight weights,
     output type_output  outputMAP,
-    output logic   data_valid   
+    output logic   data_valid
  );
 
    timeunit 1ns;
    timeprecision 1ps;
 
-    type_input registers, prod_c0, prod_c1; 
+    type_input registers, prod_c0, prod_c1;
     type_matrix prod_a1;
     type_output prod_a0;
 
@@ -50,10 +50,10 @@ module conv_rapida
             WR_C0:    PE = WR_C1;
             WR_C1:    PE = MU1;
 
-            // five state multiplier           
-            MU1:     PE = MU2;    
+            // five state multiplier
+            MU1:     PE = MU2;
             MU2:     PE = MU3;
-            MU3:     PE = MU4; 
+            MU3:     PE = MU4;
             MU4:     PE = WR_A1;
             WR_A1:   PE = WR_OUT;
             WR_OUT:  PE = IDLE;
@@ -67,7 +67,7 @@ module conv_rapida
 
     // Instance of matrix multiplier "C"
     MatrixC0 matrix_c0(
-        .P(registers), 
+        .P(registers),
         .soma(prod_c0)
     );
 
@@ -95,12 +95,12 @@ module conv_rapida
 
     // Instance of matrix multiplier "A"
     MatrixA1 matrix_a1 (
-        .P(registers), 
+        .P(registers),
         .soma(prod_a1)
     );
 
     MatrixA0 matrix_a0 (
-        .P(registers[0:8]), 
+        .P(registers[0:8]),
         .soma(prod_a0)
     );
 
@@ -110,7 +110,7 @@ module conv_rapida
         registers <= '{default: '0};
         //outputMAP <= '{default: '0};
         data_valid <= 0;
-    end 
+    end
     else begin
            data_valid <= 0;  // default
                unique case (EA)
@@ -137,10 +137,9 @@ module conv_rapida
 
     always_latch begin
       if (EA==WR_OUT) begin
-           for (int i = 0; i < 4; i++) 
+           for (int i = 0; i < 4; i++)
                  outputMAP[i] = prod_a0[i];   /// saída em latch
           end
     end
 
 endmodule
-

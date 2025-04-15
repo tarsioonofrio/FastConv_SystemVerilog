@@ -1,5 +1,5 @@
 // -------------------------------------------------------------------------
-// FAST CONVOLUTION  TB
+// CONVOLUTION  TB
 // -------------------------------------------------------------------------
 module tb;
 
@@ -9,8 +9,6 @@ module tb;
   import packConv::*;
   import data::*;
 
-  // logic_vector[C1_SIZE*C2_SIZE:0] weight, inputMAP;
-  // logic_vector[A1_SIZE*A2_SIZE:0] outputMAP;
   type_weight weight;
   type_input inputMAP;
   type_output outputMAP;
@@ -21,7 +19,7 @@ module tb;
 
 
   // Instantiate conv_rapida entity
-  conv_rapida #(
+  conv #(
     .QUANT(QUANT_BITS)
   ) convolucao (
     .clk(clk),
@@ -58,7 +56,7 @@ module tb;
       end
 
       // Loop de simulação
-      for (int fi = 0; fi < FIN1_SIZE; fi++) begin
+      for (fi = 0; fi < FIN1_SIZE; fi++) begin
           for (int fj = 0; fj < FIN2_SIZE; fj++) begin
             inputMAP[fj] = (NBITS)'($signed(const_feat_in[fi][fj]));
           end
