@@ -76,7 +76,11 @@ module tb;
     if (data_valid) begin
       // #1; // espera propagação de sinal
       for (int fj = 0; fj < FOUT2_SIZE; fj++) begin
+        // To avoid error:
+        // %Warning-WIDTHEXPAND: ../../testbench/tb_conv.sv:79:36: Operator NEQ expects 32 bits on the LHS, but LHS's SIGNED generates 20 bits.
+        /* verilator lint_off WIDTHEXPAND */
         if ($signed(outputMAP[fj]) != $signed(const_feat_out[fi][fj])) begin
+          /* verilator lint_off WIDTHEXPAND */
           $display("Time: %0t | Data Valid: %b", $time, data_valid);
           $display(
             "Values Error: outputMAP[%0d] = %d", fj, $signed(outputMAP[fj]),

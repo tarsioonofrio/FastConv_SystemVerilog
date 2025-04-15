@@ -6,7 +6,7 @@ FOLDER := $(dir $(DATA))
 SRCDIR = rtl
 SRC = $(SRCDIR)/pack_conv.sv $(SRCDIR)/csa_lib.sv  $(SRCDIR)/mult_matrices.sv  $(SRCDIR)/fast_conv.sv
 
-TB = tb_fast_conv.sv
+TB = ../../testbench/tb_conv.sv
 TOP_MODULE = tb
 
 OBJDIR = obj_dir
