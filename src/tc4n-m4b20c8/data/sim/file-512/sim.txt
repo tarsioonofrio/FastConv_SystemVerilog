@@ -1,8 +1,8 @@
-Feature: (0, 256)
-Weights: (0, 1024)
+Feature: (0, 127)
+Weights: (0, 127)
 Image side: 512
 Output default and naive are equals: True
-R2: 0.9999999999457702%
+R2: 0.9999999764716176%
 Totals
 Naive
 Convolutions: 260100
