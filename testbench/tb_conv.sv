@@ -65,12 +65,12 @@ module tb;
           #10
           start = 1'b0;
           wait(data_valid);
-          #100;  // Wait for 100 ns
+          #10;  // Wait for 100 ns
       end
     end
 
     // Finalizar a simulação 200 ns após o loop
-    #200 $finish;
+    #10 $finish;
   end
   always @(posedge clk) begin
     if (data_valid) begin
