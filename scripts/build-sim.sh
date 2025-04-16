@@ -16,11 +16,11 @@ fast-conv build 2d bind $4
 # quantizate with 4 shifs
 fast-conv quant shift -b $5
 
-fast-conv sim rand -s 032 -n 032 -d 032
-fast-conv sim rand -s 064 -n 064 -d 064
-fast-conv sim rand -s 128 -n 128 -d 128
-fast-conv sim rand -s 256 -n 256 -d 256
-fast-conv sim rand -s 512 -n 512 -d 512
+fast-conv sim rand -i 032 -n 032 -d 032
+fast-conv sim rand -i 064 -n 064 -d 064
+fast-conv sim rand -i 128 -n 128 -d 128
+fast-conv sim rand -i 256 -n 256 -d 256
+fast-conv sim rand -i 512 -n 512 -d 512
 
 rm -rf build
 rm -rf clib
