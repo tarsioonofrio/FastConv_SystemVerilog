@@ -43,11 +43,11 @@ power = {k: float(v[15].split()[4]) for k, v in report_power.items()}
 # Create a DataFrame from the dictionaries
 df = pd.DataFrame(
     {
-        "cell-cout-um": cell_cout,
+        "cell-cout": cell_cout,
         "cell-area-um": cell_area,
         "net-area-um": net_area,
         "total-area-um": total_area,
-        "flop_count": flop_count,
+        "flop-count": flop_count,
         "power-mW": power,
     }
 )
