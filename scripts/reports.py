@@ -14,22 +14,17 @@ def project_name(path):
     
 # Define o padrão do caminho para encontrar todos os arquivos rpt
 
-# name = ["conv_rapida_area.rpt", "conv_rapida_power_analysis_view_0p90v_25c_captyp_nominal.rpt"]
-
+# Area
 path = Path("../src/*/sintese/results/reports/*_area.rpt")
-# Lista todos os arquivos que correspondem ao padrão
 all_files = glob.glob(path.as_posix())
-
 area = {project_name(f): read_file(f)[14].split()[4] for f in all_files}
-path = Path("../src/*/sintese/results/reports/*_power_analysis_view_0p90v_25c_captyp_nominal.rpt")
-# Lista todos os arquivos que correspondem ao padrão
-all_files = glob.glob(path.as_posix())
 
+# Power
+path = Path("../src/*/sintese/results/reports/*_power_analysis_view_0p90v_25c_captyp_nominal.rpt")
+all_files = glob.glob(path.as_posix())
 power = {project_name(f): read_file(f)[15].split()[4] for f in all_files}
 
 # Create a DataFrame from the dictionaries
 df = pd.DataFrame({'area-um': area, 'power-mW': power})
-df
-
 # Save to CSV
 df.to_csv('../data/reports.csv')
