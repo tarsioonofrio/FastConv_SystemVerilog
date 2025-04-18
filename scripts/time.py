@@ -28,9 +28,9 @@ df_pivot
 # # Reordena as colunas caso necessário
 # df_pivot = df_pivot[['project', 32, 64, 128, 256, 512]]
 
-df_pivot.columns = [
+df_pivot.columns = sorted([
     format_column(n) if "naive" not in n else n for n in df_pivot.columns
-]
+])
 
 # Salva o resultado
 df_pivot.to_csv("../data/time.csv")
