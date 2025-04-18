@@ -4,6 +4,15 @@ from pathlib import Path
 import pandas as pd
 
 
+def format_column(folder):
+    name = folder[:2].upper()
+    bind = folder[2]
+    size = folder[3]
+    subs = folder[5:]
+    output = "$" + name + bind + "^" + size + "_{" + subs + "}$" 
+    return output
+
+
 def read_file(file_path):
     with open(file_path, "r") as f:
         content = f.readlines()
@@ -12,8 +21,8 @@ def read_file(file_path):
 
 def project_name(path):
     return Path(path).parent.parent.parent.parent.name
-
-
+    
+    
 # Define o padrão do caminho para encontrar todos os arquivos rpt
 
 # Area
@@ -52,5 +61,9 @@ df = pd.DataFrame(
     }
 )
 
+dft = df.T
+dft.columns = [format_column(n) if "naive" not in n else n for n in dft.columns]
+
 # Save to CSV
-df.T.to_csv("../data/reports.csv")
+dft.to_csv("../data/reports.csv")
+
