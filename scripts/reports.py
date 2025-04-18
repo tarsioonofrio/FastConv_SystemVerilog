@@ -62,7 +62,7 @@ df = pd.DataFrame(
 )
 
 dft = df.T
-dft.columns = [format_column(n) if "naive" not in n else n for n in dft.columns]
+dft.columns = sorted([format_column(n) if "naive" not in n else n for n in dft.columns])
 
 # Save to CSV
 dft.to_csv("../data/reports.csv")
