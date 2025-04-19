@@ -52,7 +52,7 @@ power = {k: float(v[15].split()[4]) for k, v in report_power.items()}
 # Create a DataFrame from the dictionaries
 df = pd.DataFrame(
     {
-        "cell-cout": cell_cout,
+        "cell-count": cell_cout,
         "cell-area-um": cell_area,
         "net-area-um": net_area,
         "total-area-um": total_area,
@@ -67,3 +67,13 @@ dft.columns = sorted([format_column(n) if "naive" not in n else n for n in dft.c
 # Save to CSV
 dft.to_csv("../data/reports.csv")
 
+df.columns = [
+    "Cell Count",
+    "Cell Area $\mu m^2$",
+    "Net Area $\mu m^2$",
+    "Total Area $\mu m^2$",
+    "Flop Count",
+    "Power mW",
+]
+
+df.to_csv("../data/reports_transposed.csv")
