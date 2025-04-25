@@ -1,7 +1,7 @@
 ###############################################################################
-# TOP 
+# TOP
 ###############################################################################
-set TOP_MODULE conv_rapida
+set TOP_MODULE conv
 
 
 puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
@@ -30,17 +30,17 @@ puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 	set_db interconnect_mode ple
 
 	### controls the verbosity of the tool
-	set_db information_level 9 
+	set_db information_level 9
 
 	### Avoid proceeding with latche inference
-	set_db hdl_error_on_latch false 
+	set_db hdl_error_on_latch false
 	####  o fast 4 tem latch de saída!!
 
 
 puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 puts "Control Clock Gating "
 puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-	
+
 	set_db lp_insert_clock_gating true
 
 
@@ -49,7 +49,7 @@ puts "Load hdl files"
 puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 
 	read_hdl -sv "../rtl/pack_conv.sv ../rtl/csa_lib.sv ../rtl/mult_matrices.sv ../rtl/fast_conv.sv"
-	
+
 
 
 puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
@@ -59,7 +59,7 @@ puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 	elaborate ${TOP_MODULE}
 
 	# Applying the constraints
-	init_design 
+	init_design
 
 
 puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
@@ -103,18 +103,18 @@ puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 	report_timing > ${OUT_FILES}/reports/${TOP_MODULE}_timing_setup_${CURRENT_VIEW}.rpt
 	#---
 	report_power -unit mW > ${OUT_FILES}/reports/${TOP_MODULE}_power_${CURRENT_VIEW}.rpt
-	
+
 	# ###################################
 	set CURRENT_VIEW analysis_view_0p99v_m40c_capbst_fastest
 	set_analysis_view -setup ${CURRENT_VIEW}  -hold ${CURRENT_VIEW}
 	report_timing > ${OUT_FILES}/reports/${TOP_MODULE}_timing_setup_${CURRENT_VIEW}.rpt
-	#---	
+	#---
 	report_power -unit mW > ${OUT_FILES}/reports/${TOP_MODULE}_power_${CURRENT_VIEW}.rpt
 
 
-	### Report timming -unconstrained amd -verbose 
+	### Report timming -unconstrained amd -verbose
 	report timing -lint -verbose > ${OUT_FILES}/reports/${TOP_MODULE}_timing_setup_${CURRENT_VIEW}_verbose.rpt
-	report_timing -unconstrained > ${OUT_FILES}/reports/${TOP_MODULE}_timing_setup_${CURRENT_VIEW}_verbose_unconstrained.rpt 
+	report_timing -unconstrained > ${OUT_FILES}/reports/${TOP_MODULE}_timing_setup_${CURRENT_VIEW}_verbose_unconstrained.rpt
 
 
 puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
@@ -122,12 +122,12 @@ puts "Write netlist"
 puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 
 	write_hdl > ${OUT_FILES}/gate_level/${TOP_MODULE}_logic_mapped.v
-	
-	## nominal 
-	set CURRENT_VIEW analysis_view_0p81v_125c_capwst_slowest  
+
+	## nominal
+	set CURRENT_VIEW analysis_view_0p81v_125c_capwst_slowest
 	set_analysis_view -setup ${CURRENT_VIEW} -hold ${CURRENT_VIEW}
 	write_sdf > ${OUT_FILES}/gate_level/${TOP_MODULE}_${CURRENT_VIEW}.sdf
-	
+
 	## worst setup
 	set CURRENT_VIEW analysis_view_0p90v_25c_captyp_nominal
 	set_analysis_view -setup ${CURRENT_VIEW} -hold ${CURRENT_VIEW}
@@ -137,7 +137,7 @@ puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 	set CURRENT_VIEW analysis_view_0p99v_m40c_capbst_fastest
 	set_analysis_view -setup ${CURRENT_VIEW} -hold ${CURRENT_VIEW}
 	write_sdf > ${OUT_FILES}/gate_level/${TOP_MODULE}_${CURRENT_VIEW}.sdf
-	
+
 
 puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 puts "Export design to Innovus"
@@ -145,8 +145,7 @@ puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 
 	### default view
 	set_analysis_view -setup analysis_view_0p81v_125c_capwst_slowest  \
-    	              -hold  analysis_view_0p99v_m40c_capbst_fastest 
+    	              -hold  analysis_view_0p99v_m40c_capbst_fastest
 
 	### To generate all files needed to be loaded in an Innovus session, use the following command:
 	write_design -innovus -base_name ${OUT_FILES}/physical_synthesis/work/data
-
