@@ -48,7 +48,7 @@ path = Path(
 all_files = glob.glob(path.as_posix())
 report_power = {project_name(f): read_file(f) for f in all_files}
 power = {k: float(v[15].split()[4]) for k, v in report_power.items()}
-
+power
 # Create a DataFrame from the dictionaries
 df = pd.DataFrame(
     {
@@ -60,11 +60,12 @@ df = pd.DataFrame(
         "power-mW": power,
     }
 )
-
+df
 dft = df.T
-dft.columns = sorted(
-    [format_column(n) if "naive" not in n else n for n in dft.columns]
-)
+dft.columns = [
+    format_column(n) if "nv-" not in n else n for n in dft.columns
+]
+
 
 # Save to CSV
 dft.to_csv("../data/report.csv")
