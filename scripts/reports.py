@@ -9,7 +9,7 @@ def format_column(folder):
     bind = folder[2]
     size = folder[3]
     subs = folder[5:]
-    output = "$" + name + bind + "^" + size + "_{" + subs + "}$" 
+    output = "$" + name + bind + "^" + size + "_{" + subs + "}$"
     return output
 
 
@@ -21,8 +21,8 @@ def read_file(file_path):
 
 def project_name(path):
     return Path(path).parent.parent.parent.parent.name
-    
-    
+
+
 # Define o padrão do caminho para encontrar todos os arquivos rpt
 
 # Area
@@ -62,11 +62,14 @@ df = pd.DataFrame(
 )
 
 dft = df.T
-dft.columns = sorted([format_column(n) if "naive" not in n else n for n in dft.columns])
+dft.columns = sorted(
+    [format_column(n) if "naive" not in n else n for n in dft.columns]
+)
 
 # Save to CSV
-dft.to_csv("../data/reports.csv")
+dft.to_csv("../data/report.csv")
 
+df = dft.T
 df.columns = [
     "Cell Count",
     "Cell Area $\mu m^2$",
@@ -76,4 +79,4 @@ df.columns = [
     "Power mW",
 ]
 
-df.to_csv("../data/reports_transposed.csv")
+df.to_csv("../data/report_transposed.csv")
