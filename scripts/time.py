@@ -8,7 +8,7 @@ def format_column(folder):
     bind = folder[2]
     size = folder[3]
     subs = folder[5:]
-    output = "$" + name + bind + "^" + size + "_{" + subs + "}$"
+    output = f"{name}{bind}{size}_{subs}" 
     return output
 
 
