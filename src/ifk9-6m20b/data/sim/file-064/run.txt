@@ -8,25 +8,25 @@ Reading pref.tcl
 # Modifying modelsim.ini
 # data/sim/file-064/data.sv
 # QuestaSim-64 vlog 2023.4 Compiler 2023.10 Oct  9 2023
-# Start time: 00:21:13 on Apr 16,2025
+# Start time: 14:08:17 on Apr 25,2025
 # vlog -work work data/sim/file-064/data.sv 
 # -- Compiling package data
 # 
 # Top level modules:
 # 	--none--
-# End time: 00:21:13 on Apr 16,2025, Elapsed time: 0:00:00
+# End time: 14:08:17 on Apr 25,2025, Elapsed time: 0:00:00
 # Errors: 0, Warnings: 0
 # QuestaSim-64 vlog 2023.4 Compiler 2023.10 Oct  9 2023
-# Start time: 00:21:13 on Apr 16,2025
+# Start time: 14:08:17 on Apr 25,2025
 # vlog -work work ./rtl/pack_conv.sv 
 # -- Compiling package packConv
 # 
 # Top level modules:
 # 	--none--
-# End time: 00:21:13 on Apr 16,2025, Elapsed time: 0:00:00
+# End time: 14:08:17 on Apr 25,2025, Elapsed time: 0:00:00
 # Errors: 0, Warnings: 0
 # QuestaSim-64 vlog 2023.4 Compiler 2023.10 Oct  9 2023
-# Start time: 00:21:13 on Apr 16,2025
+# Start time: 14:08:17 on Apr 25,2025
 # vlog -work work -svinputport=relaxed ./rtl/csa_lib.sv 
 # -- Compiling module FA
 # -- Importing package packConv
@@ -56,10 +56,10 @@ Reading pref.tcl
 # 	CSA_12
 # 	CSA_16
 # 	CSA_18
-# End time: 00:21:13 on Apr 16,2025, Elapsed time: 0:00:00
+# End time: 14:08:17 on Apr 25,2025, Elapsed time: 0:00:00
 # Errors: 0, Warnings: 0
 # QuestaSim-64 vlog 2023.4 Compiler 2023.10 Oct  9 2023
-# Start time: 00:21:14 on Apr 16,2025
+# Start time: 14:08:17 on Apr 25,2025
 # vlog -work work -svinputport=relaxed ./rtl/mult_matrices.sv 
 # -- Compiling module MatrixA
 # -- Importing package packConv
@@ -68,20 +68,20 @@ Reading pref.tcl
 # Top level modules:
 # 	MatrixA
 # 	MatrixC
-# End time: 00:21:14 on Apr 16,2025, Elapsed time: 0:00:00
+# End time: 14:08:17 on Apr 25,2025, Elapsed time: 0:00:00
 # Errors: 0, Warnings: 0
 # QuestaSim-64 vlog 2023.4 Compiler 2023.10 Oct  9 2023
-# Start time: 00:21:14 on Apr 16,2025
+# Start time: 14:08:17 on Apr 25,2025
 # vlog -work work -svinputport=relaxed ./rtl/fast_conv.sv 
 # -- Compiling module conv
 # -- Importing package packConv
 # 
 # Top level modules:
 # 	conv
-# End time: 00:21:14 on Apr 16,2025, Elapsed time: 0:00:00
+# End time: 14:08:17 on Apr 25,2025, Elapsed time: 0:00:00
 # Errors: 0, Warnings: 0
 # QuestaSim-64 vlog 2023.4 Compiler 2023.10 Oct  9 2023
-# Start time: 00:21:14 on Apr 16,2025
+# Start time: 14:08:17 on Apr 25,2025
 # vlog -work work -svinputport=relaxed ../../testbench/tb_conv.sv 
 # -- Compiling module tb
 # -- Importing package packConv
@@ -89,10 +89,10 @@ Reading pref.tcl
 # 
 # Top level modules:
 # 	tb
-# End time: 00:21:14 on Apr 16,2025, Elapsed time: 0:00:00
+# End time: 14:08:17 on Apr 25,2025, Elapsed time: 0:00:00
 # Errors: 0, Warnings: 0
 # vsim -voptargs="+acc" -t ns work.tb 
-# Start time: 00:21:14 on Apr 16,2025
+# Start time: 14:08:17 on Apr 25,2025
 # ** Note: (vsim-3812) Design is being optimized...
 # ** Warning: (vopt-10587) Some optimizations are turned off because the +acc switch is in effect. This will cause your simulation to run slowly. Please use -access/-debug to maintain needed visibility.
 # ** Note: (vopt-143) Recognized 1 FSM in module "conv(fast)".
@@ -140,132 +140,132 @@ Reading pref.tcl
 # configure wave not supported in batch mode
 # configure wave not supported in batch mode
 # configure wave not supported in batch mode
-# Values Error: Time 753 | Data Valid: 1 | const_feat_out[20][2] =           0 !=    27322
-# Values Error: Time 753 | Data Valid: 1 | const_feat_out[20][5] =           0 !=    27404
-# Values Error: Time 753 | Data Valid: 1 | const_feat_out[20][8] =           0 !=    31331
-# Values Error: Time 1509 | Data Valid: 1 | const_feat_out[41][2] =           0 !=    31694
-# Values Error: Time 1509 | Data Valid: 1 | const_feat_out[41][5] =           0 !=    35349
-# Values Error: Time 1509 | Data Valid: 1 | const_feat_out[41][8] =           0 !=    23797
-# Values Error: Time 2265 | Data Valid: 1 | const_feat_out[62][2] =           0 !=    34500
-# Values Error: Time 2265 | Data Valid: 1 | const_feat_out[62][5] =           0 !=    33029
-# Values Error: Time 2265 | Data Valid: 1 | const_feat_out[62][8] =           0 !=    26255
-# Values Error: Time 3021 | Data Valid: 1 | const_feat_out[83][2] =           0 !=    40540
-# Values Error: Time 3021 | Data Valid: 1 | const_feat_out[83][5] =           0 !=    26021
-# Values Error: Time 3021 | Data Valid: 1 | const_feat_out[83][8] =           0 !=    37817
-# Values Error: Time 3777 | Data Valid: 1 | const_feat_out[104][2] =           0 !=    24972
-# Values Error: Time 3777 | Data Valid: 1 | const_feat_out[104][5] =           0 !=    34509
-# Values Error: Time 3777 | Data Valid: 1 | const_feat_out[104][8] =           0 !=    25082
-# Values Error: Time 4533 | Data Valid: 1 | const_feat_out[125][2] =           0 !=    27296
-# Values Error: Time 4533 | Data Valid: 1 | const_feat_out[125][5] =           0 !=    36233
-# Values Error: Time 4533 | Data Valid: 1 | const_feat_out[125][8] =           0 !=    24065
-# Values Error: Time 5289 | Data Valid: 1 | const_feat_out[146][2] =           0 !=    33907
-# Values Error: Time 5289 | Data Valid: 1 | const_feat_out[146][5] =           0 !=    19085
-# Values Error: Time 5289 | Data Valid: 1 | const_feat_out[146][8] =           0 !=    22955
-# Values Error: Time 6045 | Data Valid: 1 | const_feat_out[167][2] =           0 !=    12815
-# Values Error: Time 6045 | Data Valid: 1 | const_feat_out[167][5] =           0 !=    29622
-# Values Error: Time 6045 | Data Valid: 1 | const_feat_out[167][8] =           0 !=    30443
-# Values Error: Time 6801 | Data Valid: 1 | const_feat_out[188][2] =           0 !=    32781
-# Values Error: Time 6801 | Data Valid: 1 | const_feat_out[188][5] =           0 !=    32293
-# Values Error: Time 6801 | Data Valid: 1 | const_feat_out[188][8] =           0 !=    30083
-# Values Error: Time 7557 | Data Valid: 1 | const_feat_out[209][2] =           0 !=    22623
-# Values Error: Time 7557 | Data Valid: 1 | const_feat_out[209][5] =           0 !=    21909
-# Values Error: Time 7557 | Data Valid: 1 | const_feat_out[209][8] =           0 !=    22603
-# Values Error: Time 8313 | Data Valid: 1 | const_feat_out[230][2] =           0 !=    19963
-# Values Error: Time 8313 | Data Valid: 1 | const_feat_out[230][5] =           0 !=    18461
-# Values Error: Time 8313 | Data Valid: 1 | const_feat_out[230][8] =           0 !=    16993
-# Values Error: Time 9069 | Data Valid: 1 | const_feat_out[251][2] =           0 !=    22841
-# Values Error: Time 9069 | Data Valid: 1 | const_feat_out[251][5] =           0 !=    11778
-# Values Error: Time 9069 | Data Valid: 1 | const_feat_out[251][8] =           0 !=    18573
-# Values Error: Time 9825 | Data Valid: 1 | const_feat_out[272][2] =           0 !=    17265
-# Values Error: Time 9825 | Data Valid: 1 | const_feat_out[272][5] =           0 !=    18936
-# Values Error: Time 9825 | Data Valid: 1 | const_feat_out[272][8] =           0 !=    26795
-# Values Error: Time 10581 | Data Valid: 1 | const_feat_out[293][2] =           0 !=    28371
-# Values Error: Time 10581 | Data Valid: 1 | const_feat_out[293][5] =           0 !=    28817
-# Values Error: Time 10581 | Data Valid: 1 | const_feat_out[293][8] =           0 !=    28241
-# Values Error: Time 11337 | Data Valid: 1 | const_feat_out[314][2] =           0 !=    21367
-# Values Error: Time 11337 | Data Valid: 1 | const_feat_out[314][5] =           0 !=    32284
-# Values Error: Time 11337 | Data Valid: 1 | const_feat_out[314][8] =           0 !=    37250
-# Values Error: Time 12093 | Data Valid: 1 | const_feat_out[335][2] =           0 !=    44656
-# Values Error: Time 12093 | Data Valid: 1 | const_feat_out[335][5] =           0 !=    35495
-# Values Error: Time 12093 | Data Valid: 1 | const_feat_out[335][8] =           0 !=    33664
-# Values Error: Time 12849 | Data Valid: 1 | const_feat_out[356][2] =           0 !=    24585
-# Values Error: Time 12849 | Data Valid: 1 | const_feat_out[356][5] =           0 !=    30399
-# Values Error: Time 12849 | Data Valid: 1 | const_feat_out[356][8] =           0 !=    28351
-# Values Error: Time 13605 | Data Valid: 1 | const_feat_out[377][2] =           0 !=    30310
-# Values Error: Time 13605 | Data Valid: 1 | const_feat_out[377][5] =           0 !=    14202
-# Values Error: Time 13605 | Data Valid: 1 | const_feat_out[377][8] =           0 !=    13261
-# Values Error: Time 14361 | Data Valid: 1 | const_feat_out[398][2] =           0 !=    10412
-# Values Error: Time 14361 | Data Valid: 1 | const_feat_out[398][5] =           0 !=    12472
-# Values Error: Time 14361 | Data Valid: 1 | const_feat_out[398][8] =           0 !=    19727
-# Values Error: Time 15117 | Data Valid: 1 | const_feat_out[419][2] =           0 !=    29904
-# Values Error: Time 15117 | Data Valid: 1 | const_feat_out[419][5] =           0 !=    33102
-# Values Error: Time 15117 | Data Valid: 1 | const_feat_out[419][8] =           0 !=    34899
-# Values Error: Time 15153 | Data Valid: 1 | const_feat_out[420][6] =           0 !=    33409
-# Values Error: Time 15153 | Data Valid: 1 | const_feat_out[420][7] =           0 !=    32007
-# Values Error: Time 15153 | Data Valid: 1 | const_feat_out[420][8] =           0 !=    34101
-# Values Error: Time 15189 | Data Valid: 1 | const_feat_out[421][6] =           0 !=    40836
-# Values Error: Time 15189 | Data Valid: 1 | const_feat_out[421][7] =           0 !=    42829
-# Values Error: Time 15189 | Data Valid: 1 | const_feat_out[421][8] =           0 !=    39510
-# Values Error: Time 15225 | Data Valid: 1 | const_feat_out[422][6] =           0 !=    36684
-# Values Error: Time 15225 | Data Valid: 1 | const_feat_out[422][7] =           0 !=    30177
-# Values Error: Time 15225 | Data Valid: 1 | const_feat_out[422][8] =           0 !=    26977
-# Values Error: Time 15261 | Data Valid: 1 | const_feat_out[423][6] =           0 !=    28904
-# Values Error: Time 15261 | Data Valid: 1 | const_feat_out[423][7] =           0 !=    26379
-# Values Error: Time 15261 | Data Valid: 1 | const_feat_out[423][8] =           0 !=    27847
-# Values Error: Time 15297 | Data Valid: 1 | const_feat_out[424][6] =           0 !=    16813
-# Values Error: Time 15297 | Data Valid: 1 | const_feat_out[424][7] =           0 !=    16590
-# Values Error: Time 15297 | Data Valid: 1 | const_feat_out[424][8] =           0 !=    12929
-# Values Error: Time 15333 | Data Valid: 1 | const_feat_out[425][6] =           0 !=    17728
-# Values Error: Time 15333 | Data Valid: 1 | const_feat_out[425][7] =           0 !=    26138
-# Values Error: Time 15333 | Data Valid: 1 | const_feat_out[425][8] =           0 !=    23035
-# Values Error: Time 15369 | Data Valid: 1 | const_feat_out[426][6] =           0 !=    24289
-# Values Error: Time 15369 | Data Valid: 1 | const_feat_out[426][7] =           0 !=    30744
-# Values Error: Time 15369 | Data Valid: 1 | const_feat_out[426][8] =           0 !=    28977
-# Values Error: Time 15405 | Data Valid: 1 | const_feat_out[427][6] =           0 !=    28709
-# Values Error: Time 15405 | Data Valid: 1 | const_feat_out[427][7] =           0 !=    29394
-# Values Error: Time 15405 | Data Valid: 1 | const_feat_out[427][8] =           0 !=    34897
-# Values Error: Time 15441 | Data Valid: 1 | const_feat_out[428][6] =           0 !=    36919
-# Values Error: Time 15441 | Data Valid: 1 | const_feat_out[428][7] =           0 !=    38926
-# Values Error: Time 15441 | Data Valid: 1 | const_feat_out[428][8] =           0 !=    27256
-# Values Error: Time 15477 | Data Valid: 1 | const_feat_out[429][6] =           0 !=    24247
-# Values Error: Time 15477 | Data Valid: 1 | const_feat_out[429][7] =           0 !=    23320
-# Values Error: Time 15477 | Data Valid: 1 | const_feat_out[429][8] =           0 !=    18095
-# Values Error: Time 15513 | Data Valid: 1 | const_feat_out[430][6] =           0 !=    25188
-# Values Error: Time 15513 | Data Valid: 1 | const_feat_out[430][7] =           0 !=    29210
-# Values Error: Time 15513 | Data Valid: 1 | const_feat_out[430][8] =           0 !=    44683
-# Values Error: Time 15549 | Data Valid: 1 | const_feat_out[431][6] =           0 !=    47207
-# Values Error: Time 15549 | Data Valid: 1 | const_feat_out[431][7] =           0 !=    46837
-# Values Error: Time 15549 | Data Valid: 1 | const_feat_out[431][8] =           0 !=    37492
-# Values Error: Time 15585 | Data Valid: 1 | const_feat_out[432][6] =           0 !=    34663
-# Values Error: Time 15585 | Data Valid: 1 | const_feat_out[432][7] =           0 !=    39273
-# Values Error: Time 15585 | Data Valid: 1 | const_feat_out[432][8] =           0 !=    32930
-# Values Error: Time 15621 | Data Valid: 1 | const_feat_out[433][6] =           0 !=    45287
-# Values Error: Time 15621 | Data Valid: 1 | const_feat_out[433][7] =           0 !=    34929
-# Values Error: Time 15621 | Data Valid: 1 | const_feat_out[433][8] =           0 !=    47277
-# Values Error: Time 15657 | Data Valid: 1 | const_feat_out[434][6] =           0 !=    42455
-# Values Error: Time 15657 | Data Valid: 1 | const_feat_out[434][7] =           0 !=    37691
-# Values Error: Time 15657 | Data Valid: 1 | const_feat_out[434][8] =           0 !=    34253
-# Values Error: Time 15693 | Data Valid: 1 | const_feat_out[435][6] =           0 !=    41795
-# Values Error: Time 15693 | Data Valid: 1 | const_feat_out[435][7] =           0 !=    43942
-# Values Error: Time 15693 | Data Valid: 1 | const_feat_out[435][8] =           0 !=    38415
-# Values Error: Time 15729 | Data Valid: 1 | const_feat_out[436][6] =           0 !=    36297
-# Values Error: Time 15729 | Data Valid: 1 | const_feat_out[436][7] =           0 !=    29842
-# Values Error: Time 15729 | Data Valid: 1 | const_feat_out[436][8] =           0 !=    23910
-# Values Error: Time 15765 | Data Valid: 1 | const_feat_out[437][6] =           0 !=    27774
-# Values Error: Time 15765 | Data Valid: 1 | const_feat_out[437][7] =           0 !=    34107
-# Values Error: Time 15765 | Data Valid: 1 | const_feat_out[437][8] =           0 !=    22039
-# Values Error: Time 15801 | Data Valid: 1 | const_feat_out[438][6] =           0 !=    23710
-# Values Error: Time 15801 | Data Valid: 1 | const_feat_out[438][7] =           0 !=    31634
-# Values Error: Time 15801 | Data Valid: 1 | const_feat_out[438][8] =           0 !=    39330
-# Values Error: Time 15837 | Data Valid: 1 | const_feat_out[439][6] =           0 !=    34810
-# Values Error: Time 15837 | Data Valid: 1 | const_feat_out[439][7] =           0 !=    35376
-# Values Error: Time 15837 | Data Valid: 1 | const_feat_out[439][8] =           0 !=    33889
-# Values Error: Time 15873 | Data Valid: 1 | const_feat_out[440][2] =           0 !=    30167
-# Values Error: Time 15873 | Data Valid: 1 | const_feat_out[440][5] =           0 !=    38609
-# Values Error: Time 15873 | Data Valid: 1 | const_feat_out[440][6] =           0 !=    33377
-# Values Error: Time 15873 | Data Valid: 1 | const_feat_out[440][7] =           0 !=    30378
-# Values Error: Time 15873 | Data Valid: 1 | const_feat_out[440][8] =           0 !=    13114
+# Values Error: Time 629 | Data Valid: 1 | const_feat_out[20][2] =           0 !=    27322
+# Values Error: Time 629 | Data Valid: 1 | const_feat_out[20][5] =           0 !=    27404
+# Values Error: Time 629 | Data Valid: 1 | const_feat_out[20][8] =           0 !=    31331
+# Values Error: Time 1259 | Data Valid: 1 | const_feat_out[41][2] =           0 !=    31694
+# Values Error: Time 1259 | Data Valid: 1 | const_feat_out[41][5] =           0 !=    35349
+# Values Error: Time 1259 | Data Valid: 1 | const_feat_out[41][8] =           0 !=    23797
+# Values Error: Time 1889 | Data Valid: 1 | const_feat_out[62][2] =           0 !=    34500
+# Values Error: Time 1889 | Data Valid: 1 | const_feat_out[62][5] =           0 !=    33029
+# Values Error: Time 1889 | Data Valid: 1 | const_feat_out[62][8] =           0 !=    26255
+# Values Error: Time 2519 | Data Valid: 1 | const_feat_out[83][2] =           0 !=    40540
+# Values Error: Time 2519 | Data Valid: 1 | const_feat_out[83][5] =           0 !=    26021
+# Values Error: Time 2519 | Data Valid: 1 | const_feat_out[83][8] =           0 !=    37817
+# Values Error: Time 3149 | Data Valid: 1 | const_feat_out[104][2] =           0 !=    24972
+# Values Error: Time 3149 | Data Valid: 1 | const_feat_out[104][5] =           0 !=    34509
+# Values Error: Time 3149 | Data Valid: 1 | const_feat_out[104][8] =           0 !=    25082
+# Values Error: Time 3779 | Data Valid: 1 | const_feat_out[125][2] =           0 !=    27296
+# Values Error: Time 3779 | Data Valid: 1 | const_feat_out[125][5] =           0 !=    36233
+# Values Error: Time 3779 | Data Valid: 1 | const_feat_out[125][8] =           0 !=    24065
+# Values Error: Time 4409 | Data Valid: 1 | const_feat_out[146][2] =           0 !=    33907
+# Values Error: Time 4409 | Data Valid: 1 | const_feat_out[146][5] =           0 !=    19085
+# Values Error: Time 4409 | Data Valid: 1 | const_feat_out[146][8] =           0 !=    22955
+# Values Error: Time 5039 | Data Valid: 1 | const_feat_out[167][2] =           0 !=    12815
+# Values Error: Time 5039 | Data Valid: 1 | const_feat_out[167][5] =           0 !=    29622
+# Values Error: Time 5039 | Data Valid: 1 | const_feat_out[167][8] =           0 !=    30443
+# Values Error: Time 5669 | Data Valid: 1 | const_feat_out[188][2] =           0 !=    32781
+# Values Error: Time 5669 | Data Valid: 1 | const_feat_out[188][5] =           0 !=    32293
+# Values Error: Time 5669 | Data Valid: 1 | const_feat_out[188][8] =           0 !=    30083
+# Values Error: Time 6299 | Data Valid: 1 | const_feat_out[209][2] =           0 !=    22623
+# Values Error: Time 6299 | Data Valid: 1 | const_feat_out[209][5] =           0 !=    21909
+# Values Error: Time 6299 | Data Valid: 1 | const_feat_out[209][8] =           0 !=    22603
+# Values Error: Time 6929 | Data Valid: 1 | const_feat_out[230][2] =           0 !=    19963
+# Values Error: Time 6929 | Data Valid: 1 | const_feat_out[230][5] =           0 !=    18461
+# Values Error: Time 6929 | Data Valid: 1 | const_feat_out[230][8] =           0 !=    16993
+# Values Error: Time 7559 | Data Valid: 1 | const_feat_out[251][2] =           0 !=    22841
+# Values Error: Time 7559 | Data Valid: 1 | const_feat_out[251][5] =           0 !=    11778
+# Values Error: Time 7559 | Data Valid: 1 | const_feat_out[251][8] =           0 !=    18573
+# Values Error: Time 8189 | Data Valid: 1 | const_feat_out[272][2] =           0 !=    17265
+# Values Error: Time 8189 | Data Valid: 1 | const_feat_out[272][5] =           0 !=    18936
+# Values Error: Time 8189 | Data Valid: 1 | const_feat_out[272][8] =           0 !=    26795
+# Values Error: Time 8819 | Data Valid: 1 | const_feat_out[293][2] =           0 !=    28371
+# Values Error: Time 8819 | Data Valid: 1 | const_feat_out[293][5] =           0 !=    28817
+# Values Error: Time 8819 | Data Valid: 1 | const_feat_out[293][8] =           0 !=    28241
+# Values Error: Time 9449 | Data Valid: 1 | const_feat_out[314][2] =           0 !=    21367
+# Values Error: Time 9449 | Data Valid: 1 | const_feat_out[314][5] =           0 !=    32284
+# Values Error: Time 9449 | Data Valid: 1 | const_feat_out[314][8] =           0 !=    37250
+# Values Error: Time 10079 | Data Valid: 1 | const_feat_out[335][2] =           0 !=    44656
+# Values Error: Time 10079 | Data Valid: 1 | const_feat_out[335][5] =           0 !=    35495
+# Values Error: Time 10079 | Data Valid: 1 | const_feat_out[335][8] =           0 !=    33664
+# Values Error: Time 10709 | Data Valid: 1 | const_feat_out[356][2] =           0 !=    24585
+# Values Error: Time 10709 | Data Valid: 1 | const_feat_out[356][5] =           0 !=    30399
+# Values Error: Time 10709 | Data Valid: 1 | const_feat_out[356][8] =           0 !=    28351
+# Values Error: Time 11339 | Data Valid: 1 | const_feat_out[377][2] =           0 !=    30310
+# Values Error: Time 11339 | Data Valid: 1 | const_feat_out[377][5] =           0 !=    14202
+# Values Error: Time 11339 | Data Valid: 1 | const_feat_out[377][8] =           0 !=    13261
+# Values Error: Time 11969 | Data Valid: 1 | const_feat_out[398][2] =           0 !=    10412
+# Values Error: Time 11969 | Data Valid: 1 | const_feat_out[398][5] =           0 !=    12472
+# Values Error: Time 11969 | Data Valid: 1 | const_feat_out[398][8] =           0 !=    19727
+# Values Error: Time 12599 | Data Valid: 1 | const_feat_out[419][2] =           0 !=    29904
+# Values Error: Time 12599 | Data Valid: 1 | const_feat_out[419][5] =           0 !=    33102
+# Values Error: Time 12599 | Data Valid: 1 | const_feat_out[419][8] =           0 !=    34899
+# Values Error: Time 12629 | Data Valid: 1 | const_feat_out[420][6] =           0 !=    33409
+# Values Error: Time 12629 | Data Valid: 1 | const_feat_out[420][7] =           0 !=    32007
+# Values Error: Time 12629 | Data Valid: 1 | const_feat_out[420][8] =           0 !=    34101
+# Values Error: Time 12659 | Data Valid: 1 | const_feat_out[421][6] =           0 !=    40836
+# Values Error: Time 12659 | Data Valid: 1 | const_feat_out[421][7] =           0 !=    42829
+# Values Error: Time 12659 | Data Valid: 1 | const_feat_out[421][8] =           0 !=    39510
+# Values Error: Time 12689 | Data Valid: 1 | const_feat_out[422][6] =           0 !=    36684
+# Values Error: Time 12689 | Data Valid: 1 | const_feat_out[422][7] =           0 !=    30177
+# Values Error: Time 12689 | Data Valid: 1 | const_feat_out[422][8] =           0 !=    26977
+# Values Error: Time 12719 | Data Valid: 1 | const_feat_out[423][6] =           0 !=    28904
+# Values Error: Time 12719 | Data Valid: 1 | const_feat_out[423][7] =           0 !=    26379
+# Values Error: Time 12719 | Data Valid: 1 | const_feat_out[423][8] =           0 !=    27847
+# Values Error: Time 12749 | Data Valid: 1 | const_feat_out[424][6] =           0 !=    16813
+# Values Error: Time 12749 | Data Valid: 1 | const_feat_out[424][7] =           0 !=    16590
+# Values Error: Time 12749 | Data Valid: 1 | const_feat_out[424][8] =           0 !=    12929
+# Values Error: Time 12779 | Data Valid: 1 | const_feat_out[425][6] =           0 !=    17728
+# Values Error: Time 12779 | Data Valid: 1 | const_feat_out[425][7] =           0 !=    26138
+# Values Error: Time 12779 | Data Valid: 1 | const_feat_out[425][8] =           0 !=    23035
+# Values Error: Time 12809 | Data Valid: 1 | const_feat_out[426][6] =           0 !=    24289
+# Values Error: Time 12809 | Data Valid: 1 | const_feat_out[426][7] =           0 !=    30744
+# Values Error: Time 12809 | Data Valid: 1 | const_feat_out[426][8] =           0 !=    28977
+# Values Error: Time 12839 | Data Valid: 1 | const_feat_out[427][6] =           0 !=    28709
+# Values Error: Time 12839 | Data Valid: 1 | const_feat_out[427][7] =           0 !=    29394
+# Values Error: Time 12839 | Data Valid: 1 | const_feat_out[427][8] =           0 !=    34897
+# Values Error: Time 12869 | Data Valid: 1 | const_feat_out[428][6] =           0 !=    36919
+# Values Error: Time 12869 | Data Valid: 1 | const_feat_out[428][7] =           0 !=    38926
+# Values Error: Time 12869 | Data Valid: 1 | const_feat_out[428][8] =           0 !=    27256
+# Values Error: Time 12899 | Data Valid: 1 | const_feat_out[429][6] =           0 !=    24247
+# Values Error: Time 12899 | Data Valid: 1 | const_feat_out[429][7] =           0 !=    23320
+# Values Error: Time 12899 | Data Valid: 1 | const_feat_out[429][8] =           0 !=    18095
+# Values Error: Time 12929 | Data Valid: 1 | const_feat_out[430][6] =           0 !=    25188
+# Values Error: Time 12929 | Data Valid: 1 | const_feat_out[430][7] =           0 !=    29210
+# Values Error: Time 12929 | Data Valid: 1 | const_feat_out[430][8] =           0 !=    44683
+# Values Error: Time 12959 | Data Valid: 1 | const_feat_out[431][6] =           0 !=    47207
+# Values Error: Time 12959 | Data Valid: 1 | const_feat_out[431][7] =           0 !=    46837
+# Values Error: Time 12959 | Data Valid: 1 | const_feat_out[431][8] =           0 !=    37492
+# Values Error: Time 12989 | Data Valid: 1 | const_feat_out[432][6] =           0 !=    34663
+# Values Error: Time 12989 | Data Valid: 1 | const_feat_out[432][7] =           0 !=    39273
+# Values Error: Time 12989 | Data Valid: 1 | const_feat_out[432][8] =           0 !=    32930
+# Values Error: Time 13019 | Data Valid: 1 | const_feat_out[433][6] =           0 !=    45287
+# Values Error: Time 13019 | Data Valid: 1 | const_feat_out[433][7] =           0 !=    34929
+# Values Error: Time 13019 | Data Valid: 1 | const_feat_out[433][8] =           0 !=    47277
+# Values Error: Time 13049 | Data Valid: 1 | const_feat_out[434][6] =           0 !=    42455
+# Values Error: Time 13049 | Data Valid: 1 | const_feat_out[434][7] =           0 !=    37691
+# Values Error: Time 13049 | Data Valid: 1 | const_feat_out[434][8] =           0 !=    34253
+# Values Error: Time 13079 | Data Valid: 1 | const_feat_out[435][6] =           0 !=    41795
+# Values Error: Time 13079 | Data Valid: 1 | const_feat_out[435][7] =           0 !=    43942
+# Values Error: Time 13079 | Data Valid: 1 | const_feat_out[435][8] =           0 !=    38415
+# Values Error: Time 13109 | Data Valid: 1 | const_feat_out[436][6] =           0 !=    36297
+# Values Error: Time 13109 | Data Valid: 1 | const_feat_out[436][7] =           0 !=    29842
+# Values Error: Time 13109 | Data Valid: 1 | const_feat_out[436][8] =           0 !=    23910
+# Values Error: Time 13139 | Data Valid: 1 | const_feat_out[437][6] =           0 !=    27774
+# Values Error: Time 13139 | Data Valid: 1 | const_feat_out[437][7] =           0 !=    34107
+# Values Error: Time 13139 | Data Valid: 1 | const_feat_out[437][8] =           0 !=    22039
+# Values Error: Time 13169 | Data Valid: 1 | const_feat_out[438][6] =           0 !=    23710
+# Values Error: Time 13169 | Data Valid: 1 | const_feat_out[438][7] =           0 !=    31634
+# Values Error: Time 13169 | Data Valid: 1 | const_feat_out[438][8] =           0 !=    39330
+# Values Error: Time 13199 | Data Valid: 1 | const_feat_out[439][6] =           0 !=    34810
+# Values Error: Time 13199 | Data Valid: 1 | const_feat_out[439][7] =           0 !=    35376
+# Values Error: Time 13199 | Data Valid: 1 | const_feat_out[439][8] =           0 !=    33889
+# Values Error: Time 13229 | Data Valid: 1 | const_feat_out[440][2] =           0 !=    30167
+# Values Error: Time 13229 | Data Valid: 1 | const_feat_out[440][5] =           0 !=    38609
+# Values Error: Time 13229 | Data Valid: 1 | const_feat_out[440][6] =           0 !=    33377
+# Values Error: Time 13229 | Data Valid: 1 | const_feat_out[440][7] =           0 !=    30378
+# Values Error: Time 13229 | Data Valid: 1 | const_feat_out[440][8] =           0 !=    13114
 # ** Note: $finish    : ../../testbench/tb_conv.sv(72)
-#    Time: 15891 ns  Iteration: 0  Instance: /tb
-# End time: 00:21:15 on Apr 16,2025, Elapsed time: 0:00:01
+#    Time: 13247 ns  Iteration: 0  Instance: /tb
+# End time: 14:08:19 on Apr 25,2025, Elapsed time: 0:00:02
 # Errors: 0, Warnings: 1
