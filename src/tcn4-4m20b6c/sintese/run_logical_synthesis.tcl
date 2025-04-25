@@ -8,7 +8,7 @@
 set OUT_FILES results/
 
 
-set TOP_MODULE conv_rapida
+set TOP_MODULE conv
 
 puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 puts "Load the pdk using MMMC"
