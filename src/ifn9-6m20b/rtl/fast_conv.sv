@@ -38,20 +38,18 @@ module conv
   //
   // Control FSM
   //
+
   always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
       EA <= IDLE;
     end else begin
-      if (start) begin      // START signal starts the FSM
-        EA <= WR_IFMAP;
-      end else begin
-        EA <= PE;
-      end
+      EA <= PE;
     end
   end
-
+  
   always_comb begin    // 9 states + IDEL - IDLE is blocking!
     unique case (EA)
+      IDLE:      PE = start ? WR_IFMAP : IDLE;
       WR_IFMAP:  PE = WR_MC;
       WR_MC:     PE = MU1;
       MU1:       PE = MU2;
