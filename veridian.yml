@@ -1,0 +1,21 @@
+# https://github.com/vivekmalneedi/veridian?tab=readme-ov-file#configuration
+# list of directories to recursively search for SystemVerilog/Verilog sources
+source_dirs:
+  - src/tc4n-m4b20c6/rtl
+  # - tc4m20b6c/
+verilator:
+  # verilator configuration
+  syntax:
+    # default: true if in path
+    # enabled: true|false,
+    enabled: true,
+    path: "verilator"
+    # default: specified below
+    args:
+      - --lint-only
+      - --sv
+      - -Wall
+# set log level
+# default: Info
+# log_level: Error|Warn|Info|Debug|Trace
+log_level: Trace
