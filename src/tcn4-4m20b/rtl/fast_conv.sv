@@ -147,8 +147,7 @@ module conv
 
   always_latch begin
     if (EA==WR_OUT) begin
-        for (int i = 0; i < 4; i++)
-          outputMAP[i] = prod_a0[i];   /// saída em latch
+        outputMAP = prod_a0;   /// saída em latch
       end
   end
 
