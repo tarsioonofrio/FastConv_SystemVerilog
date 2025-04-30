@@ -1,21 +1,14 @@
-//-------------------------------------------------------------------------
-// FERNANDO MORAES                                             October/2024
-//-------------------------------------------------------------------------
-
-//-------------------------------------------------------------------------
-// FAST CONVOLUTION
-//-------------------------------------------------------------------------
 module conv
   import packConv::*;
  #(
     parameter int QUANT = 8
   )
   (
-    input  logic   clk, reset, start,
-    input  type_input inputMAP,
-    input  type_input weights,
-    output type_output  outputMAP,
-    output logic   data_valid
+    input  logic       clk, reset, start,
+    input  type_input  inputMAP,
+    input  type_input  weights,
+    output type_output outputMAP,
+    output logic       data_valid
  );
 
   timeunit 1ns;
@@ -115,7 +108,6 @@ module conv
       unique case (EA)
         WR_IFMAP: registers <= inputMAP;
         WR_C:     registers <= prod_c1;
-
         MU1, MU2, MU3, MU4:  begin
           registers[m0] <= (NBITS)'(partial_product[0][NBITS-1+QUANT:QUANT]);
           registers[m1] <= (NBITS)'(partial_product[1][NBITS-1+QUANT:QUANT]);
