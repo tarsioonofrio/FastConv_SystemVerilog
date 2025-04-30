@@ -165,11 +165,8 @@ module conv
   end
 
   // connect 9 first registers to the outputs
-  always_comb
-  begin
-    for (int i = 0; i <9; i++) begin
-      outputMAP[i] = registers[i];
-    end
+  always_comb begin
+    outputMAP = registers[8:0];
   end
 
 endmodule
