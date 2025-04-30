@@ -1,192 +1,278 @@
-//-------------------------------------------------------------------------
-// FERNANDO MORAES                                             October/2024
-//-------------------------------------------------------------------------
-
-
-//-------------------------------------------------------------------------
-//Matrix C   ---  (rows): 25     Y (columns): 25     max shift: 3 
-//-------------------------------------------------------------------------
-module MatrixC
+module MatrixC0
   import packConv::*;
   (
     input  type_input P,
-    output type_input soma
+    output type_matrix_c soma
   );
-
   timeunit 1ns;
   timeprecision 1ps;
-  
 
-  type_input cp, cn;
-  logic_vector sb0, sb1, sb1, sb2, sb2, sb3, sb3, sb4, sb5, sb5, sb6, sb6, sb7, sb7, sb8, sb8, sb9, sb10, sb10, sb11, sb11, sb12, sb12, sb12, sb13, sb13, sb14, sb15, sb15, sb16, sb16, sb17, sb17, sb18, sb18, sb19, sb20, sb21, sb22, sb23;
+  logic_vector sp0, sp1, sp2, sp3, sp4, sp5, sp6, sp7, sp8, sp9, sp10, sp11, sp12, sp13, sp14, sp15, sp16, sp17, sp18, sp19, sp20, sp21, sp22, sp23, sp24;
+  logic_vector sn0, sn1, sn2, sn3, sn4, sn5, sn6, sn7, sn8, sn9, sn10, sn11, sn12, sn13, sn14, sn15, sn16, sn17, sn18, sn19, sn20, sn21, sn22, sn23, sn24;
 
-  always_comb begin
-    
-    sb0  = P[0 ] <<< 2;
-    sb5  = P[5 ] <<< 2;
-    sb10 = P[10] <<< 2;
-    sb15 = P[15] <<< 2;
-    sb20 = P[20] <<< 2;
-
-    sb2  = P[2 ] <<< 2;
-    sb7  = P[7 ] <<< 2;
-    sb12 = P[12] <<< 2;
-    sb17 = P[17] <<< 2;
-    sb22 = P[22] <<< 2;
-
-    sb1  = P[1 ] <<< 2;
-    sb6  = P[6 ] <<< 2;
-    sb11 = P[11] <<< 2;
-    sb16 = P[16] <<< 2;
-    sb21 = P[21] <<< 2;
-
-    sb3  = P[3 ] <<< 2;
-    sb8  = P[8 ] <<< 2;
-    sb13 = P[13] <<< 2;
-    sb18 = P[18] <<< 2;
-    sb23 = P[23] <<< 2;
-  end
-
-  CSA_2 sp0 (sb0 ,  P[3],  cp[0 ]);
-  CSA_2 sp5 (sb5 ,  P[8],  cp[5 ]);
-  CSA_2 sp10(sb10, P[13],  cp[10]);
-  CSA_2 sp15(sb15, P[18],  cp[15]);
-  CSA_2 sp20(sb20, P[23],  cp[20]);
-  CSA_2 sn0 (P[1 ], sb2,  cn[0 ]);
-  CSA_2 sn5 (P[6 ], sb7,  cn[5 ]);
-  CSA_2 sn10(P[11], sb12, cn[10]);
-  CSA_2 sn15(P[16], sb17, cn[15]);
-  CSA_2 sn20(P[21], sb22, cn[20]);
-  assign soma[0 ] = cp[0 ] - cn[0 ];
-  assign soma[5 ] = cp[5 ] - cn[5 ];
-  assign soma[10] = cp[10] - cn[10];
-  assign soma[15] = cp[15] - cn[15];
-  assign soma[20] = cp[20] - cn[20];
-
-  CSA_2 sn1 (sb1 , P[2 ]  cn[1 ]);
-  CSA_2 sn6 (sb6 , P[7 ]  cn[6 ]);
-  CSA_2 sn11(sb11, P[12], cn[11]);
-  CSA_2 sn16(sb16, P[17], cn[16]);
-  CSA_2 sn21(sb21, P[22], cn[21]);
-  assign soma[1 ] = P[3 ] - cn[1 ];
-  assign soma[6 ] = P[8 ] - cn[6 ];
-  assign soma[11] = P[13] - cn[11];
-  assign soma[16] = P[18] - cn[16];
-  assign soma[21] = P[23] - cn[21];
-
-  CSA_2 sp3 (sb1 , P[3 ]  cp[2 ]);
-  CSA_2 sp8 (sb6 , P[8 ]  cp[7 ]);
-  CSA_2 sp13(sb11, P[13], cp[12]);
-  CSA_2 sp18(sb16, P[18], cp[17]);
-  CSA_2 sp23(sb21, P[23], cp[22]);
-  CSA_2 sn2 (sb2 , P[2 ], cn[2 ]);
-  CSA_2 sn7 (sb7 , P[7 ], cn[7 ]);
-  CSA_2 sn12(sb12, P[12], cn[12]);
-  CSA_2 sn17(sb17, P[17], cn[17]);
-  CSA_2 sn22(sb22, P[22], cn[22]);
-  assign soma[2 ] = cp[2 ] - cn[2 ];
-  assign soma[7 ] = cp[7 ] - cn[7 ];
-  assign soma[12] = cp[12] - cn[12];
-  assign soma[17] = cp[17] - cn[17];
-  assign soma[22] = cp[22] - cn[22];
-
-  assign soma[3 ] = P[3 ] - P[1 ];
-  assign soma[8 ] = P[8 ] - P[6 ];
-  assign soma[13] = P[13] - P[11];
-  assign soma[18] = P[18] - P[16];
-  assign soma[23] = P[23] - P[21];
-
-  CSA_2 sp4 (sb1 , P[4 ]  cp[4 ]);
-  CSA_2 sp9 (sb6 , P[9 ]  cp[9 ]);
-  CSA_2 sp14(sb11, P[14], cp[14]);
-  CSA_2 sp18(sb16, P[18], cp[18]);
-  CSA_2 sp23(sb21, P[23], cp[23]);
-  CSA_2 sn4 (P[2 ], sb3 , cn[4 ]);
-  CSA_2 sn9 (P[7 ], sb8 , cn[9 ]);
-  CSA_2 sn14(P[12], sb13, cn[14]);
-  CSA_2 sn18(P[17], sb18, cn[18]);
-  CSA_2 sn23(P[22], sb23, cn[23]);
-  assign soma[4 ] = cp[4 ] - cn[4 ];
-  assign soma[9 ] = cp[9 ] - cn[9 ];
-  assign soma[14] = cp[14] - cn[14];
-  assign soma[18] = cp[18] - cn[18];
-  assign soma[23] = cp[23] - cn[23];
-
-
+  CSA_2 csa_p0(P[0] <<< 1, P[3], sp0);
+  assign sp1 = P[3];
+  CSA_2 csa_p2(P[1] <<< 1, P[3], sp2);
+  assign sp3 = P[3];
+  CSA_2 csa_p4(P[1] <<< 1, P[4], sp4);
+  CSA_2 csa_p5(P[5] <<< 1, P[8], sp5);
+  assign sp6 = P[8];
+  CSA_2 csa_p7(P[6] <<< 1, P[8], sp7);
+  assign sp8 = P[8];
+  CSA_2 csa_p9(P[6] <<< 1, P[9], sp9);
+  CSA_2 csa_p10(P[10] <<< 1, P[13], sp10);
+  assign sp11 = P[13];
+  CSA_2 csa_p12(P[11] <<< 1, P[13], sp12);
+  assign sp13 = P[13];
+  CSA_2 csa_p14(P[11] <<< 1, P[14], sp14);
+  CSA_2 csa_p15(P[15] <<< 1, P[18], sp15);
+  assign sp16 = P[18];
+  CSA_2 csa_p17(P[16] <<< 1, P[18], sp17);
+  assign sp18 = P[18];
+  CSA_2 csa_p19(P[16] <<< 1, P[19], sp19);
+  CSA_2 csa_p20(P[20] <<< 1, P[23], sp20);
+  assign sp21 = P[23];
+  CSA_2 csa_p22(P[21] <<< 1, P[23], sp22);
+  assign sp23 = P[23];
+  CSA_2 csa_p24(P[21] <<< 1, P[24], sp24);
+  CSA_2 csa_n0(P[1], P[2] <<< 1, sn0);
+  CSA_2 csa_n1(P[1] <<< 1, P[2], sn1);
+  assign sn2 = P[2] + P[2] <<< 1;
+  assign sn3 = P[1];
+  CSA_2 csa_n4(P[2], P[3] <<< 1, sn4);
+  CSA_2 csa_n5(P[6], P[7] <<< 1, sn5);
+  CSA_2 csa_n6(P[6] <<< 1, P[7], sn6);
+  assign sn7 = P[7] + P[7] <<< 1;
+  assign sn8 = P[6];
+  CSA_2 csa_n9(P[7], P[8] <<< 1, sn9);
+  CSA_2 csa_n10(P[11], P[12] <<< 1, sn10);
+  CSA_2 csa_n11(P[11] <<< 1, P[12], sn11);
+  assign sn12 = P[12] + P[12] <<< 1;
+  assign sn13 = P[11];
+  CSA_2 csa_n14(P[12], P[13] <<< 1, sn14);
+  CSA_2 csa_n15(P[16], P[17] <<< 1, sn15);
+  CSA_2 csa_n16(P[16] <<< 1, P[17], sn16);
+  assign sn17 = P[17] + P[17] <<< 1;
+  assign sn18 = P[16];
+  CSA_2 csa_n19(P[17], P[18] <<< 1, sn19);
+  CSA_2 csa_n20(P[21], P[22] <<< 1, sn20);
+  CSA_2 csa_n21(P[21] <<< 1, P[22], sn21);
+  assign sn22 = P[22] + P[22] <<< 1;
+  assign sn23 = P[21];
+  CSA_2 csa_n24(P[22], P[23] <<< 1, sn24);
+  assign soma[0] = sp0 - sn0;
+  assign soma[1] = sp1 - sn1;
+  assign soma[2] = sp2 - sn2;
+  assign soma[3] = sp3 - sn3;
+  assign soma[4] = sp4 - sn4;
+  assign soma[5] = sp5 - sn5;
+  assign soma[6] = sp6 - sn6;
+  assign soma[7] = sp7 - sn7;
+  assign soma[8] = sp8 - sn8;
+  assign soma[9] = sp9 - sn9;
+  assign soma[10] = sp10 - sn10;
+  assign soma[11] = sp11 - sn11;
+  assign soma[12] = sp12 - sn12;
+  assign soma[13] = sp13 - sn13;
+  assign soma[14] = sp14 - sn14;
+  assign soma[15] = sp15 - sn15;
+  assign soma[16] = sp16 - sn16;
+  assign soma[17] = sp17 - sn17;
+  assign soma[18] = sp18 - sn18;
+  assign soma[19] = sp19 - sn19;
+  assign soma[20] = sp20 - sn20;
+  assign soma[21] = sp21 - sn21;
+  assign soma[22] = sp22 - sn22;
+  assign soma[23] = sp23 - sn23;
+  assign soma[24] = sp24 - sn24;
 endmodule
 
 
-//-------------------------------------------------------------------------
-//Matrix A  --  X (rows): 9     Y (columns): 25     max shift: 4 
-//-------------------------------------------------------------------------
-module MatrixA
-   import packConv::*;
-    (
-      input  type_input P,
-      output type_output soma
-    );
-
+module MatrixC1
+  import packConv::*;
+  (
+    input  type_matrix_c P,
+    output type_weight soma
+  );
   timeunit 1ns;
   timeprecision 1ps;
-  
 
-      type_input ap, an;
-      logic_vector  s1P3, s2P3, s1P8, s2P8, s1P13, s2P13, s1P15, s2P15, s1P16, s2P16, s1P17, s2P17, s1P18, s2P18, s3P18, s4P18, s1P19, s2P19, s1P23, s2P23;
+  logic_vector sp0, sp1, sp2, sp3, sp4, sp5, sp6, sp7, sp8, sp9, sp10, sp11, sp12, sp13, sp14, sp15, sp16, sp17, sp18, sp19, sp20, sp21, sp22, sp23, sp24;
+  logic_vector sn0, sn1, sn2, sn3, sn4, sn5, sn6, sn7, sn8, sn9, sn10, sn11, sn12, sn13, sn14, sn15, sn16, sn17, sn18, sn19, sn20, sn21, sn22, sn23, sn24;
 
-      always_comb begin
-        s1P3 = {P[3][NBITS-2:0],  1'b0};
-        s2P3 = {P[3][NBITS-3:0],  2'b00};
-        s1P8 = {P[8][NBITS-2:0],  1'b0};
-        s2P8 = {P[8][NBITS-3:0],  2'b00};
-        s1P13 = {P[13][NBITS-2:0],  1'b0};
-        s2P13 = {P[13][NBITS-3:0],  2'b00};
-        s1P15 = {P[15][NBITS-2:0],  1'b0};
-        s2P15 = {P[15][NBITS-3:0],  2'b00};
-        s1P16 = {P[16][NBITS-2:0],  1'b0};
-        s2P16 = {P[16][NBITS-3:0],  2'b00};
-        s1P17 = {P[17][NBITS-2:0],  1'b0};
-        s2P17 = {P[17][NBITS-3:0],  2'b00};
-        s1P18 = {P[18][NBITS-2:0],  1'b0};
-        s2P18 = {P[18][NBITS-3:0],  2'b00};
-        s3P18 = {P[18][NBITS-4:0],  3'b000};
-        s4P18 = {P[18][NBITS-5:0],  4'b0000};
-        s1P19 = {P[19][NBITS-2:0],  1'b0};
-        s2P19 = {P[19][NBITS-3:0],  2'b00};
-        s1P23 = {P[23][NBITS-2:0],  1'b0};
-        s2P23 = {P[23][NBITS-3:0],  2'b00};
-      end
+  CSA_2 csa_p0(P[0] <<< 1, P[15], sp0);
+  CSA_2 csa_p1(P[1] <<< 1, P[16], sp1);
+  CSA_2 csa_p2(P[2] <<< 1, P[17], sp2);
+  CSA_2 csa_p3(P[3] <<< 1, P[18], sp3);
+  CSA_2 csa_p4(P[4] <<< 1, P[19], sp4);
+  assign sp5 = P[15];
+  assign sp6 = P[16];
+  assign sp7 = P[17];
+  assign sp8 = P[18];
+  assign sp9 = P[19];
+  CSA_2 csa_p10(P[5] <<< 1, P[15], sp10);
+  CSA_2 csa_p11(P[6] <<< 1, P[16], sp11);
+  CSA_2 csa_p12(P[7] <<< 1, P[17], sp12);
+  CSA_2 csa_p13(P[8] <<< 1, P[18], sp13);
+  CSA_2 csa_p14(P[9] <<< 1, P[19], sp14);
+  assign sp15 = P[15];
+  assign sp16 = P[16];
+  assign sp17 = P[17];
+  assign sp18 = P[18];
+  assign sp19 = P[19];
+  CSA_2 csa_p20(P[5] <<< 1, P[20], sp20);
+  CSA_2 csa_p21(P[6] <<< 1, P[21], sp21);
+  CSA_2 csa_p22(P[7] <<< 1, P[22], sp22);
+  CSA_2 csa_p23(P[8] <<< 1, P[23], sp23);
+  CSA_2 csa_p24(P[9] <<< 1, P[24], sp24);
+  CSA_2 csa_n0(P[5], P[10] <<< 1, sn0);
+  CSA_2 csa_n1(P[6], P[11] <<< 1, sn1);
+  CSA_2 csa_n2(P[7], P[12] <<< 1, sn2);
+  CSA_2 csa_n3(P[8], P[13] <<< 1, sn3);
+  CSA_2 csa_n4(P[9], P[14] <<< 1, sn4);
+  CSA_2 csa_n5(P[5] <<< 1, P[10], sn5);
+  CSA_2 csa_n6(P[6] <<< 1, P[11], sn6);
+  CSA_2 csa_n7(P[7] <<< 1, P[12], sn7);
+  CSA_2 csa_n8(P[8] <<< 1, P[13], sn8);
+  CSA_2 csa_n9(P[9] <<< 1, P[14], sn9);
+  assign sn10 = P[10] + P[10] <<< 1;
+  assign sn11 = P[11] + P[11] <<< 1;
+  assign sn12 = P[12] + P[12] <<< 1;
+  assign sn13 = P[13] + P[13] <<< 1;
+  assign sn14 = P[14] + P[14] <<< 1;
+  assign sn15 = P[5];
+  assign sn16 = P[6];
+  assign sn17 = P[7];
+  assign sn18 = P[8];
+  assign sn19 = P[9];
+  CSA_2 csa_n20(P[10], P[15] <<< 1, sn20);
+  CSA_2 csa_n21(P[11], P[16] <<< 1, sn21);
+  CSA_2 csa_n22(P[12], P[17] <<< 1, sn22);
+  CSA_2 csa_n23(P[13], P[18] <<< 1, sn23);
+  CSA_2 csa_n24(P[14], P[19] <<< 1, sn24);
+  assign soma[0] = sp0 - sn0;
+  assign soma[1] = sp1 - sn1;
+  assign soma[2] = sp2 - sn2;
+  assign soma[3] = sp3 - sn3;
+  assign soma[4] = sp4 - sn4;
+  assign soma[5] = sp5 - sn5;
+  assign soma[6] = sp6 - sn6;
+  assign soma[7] = sp7 - sn7;
+  assign soma[8] = sp8 - sn8;
+  assign soma[9] = sp9 - sn9;
+  assign soma[10] = sp10 - sn10;
+  assign soma[11] = sp11 - sn11;
+  assign soma[12] = sp12 - sn12;
+  assign soma[13] = sp13 - sn13;
+  assign soma[14] = sp14 - sn14;
+  assign soma[15] = sp15 - sn15;
+  assign soma[16] = sp16 - sn16;
+  assign soma[17] = sp17 - sn17;
+  assign soma[18] = sp18 - sn18;
+  assign soma[19] = sp19 - sn19;
+  assign soma[20] = sp20 - sn20;
+  assign soma[21] = sp21 - sn21;
+  assign soma[22] = sp22 - sn22;
+  assign soma[23] = sp23 - sn23;
+  assign soma[24] = sp24 - sn24;
+endmodule
 
-        CSA_16 sp0 (P[0], P[1], P[2], P[3], P[5], P[6], P[7], P[8], P[10], P[11], P[12], P[13], P[15], P[16], P[17], P[18],  ap[0]);
-        assign soma[0] =  ap[0];
 
-        CSA_8 sp1 (P[1], s1P3, P[6], s1P8, P[11], s1P13, P[16], s1P18,  ap[1]);
-        CSA_4 sn1 (P[2], P[7], P[12], P[17], an[1] );
-        assign soma[1] =  ap[1] - an[1];
+module MatrixA0
+  import packConv::*;
+  (
+    input  type_matrix_a P,
+    output type_output soma
+  );
+  timeunit 1ns;
+  timeprecision 1ps;
 
-        CSA_16 sp2 (P[1], P[2], s2P3, P[4], P[6], P[7], s2P8, P[9], P[11], P[12], s2P13, P[14], P[16], P[17], s2P18, P[19],  ap[2]);
-        assign soma[2] =  ap[2];
+  logic_vector sp0, sp1, sp2, sp3, sp4, sp5, sp6, sp7, sp8, sp9, sp10, sp11, sp12, sp13, sp14;
+  logic_vector sn0, sn1, sn2, sn3, sn4, sn5, sn6, sn7, sn8, sn9, sn10, sn11, sn12, sn13, sn14;
 
-        CSA_8 sp3 (P[5], P[6], P[7], P[8], s1P15, s1P16, s1P17, s1P18,  ap[3]);
-        CSA_4 sn3 (P[10], P[11], P[12], P[13], an[3] );
-        assign soma[3] =  ap[3] - an[3];
+  CSA_4 csa_p0(P[0], P[1], P[2], P[3], sp0);
+  CSA_2 csa_p1(P[1], P[3] <<< 1, sp1);
+  CSA_4 csa_p2(P[1], P[2], P[3] <<< 2, P[4], sp2);
+  CSA_4 csa_p3(P[5], P[6], P[7], P[8], sp3);
+  CSA_2 csa_p4(P[6], P[8] <<< 1, sp4);
+  CSA_4 csa_p5(P[6], P[7], P[8] <<< 2, P[9], sp5);
+  CSA_4 csa_p6(P[10], P[11], P[12], P[13], sp6);
+  CSA_2 csa_p7(P[11], P[13] <<< 1, sp7);
+  CSA_4 csa_p8(P[11], P[12], P[13] <<< 2, P[14], sp8);
+  CSA_4 csa_p9(P[15], P[16], P[17], P[18], sp9);
+  CSA_2 csa_p10(P[16], P[18] <<< 1, sp10);
+  CSA_4 csa_p11(P[16], P[17], P[18] <<< 2, P[19], sp11);
+  CSA_4 csa_p12(P[20], P[21], P[22], P[23], sp12);
+  CSA_2 csa_p13(P[21], P[23] <<< 1, sp13);
+  CSA_4 csa_p14(P[21], P[22], P[23] <<< 2, P[24], sp14);
+  assign sn1 = P[2];
+  assign sn4 = P[7];
+  assign sn7 = P[12];
+  assign sn10 = P[17];
+  assign sn13 = P[22];
+  assign soma[0] = sn0;
+  assign soma[1] = sp1 - sn1;
+  assign soma[2] = sn2;
+  assign soma[3] = sn3;
+  assign soma[4] = sp4 - sn4;
+  assign soma[5] = sn5;
+  assign soma[6] = sn6;
+  assign soma[7] = sp7 - sn7;
+  assign soma[8] = sn8;
+  assign soma[9] = sn9;
+  assign soma[10] = sp10 - sn10;
+  assign soma[11] = sn11;
+  assign soma[12] = sn12;
+  assign soma[13] = sp13 - sn13;
+  assign soma[14] = sn14;
+endmodule
 
-        CSA_5 sp4 (P[6], s1P8, P[12], s1P16, s2P18,  ap[4]);
-        CSA_4 sn4 (P[7], P[11], s1P13, s1P17, an[4] );
-        assign soma[4] =  ap[4] - an[4];
 
-        CSA_8 sp5 (P[6], P[7], s2P8, P[9], s1P16, s1P17, s3P18, s1P19,  ap[5]);
-        CSA_4 sn5 (P[11], P[12], s2P13, P[14], an[5] );
-        assign soma[5] =  ap[5] - an[5];
+module MatrixA1
+  import packConv::*;
+  (
+    input  type_weight P,
+    output type_matrix_a soma
+  );
+  timeunit 1ns;
+  timeprecision 1ps;
 
-        CSA_16 sp6 (P[5], P[6], P[7], P[8], P[10], P[11], P[12], P[13], s2P15, s2P16, s2P17, s2P18, P[20], P[21], P[22], P[23],  ap[6]);
-        assign soma[6] =  ap[6];
+  logic_vector sp0, sp1, sp2, sp3, sp4, sp5, sp6, sp7, sp8, sp9, sp10, sp11, sp12, sp13, sp14;
+  logic_vector sn0, sn1, sn2, sn3, sn4, sn5, sn6, sn7, sn8, sn9, sn10, sn11, sn12, sn13, sn14;
 
-        CSA_8 sp7 (P[6], s1P8, P[11], s1P13, s2P16, s3P18, P[21], s1P23,  ap[7]);
-        CSA_4 sn7 (P[7], P[12], s2P17, P[22], an[7] );
-        assign soma[7] =  ap[7] - an[7];
-
-        CSA_16 sp8 (P[6], P[7], s2P8, P[9], P[11], P[12], s2P13, P[14], s2P16, s2P17, s4P18, s2P19, P[21], P[22], s2P23, P[24],  ap[8]);
-        assign soma[8] =  ap[8];
-
-
+  CSA_4 csa_p0(P[0], P[5], P[10], P[15], sp0);
+  CSA_4 csa_p1(P[1], P[6], P[11], P[16], sp1);
+  CSA_4 csa_p2(P[2], P[7], P[12], P[17], sp2);
+  CSA_4 csa_p3(P[3], P[8], P[13], P[18], sp3);
+  CSA_4 csa_p4(P[4], P[9], P[14], P[19], sp4);
+  CSA_2 csa_p5(P[5], P[15] <<< 1, sp5);
+  CSA_2 csa_p6(P[6], P[16] <<< 1, sp6);
+  CSA_2 csa_p7(P[7], P[17] <<< 1, sp7);
+  CSA_2 csa_p8(P[8], P[18] <<< 1, sp8);
+  CSA_2 csa_p9(P[9], P[19] <<< 1, sp9);
+  CSA_4 csa_p10(P[5], P[10], P[15] <<< 2, P[20], sp10);
+  CSA_4 csa_p11(P[6], P[11], P[16] <<< 2, P[21], sp11);
+  CSA_4 csa_p12(P[7], P[12], P[17] <<< 2, P[22], sp12);
+  CSA_4 csa_p13(P[8], P[13], P[18] <<< 2, P[23], sp13);
+  CSA_4 csa_p14(P[9], P[14], P[19] <<< 2, P[24], sp14);
+  assign sn5 = P[10];
+  assign sn6 = P[11];
+  assign sn7 = P[12];
+  assign sn8 = P[13];
+  assign sn9 = P[14];
+  assign soma[0] = sn0;
+  assign soma[1] = sn1;
+  assign soma[2] = sn2;
+  assign soma[3] = sn3;
+  assign soma[4] = sn4;
+  assign soma[5] = sp5 - sn5;
+  assign soma[6] = sp6 - sn6;
+  assign soma[7] = sp7 - sn7;
+  assign soma[8] = sp8 - sn8;
+  assign soma[9] = sp9 - sn9;
+  assign soma[10] = sn10;
+  assign soma[11] = sn11;
+  assign soma[12] = sn12;
+  assign soma[13] = sn13;
+  assign soma[14] = sn14;
 endmodule
