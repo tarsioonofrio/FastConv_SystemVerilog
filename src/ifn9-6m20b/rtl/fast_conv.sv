@@ -139,9 +139,7 @@ module conv
       data_valid <= 0;
       unique case (EA)
         WR_IFMAP:
-          for (int i = 0; i <25; i++) begin    /// store the IFMAP
-            registers[i] <= inputMAP[i];
-          end
+            registers[24:0] <= inputMAP;
         WR_MC:
           registers <= prod_c1;
         MU1, MU2, MU3, MU4, MU5, MU6:  begin
@@ -154,9 +152,8 @@ module conv
         end
         WR_OUT: begin
           data_valid <= 1;
-          for (int i = 0; i < 9; i++)
-              registers[i] <= prod_a0[i];
-          end
+          registers[8:0] <= prod_a0;
+        end
         default: begin   // necessary - wrong behavior in logic simulation
               registers <= registers;
         end
