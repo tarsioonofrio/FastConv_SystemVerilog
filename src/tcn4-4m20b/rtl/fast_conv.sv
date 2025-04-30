@@ -1,3 +1,26 @@
+module Multip
+  import packConv::*;
+ #(
+  parameter int QUANT = 8,
+  parameter int NBITS = 20
+  )
+  (
+    input  logic_vector register,
+    input  logic_vector weight,
+    output logic signed [NBITS-1+QUANT:0] product
+ );
+
+  timeunit 1ns;
+  timeprecision 1ps;
+
+
+  logic signed [NBITS-1+QUANT:0] partial_product;
+
+  assign partial_product = (NBITS+QUANT)'($signed(register) * $signed(weight));
+  assign product = (NBITS)'(partial_product[NBITS-1+QUANT:QUANT]);
+endmodule
+
+
 module conv
   import packConv::*;
  #(
@@ -19,7 +42,7 @@ module conv
   type_matrix_a prod_a1;
   type_output prod_a0;
 
-  logic signed [NBITS-1+QUANT:0] partial_product[0:4];   // QUANT more bits for the multipliers
+  logic signed [NBITS-1+QUANT:0] product[0:4];   // QUANT more bits for the multipliers
 
   logic [4:0] m0, m1, m2, m3;
 
@@ -78,12 +101,12 @@ module conv
       MU3: begin m0= 8; m1= 9; m2=10; m3=11; end
       default: begin m0=12; m1=13; m2=14; m3=15; end
     endcase
-    partial_product[0] = (NBITS+QUANT)'($signed(registers[m0]) * $signed(weights[m0]) );
-    partial_product[1] = (NBITS+QUANT)'($signed(registers[m1]) * $signed(weights[m1]) );
-    partial_product[2] = (NBITS+QUANT)'($signed(registers[m2]) * $signed(weights[m2]) );
-    partial_product[3] = (NBITS+QUANT)'($signed(registers[m3]) * $signed(weights[m3]) );
   end
 
+  Multip multip0(.register(registers[m0]), .weight(weights[m0]), .product(product[0]));
+  Multip multip1(.register(registers[m1]), .weight(weights[m1]), .product(product[1]));
+  Multip multip2(.register(registers[m2]), .weight(weights[m2]), .product(product[2]));
+  Multip multip3(.register(registers[m3]), .weight(weights[m3]), .product(product[3]));
 
   // Instance of matrix multiplier "A"
   MatrixA1 matrix_a1 (
@@ -109,10 +132,10 @@ module conv
         WR_IFMAP: registers <= inputMAP;
         WR_C:     registers <= prod_c1;
         MU1, MU2, MU3, MU4:  begin
-          registers[m0] <= (NBITS)'(partial_product[0][NBITS-1+QUANT:QUANT]);
-          registers[m1] <= (NBITS)'(partial_product[1][NBITS-1+QUANT:QUANT]);
-          registers[m2] <= (NBITS)'(partial_product[2][NBITS-1+QUANT:QUANT]);
-          registers[m3] <= (NBITS)'(partial_product[3][NBITS-1+QUANT:QUANT]);
+          registers[m0] <= product[0];
+          registers[m1] <= product[1];
+          registers[m2] <= product[2];
+          registers[m3] <= product[3];
         end
         WR_OUT: data_valid <= 1;
         default: begin   // necessary - wrong behavior in logic simulation
