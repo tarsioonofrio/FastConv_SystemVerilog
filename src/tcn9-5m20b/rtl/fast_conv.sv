@@ -1,10 +1,22 @@
-//-------------------------------------------------------------------------
-// FERNANDO MORAES             October/2024
-//-------------------------------------------------------------------------
+module Multip
+  import packConv::*;
+ #(
+  parameter int QUANT = 8,
+  parameter int NBITS = 20
+  )
+  (
+    input  logic_vector register,
+    input  logic_vector weight,
+    output logic signed [NBITS-1+QUANT:0] partial_product
+ );
 
-//-------------------------------------------------------------------------
-// FAST CONVOLUTION
-//-------------------------------------------------------------------------
+  timeunit 1ns;
+  timeprecision 1ps;
+
+  assign partial_product = (NBITS+QUANT)'($signed(register) * $signed(weight));
+
+endmodule
+
 module conv
   import packConv::*;
  #(
@@ -88,13 +100,13 @@ module conv
       MU4: begin m0=15; m1=16; m2=17;  m3=18; m4=19; end
       default: begin m0=20; m1=21; m2=22;  m3=23; m4=24; end
     endcase
-    partial_product[0] = (NBITS+QUANT)'($signed(registers[m0]) * $signed(weights[m0]) );
-    partial_product[1] = (NBITS+QUANT)'($signed(registers[m1]) * $signed(weights[m1]) );
-    partial_product[2] = (NBITS+QUANT)'($signed(registers[m2]) * $signed(weights[m2]) );
-    partial_product[3] = (NBITS+QUANT)'($signed(registers[m3]) * $signed(weights[m3]) );
-    partial_product[4] = (NBITS+QUANT)'($signed(registers[m4]) * $signed(weights[m4]) );
   end
 
+  Multip multip0(.register(registers[m0]), .weight(weights[m0]), .partial_product(partial_product[0]));
+  Multip multip1(.register(registers[m1]), .weight(weights[m1]), .partial_product(partial_product[1]));
+  Multip multip2(.register(registers[m2]), .weight(weights[m2]), .partial_product(partial_product[2]));
+  Multip multip3(.register(registers[m3]), .weight(weights[m3]), .partial_product(partial_product[3]));
+  Multip multip4(.register(registers[m4]), .weight(weights[m4]), .partial_product(partial_product[4]));
 
   // Instance of matrix multiplier "A"
   MatrixA1 matrix_a1 (
