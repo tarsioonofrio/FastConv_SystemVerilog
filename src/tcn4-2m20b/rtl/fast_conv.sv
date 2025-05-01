@@ -123,8 +123,7 @@ module conv
     endcase
   end
 
-  Multip multip0(.register(registers[m0]), .weight(weights[m0]), .product(product[0]));
-  Multip multip1(.register(registers[m1]), .weight(weights[m1]), .product(product[1]));
+  Multip multip0(.register(registers[m0]), .weight(weights[m0]), .product(product));
 
   // Instance of matrix multiplier "A"
   MatrixA1 matrix_a1 (
