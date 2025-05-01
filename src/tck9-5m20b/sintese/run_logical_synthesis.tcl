@@ -1,8 +1,14 @@
 ###############################################################################
 # TOP
 ###############################################################################
-set TOP_MODULE conv
 
+# set DATA_SV $::env(DATA_SV)
+# set OUT_FILES [file dirname $DATA_SV]/synth-results/
+
+set OUT_FILES results/
+
+
+set TOP_MODULE conv
 
 puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 puts "Load the pdk using MMMC"
@@ -30,10 +36,11 @@ puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 	set_db interconnect_mode ple
 
 	### controls the verbosity of the tool
-	#set_db information_level 9
+	set_db information_level 9
 
 	### Avoid proceeding with latche inference
-	set_db hdl_error_on_latch true
+	set_db hdl_error_on_latch false
+	####  o fast 4 tem latch de saída!!
 
 
 puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
@@ -47,7 +54,7 @@ puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 puts "Load hdl files"
 puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 
-	read_hdl -sv "../rtl/pack_conv.sv ../rtl/csa_lib.sv ../rtl/multip.sv ../rtl/mult_matrices.sv ../rtl/fast_conv.sv"
+	read_hdl -sv "../data.sv ../rtl/pack_conv.sv ../rtl/csa_lib.sv ../rtl/mult_matrices.sv ../rtl/fast_conv.sv"
 
 
 
@@ -76,7 +83,6 @@ puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 puts "Write Reports"
 puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 
-    set OUT_FILES ./results
 
 	# Reports clock-gating information for the design
 	report_clock_gating > ${OUT_FILES}/reports/${TOP_MODULE}_clock_gating.rpt
