@@ -9,7 +9,7 @@ def format_column(folder):
     bind = folder[2]
     size = folder[3]
     subs = folder[5:]
-    output = f"{name}{bind}{size}_{subs}" 
+    output = f"{name}{bind}{size}_{subs}"
     return output
 
 
@@ -60,11 +60,11 @@ df = pd.DataFrame(
         "power-mW": power,
     }
 )
-df
+
+
 dft = df.T
-dft.columns = [
-    format_column(n) if "nv-" not in n else n for n in dft.columns
-]
+dft.columns = [format_column(n) for n in dft.columns]
+dft.sort_index(axis=1, inplace=True)
 
 
 # Save to CSV
