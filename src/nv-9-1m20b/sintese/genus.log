@@ -1,0 +1,293 @@
+Cadence Genus(TM) Synthesis Solution.
+Copyright 2024 Cadence Design Systems, Inc. All rights reserved worldwide.
+Cadence and the Cadence logo are registered trademarks and Genus is a trademark
+of Cadence Design Systems, Inc. in the United States and other countries.
+
+[23:35:46.028601] Configured Lic search path (22.01-s003): 5280@paxos.inf.pucrs.br
+
+Version: 22.17-s071_1, built Thu Sep 12 08:37:05 PDT 2024
+Options: -files run_logical_synthesis.tcl 
+Date:    Thu May 01 23:35:46 2025
+Host:    paxos.inf.pucrs.br (x86_64 w/Linux 4.18.0-553.47.1.el8_10.x86_64) (14cores*28cpus*1physical cpu*Intel(R) Core(TM) i9-7940X CPU @ 3.10GHz 19712KB) (131170924KB)
+PID:     400226
+OS:      Rocky Linux release 8.10 (Green Obsidian)
+
+Checking out license: Genus_Synthesis
+[23:35:46.505353] Periodic Lic check successful
+[23:35:46.505363] Feature usage summary:
+[23:35:46.505363] Genus_Synthesis
+
+
+
+***********************************************************************************************************
+***********************************************************************************************************
+
+
+
+Finished executable startup (0 seconds elapsed).
+
+Loading tool scripts...
+Finished loading tool scripts (12 seconds elapsed).
+
+#@ Processing -files option
+@genus 1> source run_logical_synthesis.tcl
+#@ Begin verbose source ./run_logical_synthesis.tcl
+@file(run_logical_synthesis.tcl) 4: set TOP_MODULE conv_standard
+@file(run_logical_synthesis.tcl) 7: puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+@file(run_logical_synthesis.tcl) 8: puts "Load the pdk using MMMC"
+Load the pdk using MMMC
+@file(run_logical_synthesis.tcl) 9: puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+@file(run_logical_synthesis.tcl) 11: 	# Multi-Mode Multi-Corner (MMMC)
+@file(run_logical_synthesis.tcl) 12: 	read_mmmc "scripts/mmmc_tsmc_28_bv.tcl"
+  Setting attribute of root '/': 'is_read_mmmc_flow' = true
+Sourcing './scripts/mmmc_tsmc_28_bv.tcl' (Thu May 01 23:35:58 -03 2025)...
+#@ Begin verbose source ./scripts/mmmc_tsmc_28_bv.tcl
+@file(mmmc_tsmc_28_bv.tcl) 5: set LIB_PATH /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End
+@file(mmmc_tsmc_28_bv.tcl) 6: set TECH_PATH /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Back_End
+@file(mmmc_tsmc_28_bv.tcl) 7: set CONSTRAINTS_PATH ./scripts
+@file(mmmc_tsmc_28_bv.tcl) 14: create_library_set -name libset_0p81v_125c \
+    -timing  "${LIB_PATH}/timing_power_noise/NLDM/tcbn28hpcplusbwp30p140_180a/tcbn28hpcplusbwp30p140ssg0p81v125c.lib"
+@file(mmmc_tsmc_28_bv.tcl) 18: create_library_set -name libset_0p90v_25c \
+    -timing  "${LIB_PATH}/timing_power_noise/NLDM/tcbn28hpcplusbwp30p140_180a/tcbn28hpcplusbwp30p140tt0p9v25c.lib"
+@file(mmmc_tsmc_28_bv.tcl) 22: create_library_set -name libset_0p99v_m40c \
+    -timing  "${LIB_PATH}/timing_power_noise/NLDM/tcbn28hpcplusbwp30p140_180a/tcbn28hpcplusbwp30p140ffg0p99vm40c.lib"
+@file(mmmc_tsmc_28_bv.tcl) 30: create_opcond -name opcond_0p81v_125c -voltage 0.81 -temperature 125.0
+@file(mmmc_tsmc_28_bv.tcl) 31: create_opcond -name opcond_0p90v_25c  -voltage 0.90 -temperature  25.0
+@file(mmmc_tsmc_28_bv.tcl) 32: create_opcond -name opcond_0p99v_m40c -voltage 0.99 -temperature -40.0
+@file(mmmc_tsmc_28_bv.tcl) 39: create_timing_condition -name timing_cond_0p81v_125c \
+    -opcond         opcond_0p81v_125c \
+    -library_sets { libset_0p81v_125c }
+@file(mmmc_tsmc_28_bv.tcl) 43: create_timing_condition -name timing_cond_0p90v_25c \
+    -opcond         opcond_0p90v_25c \
+    -library_sets { libset_0p90v_25c }
+@file(mmmc_tsmc_28_bv.tcl) 47: create_timing_condition -name timing_cond_0p99v_m40c \
+    -opcond         opcond_0p99v_m40c \
+    -library_sets { libset_0p99v_m40c }
+@file(mmmc_tsmc_28_bv.tcl) 56:  create_rc_corner -name rc_corner_125c_capwst \
+    -temperature 125.0 \
+     -qrc_tech ${TECH_PATH}/qrc/RC_QRC_crn28hpc+_1p09m+ut-alrdl_5x1y1z1u_rcworst/qrcTechFile
+@file(mmmc_tsmc_28_bv.tcl) 60:  create_rc_corner -name rc_corner_25c_captyp \
+     -temperature 25.0 \
+    -qrc_tech ${TECH_PATH}/qrc/RC_QRC_crn28hpc+_1p09m+ut-alrdl_5x1y1z1u_typical/qrcTechFile
+@file(mmmc_tsmc_28_bv.tcl) 64:  create_rc_corner -name rc_corner_m40c_capbst \
+     -temperature -40.0 \
+     -qrc_tech ${TECH_PATH}/qrc/RC_QRC_crn28hpc+_1p09m+ut-alrdl_5x1y1z1u_rcbest/qrcTechFile
+@file(mmmc_tsmc_28_bv.tcl) 73: create_delay_corner -name delay_corner_0p81v_125c_capwst \
+    -timing_condition timing_cond_0p81v_125c \
+     -rc_corner rc_corner_125c_capwst
+@file(mmmc_tsmc_28_bv.tcl) 77: create_delay_corner -name delay_corner_0p90v_25c_captyp \
+    -timing_condition timing_cond_0p90v_25c \
+     -rc_corner rc_corner_25c_captyp
+@file(mmmc_tsmc_28_bv.tcl) 81: create_delay_corner -name delay_corner_0p99v_m40c_capbst \
+    -timing_condition timing_cond_0p99v_m40c \
+     -rc_corner rc_corner_m40c_capbst
+@file(mmmc_tsmc_28_bv.tcl) 89: create_constraint_mode -name constraints_default \
+    -sdc_files "${CONSTRAINTS_PATH}/constraints.sdc"
+@file(mmmc_tsmc_28_bv.tcl) 97: create_analysis_view -name analysis_view_0p81v_125c_capwst_slowest \
+    -constraint_mode constraints_default \
+    -delay_corner delay_corner_0p81v_125c_capwst
+@file(mmmc_tsmc_28_bv.tcl) 101: create_analysis_view -name analysis_view_0p90v_25c_captyp_nominal \
+    -constraint_mode constraints_default \
+    -delay_corner delay_corner_0p90v_25c_captyp
+@file(mmmc_tsmc_28_bv.tcl) 105: create_analysis_view -name analysis_view_0p99v_m40c_capbst_fastest \
+    -constraint_mode constraints_default \
+    -delay_corner delay_corner_0p99v_m40c_capbst
+@file(mmmc_tsmc_28_bv.tcl) 113: set_analysis_view -setup { analysis_view_0p81v_125c_capwst_slowest } \
+                  -hold  { analysis_view_0p99v_m40c_capbst_fastest }
+
+  Message Summary for Library tcbn28hpcplusbwp30p140ssg0p81v125c.lib:
+  *******************************************************************
+  Missing a function attribute in the output pin definition. [LBR-518]: 1
+  An unsupported construct was detected in this library. [LBR-40]: 1
+  *******************************************************************
+ 
+Info    : Created nominal operating condition. [LBR-412]
+        : Operating condition '_nominal_' was created for the PVT values (1.000000, 0.810000, 125.000000) in library 'tcbn28hpcplusbwp30p140ssg0p81v125c.lib'.
+        : The nominal operating condition is represented, either by the nominal PVT values specified in the library source (via nom_process,nom_voltage and nom_temperature respectively), or by the default PVT values (1.0,1.0,1.0).
+Warning : Library cell has no output pins defined. [LBR-9]
+        : Library cell 'ANTENNABWP30P140' must have an output pin.
+        : Add the missing output pin(s), then reload the library. Else the library cell will be marked as timing model i.e. unusable. Timing_model means that the cell does not have any defined function. If there is no output pin, Genus will mark library cell as unusable i.e. the attribute 'usable' will be marked to 'false' on the libcell. Therefore, the cell is not used for mapping and it will not be picked up from the library for synthesis. If you query the attribute 'unusable_reason' on the libcell; result will be: 'Library cell has no output pins.'Note: The message LBR-9 is only for the logical pins and not for the power_ground pins. Genus will depend upon the output function defined in the pin group (output pin) of the cell, to use it for mapping. The pg_pin will not have any function defined.
+Warning : Library cell has no output pins defined. [LBR-9]
+        : Library cell 'ANTENNABWP30P140' must have an output pin.
+Warning : Library cell has no output pins defined. [LBR-9]
+        : Library cell 'BOUNDARY_LEFTBWP30P140' must have an output pin.
+Warning : Library cell has no output pins defined. [LBR-9]
+        : Library cell 'BOUNDARY_LEFTBWP30P140' must have an output pin.
+Warning : Library cell has no output pins defined. [LBR-9]
+        : Library cell 'BOUNDARY_RIGHTBWP30P140' must have an output pin.
+Warning : Library cell has no output pins defined. [LBR-9]
+        : Library cell 'BOUNDARY_RIGHTBWP30P140' must have an output pin.
+Warning : Unusable clock gating integrated cell found at the time of loading libraries. This warning happens because a particular library cell is defined as 'clock_gating_integrated_cell', but 'dont_use' attribute is defined as true in the liberty library. To make Genus use this cell for clock gating insertion, 'dont_use' attribute should be set to false. [LBR-101]
+        : Clock gating integrated cell name: 'CKLHQD20BWP30P140'
+        : To make the cell usable, change the value of 'dont_use' attribute to false.
+Warning : Unusable clock gating integrated cell found at the time of loading libraries. This warning happens because a particular library cell is defined as 'clock_gating_integrated_cell', but 'dont_use' attribute is defined as true in the liberty library. To make Genus use this cell for clock gating insertion, 'dont_use' attribute should be set to false. [LBR-101]
+        : Clock gating integrated cell name: 'CKLHQD24BWP30P140'
+Warning : Unusable clock gating integrated cell found at the time of loading libraries. This warning happens because a particular library cell is defined as 'clock_gating_integrated_cell', but 'dont_use' attribute is defined as true in the liberty library. To make Genus use this cell for clock gating insertion, 'dont_use' attribute should be set to false. [LBR-101]
+        : Clock gating integrated cell name: 'CKLNQD20BWP30P140'
+Warning : Unusable clock gating integrated cell found at the time of loading libraries. This warning happens because a particular library cell is defined as 'clock_gating_integrated_cell', but 'dont_use' attribute is defined as true in the liberty library. To make Genus use this cell for clock gating insertion, 'dont_use' attribute should be set to false. [LBR-101]
+        : Clock gating integrated cell name: 'CKLNQD24BWP30P140'
+Warning : Library cell has no output pins defined. [LBR-9]
+        : Library cell 'DCAP16BWP30P140' must have an output pin.
+Warning : Library cell has no output pins defined. [LBR-9]
+        : Library cell 'DCAP16BWP30P140' must have an output pin.
+Warning : Library cell has no output pins defined. [LBR-9]
+        : Library cell 'DCAP32BWP30P140' must have an output pin.
+Warning : Library cell has no output pins defined. [LBR-9]
+        : Library cell 'DCAP32BWP30P140' must have an output pin.
+Warning : Library cell has no output pins defined. [LBR-9]
+        : Library cell 'DCAP4BWP30P140' must have an output pin.
+Warning : Library cell has no output pins defined. [LBR-9]
+        : Library cell 'DCAP4BWP30P140' must have an output pin.
+Warning : Library cell has no output pins defined. [LBR-9]
+        : Library cell 'DCAP64BWP30P140' must have an output pin.
+Warning : Library cell has no output pins defined. [LBR-9]
+        : Library cell 'DCAP64BWP30P140' must have an output pin.
+Warning : Library cell has no output pins defined. [LBR-9]
+        : Library cell 'DCAP8BWP30P140' must have an output pin.
+Warning : Library cell has no output pins defined. [LBR-9]
+        : Library cell 'DCAP8BWP30P140' must have an output pin.
+Warning : Library cell has no output pins defined. [LBR-9]
+        : Library cell 'FILL16BWP30P140' must have an output pin.
+Warning : Library cell has no output pins defined. [LBR-9]
+        : Library cell 'FILL16BWP30P140' must have an output pin.
+Warning : Library cell has no output pins defined. [LBR-9]
+        : Library cell 'FILL2BWP30P140' must have an output pin.
+Warning : Library cell has no output pins defined. [LBR-9]
+        : Library cell 'FILL2BWP30P140' must have an output pin.
+Warning : Maximum message print count reached. [MESG-11]
+        : Maximum print count of '20' reached for message 'LBR-9'.
+Info    : Set default library domain. [LBR-109]
+        : The default library domain is 'library_domain:timing_cond_0p81v_125c'.
+  Library has 530 usable logic and 349 usable sequential lib-cells.
+@file(mmmc_tsmc_28_bv.tcl) 120: read_physical -lefs "${TECH_PATH}/lef/tsmcn28_9lm5X1Y1Z1UUTRDL.tlef  ${TECH_PATH}/lef/tcbn28hpcplusbwp30p140_110a/lef/tcbn28hpcplusbwp30p140.lef"
+
+  According to lef_library, there are total 10 routing layers [ V(5) / H(5) ]
+
+Warning : The variant range of wire parameters is too large. An example of wire parameters are, a WIDTH for layer, PITCH for layer, MINSPACING for layers, etc. [PHYS-12]
+        : The variant range (0.05, 2) of 'WIDTH' for layers 'M6' and 'AP' is too large.
+        : Check the consistency of the parameters, and see if you can ignore this message or you're using different LEF file with wrong parameters.
+Warning : The variant range of wire parameters is too large. An example of wire parameters are, a WIDTH for layer, PITCH for layer, MINSPACING for layers, etc. [PHYS-12]
+        : The variant range (0.1, 4.5) of 'PITCH' for layers 'M4' and 'AP' is too large.
+Warning : The variant range of wire parameters is too large. An example of wire parameters are, a WIDTH for layer, PITCH for layer, MINSPACING for layers, etc. [PHYS-12]
+        : The variant range (0.05, 2) of 'MINSPACING' for layers 'M1' and 'AP' is too large.
+Warning : Physical cell not defined in library. [PHYS-279]
+        : The physical (LEF) cell ISOHID1BWP30P140 cannot be found in library.
+        : Ensure that the proper library files are available and have been imported.
+Warning : Physical cell not defined in library. [PHYS-279]
+        : The physical (LEF) cell ISOHID2BWP30P140 cannot be found in library.
+Warning : Physical cell not defined in library. [PHYS-279]
+        : The physical (LEF) cell ISOHID4BWP30P140 cannot be found in library.
+Warning : Physical cell not defined in library. [PHYS-279]
+        : The physical (LEF) cell ISOHID8BWP30P140 cannot be found in library.
+Warning : Physical cell not defined in library. [PHYS-279]
+        : The physical (LEF) cell ISOLOD1BWP30P140 cannot be found in library.
+Warning : Physical cell not defined in library. [PHYS-279]
+        : The physical (LEF) cell ISOLOD2BWP30P140 cannot be found in library.
+Warning : Physical cell not defined in library. [PHYS-279]
+        : The physical (LEF) cell ISOLOD4BWP30P140 cannot be found in library.
+Warning : Physical cell not defined in library. [PHYS-279]
+        : The physical (LEF) cell ISOLOD8BWP30P140 cannot be found in library.
+Warning : Physical cell not defined in library. [PHYS-279]
+        : The physical (LEF) cell ISOSRHID2BWP30P140 cannot be found in library.
+Warning : Physical cell not defined in library. [PHYS-279]
+        : The physical (LEF) cell ISOSRHID4BWP30P140 cannot be found in library.
+Warning : Physical cell not defined in library. [PHYS-279]
+        : The physical (LEF) cell ISOSRHID8BWP30P140 cannot be found in library.
+Warning : Physical cell not defined in library. [PHYS-279]
+        : The physical (LEF) cell ISOSRLOD2BWP30P140 cannot be found in library.
+Warning : Physical cell not defined in library. [PHYS-279]
+        : The physical (LEF) cell ISOSRLOD4BWP30P140 cannot be found in library.
+Warning : Physical cell not defined in library. [PHYS-279]
+        : The physical (LEF) cell ISOSRLOD8BWP30P140 cannot be found in library.
+Warning : Physical cell not defined in library. [PHYS-279]
+        : The physical (LEF) cell LVLHLCD1BWP30P140 cannot be found in library.
+Warning : Physical cell not defined in library. [PHYS-279]
+        : The physical (LEF) cell LVLHLCD2BWP30P140 cannot be found in library.
+Warning : Physical cell not defined in library. [PHYS-279]
+        : The physical (LEF) cell LVLHLCD4BWP30P140 cannot be found in library.
+Warning : Physical cell not defined in library. [PHYS-279]
+        : The physical (LEF) cell LVLHLCD8BWP30P140 cannot be found in library.
+Warning : Physical cell not defined in library. [PHYS-279]
+        : The physical (LEF) cell LVLHLCLOD1BWP30P140 cannot be found in library.
+Warning : Physical cell not defined in library. [PHYS-279]
+        : The physical (LEF) cell LVLHLCLOD2BWP30P140 cannot be found in library.
+Warning : Maximum message print count reached. [MESG-11]
+        : Maximum print count of '20' reached for message 'PHYS-279'.
+#@ End verbose source ./scripts/mmmc_tsmc_28_bv.tcl
+@file(run_logical_synthesis.tcl) 15: puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+@file(run_logical_synthesis.tcl) 16: puts "Configuration of the Genus"
+Configuration of the Genus
+@file(run_logical_synthesis.tcl) 17: puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+@file(run_logical_synthesis.tcl) 19: 	set_multi_cpu_usage -local_cpu 112
+Warning : Check number of local CPUs. [TUI-279]
+        : Number of local CPUs specified (112) > actual number of CPUs in the host (28).
+        : The lower value will be used.
+@file(run_logical_synthesis.tcl) 21: 	set_db lp_default_probability 0.5
+  Setting attribute of root '/': 'lp_default_probability' = 0.50000
+@file(run_logical_synthesis.tcl) 23: 	set_db syn_global_effort high
+  Setting attribute of root '/': 'syn_global_effort' = high
+@file(run_logical_synthesis.tcl) 25: 	### keep hierarchy
+@file(run_logical_synthesis.tcl) 26: 	set_db auto_ungroup none
+  Setting attribute of root '/': 'auto_ungroup' = none
+@file(run_logical_synthesis.tcl) 28: 	### Set PLE (Generates a set of load values, which were obtained from the physical layout..
+@file(run_logical_synthesis.tcl) 29: 	# estimator (PLE) or wire-load model, for all the nets in the specified design)
+@file(run_logical_synthesis.tcl) 30: 	set_db interconnect_mode ple
+  Setting attribute of root '/': 'interconnect_mode' = ple
+@file(run_logical_synthesis.tcl) 32: 	### controls the verbosity of the tool
+@file(run_logical_synthesis.tcl) 33: 	#set_db information_level 9
+@file(run_logical_synthesis.tcl) 35: 	### Avoid proceeding with latche inference
+@file(run_logical_synthesis.tcl) 36: 	set_db hdl_error_on_latch true
+  Setting attribute of root '/': 'hdl_error_on_latch' = true
+@file(run_logical_synthesis.tcl) 39: puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+@file(run_logical_synthesis.tcl) 40: puts "Control Clock Gating "
+Control Clock Gating 
+@file(run_logical_synthesis.tcl) 41: puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+@file(run_logical_synthesis.tcl) 43: 	set_db lp_insert_clock_gating true
+Warning : The 'lp_insert_clock_gating' attribute should be set before elaboration. [POPT-104]
+        : The design 'design:__default_mmmc_spec' is already read. The attribute will not be set.
+        : Setting the 'lp_insert_clock_gating' attribute before elaboration will result in an optimal clock-gated design.
+  Setting attribute of root '/': 'lp_insert_clock_gating' = true
+@file(run_logical_synthesis.tcl) 46: puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+@file(run_logical_synthesis.tcl) 47: puts "Load hdl files"
+Load hdl files
+@file(run_logical_synthesis.tcl) 48: puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+@file(run_logical_synthesis.tcl) 50: 	read_hdl -sv "../pack_conv.sv ../mac_op.sv ../naive_conv.sv"
+Warning : Cannot open file. [VLOGPT-650]
+        : File '../pack_conv.sv'.
+        : The specified file could not be opened.  Check the value of the init_hdl_search_path attribute.
+Warning : Cannot open file. [VLOGPT-650]
+        : File '../mac_op.sv'.
+Warning : Cannot open file. [VLOGPT-650]
+        : File '../naive_conv.sv'.
+@file(run_logical_synthesis.tcl) 54: puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+@file(run_logical_synthesis.tcl) 55: puts "Elaboration"
+Elaboration
+@file(run_logical_synthesis.tcl) 56: puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+@file(run_logical_synthesis.tcl) 58: 	elaborate ${TOP_MODULE}
+Error   : Could not find an HDL design. [CDFG-210] [elaborate]
+        : The design is 'conv_standard'.
+        : This error may happen if you read a set of files, and you try to elaborate a design which description is not part of the files read. To fix this, check the name of the design you want to elaborate, or check if you have read all the expected RTL files.
+UM:   flow.cputime  flow.realtime  timing.setup.tns  timing.setup.wns  snapshot
+UM:*                                                                   elaborate
+#@ End verbose source ./run_logical_synthesis.tcl
+1
+Encountered problems processing file: run_logical_synthesis.tcl
+WARNING: This version of the tool is 231 days old.
+@genus:root: 2> exit
+
+Lic Summary:
+[23:40:06.470120] Cdslmd servers: paxos
+[23:40:06.470128] Feature usage summary:
+[23:40:06.470129] Genus_Synthesis
+
+Normal exit.
