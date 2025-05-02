@@ -41,7 +41,7 @@ module conv
 
   logic signed [NBITS-1+QUANT:0] product;   // QUANT more bits for the multipliers
 
-  logic [4:0] m0;
+  logic [4:0] idx;
 
   typedef enum {IDLE, WR_IFMAP, WR_C, MU1, MU2, MU3, MU4, MU5, MU6, MU7, MU8, MU9, MU10, MU11, MU12, MU13, MU14, MU15, MU16, WR_OUT} state_type;
 
@@ -104,26 +104,26 @@ module conv
    // 4 multipliers inside this block
   always_comb begin
     unique case (EA)
-      MU1:  m0= 0; 
-      MU2:  m0= 1;
-      MU3:  m0= 2; 
-      MU4:  m0= 3;
-      MU5:  m0= 4; 
-      MU6:  m0= 5;
-      MU7:  m0= 6; 
-      MU8:  m0= 7;
-      MU9:  m0= 8; 
-      MU10: m0= 9;
-      MU11: m0=10; 
-      MU12: m0=11;
-      MU13: m0=12; 
-      MU14: m0=13;
-      MU15: m0=14;
-      default: m0=15;
+      MU1:  idx= 0; 
+      MU2:  idx= 1;
+      MU3:  idx= 2; 
+      MU4:  idx= 3;
+      MU5:  idx= 4; 
+      MU6:  idx= 5;
+      MU7:  idx= 6; 
+      MU8:  idx= 7;
+      MU9:  idx= 8; 
+      MU10: idx= 9;
+      MU11: idx=10; 
+      MU12: idx=11;
+      MU13: idx=12; 
+      MU14: idx=13;
+      MU15: idx=14;
+      default: idx=15;
     endcase
   end
 
-  Multip multip0(.register(registers[m0]), .weight(weights[m0]), .product(product));
+  Multip multip0(.register(registers[idx]), .weight(weights[idx]), .product(product));
 
   // Instance of matrix multiplier "A"
   MatrixA1 matrix_a1 (
@@ -149,7 +149,7 @@ module conv
         WR_IFMAP: registers <= inputMAP;
         WR_C:     registers <= prod_c1;
         MU1, MU2, MU3, MU4, MU5, MU6, MU7, MU8, MU9, MU10, MU11, MU12, MU13, MU14, MU15, MU16:  begin
-          registers[m0] <= product;
+          registers[idx] <= product;
         end
         WR_OUT: data_valid <= 1;
         default: begin   // necessary - wrong behavior in logic simulation

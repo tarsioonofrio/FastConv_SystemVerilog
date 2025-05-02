@@ -72,7 +72,7 @@ module tb;
     #10 $finish;
   end
 
-  
+
   always @(posedge clk) begin
     if (data_valid) begin
       // #1; // espera propagação de sinal
@@ -93,7 +93,7 @@ module tb;
     end
   end
 
-  
+
   final begin
     integer log_f;
     log_f = $fopen("sim_summary.txt", "w");
