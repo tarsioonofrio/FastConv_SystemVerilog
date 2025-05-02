@@ -5,6 +5,27 @@
 //-------------------------------------------------------------------------
 // FAST CONVOLUTION
 //-------------------------------------------------------------------------
+
+module Multip
+  import packConv::*;
+ #(
+  parameter int QUANT = 8,
+  parameter int NBITS = 20
+  )
+  (
+    input  logic_vector register,
+    input  logic_vector weight,
+    output logic signed [NBITS-1+QUANT:0] product
+ );
+  timeunit 1ns;
+  timeprecision 1ps;
+  logic signed [NBITS-1+QUANT:0] partial_product;
+
+  assign partial_product = (NBITS+QUANT)'($signed(register) * $signed(weight));
+  assign product = (NBITS)'(partial_product[NBITS-1+QUANT:QUANT]);
+endmodule
+
+
 module conv
   import packConv::*;
  #(
@@ -27,7 +48,7 @@ module conv
   type_matrix_a prod_a1;
   type_output prod_a0;
 
-  logic signed [NBITS-1+QUANT:0] partial_product [0:5];   // QUANT more bits for the multipliers
+  logic signed [NBITS-1+QUANT:0] product [0:5];   // QUANT more bits for the multipliers
 
   logic [5:0] m0, m1, m2, m3, m4, m5;
 
@@ -46,7 +67,7 @@ module conv
       EA <= PE;
     end
   end
-  
+
   always_comb begin    // 9 states + IDEL - IDLE is blocking!
     unique case (EA)
       IDLE:      PE = start ? WR_IFMAP : IDLE;
@@ -73,13 +94,18 @@ module conv
     .soma(prod_c0)
   );
 
-
   MatrixC1 matrix_c1(
     .P(prod_c0),
     .soma(prod_c1)
   );
 
-  // 5 multipliers inside this block
+  Multip multip0(.register(registers[m0]), .weight(weights[m0]), .product(product[0]));
+  Multip multip1(.register(registers[m1]), .weight(weights[m1]), .product(product[1]));
+  Multip multip2(.register(registers[m2]), .weight(weights[m2]), .product(product[2]));
+  Multip multip3(.register(registers[m3]), .weight(weights[m3]), .product(product[3]));
+  Multip multip4(.register(registers[m4]), .weight(weights[m4]), .product(product[4]));
+  Multip multip5(.register(registers[m5]), .weight(weights[m5]), .product(product[5]));
+
   always_comb begin
     unique case (EA)
       MU1: begin m0= 0; m1= 1; m2= 2;  m3= 3; m4= 4; m5= 5; end
@@ -89,13 +115,6 @@ module conv
       MU5: begin m0=24; m1=25; m2=26;  m3=27; m4=28; m5=29; end
       default: begin m0=30; m1=31; m2=32;  m3=33; m4=34; m5=35; end
     endcase
-
-    partial_product[0] = (NBITS+QUANT)'($signed(registers[m0]) * $signed(weights[m0]) );
-    partial_product[1] = (NBITS+QUANT)'($signed(registers[m1]) * $signed(weights[m1]) );
-    partial_product[2] = (NBITS+QUANT)'($signed(registers[m2]) * $signed(weights[m2]) );
-    partial_product[3] = (NBITS+QUANT)'($signed(registers[m3]) * $signed(weights[m3]) );
-    partial_product[4] = (NBITS+QUANT)'($signed(registers[m4]) * $signed(weights[m4]) );
-    partial_product[5] = (NBITS+QUANT)'($signed(registers[m5]) * $signed(weights[m5]) );
   end
 
   // Instance of matrix multiplier "A"
@@ -118,24 +137,21 @@ module conv
       data_valid <= 0;
       unique case (EA)
         WR_IFMAP:
-          for (int i = 0; i <25; i++) begin    /// store the IFMAP
-            registers[i] <= inputMAP[i];
-          end
+            registers[24:0] <= inputMAP;
         WR_MC:
           registers <= prod_c1;
         MU1, MU2, MU3, MU4, MU5, MU6:  begin
-          registers[m0] <= (NBITS)'(partial_product[0][NBITS-1+QUANT:QUANT]);
-          registers[m1] <= (NBITS)'(partial_product[1][NBITS-1+QUANT:QUANT]);
-          registers[m2] <= (NBITS)'(partial_product[2][NBITS-1+QUANT:QUANT]);
-          registers[m3] <= (NBITS)'(partial_product[3][NBITS-1+QUANT:QUANT]);
-          registers[m4] <= (NBITS)'(partial_product[4][NBITS-1+QUANT:QUANT]);
-          registers[m5] <= (NBITS)'(partial_product[5][NBITS-1+QUANT:QUANT]);
+          registers[m0] <= product[0];
+          registers[m1] <= product[1];
+          registers[m2] <= product[2];
+          registers[m3] <= product[3];
+          registers[m4] <= product[4];
+          registers[m5] <= product[5];
         end
         WR_OUT: begin
           data_valid <= 1;
-          for (int i = 0; i < 9; i++)
-              registers[i] <= prod_a0[i];
-          end
+          registers[8:0] <= prod_a0;
+        end
         default: begin   // necessary - wrong behavior in logic simulation
               registers <= registers;
         end
@@ -144,11 +160,8 @@ module conv
   end
 
   // connect 9 first registers to the outputs
-  always_comb
-  begin
-    for (int i = 0; i <9; i++) begin
-      outputMAP[i] = registers[i];
-    end
+  always_comb begin
+    outputMAP = registers[8:0];
   end
 
 endmodule

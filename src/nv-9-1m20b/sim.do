@@ -8,9 +8,9 @@ if {[info exists ::env(DATA)]} {
     set DATA_SV "./data.sv"
 }
 vlog -work work  $DATA_SV
-vlog -work work  pack_conv.sv
-vlog -work work  -svinputport=relaxed mac_op.sv
-vlog -work work  -svinputport=relaxed naive_conv.sv
+vlog -work work  rtl/pack_conv.sv
+vlog -work work  -svinputport=relaxed rtl/mac_op.sv
+vlog -work work  -svinputport=relaxed rtl/naive_conv.sv
 vlog -work work  -svinputport=relaxed ../../testbench/tb_conv.sv
 
 vsim -voptargs=+acc -t ns work.tb
