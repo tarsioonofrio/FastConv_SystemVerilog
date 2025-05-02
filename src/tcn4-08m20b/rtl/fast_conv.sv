@@ -45,30 +45,30 @@ module conv
 
   typedef enum {IDLE, WR_IFMAP, WR_C, MU1, MU2, WR_OUT} state_type;
 
-  state_type EA, PE;
+  state_type current_st, next_st;
 
   //
   // Control FSM
   //
   always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
-      EA <= IDLE;
+      current_st <= IDLE;
     end else begin
-      EA <= PE;
+      current_st <= next_st;
     end
   end
 
   always_comb begin
-    unique case (EA)
-      IDLE:     PE = start ? WR_IFMAP : IDLE;
-      WR_IFMAP: PE = WR_C;
-      WR_C:     PE = MU1;
+    unique case (current_st)
+      IDLE:     next_st = start ? WR_IFMAP : IDLE;
+      WR_IFMAP: next_st = WR_C;
+      WR_C:     next_st = MU1;
 
       // five state multiplier
-      MU1:     PE = MU2;
-      MU2:     PE = WR_OUT;
-      WR_OUT:  PE = IDLE;
-      default: PE = IDLE;
+      MU1:     next_st = MU2;
+      MU2:     next_st = WR_OUT;
+      WR_OUT:  next_st = IDLE;
+      default: next_st = IDLE;
     endcase
   end
 
@@ -89,7 +89,7 @@ module conv
 
    // 4 multipliers inside this block
   always_comb begin
-    unique case (EA)
+    unique case (current_st)
       MU1:     begin idx[0]= 0; idx[1]= 1; idx[2]= 2; idx[3]= 3; idx[4]= 4; idx[5]= 5; idx[6]= 6; idx[7]= 7; end
       default: begin idx[0]= 8; idx[1]= 9; idx[2]=10; idx[3]=11; idx[4]=12; idx[5]=13; idx[6]=14; idx[7]=15; end
     endcase
@@ -124,7 +124,7 @@ module conv
   end
   else begin
     data_valid <= 0;  // default
-      unique case (EA)
+      unique case (current_st)
         WR_IFMAP: registers <= inputMAP;
         WR_C:     registers <= prod_c1;
         MU1, MU2:  begin
@@ -146,7 +146,7 @@ module conv
   end
 
   always_latch begin
-    if (EA==WR_OUT) begin
+    if (current_st==WR_OUT) begin
         outputMAP = prod_a0;   /// saída em latch
       end
   end
