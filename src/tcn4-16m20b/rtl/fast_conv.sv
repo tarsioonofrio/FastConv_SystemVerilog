@@ -41,8 +41,6 @@ module conv
 
   logic signed [NBITS-1+QUANT:0] product[0:16];   // QUANT more bits for the multipliers
 
-  logic [4:0] m0, m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13, m14, m15;
-
   typedef enum {IDLE, WR_IFMAP, WR_C, MU1, WR_OUT} state_type;
 
   state_type EA, PE;
@@ -84,14 +82,6 @@ module conv
     .P(prod_c0),
     .soma(prod_c1)
   );
-
-   // 4 multipliers inside this block
-  // always_comb begin
-  //   unique case (EA)
-  //     MU1:     begin m0= 0; m1= 1; m2= 2; m3= 3; m4= 4; m5= 5; m6= 6; m7= 7; end
-  //     default: begin m0= 8; m1= 9; m2=10; m3=11; m4=12; m5=13; m6=14; m7=15; end
-  //   endcase
-  // end
 
   Multip multip00(.register(registers[00]), .weight(weights[00]), .product(product[00]));
   Multip multip01(.register(registers[01]), .weight(weights[01]), .product(product[01]));

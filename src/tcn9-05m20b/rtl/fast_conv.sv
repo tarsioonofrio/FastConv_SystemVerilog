@@ -42,7 +42,7 @@ module conv
 
   logic signed [NBITS-1+QUANT:0] product [0:4];   // QUANT more bits for the multipliers
 
-  logic [4:0] m0, m1, m2, m3, m4;
+  logic [4:0] idx[0:4];
 
   typedef enum {IDLE, WR_IFMAP, WR_MC, MU1, MU2, MU3, MU4, MU5, WR_OUT} state_type;
 
@@ -95,19 +95,19 @@ module conv
    // 5 multipliers inside this block
   always_comb begin
     unique case (EA)
-      MU1: begin m0= 0; m1= 1; m2= 2;  m3= 3; m4= 4; end
-      MU2: begin m0= 5; m1= 6; m2= 7;  m3= 8; m4= 9; end
-      MU3: begin m0=10; m1=11; m2=12;  m3=13; m4=14; end
-      MU4: begin m0=15; m1=16; m2=17;  m3=18; m4=19; end
-      default: begin m0=20; m1=21; m2=22;  m3=23; m4=24; end
+      MU1: begin idx[0]= 0; idx[1]= 1; idx[2]= 2;  idx[3]= 3; idx[4]= 4; end
+      MU2: begin idx[0]= 5; idx[1]= 6; idx[2]= 7;  idx[3]= 8; idx[4]= 9; end
+      MU3: begin idx[0]=10; idx[1]=11; idx[2]=12;  idx[3]=13; idx[4]=14; end
+      MU4: begin idx[0]=15; idx[1]=16; idx[2]=17;  idx[3]=18; idx[4]=19; end
+      default: begin idx[0]=20; idx[1]=21; idx[2]=22;  idx[3]=23; idx[4]=24; end
     endcase
   end
 
-  Multip multip0(.register(registers[m0]), .weight(weights[m0]), .product(product[0]));
-  Multip multip1(.register(registers[m1]), .weight(weights[m1]), .product(product[1]));
-  Multip multip2(.register(registers[m2]), .weight(weights[m2]), .product(product[2]));
-  Multip multip3(.register(registers[m3]), .weight(weights[m3]), .product(product[3]));
-  Multip multip4(.register(registers[m4]), .weight(weights[m4]), .product(product[4]));
+  Multip multip0(.register(registers[idx[0]]), .weight(weights[idx[0]]), .product(product[0]));
+  Multip multip1(.register(registers[idx[1]]), .weight(weights[idx[1]]), .product(product[1]));
+  Multip multip2(.register(registers[idx[2]]), .weight(weights[idx[2]]), .product(product[2]));
+  Multip multip3(.register(registers[idx[3]]), .weight(weights[idx[3]]), .product(product[3]));
+  Multip multip4(.register(registers[idx[4]]), .weight(weights[idx[4]]), .product(product[4]));
 
   // Instance of matrix multiplier "A"
   MatrixA1 matrix_a1 (
@@ -133,11 +133,11 @@ module conv
         WR_IFMAP:   registers <= inputMAP;
         WR_MC:      registers <= prod_c1;
         MU1, MU2, MU3, MU4, MU5:  begin
-          registers[m0] <= product[0];
-          registers[m1] <= product[1];
-          registers[m2] <= product[2];
-          registers[m3] <= product[3];
-          registers[m4] <= product[4];
+          registers[idx[0]] <= product[0];
+          registers[idx[1]] <= product[1];
+          registers[idx[2]] <= product[2];
+          registers[idx[3]] <= product[3];
+          registers[idx[4]] <= product[4];
         end
         WR_OUT: data_valid <= 1;
         default: begin   // necessary - wrong behavior in logic simulation

@@ -41,7 +41,7 @@ module conv
 
   logic signed [NBITS-1+QUANT:0] product[0:4];   // QUANT more bits for the multipliers
 
-  logic [4:0] m0, m1, m2, m3;
+  logic [4:0] idx[0:3];
 
   typedef enum {IDLE, WR_IFMAP, WR_C, MU1, MU2, MU3, MU4, WR_OUT} state_type;
 
@@ -92,17 +92,17 @@ module conv
    // 4 multipliers inside this block
   always_comb begin
     unique case (EA)
-      MU1: begin m0= 0; m1= 1; m2= 2; m3= 3; end
-      MU2: begin m0= 4; m1= 5; m2= 6; m3= 7; end
-      MU3: begin m0= 8; m1= 9; m2=10; m3=11; end
-      default: begin m0=12; m1=13; m2=14; m3=15; end
+      MU1: begin idx[0]= 0; idx[1]= 1; idx[2]= 2; idx[3]= 3; end
+      MU2: begin idx[0]= 4; idx[1]= 5; idx[2]= 6; idx[3]= 7; end
+      MU3: begin idx[0]= 8; idx[1]= 9; idx[2]=10; idx[3]=11; end
+      default: begin idx[0]=12; idx[1]=13; idx[2]=14; idx[3]=15; end
     endcase
   end
 
-  Multip multip0(.register(registers[m0]), .weight(weights[m0]), .product(product[0]));
-  Multip multip1(.register(registers[m1]), .weight(weights[m1]), .product(product[1]));
-  Multip multip2(.register(registers[m2]), .weight(weights[m2]), .product(product[2]));
-  Multip multip3(.register(registers[m3]), .weight(weights[m3]), .product(product[3]));
+  Multip multip0(.register(registers[idx[0]]), .weight(weights[idx[0]]), .product(product[0]));
+  Multip multip1(.register(registers[idx[1]]), .weight(weights[idx[1]]), .product(product[1]));
+  Multip multip2(.register(registers[idx[2]]), .weight(weights[idx[2]]), .product(product[2]));
+  Multip multip3(.register(registers[idx[3]]), .weight(weights[idx[3]]), .product(product[3]));
 
   // Instance of matrix multiplier "A"
   MatrixA1 matrix_a1 (
@@ -128,10 +128,10 @@ module conv
         WR_IFMAP: registers <= inputMAP;
         WR_C:     registers <= prod_c1;
         MU1, MU2, MU3, MU4:  begin
-          registers[m0] <= product[0];
-          registers[m1] <= product[1];
-          registers[m2] <= product[2];
-          registers[m3] <= product[3];
+          registers[idx[0]] <= product[0];
+          registers[idx[1]] <= product[1];
+          registers[idx[2]] <= product[2];
+          registers[idx[3]] <= product[3];
         end
         WR_OUT: data_valid <= 1;
         default: begin   // necessary - wrong behavior in logic simulation

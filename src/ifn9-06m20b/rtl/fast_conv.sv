@@ -48,13 +48,13 @@ module conv
   type_matrix_a prod_a1;
   type_output prod_a0;
 
-  logic signed [NBITS-1+QUANT:0] product [0:5];   // QUANT more bits for the multipliers
+  logic signed[NBITS-1+QUANT:0] product[0:5];   // QUANT more bits for the multipliers
 
-  logic [5:0] m0, m1, m2, m3, m4, m5;
+  logic[5:0] idx[0:5];
 
   // up to 16 states
   typedef enum logic [3:0] {IDLE, WR_IFMAP, WR_MC, MU1, MU2, MU3, MU4, MU5, MU6, WR_OUT} state_type;
-  state_type EA, PE;
+  state_type current_st, next_st;
 
   //
   // Control FSM
@@ -62,25 +62,25 @@ module conv
 
   always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
-      EA <= IDLE;
+      current_st <= IDLE;
     end else begin
-      EA <= PE;
+      current_st <= next_st;
     end
   end
 
   always_comb begin    // 9 states + IDEL - IDLE is blocking!
-    unique case (EA)
-      IDLE:      PE = start ? WR_IFMAP : IDLE;
-      WR_IFMAP:  PE = WR_MC;
-      WR_MC:     PE = MU1;
-      MU1:       PE = MU2;
-      MU2:       PE = MU3;
-      MU3:       PE = MU4;
-      MU4:       PE = MU5;
-      MU5:       PE = MU6;
-      MU6:       PE = WR_OUT;
-      WR_OUT:    PE = IDLE;
-      default:   PE = IDLE;
+    unique case (current_st)
+      // IDLE
+      default:   next_st = start ? WR_IFMAP : IDLE;
+      WR_IFMAP:  next_st = WR_MC;
+      WR_MC:     next_st = MU1;
+      MU1:       next_st = MU2;
+      MU2:       next_st = MU3;
+      MU3:       next_st = MU4;
+      MU4:       next_st = MU5;
+      MU5:       next_st = MU6;
+      MU6:       next_st = WR_OUT;
+      WR_OUT:    next_st = IDLE;
     endcase
   end
 
@@ -99,21 +99,21 @@ module conv
     .soma(prod_c1)
   );
 
-  Multip multip0(.register(registers[m0]), .weight(weights[m0]), .product(product[0]));
-  Multip multip1(.register(registers[m1]), .weight(weights[m1]), .product(product[1]));
-  Multip multip2(.register(registers[m2]), .weight(weights[m2]), .product(product[2]));
-  Multip multip3(.register(registers[m3]), .weight(weights[m3]), .product(product[3]));
-  Multip multip4(.register(registers[m4]), .weight(weights[m4]), .product(product[4]));
-  Multip multip5(.register(registers[m5]), .weight(weights[m5]), .product(product[5]));
+  Multip multip0(.register(registers[idx[0]]), .weight(weights[idx[0]]), .product(product[0]));
+  Multip multip1(.register(registers[idx[1]]), .weight(weights[idx[1]]), .product(product[1]));
+  Multip multip2(.register(registers[idx[2]]), .weight(weights[idx[2]]), .product(product[2]));
+  Multip multip3(.register(registers[idx[3]]), .weight(weights[idx[3]]), .product(product[3]));
+  Multip multip4(.register(registers[idx[4]]), .weight(weights[idx[4]]), .product(product[4]));
+  Multip multip5(.register(registers[idx[5]]), .weight(weights[idx[5]]), .product(product[5]));
 
   always_comb begin
-    unique case (EA)
-      MU1: begin m0= 0; m1= 1; m2= 2;  m3= 3; m4= 4; m5= 5; end
-      MU2: begin m0= 6; m1= 7; m2= 8;  m3= 9; m4=10; m5=11; end
-      MU3: begin m0=12; m1=13; m2=14;  m3=15; m4=16; m5=17; end
-      MU4: begin m0=18; m1=19; m2=20;  m3=21; m4=22; m5=23; end
-      MU5: begin m0=24; m1=25; m2=26;  m3=27; m4=28; m5=29; end
-      default: begin m0=30; m1=31; m2=32;  m3=33; m4=34; m5=35; end
+    unique case (current_st)
+      MU1:     begin idx[0]= 0; idx[1]= 1; idx[2]= 2;  idx[3]= 3; idx[4]= 4; idx[5]= 5; end
+      MU2:     begin idx[0]= 6; idx[1]= 7; idx[2]= 8;  idx[3]= 9; idx[4]=10; idx[5]=11; end
+      MU3:     begin idx[0]=12; idx[1]=13; idx[2]=14;  idx[3]=15; idx[4]=16; idx[5]=17; end
+      MU4:     begin idx[0]=18; idx[1]=19; idx[2]=20;  idx[3]=21; idx[4]=22; idx[5]=23; end
+      MU5:     begin idx[0]=24; idx[1]=25; idx[2]=26;  idx[3]=27; idx[4]=28; idx[5]=29; end
+      default: begin idx[0]=30; idx[1]=31; idx[2]=32;  idx[3]=33; idx[4]=34; idx[5]=35; end
     endcase
   end
 
@@ -135,18 +135,18 @@ module conv
       data_valid <= 0;
     end else begin
       data_valid <= 0;
-      unique case (EA)
+      unique case (current_st)
         WR_IFMAP:
             registers[24:0] <= inputMAP;
         WR_MC:
           registers <= prod_c1;
         MU1, MU2, MU3, MU4, MU5, MU6:  begin
-          registers[m0] <= product[0];
-          registers[m1] <= product[1];
-          registers[m2] <= product[2];
-          registers[m3] <= product[3];
-          registers[m4] <= product[4];
-          registers[m5] <= product[5];
+          registers[idx[0]] <= product[0];
+          registers[idx[1]] <= product[1];
+          registers[idx[2]] <= product[2];
+          registers[idx[3]] <= product[3];
+          registers[idx[4]] <= product[4];
+          registers[idx[5]] <= product[5];
         end
         WR_OUT: begin
           data_valid <= 1;

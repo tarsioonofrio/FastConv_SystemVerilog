@@ -41,7 +41,7 @@ module conv
 
   logic signed [NBITS-1+QUANT:0] product[0:8];   // QUANT more bits for the multipliers
 
-  logic [4:0] m0, m1, m2, m3, m4, m5, m6, m7;
+  logic [4:0] idx[0:7];
 
   typedef enum {IDLE, WR_IFMAP, WR_C, MU1, MU2, WR_OUT} state_type;
 
@@ -90,19 +90,19 @@ module conv
    // 4 multipliers inside this block
   always_comb begin
     unique case (EA)
-      MU1:     begin m0= 0; m1= 1; m2= 2; m3= 3; m4= 4; m5= 5; m6= 6; m7= 7; end
-      default: begin m0= 8; m1= 9; m2=10; m3=11; m4=12; m5=13; m6=14; m7=15; end
+      MU1:     begin idx[0]= 0; idx[1]= 1; idx[2]= 2; idx[3]= 3; idx[4]= 4; idx[5]= 5; idx[6]= 6; idx[7]= 7; end
+      default: begin idx[0]= 8; idx[1]= 9; idx[2]=10; idx[3]=11; idx[4]=12; idx[5]=13; idx[6]=14; idx[7]=15; end
     endcase
   end
 
-  Multip multip0(.register(registers[m0]), .weight(weights[m0]), .product(product[0]));
-  Multip multip1(.register(registers[m1]), .weight(weights[m1]), .product(product[1]));
-  Multip multip2(.register(registers[m2]), .weight(weights[m2]), .product(product[2]));
-  Multip multip3(.register(registers[m3]), .weight(weights[m3]), .product(product[3]));
-  Multip multip4(.register(registers[m4]), .weight(weights[m4]), .product(product[4]));
-  Multip multip5(.register(registers[m5]), .weight(weights[m5]), .product(product[5]));
-  Multip multip6(.register(registers[m6]), .weight(weights[m6]), .product(product[6]));
-  Multip multip7(.register(registers[m7]), .weight(weights[m7]), .product(product[7]));
+  Multip multip0(.register(registers[idx[0]]), .weight(weights[idx[0]]), .product(product[0]));
+  Multip multip1(.register(registers[idx[1]]), .weight(weights[idx[1]]), .product(product[1]));
+  Multip multip2(.register(registers[idx[2]]), .weight(weights[idx[2]]), .product(product[2]));
+  Multip multip3(.register(registers[idx[3]]), .weight(weights[idx[3]]), .product(product[3]));
+  Multip multip4(.register(registers[idx[4]]), .weight(weights[idx[4]]), .product(product[4]));
+  Multip multip5(.register(registers[idx[5]]), .weight(weights[idx[5]]), .product(product[5]));
+  Multip multip6(.register(registers[idx[6]]), .weight(weights[idx[6]]), .product(product[6]));
+  Multip multip7(.register(registers[idx[7]]), .weight(weights[idx[7]]), .product(product[7]));
 
   // Instance of matrix multiplier "A"
   MatrixA1 matrix_a1 (
@@ -128,14 +128,14 @@ module conv
         WR_IFMAP: registers <= inputMAP;
         WR_C:     registers <= prod_c1;
         MU1, MU2:  begin
-          registers[m0] <= product[0];
-          registers[m1] <= product[1];
-          registers[m2] <= product[2];
-          registers[m3] <= product[3];
-          registers[m4] <= product[4];
-          registers[m5] <= product[5];
-          registers[m6] <= product[6];
-          registers[m7] <= product[7];
+          registers[idx[0]] <= product[0];
+          registers[idx[1]] <= product[1];
+          registers[idx[2]] <= product[2];
+          registers[idx[3]] <= product[3];
+          registers[idx[4]] <= product[4];
+          registers[idx[5]] <= product[5];
+          registers[idx[6]] <= product[6];
+          registers[idx[7]] <= product[7];
         end
         WR_OUT: data_valid <= 1;
         default: begin   // necessary - wrong behavior in logic simulation
