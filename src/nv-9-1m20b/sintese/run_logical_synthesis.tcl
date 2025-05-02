@@ -47,7 +47,7 @@ puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 puts "Load hdl files"
 puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 
-	read_hdl -sv "../pack_conv.sv ../mac_op.sv ../naive_conv.sv"
+	read_hdl -sv "../data.sv ../rtl/pack_conv.sv ../rtl/mac_op.sv ../rtl/naive_conv.sv"
 
 
 
