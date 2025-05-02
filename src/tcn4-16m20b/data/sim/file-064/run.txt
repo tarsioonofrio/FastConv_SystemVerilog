@@ -8,16 +8,16 @@ Reading pref.tcl
 # Modifying modelsim.ini
 # data/sim/file-064/data.sv
 # QuestaSim-64 vlog 2023.4 Compiler 2023.10 Oct  9 2023
-# Start time: 09:31:29 on May 02,2025
+# Start time: 10:20:05 on May 02,2025
 # vlog -work work data/sim/file-064/data.sv 
 # -- Compiling package data
 # 
 # Top level modules:
 # 	--none--
-# End time: 09:31:29 on May 02,2025, Elapsed time: 0:00:00
+# End time: 10:20:05 on May 02,2025, Elapsed time: 0:00:00
 # Errors: 0, Warnings: 0
 # QuestaSim-64 vlog 2023.4 Compiler 2023.10 Oct  9 2023
-# Start time: 09:31:29 on May 02,2025
+# Start time: 10:20:05 on May 02,2025
 # vlog -work work ./rtl/pack_conv.sv 
 # -- Compiling package packConv
 # -- Importing package data
@@ -26,10 +26,10 @@ Reading pref.tcl
 # 
 # Top level modules:
 # 	--none--
-# End time: 09:31:29 on May 02,2025, Elapsed time: 0:00:00
+# End time: 10:20:05 on May 02,2025, Elapsed time: 0:00:00
 # Errors: 0, Warnings: 2
 # QuestaSim-64 vlog 2023.4 Compiler 2023.10 Oct  9 2023
-# Start time: 09:31:29 on May 02,2025
+# Start time: 10:20:05 on May 02,2025
 # vlog -work work -svinputport=relaxed ./rtl/csa_lib.sv 
 # -- Compiling module FA
 # -- Importing package packConv
@@ -58,10 +58,10 @@ Reading pref.tcl
 # 	CSA_12
 # 	CSA_16
 # 	CSA_18
-# End time: 09:31:29 on May 02,2025, Elapsed time: 0:00:00
+# End time: 10:20:05 on May 02,2025, Elapsed time: 0:00:00
 # Errors: 0, Warnings: 0
 # QuestaSim-64 vlog 2023.4 Compiler 2023.10 Oct  9 2023
-# Start time: 09:31:29 on May 02,2025
+# Start time: 10:20:05 on May 02,2025
 # vlog -work work -svinputport=relaxed ./rtl/mult_matrices.sv 
 # -- Compiling module MatrixC0
 # -- Importing package packConv
@@ -75,10 +75,10 @@ Reading pref.tcl
 # 	MatrixC1
 # 	MatrixA1
 # 	MatrixA0
-# End time: 09:31:29 on May 02,2025, Elapsed time: 0:00:00
+# End time: 10:20:05 on May 02,2025, Elapsed time: 0:00:00
 # Errors: 0, Warnings: 0
 # QuestaSim-64 vlog 2023.4 Compiler 2023.10 Oct  9 2023
-# Start time: 09:31:29 on May 02,2025
+# Start time: 10:20:05 on May 02,2025
 # vlog -work work -svinputport=relaxed ./rtl/fast_conv.sv 
 # -- Compiling module Multip
 # -- Importing package packConv
@@ -87,10 +87,10 @@ Reading pref.tcl
 # 
 # Top level modules:
 # 	conv
-# End time: 09:31:29 on May 02,2025, Elapsed time: 0:00:00
+# End time: 10:20:05 on May 02,2025, Elapsed time: 0:00:00
 # Errors: 0, Warnings: 0
 # QuestaSim-64 vlog 2023.4 Compiler 2023.10 Oct  9 2023
-# Start time: 09:31:29 on May 02,2025
+# Start time: 10:20:05 on May 02,2025
 # vlog -work work -svinputport=relaxed ../../testbench/tb_conv.sv 
 # -- Compiling module tb
 # -- Importing package packConv
@@ -98,10 +98,10 @@ Reading pref.tcl
 # 
 # Top level modules:
 # 	tb
-# End time: 09:31:29 on May 02,2025, Elapsed time: 0:00:00
+# End time: 10:20:05 on May 02,2025, Elapsed time: 0:00:00
 # Errors: 0, Warnings: 0
 # vsim -voptargs="+acc" -t ns work.tb 
-# Start time: 09:31:29 on May 02,2025
+# Start time: 10:20:05 on May 02,2025
 # ** Note: (vsim-3812) Design is being optimized...
 # ** Warning: (vopt-10587) Some optimizations are turned off because the +acc switch is in effect. This will cause your simulation to run slowly. Please use -access/-debug to maintain needed visibility.
 # ** Note: (vopt-143) Recognized 1 FSM in module "conv(fast)".
@@ -153,5 +153,5 @@ Reading pref.tcl
 # configure wave not supported in batch mode
 # ** Note: $finish    : ../../testbench/tb_conv.sv(72)
 #    Time: 19235 ns  Iteration: 0  Instance: /tb
-# End time: 09:31:31 on May 02,2025, Elapsed time: 0:00:02
+# End time: 10:20:06 on May 02,2025, Elapsed time: 0:00:01
 # Errors: 0, Warnings: 1
