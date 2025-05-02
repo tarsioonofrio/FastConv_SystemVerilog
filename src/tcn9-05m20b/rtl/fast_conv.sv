@@ -46,34 +46,34 @@ module conv
 
   typedef enum {IDLE, WR_IFMAP, WR_MC, MU1, MU2, MU3, MU4, MU5, WR_OUT} state_type;
 
-  state_type EA, PE;
+  state_type current_st, next_st;
 
   //
   // Control FSM
   //
   always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
-      EA <= IDLE;
+      current_st <= IDLE;
     end else begin
-      EA <= PE;
+      current_st <= next_st;
     end
   end
 
   always_comb begin
-    unique case (EA)
-      IDLE:     PE = start ? WR_IFMAP : IDLE;
-      WR_IFMAP: PE = WR_MC;
-      WR_MC:    PE = MU1;
+    unique case (current_st)
+      IDLE:     next_st = start ? WR_IFMAP : IDLE;
+      WR_IFMAP: next_st = WR_MC;
+      WR_MC:    next_st = MU1;
 
       // five state multiplier
-      MU1:   PE = MU2;
-      MU2:   PE = MU3;
-      MU3:   PE = MU4;
-      MU4:   PE = MU5;
-      MU5:   PE = WR_OUT;
+      MU1:   next_st = MU2;
+      MU2:   next_st = MU3;
+      MU3:   next_st = MU4;
+      MU4:   next_st = MU5;
+      MU5:   next_st = WR_OUT;
 
-      //MMMA:  PE = WR_OUT;
-      WR_OUT:  PE = IDLE;
+      //MMMA:  next_st = WR_OUT;
+      WR_OUT:  next_st = IDLE;
     endcase
   end
 
@@ -94,7 +94,7 @@ module conv
 
    // 5 multipliers inside this block
   always_comb begin
-    unique case (EA)
+    unique case (current_st)
       MU1: begin idx[0]= 0; idx[1]= 1; idx[2]= 2;  idx[3]= 3; idx[4]= 4; end
       MU2: begin idx[0]= 5; idx[1]= 6; idx[2]= 7;  idx[3]= 8; idx[4]= 9; end
       MU3: begin idx[0]=10; idx[1]=11; idx[2]=12;  idx[3]=13; idx[4]=14; end
@@ -129,7 +129,7 @@ module conv
     end
     else begin
       data_valid <= 0;  // default
-      unique case (EA)
+      unique case (current_st)
         WR_IFMAP:   registers <= inputMAP;
         WR_MC:      registers <= prod_c1;
         MU1, MU2, MU3, MU4, MU5:  begin
@@ -148,7 +148,7 @@ module conv
   end
 
   always_latch begin
-    if (EA==WR_OUT) begin
+    if (current_st==WR_OUT) begin
       outputMAP = prod_a0;   /// saída em latch
     end
   end

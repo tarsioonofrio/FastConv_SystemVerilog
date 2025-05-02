@@ -1,4 +1,4 @@
-module Multip
+  module Multip
   import packConv::*;
  #(
   parameter int QUANT = 8,
@@ -45,44 +45,44 @@ module conv
 
   typedef enum {IDLE, WR_IFMAP, WR_C, MU1, MU2, MU3, MU4, MU5, MU6, MU7, MU8, MU9, MU10, MU11, MU12, MU13, MU14, MU15, MU16, WR_OUT} state_type;
 
-  state_type EA, PE;
+  state_type current_st, next_st;
 
   //
   // Control FSM
   //
   always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
-      EA <= IDLE;
+      current_st <= IDLE;
     end else begin
-      EA <= PE;
+      current_st <= next_st;
     end
   end
 
   always_comb begin
-    unique case (EA)
-      IDLE:     PE = start ? WR_IFMAP : IDLE;
-      WR_IFMAP: PE = WR_C;
-      WR_C:     PE = MU1;
+    unique case (current_st)
+      IDLE:     next_st = start ? WR_IFMAP : IDLE;
+      WR_IFMAP: next_st = WR_C;
+      WR_C:     next_st = MU1;
 
       // five state multiplier
-      MU1:    PE = MU2;
-      MU2:    PE = MU3;
-      MU3:    PE = MU4;
-      MU4:    PE = MU5;
-      MU5:    PE = MU6;
-      MU6:    PE = MU7;
-      MU7:    PE = MU8;
-      MU8:    PE = MU9;
-      MU9:    PE = MU10;
-      MU10:   PE = MU11;
-      MU11:   PE = MU12;
-      MU12:   PE = MU13;
-      MU13:   PE = MU14;
-      MU14:   PE = MU15;
-      MU15:   PE = MU16;
-      MU16:   PE = WR_OUT;
-      WR_OUT: PE = IDLE;
-      default:PE = IDLE;
+      MU1:    next_st = MU2;
+      MU2:    next_st = MU3;
+      MU3:    next_st = MU4;
+      MU4:    next_st = MU5;
+      MU5:    next_st = MU6;
+      MU6:    next_st = MU7;
+      MU7:    next_st = MU8;
+      MU8:    next_st = MU9;
+      MU9:    next_st = MU10;
+      MU10:   next_st = MU11;
+      MU11:   next_st = MU12;
+      MU12:   next_st = MU13;
+      MU13:   next_st = MU14;
+      MU14:   next_st = MU15;
+      MU15:   next_st = MU16;
+      MU16:   next_st = WR_OUT;
+      WR_OUT: next_st = IDLE;
+      default:next_st = IDLE;
     endcase
   end
 
@@ -103,7 +103,7 @@ module conv
 
    // 4 multipliers inside this block
   always_comb begin
-    unique case (EA)
+    unique case (current_st)
       MU1:  idx= 0; 
       MU2:  idx= 1;
       MU3:  idx= 2; 
@@ -145,7 +145,7 @@ module conv
   end
   else begin
     data_valid <= 0;  // default
-      unique case (EA)
+      unique case (current_st)
         WR_IFMAP: registers <= inputMAP;
         WR_C:     registers <= prod_c1;
         MU1, MU2, MU3, MU4, MU5, MU6, MU7, MU8, MU9, MU10, MU11, MU12, MU13, MU14, MU15, MU16:  begin
@@ -160,7 +160,7 @@ module conv
   end
 
   always_latch begin
-    if (EA==WR_OUT) begin
+    if (current_st==WR_OUT) begin
         outputMAP = prod_a0;   /// saída em latch
       end
   end
