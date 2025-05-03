@@ -41,6 +41,7 @@ module conv
 
   timeunit 1ns;
   timeprecision 1ps;
+  
   localparam logic [5:0] addr [0:5][0:5] = '{
     '{  0,  1,  2,  3,  4,  5 },
     '{  6,  7,  8,  9, 10, 11 },
@@ -49,6 +50,7 @@ module conv
     '{ 24, 25, 26, 27, 28, 29 },
     '{ 30, 31, 32, 33, 34, 35 }
   };
+  
   type_weight registers;
   type_matrix_c prod_c0;
   type_weight prod_c1;
