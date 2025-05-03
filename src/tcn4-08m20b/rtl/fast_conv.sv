@@ -21,8 +21,10 @@ endmodule
 module conv
   import packConv::*;
  #(
-    parameter int QUANT = 8
-  )
+   parameter int QUANT = 8,
+   parameter int NBITS = 20,
+   parameter int NMULT = 8
+   )
   (
     input  logic       clk, reset, start,
     input  type_input  inputMAP,
@@ -34,16 +36,22 @@ module conv
   timeunit 1ns;
   timeprecision 1ps;
 
-  type_input registers, prod_c0;
+  localparam logic [4:0] addr [0:1][0:7] = '{
+    '{ 0,  1,  2,  3, 4,  5,  6,  7},
+    '{ 8,  9, 10, 11, 12, 13, 14, 15}
+  };
+
+
+  type_input    registers, prod_c0;
   type_matrix_c prod_c1;
   type_matrix_a prod_a1;
-  type_output prod_a0;
+  type_output   prod_a0;
 
   logic signed [NBITS-1+QUANT:0] product[0:8];   // QUANT more bits for the multipliers
 
-  logic [4:0] idx[0:7];
+  logic [4:0] idx[0:NMULT-1];
 
-  typedef enum {IDLE, WR_IFMAP, WR_C, MU1, MU2, WR_OUT} state_type;
+  typedef enum {MU[2], WR_OUT, IDLE, WR_IFMAP, WR_MC} state_type;
 
   state_type current_st, next_st;
 
@@ -61,14 +69,10 @@ module conv
   always_comb begin
     unique case (current_st)
       IDLE:     next_st = start ? WR_IFMAP : IDLE;
-      WR_IFMAP: next_st = WR_C;
-      WR_C:     next_st = MU1;
-
-      // five state multiplier
-      MU1:     next_st = MU2;
-      MU2:     next_st = WR_OUT;
-      WR_OUT:  next_st = IDLE;
-      default: next_st = IDLE;
+      WR_IFMAP: next_st = WR_MC;
+      WR_MC:    next_st = MU0;
+      WR_OUT:   next_st = IDLE;
+      default:  next_st = state_type'(current_st + 1);
     endcase
   end
 
@@ -87,22 +91,13 @@ module conv
     .soma(prod_c1)
   );
 
-   // 4 multipliers inside this block
-  always_comb begin
-    unique case (current_st)
-      MU1:     begin idx[0]= 0; idx[1]= 1; idx[2]= 2; idx[3]= 3; idx[4]= 4; idx[5]= 5; idx[6]= 6; idx[7]= 7; end
-      default: begin idx[0]= 8; idx[1]= 9; idx[2]=10; idx[3]=11; idx[4]=12; idx[5]=13; idx[6]=14; idx[7]=15; end
-    endcase
-  end
+  assign idx = addr[current_st];
 
-  Multip multip0(.register(registers[idx[0]]), .weight(weights[idx[0]]), .product(product[0]));
-  Multip multip1(.register(registers[idx[1]]), .weight(weights[idx[1]]), .product(product[1]));
-  Multip multip2(.register(registers[idx[2]]), .weight(weights[idx[2]]), .product(product[2]));
-  Multip multip3(.register(registers[idx[3]]), .weight(weights[idx[3]]), .product(product[3]));
-  Multip multip4(.register(registers[idx[4]]), .weight(weights[idx[4]]), .product(product[4]));
-  Multip multip5(.register(registers[idx[5]]), .weight(weights[idx[5]]), .product(product[5]));
-  Multip multip6(.register(registers[idx[6]]), .weight(weights[idx[6]]), .product(product[6]));
-  Multip multip7(.register(registers[idx[7]]), .weight(weights[idx[7]]), .product(product[7]));
+  generate
+    for (genvar i = 0; i < NMULT; i++) begin
+      Multip multip(.register(registers[idx[i]]), .weight(weights[idx[i]]), .product(product[i]));
+    end
+  endgenerate
 
   // Instance of matrix multiplier "A"
   MatrixA1 matrix_a1 (
@@ -117,29 +112,20 @@ module conv
 
   // Internal register bank to store intermediate results
   always_ff @(posedge clk or posedge reset) begin
-  if (reset) begin
-    registers <= '{default: '0};
-    //outputMAP <= '{default: '0};
-    data_valid <= 0;
-  end
-  else begin
-    data_valid <= 0;  // default
+    if (reset) begin
+      registers <= '{default: '0};
+      data_valid <= 0;
+    end else begin
+      data_valid <= 0;  // default
       unique case (current_st)
+        IDLE:     registers <= registers;
         WR_IFMAP: registers <= inputMAP;
-        WR_C:     registers <= prod_c1;
-        MU1, MU2:  begin
-          registers[idx[0]] <= product[0];
-          registers[idx[1]] <= product[1];
-          registers[idx[2]] <= product[2];
-          registers[idx[3]] <= product[3];
-          registers[idx[4]] <= product[4];
-          registers[idx[5]] <= product[5];
-          registers[idx[6]] <= product[6];
-          registers[idx[7]] <= product[7];
-        end
-        WR_OUT: data_valid <= 1;
-        default: begin   // necessary - wrong behavior in logic simulation
-          registers <= registers;
+        WR_MC:    registers <= prod_c1;
+        WR_OUT:   data_valid <= 1;
+        default:  begin
+          for (int i = 0; i < NMULT; i++) begin
+            registers[idx[i]] <= product[i];
+          end
         end
       endcase
     end
