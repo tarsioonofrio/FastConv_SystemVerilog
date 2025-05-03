@@ -29,7 +29,9 @@ endmodule
 module conv
   import packConv::*;
  #(
-    parameter int QUANT = 8
+    parameter int QUANT = 8,
+    parameter int NBITS = 20,
+    parameter int NMULT = 6
   )
   (
     input  logic   clk, reset, start,
@@ -41,7 +43,7 @@ module conv
 
   timeunit 1ns;
   timeprecision 1ps;
-  
+
   localparam logic [5:0] addr [0:5][0:5] = '{
     '{  0,  1,  2,  3,  4,  5 },
     '{  6,  7,  8,  9, 10, 11 },
@@ -50,7 +52,7 @@ module conv
     '{ 24, 25, 26, 27, 28, 29 },
     '{ 30, 31, 32, 33, 34, 35 }
   };
-  
+
   type_weight registers;
   type_matrix_c prod_c0;
   type_weight prod_c1;
@@ -81,10 +83,10 @@ module conv
   always_comb begin    // 9 states + IDEL - IDLE is blocking!
     unique case (current_st)
       // IDLE
-      IDLE:   next_st = start ? WR_IFMAP : IDLE;
-      WR_IFMAP:  next_st = WR_MC;
+      IDLE:     next_st = start ? WR_IFMAP : IDLE;
+      WR_IFMAP: next_st = WR_MC;
       WR_MC:    next_st = MU0;
-      WR_OUT:    next_st = IDLE;
+      WR_OUT:   next_st = IDLE;
       default: next_st = state_type'(current_st + 1);
     endcase
   end
@@ -106,7 +108,7 @@ module conv
 
   // TODO generate
   generate
-    for (genvar i = 0; i < 6; i++) begin
+    for (genvar i = 0; i < NMULT; i++) begin
       Multip multip(.register(registers[idx[i]]), .weight(weights[idx[i]]), .product(product[i]));
     end
   endgenerate
@@ -141,8 +143,7 @@ module conv
           registers[8:0] <= prod_a0;
         end
         default:  begin
-          // TODO implement in for
-          for (int i = 0; i < 6; i++) begin
+          for (int i = 0; i < NMULT; i++) begin
             registers[idx[i]] <= product[i];
           end
         end
