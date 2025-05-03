@@ -43,7 +43,7 @@ module conv
 
   logic [4:0] idx;
 
-  typedef enum {IDLE, WR_IFMAP, WR_C, MU[16], WR_OUT} state_type;
+  typedef enum {MU[16], WR_OUT, IDLE, WR_IFMAP, WR_MC} state_type;
 
   state_type current_st, next_st;
 
@@ -61,7 +61,8 @@ module conv
   always_comb begin
     unique case (current_st)
       IDLE:     next_st = start ? WR_IFMAP : IDLE;
-      WR_IFMAP: next_st = WR_C;
+      WR_IFMAP: next_st = WR_MC;
+      WR_MC:    next_st = MU0;
       WR_OUT:   next_st = IDLE;
       // default:  next_st = current_st.next();
       default: next_st = state_type'(current_st + 1);
@@ -83,29 +84,7 @@ module conv
     .soma(prod_c1)
   );
 
-
-  // 4 multipliers inside this block
- always_comb begin
-   unique case (current_st)
-     MU0:  idx=0;
-     MU1:  idx=1;
-     MU2:  idx=2;
-     MU3:  idx=3;
-     MU4:  idx=4;
-     MU5:  idx=5;
-     MU6:  idx=6;
-     MU7:  idx=7;
-     MU8:  idx=8;
-     MU9:  idx=9;
-     MU10: idx=10;
-     MU11: idx=11;
-     MU12: idx=12;
-     MU13: idx=13;
-     MU14: idx=14;
-     default: idx=15;
-   endcase
- end
-
+assign idx = current_st;
 
   //  // 4 multipliers inside this block
   // always_comb begin
@@ -140,7 +119,7 @@ module conv
       unique case (current_st)
         IDLE:     registers <= registers;
         WR_IFMAP: registers <= inputMAP;
-        WR_C:     registers <= prod_c1;
+        WR_MC:     registers <= prod_c1;
         default:  begin
           registers[idx] <= product;
         end
