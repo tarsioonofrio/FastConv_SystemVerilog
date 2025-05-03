@@ -41,7 +41,14 @@ module conv
 
   timeunit 1ns;
   timeprecision 1ps;
-
+  localparam logic [5:0] addr [0:5][0:5] = '{
+    '{  0,  1,  2,  3,  4,  5 },
+    '{  6,  7,  8,  9, 10, 11 },
+    '{ 12, 13, 14, 15, 16, 17 },
+    '{ 18, 19, 20, 21, 22, 23 },
+    '{ 24, 25, 26, 27, 28, 29 },
+    '{ 30, 31, 32, 33, 34, 35 }
+  };
   type_weight registers;
   type_matrix_c prod_c0;
   type_weight prod_c1;
@@ -51,9 +58,10 @@ module conv
   logic signed[NBITS-1+QUANT:0] product[0:5];   // QUANT more bits for the multipliers
 
   logic[5:0] idx[0:5];
+  // const logic[5:0] addr[5][5];
 
   // up to 16 states
-  typedef enum logic [3:0] {IDLE, WR_IFMAP, WR_MC, MU[6], WR_OUT} state_type;
+  typedef enum logic [3:0] {MU[6], WR_OUT, IDLE, WR_IFMAP, WR_MC} state_type;
   state_type current_st, next_st;
 
   //
@@ -73,6 +81,7 @@ module conv
       // IDLE
       IDLE:   next_st = start ? WR_IFMAP : IDLE;
       WR_IFMAP:  next_st = WR_MC;
+      WR_MC:    next_st = MU0;
       WR_OUT:    next_st = IDLE;
       default: next_st = state_type'(current_st + 1);
     endcase
@@ -92,7 +101,7 @@ module conv
     .P(prod_c0),
     .soma(prod_c1)
   );
-  
+
   // TODO generate
   generate
     for (genvar i = 0; i < 6; i++) begin
@@ -100,16 +109,8 @@ module conv
     end
   endgenerate
 
-  always_comb begin
-    unique case (current_st)
-      MU0:     begin idx[0]= 0; idx[1]= 1; idx[2]= 2;  idx[3]= 3; idx[4]= 4; idx[5]= 5; end
-      MU1:     begin idx[0]= 6; idx[1]= 7; idx[2]= 8;  idx[3]= 9; idx[4]=10; idx[5]=11; end
-      MU2:     begin idx[0]=12; idx[1]=13; idx[2]=14;  idx[3]=15; idx[4]=16; idx[5]=17; end
-      MU3:     begin idx[0]=18; idx[1]=19; idx[2]=20;  idx[3]=21; idx[4]=22; idx[5]=23; end
-      MU4:     begin idx[0]=24; idx[1]=25; idx[2]=26;  idx[3]=27; idx[4]=28; idx[5]=29; end
-      default: begin idx[0]=30; idx[1]=31; idx[2]=32;  idx[3]=33; idx[4]=34; idx[5]=35; end
-    endcase
-  end
+  assign idx = addr[current_st];
+
 
   // Instance of matrix multiplier "A"
   MatrixA1 matrix_a1 (
@@ -138,12 +139,10 @@ module conv
           registers[8:0] <= prod_a0;
         end
         default:  begin
-          registers[idx[0]] <= product[0];
-          registers[idx[1]] <= product[1];
-          registers[idx[2]] <= product[2];
-          registers[idx[3]] <= product[3];
-          registers[idx[4]] <= product[4];
-          registers[idx[5]] <= product[5];
+          // TODO implement in for
+          for (int i = 0; i < 6; i++) begin
+            registers[idx[i]] <= product[i];
+          end
         end
       endcase
     end
