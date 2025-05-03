@@ -47,7 +47,7 @@ module conv
   type_matrix_a prod_a1;
   type_output   prod_a0;
 
-  logic signed [NBITS-1+QUANT:0] product[0:8];   // QUANT more bits for the multipliers
+  logic signed [NBITS-1+QUANT:0] product[0:NMULT];   // QUANT more bits for the multipliers
 
   logic [4:0] idx[0:NMULT-1];
 
