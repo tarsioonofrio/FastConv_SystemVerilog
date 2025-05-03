@@ -106,6 +106,7 @@ module conv
    endcase
  end
 
+
   //  // 4 multipliers inside this block
   // always_comb begin
   //   if (current_st >= MU0 && current_st <= MU15)
@@ -140,10 +141,10 @@ module conv
         IDLE:     registers <= registers;
         WR_IFMAP: registers <= inputMAP;
         WR_C:     registers <= prod_c1;
+        WR_OUT: data_valid <= 1;
         default:  begin
           registers[idx] <= product;
         end
-        WR_OUT: data_valid <= 1;
       endcase
     end
   end

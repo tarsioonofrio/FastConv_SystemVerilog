@@ -53,7 +53,7 @@ module conv
   logic[5:0] idx[0:5];
 
   // up to 16 states
-  typedef enum logic [3:0] {IDLE, WR_IFMAP, WR_MC, MU1, MU2, MU3, MU4, MU5, MU6, WR_OUT} state_type;
+  typedef enum logic [3:0] {IDLE, WR_IFMAP, WR_MC, MU[6], WR_OUT} state_type;
   state_type current_st, next_st;
 
   //
@@ -71,15 +71,15 @@ module conv
   always_comb begin    // 9 states + IDEL - IDLE is blocking!
     unique case (current_st)
       // IDLE
-      default:   next_st = start ? WR_IFMAP : IDLE;
+      IDLE:   next_st = start ? WR_IFMAP : IDLE;
       WR_IFMAP:  next_st = WR_MC;
-      WR_MC:     next_st = MU1;
+      WR_MC:     next_st = MU0;
+      MU0:       next_st = MU1;
       MU1:       next_st = MU2;
       MU2:       next_st = MU3;
       MU3:       next_st = MU4;
       MU4:       next_st = MU5;
-      MU5:       next_st = MU6;
-      MU6:       next_st = WR_OUT;
+      MU5:       next_st = WR_OUT;
       WR_OUT:    next_st = IDLE;
     endcase
   end
@@ -108,11 +108,11 @@ module conv
 
   always_comb begin
     unique case (current_st)
-      MU1:     begin idx[0]= 0; idx[1]= 1; idx[2]= 2;  idx[3]= 3; idx[4]= 4; idx[5]= 5; end
-      MU2:     begin idx[0]= 6; idx[1]= 7; idx[2]= 8;  idx[3]= 9; idx[4]=10; idx[5]=11; end
-      MU3:     begin idx[0]=12; idx[1]=13; idx[2]=14;  idx[3]=15; idx[4]=16; idx[5]=17; end
-      MU4:     begin idx[0]=18; idx[1]=19; idx[2]=20;  idx[3]=21; idx[4]=22; idx[5]=23; end
-      MU5:     begin idx[0]=24; idx[1]=25; idx[2]=26;  idx[3]=27; idx[4]=28; idx[5]=29; end
+      MU0:     begin idx[0]= 0; idx[1]= 1; idx[2]= 2;  idx[3]= 3; idx[4]= 4; idx[5]= 5; end
+      MU1:     begin idx[0]= 6; idx[1]= 7; idx[2]= 8;  idx[3]= 9; idx[4]=10; idx[5]=11; end
+      MU2:     begin idx[0]=12; idx[1]=13; idx[2]=14;  idx[3]=15; idx[4]=16; idx[5]=17; end
+      MU3:     begin idx[0]=18; idx[1]=19; idx[2]=20;  idx[3]=21; idx[4]=22; idx[5]=23; end
+      MU4:     begin idx[0]=24; idx[1]=25; idx[2]=26;  idx[3]=27; idx[4]=28; idx[5]=29; end
       default: begin idx[0]=30; idx[1]=31; idx[2]=32;  idx[3]=33; idx[4]=34; idx[5]=35; end
     endcase
   end
@@ -136,24 +136,20 @@ module conv
     end else begin
       data_valid <= 0;
       unique case (current_st)
-        WR_IFMAP:
-            registers[24:0] <= inputMAP;
-        WR_MC:
-          registers <= prod_c1;
-        MU1, MU2, MU3, MU4, MU5, MU6:  begin
+        IDLE:     registers <= registers;
+        WR_IFMAP: registers[24:0] <= inputMAP;
+        WR_MC:    registers <= prod_c1;
+        WR_OUT: begin
+          data_valid <= 1;
+          registers[8:0] <= prod_a0;
+        end
+        default:  begin
           registers[idx[0]] <= product[0];
           registers[idx[1]] <= product[1];
           registers[idx[2]] <= product[2];
           registers[idx[3]] <= product[3];
           registers[idx[4]] <= product[4];
           registers[idx[5]] <= product[5];
-        end
-        WR_OUT: begin
-          data_valid <= 1;
-          registers[8:0] <= prod_a0;
-        end
-        default: begin   // necessary - wrong behavior in logic simulation
-              registers <= registers;
         end
       endcase
     end
