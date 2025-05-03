@@ -21,8 +21,10 @@ endmodule
 module conv
   import packConv::*;
  #(
-    parameter int QUANT = 8
-  )
+   parameter int QUANT = 8,
+   parameter int NBITS = 20,
+   parameter int NMULT = 16
+   )
   (
     input  logic       clk, reset, start,
     input  type_input  inputMAP,
@@ -34,14 +36,14 @@ module conv
   timeunit 1ns;
   timeprecision 1ps;
 
-  type_input registers, prod_c0;
+  type_input    registers, prod_c0;
   type_matrix_c prod_c1;
   type_matrix_a prod_a1;
-  type_output prod_a0;
+  type_output   prod_a0;
 
-  logic signed [NBITS-1+QUANT:0] product[0:16];   // QUANT more bits for the multipliers
+  logic signed [NBITS-1+QUANT:0] product[0:NMULT];   // QUANT more bits for the multipliers
 
-  typedef enum {IDLE, WR_IFMAP, WR_C, MU1, WR_OUT} state_type;
+  typedef enum {IDLE, WR_IFMAP, WR_MC, MU, WR_OUT} state_type;
 
   state_type current_st, next_st;
 
@@ -59,12 +61,10 @@ module conv
   always_comb begin
     unique case (current_st)
       IDLE:     next_st = start ? WR_IFMAP : IDLE;
-      WR_IFMAP: next_st = WR_C;
-      WR_C:     next_st = MU1;
-
-      MU1:     next_st = WR_OUT;
-      WR_OUT:  next_st = IDLE;
-      default: next_st = IDLE;
+      WR_IFMAP: next_st = WR_MC;
+      WR_MC:    next_st = MU;
+      MU:       next_st = WR_OUT;
+      WR_OUT:   next_st = IDLE;
     endcase
   end
 
@@ -83,22 +83,13 @@ module conv
     .soma(prod_c1)
   );
 
-  Multip multip00(.register(registers[00]), .weight(weights[00]), .product(product[00]));
-  Multip multip01(.register(registers[01]), .weight(weights[01]), .product(product[01]));
-  Multip multip02(.register(registers[02]), .weight(weights[02]), .product(product[02]));
-  Multip multip03(.register(registers[03]), .weight(weights[03]), .product(product[03]));
-  Multip multip04(.register(registers[04]), .weight(weights[04]), .product(product[04]));
-  Multip multip05(.register(registers[05]), .weight(weights[05]), .product(product[05]));
-  Multip multip06(.register(registers[06]), .weight(weights[06]), .product(product[06]));
-  Multip multip07(.register(registers[07]), .weight(weights[07]), .product(product[07]));
-  Multip multip08(.register(registers[08]), .weight(weights[08]), .product(product[08]));
-  Multip multip09(.register(registers[09]), .weight(weights[09]), .product(product[09]));
-  Multip multip10(.register(registers[10]), .weight(weights[10]), .product(product[10]));
-  Multip multip11(.register(registers[11]), .weight(weights[11]), .product(product[11]));
-  Multip multip12(.register(registers[12]), .weight(weights[12]), .product(product[12]));
-  Multip multip13(.register(registers[13]), .weight(weights[13]), .product(product[13]));
-  Multip multip14(.register(registers[14]), .weight(weights[14]), .product(product[14]));
-  Multip multip15(.register(registers[15]), .weight(weights[15]), .product(product[15]));
+  // assign idx = addr[current_st];
+
+  generate
+    for (genvar i = 0; i < NMULT; i++) begin
+      Multip multip(.register(registers[i]), .weight(weights[i]), .product(product[i]));
+    end
+  endgenerate
 
   // Instance of matrix multiplier "A"
   MatrixA1 matrix_a1 (
@@ -113,37 +104,20 @@ module conv
 
   // Internal register bank to store intermediate results
   always_ff @(posedge clk or posedge reset) begin
-  if (reset) begin
-    registers <= '{default: '0};
-    //outputMAP <= '{default: '0};
-    data_valid <= 0;
-  end
-  else begin
-    data_valid <= 0;  // default
+    if (reset) begin
+      registers <= '{default: '0};
+      data_valid <= 0;
+    end else begin
+      data_valid <= 0;  // default
       unique case (current_st)
+        IDLE:     registers <= registers;
         WR_IFMAP: registers <= inputMAP;
-        WR_C:     registers <= prod_c1;
-        MU1:  begin
-          registers[00] <= product[00];
-          registers[01] <= product[01];
-          registers[02] <= product[02];
-          registers[03] <= product[03];
-          registers[04] <= product[04];
-          registers[05] <= product[05];
-          registers[06] <= product[06];
-          registers[07] <= product[07];
-          registers[08] <= product[08];
-          registers[09] <= product[09];
-          registers[10] <= product[10];
-          registers[11] <= product[11];
-          registers[12] <= product[12];
-          registers[13] <= product[13];
-          registers[14] <= product[14];
-          registers[15] <= product[15];
-        end
-        WR_OUT: data_valid <= 1;
-        default: begin   // necessary - wrong behavior in logic simulation
-          registers <= registers;
+        WR_MC:    registers <= prod_c1;
+        WR_OUT:   data_valid <= 1;
+        default:  begin
+          for (int i = 0; i < NMULT; i++) begin
+            registers[i] <= product[i];
+          end
         end
       endcase
     end
