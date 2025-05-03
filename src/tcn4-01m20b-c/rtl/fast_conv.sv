@@ -60,29 +60,11 @@ module conv
 
   always_comb begin
     unique case (current_st)
-      // IDLE
-      default:     next_st = start ? WR_IFMAP : IDLE;
+      IDLE:     next_st = start ? WR_IFMAP : IDLE;
       WR_IFMAP: next_st = WR_C;
-      WR_C:     next_st = MU1;
-
-      // five state multiplier
-      MU0:     next_st = MU1;
-      MU1:     next_st = MU2;
-      MU2:     next_st = MU3;
-      MU3:     next_st = MU4;
-      MU4:     next_st = MU5;
-      MU5:     next_st = MU6;
-      MU6:     next_st = MU7;
-      MU7:     next_st = MU8;
-      MU8:     next_st = MU9;
-      MU9:     next_st = MU10;
-      MU10:    next_st = MU11;
-      MU11:    next_st = MU12;
-      MU12:    next_st = MU13;
-      MU13:    next_st = MU14;
-      MU14:    next_st = MU15;
-      MU15:    next_st = WR_OUT;
-      WR_OUT:  next_st = IDLE;
+      WR_OUT:   next_st = IDLE;
+      // default:  next_st = current_st.next();
+      default: next_st = state_type'(current_st + 1);
     endcase
   end
 
@@ -101,29 +83,39 @@ module conv
     .soma(prod_c1)
   );
 
-   // 4 multipliers inside this block
-  always_comb begin
-    unique case (current_st)
-      MU0:  idx= 0;
-      MU1:  idx= 1;
-      MU2:  idx= 2;
-      MU3:  idx= 3;
-      MU4:  idx= 4;
-      MU5:  idx= 5;
-      MU6:  idx= 6;
-      MU7:  idx= 7;
-      MU8:  idx= 8;
-      MU9:  idx= 9;
-      MU10: idx=10;
-      MU11: idx=11;
-      MU12: idx=12;
-      MU13: idx=13;
-      MU14: idx=14;
-      default: idx=15;
-    endcase
-  end
+
+  // 4 multipliers inside this block
+ always_comb begin
+   unique case (current_st)
+     MU0:  idx=0;
+     MU1:  idx=1;
+     MU2:  idx=2;
+     MU3:  idx=3;
+     MU4:  idx=4;
+     MU5:  idx=5;
+     MU6:  idx=6;
+     MU7:  idx=7;
+     MU8:  idx=8;
+     MU9:  idx=9;
+     MU10: idx=10;
+     MU11: idx=11;
+     MU12: idx=12;
+     MU13: idx=13;
+     MU14: idx=14;
+     default: idx=15;
+   endcase
+ end
+
+  //  // 4 multipliers inside this block
+  // always_comb begin
+  //   if (current_st >= MU0 && current_st <= MU15)
+  //     idx = current_st - MU0;
+  //   else
+  //     idx = 15;
+  // end
 
   Multip multip0(.register(registers[idx]), .weight(weights[idx]), .product(product));
+
 
   // Instance of matrix multiplier "A"
   MatrixA1 matrix_a1 (
@@ -140,21 +132,18 @@ module conv
   always_ff @(posedge clk or posedge reset) begin
   if (reset) begin
     registers <= '{default: '0};
-    //outputMAP <= '{default: '0};
     data_valid <= 0;
   end
   else begin
     data_valid <= 0;  // default
       unique case (current_st)
+        IDLE:     registers <= registers;
         WR_IFMAP: registers <= inputMAP;
         WR_C:     registers <= prod_c1;
-        MU0, MU1, MU2, MU3, MU4, MU5, MU6, MU7, MU8, MU9, MU10, MU11, MU12, MU13, MU14, MU15:  begin
+        default:  begin
           registers[idx] <= product;
         end
         WR_OUT: data_valid <= 1;
-        default: begin   // necessary - wrong behavior in logic simulation
-          registers <= registers;
-        end
       endcase
     end
   end
