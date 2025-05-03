@@ -79,7 +79,7 @@ module conv
       WR_IFMAP: next_st = WR_MC;
       WR_MC:    next_st = MU0;
       WR_OUT:   next_st = IDLE;
-      default: next_st = state_type'(current_st + 1);
+      default:  next_st = state_type'(current_st + 1);
     endcase
   end
 
@@ -97,20 +97,6 @@ module conv
     .P(prod_c0),
     .soma(prod_c1)
   );
-
-   // 4 multipliers inside this block
-  // always_comb begin
-  //   unique case (current_st)
-  //     MU1: begin idx[0]= 0; idx[1]= 1; end
-  //     MU2: begin idx[0]= 2; idx[1]= 3; end
-  //     MU3: begin idx[0]= 4; idx[1]= 5; end
-  //     MU4: begin idx[0]= 6; idx[1]= 7; end
-  //     MU5: begin idx[0]= 8; idx[1]= 9; end
-  //     MU6: begin idx[0]=10; idx[1]=11; end
-  //     MU7: begin idx[0]=12; idx[1]=13; end
-  //     default: begin idx[0]=14; idx[1]=15; end
-  //   endcase
-  // end
 
   assign idx = addr[current_st];
 
@@ -134,18 +120,16 @@ module conv
 
   // Internal register bank to store intermediate results
   always_ff @(posedge clk or posedge reset) begin
-  if (reset) begin
-    registers <= '{default: '0};
-    //outputMAP <= '{default: '0};
-    data_valid <= 0;
-  end
-  else begin
-    data_valid <= 0;  // default
+    if (reset) begin
+      registers <= '{default: '0};
+      data_valid <= 0;
+    end else begin
+      data_valid <= 0;  // default
       unique case (current_st)
         IDLE:     registers <= registers;
         WR_IFMAP: registers <= inputMAP;
-        WR_MC:     registers <= prod_c1;
-        WR_OUT: data_valid <= 1;
+        WR_MC:    registers <= prod_c1;
+        WR_OUT:   data_valid <= 1;
         default:  begin
           for (int i = 0; i < NMULT; i++) begin
             registers[idx[i]] <= product[i];
