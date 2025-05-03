@@ -2,6 +2,7 @@
 // CONVOLUTION  TB
 // -------------------------------------------------------------------------
 module tb;
+  logic DEBUG = 0;
 
   timeunit 1ns;
   timeprecision 1ps;
@@ -89,6 +90,16 @@ module tb;
             fi, fj, $signed(const_feat_out[fi][fj]), $signed(outputMAP[fj])
           );
         end
+        if (DEBUG == 1) begin
+          /* verilator lint_off WIDTHEXPAND */
+          // $display("Time: %0t | Data Valid: %b", $time, data_valid);
+          $display(
+            "Values: Time %0t | Data Valid: %b | const_feat_out[%0d][%0d]  %d | outputMAP = %d",
+            $time, data_valid,
+            fi, fj, $signed(const_feat_out[fi][fj]), $signed(outputMAP[fj])
+          );
+        end
+
       end
     end
   end
