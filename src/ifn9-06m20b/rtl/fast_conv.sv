@@ -34,11 +34,11 @@ module conv
     parameter int NMULT = 6
   )
   (
-    input  logic   clk, reset, start,
-    input  type_input inputMAP,
+    input  logic       clk, reset, start,
+    input  type_input  inputMAP,
     input  type_weight weights,
-    output type_output  outputMAP,
-    output logic   data_valid
+    output type_output outputMAP,
+    output logic       data_valid
  );
 
   timeunit 1ns;
@@ -53,11 +53,11 @@ module conv
     '{ 30, 31, 32, 33, 34, 35 }
   };
 
-  type_weight registers;
+  type_weight   registers;
   type_matrix_c prod_c0;
-  type_weight prod_c1;
+  type_weight   prod_c1;
   type_matrix_a prod_a1;
-  type_output prod_a0;
+  type_output   prod_a0;
 
   logic signed[NBITS-1+QUANT:0] product[0:NMULT-1];   // QUANT more bits for the multipliers
 
