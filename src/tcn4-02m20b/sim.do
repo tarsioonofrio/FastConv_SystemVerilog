@@ -24,4 +24,5 @@ set StdVitalGlitchNoWarnings 1
 
 do wave.do
 
-run -all
+run 40 ns
+#run -all

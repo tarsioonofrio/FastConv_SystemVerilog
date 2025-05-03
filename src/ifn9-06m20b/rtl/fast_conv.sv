@@ -59,13 +59,13 @@ module conv
   type_matrix_a prod_a1;
   type_output prod_a0;
 
-  logic signed[NBITS-1+QUANT:0] product[0:5];   // QUANT more bits for the multipliers
+  logic signed[NBITS-1+QUANT:0] product[0:NMULT-1];   // QUANT more bits for the multipliers
 
-  logic[5:0] idx[0:5];
+  logic[5:0] idx[0:NMULT-1];
   // const logic[5:0] addr[5][5];
 
   // up to 16 states
-  typedef enum logic [3:0] {MU[6], WR_OUT, IDLE, WR_IFMAP, WR_MC} state_type;
+  typedef enum {MU[6], WR_OUT, IDLE, WR_IFMAP, WR_MC} state_type;
   state_type current_st, next_st;
 
   //
@@ -80,9 +80,9 @@ module conv
     end
   end
 
-  always_comb begin    // 9 states + IDEL - IDLE is blocking!
+  // 9 states + IDEL - IDLE is blocking!
+  always_comb begin
     unique case (current_st)
-      // IDLE
       IDLE:     next_st = start ? WR_IFMAP : IDLE;
       WR_IFMAP: next_st = WR_MC;
       WR_MC:    next_st = MU0;
@@ -106,15 +106,13 @@ module conv
     .soma(prod_c1)
   );
 
-  // TODO generate
+  assign idx = addr[current_st];
+
   generate
     for (genvar i = 0; i < NMULT; i++) begin
       Multip multip(.register(registers[idx[i]]), .weight(weights[idx[i]]), .product(product[i]));
     end
   endgenerate
-
-  assign idx = addr[current_st];
-
 
   // Instance of matrix multiplier "A"
   MatrixA1 matrix_a1 (

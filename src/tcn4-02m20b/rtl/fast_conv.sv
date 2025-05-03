@@ -21,7 +21,10 @@ endmodule
 module conv
   import packConv::*;
  #(
-    parameter int QUANT = 8
+    parameter int QUANT = 8,
+    parameter int NBITS = 20,
+    parameter int NMULT = 2
+
   )
   (
     input  logic       clk, reset, start,
@@ -34,16 +37,28 @@ module conv
   timeunit 1ns;
   timeprecision 1ps;
 
+  localparam logic [4:0] addr [0:7][0:1] = '{
+    '{ 0,  1},
+    '{ 2,  3},
+    '{ 4,  5},
+    '{ 6,  7},
+    '{ 8,  9},
+    '{10, 11},
+    '{12, 13},
+    '{14, 15}
+  };
+
+
   type_input registers, prod_c0;
   type_matrix_c prod_c1;
   type_matrix_a prod_a1;
   type_output prod_a0;
 
-  logic signed [NBITS-1+QUANT:0] product[0:4];   // QUANT more bits for the multipliers
+  logic signed [NBITS-1+QUANT:0] product[0:NMULT-1];   // QUANT more bits for the multipliers
 
-  logic [4:0] idx[0:1];
+  logic [4:0] idx[0:NMULT-1];
 
-  typedef enum {IDLE, WR_IFMAP, WR_C, MU1, MU2, MU3, MU4, MU5, MU6, MU7, MU8, WR_OUT} state_type;
+  typedef enum {MU[8], WR_OUT, IDLE, WR_IFMAP, WR_MC} state_type;
 
   state_type current_st, next_st;
 
@@ -61,19 +76,10 @@ module conv
   always_comb begin
     unique case (current_st)
       IDLE:     next_st = start ? WR_IFMAP : IDLE;
-      WR_IFMAP: next_st = WR_C;
-      WR_C:     next_st = MU1;
-
-      MU1:     next_st = MU2;
-      MU2:     next_st = MU3;
-      MU3:     next_st = MU4;
-      MU4:     next_st = MU5;
-      MU5:     next_st = MU6;
-      MU6:     next_st = MU7;
-      MU7:     next_st = MU8;
-      MU8:     next_st = WR_OUT;
-      WR_OUT:  next_st = IDLE;
-      default: next_st = IDLE;
+      WR_IFMAP: next_st = WR_MC;
+      WR_MC:    next_st = MU0;
+      WR_OUT:   next_st = IDLE;
+      default: next_st = state_type'(current_st + 1);
     endcase
   end
 
@@ -93,21 +99,27 @@ module conv
   );
 
    // 4 multipliers inside this block
-  always_comb begin
-    unique case (current_st)
-      MU1: begin idx[0]= 0; idx[1]= 1; end
-      MU2: begin idx[0]= 2; idx[1]= 3; end
-      MU3: begin idx[0]= 4; idx[1]= 5; end
-      MU4: begin idx[0]= 6; idx[1]= 7; end
-      MU5: begin idx[0]= 8; idx[1]= 9; end
-      MU6: begin idx[0]=10; idx[1]=11; end
-      MU7: begin idx[0]=12; idx[1]=13; end
-      default: begin idx[0]=14; idx[1]=15; end
-    endcase
-  end
+  // always_comb begin
+  //   unique case (current_st)
+  //     MU1: begin idx[0]= 0; idx[1]= 1; end
+  //     MU2: begin idx[0]= 2; idx[1]= 3; end
+  //     MU3: begin idx[0]= 4; idx[1]= 5; end
+  //     MU4: begin idx[0]= 6; idx[1]= 7; end
+  //     MU5: begin idx[0]= 8; idx[1]= 9; end
+  //     MU6: begin idx[0]=10; idx[1]=11; end
+  //     MU7: begin idx[0]=12; idx[1]=13; end
+  //     default: begin idx[0]=14; idx[1]=15; end
+  //   endcase
+  // end
 
-  Multip multip0(.register(registers[idx[0]]), .weight(weights[idx[0]]), .product(product[0]));
-  Multip multip1(.register(registers[idx[1]]), .weight(weights[idx[1]]), .product(product[1]));
+  assign idx = addr[current_st];
+
+  generate
+    for (genvar i = 0; i < NMULT; i++) begin
+      Multip multip(.register(registers[idx[i]]), .weight(weights[idx[i]]), .product(product[i]));
+    end
+  endgenerate
+
 
   // Instance of matrix multiplier "A"
   MatrixA1 matrix_a1 (
@@ -130,15 +142,14 @@ module conv
   else begin
     data_valid <= 0;  // default
       unique case (current_st)
+        IDLE:     registers <= registers;
         WR_IFMAP: registers <= inputMAP;
-        WR_C:     registers <= prod_c1;
-        MU1, MU2, MU3, MU4, MU5, MU6, MU7, MU8:  begin
-          registers[idx[0]] <= product[0];
-          registers[idx[1]] <= product[1];
-        end
+        WR_MC:     registers <= prod_c1;
         WR_OUT: data_valid <= 1;
-        default: begin   // necessary - wrong behavior in logic simulation
-          registers <= registers;
+        default:  begin
+          for (int i = 0; i < NMULT; i++) begin
+            registers[idx[i]] <= product[i];
+          end
         end
       endcase
     end
