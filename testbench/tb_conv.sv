@@ -45,7 +45,9 @@ module tb;
     // Monitor para debug
     // $monitor("** Time: %0t | start: %b | data_valid: %b", $time, start, data_valid);
 
+
     //clk = 0;
+    start = 0;
     reset = 1;
     #5
     reset = 0;  // Liberar o reset após 5 ns

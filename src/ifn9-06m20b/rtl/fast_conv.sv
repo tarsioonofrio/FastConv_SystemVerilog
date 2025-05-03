@@ -73,14 +73,8 @@ module conv
       // IDLE
       IDLE:   next_st = start ? WR_IFMAP : IDLE;
       WR_IFMAP:  next_st = WR_MC;
-      WR_MC:     next_st = MU0;
-      MU0:       next_st = MU1;
-      MU1:       next_st = MU2;
-      MU2:       next_st = MU3;
-      MU3:       next_st = MU4;
-      MU4:       next_st = MU5;
-      MU5:       next_st = WR_OUT;
       WR_OUT:    next_st = IDLE;
+      default: next_st = state_type'(current_st + 1);
     endcase
   end
 
@@ -98,13 +92,13 @@ module conv
     .P(prod_c0),
     .soma(prod_c1)
   );
-
-  Multip multip0(.register(registers[idx[0]]), .weight(weights[idx[0]]), .product(product[0]));
-  Multip multip1(.register(registers[idx[1]]), .weight(weights[idx[1]]), .product(product[1]));
-  Multip multip2(.register(registers[idx[2]]), .weight(weights[idx[2]]), .product(product[2]));
-  Multip multip3(.register(registers[idx[3]]), .weight(weights[idx[3]]), .product(product[3]));
-  Multip multip4(.register(registers[idx[4]]), .weight(weights[idx[4]]), .product(product[4]));
-  Multip multip5(.register(registers[idx[5]]), .weight(weights[idx[5]]), .product(product[5]));
+  
+  // TODO generate
+  generate
+    for (genvar i = 0; i < 6; i++) begin
+      Multip multip(.register(registers[idx[i]]), .weight(weights[idx[i]]), .product(product[i]));
+    end
+  endgenerate
 
   always_comb begin
     unique case (current_st)
