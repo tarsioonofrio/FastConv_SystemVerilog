@@ -1,8 +1,8 @@
-  module Multip
+module Multip
   import packConv::*;
  #(
-  parameter int QUANT = 8,
-  parameter int NBITS = 20
+    parameter int QUANT = 8,
+    parameter int NBITS = 20
   )
   (
     input  logic_vector register,
@@ -21,12 +21,15 @@ endmodule
 module conv
   import packConv::*;
  #(
-    parameter int QUANT = 8
+   parameter int QUANT = 8,
+   parameter int NBITS = 20,
+   parameter int NMULT = 5,
+   parameter int SMULT = 5
   )
   (
     input  logic       clk, reset, start,
     input  type_input  inputMAP,
-    input  type_input  weights,
+    input  type_weight weights,
     output type_output outputMAP,
     output logic       data_valid
  );
@@ -34,18 +37,18 @@ module conv
   timeunit 1ns;
   timeprecision 1ps;
 
-  type_input registers, prod_c0;
+  // MU[SMULT]
+  typedef enum {MU[25], WR_OUT, IDLE, WR_IFMAP, WR_MC} state_type;
+  state_type current_st, next_st;
+
+  type_input    registers, prod_c0;
   type_matrix_c prod_c1;
   type_matrix_a prod_a1;
-  type_output prod_a0;
-
-  logic signed [NBITS-1+QUANT:0] product;   // QUANT more bits for the multipliers
+  type_output   prod_a0;
 
   logic [4:0] idx;
 
-  typedef enum {MU[16], WR_OUT, IDLE, WR_IFMAP, WR_MC} state_type;
-
-  state_type current_st, next_st;
+  logic signed[NBITS-1+QUANT:0] product[0:NMULT-1];   // QUANT more bits for the multipliers
 
   //
   // Control FSM
@@ -64,7 +67,6 @@ module conv
       WR_IFMAP: next_st = WR_MC;
       WR_MC:    next_st = MU0;
       WR_OUT:   next_st = IDLE;
-      // default:  next_st = current_st.next();
       default: next_st = state_type'(current_st + 1);
     endcase
   end
@@ -85,18 +87,9 @@ module conv
   );
 
 
-  //  // 4 multipliers inside this block
-  // always_comb begin
-  //   if (current_st >= MU0 && current_st <= MU15)
-  //     idx = current_st - MU0;
-  //   else
-  //     idx = 15;
-  // end
-
   assign idx = current_st;
 
   Multip multip0(.register(registers[idx]), .weight(weights[idx]), .product(product));
-
 
   // Instance of matrix multiplier "A"
   MatrixA1 matrix_a1 (
@@ -111,26 +104,28 @@ module conv
 
   // Internal register bank to store intermediate results
   always_ff @(posedge clk or posedge reset) begin
-  if (reset) begin
-    registers <= '{default: '0};
-    data_valid <= 0;
-  end
-  else begin
-    data_valid <= 0;  // default
+    if (reset) begin
+      registers <= '{default: '0};
+      data_valid <= 0;
+    end else begin
+      data_valid <= 0;  // default
       unique case (current_st)
         IDLE:     registers <= registers;
         WR_IFMAP: registers <= inputMAP;
         WR_MC:    registers <= prod_c1;
-        default:  registers[idx] <= product;
-        WR_OUT: data_valid <= 1;
+        WR_OUT:   data_valid <= 1;
+        default:  begin
+          for (int i = 0; i < NMULT; i++) begin
+            registers[idx[i]] <= product[i];
+          end
+        end
       endcase
     end
   end
 
   always_latch begin
     if (current_st==WR_OUT) begin
-        outputMAP = prod_a0;   /// saída em latch
-      end
+      outputMAP = prod_a0;   /// saída em latch
+    end
   end
-
 endmodule
