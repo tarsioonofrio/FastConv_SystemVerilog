@@ -1,0 +1,13 @@
+Feature: (0, 127)
+Weights: (0, 127)
+Image side: 64
+Output default and naive are equals: True
+R2: 1.0%
+Totals
+Naive
+Convolutions: 3844
+Multiplications: 34596
+Additions: 30752
+Fast
+Convolutions: 441
+Multiplications: 441
