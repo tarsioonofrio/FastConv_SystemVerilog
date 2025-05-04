@@ -62,7 +62,6 @@ module conv
   logic signed[NBITS-1+QUANT:0] product[0:NMULT-1];   // QUANT more bits for the multipliers
 
   logic[5:0] idx[0:NMULT-1];
-  // const logic[5:0] addr[5][5];
 
   // up to 16 states
   typedef enum {MU[6], WR_OUT, IDLE, WR_IFMAP, WR_MC} state_type;
