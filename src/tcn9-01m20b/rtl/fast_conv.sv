@@ -48,7 +48,7 @@ module conv
 
   logic [4:0] idx;
 
-  logic signed[NBITS-1+QUANT:0] product[0:NMULT-1];   // QUANT more bits for the multipliers
+  logic signed[NBITS-1+QUANT:0] product;   // QUANT more bits for the multipliers
 
   //
   // Control FSM
@@ -114,11 +114,7 @@ module conv
         WR_IFMAP: registers <= inputMAP;
         WR_MC:    registers <= prod_c1;
         WR_OUT:   data_valid <= 1;
-        default:  begin
-          for (int i = 0; i < NMULT; i++) begin
-            registers[idx[i]] <= product[i];
-          end
-        end
+        default:  registers[idx] <= product;
       endcase
     end
   end
