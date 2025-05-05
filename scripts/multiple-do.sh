@@ -1,3 +1,5 @@
+SCRIPT=$(pwd)
+
 for dir in "$@"; do
   echo "Processando o diretório: $dir"
   cd "$dir" || { echo "Não foi possível entrar em $dir"; continue; }
@@ -21,5 +23,5 @@ for dir in "$@"; do
     vsim -c -do sim.do
 
     # Voltar para o diretório original (opcional)
-    cd - > /dev/null
+    cd "$SCRIPT"
 done
