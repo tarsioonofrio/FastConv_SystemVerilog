@@ -36,13 +36,6 @@ module conv
   timeunit 1ns;
   timeprecision 1ps;
 
-  localparam logic [4:0] addr [0:3][0:3] = '{
-    '{ 0,  1,  2,  3},
-    '{ 4,  5,  6,  7},
-    '{ 8,  9, 10, 11},
-    '{12, 13, 14, 15}
-  };
-
   type_input    registers;
   type_matrix_c prod_c;
   type_output   prod_a;
@@ -50,8 +43,6 @@ module conv
   logic signed [NBITS-1+QUANT:0] product[0:4];   // QUANT more bits for the multipliers
 
   logic [4:0] idx[0:NMULT-1];
-
-  typedef enum {MU[4], WR_OUT, IDLE, WR_IFMAP, WR_MC} state_type;
 
   state_type current_st, next_st;
 
