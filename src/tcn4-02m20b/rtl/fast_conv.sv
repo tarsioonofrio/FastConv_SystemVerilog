@@ -130,7 +130,7 @@ module conv
 
   always_latch begin
     if (current_st==WR_OUT) begin
-        outputMAP = prod_a0;   /// saída em latch
+        outputMAP = prod_a;   /// saída em latch
       end
   end
 
