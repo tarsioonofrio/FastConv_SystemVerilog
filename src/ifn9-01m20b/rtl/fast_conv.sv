@@ -50,10 +50,8 @@ module conv
   state_type current_st, next_st;
 
   type_weight   registers;
-  type_matrix_c prod_c0;
-  type_weight   prod_c1;
-  type_matrix_a prod_a1;
-  type_output   prod_a0;
+  type_weight   prod_c;
+  type_output   prod_a;
 
   type_weight   prod_c;
   type_output   prod_a;
