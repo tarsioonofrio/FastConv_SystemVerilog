@@ -43,8 +43,6 @@ module conv
 
   logic [4:0] idx;
 
-  typedef enum {MU[16], WR_OUT, IDLE, WR_IFMAP, WR_MC} state_type;
-
   state_type current_st, next_st;
 
   //

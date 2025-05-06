@@ -42,8 +42,6 @@ module conv
 
   logic signed [NBITS-1+QUANT:0] product[0:NMULT];   // QUANT more bits for the multipliers
 
-  typedef enum {IDLE, WR_IFMAP, WR_MC, MU, WR_OUT} state_type;
-
   state_type current_st, next_st;
 
   //

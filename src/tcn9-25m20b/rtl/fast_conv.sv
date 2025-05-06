@@ -37,9 +37,6 @@ module conv
   timeunit 1ns;
   timeprecision 1ps;
 
-  typedef enum {IDLE, WR_IFMAP, WR_MC, MU, WR_OUT} state_type;
-  state_type current_st, next_st;
-
   type_input    registers;
   type_matrix_c prod_c;
   type_output   prod_a;
