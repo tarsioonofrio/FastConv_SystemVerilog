@@ -99,7 +99,7 @@ module conv
     end else begin
       data_valid <= 0;  // default
       unique case (current_st)
-        IDLE:     registers <= registers;0
+        IDLE:     registers <= registers;
         WR_IFMAP: registers <= inputMAP;
         WR_MC:    registers <= prod_c;
         WR_OUT:   data_valid <= 1;
@@ -114,7 +114,7 @@ module conv
 
   always_latch begin
     if (current_st==WR_OUT) begin
-        outputMAP = prod_a0;   /// saída em latch
+        outputMAP = prod_a;   /// saída em latch
       end
   end
 
