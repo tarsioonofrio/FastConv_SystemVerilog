@@ -45,15 +45,11 @@ module conv
   timeunit 1ns;
   timeprecision 1ps;
 
-  // MU[SMULT]
-  typedef enum {MU[36], WR_OUT, IDLE, WR_IFMAP, WR_MC} state_type;
   state_type current_st, next_st;
 
   type_weight   registers;
-  type_matrix_c prod_c0;
-  type_weight   prod_c1;
-  type_matrix_a prod_a1;
-  type_output   prod_a0;
+  type_weight   prod_c;
+  type_output   prod_a;
 
   logic signed[NBITS-1+QUANT:0] product;   // QUANT more bits for the multipliers
 
@@ -88,14 +84,9 @@ module conv
   //
 
   // Instance of matrix multiplier "C"
-  MatrixC0 matrix_c0(
-    .P(registers[24:0]),
-    .soma(prod_c0)
-  );
-
-  MatrixC1 matrix_c1(
-    .P(prod_c0),
-    .soma(prod_c1)
+  Transform trf(
+    .pin(registers[24:0]),
+    .pout(prod_c)
   );
 
   assign idx = current_st;
@@ -103,14 +94,9 @@ module conv
   Multip multip0(.register(registers[idx]), .weight(weights[idx]), .product(product));
 
   // Instance of matrix multiplier "A"
-  MatrixA1 matrix_a1 (
-    .P(registers),
-    .soma(prod_a1)
-  );
-
-  MatrixA0 matrix_a0 (
-    .P(prod_a1),
-    .soma(prod_a0)
+  Inverse inv(
+    .pin(registers),
+    .pout(prod_a)
   );
 
   // Internal register bank to store intermediate results
@@ -123,10 +109,10 @@ module conv
       unique case (current_st)
         IDLE:     registers <= registers;
         WR_IFMAP: registers[24:0] <= inputMAP;
-        WR_MC:    registers <= prod_c1;
+        WR_MC:    registers <= prod_c;
         WR_OUT: begin
           data_valid <= 1;
-          registers[8:0] <= prod_a0;
+          registers[8:0] <= prod_a;
         end
         default:  registers[idx] <= product;
       endcase
