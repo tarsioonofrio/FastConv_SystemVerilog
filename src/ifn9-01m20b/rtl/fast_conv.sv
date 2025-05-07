@@ -51,9 +51,6 @@ module conv
   type_weight   prod_c;
   type_output   prod_a;
 
-  type_weight   prod_c;
-  type_output   prod_a;
-
   logic signed[NBITS-1+QUANT:0] product;   // QUANT more bits for the multipliers
 
   logic[5:0] idx;
