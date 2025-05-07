@@ -7,6 +7,14 @@ package packConv;
   timeunit 1ns;
   timeprecision 1ps;
 
+  parameter int NMULT = 8;
+
+  localparam logic [4:0] addr [0:1][0:7] = '{
+    '{ 0,  1,  2,  3, 4,  5,  6,  7},
+    '{ 8,  9, 10, 11, 12, 13, 14, 15}
+  };
+
+  typedef enum {MU[2], WR_OUT, IDLE, WR_IFMAP, WR_MC} state_type;
 
   parameter int NBITS = 20;   // 32 bits generate too large hardware!!
 
