@@ -2,7 +2,7 @@
 // CONVOLUTION  TB
 // -------------------------------------------------------------------------
 module tb;
-  logic DEBUG = 1;
+  logic DEBUG = 0;
 
   timeunit 1ns;
   timeprecision 1ps;

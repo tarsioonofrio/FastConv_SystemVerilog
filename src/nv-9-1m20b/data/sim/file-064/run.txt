@@ -8,45 +8,45 @@ Reading pref.tcl
 # Modifying modelsim.ini
 # data/sim/file-064/data.sv
 # QuestaSim-64 vlog 2023.4 Compiler 2023.10 Oct  9 2023
-# Start time: 23:34:44 on May 01,2025
+# Start time: 23:54:46 on May 04,2025
 # vlog -work work data/sim/file-064/data.sv 
 # -- Compiling package data
 # 
 # Top level modules:
 # 	--none--
-# End time: 23:34:45 on May 01,2025, Elapsed time: 0:00:01
+# End time: 23:54:47 on May 04,2025, Elapsed time: 0:00:01
 # Errors: 0, Warnings: 0
 # QuestaSim-64 vlog 2023.4 Compiler 2023.10 Oct  9 2023
-# Start time: 23:34:45 on May 01,2025
+# Start time: 23:54:47 on May 04,2025
 # vlog -work work rtl/pack_conv.sv 
 # -- Compiling package packConv
 # 
 # Top level modules:
 # 	--none--
-# End time: 23:34:45 on May 01,2025, Elapsed time: 0:00:00
+# End time: 23:54:47 on May 04,2025, Elapsed time: 0:00:00
 # Errors: 0, Warnings: 0
 # QuestaSim-64 vlog 2023.4 Compiler 2023.10 Oct  9 2023
-# Start time: 23:34:45 on May 01,2025
+# Start time: 23:54:47 on May 04,2025
 # vlog -work work -svinputport=relaxed rtl/mac_op.sv 
 # -- Compiling module macoperation
 # -- Importing package packConv
 # 
 # Top level modules:
 # 	macoperation
-# End time: 23:34:45 on May 01,2025, Elapsed time: 0:00:00
+# End time: 23:54:47 on May 04,2025, Elapsed time: 0:00:00
 # Errors: 0, Warnings: 0
 # QuestaSim-64 vlog 2023.4 Compiler 2023.10 Oct  9 2023
-# Start time: 23:34:45 on May 01,2025
+# Start time: 23:54:47 on May 04,2025
 # vlog -work work -svinputport=relaxed rtl/naive_conv.sv 
 # -- Compiling module conv
 # -- Importing package packConv
 # 
 # Top level modules:
 # 	conv
-# End time: 23:34:45 on May 01,2025, Elapsed time: 0:00:00
+# End time: 23:54:47 on May 04,2025, Elapsed time: 0:00:00
 # Errors: 0, Warnings: 0
 # QuestaSim-64 vlog 2023.4 Compiler 2023.10 Oct  9 2023
-# Start time: 23:34:45 on May 01,2025
+# Start time: 23:54:47 on May 04,2025
 # vlog -work work -svinputport=relaxed ../../testbench/tb_conv.sv 
 # -- Compiling module tb
 # -- Importing package packConv
@@ -54,10 +54,10 @@ Reading pref.tcl
 # 
 # Top level modules:
 # 	tb
-# End time: 23:34:45 on May 01,2025, Elapsed time: 0:00:00
+# End time: 23:54:47 on May 04,2025, Elapsed time: 0:00:00
 # Errors: 0, Warnings: 0
 # vsim -voptargs="+acc" -t ns work.tb 
-# Start time: 23:34:45 on May 01,2025
+# Start time: 23:54:47 on May 04,2025
 # ** Note: (vsim-3812) Design is being optimized...
 # ** Warning: (vopt-10587) Some optimizations are turned off because the +acc switch is in effect. This will cause your simulation to run slowly. Please use -access/-debug to maintain needed visibility.
 # ** Note: (vopt-143) Recognized 1 FSM in module "conv(fast)".
@@ -8067,7 +8067,7 @@ Reading pref.tcl
 # Values Error: Time 100547 | Data Valid: 1 | const_feat_out[440][6] =           0 !=  -405504
 # Values Error: Time 100547 | Data Valid: 1 | const_feat_out[440][7] =           0 !=   394240
 # Values Error: Time 100547 | Data Valid: 1 | const_feat_out[440][8] =           0 !=   146944
-# ** Note: $finish    : ../../testbench/tb_conv.sv(72)
+# ** Note: $finish    : ../../testbench/tb_conv.sv(75)
 #    Time: 100563 ns  Iteration: 0  Instance: /tb
-# End time: 23:34:46 on May 01,2025, Elapsed time: 0:00:01
+# End time: 23:54:48 on May 04,2025, Elapsed time: 0:00:01
 # Errors: 0, Warnings: 1
