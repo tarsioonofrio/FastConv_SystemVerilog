@@ -36,14 +36,11 @@ module conv
   timeunit 1ns;
   timeprecision 1ps;
 
-  type_input    registers, prod_c0;
-  type_matrix_c prod_c1;
-  type_matrix_a prod_a1;
-  type_output   prod_a0;
+  type_input    registers;
+  type_matrix_c prod_c;
+  type_output   prod_a;
 
   logic signed [NBITS-1+QUANT:0] product[0:NMULT];   // QUANT more bits for the multipliers
-
-  typedef enum {IDLE, WR_IFMAP, WR_MC, MU, WR_OUT} state_type;
 
   state_type current_st, next_st;
 
@@ -73,14 +70,9 @@ module conv
   //
 
   // Instance of matrix multiplier "C"
-  MatrixC0 matrix_c0(
-    .P(registers),
-    .soma(prod_c0)
-  );
-
-  MatrixC1 matrix_c1(
-    .P(prod_c0),
-    .soma(prod_c1)
+  Transform trf(
+    .pin(registers),
+    .pout(prod_c)
   );
 
   // assign idx = addr[current_st];
@@ -92,14 +84,9 @@ module conv
   endgenerate
 
   // Instance of matrix multiplier "A"
-  MatrixA1 matrix_a1 (
-    .P(registers),
-    .soma(prod_a1)
-  );
-
-  MatrixA0 matrix_a0 (
-    .P(prod_a1),
-    .soma(prod_a0)
+  Inverse inv(
+    .pin(registers),
+    .pout(prod_a)
   );
 
   // Internal register bank to store intermediate results
@@ -110,9 +97,9 @@ module conv
     end else begin
       data_valid <= 0;  // default
       unique case (current_st)
-        IDLE:     registers <= registers;0
+        IDLE:     registers <= registers;
         WR_IFMAP: registers <= inputMAP;
-        WR_MC:    registers <= prod_c1;
+        WR_MC:    registers <= prod_c;
         WR_OUT:   data_valid <= 1;
         default:  begin
           for (int i = 0; i < NMULT; i++) begin
@@ -125,7 +112,7 @@ module conv
 
   always_latch begin
     if (current_st==WR_OUT) begin
-        outputMAP = prod_a0;   /// saída em latch
+        outputMAP = prod_a;   /// saída em latch
       end
   end
 
