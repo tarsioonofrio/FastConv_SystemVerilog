@@ -1,8 +1,10 @@
 SCRIPT=$(pwd)
 
 for dir in "$@"; do
+  echo "**********************************************************"
   echo "Processando o diretório: $dir"
   cd "$dir" || { echo "Não foi possível entrar em $dir"; continue; }
+  echo "**********************************************************"
 
     DATA=data/sim/file-032
     DATA=$DATA/data.sv vsim -c -do sim.do > $DATA/run.txt
