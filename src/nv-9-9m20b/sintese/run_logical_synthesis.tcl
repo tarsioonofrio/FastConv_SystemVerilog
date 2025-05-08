@@ -148,3 +148,5 @@ puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 
 	### To generate all files needed to be loaded in an Innovus session, use the following command:
 	write_design -innovus -base_name ${OUT_FILES}/physical_synthesis/work/data
+    
+    exit
