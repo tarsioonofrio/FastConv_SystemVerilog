@@ -3,19 +3,19 @@ Copyright 2024 Cadence Design Systems, Inc. All rights reserved worldwide.
 Cadence and the Cadence logo are registered trademarks and Genus is a trademark
 of Cadence Design Systems, Inc. in the United States and other countries.
 
-[01:04:23.028497] Configured Lic search path (22.01-s003): 5280@paxos.inf.pucrs.br
+[22:08:02.028529] Configured Lic search path (22.01-s003): 5280@paxos.inf.pucrs.br
 
 Version: 22.17-s071_1, built Thu Sep 12 08:37:05 PDT 2024
 Options: -files run_logical_synthesis.tcl 
-Date:    Fri May 02 01:04:23 2025
+Date:    Wed May 07 22:08:02 2025
 Host:    paxos.inf.pucrs.br (x86_64 w/Linux 4.18.0-553.47.1.el8_10.x86_64) (14cores*28cpus*1physical cpu*Intel(R) Core(TM) i9-7940X CPU @ 3.10GHz 19712KB) (131170924KB)
-PID:     426520
+PID:     3285970
 OS:      Rocky Linux release 8.10 (Green Obsidian)
 
 Checking out license: Genus_Synthesis
-[01:04:23.259625] Periodic Lic check successful
-[01:04:23.259635] Feature usage summary:
-[01:04:23.259635] Genus_Synthesis
+[22:08:02.046336] Periodic Lic check successful
+[22:08:02.046346] Feature usage summary:
+[22:08:02.046347] Genus_Synthesis
 
 
 
@@ -42,7 +42,7 @@ Load the pdk using MMMC
 @file(run_logical_synthesis.tcl) 11: 	# Multi-Mode Multi-Corner (MMMC)
 @file(run_logical_synthesis.tcl) 12: 	read_mmmc "scripts/mmmc_tsmc_28_bv.tcl"
   Setting attribute of root '/': 'is_read_mmmc_flow' = true
-Sourcing './scripts/mmmc_tsmc_28_bv.tcl' (Fri May 02 01:04:35 -03 2025)...
+Sourcing './scripts/mmmc_tsmc_28_bv.tcl' (Wed May 07 22:08:14 -03 2025)...
 #@ Begin verbose source ./scripts/mmmc_tsmc_28_bv.tcl
 @file(mmmc_tsmc_28_bv.tcl) 5: set LIB_PATH /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End
 @file(mmmc_tsmc_28_bv.tcl) 6: set TECH_PATH /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Back_End
@@ -301,7 +301,7 @@ Stage: post_elab
 | ume_constant_bmux |       0 |       0 |        0.00 | 
 | ume_merge         |       0 |       0 |        0.00 | 
 | ume_ssm           |       0 |       0 |        0.00 | 
-| ume_cse           |       0 |       0 |        0.01 | 
+| ume_cse           |       0 |       0 |        0.02 | 
 | ume_shrink        |       0 |       0 |        0.00 | 
 | ume_sweep         |       0 |       0 |        0.00 | 
 -------------------------------------------------------
@@ -563,8 +563,8 @@ Info    : Deleting instances not driving any primary outputs. [GLO-34]
 [Clock Gating] Decloning datapath insts ...
 [Clock Gating] Decloning datapath insts done. (0 s.)
 [Clock Gating] Removing redundant muxes pre insertion ...
-  total runtime for constant propagation: 00:00 walltime (min:sec)
-[Clock Gating] Removing redundant muxes pre insertion done. (0 s.)
+  total runtime for constant propagation: 00:01 walltime (min:sec)
+[Clock Gating] Removing redundant muxes pre insertion done. (1 s.)
   Setting attribute of root '/': 'basic_opto_skip_datapath' = true
 [Clock Gating] Clock gating design ...
   Inserting clock-gating logic in netlist from 'design:conv'
@@ -584,13 +584,13 @@ Ungated flip-flops
   Register bank width too small         4		  2%
 Total flip-flops                        199		100%
 Total CG Modules                        12
-[Clock Gating] Clock gating design done. (1 s.)
+[Clock Gating] Clock gating design done. (0 s.)
   Resetting attribute of root '/': 'basic_opto_skip_datapath' = false
 [Clock Gating] Dissolving small equality operators ...
 [Clock Gating] Dissolving small equality operators done. (0 s.)
 ##Generic Timing Info for library domain: timing_cond_0p81v_125c typical gate delay: 20.1 ps std_slew: 6.8 ps std_load: 1.6 fF
 Starting mux data reorder optimization [v1.0] (stage: pre_to_gen_setup, startdef: conv, recur: true)
-Completed mux data reorder optimization (accepts: 0, rejects: 0, runtime: 0.001s)
+Completed mux data reorder optimization (accepts: 0, rejects: 0, runtime: 0.000s)
 
 Stage: pre_to_gen_setup
 -----------------------------------------------------
@@ -680,7 +680,7 @@ stamp 'PBS_Generic-Start' being created for table 'pbs_debug'
 
   Total Time (Wall) |  Stage Time (Wall)  |   % (Wall)   |    Date - Time     |  Memory   | Stage
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:00:29(00:00:18) |  00:00:00(00:00:00) |   0.0(  0.0) |    1:04:50 (May02) |  691.1 MB | PBS_Generic-Start
+ 00:00:29(00:00:18) |  00:00:00(00:00:00) |   0.0(  0.0) |   22:08:28 (May07) |  720.7 MB | PBS_Generic-Start
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
 Number of threads: 28 * 1   (id: pbs_debug, time_info v1.57)
 Info: (*N*) indicates data that was populated from previously saved time_info database
@@ -717,7 +717,7 @@ Stage: pre_to_gen_setup
 | hlo_mux_reorder |       9 |       0 |        0.29 | 
 -----------------------------------------------------
 Starting mux data reorder optimization [v1.0] (stage: post_to_gen_setup, startdef: conv, recur: true)
-Completed mux data reorder optimization (accepts: 0, rejects: 0, runtime: 0.001s)
+Completed mux data reorder optimization (accepts: 0, rejects: 0, runtime: 0.000s)
 
 Stage: post_to_gen_setup
 -----------------------------------------------------
@@ -805,29 +805,29 @@ Begin SDR optimization
 No special hier is found 
 End SDR optimization 
 Starting recase case-box optimization [v1.0] (stage: pre_rtlopt, startdef: conv, recur: true)
-Completed recase case-box optimization (accepts: 0, rejects: 0, runtime: 0.035s)
+Completed recase case-box optimization (accepts: 0, rejects: 0, runtime: 0.031s)
 Starting infer macro optimization [v1.0] (stage: pre_rtlopt, startdef: conv, recur: true)
-Completed infer macro optimization (accepts: 0, rejects: 6, runtime: 0.020s)
+Completed infer macro optimization (accepts: 0, rejects: 6, runtime: 0.022s)
 Starting decode mux sandwich optimization [v2.0] (stage: pre_rtlopt, startdef: conv, recur: true)
 Completed decode mux sandwich optimization (accepts: 0, rejects: 0, runtime: 0.000s)
 Starting decode mux optimization [v1.0] (stage: pre_rtlopt, startdef: conv, recur: true)
-Completed decode mux optimization (accepts: 0, rejects: 0, runtime: 0.001s)
+Completed decode mux optimization (accepts: 0, rejects: 0, runtime: 0.000s)
 Starting chop wide muxes [v1.0] (stage: pre_rtlopt, startdef: conv, recur: true)
 Completed chop wide muxes (accepts: 0, rejects: 0, runtime: 0.000s)
 Starting common data mux cascade opt [v1.0] (stage: pre_rtlopt, startdef: conv, recur: true)
 Completed common data mux cascade opt (accepts: 0, rejects: 0, runtime: 0.000s)
 Starting mux input consolidation [v1.0] (stage: pre_rtlopt, startdef: conv, recur: true)
-Completed mux input consolidation (accepts: 0, rejects: 0, runtime: 0.001s)
+Completed mux input consolidation (accepts: 0, rejects: 0, runtime: 0.000s)
 Starting constant-data mux optimization [v1.0] (stage: pre_rtlopt, startdef: conv, recur: true)
 Completed constant-data mux optimization (accepts: 0, rejects: 0, runtime: 0.000s)
 Starting chain-to-tree inequality transform [v2.0] (stage: pre_rtlopt, startdef: conv, recur: true)
 Completed chain-to-tree inequality transform (accepts: 0, rejects: 0, runtime: 0.021s)
 Starting reconvergence optimization [v1.0] (stage: pre_rtlopt, startdef: conv, recur: true)
-Completed reconvergence optimization (accepts: 0, rejects: 0, runtime: 0.000s)
+Completed reconvergence optimization (accepts: 0, rejects: 0, runtime: 0.001s)
 Starting logic restructure optimization [v1.0] (stage: pre_rtlopt, startdef: conv, recur: true)
-Completed logic restructure optimization (accepts: 0, rejects: 0, runtime: 0.002s)
+Completed logic restructure optimization (accepts: 0, rejects: 0, runtime: 0.001s)
 Starting identity transform [v3.0] (stage: pre_rtlopt, startdef: conv, recur: true)
-Completed identity transform (accepts: 0, rejects: 0, runtime: 0.001s)
+Completed identity transform (accepts: 0, rejects: 0, runtime: 0.002s)
 Starting reduce operator chain [v1.0] (stage: pre_rtlopt, startdef: conv, recur: true)
 Completed reduce operator chain (accepts: 0, rejects: 0, runtime: 0.000s)
 Starting common data mux cascade opt [v1.0] (stage: pre_rtlopt, startdef: conv, recur: true)
@@ -839,11 +839,11 @@ Completed optimize datapath elements (accepts: 3, rejects: 0, runtime: 0.002s)
 Starting datapath recasting [v1.0] (stage: pre_rtlopt, startdef: conv, recur: true)
 Completed datapath recasting (accepts: 0, rejects: 0, runtime: 0.000s)
 Starting word-level redundancy removal [v1.0] (stage: pre_rtlopt, startdef: conv, recur: true)
-Completed word-level redundancy removal (accepts: 0, rejects: 0, runtime: 0.396s)
+Completed word-level redundancy removal (accepts: 0, rejects: 0, runtime: 0.414s)
 Starting clip mux common data inputs [v1.0] (stage: pre_rtlopt, startdef: conv, recur: true)
-Completed clip mux common data inputs (accepts: 2, rejects: 0, runtime: 0.001s)
+Completed clip mux common data inputs (accepts: 2, rejects: 0, runtime: 0.002s)
 Starting clip the non-user hierarchies [v2.0] (stage: pre_rtlopt, startdef: conv, recur: true)
-Completed clip the non-user hierarchies (accepts: 0, rejects: 0, runtime: 0.001s)
+Completed clip the non-user hierarchies (accepts: 0, rejects: 0, runtime: 0.000s)
 Starting basic netlist cleanup [v1.0] (stage: pre_rtlopt, startdef: conv, recur: true)
 Completed basic netlist cleanup (accepts: 0, rejects: 0, runtime: 0.000s)
 
@@ -851,7 +851,7 @@ Stage: pre_rtlopt
 -----------------------------------------------------------------
 | Transform                   | Accepts | Rejects | Runtime (s) | 
 -----------------------------------------------------------------
-| hlo_recase_casebox          |       0 |       0 |        0.04 | 
+| hlo_recase_casebox          |       0 |       0 |        0.03 | 
 | hlo_infer_macro             |       0 |       6 |        0.02 | 
 | hlo_decode_mux_sandwich     |       0 |       0 |        0.00 | 
 | hlo_mux_decode              |       0 |       0 |        0.00 | 
@@ -868,7 +868,7 @@ Stage: pre_rtlopt
 | hlo_mux_consolidation       |       0 |       0 |        0.00 | 
 | hlo_optimize_datapath       |       3 |       0 |        0.00 | 
 | hlo_datapath_recast         |       0 |       0 |        0.00 | 
-| hlo_redundancy_removal_word |       0 |       0 |        0.40 | 
+| hlo_redundancy_removal_word |       0 |       0 |        0.41 | 
 | hlo_clip_mux_input          |       2 |       0 |        0.00 | 
 | hlo_clip                    |       0 |       0 |        0.00 | 
 | hlo_cleanup                 |       0 |       0 |        0.00 | 
@@ -3778,11 +3778,11 @@ Info    : Done optimizing datapath logic. [DPOPT-2]
         : Done optimizing datapath logic in 'conv'.
 Number of big hc bmuxes after = 0
 Starting bit-level redundancy removal [v1.0] (stage: post_rtlopt, startdef: conv, recur: true)
-Completed bit-level redundancy removal (accepts: 0, rejects: 0, runtime: 0.377s)
+Completed bit-level redundancy removal (accepts: 0, rejects: 0, runtime: 0.379s)
 Starting logic reduction [v1.0] (stage: post_rtlopt, startdef: conv, recur: true)
-Completed logic reduction (accepts: 0, rejects: 0, runtime: 0.000s)
+Completed logic reduction (accepts: 0, rejects: 0, runtime: 0.001s)
 Starting mux data reorder optimization [v1.0] (stage: post_rtlopt, startdef: conv, recur: true)
-Completed mux data reorder optimization (accepts: 0, rejects: 0, runtime: 0.001s)
+Completed mux data reorder optimization (accepts: 0, rejects: 0, runtime: 0.000s)
 
 Stage: post_rtlopt
 ----------------------------------------------------------------
@@ -3797,13 +3797,13 @@ Running post blast mux optimization. Please follow up with Cadence support if ru
 Starting mux speculation [v1.0] (stage: post_muxopt, startdef: conv, recur: true)
 Starting speculation optimization
 Completed speculation optimization (accepts:0)
-Completed mux speculation (accepts: 0, rejects: 0, runtime: 0.668s)
+Completed mux speculation (accepts: 0, rejects: 0, runtime: 0.684s)
 
 Stage: post_muxopt
 -----------------------------------------------------
 | Transform       | Accepts | Rejects | Runtime (s) | 
 -----------------------------------------------------
-| hlo_speculation |       0 |       0 |        0.67 | 
+| hlo_speculation |       0 |       0 |        0.68 | 
 -----------------------------------------------------
 ==================================
 Stage : to_generic 
@@ -4032,28 +4032,28 @@ Warning : CG test connection is running on a generic netlist. [POPT-702]
 Info    : Attribute 'lp_clock_gating_test_signal' is not set. [POPT-703]
         : Skipping test connection for clock gates on design conv, as 'lp_clock_gating_test_signal' is not set.
         : Indicate which test signal to use by setting the attribute 'lp_clock_gating_test_signal'.
-PBS_Generic_Opt-Post - Elapsed_Time 43, CPU_Time 44.69663
+PBS_Generic_Opt-Post - Elapsed_Time 43, CPU_Time 44.665779
 stamp 'PBS_Generic_Opt-Post' being created for table 'pbs_debug'
 
   Total Time (Wall) |  Stage Time (Wall)  |   % (Wall)   |    Date - Time     |  Memory   | Stage
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:00:29(00:00:18) |  00:00:00(00:00:00) |   0.0(  0.0) |    1:04:50 (May02) |  691.1 MB | PBS_Generic-Start
+ 00:00:29(00:00:18) |  00:00:00(00:00:00) |   0.0(  0.0) |   22:08:28 (May07) |  720.7 MB | PBS_Generic-Start
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:01:14(00:01:02) |  00:00:44(00:00:44) | 100.0(100.0) |    1:05:33 (May02) |   1.08 GB | PBS_Generic_Opt-Post
+ 00:01:14(00:01:01) |  00:00:44(00:00:43) | 100.0(100.0) |   22:09:11 (May07) |   1.12 GB | PBS_Generic_Opt-Post
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
 Number of threads: 28 * 1   (id: pbs_debug, time_info v1.57)
 Info: (*N*) indicates data that was populated from previously saved time_info database
 Info: CPU time includes time of parent + longest thread
-PBS_Generic-Postgen HBO Optimizations - Elapsed_Time 0, CPU_Time 0.0
+PBS_Generic-Postgen HBO Optimizations - Elapsed_Time 1, CPU_Time 0.0
 stamp 'PBS_Generic-Postgen HBO Optimizations' being created for table 'pbs_debug'
 
   Total Time (Wall) |  Stage Time (Wall)  |   % (Wall)   |    Date - Time     |  Memory   | Stage
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:00:29(00:00:18) |  00:00:00(00:00:00) |   0.0(  0.0) |    1:04:50 (May02) |  691.1 MB | PBS_Generic-Start
+ 00:00:29(00:00:18) |  00:00:00(00:00:00) |   0.0(  0.0) |   22:08:28 (May07) |  720.7 MB | PBS_Generic-Start
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:01:14(00:01:02) |  00:00:44(00:00:44) | 100.0(100.0) |    1:05:33 (May02) |   1.08 GB | PBS_Generic_Opt-Post
+ 00:01:14(00:01:01) |  00:00:44(00:00:43) | 100.0( 97.7) |   22:09:11 (May07) |   1.12 GB | PBS_Generic_Opt-Post
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:01:14(00:01:02) |  00:00:00(00:00:00) |   0.0(  0.0) |    1:05:33 (May02) |   1.08 GB | PBS_Generic-Postgen HBO Optimizations
+ 00:01:14(00:01:02) |  00:00:00(00:00:01) |   0.0(  2.3) |   22:09:12 (May07) |   1.12 GB | PBS_Generic-Postgen HBO Optimizations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
 Number of threads: 28 * 1   (id: pbs_debug, time_info v1.57)
 Info: (*N*) indicates data that was populated from previously saved time_info database
@@ -4064,7 +4064,7 @@ Info: CPU time includes time of parent + longest thread
 ##>----------------------------------------------------------------------------------------
 ##>STEP                           Elapsed       WNS       TNS     Insts      Area    Memory
 ##>----------------------------------------------------------------------------------------
-##>G:Initial                            2         -         -     19764     34594       691
+##>G:Initial                            2         -         -     19764     34594       720
 ##>G:Setup                              0         -         -         -         -         -
 ##>G:Early Clock Gating                 0         -         -         -         -         -
 ##>G:Launch ST                          0         -         -         -         -         -
@@ -4079,12 +4079,12 @@ Info: CPU time includes time of parent + longest thread
 ##>G:Timer                              0         -         -         -         -         -
 ##>G:Assembly                           0         -         -         -         -         -
 ##>G:DFT                                0         -         -         -         -         -
-##>G:Const Prop                         0         -         -     29056     41403      1082
-##>G:PostGen Opt                        0         -         -     29056     41403      1082
+##>G:Const Prop                         1         -         -     29056     41403      1115
+##>G:PostGen Opt                        0         -         -     29056     41403      1115
 ##>G:Early Clock Gating Cleanup         0         -         -         -         -         -
 ##>G:Misc                              43
 ##>----------------------------------------------------------------------------------------
-##>Total Elapsed                       45
+##>Total Elapsed                       46
 ##>========================================================================================
 Info    : Done synthesizing. [SYNTH-2]
         : Done synthesizing 'conv' to generic gates.
@@ -4182,13 +4182,13 @@ stamp 'PBS_TechMap-Start' being created for table 'pbs_debug'
 
   Total Time (Wall) |  Stage Time (Wall)  |   % (Wall)   |    Date - Time     |  Memory   | Stage
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:00:29(00:00:18) |  00:00:00(00:00:00) |   0.0(  0.0) |    1:04:50 (May02) |  691.1 MB | PBS_Generic-Start
+ 00:00:29(00:00:18) |  00:00:00(00:00:00) |   0.0(  0.0) |   22:08:28 (May07) |  720.7 MB | PBS_Generic-Start
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:01:14(00:01:02) |  00:00:44(00:00:44) |  95.7( 97.8) |    1:05:33 (May02) |   1.08 GB | PBS_Generic_Opt-Post
+ 00:01:14(00:01:01) |  00:00:44(00:00:43) |  95.7( 95.6) |   22:09:11 (May07) |   1.12 GB | PBS_Generic_Opt-Post
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:01:14(00:01:02) |  00:00:00(00:00:00) |   0.0(  0.0) |    1:05:33 (May02) |   1.08 GB | PBS_Generic-Postgen HBO Optimizations
+ 00:01:14(00:01:02) |  00:00:00(00:00:01) |   0.0(  2.2) |   22:09:12 (May07) |   1.12 GB | PBS_Generic-Postgen HBO Optimizations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:01:16(00:01:03) |  00:00:02(00:00:01) |   4.3(  2.2) |    1:05:34 (May02) |   1.08 GB | PBS_TechMap-Start
+ 00:01:16(00:01:03) |  00:00:02(00:00:01) |   4.3(  2.2) |   22:09:13 (May07) |   1.12 GB | PBS_TechMap-Start
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
 Number of threads: 28 * 1   (id: pbs_debug, time_info v1.57)
 Info: (*N*) indicates data that was populated from previously saved time_info database
@@ -4198,15 +4198,15 @@ stamp 'PBS_TechMap-Premap HBO Optimizations' being created for table 'pbs_debug'
 
   Total Time (Wall) |  Stage Time (Wall)  |   % (Wall)   |    Date - Time     |  Memory   | Stage
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:00:29(00:00:18) |  00:00:00(00:00:00) |   0.0(  0.0) |    1:04:50 (May02) |  691.1 MB | PBS_Generic-Start
+ 00:00:29(00:00:18) |  00:00:00(00:00:00) |   0.0(  0.0) |   22:08:28 (May07) |  720.7 MB | PBS_Generic-Start
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:01:14(00:01:02) |  00:00:44(00:00:44) |  95.7( 95.7) |    1:05:33 (May02) |   1.08 GB | PBS_Generic_Opt-Post
+ 00:01:14(00:01:01) |  00:00:44(00:00:43) |  95.7( 93.5) |   22:09:11 (May07) |   1.12 GB | PBS_Generic_Opt-Post
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:01:14(00:01:02) |  00:00:00(00:00:00) |   0.0(  0.0) |    1:05:33 (May02) |   1.08 GB | PBS_Generic-Postgen HBO Optimizations
+ 00:01:14(00:01:02) |  00:00:00(00:00:01) |   0.0(  2.2) |   22:09:12 (May07) |   1.12 GB | PBS_Generic-Postgen HBO Optimizations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:01:16(00:01:03) |  00:00:02(00:00:01) |   4.3(  2.2) |    1:05:34 (May02) |   1.08 GB | PBS_TechMap-Start
+ 00:01:16(00:01:03) |  00:00:02(00:00:01) |   4.3(  2.2) |   22:09:13 (May07) |   1.12 GB | PBS_TechMap-Start
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:01:16(00:01:04) |  00:00:00(00:00:01) |   0.0(  2.2) |    1:05:35 (May02) |   1.08 GB | PBS_TechMap-Premap HBO Optimizations
+ 00:01:16(00:01:04) |  00:00:00(00:00:01) |   0.0(  2.2) |   22:09:14 (May07) |   1.12 GB | PBS_TechMap-Premap HBO Optimizations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
 Number of threads: 28 * 1   (id: pbs_debug, time_info v1.57)
 Info: (*N*) indicates data that was populated from previously saved time_info database
@@ -4275,105 +4275,105 @@ Info    : Attempting to launch a super-threading server. [ST-120]
         : Attempting to Launch server 1 of 28.
         : The tool is entering super-threading mode and is launching a CPU server process.  This is enabled by the root attribute 'super_thread_servers' or 'auto_super_thread'.
 Info    : Connection established with super-threading server. [ST-110]
-        : The server 'localhost_1_0' is process '428598' on this host.
+        : The server 'localhost_1_0' is process '3288045' on this host.
         : The tool is entering super-threading mode and has established a connection with a CPU server process.  This is enabled by the root attributes 'super_thread_servers' or 'auto_super_thread'.
                   Library loading done successfully on server 'localhost_1_0'.
 Info    : Connection established with super-threading server. [ST-110]
-        : The server 'localhost_1_1' is forked process '429315' on this host.
+        : The server 'localhost_1_1' is forked process '3288807' on this host.
 Info    : Connection established with super-threading server. [ST-110]
-        : The server 'localhost_1_2' is forked process '429317' on this host.
+        : The server 'localhost_1_2' is forked process '3288809' on this host.
 Info    : Connection established with super-threading server. [ST-110]
-        : The server 'localhost_1_3' is forked process '429319' on this host.
+        : The server 'localhost_1_3' is forked process '3288811' on this host.
 Info    : Connection established with super-threading server. [ST-110]
-        : The server 'localhost_1_4' is forked process '429321' on this host.
+        : The server 'localhost_1_4' is forked process '3288813' on this host.
 Info    : Connection established with super-threading server. [ST-110]
-        : The server 'localhost_1_5' is forked process '429323' on this host.
+        : The server 'localhost_1_5' is forked process '3288815' on this host.
 Info    : Connection established with super-threading server. [ST-110]
-        : The server 'localhost_1_6' is forked process '429325' on this host.
+        : The server 'localhost_1_6' is forked process '3288817' on this host.
 Info    : Connection established with super-threading server. [ST-110]
-        : The server 'localhost_1_7' is forked process '429327' on this host.
+        : The server 'localhost_1_7' is forked process '3288819' on this host.
 Checking out license: Genus_CPU_Opt
-[01:06:01.004153] Periodic Lic check successful
-[01:06:01.004161] Feature usage summary:
-[01:06:01.004161] Genus_Synthesis
-[01:06:01.004162] Genus_CPU_Opt
+[22:09:40.261305] Periodic Lic check successful
+[22:09:40.261312] Feature usage summary:
+[22:09:40.261313] Genus_Synthesis
+[22:09:40.261313] Genus_CPU_Opt
 
 Info    : Connection established with super-threading server. [ST-110]
-        : The server 'localhost_1_8' is forked process '429329' on this host.
+        : The server 'localhost_1_8' is forked process '3288821' on this host.
 Info    : Connection established with super-threading server. [ST-110]
-        : The server 'localhost_1_9' is forked process '429332' on this host.
+        : The server 'localhost_1_9' is forked process '3288823' on this host.
 Info    : Connection established with super-threading server. [ST-110]
-        : The server 'localhost_1_10' is forked process '429334' on this host.
+        : The server 'localhost_1_10' is forked process '3288825' on this host.
 Info    : Connection established with super-threading server. [ST-110]
-        : The server 'localhost_1_11' is forked process '429336' on this host.
+        : The server 'localhost_1_11' is forked process '3288827' on this host.
 Info    : Connection established with super-threading server. [ST-110]
-        : The server 'localhost_1_12' is forked process '429338' on this host.
+        : The server 'localhost_1_12' is forked process '3288829' on this host.
 Info    : Connection established with super-threading server. [ST-110]
-        : The server 'localhost_1_13' is forked process '429340' on this host.
+        : The server 'localhost_1_13' is forked process '3288957' on this host.
 Info    : Connection established with super-threading server. [ST-110]
-        : The server 'localhost_1_14' is forked process '429342' on this host.
+        : The server 'localhost_1_14' is forked process '3288959' on this host.
 Info    : Connection established with super-threading server. [ST-110]
-        : The server 'localhost_1_15' is forked process '429344' on this host.
+        : The server 'localhost_1_15' is forked process '3288961' on this host.
 Checking out license: Genus_CPU_Opt
 Info    : Connection established with super-threading server. [ST-110]
-        : The server 'localhost_1_16' is forked process '429346' on this host.
+        : The server 'localhost_1_16' is forked process '3288964' on this host.
 Info    : Connection established with super-threading server. [ST-110]
-        : The server 'localhost_1_17' is forked process '429348' on this host.
+        : The server 'localhost_1_17' is forked process '3288966' on this host.
 Info    : Connection established with super-threading server. [ST-110]
-        : The server 'localhost_1_18' is forked process '429350' on this host.
+        : The server 'localhost_1_18' is forked process '3288968' on this host.
 Info    : Connection established with super-threading server. [ST-110]
-        : The server 'localhost_1_19' is forked process '429352' on this host.
+        : The server 'localhost_1_19' is forked process '3288970' on this host.
 Warning : Maximum message print count reached. [MESG-11]
         : Maximum print count of '20' reached for message 'ST-110'.
 Checking out license: Genus_CPU_Opt
 Multi-threaded Virtual Mapping    (8 threads per ST process, 8 of 28 CPUs usable)
         Distributing super-thread jobs: cb_part_636
-          Sending 'cb_part_636' to server 'localhost_1_20'...
-            Sent 'cb_part_636' to server 'localhost_1_20'.
-          Received 'cb_part_636' from server 'localhost_1_20'. (5401 ms elapsed)
+          Sending 'cb_part_636' to server 'localhost_1_25'...
+            Sent 'cb_part_636' to server 'localhost_1_25'.
+          Received 'cb_part_636' from server 'localhost_1_25'. (5432 ms elapsed)
         Distributing super-thread jobs: mult_signed_12 mult_signed_12_490 mult_signed_12_325
-          Sending 'mult_signed_12' to server 'localhost_1_20'...
-            Sent 'mult_signed_12' to server 'localhost_1_20'.
-          Sending 'mult_signed_12_490' to server 'localhost_1_6'...
-            Sent 'mult_signed_12_490' to server 'localhost_1_6'.
-          Sending 'mult_signed_12_325' to server 'localhost_1_12'...
-            Sent 'mult_signed_12_325' to server 'localhost_1_12'.
-          Received 'mult_signed_12' from server 'localhost_1_20'. (843 ms elapsed)
-          Received 'mult_signed_12_490' from server 'localhost_1_6'. (5452 ms elapsed)
-          Received 'mult_signed_12_325' from server 'localhost_1_12'. (5456 ms elapsed)
+          Sending 'mult_signed_12' to server 'localhost_1_25'...
+            Sent 'mult_signed_12' to server 'localhost_1_25'.
+          Sending 'mult_signed_12_490' to server 'localhost_1_15'...
+            Sent 'mult_signed_12_490' to server 'localhost_1_15'.
+          Sending 'mult_signed_12_325' to server 'localhost_1_9'...
+            Sent 'mult_signed_12_325' to server 'localhost_1_9'.
+          Received 'mult_signed_12' from server 'localhost_1_25'. (919 ms elapsed)
+          Received 'mult_signed_12_490' from server 'localhost_1_15'. (5466 ms elapsed)
+          Received 'mult_signed_12_325' from server 'localhost_1_9'. (5430 ms elapsed)
         Distributing super-thread jobs: FA FA_82 FA_81
-          Sending 'FA' to server 'localhost_1_20'...
-            Sent 'FA' to server 'localhost_1_20'.
-          Sending 'FA_82' to server 'localhost_1_6'...
-            Sent 'FA_82' to server 'localhost_1_6'.
-          Sending 'FA_81' to server 'localhost_1_12'...
-            Sent 'FA_81' to server 'localhost_1_12'.
-          Received 'FA' from server 'localhost_1_20'. (102 ms elapsed)
-          Received 'FA_82' from server 'localhost_1_6'. (182 ms elapsed)
-          Received 'FA_81' from server 'localhost_1_12'. (183 ms elapsed)
+          Sending 'FA' to server 'localhost_1_25'...
+            Sent 'FA' to server 'localhost_1_25'.
+          Sending 'FA_82' to server 'localhost_1_15'...
+            Sent 'FA_82' to server 'localhost_1_15'.
+          Sending 'FA_81' to server 'localhost_1_9'...
+            Sent 'FA_81' to server 'localhost_1_9'.
+          Received 'FA' from server 'localhost_1_25'. (101 ms elapsed)
+          Received 'FA_82' from server 'localhost_1_15'. (188 ms elapsed)
+          Received 'FA_81' from server 'localhost_1_9'. (188 ms elapsed)
         Distributing super-thread jobs: FA_5_83 FA_4
-          Sending 'FA_5_83' to server 'localhost_1_20'...
-            Sent 'FA_5_83' to server 'localhost_1_20'.
-          Sending 'FA_4' to server 'localhost_1_6'...
-            Sent 'FA_4' to server 'localhost_1_6'.
-          Received 'FA_4' from server 'localhost_1_6'. (139 ms elapsed)
-          Received 'FA_5_83' from server 'localhost_1_20'. (161 ms elapsed)
+          Sending 'FA_5_83' to server 'localhost_1_25'...
+            Sent 'FA_5_83' to server 'localhost_1_25'.
+          Sending 'FA_4' to server 'localhost_1_15'...
+            Sent 'FA_4' to server 'localhost_1_15'.
+          Received 'FA_4' from server 'localhost_1_15'. (142 ms elapsed)
+          Received 'FA_5_83' from server 'localhost_1_25'. (165 ms elapsed)
         Distributing super-thread jobs: FA_5
-          Sending 'FA_5' to server 'localhost_1_20'...
-            Sent 'FA_5' to server 'localhost_1_20'.
-          Received 'FA_5' from server 'localhost_1_20'. (153 ms elapsed)
+          Sending 'FA_5' to server 'localhost_1_25'...
+            Sent 'FA_5' to server 'localhost_1_25'.
+          Received 'FA_5' from server 'localhost_1_25'. (157 ms elapsed)
         Distributing super-thread jobs: FA_6
-          Sending 'FA_6' to server 'localhost_1_20'...
-            Sent 'FA_6' to server 'localhost_1_20'.
-          Received 'FA_6' from server 'localhost_1_20'. (151 ms elapsed)
+          Sending 'FA_6' to server 'localhost_1_25'...
+            Sent 'FA_6' to server 'localhost_1_25'.
+          Received 'FA_6' from server 'localhost_1_25'. (154 ms elapsed)
         Distributing super-thread jobs: add_unsigned_77
-          Sending 'add_unsigned_77' to server 'localhost_1_20'...
-            Sent 'add_unsigned_77' to server 'localhost_1_20'.
-          Received 'add_unsigned_77' from server 'localhost_1_20'. (138 ms elapsed)
+          Sending 'add_unsigned_77' to server 'localhost_1_25'...
+            Sent 'add_unsigned_77' to server 'localhost_1_25'.
+          Received 'add_unsigned_77' from server 'localhost_1_25'. (137 ms elapsed)
         Distributing super-thread jobs: cb_part
-          Sending 'cb_part' to server 'localhost_1_20'...
-            Sent 'cb_part' to server 'localhost_1_20'.
-          Received 'cb_part' from server 'localhost_1_20'. (151 ms elapsed)
+          Sending 'cb_part' to server 'localhost_1_25'...
+            Sent 'cb_part' to server 'localhost_1_25'.
+          Received 'cb_part' from server 'localhost_1_25'. (153 ms elapsed)
  
 Global mapping target info
 ==========================
@@ -4385,61 +4385,61 @@ Target path end-point (Pin: RC_CG_HIER_INST2/RC_CGIC_INST/E (CKLNQD1BWP30P140/E)
 
 Multi-threaded Technology Mapping (8 threads per ST process, 8 of 28 CPUs usable)
         Distributing super-thread jobs: cb_part
-          Sending 'cb_part' to server 'localhost_1_20'...
-            Sent 'cb_part' to server 'localhost_1_20'.
-          Received 'cb_part' from server 'localhost_1_20'. (373 ms elapsed)
+          Sending 'cb_part' to server 'localhost_1_25'...
+            Sent 'cb_part' to server 'localhost_1_25'.
+          Received 'cb_part' from server 'localhost_1_25'. (380 ms elapsed)
         Distributing super-thread jobs: add_unsigned_77
-          Sending 'add_unsigned_77' to server 'localhost_1_20'...
-            Sent 'add_unsigned_77' to server 'localhost_1_20'.
-          Received 'add_unsigned_77' from server 'localhost_1_20'. (825 ms elapsed)
+          Sending 'add_unsigned_77' to server 'localhost_1_25'...
+            Sent 'add_unsigned_77' to server 'localhost_1_25'.
+          Received 'add_unsigned_77' from server 'localhost_1_25'. (819 ms elapsed)
         Distributing super-thread jobs: FA_6
-          Sending 'FA_6' to server 'localhost_1_20'...
-            Sent 'FA_6' to server 'localhost_1_20'.
-          Received 'FA_6' from server 'localhost_1_20'. (207 ms elapsed)
+          Sending 'FA_6' to server 'localhost_1_25'...
+            Sent 'FA_6' to server 'localhost_1_25'.
+          Received 'FA_6' from server 'localhost_1_25'. (212 ms elapsed)
         Distributing super-thread jobs: FA_5
-          Sending 'FA_5' to server 'localhost_1_20'...
-            Sent 'FA_5' to server 'localhost_1_20'.
-          Received 'FA_5' from server 'localhost_1_20'. (242 ms elapsed)
+          Sending 'FA_5' to server 'localhost_1_25'...
+            Sent 'FA_5' to server 'localhost_1_25'.
+          Received 'FA_5' from server 'localhost_1_25'. (239 ms elapsed)
         Distributing super-thread jobs: FA_5_83 FA_4
-          Sending 'FA_5_83' to server 'localhost_1_20'...
-            Sent 'FA_5_83' to server 'localhost_1_20'.
-          Sending 'FA_4' to server 'localhost_1_6'...
-            Sent 'FA_4' to server 'localhost_1_6'.
-          Received 'FA_5_83' from server 'localhost_1_20'. (259 ms elapsed)
-          Received 'FA_4' from server 'localhost_1_6'. (376 ms elapsed)
+          Sending 'FA_5_83' to server 'localhost_1_25'...
+            Sent 'FA_5_83' to server 'localhost_1_25'.
+          Sending 'FA_4' to server 'localhost_1_15'...
+            Sent 'FA_4' to server 'localhost_1_15'.
+          Received 'FA_5_83' from server 'localhost_1_25'. (236 ms elapsed)
+          Received 'FA_4' from server 'localhost_1_15'. (381 ms elapsed)
         Distributing super-thread jobs: FA_81 FA_82 FA
-          Sending 'FA_81' to server 'localhost_1_20'...
-            Sent 'FA_81' to server 'localhost_1_20'.
-          Sending 'FA_82' to server 'localhost_1_6'...
-            Sent 'FA_82' to server 'localhost_1_6'.
-          Sending 'FA' to server 'localhost_1_12'...
-            Sent 'FA' to server 'localhost_1_12'.
-          Received 'FA_81' from server 'localhost_1_20'. (228 ms elapsed)
-          Received 'FA_82' from server 'localhost_1_6'. (238 ms elapsed)
-          Received 'FA' from server 'localhost_1_12'. (382 ms elapsed)
+          Sending 'FA_81' to server 'localhost_1_25'...
+            Sent 'FA_81' to server 'localhost_1_25'.
+          Sending 'FA_82' to server 'localhost_1_15'...
+            Sent 'FA_82' to server 'localhost_1_15'.
+          Sending 'FA' to server 'localhost_1_9'...
+            Sent 'FA' to server 'localhost_1_9'.
+          Received 'FA_81' from server 'localhost_1_25'. (224 ms elapsed)
+          Received 'FA_82' from server 'localhost_1_15'. (224 ms elapsed)
+          Received 'FA' from server 'localhost_1_9'. (382 ms elapsed)
         Distributing super-thread jobs: mult_signed_12_490 mult_signed_12_491 mult_signed_12_325_634 mult_signed_12_493 mult_signed_12_325 mult_signed_12
-          Sending 'mult_signed_12_490' to server 'localhost_1_20'...
-            Sent 'mult_signed_12_490' to server 'localhost_1_20'.
-          Sending 'mult_signed_12_491' to server 'localhost_1_6'...
-            Sent 'mult_signed_12_491' to server 'localhost_1_6'.
-          Sending 'mult_signed_12_325_634' to server 'localhost_1_12'...
-            Sent 'mult_signed_12_325_634' to server 'localhost_1_12'.
-          Sending 'mult_signed_12_493' to server 'localhost_1_11'...
-            Sent 'mult_signed_12_493' to server 'localhost_1_11'.
-          Sending 'mult_signed_12_325' to server 'localhost_1_13'...
-            Sent 'mult_signed_12_325' to server 'localhost_1_13'.
-          Sending 'mult_signed_12' to server 'localhost_1_19'...
-            Sent 'mult_signed_12' to server 'localhost_1_19'.
-          Received 'mult_signed_12_490' from server 'localhost_1_20'. (16048 ms elapsed)
-          Received 'mult_signed_12_491' from server 'localhost_1_6'. (16432 ms elapsed)
-          Received 'mult_signed_12_325_634' from server 'localhost_1_12'. (16308 ms elapsed)
-          Received 'mult_signed_12_493' from server 'localhost_1_11'. (20882 ms elapsed)
-          Received 'mult_signed_12_325' from server 'localhost_1_13'. (20879 ms elapsed)
-          Received 'mult_signed_12' from server 'localhost_1_19'. (21318 ms elapsed)
+          Sending 'mult_signed_12_490' to server 'localhost_1_25'...
+            Sent 'mult_signed_12_490' to server 'localhost_1_25'.
+          Sending 'mult_signed_12_491' to server 'localhost_1_15'...
+            Sent 'mult_signed_12_491' to server 'localhost_1_15'.
+          Sending 'mult_signed_12_325_634' to server 'localhost_1_9'...
+            Sent 'mult_signed_12_325_634' to server 'localhost_1_9'.
+          Sending 'mult_signed_12_493' to server 'localhost_1_5'...
+            Sent 'mult_signed_12_493' to server 'localhost_1_5'.
+          Sending 'mult_signed_12_325' to server 'localhost_1_23'...
+            Sent 'mult_signed_12_325' to server 'localhost_1_23'.
+          Sending 'mult_signed_12' to server 'localhost_1_18'...
+            Sent 'mult_signed_12' to server 'localhost_1_18'.
+          Received 'mult_signed_12_491' from server 'localhost_1_15'. (16095 ms elapsed)
+          Received 'mult_signed_12_325_634' from server 'localhost_1_9'. (16428 ms elapsed)
+          Received 'mult_signed_12_490' from server 'localhost_1_25'. (16970 ms elapsed)
+          Received 'mult_signed_12_493' from server 'localhost_1_5'. (20785 ms elapsed)
+          Received 'mult_signed_12_325' from server 'localhost_1_23'. (20963 ms elapsed)
+          Received 'mult_signed_12' from server 'localhost_1_18'. (21147 ms elapsed)
         Distributing super-thread jobs: cb_part_636
-          Sending 'cb_part_636' to server 'localhost_1_20'...
-            Sent 'cb_part_636' to server 'localhost_1_20'.
-          Received 'cb_part_636' from server 'localhost_1_20'. (3424 ms elapsed)
+          Sending 'cb_part_636' to server 'localhost_1_25'...
+            Sent 'cb_part_636' to server 'localhost_1_25'.
+          Received 'cb_part_636' from server 'localhost_1_25'. (3400 ms elapsed)
  
 Global mapping status
 =====================
@@ -4464,37 +4464,37 @@ Cost Group 'cg_enable_group_clk' target slack:    39 ps
 Target path end-point (Pin: RC_CG_HIER_INST7/RC_CGIC_INST/E (CKLNQD1BWP30P140/E))
 
               Distributing super-thread jobs: mult_signed_12_494 mult_signed_12 mult_signed_12_491 mult_signed_12_490 mult_signed_12_489 mult_signed_12_325 mult_signed_12_325_634 mult_signed_12_493 mult_signed_12_492
-                Sending 'mult_signed_12_494' to server 'localhost_1_20'...
-                  Sent 'mult_signed_12_494' to server 'localhost_1_20'.
-                Sending 'mult_signed_12' to server 'localhost_1_6'...
-                  Sent 'mult_signed_12' to server 'localhost_1_6'.
-                Sending 'mult_signed_12_491' to server 'localhost_1_12'...
-                  Sent 'mult_signed_12_491' to server 'localhost_1_12'.
-                Sending 'mult_signed_12_490' to server 'localhost_1_11'...
-                  Sent 'mult_signed_12_490' to server 'localhost_1_11'.
-                Sending 'mult_signed_12_489' to server 'localhost_1_13'...
-                  Sent 'mult_signed_12_489' to server 'localhost_1_13'.
-                Sending 'mult_signed_12_325' to server 'localhost_1_19'...
-                  Sent 'mult_signed_12_325' to server 'localhost_1_19'.
-                Sending 'mult_signed_12_325_634' to server 'localhost_1_15'...
-                  Sent 'mult_signed_12_325_634' to server 'localhost_1_15'.
-                Sending 'mult_signed_12_493' to server 'localhost_1_9'...
-                  Sent 'mult_signed_12_493' to server 'localhost_1_9'.
+                Sending 'mult_signed_12_494' to server 'localhost_1_25'...
+                  Sent 'mult_signed_12_494' to server 'localhost_1_25'.
+                Sending 'mult_signed_12' to server 'localhost_1_15'...
+                  Sent 'mult_signed_12' to server 'localhost_1_15'.
+                Sending 'mult_signed_12_491' to server 'localhost_1_9'...
+                  Sent 'mult_signed_12_491' to server 'localhost_1_9'.
+                Sending 'mult_signed_12_490' to server 'localhost_1_5'...
+                  Sent 'mult_signed_12_490' to server 'localhost_1_5'.
+                Sending 'mult_signed_12_489' to server 'localhost_1_23'...
+                  Sent 'mult_signed_12_489' to server 'localhost_1_23'.
+                Sending 'mult_signed_12_325' to server 'localhost_1_18'...
+                  Sent 'mult_signed_12_325' to server 'localhost_1_18'.
+                Sending 'mult_signed_12_325_634' to server 'localhost_1_1'...
+                  Sent 'mult_signed_12_325_634' to server 'localhost_1_1'.
+                Sending 'mult_signed_12_493' to server 'localhost_1_27'...
+                  Sent 'mult_signed_12_493' to server 'localhost_1_27'.
                 Sending 'mult_signed_12_492' to server 'localhost_1_0'...
                   Sent 'mult_signed_12_492' to server 'localhost_1_0'.
-                Received 'mult_signed_12_494' from server 'localhost_1_20'. (522 ms elapsed)
-                Received 'mult_signed_12' from server 'localhost_1_6'. (514 ms elapsed)
-                Received 'mult_signed_12_491' from server 'localhost_1_12'. (502 ms elapsed)
-                Received 'mult_signed_12_490' from server 'localhost_1_11'. (558 ms elapsed)
-                Received 'mult_signed_12_325' from server 'localhost_1_19'. (505 ms elapsed)
-                Received 'mult_signed_12_489' from server 'localhost_1_13'. (564 ms elapsed)
-                Received 'mult_signed_12_325_634' from server 'localhost_1_15'. (5049 ms elapsed)
-                Received 'mult_signed_12_493' from server 'localhost_1_9'. (5053 ms elapsed)
-                Received 'mult_signed_12_492' from server 'localhost_1_0'. (5038 ms elapsed)
+                Received 'mult_signed_12_494' from server 'localhost_1_25'. (523 ms elapsed)
+                Received 'mult_signed_12' from server 'localhost_1_15'. (525 ms elapsed)
+                Received 'mult_signed_12_491' from server 'localhost_1_9'. (521 ms elapsed)
+                Received 'mult_signed_12_490' from server 'localhost_1_5'. (551 ms elapsed)
+                Received 'mult_signed_12_325' from server 'localhost_1_18'. (502 ms elapsed)
+                Received 'mult_signed_12_489' from server 'localhost_1_23'. (557 ms elapsed)
+                Received 'mult_signed_12_325_634' from server 'localhost_1_1'. (5076 ms elapsed)
+                Received 'mult_signed_12_493' from server 'localhost_1_27'. (5064 ms elapsed)
+                Received 'mult_signed_12_492' from server 'localhost_1_0'. (5052 ms elapsed)
               Distributing super-thread jobs: cb_part_636
-                Sending 'cb_part_636' to server 'localhost_1_20'...
-                  Sent 'cb_part_636' to server 'localhost_1_20'.
-                Received 'cb_part_636' from server 'localhost_1_20'. (3846 ms elapsed)
+                Sending 'cb_part_636' to server 'localhost_1_25'...
+                  Sent 'cb_part_636' to server 'localhost_1_25'.
+                Received 'cb_part_636' from server 'localhost_1_25'. (3832 ms elapsed)
 ==================================
 Stage : global_incr_map 
 ==================================
@@ -4547,40 +4547,40 @@ Operation                   Area   Slacks
 +-----------+--------------------+-----+----------------------+---------------------------+
 |   Host    |      Machine       | CPU | Physical Memory (MB) | Peak Physical Memory (MB) |
 +-----------+--------------------+-----+----------------------+---------------------------+
-| localhost | paxos.inf.pucrs.br | 28  |        3048.6        |          3048.6           |
+| localhost | paxos.inf.pucrs.br | 28  |        3083.7        |          3083.7           |
 +-----------+--------------------+-----+----------------------+---------------------------+
 
 +----------------+----------------------+---------------------------+
 |     Server     | Physical Memory (MB) | Peak Physical Memory (MB) |
 +----------------+----------------------+---------------------------+
-| localhost_1_27 |       21.2 [1]       |          [1] [2]          |
-| localhost_1_18 |       21.2 [1]       |          [1] [2]          |
-| localhost_1_24 |       21.2 [1]       |          [1] [2]          |
-| localhost_1_4  |       21.2 [1]       |          [1] [2]          |
-| localhost_1_26 |       21.2 [1]       |          [1] [2]          |
-| localhost_1_19 |      182.4 [1]       |          [1] [2]          |
-| localhost_1_10 |       21.2 [1]       |          [1] [2]          |
-| localhost_1_17 |       21.2 [1]       |          [1] [2]          |
-| localhost_1_8  |       21.2 [1]       |          [1] [2]          |
-| localhost_1_15 |      169.3 [1]       |          [1] [2]          |
-| localhost_1_21 |       21.2 [1]       |          [1] [2]          |
-| localhost_1_16 |       21.2 [1]       |          [1] [2]          |
-| localhost_1_6  |      182.7 [1]       |          [1] [2]          |
-| localhost_1_20 |      196.3 [1]       |          [1] [2]          |
-| localhost_1_2  |       21.2 [1]       |          [1] [2]          |
-| localhost_1_14 |       21.2 [1]       |          [1] [2]          |
-| localhost_1_9  |      169.2 [1]       |          [1] [2]          |
-| localhost_1_23 |       21.2 [1]       |          [1] [2]          |
-| localhost_1_22 |       21.2 [1]       |          [1] [2]          |
-| localhost_1_7  |       21.2 [1]       |          [1] [2]          |
-| localhost_1_12 |      182.4 [1]       |          [1] [2]          |
-| localhost_1_5  |       21.2 [1]       |          [1] [2]          |
-| localhost_1_25 |       21.2 [1]       |          [1] [2]          |
-| localhost_1_0  |      2033.7 [3]      |        2033.7 [3]         |
-| localhost_1_3  |       21.2 [1]       |          [1] [2]          |
-| localhost_1_13 |      182.3 [1]       |          [1] [2]          |
-| localhost_1_11 |      182.4 [1]       |          [1] [2]          |
-| localhost_1_1  |       21.2 [1]       |          [1] [2]          |
+| localhost_1_20 |       21.4 [1]       |          [1] [2]          |
+| localhost_1_9  |      183.5 [1]       |          [1] [2]          |
+| localhost_1_14 |       21.3 [1]       |          [1] [2]          |
+| localhost_1_24 |       21.4 [1]       |          [1] [2]          |
+| localhost_1_6  |       21.4 [1]       |          [1] [2]          |
+| localhost_1_5  |      183.6 [1]       |          [1] [2]          |
+| localhost_1_8  |       21.4 [1]       |          [1] [2]          |
+| localhost_1_1  |      169.9 [1]       |          [1] [2]          |
+| localhost_1_18 |      184.1 [1]       |          [1] [2]          |
+| localhost_1_23 |      183.1 [1]       |          [1] [2]          |
+| localhost_1_12 |       21.3 [1]       |          [1] [2]          |
+| localhost_1_2  |       21.4 [1]       |          [1] [2]          |
+| localhost_1_13 |       21.3 [1]       |          [1] [2]          |
+| localhost_1_11 |       21.3 [1]       |          [1] [2]          |
+| localhost_1_25 |      197.2 [1]       |          [1] [2]          |
+| localhost_1_27 |      170.1 [1]       |          [1] [2]          |
+| localhost_1_22 |       21.3 [1]       |          [1] [2]          |
+| localhost_1_3  |       21.4 [1]       |          [1] [2]          |
+| localhost_1_26 |       21.3 [1]       |          [1] [2]          |
+| localhost_1_0  |      2049.0 [3]      |        2049.0 [3]         |
+| localhost_1_7  |       21.4 [1]       |          [1] [2]          |
+| localhost_1_19 |       21.3 [1]       |          [1] [2]          |
+| localhost_1_10 |       21.3 [1]       |          [1] [2]          |
+| localhost_1_17 |       21.3 [1]       |          [1] [2]          |
+| localhost_1_4  |       21.3 [1]       |          [1] [2]          |
+| localhost_1_15 |      183.4 [1]       |          [1] [2]          |
+| localhost_1_21 |       21.3 [1]       |          [1] [2]          |
+| localhost_1_16 |       21.4 [1]       |          [1] [2]          |
 +----------------+----------------------+---------------------------+
 [1] Memory is included in parent localhost_1_0.
 [2] Peak physical memory is not available for forked background servers.
@@ -4604,75 +4604,76 @@ State Retention instances           0          0.0
 --------------------------------------------------
 
 INFO: skipping constant propagation
-PBS_Techmap-Global Mapping - Elapsed_Time 113, CPU_Time 52.10634899999998
+PBS_Techmap-Global Mapping - Elapsed_Time 113, CPU_Time 54.011549
 stamp 'PBS_Techmap-Global Mapping' being created for table 'pbs_debug'
 
   Total Time (Wall) |  Stage Time (Wall)  |   % (Wall)   |    Date - Time     |  Memory   | Stage
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:00:29(00:00:18) |  00:00:00(00:00:00) |   0.0(  0.0) |    1:04:50 (May02) |  691.1 MB | PBS_Generic-Start
+ 00:00:29(00:00:18) |  00:00:00(00:00:00) |   0.0(  0.0) |   22:08:28 (May07) |  720.7 MB | PBS_Generic-Start
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:01:14(00:01:02) |  00:00:44(00:00:44) |  45.2( 27.7) |    1:05:33 (May02) |   1.08 GB | PBS_Generic_Opt-Post
+ 00:01:14(00:01:01) |  00:00:44(00:00:43) |  44.4( 27.0) |   22:09:11 (May07) |   1.12 GB | PBS_Generic_Opt-Post
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:01:14(00:01:02) |  00:00:00(00:00:00) |   0.0(  0.0) |    1:05:33 (May02) |   1.08 GB | PBS_Generic-Postgen HBO Optimizations
+ 00:01:14(00:01:02) |  00:00:00(00:00:01) |   0.0(  0.6) |   22:09:12 (May07) |   1.12 GB | PBS_Generic-Postgen HBO Optimizations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:01:16(00:01:03) |  00:00:02(00:00:01) |   2.0(  0.6) |    1:05:34 (May02) |   1.08 GB | PBS_TechMap-Start
+ 00:01:16(00:01:03) |  00:00:02(00:00:01) |   2.0(  0.6) |   22:09:13 (May07) |   1.12 GB | PBS_TechMap-Start
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:01:16(00:01:04) |  00:00:00(00:00:01) |   0.0(  0.6) |    1:05:35 (May02) |   1.08 GB | PBS_TechMap-Premap HBO Optimizations
+ 00:01:16(00:01:04) |  00:00:00(00:00:01) |   0.0(  0.6) |   22:09:14 (May07) |   1.12 GB | PBS_TechMap-Premap HBO Optimizations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:08(00:02:57) |  00:00:52(00:01:53) |  52.7( 71.1) |    1:07:28 (May02) |   1.71 GB | PBS_Techmap-Global Mapping
+ 00:02:10(00:02:57) |  00:00:54(00:01:53) |  53.6( 71.1) |   22:11:07 (May07) |   1.75 GB | PBS_Techmap-Global Mapping
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
 Number of threads: 28 * 1   (id: pbs_debug, time_info v1.57)
 Info: (*N*) indicates data that was populated from previously saved time_info database
 Info: CPU time includes time of parent + longest thread
 Info    : Wrote formal verification information. [CFM-5]
         : Wrote 'fv/conv/fv_map.fv.json' for netlist 'fv/conv/fv_map.v.gz'.
+Info    : Existing dofile found. Copied as fv/conv/rtl_to_fv_map.do~.
 Info    : Wrote dofile. [CFM-1]
         : Dofile is 'fv/conv/rtl_to_fv_map.do'.
         : Alias mapping flow is enabled.
-PBS_TechMap-Datapath Postmap Operations - Elapsed_Time 2, CPU_Time 2.8225850000000037
+PBS_TechMap-Datapath Postmap Operations - Elapsed_Time 2, CPU_Time 1.8249150000000043
 stamp 'PBS_TechMap-Datapath Postmap Operations' being created for table 'pbs_debug'
 
   Total Time (Wall) |  Stage Time (Wall)  |   % (Wall)   |    Date - Time     |  Memory   | Stage
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:00:29(00:00:18) |  00:00:00(00:00:00) |   0.0(  0.0) |    1:04:50 (May02) |  691.1 MB | PBS_Generic-Start
+ 00:00:29(00:00:18) |  00:00:00(00:00:00) |   0.0(  0.0) |   22:08:28 (May07) |  720.7 MB | PBS_Generic-Start
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:01:14(00:01:02) |  00:00:44(00:00:44) |  44.0( 27.3) |    1:05:33 (May02) |   1.08 GB | PBS_Generic_Opt-Post
+ 00:01:14(00:01:01) |  00:00:44(00:00:43) |  43.6( 26.7) |   22:09:11 (May07) |   1.12 GB | PBS_Generic_Opt-Post
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:01:14(00:01:02) |  00:00:00(00:00:00) |   0.0(  0.0) |    1:05:33 (May02) |   1.08 GB | PBS_Generic-Postgen HBO Optimizations
+ 00:01:14(00:01:02) |  00:00:00(00:00:01) |   0.0(  0.6) |   22:09:12 (May07) |   1.12 GB | PBS_Generic-Postgen HBO Optimizations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:01:16(00:01:03) |  00:00:02(00:00:01) |   2.0(  0.6) |    1:05:34 (May02) |   1.08 GB | PBS_TechMap-Start
+ 00:01:16(00:01:03) |  00:00:02(00:00:01) |   2.0(  0.6) |   22:09:13 (May07) |   1.12 GB | PBS_TechMap-Start
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:01:16(00:01:04) |  00:00:00(00:00:01) |   0.0(  0.6) |    1:05:35 (May02) |   1.08 GB | PBS_TechMap-Premap HBO Optimizations
+ 00:01:16(00:01:04) |  00:00:00(00:00:01) |   0.0(  0.6) |   22:09:14 (May07) |   1.12 GB | PBS_TechMap-Premap HBO Optimizations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:08(00:02:57) |  00:00:52(00:01:53) |  51.3( 70.2) |    1:07:28 (May02) |   1.71 GB | PBS_Techmap-Global Mapping
+ 00:02:10(00:02:57) |  00:00:54(00:01:53) |  52.7( 70.2) |   22:11:07 (May07) |   1.75 GB | PBS_Techmap-Global Mapping
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:11(00:02:59) |  00:00:02(00:00:02) |   2.8(  1.2) |    1:07:30 (May02) |   1.71 GB | PBS_TechMap-Datapath Postmap Operations
+ 00:02:12(00:02:59) |  00:00:01(00:00:02) |   1.8(  1.2) |   22:11:09 (May07) |   1.75 GB | PBS_TechMap-Datapath Postmap Operations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
 Number of threads: 28 * 1   (id: pbs_debug, time_info v1.57)
 Info: (*N*) indicates data that was populated from previously saved time_info database
 Info: CPU time includes time of parent + longest thread
 Info    : Attribute 'lp_clock_gating_test_signal' is not set. [POPT-703]
         : Skipping test connection for clock gates on design conv, as 'lp_clock_gating_test_signal' is not set.
-PBS_TechMap-Postmap HBO Optimizations - Elapsed_Time 1, CPU_Time -0.2957179999999937
+PBS_TechMap-Postmap HBO Optimizations - Elapsed_Time 0, CPU_Time 0.707696999999996
 stamp 'PBS_TechMap-Postmap HBO Optimizations' being created for table 'pbs_debug'
 
   Total Time (Wall) |  Stage Time (Wall)  |   % (Wall)   |    Date - Time     |  Memory   | Stage
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:00:29(00:00:18) |  00:00:00(00:00:00) |   0.0(  0.0) |    1:04:50 (May02) |  691.1 MB | PBS_Generic-Start
+ 00:00:29(00:00:18) |  00:00:00(00:00:00) |   0.0(  0.0) |   22:08:28 (May07) |  720.7 MB | PBS_Generic-Start
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:01:14(00:01:02) |  00:00:44(00:00:44) |  44.1( 27.2) |    1:05:33 (May02) |   1.08 GB | PBS_Generic_Opt-Post
+ 00:01:14(00:01:01) |  00:00:44(00:00:43) |  43.3( 26.7) |   22:09:11 (May07) |   1.12 GB | PBS_Generic_Opt-Post
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:01:14(00:01:02) |  00:00:00(00:00:00) |   0.0(  0.0) |    1:05:33 (May02) |   1.08 GB | PBS_Generic-Postgen HBO Optimizations
+ 00:01:14(00:01:02) |  00:00:00(00:00:01) |   0.0(  0.6) |   22:09:12 (May07) |   1.12 GB | PBS_Generic-Postgen HBO Optimizations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:01:16(00:01:03) |  00:00:02(00:00:01) |   2.0(  0.6) |    1:05:34 (May02) |   1.08 GB | PBS_TechMap-Start
+ 00:01:16(00:01:03) |  00:00:02(00:00:01) |   1.9(  0.6) |   22:09:13 (May07) |   1.12 GB | PBS_TechMap-Start
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:01:16(00:01:04) |  00:00:00(00:00:01) |   0.0(  0.6) |    1:05:35 (May02) |   1.08 GB | PBS_TechMap-Premap HBO Optimizations
+ 00:01:16(00:01:04) |  00:00:00(00:00:01) |   0.0(  0.6) |   22:09:14 (May07) |   1.12 GB | PBS_TechMap-Premap HBO Optimizations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:08(00:02:57) |  00:00:52(00:01:53) |  51.4( 69.8) |    1:07:28 (May02) |   1.71 GB | PBS_Techmap-Global Mapping
+ 00:02:10(00:02:57) |  00:00:54(00:01:53) |  52.3( 70.2) |   22:11:07 (May07) |   1.75 GB | PBS_Techmap-Global Mapping
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:11(00:02:59) |  00:00:02(00:00:02) |   2.8(  1.2) |    1:07:30 (May02) |   1.71 GB | PBS_TechMap-Datapath Postmap Operations
+ 00:02:12(00:02:59) |  00:00:01(00:00:02) |   1.8(  1.2) |   22:11:09 (May07) |   1.75 GB | PBS_TechMap-Datapath Postmap Operations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:11(00:03:00) |  00:00:00(00:00:01) |  -0.3(  0.6) |    1:07:31 (May02) |   1.60 GB | PBS_TechMap-Postmap HBO Optimizations
+ 00:02:12(00:02:59) |  00:00:00(00:00:00) |   0.7(  0.0) |   22:11:09 (May07) |   1.75 GB | PBS_TechMap-Postmap HBO Optimizations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
 Number of threads: 28 * 1   (id: pbs_debug, time_info v1.57)
 Info: (*N*) indicates data that was populated from previously saved time_info database
@@ -4694,23 +4695,23 @@ stamp 'PBS_TechMap-Postmap Clock Gating' being created for table 'pbs_debug'
 
   Total Time (Wall) |  Stage Time (Wall)  |   % (Wall)   |    Date - Time     |  Memory   | Stage
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:00:29(00:00:18) |  00:00:00(00:00:00) |   0.0(  0.0) |    1:04:50 (May02) |  691.1 MB | PBS_Generic-Start
+ 00:00:29(00:00:18) |  00:00:00(00:00:00) |   0.0(  0.0) |   22:08:28 (May07) |  720.7 MB | PBS_Generic-Start
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:01:14(00:01:02) |  00:00:44(00:00:44) |  43.7( 27.2) |    1:05:33 (May02) |   1.08 GB | PBS_Generic_Opt-Post
+ 00:01:14(00:01:01) |  00:00:44(00:00:43) |  43.3( 26.5) |   22:09:11 (May07) |   1.12 GB | PBS_Generic_Opt-Post
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:01:14(00:01:02) |  00:00:00(00:00:00) |   0.0(  0.0) |    1:05:33 (May02) |   1.08 GB | PBS_Generic-Postgen HBO Optimizations
+ 00:01:14(00:01:02) |  00:00:00(00:00:01) |   0.0(  0.6) |   22:09:12 (May07) |   1.12 GB | PBS_Generic-Postgen HBO Optimizations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:01:16(00:01:03) |  00:00:02(00:00:01) |   2.0(  0.6) |    1:05:34 (May02) |   1.08 GB | PBS_TechMap-Start
+ 00:01:16(00:01:03) |  00:00:02(00:00:01) |   1.9(  0.6) |   22:09:13 (May07) |   1.12 GB | PBS_TechMap-Start
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:01:16(00:01:04) |  00:00:00(00:00:01) |   0.0(  0.6) |    1:05:35 (May02) |   1.08 GB | PBS_TechMap-Premap HBO Optimizations
+ 00:01:16(00:01:04) |  00:00:00(00:00:01) |   0.0(  0.6) |   22:09:14 (May07) |   1.12 GB | PBS_TechMap-Premap HBO Optimizations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:08(00:02:57) |  00:00:52(00:01:53) |  50.9( 69.8) |    1:07:28 (May02) |   1.71 GB | PBS_Techmap-Global Mapping
+ 00:02:10(00:02:57) |  00:00:54(00:01:53) |  52.3( 69.8) |   22:11:07 (May07) |   1.75 GB | PBS_Techmap-Global Mapping
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:11(00:02:59) |  00:00:02(00:00:02) |   2.8(  1.2) |    1:07:30 (May02) |   1.71 GB | PBS_TechMap-Datapath Postmap Operations
+ 00:02:12(00:02:59) |  00:00:01(00:00:02) |   1.8(  1.2) |   22:11:09 (May07) |   1.75 GB | PBS_TechMap-Datapath Postmap Operations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:11(00:03:00) |  00:00:00(00:00:01) |  -0.3(  0.6) |    1:07:31 (May02) |   1.60 GB | PBS_TechMap-Postmap HBO Optimizations
+ 00:02:12(00:02:59) |  00:00:00(00:00:00) |   0.7(  0.0) |   22:11:09 (May07) |   1.75 GB | PBS_TechMap-Postmap HBO Optimizations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:12(00:03:00) |  00:00:01(00:00:00) |   1.0(  0.0) |    1:07:31 (May02) |   1.60 GB | PBS_TechMap-Postmap Clock Gating
+ 00:02:12(00:03:00) |  00:00:00(00:00:01) |   0.0(  0.6) |   22:11:10 (May07) |   1.63 GB | PBS_TechMap-Postmap Clock Gating
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
 Number of threads: 28 * 1   (id: pbs_debug, time_info v1.57)
 Info: (*N*) indicates data that was populated from previously saved time_info database
@@ -4770,30 +4771,30 @@ Operation                   Area   Slacks      Slack    Trans      Cap
         setup_dn         0  (        0 /        0 )  0.00
         mb_split         0  (        0 /        0 )  0.00
 
-PBS_TechMap-Postmap Cleanup - Elapsed_Time 0, CPU_Time -0.17462800000001266
+PBS_TechMap-Postmap Cleanup - Elapsed_Time 0, CPU_Time 0.8256140000000016
 stamp 'PBS_TechMap-Postmap Cleanup' being created for table 'pbs_debug'
 
   Total Time (Wall) |  Stage Time (Wall)  |   % (Wall)   |    Date - Time     |  Memory   | Stage
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:00:29(00:00:18) |  00:00:00(00:00:00) |   0.0(  0.0) |    1:04:50 (May02) |  691.1 MB | PBS_Generic-Start
+ 00:00:29(00:00:18) |  00:00:00(00:00:00) |   0.0(  0.0) |   22:08:28 (May07) |  720.7 MB | PBS_Generic-Start
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:01:14(00:01:02) |  00:00:44(00:00:44) |  43.8( 27.2) |    1:05:33 (May02) |   1.08 GB | PBS_Generic_Opt-Post
+ 00:01:14(00:01:01) |  00:00:44(00:00:43) |  42.9( 26.5) |   22:09:11 (May07) |   1.12 GB | PBS_Generic_Opt-Post
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:01:14(00:01:02) |  00:00:00(00:00:00) |   0.0(  0.0) |    1:05:33 (May02) |   1.08 GB | PBS_Generic-Postgen HBO Optimizations
+ 00:01:14(00:01:02) |  00:00:00(00:00:01) |   0.0(  0.6) |   22:09:12 (May07) |   1.12 GB | PBS_Generic-Postgen HBO Optimizations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:01:16(00:01:03) |  00:00:02(00:00:01) |   2.0(  0.6) |    1:05:34 (May02) |   1.08 GB | PBS_TechMap-Start
+ 00:01:16(00:01:03) |  00:00:02(00:00:01) |   1.9(  0.6) |   22:09:13 (May07) |   1.12 GB | PBS_TechMap-Start
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:01:16(00:01:04) |  00:00:00(00:00:01) |   0.0(  0.6) |    1:05:35 (May02) |   1.08 GB | PBS_TechMap-Premap HBO Optimizations
+ 00:01:16(00:01:04) |  00:00:00(00:00:01) |   0.0(  0.6) |   22:09:14 (May07) |   1.12 GB | PBS_TechMap-Premap HBO Optimizations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:08(00:02:57) |  00:00:52(00:01:53) |  51.0( 69.8) |    1:07:28 (May02) |   1.71 GB | PBS_Techmap-Global Mapping
+ 00:02:10(00:02:57) |  00:00:54(00:01:53) |  51.9( 69.8) |   22:11:07 (May07) |   1.75 GB | PBS_Techmap-Global Mapping
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:11(00:02:59) |  00:00:02(00:00:02) |   2.8(  1.2) |    1:07:30 (May02) |   1.71 GB | PBS_TechMap-Datapath Postmap Operations
+ 00:02:12(00:02:59) |  00:00:01(00:00:02) |   1.8(  1.2) |   22:11:09 (May07) |   1.75 GB | PBS_TechMap-Datapath Postmap Operations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:11(00:03:00) |  00:00:00(00:00:01) |  -0.3(  0.6) |    1:07:31 (May02) |   1.60 GB | PBS_TechMap-Postmap HBO Optimizations
+ 00:02:12(00:02:59) |  00:00:00(00:00:00) |   0.7(  0.0) |   22:11:09 (May07) |   1.75 GB | PBS_TechMap-Postmap HBO Optimizations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:12(00:03:00) |  00:00:01(00:00:00) |   1.0(  0.0) |    1:07:31 (May02) |   1.60 GB | PBS_TechMap-Postmap Clock Gating
+ 00:02:12(00:03:00) |  00:00:00(00:00:01) |   0.0(  0.6) |   22:11:10 (May07) |   1.63 GB | PBS_TechMap-Postmap Clock Gating
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:11(00:03:00) |  00:00:00(00:00:00) |  -0.2(  0.0) |    1:07:31 (May02) |   1.60 GB | PBS_TechMap-Postmap Cleanup
+ 00:02:13(00:03:00) |  00:00:00(00:00:00) |   0.8(  0.0) |   22:11:10 (May07) |   1.63 GB | PBS_TechMap-Postmap Cleanup
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
 Number of threads: 28 * 1   (id: pbs_debug, time_info v1.57)
 Info: (*N*) indicates data that was populated from previously saved time_info database
@@ -4803,27 +4804,27 @@ stamp 'PBS_Techmap-Post_MBCI' being created for table 'pbs_debug'
 
   Total Time (Wall) |  Stage Time (Wall)  |   % (Wall)   |    Date - Time     |  Memory   | Stage
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:00:29(00:00:18) |  00:00:00(00:00:00) |   0.0(  0.0) |    1:04:50 (May02) |  691.1 MB | PBS_Generic-Start
+ 00:00:29(00:00:18) |  00:00:00(00:00:00) |   0.0(  0.0) |   22:08:28 (May07) |  720.7 MB | PBS_Generic-Start
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:01:14(00:01:02) |  00:00:44(00:00:44) |  43.8( 27.2) |    1:05:33 (May02) |   1.08 GB | PBS_Generic_Opt-Post
+ 00:01:14(00:01:01) |  00:00:44(00:00:43) |  42.9( 26.5) |   22:09:11 (May07) |   1.12 GB | PBS_Generic_Opt-Post
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:01:14(00:01:02) |  00:00:00(00:00:00) |   0.0(  0.0) |    1:05:33 (May02) |   1.08 GB | PBS_Generic-Postgen HBO Optimizations
+ 00:01:14(00:01:02) |  00:00:00(00:00:01) |   0.0(  0.6) |   22:09:12 (May07) |   1.12 GB | PBS_Generic-Postgen HBO Optimizations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:01:16(00:01:03) |  00:00:02(00:00:01) |   2.0(  0.6) |    1:05:34 (May02) |   1.08 GB | PBS_TechMap-Start
+ 00:01:16(00:01:03) |  00:00:02(00:00:01) |   1.9(  0.6) |   22:09:13 (May07) |   1.12 GB | PBS_TechMap-Start
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:01:16(00:01:04) |  00:00:00(00:00:01) |   0.0(  0.6) |    1:05:35 (May02) |   1.08 GB | PBS_TechMap-Premap HBO Optimizations
+ 00:01:16(00:01:04) |  00:00:00(00:00:01) |   0.0(  0.6) |   22:09:14 (May07) |   1.12 GB | PBS_TechMap-Premap HBO Optimizations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:08(00:02:57) |  00:00:52(00:01:53) |  51.0( 69.8) |    1:07:28 (May02) |   1.71 GB | PBS_Techmap-Global Mapping
+ 00:02:10(00:02:57) |  00:00:54(00:01:53) |  51.9( 69.8) |   22:11:07 (May07) |   1.75 GB | PBS_Techmap-Global Mapping
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:11(00:02:59) |  00:00:02(00:00:02) |   2.8(  1.2) |    1:07:30 (May02) |   1.71 GB | PBS_TechMap-Datapath Postmap Operations
+ 00:02:12(00:02:59) |  00:00:01(00:00:02) |   1.8(  1.2) |   22:11:09 (May07) |   1.75 GB | PBS_TechMap-Datapath Postmap Operations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:11(00:03:00) |  00:00:00(00:00:01) |  -0.3(  0.6) |    1:07:31 (May02) |   1.60 GB | PBS_TechMap-Postmap HBO Optimizations
+ 00:02:12(00:02:59) |  00:00:00(00:00:00) |   0.7(  0.0) |   22:11:09 (May07) |   1.75 GB | PBS_TechMap-Postmap HBO Optimizations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:12(00:03:00) |  00:00:01(00:00:00) |   1.0(  0.0) |    1:07:31 (May02) |   1.60 GB | PBS_TechMap-Postmap Clock Gating
+ 00:02:12(00:03:00) |  00:00:00(00:00:01) |   0.0(  0.6) |   22:11:10 (May07) |   1.63 GB | PBS_TechMap-Postmap Clock Gating
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:11(00:03:00) |  00:00:00(00:00:00) |  -0.2(  0.0) |    1:07:31 (May02) |   1.60 GB | PBS_TechMap-Postmap Cleanup
+ 00:02:13(00:03:00) |  00:00:00(00:00:00) |   0.8(  0.0) |   22:11:10 (May07) |   1.63 GB | PBS_TechMap-Postmap Cleanup
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:11(00:03:00) |  00:00:00(00:00:00) |   0.0(  0.0) |    1:07:31 (May02) |   1.60 GB | PBS_Techmap-Post_MBCI
+ 00:02:13(00:03:00) |  00:00:00(00:00:00) |   0.0(  0.0) |   22:11:10 (May07) |   1.63 GB | PBS_Techmap-Post_MBCI
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
 Number of threads: 28 * 1   (id: pbs_debug, time_info v1.57)
 Info: (*N*) indicates data that was populated from previously saved time_info database
@@ -4833,8 +4834,8 @@ Info: CPU time includes time of parent + longest thread
 ##>----------------------------------------------------------------------------------------
 ##>STEP                           Elapsed       WNS       TNS     Insts      Area    Memory
 ##>----------------------------------------------------------------------------------------
-##>M:Initial                            0         -         -     29056     41403      1082
-##>M:Pre Cleanup                        0         -         -     29056     41403      1082
+##>M:Initial                            0         -         -     29056     41403      1115
+##>M:Pre Cleanup                        0         -         -     29056     41403      1115
 ##>M:Setup                              0         -         -         -         -         -
 ##>M:Early Clock Gating                 0         -         -         -         -         -
 ##>M:Launch ST                          0         -         -         -         -         -
@@ -4849,10 +4850,10 @@ Info: CPU time includes time of parent + longest thread
 ##>M:Timer                              0         -         -         -         -         -
 ##>M:Assembly                           0         -         -         -         -         -
 ##>M:DFT                                0         -         -         -         -         -
-##>M:DP Operations                      2         -         -      7606      7938      1712
-##>M:Const Prop                         0       101         0      7606      7938      1712
-##>M:Cleanup                            0       101         0      7606      7932      1602
-##>M:MBCI                               0         -         -      7606      7932      1602
+##>M:DP Operations                      2         -         -      7606      7938      1749
+##>M:Const Prop                         0       101         0      7606      7938      1749
+##>M:Cleanup                            0       101         0      7606      7932      1634
+##>M:MBCI                               0         -         -      7606      7932      1634
 ##>M:PostGen Opt                        0         -         -         -         -         -
 ##>M:Early Clock Gating Cleanup         0         -         -         -         -         -
 ##>M:Const Gate Removal                 0         -         -         -         -         -
@@ -4864,13 +4865,13 @@ Info: CPU time includes time of parent + longest thread
 +-----------+--------------------+-----+----------------------+---------------------------+
 |   Host    |      Machine       | CPU | Physical Memory (MB) | Peak Physical Memory (MB) |
 +-----------+--------------------+-----+----------------------+---------------------------+
-| localhost | paxos.inf.pucrs.br |  1  |        1602.7        |          3048.6           |
+| localhost | paxos.inf.pucrs.br |  1  |        1634.5        |          3083.7           |
 +-----------+--------------------+-----+----------------------+---------------------------+
 
 +---------------+----------------------+---------------------------+
 |    Server     | Physical Memory (MB) | Peak Physical Memory (MB) |
 +---------------+----------------------+---------------------------+
-| localhost_1_0 |        565.0         |          2033.7           |
+| localhost_1_0 |        576.1         |          2049.0           |
 +---------------+----------------------+---------------------------+
 
 Info    : Done mapping. [SYNTH-5]
@@ -5193,21 +5194,21 @@ Operation                   Area   Slacks      Slack    Trans      Cap
 -----------------------------------------------------------
            undup         0  (        0 /        0 )  0.01
          rem_buf        10  (       10 /       10 )  0.37
-         rem_inv        27  (       20 /       20 )  0.80
+         rem_inv        27  (       20 /       20 )  0.78
         merge_bi        22  (       22 /       22 )  0.87
       rem_inv_qb         2  (        1 /        1 )  0.05
-    seq_res_area         7  (        0 /        0 )  1.18
+    seq_res_area         7  (        0 /        0 )  1.17
         io_phase        53  (        2 /        2 )  0.14
-       gate_comp       199  (      109 /      111 )  1.63
+       gate_comp       199  (      109 /      111 )  1.62
        gcomp_mog         5  (        5 /        5 )  0.15
-       glob_area        70  (       46 /       70 )  1.30
-       area_down       110  (       81 /       92 )  4.08
+       glob_area        70  (       46 /       70 )  1.31
+       area_down       110  (       81 /       92 )  4.11
       size_n_buf         1  (        0 /        0 )  0.03
   gate_deco_area         0  (        0 /        0 )  0.02
          rem_buf         0  (        0 /        0 )  0.00
          rem_inv         2  (        0 /        0 )  0.01
         merge_bi         0  (        0 /        0 )  0.02
-      rem_inv_qb         2  (        0 /        0 )  0.01
+      rem_inv_qb         2  (        0 /        0 )  0.00
 
  
 Incremental optimization status
@@ -5383,8 +5384,8 @@ Operation                   Area   Slacks      Slack    Trans      Cap
         io_phase        41  (        0 /        0 )  0.10
        gate_comp        88  (        0 /        0 )  0.51
        gcomp_mog         0  (        0 /        0 )  0.13
-       glob_area        54  (       14 /       54 )  1.36
-       area_down        62  (       18 /       21 )  1.46
+       glob_area        54  (       14 /       54 )  1.37
+       area_down        62  (       18 /       21 )  1.45
       size_n_buf         0  (        0 /        0 )  0.00
   gate_deco_area         0  (        0 /        0 )  0.00
 
@@ -5846,7 +5847,7 @@ Warning : Attribute design_process_node is not set for this design. [PHYS-1011]
         : Missing data.
         : When attribute design_process_node is not set to an appropriate integer value >=5 and <=250, then Innovus will assume its own default value for the design process node. See the Innovus setDesignMode -process <> command for more information about what this setting does.
 Exporting design data for 'conv' to ./results/physical_synthesis/work/data...
-%# Begin write_design (05/02 01:08:22, mem=2452.54M)
+%# Begin write_design (05/07 22:12:01, mem=2445.64M)
       flow.cputime  flow.realtime  timing.setup.tns  timing.setup.wns  snapshot
 UM:*                                                                   write_design
   Setting attribute of root '/': 'set_boundary_change' = 
@@ -5865,17 +5866,15 @@ Number of NDR nets found: 0
 Number of nets with minimum layer assignments: 0
 
 ** To load the database source ./results/physical_synthesis/work/data.invs_setup.tcl in an Innovus session.
-Finished exporting design data for 'conv' (command execution time mm:ss cpu = 00:03, real = 00:04).
+Finished exporting design data for 'conv' (command execution time mm:ss cpu = 00:04, real = 00:04).
 .
-%# End write_design (05/02 01:08:26, total cpu=05:00:03, real=05:00:04, peak res=3048.60M, current mem=2408.54M)
-#@ End verbose source ./run_logical_synthesis.tcl
-WARNING: This version of the tool is 231 days old.
-@genus:root: 2> exit
+%# End write_design (05/07 22:12:05, total cpu=05:00:04, real=05:00:04, peak res=3083.70M, current mem=2389.65M)
+@file(run_logical_synthesis.tcl) 152:     exit
 
 Lic Summary:
-[01:08:30.416603] Cdslmd servers: paxos
-[01:08:30.416616] Feature usage summary:
-[01:08:30.416617] Genus_Synthesis
-[01:08:30.416617] Genus_CPU_Opt
+[22:12:05.457089] Cdslmd servers: paxos
+[22:12:05.457099] Feature usage summary:
+[22:12:05.457104] Genus_Synthesis
+[22:12:05.457105] Genus_CPU_Opt
 
 Normal exit.
