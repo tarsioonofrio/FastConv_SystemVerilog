@@ -33,10 +33,4 @@ package packConv;
   typedef logic_vector[5:0] six_words   ;
   typedef logic_vector[7:0] eight_words ;
   typedef logic_vector[9:0] ten_words   ;
-
-  // constants to control the multipliers
-  typedef enum  {
-      MU1, MU2, MU3, MU4
-  } mul_states;
-
 endpackage
