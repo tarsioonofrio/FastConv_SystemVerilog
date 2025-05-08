@@ -2,7 +2,7 @@ SCRIPT=$(pwd)
 
 for dir in "$@"; do
   echo "Processando o diretório: $dir"
-  # cd "$dir" || { echo "Não foi possível entrar em $dir"; continue; }
+  cd "$dir/sintese" || { echo "Não foi possível entrar em $dir/sintese"; continue; }
 
   if [ ! -f run_logical_synthesis.tcl ]; then
     echo "Arquivo run_logical_synthesis.tcl não encontrado em $dir, pulando."
