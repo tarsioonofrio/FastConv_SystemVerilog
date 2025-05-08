@@ -1,0 +1,43 @@
+Cadence Genus(TM) Synthesis Solution.
+Copyright 2024 Cadence Design Systems, Inc. All rights reserved worldwide.
+Cadence and the Cadence logo are registered trademarks and Genus is a trademark
+of Cadence Design Systems, Inc. in the United States and other countries.
+
+[21:49:04.028577] Configured Lic search path (22.01-s003): 5280@paxos.inf.pucrs.br
+
+Version: 22.15-s086_1, built Wed Feb 28 11:52:45 PST 2024
+Options: -files run_logical_synthesis.tcl 
+Date:    Mon Mar 24 21:49:04 2025
+Host:    paxos.inf.pucrs.br (x86_64 w/Linux 4.18.0-553.22.1.el8_10.x86_64) (14cores*28cpus*1physical cpu*Intel(R) Core(TM) i9-7940X CPU @ 3.10GHz 19712KB) (131170920KB)
+PID:     654831
+OS:      Rocky Linux release 8.10 (Green Obsidian)
+
+Checking out license: Genus_Synthesis
+[21:49:04.299763] Periodic Lic check successful
+[21:49:04.299776] Feature usage summary:
+[21:49:04.299777] Genus_Synthesis
+
+
+
+***********************************************************************************************************
+***********************************************************************************************************
+
+
+
+Finished executable startup (1 second elapsed).
+
+Loading tool scripts...
+Finished loading tool scripts (15 seconds elapsed).
+
+#@ Processing -files option
+@genus 1> source run_logical_synthesis.tcl
+File 'run_logical_synthesis.tcl' does not exist.
+Encountered problems processing file: run_logical_synthesis.tcl
+WARNING: This version of the tool is 390 days old.
+@genus:root: 2> exit
+
+Lic Summary:
+[21:50:30.468874] Cdslmd servers: paxos
+[21:50:30.468888] Feature usage summary:
+[21:50:30.468889] Genus_Synthesis
+
