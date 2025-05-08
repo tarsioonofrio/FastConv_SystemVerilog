@@ -5,20 +5,19 @@ Reading pref.tcl
 # do sim.do
 # QuestaSim-64 vmap 2023.4 Lib Mapping Utility 2023.10 Oct  9 2023
 # vmap work work 
-# Copying /soft64/mentor/ferramentas/questa/2023.4/questasim/linux_x86_64/../modelsim.ini to modelsim.ini
 # Modifying modelsim.ini
 # data/sim/file-032/data.sv
 # QuestaSim-64 vlog 2023.4 Compiler 2023.10 Oct  9 2023
-# Start time: 23:58:11 on May 04,2025
+# Start time: 02:24:46 on May 08,2025
 # vlog -work work data/sim/file-032/data.sv 
 # -- Compiling package data
 # 
 # Top level modules:
 # 	--none--
-# End time: 23:58:11 on May 04,2025, Elapsed time: 0:00:00
+# End time: 02:24:46 on May 08,2025, Elapsed time: 0:00:00
 # Errors: 0, Warnings: 0
 # QuestaSim-64 vlog 2023.4 Compiler 2023.10 Oct  9 2023
-# Start time: 23:58:11 on May 04,2025
+# Start time: 02:24:46 on May 08,2025
 # vlog -work work ./rtl/pack_conv.sv 
 # -- Compiling package packConv
 # -- Importing package data
@@ -27,10 +26,10 @@ Reading pref.tcl
 # 
 # Top level modules:
 # 	--none--
-# End time: 23:58:11 on May 04,2025, Elapsed time: 0:00:00
+# End time: 02:24:46 on May 08,2025, Elapsed time: 0:00:00
 # Errors: 0, Warnings: 2
 # QuestaSim-64 vlog 2023.4 Compiler 2023.10 Oct  9 2023
-# Start time: 23:58:11 on May 04,2025
+# Start time: 02:24:46 on May 08,2025
 # vlog -work work -svinputport=relaxed ./rtl/csa_lib.sv 
 # -- Compiling module FA
 # -- Importing package packConv
@@ -59,27 +58,27 @@ Reading pref.tcl
 # 	CSA_12
 # 	CSA_16
 # 	CSA_18
-# End time: 23:58:11 on May 04,2025, Elapsed time: 0:00:00
+# End time: 02:24:46 on May 08,2025, Elapsed time: 0:00:00
 # Errors: 0, Warnings: 0
 # QuestaSim-64 vlog 2023.4 Compiler 2023.10 Oct  9 2023
-# Start time: 23:58:11 on May 04,2025
+# Start time: 02:24:46 on May 08,2025
 # vlog -work work -svinputport=relaxed ./rtl/mult_matrices.sv 
-# -- Compiling module MatrixC0
+# -- Compiling module Transform
 # -- Importing package packConv
 # -- Importing package data
+# -- Compiling module Inverse
+# -- Compiling module MatrixC0
 # -- Compiling module MatrixC1
 # -- Compiling module MatrixA1
 # -- Compiling module MatrixA0
 # 
 # Top level modules:
-# 	MatrixC0
-# 	MatrixC1
-# 	MatrixA1
-# 	MatrixA0
-# End time: 23:58:11 on May 04,2025, Elapsed time: 0:00:00
+# 	Transform
+# 	Inverse
+# End time: 02:24:46 on May 08,2025, Elapsed time: 0:00:00
 # Errors: 0, Warnings: 0
 # QuestaSim-64 vlog 2023.4 Compiler 2023.10 Oct  9 2023
-# Start time: 23:58:11 on May 04,2025
+# Start time: 02:24:46 on May 08,2025
 # vlog -work work -svinputport=relaxed ./rtl/fast_conv.sv 
 # -- Compiling module Multip
 # -- Importing package packConv
@@ -88,10 +87,10 @@ Reading pref.tcl
 # 
 # Top level modules:
 # 	conv
-# End time: 23:58:11 on May 04,2025, Elapsed time: 0:00:00
+# End time: 02:24:46 on May 08,2025, Elapsed time: 0:00:00
 # Errors: 0, Warnings: 0
 # QuestaSim-64 vlog 2023.4 Compiler 2023.10 Oct  9 2023
-# Start time: 23:58:11 on May 04,2025
+# Start time: 02:24:46 on May 08,2025
 # vlog -work work -svinputport=relaxed ../../testbench/tb_conv.sv 
 # -- Compiling module tb
 # -- Importing package packConv
@@ -99,10 +98,10 @@ Reading pref.tcl
 # 
 # Top level modules:
 # 	tb
-# End time: 23:58:11 on May 04,2025, Elapsed time: 0:00:00
+# End time: 02:24:46 on May 08,2025, Elapsed time: 0:00:00
 # Errors: 0, Warnings: 0
 # vsim -voptargs="+acc" -t ns work.tb 
-# Start time: 23:58:11 on May 04,2025
+# Start time: 02:24:46 on May 08,2025
 # ** Note: (vsim-3812) Design is being optimized...
 # ** Warning: (vopt-10587) Some optimizations are turned off because the +acc switch is in effect. This will cause your simulation to run slowly. Please use -access/-debug to maintain needed visibility.
 # ** Note: (vsim-12126) Error and warning message counts have been restored: Errors=0, Warnings=1.
@@ -125,10 +124,12 @@ Reading pref.tcl
 # Loading work.packConv(fast)
 # Loading work.tb(fast)
 # Loading work.conv(fast)
+# Loading work.Transform(fast)
 # Loading work.MatrixC0(fast)
 # Loading work.CSA_2(fast)
 # Loading work.MatrixC1(fast)
 # Loading work.Multip(fast)
+# Loading work.Inverse(fast)
 # Loading work.MatrixA1(fast)
 # Loading work.CSA_3(fast)
 # Loading work.FA(fast)
@@ -155,5 +156,5 @@ Reading pref.tcl
 # configure wave not supported in batch mode
 # ** Note: $finish    : ../../testbench/tb_conv.sv(75)
 #    Time: 4965 ns  Iteration: 0  Instance: /tb
-# End time: 23:58:12 on May 04,2025, Elapsed time: 0:00:01
+# End time: 02:24:47 on May 08,2025, Elapsed time: 0:00:01
 # Errors: 0, Warnings: 1
