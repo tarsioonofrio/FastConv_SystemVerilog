@@ -1,0 +1,160 @@
+Reading pref.tcl
+
+# 2023.4
+
+# do sim.do
+# QuestaSim-64 vmap 2023.4 Lib Mapping Utility 2023.10 Oct  9 2023
+# vmap work work 
+# Modifying modelsim.ini
+# data/sim/file-064/data.sv
+# QuestaSim-64 vlog 2023.4 Compiler 2023.10 Oct  9 2023
+# Start time: 02:23:48 on May 08,2025
+# vlog -work work data/sim/file-064/data.sv 
+# -- Compiling package data
+# 
+# Top level modules:
+# 	--none--
+# End time: 02:23:48 on May 08,2025, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 2023.4 Compiler 2023.10 Oct  9 2023
+# Start time: 02:23:48 on May 08,2025
+# vlog -work work ./rtl/pack_conv.sv 
+# -- Compiling package packConv
+# -- Importing package data
+# ** Warning: ./rtl/pack_conv.sv(7): (vlog-13326) timeunit and timeprecision declarations shall precede any other items in current time scope.
+# ** Warning: ./rtl/pack_conv.sv(8): (vlog-13326) timeunit and timeprecision declarations shall precede any other items in current time scope.
+# 
+# Top level modules:
+# 	--none--
+# End time: 02:23:48 on May 08,2025, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 2
+# QuestaSim-64 vlog 2023.4 Compiler 2023.10 Oct  9 2023
+# Start time: 02:23:48 on May 08,2025
+# vlog -work work -svinputport=relaxed ./rtl/csa_lib.sv 
+# -- Compiling module FA
+# -- Importing package packConv
+# -- Importing package data
+# -- Compiling module CSA_2
+# -- Compiling module CSA_3
+# -- Compiling module CSA_4
+# -- Compiling module CSA_5
+# -- Compiling module CSA_6
+# -- Compiling module CSA_7
+# -- Compiling module CSA_8
+# -- Compiling module CSA_9
+# -- Compiling module CSA_12
+# -- Compiling module CSA_16
+# -- Compiling module CSA_18
+# 
+# Top level modules:
+# 	CSA_2
+# 	CSA_3
+# 	CSA_4
+# 	CSA_5
+# 	CSA_6
+# 	CSA_7
+# 	CSA_8
+# 	CSA_9
+# 	CSA_12
+# 	CSA_16
+# 	CSA_18
+# End time: 02:23:48 on May 08,2025, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 2023.4 Compiler 2023.10 Oct  9 2023
+# Start time: 02:23:48 on May 08,2025
+# vlog -work work -svinputport=relaxed ./rtl/mult_matrices.sv 
+# -- Compiling module Transform
+# -- Importing package packConv
+# -- Importing package data
+# -- Compiling module Inverse
+# -- Compiling module MatrixC0
+# -- Compiling module MatrixC1
+# -- Compiling module MatrixA1
+# -- Compiling module MatrixA0
+# 
+# Top level modules:
+# 	Transform
+# 	Inverse
+# End time: 02:23:48 on May 08,2025, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 2023.4 Compiler 2023.10 Oct  9 2023
+# Start time: 02:23:48 on May 08,2025
+# vlog -work work -svinputport=relaxed ./rtl/fast_conv.sv 
+# -- Compiling module Multip
+# -- Importing package packConv
+# -- Importing package data
+# -- Compiling module conv
+# 
+# Top level modules:
+# 	conv
+# End time: 02:23:48 on May 08,2025, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 2023.4 Compiler 2023.10 Oct  9 2023
+# Start time: 02:23:48 on May 08,2025
+# vlog -work work -svinputport=relaxed ../../testbench/tb_conv.sv 
+# -- Compiling module tb
+# -- Importing package packConv
+# -- Importing package data
+# 
+# Top level modules:
+# 	tb
+# End time: 02:23:48 on May 08,2025, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vsim -voptargs="+acc" -t ns work.tb 
+# Start time: 02:23:48 on May 08,2025
+# ** Note: (vsim-3812) Design is being optimized...
+# ** Warning: (vopt-10587) Some optimizations are turned off because the +acc switch is in effect. This will cause your simulation to run slowly. Please use -access/-debug to maintain needed visibility.
+# ** Note: (vsim-12126) Error and warning message counts have been restored: Errors=0, Warnings=1.
+# //  Questa Sim-64
+# //  Version 2023.4 linux_x86_64 Oct  9 2023
+# //
+# //  Copyright 1991-2023 Mentor Graphics Corporation
+# //  All Rights Reserved.
+# //
+# //  QuestaSim and its associated documentation contain trade
+# //  secrets and commercial or financial information that are the property of
+# //  Mentor Graphics Corporation and are privileged, confidential,
+# //  and exempt from disclosure under the Freedom of Information Act,
+# //  5 U.S.C. Section 552. Furthermore, this information
+# //  is prohibited from disclosure under the Trade Secrets Act,
+# //  18 U.S.C. Section 1905.
+# //
+# Loading sv_std.std
+# Loading work.data(fast)
+# Loading work.packConv(fast)
+# Loading work.tb(fast)
+# Loading work.conv(fast)
+# Loading work.Transform(fast)
+# Loading work.MatrixC0(fast)
+# Loading work.CSA_2(fast)
+# Loading work.MatrixC1(fast)
+# Loading work.Multip(fast)
+# Loading work.Inverse(fast)
+# Loading work.MatrixA1(fast)
+# Loading work.CSA_3(fast)
+# Loading work.FA(fast)
+# Loading work.MatrixA0(fast)
+# 1
+# 1
+# ** UI-Msg (Warning): (vish-4014) No objects found matching '/tb/convolucao/EA'.
+# Executing ONERROR command at macro ./wave.do line 10
+# ** UI-Msg (Warning): (vish-4014) No objects found matching '/tb/convolucao/partial_product'.
+# Executing ONERROR command at macro ./wave.do line 12
+# wave activecursor not supported in batch mode
+# configure wave not supported in batch mode
+# configure wave not supported in batch mode
+# configure wave not supported in batch mode
+# configure wave not supported in batch mode
+# configure wave not supported in batch mode
+# configure wave not supported in batch mode
+# configure wave not supported in batch mode
+# configure wave not supported in batch mode
+# configure wave not supported in batch mode
+# configure wave not supported in batch mode
+# configure wave not supported in batch mode
+# configure wave not supported in batch mode
+# configure wave not supported in batch mode
+# ** Note: $finish    : ../../testbench/tb_conv.sv(75)
+#    Time: 25001 ns  Iteration: 0  Instance: /tb
+# End time: 02:23:49 on May 08,2025, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 1

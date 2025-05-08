@@ -2,6 +2,7 @@
 // CONVOLUTION  TB
 // -------------------------------------------------------------------------
 module tb;
+  logic DEBUG = 0;
 
   timeunit 1ns;
   timeprecision 1ps;
@@ -44,7 +45,9 @@ module tb;
     // Monitor para debug
     // $monitor("** Time: %0t | start: %b | data_valid: %b", $time, start, data_valid);
 
+
     //clk = 0;
+    start = 0;
     reset = 1;
     #5
     reset = 0;  // Liberar o reset após 5 ns
@@ -72,7 +75,7 @@ module tb;
     #10 $finish;
   end
 
-  
+
   always @(posedge clk) begin
     if (data_valid) begin
       // #1; // espera propagação de sinal
@@ -89,11 +92,21 @@ module tb;
             fi, fj, $signed(const_feat_out[fi][fj]), $signed(outputMAP[fj])
           );
         end
+        if (DEBUG == 1) begin
+          /* verilator lint_off WIDTHEXPAND */
+          // $display("Time: %0t | Data Valid: %b", $time, data_valid);
+          $display(
+            "Values: Time %0t | Data Valid: %b | const_feat_out[%0d][%0d]  %d | outputMAP = %d",
+            $time, data_valid,
+            fi, fj, $signed(const_feat_out[fi][fj]), $signed(outputMAP[fj])
+          );
+        end
+
       end
     end
   end
 
-  
+
   final begin
     integer log_f;
     log_f = $fopen("sim_summary.txt", "w");
