@@ -1,0 +1,35 @@
+Reading pref.tcl
+
+# 2023.4
+
+# do sim.do
+# QuestaSim-64 vmap 2023.4 Lib Mapping Utility 2023.10 Oct  9 2023
+# vmap work work 
+# Modifying modelsim.ini
+# data/sim/file-128/data.sv
+# QuestaSim-64 vlog 2023.4 Compiler 2023.10 Oct  9 2023
+# Start time: 09:15:43 on May 08,2025
+# vlog -work work data/sim/file-128/data.sv 
+# -- Compiling package data
+# 
+# Top level modules:
+# 	--none--
+# End time: 09:15:44 on May 08,2025, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 0
+# QuestaSim-64 vlog 2023.4 Compiler 2023.10 Oct  9 2023
+# Start time: 09:15:44 on May 08,2025
+# vlog -work work ./rtl/pack_conv.sv 
+# -- Compiling package packConv
+# -- Importing package data
+# Break key hit
+# ** Fatal: (SIGINT) Compile interrupted.
+# data/sim/file-128/data.sv(7968): Verilog Compiler exiting
+# End time: 09:15:44 on May 08,2025, Elapsed time: 0:00:00
+# Errors: 1, Warnings: 0
+# ** Error: /soft64/mentor/ferramentas/questa/2023.4/questasim/linux_x86_64/vlog failed.
+# Error in macro ./sim.do line 11
+# /soft64/mentor/ferramentas/questa/2023.4/questasim/linux_x86_64/vlog failed.
+#     while executing
+# "vlog -work work  ./rtl/pack_conv.sv"
+QuestaSim> # 
+# <EOF>
