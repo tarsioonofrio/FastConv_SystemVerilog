@@ -3,8 +3,8 @@
 // -------------------------------------------------------------------------
 module tb;
   parameter int NADDR = 8;
-  logic DEBUG = 0;
 
+  logic DEBUG = 0;
   timeunit 1ns;
   timeprecision 1ps;
 
@@ -42,7 +42,7 @@ module tb;
 
   // Instantiate conv_rapida entity
   Memory #(
-    .NADDR(NADDR),
+    .NADDR($clog2(FIN1_SIZE * FIN2_SIZE)),
     .NBITS(NBITS),
     .LATENCY(0),
     .ROM(0)
@@ -92,6 +92,15 @@ module tb;
       for (int fj = 0; fj < FIN2_SIZE; fj++) begin
         address = fi*FIN1_SIZE + fj;
         data_in = (NBITS)'($signed(const_feat_in[fi][fj]));
+        #10;
+      end
+    end
+
+    chip_en_ram = 1;
+    wr_en_ram = 0;
+    for (fi = 0; fi < FIN1_SIZE; fi++) begin
+      for (int fj = 0; fj < FIN2_SIZE; fj++) begin
+        address = fi*FIN1_SIZE + fj;
         #10;
       end
     end
