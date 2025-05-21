@@ -2,14 +2,28 @@
 // CONVOLUTION  TB
 // -------------------------------------------------------------------------
 module tb;
-  parameter int NADDR = 8;
+  import packConv::*;
+  import data::*;
 
-  logic DEBUG = 0;
   timeunit 1ns;
   timeprecision 1ps;
 
-  import packConv::*;
-  import data::*;
+  parameter int SIZE1 = FIN1_SIZE;
+  parameter int SIZE2 = FIN2_SIZE;
+  parameter int NADDR = $clog2(SIZE1 * SIZE2);
+  parameter int ROM = 0;
+  parameter int DATA = 0;
+  parameter int DEBUG = 0;
+
+  function automatic int data_test(int row, int col);
+    case (DATA)
+      0:  return const_feat_in[row][col]; 
+      1:  return const_weight[row][col];
+      default:  return 0;
+    endcase
+  endfunction
+  // type_weight data_test;
+  // type_output data_test;
 
 
   // function automatic int fn(ref int a);
@@ -26,36 +40,32 @@ module tb;
   //   end
   // endfunction
 
-  type_weight weight;
-  type_input inputMAP;
-  type_output outputMAP;
 
   logic reset, start, data_valid;
-  logic[2**NADDR-1:0] address;
+  logic[NADDR-1:0] address;
   logic_vector  data_in, data_out;
-  logic chip_en_ram, wr_en_ram;
-  logic chip_en_rom_feat, wr_en_rom_feat;
-  logic chip_en_rom_wght, wr_en_rom_wght;
+  logic chip_en, wr_en;
+  int row, col;
 
   logic clk = 1'b0;
-  int fi;
 
   // Instantiate conv_rapida entity
   Memory #(
-    .NADDR($clog2(FIN1_SIZE * FIN2_SIZE)),
+    .NADDR(NADDR),
     .NBITS(NBITS),
     .LATENCY(0),
-    .ROM(0)
-  ) ram (
+    .ROM(ROM)
+  ) memory (
     .clk(clk),
     .reset(reset),
-    .chip_en(chip_en_ram),
-    .wr_en(wr_en_ram),
+    .chip_en(chip_en),
+    .wr_en(wr_en),
     .address(address),
     .data_in(data_in),
     .data_out(data_out),
     .data_valid(data_valid)
   );
+
 
   // Clock generation - 10 ns
   always #1 clk = ~clk;
@@ -74,34 +84,31 @@ module tb;
     //clk = 0;
     start = 0;
     reset = 1;
-    chip_en_ram = 0;
-    wr_en_ram = 0;
+    chip_en = 0;
+    wr_en = 0;
     #5
     reset = 0;  // Liberar o reset após 5 ns
 
-    // // Convert const_weight
-    // for (int wi = 0; wi < W1_SIZE; wi++) begin
-    //   for (int wj = 0; wj < W2_SIZE; wj++) begin
-    //     weight[wj] = (NBITS)'($signed(const_weight[wi][wj]));
-    //   end
-
     // Loop de simulação
-    chip_en_ram = 1;
-    wr_en_ram = 1;
-    for (fi = 0; fi < FIN1_SIZE; fi++) begin
-      for (int fj = 0; fj < FIN2_SIZE; fj++) begin
-        address = fi*FIN1_SIZE + fj;
-        data_in = (NBITS)'($signed(const_feat_in[fi][fj]));
-        #10;
+    if (ROM == 0) begin
+      chip_en = 1;
+      wr_en = 1;
+      for (row = 0; row < FIN1_SIZE; row++) begin
+        for (col = 0; col < FIN2_SIZE; col++) begin
+          address = row*FIN1_SIZE + col;
+          data_in = (NBITS)'($signed(const_feat_in[row][col]));
+          #2;
+        end
       end
     end
 
-    chip_en_ram = 1;
-    wr_en_ram = 0;
-    for (fi = 0; fi < FIN1_SIZE; fi++) begin
-      for (int fj = 0; fj < FIN2_SIZE; fj++) begin
-        address = fi*FIN1_SIZE + fj;
-        #10;
+    wr_en = 0;
+    for (row = 0; row < FIN1_SIZE; row++) begin
+      for (col = 0; col < FIN2_SIZE; col++) begin
+        chip_en = 1;
+        address = row*FIN1_SIZE + col;
+        wait(data_valid);
+        #2;
       end
     end
 
@@ -113,29 +120,26 @@ module tb;
   always @(posedge clk) begin
     if (data_valid) begin
       // #1; // espera propagação de sinal
-      for (int fj = 0; fj < FOUT2_SIZE; fj++) begin
-        // To avoid error:
-        // %Warning-WIDTHEXPAND: ../../testbench/tb_conv.sv:79:36: Operator NEQ expects 32 bits on the LHS, but LHS's SIGNED generates 20 bits.
+      // To avoid error:
+      // %Warning-WIDTHEXPAND: ../../testbench/tb_conv.sv:79:36: Operator NEQ expects 32 bits on the LHS, but LHS's SIGNED generates 20 bits.
+      /* verilator lint_off WIDTHEXPAND */
+      if ($signed(data_out) != $signed(data_test(row, col))) begin
         /* verilator lint_off WIDTHEXPAND */
-        if ($signed(outputMAP[fj]) != $signed(const_feat_out[fi][fj])) begin
-          /* verilator lint_off WIDTHEXPAND */
-          // $display("Time: %0t | Data Valid: %b", $time, data_valid);
-          $display(
-            "Values Error: Time %0t | Data Valid: %b | const_feat_out[%0d][%0d] = %d != %d",
-            $time, data_valid,
-            fi, fj, $signed(const_feat_out[fi][fj]), $signed(outputMAP[fj])
-          );
-        end
-        if (DEBUG == 1) begin
-          /* verilator lint_off WIDTHEXPAND */
-          // $display("Time: %0t | Data Valid: %b", $time, data_valid);
-          $display(
-            "Values: Time %0t | Data Valid: %b | const_feat_out[%0d][%0d]  %d | outputMAP = %d",
-            $time, data_valid,
-            fi, fj, $signed(const_feat_out[fi][fj]), $signed(outputMAP[fj])
-          );
-        end
-
+        // $display("Time: %0t | Data Valid: %b", $time, data_valid);
+        $display(
+          "Values Error: Time %0t | Data Valid: %b | data_test[%0d][%0d] = %d != %d",
+          $time, data_valid,
+          row, col, $signed(data_test(row, col)), $signed(data_out)
+        );
+      end
+      if (DEBUG == 1) begin
+        /* verilator lint_off WIDTHEXPAND */
+        // $display("Time: %0t | Data Valid: %b", $time, data_valid);
+        $display(
+          "Values: Time %0t | Data Valid: %b | data_test[%0d][%0d]  %d | outputMAP = %d",
+          $time, data_valid,
+          row, col, $signed(data_test(row, col)), $signed(data_out)
+        );
       end
     end
   end
