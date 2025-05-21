@@ -2,7 +2,7 @@
 // CONVOLUTION  TB
 // -------------------------------------------------------------------------
 module tb;
-  parameter int NADDR = 12;
+  parameter int NADDR = 8;
   logic DEBUG = 0;
 
   timeunit 1ns;
@@ -31,7 +31,7 @@ module tb;
   type_output outputMAP;
 
   logic reset, start, data_valid;
-  logic[NADDR-1:0] address;
+  logic[2**NADDR-1:0] address;
   logic_vector  data_in, data_out;
   logic chip_en_ram, wr_en_ram;
   logic chip_en_rom_feat, wr_en_rom_feat;
