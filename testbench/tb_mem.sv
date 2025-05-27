@@ -107,6 +107,7 @@ module tb;
       for (col = 0; col < FIN2_SIZE; col++) begin
         chip_en = 1;
         address = row*FIN1_SIZE + col;
+        #2;
         wait(data_valid);
         #2;
       end
