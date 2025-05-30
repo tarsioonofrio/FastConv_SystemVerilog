@@ -44,7 +44,8 @@ module Memory
 
   always_comb begin
     if (ROM == 0) begin
-      if (chip_en == 1'b1 && wr_en == 1'b0) begin
+    // if (chip_en == 1'b1 && wr_en == 1'b0) begin
+    if (chip_en == 1'b1) begin
         wire_valid = '1;
         wire_out = data[address];
       end else begin
