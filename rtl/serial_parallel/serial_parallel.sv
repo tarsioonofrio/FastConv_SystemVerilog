@@ -59,13 +59,18 @@ module SerialParallel
     if (reset) begin
       count_parallel <= 0;
       count_serial <= 0;
+      current_st_parallel <= IDLE;
+      current_st_serial <= IDLE;
     end
     else begin
+      current_st_parallel <= next_st_parallel;
+      current_st_serial <= next_st_serial;
+      
       unique case (current_st_parallel)
         IDLE:
           count_parallel <= 0;
         COUNT:
-          if (parallel_valid && count_parallel < A1_SIZE * A1_SIZE)
+          if (count_parallel < A1_SIZE * A1_SIZE)
           count_parallel <= count_parallel + 1;
       endcase
       unique case (current_st_serial)
