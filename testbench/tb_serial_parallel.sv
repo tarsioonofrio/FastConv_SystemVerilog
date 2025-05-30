@@ -52,12 +52,12 @@ module tb;
     serial_valid = 0;
     parallel_valid = 0;
     serial_in = '0;
+    #20;
+    reset = 0;
 
     for (int i = 0; i < PARALLEL_SIZE; i++)
       parallel_in[i] = const_feat_out[0][i];
 
-    #20;
-    reset = 0;
     @(posedge clk);
 
     // Teste 1 - paralelismo para serial_out
