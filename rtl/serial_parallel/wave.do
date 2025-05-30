@@ -4,8 +4,10 @@ add wave -noupdate /tb/dut/clk
 add wave -noupdate /tb/dut/reset
 add wave -noupdate /tb/dut/serial_valid
 add wave -noupdate /tb/dut/parallel_valid
-add wave -noupdate /tb/dut/serial_in
-add wave -noupdate /tb/dut/serial_out
+add wave -noupdate -radix decimal /tb/dut/serial_in
+add wave -noupdate -radix decimal /tb/dut/parallel_in
+add wave -noupdate -radix decimal /tb/dut/parallel_out
+add wave -noupdate -radix decimal /tb/dut/serial_out
 add wave -noupdate /tb/dut/current_st_parallel
 add wave -noupdate /tb/dut/next_st_parallel
 add wave -noupdate /tb/dut/current_st_serial
