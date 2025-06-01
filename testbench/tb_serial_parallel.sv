@@ -54,8 +54,8 @@ module tb;
 
     @(posedge clk);
 
-    // Teste 1 - paralelismo para serial_out
-    $display("== Teste 1: parallel_valid ativo = 1");
+    // TEST 1 - paralelismo para serial_out
+    $display("== TEST 1: parallel_valid = 1");
     parallel_valid = 1;
     @(posedge clk);
     parallel_valid = 0;
@@ -66,8 +66,8 @@ module tb;
       $display("Cycle %0d: serial_out = %0d", i, serial_out);
     end
 
-    // Teste 2 - serial_in para paralelização
-    $display("== Teste 2: serial_valid ativo = 1 com const_feat_in");
+    // TEST 2 - serial_in para paralelização
+    $display("== TEST 2: serial_valid = 1 const_feat_in");
     serial_valid = 1;
     @(posedge clk);
     for (int i = 0; i < W2_SIZE; i++) begin
@@ -80,7 +80,7 @@ module tb;
     // Espera alguns ciclos para estabilizar
     repeat (5) @(posedge clk);
 
-    $display("Fim da simulação");
+    $display("End simulation");
     $finish;
   end
 endmodule
