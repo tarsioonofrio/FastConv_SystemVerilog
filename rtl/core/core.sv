@@ -62,22 +62,22 @@ module Core
   int count_weight;
   int count_window;
 
-  // Instantiate conv_rapida entity
-  Memory #(
-    .NADDR(NADDR),
-    .NBITS(NBITS),
-    .LATENCY(0),
-    .ROM(ROM)
-  ) memory (
-    .clk(clk),
-    .reset(reset),
-    .chip_en(p_in_ce),
-    .wr_en(p_in_we),
-    .address(p_addr),
-    .data_in(mem_data_in),
-    .data_out(mem_data_out),
-    .data_valid(mem_data_valid)
-  );
+  // // Instantiate conv_rapida entity
+  // Memory #(
+  //   .NADDR(NADDR),
+  //   .NBITS(NBITS),
+  //   .LATENCY(0),
+  //   .ROM(ROM)
+  // ) memory (
+  //   .clk(clk),
+  //   .reset(reset),
+  //   .chip_en(p_in_ce),
+  //   .wr_en(p_in_we),
+  //   .address(p_addr),
+  //   .data_in(mem_data_in),
+  //   .data_out(mem_data_out),
+  //   .data_valid(mem_data_valid)
+  // );
   
   conv #(
     .QUANT(QUANT)
