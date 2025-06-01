@@ -69,6 +69,7 @@ module tb;
     // Teste 2 - serial_in para paralelização
     $display("== Teste 2: serial_valid ativo = 1 com const_feat_in");
     serial_valid = 1;
+    @(posedge clk);
     for (int i = 0; i < W2_SIZE; i++) begin
       serial_in = const_weight[0][i];
       @(posedge clk);
