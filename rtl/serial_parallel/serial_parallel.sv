@@ -22,58 +22,64 @@ module SerialParallel
   timeprecision 1ps;
 
   typedef enum {IDLE, COUNT} state_type;
-  state_type current_st_p2s, next_st_p2s;
-  state_type current_st_s2p, next_st_s2p;
+  state_type current_st_to_serial, next_st_to_serial;
+  state_type current_st_to_parallel, next_st_to_parallel;
 
-  int count_p2s;
-  int count_s2p;
+  type_output registers_in;
+  type_weight registers_out;
+
+  int count_to_serial;
+  int count_to_parallel;
 
   always_comb begin
-    serial_out = parallel_in[count_p2s];
-    parallel_out[count_s2p] = serial_in;
-
-    unique case (current_st_p2s)
+    parallel_out = registers_out;
+    serial_out = registers_in[count_to_serial];
+    unique case (current_st_to_serial)
       IDLE:
         if (parallel_valid)
-          next_st_p2s = COUNT;
+          next_st_to_serial = COUNT;
       COUNT:
-        if (count_p2s >= PARALLEL_SIZE)
-        next_st_p2s = IDLE;
+        if (count_to_serial >= PARALLEL_SIZE)
+          next_st_to_serial = IDLE;
     endcase
-    unique case (current_st_s2p)
+    unique case (current_st_to_parallel)
       IDLE:
         if (serial_valid)
-          next_st_s2p = COUNT;
+          next_st_to_parallel = COUNT;
       COUNT:
-        if (count_s2p >= SERIAL_SIZE)
-        next_st_s2p = IDLE;
+        if (count_to_parallel >= SERIAL_SIZE)
+          next_st_to_parallel = IDLE;
     endcase
   end
 
   always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
-      count_p2s <= 0;
-      count_s2p <= 0;
-      current_st_p2s <= IDLE;
-      current_st_s2p <= IDLE;
+      count_to_serial <= 0;
+      count_to_parallel <= 0;
+      current_st_to_serial <= IDLE;
+      current_st_to_parallel <= IDLE;
+      registers_in = '{default: '0};
+      registers_out = '{default: '0};
     end
     else begin
-      current_st_p2s <= next_st_p2s;
-      current_st_s2p <= next_st_s2p;
-      
-      unique case (current_st_p2s)
+      registers_in = parallel_in;
+      registers_out[count_to_parallel] = serial_in;
+
+      current_st_to_serial <= next_st_to_serial;
+      current_st_to_parallel <= next_st_to_parallel;
+      unique case (current_st_to_serial)
         IDLE:
-          count_p2s <= 0;
+          count_to_serial <= 0;
         COUNT:
-          if (count_p2s < PARALLEL_SIZE)
-          count_p2s <= count_p2s + 1;
+          if (count_to_serial < PARALLEL_SIZE)
+            count_to_serial <= count_to_serial + 1;
       endcase
-      unique case (current_st_s2p)
+      unique case (current_st_to_parallel)
         IDLE:
-          count_s2p <= 0;
+          count_to_parallel <= 0;
         COUNT:
-          if (serial_valid && count_s2p < SERIAL_SIZE)
-          count_s2p <= count_s2p + 1;
+          if (serial_valid && count_to_parallel < SERIAL_SIZE)
+            count_to_parallel <= count_to_parallel + 1;
       endcase
     end
   end;
