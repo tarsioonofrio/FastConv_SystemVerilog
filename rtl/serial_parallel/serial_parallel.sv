@@ -2,13 +2,8 @@ module SerialParallel
   import packConv::*;
   import data::*;
   #(
-    parameter int QUANT            = 8,
-    parameter int NBITS            = 20,
-    parameter int NADDR            = 12,
-    parameter int WEIGHT_SIZE      = 1,
-    parameter int BUFFER_IN_SIZE   = 512,
-    parameter int WINDOW_IN_SIZE   = 64,
-    parameter int WINDOW_IN_NUM    = 4,
+    parameter int SERIAL_SIZE      = 36,
+    parameter int PARALLEL_SIZE    = 9,
     parameter int LATENCY          = 0,
     parameter int ROM              = 0
   )
@@ -27,58 +22,59 @@ module SerialParallel
   timeprecision 1ps;
 
   typedef enum {IDLE, COUNT} state_type;
-  state_type current_st_parallel, next_st_parallel;
-  state_type current_st_serial, next_st_serial;
+  state_type current_st_p2s, next_st_p2s;
+  state_type current_st_s2p, next_st_s2p;
 
-  int count_parallel;
-  int count_serial;
+  int count_p2s;
+  int count_s2p;
 
   always_comb begin
-    serial_out = parallel_in[count_parallel];
-    parallel_out[count_serial] = serial_in;
+    serial_out = parallel_in[count_p2s];
+    parallel_out[count_s2p] = serial_in;
 
-    unique case (current_st_parallel)
+    unique case (current_st_p2s)
       IDLE:
         if (parallel_valid)
-          next_st_parallel = COUNT;
+          next_st_p2s = COUNT;
       COUNT:
-        if (count_parallel >= A1_SIZE * A1_SIZE)
-          next_st_parallel = IDLE;
+        if (count_p2s >= PARALLEL_SIZE)
+        next_st_p2s = IDLE;
     endcase
-    unique case (current_st_serial)
+    unique case (current_st_s2p)
       IDLE:
         if (serial_valid)
-          next_st_serial = COUNT;
+          next_st_s2p = COUNT;
       COUNT:
-        if (count_serial >= A1_SIZE * A1_SIZE)
-          next_st_serial = IDLE;
+        if (count_s2p >= SERIAL_SIZE)
+        next_st_s2p = IDLE;
     endcase
   end
 
   always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
-      count_parallel <= 0;
-      count_serial <= 0;
-      current_st_parallel <= IDLE;
-      current_st_serial <= IDLE;
+      count_p2s <= 0;
+      count_s2p <= 0;
+      current_st_p2s <= IDLE;
+      current_st_s2p <= IDLE;
     end
     else begin
-      current_st_parallel <= next_st_parallel;
-      current_st_serial <= next_st_serial;
+      current_st_p2s <= next_st_p2s;
+      current_st_s2p <= next_st_s2p;
       
-      unique case (current_st_parallel)
+      unique case (current_st_p2s)
         IDLE:
-          count_parallel <= 0;
+          count_p2s <= 0;
         COUNT:
-          if (count_parallel < A1_SIZE * A1_SIZE)
-          count_parallel <= count_parallel + 1;
+          if (count_p2s < PARALLEL_SIZE)
+          count_p2s <= count_p2s + 1;
       endcase
-      unique case (current_st_serial)
+      unique case (current_st_s2p)
         IDLE:
-          count_serial <= 0;
+          count_s2p <= 0;
         COUNT:
-          if (serial_valid && count_serial < WINDOW_IN_SIZE)
-          count_serial <= count_serial + 1;
+          if (serial_valid && count_s2p < SERIAL_SIZE)
+          count_s2p <= count_s2p + 1;
       endcase
     end
-  end;endmodule
+  end;
+endmodule
