@@ -6,7 +6,7 @@ module tb;
   import packConv::*;
 
   logic clk, reset;
-  logic serial_valid, parallel_valid;
+  logic serial_valid, parallel_valid, feature_in, weight_in;
 
   logic_vector serial_in;
   type_output parallel_in;
@@ -26,6 +26,8 @@ module tb;
     .reset(reset),
     .serial_valid(serial_valid),
     .parallel_valid(parallel_valid),
+    .feature_in(feature_in),
+    .weight_in(weight_in),
     .serial_in(serial_in),
     .parallel_in(parallel_in),
     .parallel_out(parallel_out),
@@ -63,6 +65,7 @@ module tb;
 
     // TEST 2 - serial_in para paralelização
     $display("== TEST 2: serial_valid = 1 const_feat_in");
+    serial_valid = 1;
     serial_valid = 1;
     @(posedge clk);
     for (int i = 0; i < W2_SIZE; i++) begin
