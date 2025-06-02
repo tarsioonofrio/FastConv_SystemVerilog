@@ -46,7 +46,9 @@ module Core
   type_weight output_map;   // do convolucao para serial_parallel (saída paralela)
   logic       data_valid;
 
-  type_weight   register_weight;
+  type_output registers_in;
+  type_weight registers_out;
+  type_weight register_weight;
 
   logic out_ce;
   logic out_we;
@@ -72,8 +74,8 @@ module Core
 
     .parallel_valid_in(parallel_valid_in),
     .parallel_valid_out(parallel_valid_out),
-    .parallel_in(output_map),
-    .parallel_out(input_map)
+    .parallel_in(parallel_in),
+    .parallel_out(parallel_out)
   );
 
   // Instanciação do módulo de convolução usando os sinais paralelos do serial_parallel
@@ -90,14 +92,21 @@ module Core
   );
 
   always_ff @(posedge clk) begin
-    if (reset)
+    if (reset) begin
+      registers_in = '{default: '0};
+      registers_out = '{default: '0};
       register_weight <= '{default: '0};
-    else if (p_wh_ce == 1'b1 && p_wh_we == 1'b1)
-      register_weight <= input_map;
+    end
+    else
+      registers_in = parallel_in;
+      registers_out[count_to_parallel] = serial_in;
+      if (p_wh_ce == 1'b1 && p_wh_we == 1'b1 && parallel_valid_out)
+        register_weight <= input_map;
   end
 
   always_comb begin
-    
+    serial_out = parallel_in[count_to_serial];
+
   end
 
 endmodule
