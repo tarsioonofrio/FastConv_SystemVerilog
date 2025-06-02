@@ -32,16 +32,17 @@ module CoreControl
   state_type current_st_to_parallel, next_st_to_parallel;
 
   // type_output registers_in;
-  // type_weight registers_out;
+  type_weight registers_out;
   logic reg_feature, reg_weight;
 
   int count_to_serial;
   int count_to_parallel;
 
   always_comb begin
-    // parallel_out = registers_out;
+    parallel_out = registers_out;
     // serial_out = registers_in[count_to_serial];
     serial_out = parallel_in[count_to_serial];
+    // parallel_out[count_to_parallel] = serial_in;
     feature_out = reg_feature;
     weight_out = reg_weight;
     unique case (current_st_to_serial)
@@ -69,12 +70,11 @@ module CoreControl
       current_st_to_serial <= IDLE;
       current_st_to_parallel <= IDLE;
       // registers_in = '{default: '0};
-      // registers_out = '{default: '0};
+      registers_out = '{default: '0};
     end
     else begin
       // registers_in = parallel_in;
-      // registers_out[count_to_parallel] = serial_in;
-      serial_out[count_to_parallel] = serial_in;
+      registers_out[count_to_parallel] = serial_in;
 
       current_st_to_serial <= next_st_to_serial;
       current_st_to_parallel <= next_st_to_parallel;
@@ -82,7 +82,7 @@ module CoreControl
         IDLE: begin
           count_to_serial <= 0;
           serial_valid_out <= 1'b0;
-        end;
+        end
         COUNT:
           if (count_to_serial < PARALLEL_SIZE) begin
             count_to_serial <= count_to_serial + 1;
@@ -95,7 +95,7 @@ module CoreControl
           parallel_valid_out <= 1'b0;
           reg_weight = 1'b0;
           reg_feature = 1'b0;
-        end;
+        end
         COUNT: begin
           reg_weight = weight_in;
           reg_feature = feature_in;
@@ -103,9 +103,9 @@ module CoreControl
             count_to_parallel <= count_to_parallel + 1;
           else if (count_to_parallel >= SERIAL_SIZE) begin
             parallel_valid_out <= 1'b1;
-          end;
-        end;
+          end
+        end
       endcase
     end
-  end;
+  end
 endmodule
