@@ -5,11 +5,6 @@ module tb;
   import data::*;
   import packConv::*;
 
-  // Parâmetros dos pacotes
-  // localparam int FOUT2_SIZE = FOUT2_SIZE; // 9
-  // localparam int W2_SIZE = W2_SIZE;  // 64
-
-
   logic clk, reset;
   logic serial_valid, parallel_valid;
 
