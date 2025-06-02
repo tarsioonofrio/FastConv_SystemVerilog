@@ -97,12 +97,12 @@ module CoreControl
           reg_feature = 1'b0;
         end;
         COUNT: begin
+          reg_weight = weight_in;
+          reg_feature = feature_in;
           if (serial_valid_in && count_to_parallel < SERIAL_SIZE)
             count_to_parallel <= count_to_parallel + 1;
           else if (count_to_parallel >= SERIAL_SIZE) begin
             parallel_valid_out <= 1'b1;
-            reg_weight = weight_in;
-            reg_feature = feature_in;
           end;
         end;
       endcase
