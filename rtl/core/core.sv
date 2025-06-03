@@ -42,13 +42,14 @@ module Core
   timeprecision 1ps;
 
   // Tipos usados
-  type_output input_map;    // do serial_parallel para convolucao (entrada paralela)
-  type_weight output_map;   // do convolucao para serial_parallel (saída paralela)
+  type_input  input_map;    // do serial_parallel para convolucao (entrada paralela)
+  type_output output_map;   // do convolucao para serial_parallel (saída paralela)
+  type_weight parallel_out;
   logic       output_valid;
 
-  type_output registers_in;
-  type_weight registers_out;
   type_weight register_weight;
+  type_weight registers_in;
+  type_output registers_out;
 
   logic out_ce;
   logic out_we;
@@ -80,8 +81,8 @@ module Core
 
     .parallel_valid_in(output_valid),
     .parallel_in(output_map),
-    .serial_valid_out(out_valid)
-    .serial_out(p_out_data),
+    .serial_valid_out(p_out_valid),
+    .serial_out(p_out_data)
   );
 
   // Instanciação do módulo de convolução usando os sinais paralelos do serial_parallel
@@ -91,16 +92,11 @@ module Core
     .clk(clk),
     .reset(reset),
     .start(p_start),
-    .inputMAP(input_map),
+    .inputMAP(registers_in),
     .weights(register_weight),
     .outputMAP(output_map),
     .data_valid(output_valid)
   );
-
-
-  always_comb begin
-    parallel_in = registers_in;
-  end
 
   always_ff @(posedge clk) begin
     if (reset) begin
@@ -109,9 +105,14 @@ module Core
       register_weight <= '{default: '0};
     end
     else
-      registers_out = output_map;
-      if (p_wh_ce == 1'b1 && p_wh_we == 1'b1 && parallel_valid_out == 1'b1 )
-        register_weight <= input_map;
+      if (output_valid == 1'b1)
+        registers_out = output_map;
+      if (parallel_valid_out == 1'b1) begin
+        if (weight_out == 1'b1)
+          register_weight <= parallel_out;
+        if (feature_out == 1'b1)
+          registers_in <= parallel_out;
+      end
   end
 
 endmodule
