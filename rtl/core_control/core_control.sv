@@ -10,17 +10,18 @@ module CoreControl
   (
     input  logic clk, reset,
 
-    input  logic serial_valid_in,
-    input  logic parallel_valid_in,
     input  logic feature_in,
     input  logic weight_in,
+    input  logic serial_valid_in,
     input  logic_vector serial_in,
-    input  type_output parallel_in,
-    output logic serial_valid_out,
-    output logic parallel_valid_out,
     output logic feature_out,
     output logic weight_out,
+    output logic parallel_valid_out,
     output type_weight parallel_out,
+
+    input  logic parallel_valid_in,
+    input  type_output parallel_in,
+    output logic serial_valid_out,
     output logic_vector serial_out
   );
 

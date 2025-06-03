@@ -56,26 +56,32 @@ module Core
 
   logic serial_valid_in, parallel_valid_in, serial_valid_out, parallel_valid_out;
 
+  int count_to_serial, count_to_parallel;
+
   // Sinais intermediários para conexão paralela
 
-  SerialParallel #(
+  CoreControl #(
     .SERIAL_SIZE(SERIAL_SIZE),
     .PARALLEL_SIZE(PARALLEL_SIZE),
     .LATENCY(LATENCY),
     .ROM(ROM)
-  ) serial_parallel_inst (
+  ) core_control (
     .clk(clk),
     .reset(reset),
 
+    .feature_in(feature_in),
+    .weight_in(weight_in),
     .serial_valid_in(serial_valid_in),
-    .serial_valid_out(serial_valid_out),
-    .serial_in(serial_in),
-    .serial_out(serial_out),
+    .serial_in(p_in_data),
+    .feature_out(feature_out),
+    .weight_out(weight_out),
+    .parallel_valid_out(parallel_valid_out),
+    .parallel_out(parallel_out),
 
     .parallel_valid_in(parallel_valid_in),
-    .parallel_valid_out(parallel_valid_out),
     .parallel_in(parallel_in),
-    .parallel_out(parallel_out)
+    .serial_valid_out(serial_valid_out)
+    .serial_out(p_out_data),
   );
 
   // Instanciação do módulo de convolução usando os sinais paralelos do serial_parallel
@@ -91,6 +97,11 @@ module Core
     .data_valid(data_valid)
   );
 
+
+  always_comb begin
+    parallel_in = registers_in;
+  end
+
   always_ff @(posedge clk) begin
     if (reset) begin
       registers_in = '{default: '0};
@@ -98,15 +109,9 @@ module Core
       register_weight <= '{default: '0};
     end
     else
-      registers_in = parallel_in;
-      registers_out[count_to_parallel] = serial_in;
-      if (p_wh_ce == 1'b1 && p_wh_we == 1'b1 && parallel_valid_out)
+      registers_out = output_map;
+      if (p_wh_ce == 1'b1 && p_wh_we == 1'b1 && parallel_valid_out == 1'b1 )
         register_weight <= input_map;
-  end
-
-  always_comb begin
-    serial_out = parallel_in[count_to_serial];
-
   end
 
 endmodule

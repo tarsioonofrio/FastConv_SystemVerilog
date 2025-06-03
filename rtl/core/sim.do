@@ -2,10 +2,11 @@ if {[file isdirectory work]} { vdel -all -lib work }
 vlib work
 vmap work work
 
-vlog -work work -svinputport=relaxed ../src/ifn9-01m20b/data.sv
-vlog -work work -svinputport=relaxed ../src/ifn9-01m20b/rtl/pack_conv.sv
+vlog -work work -svinputport=relaxed ../../src/ifn9-01m20b/data.sv
+vlog -work work -svinputport=relaxed ../../src/ifn9-01m20b/rtl/pack_conv.sv
+vlog -work work -svinputport=relaxed ../core_control/core_control.sv
 vlog -work work -svinputport=relaxed ./core.sv
-# vlog -work work -svinputport=relaxed ../testbench/tb_mem.sv
+# vlog -work work -svinputport=relaxed ../../testbench/tb_mem.sv
 
 #vsim -voptargs=+acc -t ns work.tb
 #set StdArithNoWarnings 1
