@@ -44,7 +44,7 @@ module Core
   // Tipos usados
   type_output input_map;    // do serial_parallel para convolucao (entrada paralela)
   type_weight output_map;   // do convolucao para serial_parallel (saída paralela)
-  logic       data_valid;
+  logic       output_valid;
 
   type_output registers_in;
   type_weight registers_out;
@@ -69,8 +69,8 @@ module Core
     .clk(clk),
     .reset(reset),
 
-    .feature_in(feature_in),
-    .weight_in(weight_in),
+    .feature_in(p_in_we),
+    .weight_in(p_wh_we),
     .serial_valid_in(serial_valid_in),
     .serial_in(p_in_data),
     .feature_out(feature_out),
@@ -78,9 +78,9 @@ module Core
     .parallel_valid_out(parallel_valid_out),
     .parallel_out(parallel_out),
 
-    .parallel_valid_in(parallel_valid_in),
-    .parallel_in(parallel_in),
-    .serial_valid_out(serial_valid_out)
+    .parallel_valid_in(output_valid),
+    .parallel_in(output_map),
+    .serial_valid_out(out_valid)
     .serial_out(p_out_data),
   );
 
@@ -94,7 +94,7 @@ module Core
     .inputMAP(input_map),
     .weights(register_weight),
     .outputMAP(output_map),
-    .data_valid(data_valid)
+    .data_valid(output_valid)
   );
 
 
