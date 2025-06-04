@@ -92,7 +92,7 @@ module Core
     .clk(clk),
     .reset(reset),
     .start(p_start),
-    .inputMAP(registers_in),
+    .inputMAP(registers_in[24:0]),
     .weights(register_weight),
     .outputMAP(output_map),
     .data_valid(output_valid)
