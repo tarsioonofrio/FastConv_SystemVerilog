@@ -1,118 +1,160 @@
-// -------------------------------------------------------------------------
-// CONVOLUTION  TB
-// -------------------------------------------------------------------------
 module tb;
-  logic DEBUG = 0;
-
   timeunit 1ns;
   timeprecision 1ps;
 
-  import packConv::*;
   import data::*;
+  import packConv::*;
 
-  type_weight weight;
-  type_input inputMAP;
-  type_output outputMAP;
+  // Parâmetros conforme Core
+  localparam int QUANT            = 8;
+  localparam int NBITS            = 20;
+  localparam int NADDR            = 12;
+  localparam int WEIGHT_SIZE      = 1;
+  localparam int BUFFER_IN_SIZE   = 512;
+  localparam int WINDOW_IN_SIZE   = 64;
+  localparam int WINDOW_IN_NUM    = 4;
+  localparam int LATENCY          = 0;
+  localparam int ROM              = 0;
+  localparam int SERIAL_SIZE      = 36;
+  localparam int PARALLEL_SIZE    = 9;
 
-  logic reset, start, data_valid;
-  logic clk = 1'b0;
-  int fi;
+  logic clk, reset;
 
+  logic p_start;
+  logic p_end;
+  logic p_debug;
 
-  // Instantiate conv_rapida entity
-  conv #(
-    .QUANT(QUANT_BITS)
-  ) convolucao (
+  logic p_in_ce;
+  logic p_in_we;
+  logic p_in_valid;
+
+  logic p_wh_ce;
+  logic p_wh_we;
+  logic p_wh_valid;
+
+  logic p_out_ce;
+  logic p_out_we;
+  logic p_out_valid;
+
+  logic_vector p_in_data;
+  logic_vector p_out_data;
+
+  // Clock generation (10ns period)
+  initial clk = 0;
+  always #5 clk = ~clk;
+
+  // DUT instantiation
+  Core #(
+    .QUANT(QUANT),
+    .NBITS(NBITS),
+    .NADDR(NADDR),
+    .WEIGHT_SIZE(WEIGHT_SIZE),
+    .BUFFER_IN_SIZE(BUFFER_IN_SIZE),
+    .WINDOW_IN_SIZE(WINDOW_IN_SIZE),
+    .WINDOW_IN_NUM(WINDOW_IN_NUM),
+    .LATENCY(LATENCY),
+    .ROM(ROM),
+    .SERIAL_SIZE(SERIAL_SIZE),
+    .PARALLEL_SIZE(PARALLEL_SIZE)
+  ) dut (
     .clk(clk),
     .reset(reset),
-    .start(start),
-    .inputMAP(inputMAP),
-    .weights(weight),
-    .outputMAP(outputMAP),
-    .data_valid(data_valid)
+
+    .p_start(p_start),
+    .p_end(p_end),
+    .p_debug(p_debug),
+
+    .p_in_ce(p_in_ce),
+    .p_in_we(p_in_we),
+    .p_in_valid(p_in_valid),
+
+    .p_wh_ce(p_wh_ce),
+    .p_wh_we(p_wh_we),
+    .p_wh_valid(p_wh_valid),
+
+    .p_out_ce(p_out_ce),
+    .p_out_we(p_out_we),
+    .p_out_valid(p_out_valid),
+
+    .p_in_data(p_in_data),
+    .p_out_data(p_out_data)
   );
 
-  // Clock generation - 10 ns
-  always #1 clk = ~clk;
-
-  // Test process to iterate over the input maps
+  // Inicialização dos sinais e reset
   initial begin
-
-    // Configurações iniciais
-    $dumpfile("dump.vcd");  // Arquivo VCD para waveform
+    $dumpfile("tb_core.vcd");
     $dumpvars(0, tb);
 
-    // Monitor para debug
-    // $monitor("** Time: %0t | start: %b | data_valid: %b", $time, start, data_valid);
-
-
-    //clk = 0;
-    start = 0;
     reset = 1;
-    #5
-    reset = 0;  // Liberar o reset após 5 ns
+    p_start = 0;
 
-    // Convert const_weight
-    for (int wi = 0; wi < W1_SIZE; wi++) begin
-      for (int wj = 0; wj < W2_SIZE; wj++) begin
-        weight[wj] = (NBITS)'($signed(const_weight[wi][wj]));
-      end
+    // Inicializa sinais de controle e dados
+    p_in_ce = 0;
+    p_in_we = 0;
+    p_wh_ce = 0;
+    p_wh_we = 0;
+    p_out_ce = 0;
+    p_out_we = 0;
 
-      // Loop de simulação
-      for (fi = 0; fi < FIN1_SIZE; fi++) begin
-          for (int fj = 0; fj < FIN2_SIZE; fj++) begin
-            inputMAP[fj] = (NBITS)'($signed(const_feat_in[fi][fj]));
-          end
+    p_in_data = '0;
 
-          start = 1'b1;
-          #10
-          start = 1'b0;
-          wait(data_valid);
-          #10;  // Wait for 100 ns
+    // Aguarda 2 ciclos de clock
+    repeat (2) @(posedge clk);
+    reset = 0;
+
+    // Aplica estímulos básicos:
+
+    // INÍCIO do processamento
+    #10;
+
+    // Carregar pesos
+    $display("=== Carregando pesos ===");
+    p_wh_we = 1;
+    p_in_we = 0;
+
+    for (int i = 0; i < W2_SIZE; i++) begin
+      p_wh_ce = 1;
+      p_wh_we = 1;
+      p_in_data = const_weight[0][i];
+      @(posedge clk);
+      $display("Peso[%0d] enviado: %0d", i, p_in_data);
+    end
+
+    p_wh_we = 0;
+    p_wh_ce = 0;
+
+    // Carregar dados de entrada
+    $display("=== Carregando dados de entrada ===");
+    p_in_we = 1;
+
+    for (int i = 0; i < FIN2_SIZE; i++) begin
+      p_in_ce = 1;
+      p_in_we = 1;
+      p_in_data = const_feat_in[0][i];
+      @(posedge clk);
+      $display("Dado de entrada[%0d] enviado: %0d", i, p_in_data);
+    end
+
+    p_in_we = 0;
+    p_in_ce = 0;
+
+    // Start processamento
+    $display("=== Iniciando processamento ===");
+    @(posedge clk);
+    p_start = 1;
+    @(posedge clk);
+    p_start = 0;
+
+    // Monitorar saída (p_out_valid = 1) e ler dados de saída
+    repeat (20) begin
+      @(posedge clk);
+      if (p_out_valid) begin
+        $display("Tempo %0t: saída valida - p_out_data = %0d", $time, p_out_data);
       end
     end
-    // Finalizar a simulação 200 ns após o loop
-    #10 $finish;
-  end
 
-
-  always @(posedge clk) begin
-    if (data_valid) begin
-      // #1; // espera propagação de sinal
-      for (int fj = 0; fj < FOUT2_SIZE; fj++) begin
-        // To avoid error:
-        // %Warning-WIDTHEXPAND: ../../testbench/tb_conv.sv:79:36: Operator NEQ expects 32 bits on the LHS, but LHS's SIGNED generates 20 bits.
-        /* verilator lint_off WIDTHEXPAND */
-        if ($signed(outputMAP[fj]) != $signed(const_feat_out[fi][fj])) begin
-          /* verilator lint_off WIDTHEXPAND */
-          // $display("Time: %0t | Data Valid: %b", $time, data_valid);
-          $display(
-            "Values Error: Time %0t | Data Valid: %b | const_feat_out[%0d][%0d] = %d != %d",
-            $time, data_valid,
-            fi, fj, $signed(const_feat_out[fi][fj]), $signed(outputMAP[fj])
-          );
-        end
-        if (DEBUG == 1) begin
-          /* verilator lint_off WIDTHEXPAND */
-          // $display("Time: %0t | Data Valid: %b", $time, data_valid);
-          $display(
-            "Values: Time %0t | Data Valid: %b | const_feat_out[%0d][%0d]  %d | outputMAP = %d",
-            $time, data_valid,
-            fi, fj, $signed(const_feat_out[fi][fj]), $signed(outputMAP[fj])
-          );
-        end
-
-      end
-    end
-  end
-
-
-  final begin
-    integer log_f;
-    log_f = $fopen("sim_summary.txt", "w");
-    $fdisplay(log_f, "time");
-    $fdisplay(log_f, "%0t", $time);
-    $fclose(log_f);
+    $display("Fim da simulação");
+    $finish;
   end
 
 endmodule
