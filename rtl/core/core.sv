@@ -64,8 +64,6 @@ module Core
   CoreControl #(
     .SERIAL_SIZE(SERIAL_SIZE),
     .PARALLEL_SIZE(PARALLEL_SIZE),
-    .LATENCY(LATENCY),
-    .ROM(ROM)
   ) core_control (
     .clk(clk),
     .reset(reset),
