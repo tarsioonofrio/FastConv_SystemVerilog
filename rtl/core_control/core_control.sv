@@ -102,7 +102,7 @@ module CoreControl
           reg_feature = feature_in;
           if (serial_valid_in && count_to_parallel < SERIAL_SIZE)
             count_to_parallel <= count_to_parallel + 1;
-          else if (count_to_parallel >= SERIAL_SIZE) begin
+          else if (count_to_parallel = SERIAL_SIZE) begin
             parallel_valid_out <= 1'b1;
           end
         end
