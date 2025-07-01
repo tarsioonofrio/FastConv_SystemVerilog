@@ -1,14 +1,8 @@
 ###############################################################################
 # TOP
 ###############################################################################
-
-# set DATA_SV $::env(DATA_SV)
-# set OUT_FILES [file dirname $DATA_SV]/synth-results/
-
-set OUT_FILES results/
-
-
 set TOP_MODULE conv
+
 
 puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 puts "Load the pdk using MMMC"
@@ -36,11 +30,10 @@ puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 	set_db interconnect_mode ple
 
 	### controls the verbosity of the tool
-	set_db information_level 9
+	#set_db information_level 9
 
 	### Avoid proceeding with latche inference
-	set_db hdl_error_on_latch false
-	####  o fast 4 tem latch de saída!!
+	set_db hdl_error_on_latch true
 
 
 puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
@@ -83,6 +76,7 @@ puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 puts "Write Reports"
 puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 
+    set OUT_FILES ./results
 
 	# Reports clock-gating information for the design
 	report_clock_gating > ${OUT_FILES}/reports/${TOP_MODULE}_clock_gating.rpt
@@ -154,5 +148,13 @@ puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 
 	### To generate all files needed to be loaded in an Innovus session, use the following command:
 	write_design -innovus -base_name ${OUT_FILES}/physical_synthesis/work/data
+
+
+    ### será usado para power analysis
+	set CURRENT_VIEW analysis_view_0p90v_25c_captyp_nominal
+	write_db ${OUT_FILES}/gate_level/${TOP_MODULE}_logic_mapped.db
+
+
+
     
     exit

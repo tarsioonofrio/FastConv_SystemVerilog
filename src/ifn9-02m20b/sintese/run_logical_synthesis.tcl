@@ -148,5 +148,13 @@ puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 
 	### To generate all files needed to be loaded in an Innovus session, use the following command:
 	write_design -innovus -base_name ${OUT_FILES}/physical_synthesis/work/data
+
+
+    ### será usado para power analysis
+	set CURRENT_VIEW analysis_view_0p90v_25c_captyp_nominal
+	write_db ${OUT_FILES}/gate_level/${TOP_MODULE}_logic_mapped.db
+
+
+
     
     exit
