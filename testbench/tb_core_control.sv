@@ -49,6 +49,7 @@ module tb;
     serial_in = '0;
     #20;
     reset = 0;
+    parallel_valid_in = 1;
 
     for (int i = 0; i < FOUT2_SIZE; i++)
       parallel_in[i] = const_feat_out[0][i];
@@ -64,7 +65,7 @@ module tb;
     // Esperar o módulo serializar todos os dados
     for (int i = 0; i < FOUT2_SIZE; i++) begin
       @(posedge clk);
-      $display("Cycle %0d: serial_out = %0d", i, serial_out);
+      $display("Time %0d: | parallel_in = %0d | serial_out = %0d", $time, parallel_in[i], serial_out);
     end
 
     // TEST 2 - serial_in para paralelização
@@ -75,6 +76,7 @@ module tb;
     for (int i = 0; i < W2_SIZE; i++) begin
       serial_in = const_weight[0][i];
       @(posedge clk);
+      #1;
       $display("Time %0d | serial_in = %0d | parallel_out[%0d] = %0d", $time, const_weight[0][i], i, parallel_out[i]);
     end
     serial_valid_in = 0;
