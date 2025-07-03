@@ -1,4 +1,4 @@
-set DB_FILE ./results/gate_level/conv_logic_mapped.db
+set DB_FILE ./results/gate_level/conv_logic_mapped.db 
 set START_TIME 0ns
 set CONSTRAINTS_PATH ./scripts
 
