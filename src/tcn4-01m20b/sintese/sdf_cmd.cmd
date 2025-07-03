@@ -1,4 +1,4 @@
-SDF_FILE = "../sintese/results/gate_level/conv_analysis_view_0p90v_25c_captyp_nominal.sdf",
+SDF_FILE = "results/gate_level/conv_analysis_view_0p90v_25c_captyp_nominal.sdf",
 LOG_FILE = "./sdf_log.log",
 SCOPE = tb.conv;
 MTM_CONTROL = "MAXIMUM",
