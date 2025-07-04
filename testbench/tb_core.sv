@@ -82,7 +82,7 @@ module tb;
 
   // Inicialização dos sinais e reset
   initial begin
-    $dumpfile("tb_core.vcd");
+    $dumpfile("dump.vcd");
     $dumpvars(0, tb);
 
     reset = 1;
@@ -108,7 +108,7 @@ module tb;
     #10;
 
     // Carregar pesos
-    $display("=== Carregando pesos ===");
+    $display("=== Loading weights ===");
     p_wh_we = 1;
     p_in_we = 0;
 
@@ -117,14 +117,14 @@ module tb;
       p_wh_we = 1;
       p_in_data = const_weight[0][i];
       @(posedge clk);
-      $display("Peso[%0d] enviado: %0d", i, p_in_data);
+      $display("Weight[%0d] = %0d", i, p_in_data);
     end
 
     p_wh_we = 0;
     p_wh_ce = 0;
 
     // Carregar dados de entrada
-    $display("=== Carregando dados de entrada ===");
+    $display("=== Loading data ===");
     p_in_we = 1;
 
     for (int i = 0; i < FIN2_SIZE; i++) begin
@@ -132,14 +132,14 @@ module tb;
       p_in_we = 1;
       p_in_data = const_feat_in[0][i];
       @(posedge clk);
-      $display("Dado de entrada[%0d] enviado: %0d", i, p_in_data);
+      $display("Input data[%0d] = %0d", i, p_in_data);
     end
 
     p_in_we = 0;
     p_in_ce = 0;
 
     // Start processamento
-    $display("=== Iniciando processamento ===");
+    $display("=== Start processing ===");
     @(posedge clk);
     p_start = 1;
     @(posedge clk);
@@ -149,11 +149,11 @@ module tb;
     repeat (20) begin
       @(posedge clk);
       if (p_out_valid) begin
-        $display("Tempo %0t: saída valida - p_out_data = %0d", $time, p_out_data);
+        $display("Time %0t: output - p_out_data = %0d", $time, p_out_data);
       end
     end
 
-    $display("Fim da simulação");
+    $display("End simulation");
     $finish;
   end
 
