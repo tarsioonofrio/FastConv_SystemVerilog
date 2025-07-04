@@ -34,12 +34,15 @@ module Core
     output logic p_out_we,
     input  logic p_out_valid,
 
-    input  logic_vector      p_in_data,
-    output logic_vector      p_out_data
+    input  logic_vector p_in_data,
+    output logic_vector p_out_data
   );
 
   timeunit 1ns;
   timeprecision 1ps;
+
+  typedef enum {IDLE, WEIGHT, DATA_IN, DATA_OUT} state_type;
+  state_type current_st, next_st;
 
   // Tipos usados
   type_input  input_map;    // do serial_parallel para convolucao (entrada paralela)
@@ -55,7 +58,8 @@ module Core
   logic out_we;
   logic out_valid;
 
-  logic serial_valid_in, parallel_valid_in, serial_valid_out, parallel_valid_out;
+  logic serial_enable_in, parallel_enable_in, serial_enable_out, parallel_enable_out;
+  logic end_serial_out;
 
   int count_to_serial, count_to_parallel;
 
@@ -70,17 +74,18 @@ module Core
 
     .feature_in(p_in_we),
     .weight_in(p_wh_we),
-    .serial_valid_in(serial_valid_in),
+    .serial_enable_in(serial_enable_in),
     .serial_in(p_in_data),
     .feature_out(feature_out),
     .weight_out(weight_out),
-    .parallel_valid_out(parallel_valid_out),
+    .parallel_enable_out(parallel_enable_out),
     .parallel_out(parallel_out),
 
-    .parallel_valid_in(output_valid),
+    .parallel_enable_in(output_valid),
     .parallel_in(output_map),
-    .serial_valid_out(p_out_valid),
-    .serial_out(p_out_data)
+    .serial_enable_out(p_out_valid),
+    .serial_out(p_out_data),
+    .end_serial_out(end_serial_out)
   );
 
   // Instanciação do módulo de convolução usando os sinais paralelos do serial_parallel
@@ -96,6 +101,26 @@ module Core
     .data_valid(output_valid)
   );
 
+
+  always_comb begin
+    unique case (current_st)
+      IDLE:
+        if (p_start && p_wh_ce)
+          next_st = WEIGHT;
+        else if (p_start && p_in_ce)
+          next_st = DATA_IN;
+      WEIGHT:
+        if (parallel_enable_out)
+          next_st = IDLE;
+      DATA_IN:
+        if (parallel_enable_out)
+            next_st = DATA_OUT;
+      DATA_OUT:
+        if (end_serial_out)
+          next_st = IDLE;
+    endcase
+  end
+
   always_ff @(posedge clk) begin
     if (reset) begin
       registers_in = '{default: '0};
@@ -105,7 +130,7 @@ module Core
     else
       if (output_valid == 1'b1)
         registers_out = output_map;
-      if (parallel_valid_out == 1'b1) begin
+      if (parallel_enable_out == 1'b1) begin
         if (weight_out == 1'b1)
           register_weight <= parallel_out;
         if (feature_out == 1'b1)
