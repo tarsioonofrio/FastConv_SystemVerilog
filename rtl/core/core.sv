@@ -22,13 +22,13 @@ module Core
     output logic p_debug,
 
     input  logic p_in_en,
-    output logic p_in_valid,
+    input logic p_in_valid,
 
     input  logic p_wh_en,
-    output logic p_wh_valid,
+    input logic p_wh_valid,
 
     output logic p_out_en,
-    input  logic p_out_valid,
+    output logic p_out_valid,
 
     input  logic_vector p_in_data,
     output logic_vector p_out_data
@@ -41,8 +41,8 @@ module Core
   state_type current_st, next_st;
 
   // Tipos usados
-  type_input  input_map;    
-  type_output output_map;   
+  type_input  input_map;
+  type_output output_map;
   type_weight parallel_out;
   logic       output_valid;
 
@@ -55,6 +55,8 @@ module Core
   logic out_valid;
 
   logic serial_valid_in, parallel_valid_in, serial_valid_out, parallel_valid_out;
+  logic start_conv;
+
   logic end_serial_out;
 
   int count_to_serial, count_to_parallel;
@@ -88,13 +90,24 @@ module Core
   ) convolucao (
     .clk(clk),
     .reset(reset),
-    .start(p_start),
+    .start(start_conv),
     .inputMAP(registers_in[24:0]),
     .weights(register_weight),
     .outputMAP(output_map),
     .data_valid(output_valid)
   );
 
+  //
+  // Control FSM
+  //
+
+  always_ff @(posedge clk or posedge reset) begin
+    if (reset) begin
+      current_st <= IDLE;
+    end else begin
+      current_st <= next_st;
+    end
+  end
 
   always_comb begin
     unique case (current_st)
@@ -115,9 +128,11 @@ module Core
     endcase
   end
 
-  always_comb begin
-    p_end = 1'b0 ? current_st ==  IDLE: 1'b0;
-  end
+  // always_comb begin
+  //   p_end = 1'b1 ? current_st ==  IDLE: 1'b0;
+    // serial_valid_in = 1'b1 ? p_in_en || p_wh_en: 1'b0;
+  //   start_conv = 1'b1 ? current_st == DATA_IN: 1'b0;
+  // end
 
 
   always_ff @(posedge clk) begin
@@ -125,16 +140,26 @@ module Core
       registers_in = '{default: '0};
       registers_out = '{default: '0};
       register_weight <= '{default: '0};
+      start_conv = 1'b0;
     end
-    else
-      if (output_valid == 1'b1)
-        registers_out = output_map;
-      if (parallel_valid_out == 1'b1) begin
-        if (weight_out == 1'b1)
+    unique case (current_st)
+      WEIGHT:
+        if (parallel_valid_out == 1'b1) begin
           register_weight <= parallel_out;
-        if (feature_out == 1'b1)
-          registers_in <= parallel_out;
-      end
+          serial_valid_in = 1'b1 ? p_wh_en: 1'b0;
+        end
+      DATA_IN:
+        if (parallel_valid_out == 1'b1) begin
+            registers_in <= parallel_out;
+            serial_valid_in = 1'b1 ? p_in_en: 1'b0;
+            start_conv = 1'b1;
+        end
+      DATA_OUT:
+        if (output_valid == 1'b1) begin
+          registers_out = output_map;
+        end
+    endcase
+
   end
 
 endmodule
