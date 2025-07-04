@@ -22,16 +22,13 @@ module Core
     output logic p_end,
     output logic p_debug,
 
-    input  logic p_in_ce,
-    input  logic p_in_we,
+    input  logic p_in_en,
     output logic p_in_valid,
 
-    input  logic p_wh_ce,
-    input  logic p_wh_we,
+    input  logic p_wh_en,
     output logic p_wh_valid,
 
-    output logic p_out_ce,
-    output logic p_out_we,
+    output logic p_out_en,
     input  logic p_out_valid,
 
     input  logic_vector p_in_data,
@@ -58,7 +55,7 @@ module Core
   logic out_we;
   logic out_valid;
 
-  logic serial_enable_in, parallel_enable_in, serial_enable_out, parallel_enable_out;
+  logic serial_valid_in, parallel_valid_in, serial_valid_out, parallel_valid_out;
   logic end_serial_out;
 
   int count_to_serial, count_to_parallel;
@@ -72,18 +69,18 @@ module Core
     .clk(clk),
     .reset(reset),
 
-    .feature_in(p_in_we),
-    .weight_in(p_wh_we),
-    .serial_enable_in(serial_enable_in),
+    .feature_in(p_in_en),
+    .weight_in(p_wh_en),
+    .serial_valid_in(serial_valid_in),
     .serial_in(p_in_data),
     .feature_out(feature_out),
     .weight_out(weight_out),
-    .parallel_enable_out(parallel_enable_out),
+    .parallel_valid_out(parallel_valid_out),
     .parallel_out(parallel_out),
 
-    .parallel_enable_in(output_valid),
+    .parallel_valid_in(output_valid),
     .parallel_in(output_map),
-    .serial_enable_out(p_out_valid),
+    .serial_valid_out(p_out_valid),
     .serial_out(p_out_data),
     .end_serial_out(end_serial_out)
   );
@@ -105,15 +102,15 @@ module Core
   always_comb begin
     unique case (current_st)
       IDLE:
-        if (p_start && p_wh_ce)
+        if (p_start && p_wh_en)
           next_st = WEIGHT;
-        else if (p_start && p_in_ce)
+        else if (p_start && p_in_en)
           next_st = DATA_IN;
       WEIGHT:
-        if (parallel_enable_out)
+        if (parallel_valid_out)
           next_st = IDLE;
       DATA_IN:
-        if (parallel_enable_out)
+        if (parallel_valid_out)
             next_st = DATA_OUT;
       DATA_OUT:
         if (end_serial_out)
@@ -130,7 +127,7 @@ module Core
     else
       if (output_valid == 1'b1)
         registers_out = output_map;
-      if (parallel_enable_out == 1'b1) begin
+      if (parallel_valid_out == 1'b1) begin
         if (weight_out == 1'b1)
           register_weight <= parallel_out;
         if (feature_out == 1'b1)

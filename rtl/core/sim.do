@@ -9,7 +9,7 @@ vlog -work work -svinputport=relaxed ../../src/ifn9-06m20b/rtl/mult_matrices.sv
 vlog -work work -svinputport=relaxed ../../src/ifn9-06m20b/rtl/fast_conv.sv
 vlog -work work -svinputport=relaxed ../core_control/core_control.sv
 vlog -work work -svinputport=relaxed ./core.sv
-vlog -work work -svinputport=relaxed ../../testbench/tb_core.sv
+vlog -work work -svinputport=relaxed ./tb_core.sv
 
 vsim -voptargs=+acc -t ns work.tb
 set StdArithNoWarnings 1
