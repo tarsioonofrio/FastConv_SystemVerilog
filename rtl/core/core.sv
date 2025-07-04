@@ -118,6 +118,11 @@ module Core
     endcase
   end
 
+  always_comb begin
+    p_end = 1'b0 ? current_st ==  IDLE: 1'b0;
+  end
+
+
   always_ff @(posedge clk) begin
     if (reset) begin
       registers_in = '{default: '0};
