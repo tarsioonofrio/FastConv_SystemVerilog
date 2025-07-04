@@ -5,19 +5,13 @@ add wave -noupdate /tb/dut/reset
 add wave -noupdate /tb/dut/p_start
 add wave -noupdate /tb/dut/p_end
 add wave -noupdate /tb/dut/p_debug
-add wave -noupdate /tb/dut/p_in_ce
-add wave -noupdate /tb/dut/p_in_we
 add wave -noupdate /tb/dut/p_in_valid
-add wave -noupdate /tb/dut/p_wh_ce
-add wave -noupdate /tb/dut/p_wh_we
 add wave -noupdate /tb/dut/p_wh_valid
-add wave -noupdate /tb/dut/p_out_ce
-add wave -noupdate /tb/dut/p_out_we
 add wave -noupdate /tb/dut/p_out_valid
 add wave -noupdate -radix decimal /tb/dut/p_in_data
 add wave -noupdate -radix decimal /tb/dut/p_out_data
-add wave -noupdate -radix decimal /tb/dut/input_map
-add wave -noupdate -radix decimal /tb/dut/output_map
+add wave -noupdate -radix decimal -childformat {{{/tb/dut/input_map[24]} -radix decimal} {{/tb/dut/input_map[23]} -radix decimal} {{/tb/dut/input_map[22]} -radix decimal} {{/tb/dut/input_map[21]} -radix decimal} {{/tb/dut/input_map[20]} -radix decimal} {{/tb/dut/input_map[19]} -radix decimal} {{/tb/dut/input_map[18]} -radix decimal} {{/tb/dut/input_map[17]} -radix decimal} {{/tb/dut/input_map[16]} -radix decimal} {{/tb/dut/input_map[15]} -radix decimal} {{/tb/dut/input_map[14]} -radix decimal} {{/tb/dut/input_map[13]} -radix decimal} {{/tb/dut/input_map[12]} -radix decimal} {{/tb/dut/input_map[11]} -radix decimal} {{/tb/dut/input_map[10]} -radix decimal} {{/tb/dut/input_map[9]} -radix decimal} {{/tb/dut/input_map[8]} -radix decimal} {{/tb/dut/input_map[7]} -radix decimal} {{/tb/dut/input_map[6]} -radix decimal} {{/tb/dut/input_map[5]} -radix decimal} {{/tb/dut/input_map[4]} -radix decimal} {{/tb/dut/input_map[3]} -radix decimal} {{/tb/dut/input_map[2]} -radix decimal} {{/tb/dut/input_map[1]} -radix decimal} {{/tb/dut/input_map[0]} -radix decimal}} -subitemconfig {{/tb/dut/input_map[24]} {-radix decimal} {/tb/dut/input_map[23]} {-radix decimal} {/tb/dut/input_map[22]} {-radix decimal} {/tb/dut/input_map[21]} {-radix decimal} {/tb/dut/input_map[20]} {-radix decimal} {/tb/dut/input_map[19]} {-radix decimal} {/tb/dut/input_map[18]} {-radix decimal} {/tb/dut/input_map[17]} {-radix decimal} {/tb/dut/input_map[16]} {-radix decimal} {/tb/dut/input_map[15]} {-radix decimal} {/tb/dut/input_map[14]} {-radix decimal} {/tb/dut/input_map[13]} {-radix decimal} {/tb/dut/input_map[12]} {-radix decimal} {/tb/dut/input_map[11]} {-radix decimal} {/tb/dut/input_map[10]} {-radix decimal} {/tb/dut/input_map[9]} {-radix decimal} {/tb/dut/input_map[8]} {-radix decimal} {/tb/dut/input_map[7]} {-radix decimal} {/tb/dut/input_map[6]} {-radix decimal} {/tb/dut/input_map[5]} {-radix decimal} {/tb/dut/input_map[4]} {-radix decimal} {/tb/dut/input_map[3]} {-radix decimal} {/tb/dut/input_map[2]} {-radix decimal} {/tb/dut/input_map[1]} {-radix decimal} {/tb/dut/input_map[0]} {-radix decimal}} /tb/dut/input_map
+add wave -noupdate -radix decimal -childformat {{{/tb/dut/output_map[8]} -radix decimal} {{/tb/dut/output_map[7]} -radix decimal} {{/tb/dut/output_map[6]} -radix decimal} {{/tb/dut/output_map[5]} -radix decimal} {{/tb/dut/output_map[4]} -radix decimal} {{/tb/dut/output_map[3]} -radix decimal} {{/tb/dut/output_map[2]} -radix decimal} {{/tb/dut/output_map[1]} -radix decimal} {{/tb/dut/output_map[0]} -radix decimal}} -subitemconfig {{/tb/dut/output_map[8]} {-radix decimal} {/tb/dut/output_map[7]} {-radix decimal} {/tb/dut/output_map[6]} {-radix decimal} {/tb/dut/output_map[5]} {-radix decimal} {/tb/dut/output_map[4]} {-radix decimal} {/tb/dut/output_map[3]} {-radix decimal} {/tb/dut/output_map[2]} {-radix decimal} {/tb/dut/output_map[1]} {-radix decimal} {/tb/dut/output_map[0]} {-radix decimal}} /tb/dut/output_map
 add wave -noupdate -radix decimal /tb/dut/parallel_out
 add wave -noupdate /tb/dut/output_valid
 add wave -noupdate -radix decimal /tb/dut/register_weight
@@ -39,14 +33,8 @@ add wave -noupdate /tb/dut/reset
 add wave -noupdate /tb/dut/p_start
 add wave -noupdate /tb/dut/p_end
 add wave -noupdate /tb/dut/p_debug
-add wave -noupdate /tb/dut/p_in_ce
-add wave -noupdate /tb/dut/p_in_we
 add wave -noupdate /tb/dut/p_in_valid
-add wave -noupdate /tb/dut/p_wh_ce
-add wave -noupdate /tb/dut/p_wh_we
 add wave -noupdate /tb/dut/p_wh_valid
-add wave -noupdate /tb/dut/p_out_ce
-add wave -noupdate /tb/dut/p_out_we
 add wave -noupdate /tb/dut/p_out_valid
 add wave -noupdate -radix decimal /tb/dut/p_in_data
 add wave -noupdate -radix decimal /tb/dut/p_out_data
@@ -73,7 +61,7 @@ add wave -noupdate /tb/dut/core_control/weight_out
 add wave -noupdate /tb/dut/core_control/parallel_valid_out
 add wave -noupdate /tb/dut/core_control/parallel_valid_in
 add wave -noupdate /tb/dut/core_control/serial_valid_out
-add wave -noupdate /tb/dut/core_control/serial_out
+add wave -noupdate -radix decimal /tb/dut/core_control/serial_out
 add wave -noupdate /tb/dut/core_control/current_st_to_serial
 add wave -noupdate /tb/dut/core_control/next_st_to_serial
 add wave -noupdate /tb/dut/core_control/current_st_to_parallel
@@ -85,13 +73,22 @@ add wave -noupdate /tb/dut/core_control/count_to_parallel
 add wave -noupdate /tb/dut/convolucao/clk
 add wave -noupdate /tb/dut/convolucao/reset
 add wave -noupdate /tb/dut/convolucao/start
+add wave -noupdate -radix decimal /tb/dut/convolucao/inputMAP
+add wave -noupdate -radix decimal /tb/dut/convolucao/weights
+add wave -noupdate -radix decimal /tb/dut/convolucao/outputMAP
 add wave -noupdate /tb/dut/convolucao/data_valid
 add wave -noupdate /tb/dut/convolucao/current_st
 add wave -noupdate /tb/dut/convolucao/next_st
+add wave -noupdate -radix decimal /tb/dut/convolucao/registers
+add wave -noupdate -radix decimal /tb/dut/convolucao/prod_c0
+add wave -noupdate -radix decimal /tb/dut/convolucao/prod_c
+add wave -noupdate -radix decimal /tb/dut/convolucao/prod_a
+add wave -noupdate /tb/dut/convolucao/product
+add wave -noupdate /tb/dut/convolucao/idx
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {52 ns} 0}
+WaveRestoreCursors {{Cursor 1} {319 ns} 0}
 quietly wave cursor active 1
-configure wave -namecolwidth 229
+configure wave -namecolwidth 300
 configure wave -valuecolwidth 100
 configure wave -justifyvalue left
 configure wave -signalnamewidth 0
@@ -105,4 +102,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {0 ns} {60 ns}
+WaveRestoreZoom {312 ns} {535 ns}
