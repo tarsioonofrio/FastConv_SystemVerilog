@@ -69,19 +69,16 @@ module Core
     .clk(clk),
     .reset(reset),
 
-    .feature_in(p_in_en),
-    .weight_in(p_wh_en),
     .serial_valid_in(serial_valid_in),
     .serial_in(p_in_data),
-    .feature_out(feature_out),
-    .weight_out(weight_out),
-    .parallel_valid_out(parallel_valid_out),
-    .parallel_out(parallel_out),
-
-    .parallel_valid_in(output_valid),
-    .parallel_in(output_map),
     .serial_valid_out(p_out_valid),
     .serial_out(p_out_data),
+
+    .parallel_valid_out(parallel_valid_out),
+    .parallel_out(parallel_out),
+    .parallel_valid_in(output_valid),
+    .parallel_in(output_map),
+
     .end_serial_out(end_serial_out)
   );
 
