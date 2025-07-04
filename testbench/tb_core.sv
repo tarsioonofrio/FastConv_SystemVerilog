@@ -149,7 +149,7 @@ module tb;
     repeat (20) begin
       @(posedge clk);
       if (p_out_valid) begin
-        $display("Time %0t: output - p_out_data = %0d", $time, p_out_data);
+        $display("Time %0t: Output = %0d", $time, p_out_data);
       end
     end
 
