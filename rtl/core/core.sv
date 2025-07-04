@@ -11,7 +11,6 @@ module Core
     parameter int WINDOW_IN_NUM    = 4,
     parameter int LATENCY          = 0,
     parameter int ROM              = 0,
-    // Parâmetros adicionais necessários para SerialParallel
     parameter int SERIAL_SIZE      = 36,
     parameter int PARALLEL_SIZE    = 9
   )
@@ -42,8 +41,8 @@ module Core
   state_type current_st, next_st;
 
   // Tipos usados
-  type_input  input_map;    // do serial_parallel para convolucao (entrada paralela)
-  type_output output_map;   // do convolucao para serial_parallel (saída paralela)
+  type_input  input_map;    
+  type_output output_map;   
   type_weight parallel_out;
   logic       output_valid;
 
@@ -60,7 +59,6 @@ module Core
 
   int count_to_serial, count_to_parallel;
 
-  // Sinais intermediários para conexão paralela
 
   CoreControl #(
     .SERIAL_SIZE(SERIAL_SIZE),
@@ -85,7 +83,6 @@ module Core
     .end_serial_out(end_serial_out)
   );
 
-  // Instanciação do módulo de convolução usando os sinais paralelos do serial_parallel
   conv #(
     .QUANT(QUANT)
   ) convolucao (
