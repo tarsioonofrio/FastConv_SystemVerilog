@@ -10,13 +10,8 @@ module CoreControl
   (
     input  logic clk, reset,
 
-    input  logic feature_in,
-    input  logic weight_in,
     input  logic serial_valid_in,
     input  logic_vector serial_in,
-
-    output logic feature_out,
-    output logic weight_out,
     output logic parallel_valid_out,
     output type_weight parallel_out,
 
@@ -24,6 +19,7 @@ module CoreControl
     input  type_output parallel_in,
     output logic serial_valid_out,
     output logic_vector serial_out,
+    
     output logic end_serial_out
   );
 
@@ -36,7 +32,6 @@ module CoreControl
 
   // type_output registers_in;
   type_weight registers_out;
-  logic reg_feature, reg_weight;
 
   int count_to_serial;
   int count_to_parallel;
@@ -46,8 +41,6 @@ module CoreControl
     // serial_out = registers_in[count_to_serial];
     serial_out = parallel_in[count_to_serial];
     // parallel_out[count_to_parallel] = serial_in;
-    feature_out = reg_feature;
-    weight_out = reg_weight;
     unique case (current_st_to_serial)
       IDLE:
         if (parallel_valid_in)
@@ -96,13 +89,9 @@ module CoreControl
         IDLE: begin
           count_to_parallel <= 0;
           parallel_valid_out <= 1'b0;
-          reg_weight = 1'b0;
-          reg_feature = 1'b0;
           end_serial_out <= 1'b0;
         end
         COUNT: begin
-          reg_weight = weight_in;
-          reg_feature = feature_in;
           if (serial_valid_in && count_to_parallel < SERIAL_SIZE) begin
             count_to_parallel <= count_to_parallel + 1;
             end_serial_out <= 1'b0;
