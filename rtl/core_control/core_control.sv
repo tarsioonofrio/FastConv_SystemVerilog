@@ -12,17 +12,17 @@ module CoreControl
 
     input  logic feature_in,
     input  logic weight_in,
-    input  logic serial_enable_in,
+    input  logic serial_valid_in,
     input  logic_vector serial_in,
 
     output logic feature_out,
     output logic weight_out,
-    output logic parallel_enable_out,
+    output logic parallel_valid_out,
     output type_weight parallel_out,
 
-    input  logic parallel_enable_in,
+    input  logic parallel_valid_in,
     input  type_output parallel_in,
-    output logic serial_enable_out,
+    output logic serial_valid_out,
     output logic_vector serial_out,
     output logic end_serial_out
   );
@@ -50,7 +50,7 @@ module CoreControl
     weight_out = reg_weight;
     unique case (current_st_to_serial)
       IDLE:
-        if (parallel_enable_in)
+        if (parallel_valid_in)
           next_st_to_serial = COUNT;
       COUNT:
         if (count_to_serial >= PARALLEL_SIZE)
@@ -58,7 +58,7 @@ module CoreControl
     endcase
     unique case (current_st_to_parallel)
       IDLE:
-        if (serial_enable_in)
+        if (serial_valid_in)
           next_st_to_parallel = COUNT;
       COUNT:
         if (count_to_parallel >= SERIAL_SIZE)
@@ -84,18 +84,18 @@ module CoreControl
       unique case (current_st_to_serial)
         IDLE: begin
           count_to_serial <= 0;
-          serial_enable_out <= 1'b0;
+          serial_valid_out <= 1'b0;
         end
         COUNT:
           if (count_to_serial < PARALLEL_SIZE) begin
             count_to_serial <= count_to_serial + 1;
-            serial_enable_out <= 1'b1;
+            serial_valid_out <= 1'b1;
           end
       endcase
       unique case (current_st_to_parallel)
         IDLE: begin
           count_to_parallel <= 0;
-          parallel_enable_out <= 1'b0;
+          parallel_valid_out <= 1'b0;
           reg_weight = 1'b0;
           reg_feature = 1'b0;
           end_serial_out <= 1'b0;
@@ -103,12 +103,12 @@ module CoreControl
         COUNT: begin
           reg_weight = weight_in;
           reg_feature = feature_in;
-          if (serial_enable_in && count_to_parallel < SERIAL_SIZE) begin
+          if (serial_valid_in && count_to_parallel < SERIAL_SIZE) begin
             count_to_parallel <= count_to_parallel + 1;
             end_serial_out <= 1'b0;
           end
           else if (count_to_parallel == SERIAL_SIZE) begin
-            parallel_enable_out <= 1'b1;
+            parallel_valid_out <= 1'b1;
             end_serial_out <= 1'b1;
           end
         end
