@@ -22,7 +22,7 @@ for dir in "$1"/*; do
   module purge  > /dev/null 2>&1
   module load ddi
   genus -f run_power.tcl
-
+  cd "$SCRIPT"
   # Voltar para o diretório original (opcional)
   # cd "$SCRIPT"
 done
