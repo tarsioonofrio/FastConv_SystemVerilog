@@ -15,7 +15,7 @@ for dir in "$1"/*; do
 
   module purge
   module load xcelium > /dev/null 2>&1
-  xrun -f file_list.f -input run.tcl
+  xrun -f file_list.f -run -exit
 
   module purge  > /dev/null 2>&1
   module load ddi
