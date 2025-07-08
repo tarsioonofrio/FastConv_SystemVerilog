@@ -1,7 +1,9 @@
 SCRIPT=$(pwd)
 
 for dir in "$1"/*; do
+  echo "****************************************************************************"
   echo "Processando o diretório: $dir/sintese"
+  echo "****************************************************************************"
   cd "$dir/sintese" || { echo "Não foi possível entrar em $dir/sintese"; continue; }
 
   if [ ! -f run_logical_synthesis.tcl ]; then
