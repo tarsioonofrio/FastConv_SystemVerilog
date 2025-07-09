@@ -33,8 +33,8 @@ package packConv;
   typedef logic_vector type_weight   [35:0];
   typedef logic_vector type_input    [24:0];
   typedef logic_vector type_output   [8:0];
-  typedef logic_vector type_matrix_c [0:C1_SIZE*M1_SIZE];
-  typedef logic_vector type_matrix_a [0:A1_SIZE*M1_SIZE];
+  typedef logic_vector type_matrix_c [C1_SIZE*M1_SIZE-1:0];
+  typedef logic_vector type_matrix_a [A1_SIZE*M1_SIZE-1:0];
 
 
   // definitions for the CSA adders
