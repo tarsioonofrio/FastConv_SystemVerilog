@@ -108,16 +108,17 @@ module conv
         IDLE:     registers <= registers;
         WR_IFMAP: registers <= inputMAP;
         WR_MC:    registers <= prod_c;
+        WR_OUT: begin
+          data_valid <= 1;
+          registers[3:0] <= prod_a;
+        end
         default:  registers[idx] <= product;
-        WR_OUT: data_valid <= 1;
       endcase
     end
   end
 
-  always_latch begin
-    if (current_st==WR_OUT) begin
-        outputMAP = prod_a;   /// saída em latch
-      end
+  always_comb begin
+    outputMAP = registers[3:0];
   end
 
 endmodule
