@@ -97,7 +97,10 @@ module conv
         IDLE:     registers <= registers;
         WR_IFMAP: registers <= inputMAP;
         WR_MC:    registers <= prod_c;
-        WR_OUT:   data_valid <= 1;
+        WR_OUT: begin
+          data_valid <= 1;
+          registers[8:0] <= prod_a;
+        end
         default:  begin
           for (int i = 0; i < NMULT; i++) begin
             registers[i] <= product[i];
@@ -107,9 +110,7 @@ module conv
     end
   end
 
-  always_latch begin
-    if (current_st==WR_OUT) begin
-      outputMAP = prod_a;   /// saída em latch
-    end
+  always_comb begin
+    outputMAP = registers[8:0];
   end
 endmodule
