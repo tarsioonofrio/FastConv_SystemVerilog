@@ -11,7 +11,7 @@ vlog -work work  $DATA_SV
 vlog -work work  rtl/pack_conv.sv
 vlog -work work  -svinputport=relaxed rtl/mac_op.sv
 vlog -work work  -svinputport=relaxed rtl/naive_conv.sv
-vlog -work work  -svinputport=relaxed ../../testbench/tb_conv.sv
+vlog -work work  -svinputport=relaxed ../../../testbench/tb_conv.sv
 
 vsim -voptargs=+acc -t ns work.tb
 
