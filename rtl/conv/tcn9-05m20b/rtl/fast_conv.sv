@@ -99,10 +99,13 @@ module conv
       data_valid <= 0;  // default
       unique case (current_st)
         IDLE:     registers <= registers;
-        WR_OUT: begin
+        WR_IFMAP: registers <= inputMAP;
+        WR_MC:    registers <= prod_c;        WR_OUT: begin
           data_valid <= 1;
           registers[8:0] <= prod_a;
         end
+        default:  begin
+          for (int i = 0; i < NMULT; i++) begin
             registers[idx[i]] <= product[i];
           end
         end
