@@ -4,8 +4,8 @@ vmap work work
 
 vlog -work work -svinputport=relaxed ../conv/ifn9-06m20b/data.sv
 vlog -work work -svinputport=relaxed ../conv/ifn9-06m20b/rtl/pack_conv.sv
-vlog -work work -svinputport=relaxed ./core_control.sv
-vlog -work work -svinputport=relaxed ./tb_core_control.sv
+vlog -work work -svinputport=relaxed ./core.sv
+vlog -work work -svinputport=relaxed ./tb_core.sv
 
 vsim -voptargs=+acc -t ns work.tb
 

@@ -5,85 +5,139 @@ module tb;
   import data::*;
   import packConv::*;
 
+  // Parâmetros conforme Core
+  localparam int QUANT            = 8;
+  localparam int NBITS            = 20;
+  localparam int NADDR            = 12;
+  localparam int WEIGHT_SIZE      = 1;
+  localparam int BUFFER_IN_SIZE   = 512;
+  localparam int WINDOW_IN_SIZE   = 64;
+  localparam int WINDOW_IN_NUM    = 4;
+  localparam int LATENCY          = 0;
+  localparam int ROM              = 0;
+  localparam int SERIAL_SIZE      = 36;
+  localparam int PARALLEL_SIZE    = 9;
+
   logic clk, reset;
-  logic serial_valid_in, parallel_valid_in, serial_valid_out, parallel_valid_out, feature_in, weight_in, feature_out, weight_out, end_serial_out;
 
-  logic_vector serial_data_in;
-  type_output parallel_data_in;
-  type_weight parallel_data_out;
-  logic_vector serial_data_out;
+  logic p_end;
+  logic p_debug;
 
-  // Clock generation (10 ns period)
+  logic p_in_start;
+  logic p_in_valid;
+
+  logic p_wh_start;
+  logic p_wh_valid;
+
+  logic p_out_en;
+  logic p_out_valid;
+
+  logic_vector p_in_data;
+  logic_vector p_out_data;
+
+  // Clock generation (10ns period)
   initial clk = 0;
   always #5 clk = ~clk;
 
-  // DUT instance
-  CoreControl #(
-    // .NBITS(NBITS),
-    // .W2_SIZE(W2_SIZE)
+  // DUT instantiation
+  Core #(
+    .QUANT(QUANT),
+    .NBITS(NBITS),
+    .NADDR(NADDR),
+    .WEIGHT_SIZE(WEIGHT_SIZE),
+    .BUFFER_IN_SIZE(BUFFER_IN_SIZE),
+    .WINDOW_IN_SIZE(WINDOW_IN_SIZE),
+    .WINDOW_IN_NUM(WINDOW_IN_NUM),
+    .LATENCY(LATENCY),
+    .ROM(ROM),
+    .SERIAL_SIZE(SERIAL_SIZE),
+    .PARALLEL_SIZE(PARALLEL_SIZE)
   ) dut (
     .clk(clk),
     .reset(reset),
 
-    .serial_valid_in(serial_valid_in),
-    .serial_data_in(serial_data_in),
-    .serial_valid_out(serial_valid_out),
-    .parallel_valid_out(parallel_valid_out),
+    .p_end(p_end),
+    .p_debug(p_debug),
 
-    .parallel_valid_in(parallel_valid_in),
-    .parallel_data_in(parallel_data_in),
-    .parallel_data_out(parallel_data_out),
-    .serial_data_out(serial_data_out),
+    .p_in_start(p_in_start),
+    .p_in_valid(p_in_valid),
 
-    .end_serial_out(end_serial_out)
+    .p_wh_start(p_wh_start),
+    .p_wh_valid(p_wh_valid),
+
+    .p_out_en(p_out_en),
+    .p_out_valid(p_out_valid),
+
+    .p_in_data(p_in_data),
+    .p_out_data(p_out_data)
   );
 
+  // Inicialização dos sinais e reset
   initial begin
     $dumpfile("dump.vcd");
     $dumpvars(0, tb);
 
-    // Reset
     reset = 1;
-    serial_valid_in = 0;
-    parallel_valid_in = 0;
-    serial_data_in = '0;
-    #20;
+
+    // Inicializa sinais de controle e dados
+    p_in_start = 0;
+    p_in_valid = 0;
+    p_wh_start = 0;
+    p_wh_valid = 0;
+
+    p_in_data = '0;
+
+    // Aguarda 2 ciclos de clock
+    repeat (2) @(posedge clk);
     reset = 0;
-    parallel_valid_in = 1;
 
-    for (int i = 0; i < FOUT2_SIZE; i++)
-      parallel_data_in[i] = const_feat_out[0][i];
+    // Aplica estímulos básicos:
 
-    @(posedge clk);
+    // INÍCIO do processamento
+    #10;
 
-    // TEST 1 - paralelismo para serial_data_out
-    // $display("== TEST 1: parallel_enable = 1");
-    // parallel_valid_out = 1;
-    // @(posedge clk);
-    // parallel_valid_out = 0;
+    // Carregar pesos
+    $display("=== Loading weights ===");
+    p_wh_start = 1;
+    p_wh_valid = 1;
 
-    // Esperar o módulo serializar todos os dados
-    for (int i = 0; i < FOUT2_SIZE; i++) begin
-      @(posedge clk);
-      $display("Time %0d: | parallel_data_in = %0d | serial_data_out = %0d", $time, parallel_data_in[i], serial_data_out);
-    end
-
-    // TEST 2 - serial_data_in para paralelização
-    $display("== TEST 2: serial_enable = 1 const_feat_in");
-    serial_valid_in = 1;
-    weight_in = 1;
-    @(posedge clk);
     for (int i = 0; i < W2_SIZE; i++) begin
-      serial_data_in = const_weight[0][i];
+      p_in_data = const_weight[0][i];
       @(posedge clk);
-      #1;
-      $display("Time %0d | serial_data_in = %0d | parallel_data_out[%0d] = %0d", $time, const_weight[0][i], i, parallel_data_out[i]);
+      $display("Weight[%0d] = %0d", i, p_in_data);
     end
-    serial_valid_in = 0;
-    weight_in = 0;
 
-    // Espera alguns ciclos para estabilizar
-    repeat (5) @(posedge clk);
+    p_wh_start = 0;
+    p_wh_valid = 0;
+
+    @(posedge clk);
+    wait(p_end);
+
+    // // Carregar dados de entrada
+    // $display("=== Loading data ===");
+    // p_in_start = 1;
+    // p_in_valid = 1;
+
+    // for (int i = 0; i < FIN2_SIZE; i++) begin
+    //   p_in_data = const_feat_in[0][i];
+    //   @(posedge clk);
+    //   $display("Input data[%0d] = %0d", i, p_in_data);
+    // end
+
+    // p_in_start = 0;
+    // p_in_valid = 0;
+
+    // // Start processamento
+    // $display("=== Start processing ===");
+    // wait(p_end);
+
+    // // Monitorar saída (p_out_valid = 1) e ler dados de saída
+    // repeat (20) begin
+    //   @(posedge clk);
+    //   if (p_out_valid) begin
+    //     $display("Time %0t: Output = %0d", $time, p_out_data);
+    //   end
+    // end
 
     $display("End simulation");
     $finish;
