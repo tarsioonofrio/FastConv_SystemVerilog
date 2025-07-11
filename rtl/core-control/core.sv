@@ -1,4 +1,4 @@
-module SerialParallel
+module CoreControl
   import packConv::*;
   import data::*;
   #(
@@ -11,13 +11,14 @@ module SerialParallel
     input  logic clk, reset,
 
     input  logic serial_valid_in,
-    input  logic parallel_valid_in,
-    input  logic_vector serial_in,
-    input  type_output parallel_in,
-    output logic serial_valid_out,
+    input  logic_vector serial_data_in,
     output logic parallel_valid_out,
-    output type_weight parallel_out,
-    output logic_vector serial_out
+    output type_weight parallel_data_out,
+
+    input  logic parallel_valid_in,
+    input  type_output parallel_data_in,
+    output logic serial_valid_out,
+    output logic_vector serial_data_out
   );
 
   timeunit 1ns;
@@ -27,15 +28,17 @@ module SerialParallel
   state_type current_st_to_serial, next_st_to_serial;
   state_type current_st_to_parallel, next_st_to_parallel;
 
-  type_output registers_in;
+  // type_output registers_in;
   type_weight registers_out;
 
   int count_to_serial;
   int count_to_parallel;
 
   always_comb begin
-    parallel_out = registers_out;
-    serial_out = registers_in[count_to_serial];
+    // serial_data_out = registers_in[count_to_serial];
+    serial_data_out = parallel_data_in[count_to_serial];
+    // parallel_data_out = registers_out;
+    parallel_data_out[count_to_parallel] = serial_data_in;
     unique case (current_st_to_serial)
       IDLE:
         if (parallel_valid_in)
@@ -60,20 +63,19 @@ module SerialParallel
       count_to_parallel <= 0;
       current_st_to_serial <= IDLE;
       current_st_to_parallel <= IDLE;
-      registers_in = '{default: '0};
-      registers_out = '{default: '0};
+      // registers_in = '{default: '0};
+      // registers_out = '{default: '0};
     end
     else begin
-      registers_in = parallel_in;
-      registers_out[count_to_parallel] = serial_in;
-
+      // registers_in = parallel_data_in;
+      // registers_out[count_to_parallel] = serial_data_in;
       current_st_to_serial <= next_st_to_serial;
       current_st_to_parallel <= next_st_to_parallel;
       unique case (current_st_to_serial)
         IDLE: begin
           count_to_serial <= 0;
           serial_valid_out <= 1'b0;
-        end;
+        end
         COUNT:
           if (count_to_serial < PARALLEL_SIZE) begin
             count_to_serial <= count_to_serial + 1;
@@ -84,14 +86,16 @@ module SerialParallel
         IDLE: begin
           count_to_parallel <= 0;
           parallel_valid_out <= 1'b0;
-        end;
+        end
         COUNT: begin
-          if (serial_valid_in && count_to_parallel < SERIAL_SIZE)
+          if (count_to_parallel < SERIAL_SIZE) begin
             count_to_parallel <= count_to_parallel + 1;
-          else if (count_to_parallel >= SERIAL_SIZE)
+          end
+          else begin
             parallel_valid_out <= 1'b1;
-        end;
+            '          end
+        end
       endcase
     end
-  end;
+  end
 endmodule
