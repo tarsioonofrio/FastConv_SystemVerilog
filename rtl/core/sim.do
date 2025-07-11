@@ -7,7 +7,6 @@ vlog -work work -svinputport=relaxed ../conv/ifn9-06m20b/rtl/pack_conv.sv
 vlog -work work -svinputport=relaxed ../conv/ifn9-06m20b/rtl/csa_lib.sv
 vlog -work work -svinputport=relaxed ../conv/ifn9-06m20b/rtl/mult_matrices.sv
 vlog -work work -svinputport=relaxed ../conv/ifn9-06m20b/rtl/fast_conv.sv
-vlog -work work -svinputport=relaxed ../core_control/core_control.sv
 vlog -work work -svinputport=relaxed ./core.sv
 vlog -work work -svinputport=relaxed ./tb_core.sv
 
