@@ -1,0 +1,42 @@
+onerror {resume}
+quietly WaveActivateNextPane {} 0
+add wave -noupdate /tb/dut/clk
+add wave -noupdate /tb/dut/reset
+add wave -noupdate /tb/dut/serial_valid_in
+add wave -noupdate /tb/dut/parallel_valid_in
+add wave -noupdate /tb/dut/feature_in
+add wave -noupdate /tb/dut/weight_in
+add wave -noupdate -radix decimal /tb/dut/serial_in
+add wave -noupdate -radix decimal /tb/dut/parallel_in
+add wave -noupdate /tb/dut/serial_valid_out
+add wave -noupdate /tb/dut/parallel_valid_out
+add wave -noupdate /tb/dut/feature_out
+add wave -noupdate /tb/dut/weight_out
+add wave -noupdate -radix decimal -childformat {{{/tb/dut/parallel_out[35]} -radix decimal} {{/tb/dut/parallel_out[34]} -radix decimal} {{/tb/dut/parallel_out[33]} -radix decimal} {{/tb/dut/parallel_out[32]} -radix decimal} {{/tb/dut/parallel_out[31]} -radix decimal} {{/tb/dut/parallel_out[30]} -radix decimal} {{/tb/dut/parallel_out[29]} -radix decimal} {{/tb/dut/parallel_out[28]} -radix decimal} {{/tb/dut/parallel_out[27]} -radix decimal} {{/tb/dut/parallel_out[26]} -radix decimal} {{/tb/dut/parallel_out[25]} -radix decimal} {{/tb/dut/parallel_out[24]} -radix decimal} {{/tb/dut/parallel_out[23]} -radix decimal} {{/tb/dut/parallel_out[22]} -radix decimal} {{/tb/dut/parallel_out[21]} -radix decimal} {{/tb/dut/parallel_out[20]} -radix decimal} {{/tb/dut/parallel_out[19]} -radix decimal} {{/tb/dut/parallel_out[18]} -radix decimal} {{/tb/dut/parallel_out[17]} -radix decimal} {{/tb/dut/parallel_out[16]} -radix decimal} {{/tb/dut/parallel_out[15]} -radix decimal} {{/tb/dut/parallel_out[14]} -radix decimal} {{/tb/dut/parallel_out[13]} -radix decimal} {{/tb/dut/parallel_out[12]} -radix decimal} {{/tb/dut/parallel_out[11]} -radix decimal} {{/tb/dut/parallel_out[10]} -radix decimal} {{/tb/dut/parallel_out[9]} -radix decimal} {{/tb/dut/parallel_out[8]} -radix decimal} {{/tb/dut/parallel_out[7]} -radix decimal} {{/tb/dut/parallel_out[6]} -radix decimal} {{/tb/dut/parallel_out[5]} -radix decimal} {{/tb/dut/parallel_out[4]} -radix decimal} {{/tb/dut/parallel_out[3]} -radix decimal} {{/tb/dut/parallel_out[2]} -radix decimal} {{/tb/dut/parallel_out[1]} -radix decimal} {{/tb/dut/parallel_out[0]} -radix decimal}} -expand -subitemconfig {{/tb/dut/parallel_out[35]} {-radix decimal} {/tb/dut/parallel_out[34]} {-radix decimal} {/tb/dut/parallel_out[33]} {-radix decimal} {/tb/dut/parallel_out[32]} {-radix decimal} {/tb/dut/parallel_out[31]} {-radix decimal} {/tb/dut/parallel_out[30]} {-radix decimal} {/tb/dut/parallel_out[29]} {-radix decimal} {/tb/dut/parallel_out[28]} {-radix decimal} {/tb/dut/parallel_out[27]} {-radix decimal} {/tb/dut/parallel_out[26]} {-radix decimal} {/tb/dut/parallel_out[25]} {-radix decimal} {/tb/dut/parallel_out[24]} {-radix decimal} {/tb/dut/parallel_out[23]} {-radix decimal} {/tb/dut/parallel_out[22]} {-radix decimal} {/tb/dut/parallel_out[21]} {-radix decimal} {/tb/dut/parallel_out[20]} {-radix decimal} {/tb/dut/parallel_out[19]} {-radix decimal} {/tb/dut/parallel_out[18]} {-radix decimal} {/tb/dut/parallel_out[17]} {-radix decimal} {/tb/dut/parallel_out[16]} {-radix decimal} {/tb/dut/parallel_out[15]} {-radix decimal} {/tb/dut/parallel_out[14]} {-radix decimal} {/tb/dut/parallel_out[13]} {-radix decimal} {/tb/dut/parallel_out[12]} {-radix decimal} {/tb/dut/parallel_out[11]} {-radix decimal} {/tb/dut/parallel_out[10]} {-radix decimal} {/tb/dut/parallel_out[9]} {-radix decimal} {/tb/dut/parallel_out[8]} {-radix decimal} {/tb/dut/parallel_out[7]} {-radix decimal} {/tb/dut/parallel_out[6]} {-radix decimal} {/tb/dut/parallel_out[5]} {-radix decimal} {/tb/dut/parallel_out[4]} {-radix decimal} {/tb/dut/parallel_out[3]} {-radix decimal} {/tb/dut/parallel_out[2]} {-radix decimal} {/tb/dut/parallel_out[1]} {-radix decimal} {/tb/dut/parallel_out[0]} {-radix decimal}} /tb/dut/parallel_out
+add wave -noupdate -radix decimal /tb/dut/serial_out
+add wave -noupdate /tb/dut/current_st_to_serial
+add wave -noupdate /tb/dut/next_st_to_serial
+add wave -noupdate /tb/dut/current_st_to_parallel
+add wave -noupdate /tb/dut/next_st_to_parallel
+add wave -noupdate /tb/dut/reg_feature
+add wave -noupdate /tb/dut/reg_weight
+add wave -noupdate /tb/dut/count_to_serial
+add wave -noupdate /tb/dut/count_to_parallel
+TreeUpdate [SetDefaultTree]
+WaveRestoreCursors {{Cursor 1} {135 ns} 0}
+quietly wave cursor active 1
+configure wave -namecolwidth 229
+configure wave -valuecolwidth 100
+configure wave -justifyvalue left
+configure wave -signalnamewidth 0
+configure wave -snapdistance 10
+configure wave -datasetprefix 0
+configure wave -rowmargin 4
+configure wave -childrowmargin 2
+configure wave -gridoffset 0
+configure wave -gridperiod 1
+configure wave -griddelta 40
+configure wave -timeline 0
+configure wave -timelineunits ns
+update
+WaveRestoreZoom {0 ns} {60 ns}
