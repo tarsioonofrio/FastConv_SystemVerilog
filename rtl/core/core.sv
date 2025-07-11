@@ -10,9 +10,6 @@ module CoreControl
   (
     input  logic clk, reset,
 
-    input  logic weight_in,
-    input  logic feature_in,
-
     input  logic serial_valid_in,
     input  logic_vector serial_data_in,
     output logic parallel_valid_out,
@@ -21,9 +18,7 @@ module CoreControl
     input  logic parallel_valid_in,
     input  type_output parallel_data_in,
     output logic serial_valid_out,
-    output logic_vector serial_data_out,
-
-    output logic end_serial_out
+    output logic_vector serial_data_out
   );
 
   timeunit 1ns;
@@ -91,17 +86,14 @@ module CoreControl
         IDLE: begin
           count_to_parallel <= 0;
           parallel_valid_out <= 1'b0;
-          end_serial_out <= 1'b0;
         end
         COUNT: begin
-          if (serial_valid_in && count_to_parallel < SERIAL_SIZE) begin
+          if (count_to_parallel < SERIAL_SIZE) begin
             count_to_parallel <= count_to_parallel + 1;
-            end_serial_out <= 1'b0;
           end
-          else if (count_to_parallel == SERIAL_SIZE) begin
+          else begin
             parallel_valid_out <= 1'b1;
-            end_serial_out <= 1'b1;
-          end
+            '          end
         end
       endcase
     end
