@@ -28,8 +28,7 @@ module CoreControl
   state_type current_st_to_serial, next_st_to_serial;
   state_type current_st_to_parallel, next_st_to_parallel;
 
-  // type_output registers_in;
-  type_weight registers_out;
+  // type_weight registers_out;
 
   int count_to_serial;
   int count_to_parallel;
@@ -91,9 +90,8 @@ module CoreControl
           if (count_to_parallel < SERIAL_SIZE) begin
             count_to_parallel <= count_to_parallel + 1;
           end
-          else begin
+          else
             parallel_valid_out <= 1'b1;
-            '          end
         end
       endcase
     end
