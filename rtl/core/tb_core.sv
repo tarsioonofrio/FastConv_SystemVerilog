@@ -20,14 +20,13 @@ module tb;
 
   logic clk, reset;
 
-  logic p_start;
   logic p_end;
   logic p_debug;
 
-  logic p_in_en;
+  logic p_in_start;
   logic p_in_valid;
 
-  logic p_wh_en;
+  logic p_wh_start;
   logic p_wh_valid;
 
   logic p_out_en;
@@ -57,14 +56,13 @@ module tb;
     .clk(clk),
     .reset(reset),
 
-    .p_start(p_start),
     .p_end(p_end),
     .p_debug(p_debug),
 
-    .p_in_en(p_in_en),
+    .p_in_start(p_in_start),
     .p_in_valid(p_in_valid),
 
-    .p_wh_en(p_wh_en),
+    .p_wh_start(p_wh_start),
     .p_wh_valid(p_wh_valid),
 
     .p_out_en(p_out_en),
@@ -80,12 +78,11 @@ module tb;
     $dumpvars(0, tb);
 
     reset = 1;
-    p_start = 0;
 
     // Inicializa sinais de controle e dados
-    p_in_en = 0;
+    p_in_start = 0;
     p_in_valid = 0;
-    p_wh_en = 0;
+    p_wh_start = 0;
     p_wh_valid = 0;
 
     p_in_data = '0;
@@ -101,8 +98,7 @@ module tb;
 
     // Carregar pesos
     $display("=== Loading weights ===");
-    p_start = 1;
-    p_wh_en = 1;
+    p_wh_start = 1;
     p_wh_valid = 1;
 
     for (int i = 0; i < W2_SIZE; i++) begin
@@ -111,42 +107,39 @@ module tb;
       $display("Weight[%0d] = %0d", i, p_in_data);
     end
 
-    p_start = 0;
-    p_wh_en = 0;
+    p_wh_start = 0;
     p_wh_valid = 0;
 
     @(posedge clk);
-
-    // Carregar dados de entrada
-    $display("=== Loading data ===");
-    p_start = 1;
-    p_in_en = 1;
-    p_in_valid = 1;
-
-    for (int i = 0; i < FIN2_SIZE; i++) begin
-      p_in_data = const_feat_in[0][i];
-      @(posedge clk);
-      $display("Input data[%0d] = %0d", i, p_in_data);
-    end
-
-    p_start = 0;
-    p_in_en = 0;
-    p_in_valid = 0;
-
-    // Start processamento
-    $display("=== Start processing ===");
     wait(p_end);
 
-    // Monitorar saída (p_out_valid = 1) e ler dados de saída
-    repeat (20) begin
-      @(posedge clk);
-      if (p_out_valid) begin
-        $display("Time %0t: Output = %0d", $time, p_out_data);
-      end
-    end
+    // // Carregar dados de entrada
+    // $display("=== Loading data ===");
+    // p_in_start = 1;
+    // p_in_valid = 1;
+
+    // for (int i = 0; i < FIN2_SIZE; i++) begin
+    //   p_in_data = const_feat_in[0][i];
+    //   @(posedge clk);
+    //   $display("Input data[%0d] = %0d", i, p_in_data);
+    // end
+
+    // p_in_start = 0;
+    // p_in_valid = 0;
+
+    // // Start processamento
+    // $display("=== Start processing ===");
+    // wait(p_end);
+
+    // // Monitorar saída (p_out_valid = 1) e ler dados de saída
+    // repeat (20) begin
+    //   @(posedge clk);
+    //   if (p_out_valid) begin
+    //     $display("Time %0t: Output = %0d", $time, p_out_data);
+    //   end
+    // end
 
     $display("End simulation");
     $finish;
   end
-
 endmodule
