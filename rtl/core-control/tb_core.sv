@@ -6,7 +6,7 @@ module tb;
   import packConv::*;
 
   logic clk, reset;
-  logic serial_valid_in, parallel_valid_in, serial_valid_out, parallel_valid_out, feature_in, weight_in, feature_out, weight_out, end_serial_out;
+  logic serial_valid_in, parallel_valid_in, serial_valid_out, parallel_valid_out, feature_in, weight_in, feature_out, weight_out;
 
   logic_vector serial_data_in;
   type_output parallel_data_in;
@@ -33,9 +33,7 @@ module tb;
     .parallel_valid_in(parallel_valid_in),
     .parallel_data_in(parallel_data_in),
     .parallel_data_out(parallel_data_out),
-    .serial_data_out(serial_data_out),
-
-    .end_serial_out(end_serial_out)
+    .serial_data_out(serial_data_out)
   );
 
   initial begin
