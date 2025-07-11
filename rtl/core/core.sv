@@ -10,16 +10,19 @@ module CoreControl
   (
     input  logic clk, reset,
 
+    input  logic weight_in,
+    input  logic feature_in,
+
     input  logic serial_valid_in,
-    input  logic_vector serial_in,
+    input  logic_vector serial_data_in,
     output logic parallel_valid_out,
-    output type_weight parallel_out,
+    output type_weight parallel_data_out,
 
     input  logic parallel_valid_in,
-    input  type_output parallel_in,
+    input  type_output parallel_data_in,
     output logic serial_valid_out,
-    output logic_vector serial_out,
-    
+    output logic_vector serial_data_out,
+
     output logic end_serial_out
   );
 
@@ -37,10 +40,10 @@ module CoreControl
   int count_to_parallel;
 
   always_comb begin
-    parallel_out = registers_out;
-    // serial_out = registers_in[count_to_serial];
-    serial_out = parallel_in[count_to_serial];
-    // parallel_out[count_to_parallel] = serial_in;
+    // serial_data_out = registers_in[count_to_serial];
+    serial_data_out = parallel_data_in[count_to_serial];
+    // parallel_data_out = registers_out;
+    parallel_data_out[count_to_parallel] = serial_data_in;
     unique case (current_st_to_serial)
       IDLE:
         if (parallel_valid_in)
@@ -66,12 +69,11 @@ module CoreControl
       current_st_to_serial <= IDLE;
       current_st_to_parallel <= IDLE;
       // registers_in = '{default: '0};
-      registers_out = '{default: '0};
+      // registers_out = '{default: '0};
     end
     else begin
-      // registers_in = parallel_in;
-      registers_out[count_to_parallel] = serial_in;
-
+      // registers_in = parallel_data_in;
+      // registers_out[count_to_parallel] = serial_data_in;
       current_st_to_serial <= next_st_to_serial;
       current_st_to_parallel <= next_st_to_parallel;
       unique case (current_st_to_serial)
