@@ -136,7 +136,6 @@ module Core
         register_weight <= '{default: '0};
         start_conv = 1'b0;
         s_end <= 1'b0;
-        s_end <= 1'b0;
       end
       WEIGHT:
         if (parallel_valid_out == 1'b1) begin
