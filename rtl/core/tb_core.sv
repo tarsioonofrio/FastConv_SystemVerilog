@@ -101,6 +101,7 @@ module tb;
     // Carregar pesos
     $display("=== Loading weights ===");
     p_wh_ce = 1;
+    repeat (2) @(posedge clk);
     p_wh_valid = 1;
 
     for (int i = 0; i < W2_SIZE; i++) begin
