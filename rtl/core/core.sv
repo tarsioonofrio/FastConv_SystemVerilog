@@ -137,11 +137,12 @@ module Core
         start_conv = 1'b0;
         s_end <= 1'b0;
       end
-      WEIGHT:
+      WEIGHT: begin
+        register_weight <= parallel_data_out;
         if (parallel_valid_out == 1'b1) begin
-          register_weight <= parallel_data_out;
           s_end <= 1'b1;
         end
+      end
       DATA_IN:
         if (parallel_valid_out == 1'b1) begin
             s_end <= 1'b1;
@@ -156,7 +157,9 @@ module Core
   end
 
   // CONNECT BLOCKS
-
+  always_comb begin
+    serial_data_in = p_in_data;
+  end
 
   // ---------------------------------------------------------
   // BLOCK serialize
