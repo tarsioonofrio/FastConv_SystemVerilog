@@ -20,13 +20,14 @@ module tb;
 
   logic clk, reset;
 
+  logic p_start;
   logic p_end;
   logic p_debug;
 
-  logic p_in_start;
+  logic p_in_ce;
   logic p_in_valid;
 
-  logic p_wh_start;
+  logic p_wh_ce;
   logic p_wh_valid;
 
   logic p_out_en;
@@ -56,13 +57,14 @@ module tb;
     .clk(clk),
     .reset(reset),
 
+    .p_start(p_start),
     .p_end(p_end),
     .p_debug(p_debug),
 
-    .p_in_start(p_in_start),
+    .p_in_ce(p_in_ce),
     .p_in_valid(p_in_valid),
 
-    .p_wh_start(p_wh_start),
+    .p_wh_ce(p_wh_ce),
     .p_wh_valid(p_wh_valid),
 
     .p_out_en(p_out_en),
@@ -80,9 +82,9 @@ module tb;
     reset = 1;
 
     // Inicializa sinais de controle e dados
-    p_in_start = 0;
+    p_in_ce = 0;
     p_in_valid = 0;
-    p_wh_start = 0;
+    p_wh_ce = 0;
     p_wh_valid = 0;
 
     p_in_data = '0;
@@ -98,7 +100,7 @@ module tb;
 
     // Carregar pesos
     $display("=== Loading weights ===");
-    p_wh_start = 1;
+    p_wh_ce = 1;
     p_wh_valid = 1;
 
     for (int i = 0; i < W2_SIZE; i++) begin
@@ -107,7 +109,7 @@ module tb;
       $display("Weight[%0d] = %0d", i, p_in_data);
     end
 
-    p_wh_start = 0;
+    p_wh_ce = 0;
     p_wh_valid = 0;
 
     @(posedge clk);
@@ -115,7 +117,7 @@ module tb;
 
     // // Carregar dados de entrada
     // $display("=== Loading data ===");
-    // p_in_start = 1;
+    // p_in_ce = 1;
     // p_in_valid = 1;
 
     // for (int i = 0; i < FIN2_SIZE; i++) begin
@@ -124,7 +126,7 @@ module tb;
     //   $display("Input data[%0d] = %0d", i, p_in_data);
     // end
 
-    // p_in_start = 0;
+    // p_in_ce = 0;
     // p_in_valid = 0;
 
     // // Start processamento
