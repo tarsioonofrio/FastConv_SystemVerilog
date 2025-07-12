@@ -54,7 +54,7 @@ module Core
   logic start_conv;
 
   // ----------- serial signals
-  logic serial_valid_in;
+  logic serial_in_ce;
   logic_vector serial_data_in;
   logic parallel_valid_out;
   type_weight parallel_data_out;
@@ -115,7 +115,7 @@ module Core
   end
 
   always_comb begin
-    serial_valid_in = 1'b1 ? p_in_ce || p_wh_ce: 1'b0;
+    serial_in_ce = 1'b1 ? p_in_ce || p_wh_ce: 1'b0;
     p_end = s_end;
   //   p_end = 1'b1 ? current_st ==  IDLE: 1'b0;
   //   start_conv = 1'b1 ? current_st == DATA_IN: 1'b0;
@@ -125,20 +125,19 @@ module Core
   always_ff @(posedge clk) begin
     if (reset) begin
       registers_out = '{default: '0};
-      register_weight <= '{default: '0};
+      // register_weight <= '{default: '0};
       start_conv = 1'b0;
-      s_end <= 1'b0;
       s_end <= 1'b0;
     end
     unique case (current_st)
       IDLE: begin
         registers_out = '{default: '0};
-        register_weight <= '{default: '0};
+        // register_weight <= '{default: '0};
         start_conv = 1'b0;
         s_end <= 1'b0;
       end
       WEIGHT: begin
-        register_weight <= parallel_data_out;
+        // register_weight <= parallel_data_out;
         if (parallel_valid_out == 1'b1) begin
           s_end <= 1'b1;
         end
@@ -161,6 +160,18 @@ module Core
     serial_data_in = p_in_data;
   end
 
+  int count_to_parallel;
+
+  always_ff @(posedge clk or posedge reset) begin
+    if (reset) begin
+      register_weight = '{default: '0};
+    end else begin
+      if (current_st == WEIGHT)
+        register_weight[count_to_parallel] = serial_data_in;
+    end
+  end
+
+
   // ---------------------------------------------------------
   // BLOCK serialize
 
@@ -171,7 +182,6 @@ module Core
   // type_weight registers_out;
 
   int count_to_serial;
-  int count_to_parallel;
 
   always_comb begin
     // serial_data_out = input_map[count_to_serial];
@@ -188,7 +198,7 @@ module Core
     endcase
     unique case (current_st_to_parallel)
       IDLE0:
-        if (serial_valid_in)
+        if (serial_in_ce)
           next_st_to_parallel = COUNT;
       COUNT:
         if (count_to_parallel >= SERIAL_SIZE)
