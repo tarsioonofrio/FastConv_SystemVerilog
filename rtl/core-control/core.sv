@@ -24,9 +24,9 @@ module CoreControl
   timeunit 1ns;
   timeprecision 1ps;
 
-  typedef enum {IDLE, COUNT} state_type;
-  state_type current_st_to_serial, next_st_to_serial;
-  state_type current_st_to_parallel, next_st_to_parallel;
+  typedef enum {IDLE0, COUNT} state_type_sp;
+  state_type_sp current_st_to_serial, next_st_to_serial;
+  state_type_sp current_st_to_parallel, next_st_to_parallel;
 
   // type_weight registers_out;
 
@@ -34,25 +34,25 @@ module CoreControl
   int count_to_parallel;
 
   always_comb begin
-    // serial_data_out = registers_in[count_to_serial];
+    // serial_data_out = input_map[count_to_serial];
     serial_data_out = parallel_data_in[count_to_serial];
     // parallel_data_out = registers_out;
     parallel_data_out[count_to_parallel] = serial_data_in;
     unique case (current_st_to_serial)
-      IDLE:
+      IDLE0:
         if (parallel_valid_in)
           next_st_to_serial = COUNT;
       COUNT:
         if (count_to_serial >= PARALLEL_SIZE)
-          next_st_to_serial = IDLE;
+          next_st_to_serial = IDLE0;
     endcase
     unique case (current_st_to_parallel)
-      IDLE:
+      IDLE0:
         if (serial_valid_in)
           next_st_to_parallel = COUNT;
       COUNT:
         if (count_to_parallel >= SERIAL_SIZE)
-          next_st_to_parallel = IDLE;
+          next_st_to_parallel = IDLE0;
     endcase
   end
 
@@ -60,18 +60,18 @@ module CoreControl
     if (reset) begin
       count_to_serial <= 0;
       count_to_parallel <= 0;
-      current_st_to_serial <= IDLE;
-      current_st_to_parallel <= IDLE;
-      // registers_in = '{default: '0};
+      current_st_to_serial <= IDLE0;
+      current_st_to_parallel <= IDLE0;
+      // input_map = '{default: '0};
       // registers_out = '{default: '0};
     end
     else begin
-      // registers_in = parallel_data_in;
+      // input_map = parallel_data_in;
       // registers_out[count_to_parallel] = serial_data_in;
       current_st_to_serial <= next_st_to_serial;
       current_st_to_parallel <= next_st_to_parallel;
       unique case (current_st_to_serial)
-        IDLE: begin
+        IDLE0: begin
           count_to_serial <= 0;
           serial_valid_out <= 1'b0;
         end
@@ -82,7 +82,7 @@ module CoreControl
           end
       endcase
       unique case (current_st_to_parallel)
-        IDLE: begin
+        IDLE0: begin
           count_to_parallel <= 0;
           parallel_valid_out <= 1'b0;
         end
@@ -96,4 +96,5 @@ module CoreControl
       endcase
     end
   end
+
 endmodule
