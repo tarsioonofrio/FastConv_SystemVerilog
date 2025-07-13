@@ -77,7 +77,7 @@ module Core
   );
 
   //
-  // Control FSM
+  // BLOCK: Control FSM
   //
 
   always_ff @(posedge clk or posedge reset) begin
@@ -101,10 +101,8 @@ module Core
         if (parallel_valid_out)
           next_st = IDLE;
       DATA_IN:
-        if (parallel_valid_out == 1'b1) begin
+        if (parallel_valid_out == 1'b1)
             next_st = IDLE;
-            input_map <= parallel_data_out[24:0];
-        end
       CONV:
         if (output_valid)
             next_st = DATA_OUT;
@@ -155,9 +153,12 @@ module Core
     endcase
   end
 
-  // CONNECT BLOCKS
+  // BLOCKS: CONNECT
+
   always_comb begin
     serial_data_in = p_in_data;
+    if (current_st == DATA_IN)
+      input_map <= parallel_data_out[24:0];
   end
 
   int count_to_parallel;
@@ -173,7 +174,7 @@ module Core
 
 
   // ---------------------------------------------------------
-  // BLOCK serialize
+  // BLOCK: serialize
 
   typedef enum {IDLE0, COUNT} state_type_sp;
   state_type_sp current_st_to_serial, next_st_to_serial;
@@ -208,9 +209,11 @@ module Core
       if (serial_in_ce) begin
         if (count_to_parallel < SERIAL_SIZE) begin
           count_to_parallel <= count_to_parallel + 1;
-        end
-        else
+          parallel_valid_out <= 1'b0;
+        end else begin
+          count_to_parallel <= 0;
           parallel_valid_out <= 1'b1;
+        end
       end
       if (parallel_valid_in) begin
         if (count_to_serial < PARALLEL_SIZE) begin

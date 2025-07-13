@@ -83,26 +83,19 @@ module tb;
 
     // Inicializa sinais de controle e dados
     p_in_ce = 0;
-    p_in_valid = 0;
     p_wh_ce = 0;
-    p_wh_valid = 0;
 
     p_in_data = '0;
 
-    // Aguarda 2 ciclos de clock
-    repeat (2) @(posedge clk);
+    // Aguarda 1 ciclos de clock
+    repeat @(posedge clk);
     reset = 0;
 
-    // Aplica estímulos básicos:
-
-    // INÍCIO do processamento
-    #10;
 
     // Carregar pesos
     $display("=== Loading weights ===");
     p_wh_ce = 1;
     @(posedge clk);
-    // p_wh_valid = 1;
 
     for (int i = 0; i < W2_SIZE; i++) begin
       p_in_data = const_weight[0][i];
@@ -110,26 +103,22 @@ module tb;
       @(posedge clk);
     end
 
-    @(posedge clk);
     p_wh_ce = 0;
-    p_wh_valid = 0;
-
-    @(posedge clk);
     wait(p_end);
 
-    // // Carregar dados de entrada
-    // $display("=== Loading data ===");
-    // p_in_ce = 1;
-    // p_in_valid = 1;
+    // Carregar dados de entrada
+    $display("=== Loading data ===");
+    p_in_ce = 1;
+    @(posedge clk);
 
-    // for (int i = 0; i < FIN2_SIZE; i++) begin
-    //   p_in_data = const_feat_in[0][i];
-    //   @(posedge clk);
-    //   $display("Input data[%0d] = %0d", i, p_in_data);
-    // end
+    for (int i = 0; i < FIN2_SIZE; i++) begin
+      p_in_data = const_feat_in[0][i];
+      $display("Input data[%0d] = %0d", i, p_in_data);
+      @(posedge clk);
+    end
 
-    // p_in_ce = 0;
-    // p_in_valid = 0;
+    p_in_ce = 0;
+    wait(p_end);
 
     // // Start processamento
     // $display("=== Start processing ===");
