@@ -84,11 +84,11 @@ module tb;
     // Inicializa sinais de controle e dados
     p_in_ce = 0;
     p_wh_ce = 0;
-
+    p_start = 0;
     p_in_data = '0;
 
     // Aguarda 1 ciclos de clock
-    repeat @(posedge clk);
+    @(posedge clk);
     reset = 0;
 
 
@@ -120,17 +120,20 @@ module tb;
     p_in_ce = 0;
     wait(p_end);
 
-    // // Start processamento
-    // $display("=== Start processing ===");
-    // wait(p_end);
+    // Start processamento
+    $display("=== Start processing ===");
+    p_start = 1;
+    @(posedge clk);
+    p_start = 0;
 
-    // // Monitorar saída (p_out_valid = 1) e ler dados de saída
-    // repeat (20) begin
-    //   @(posedge clk);
-    //   if (p_out_valid) begin
-    //     $display("Time %0t: Output = %0d", $time, p_out_data);
-    //   end
-    // end
+    @(posedge clk);
+    wait(p_end);
+
+    // Monitorar saída (p_out_valid = 1) e ler dados de saída
+    @(posedge clk);
+    if (p_out_valid) begin
+      $display("Time %0t: Output = %0d", $time, p_out_data);
+    end
 
     $display("End simulation");
     $finish;
