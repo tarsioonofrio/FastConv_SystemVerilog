@@ -101,7 +101,7 @@ module Core
         if (parallel_valid_out)
           next_st = IDLE;
       DATA_IN:
-        if (parallel_valid_out == 1'b1)
+        if (parallel_valid_out)
             next_st = IDLE;
       CONV:
         if (output_valid)
@@ -115,6 +115,7 @@ module Core
   always_comb begin
     serial_in_ce = 1'b1 ? p_in_ce || p_wh_ce: 1'b0;
     p_end = s_end;
+    start_conv = p_start;
   //   p_end = 1'b1 ? current_st ==  IDLE: 1'b0;
   //   start_conv = 1'b1 ? current_st == DATA_IN: 1'b0;
   end
@@ -124,31 +125,30 @@ module Core
     if (reset) begin
       registers_out = '{default: '0};
       // register_weight <= '{default: '0};
-      start_conv = 1'b0;
       s_end <= 1'b0;
     end
     unique case (current_st)
       IDLE: begin
         registers_out = '{default: '0};
         // register_weight <= '{default: '0};
-        start_conv = 1'b0;
         s_end <= 1'b0;
       end
       WEIGHT: begin
         // register_weight <= parallel_data_out;
-        if (parallel_valid_out == 1'b1) begin
+        if (parallel_valid_out) begin
           s_end <= 1'b1;
         end
       end
       DATA_IN:
-        if (parallel_valid_out == 1'b1) begin
+        if (parallel_valid_out) begin
             s_end <= 1'b1;
         end
+      // CONV:
+      //     start_conv = 1'b1;
       CONV:
-          start_conv = 1'b1;
-      DATA_OUT:
-        if (output_valid == 1'b1) begin
+        if (output_valid) begin
           registers_out = output_map;
+          s_end <= 1'b1;
         end
     endcase
   end
@@ -176,12 +176,6 @@ module Core
   // ---------------------------------------------------------
   // BLOCK: serialize
 
-  typedef enum {IDLE0, COUNT} state_type_sp;
-  state_type_sp current_st_to_serial, next_st_to_serial;
-  state_type_sp current_st_to_parallel, next_st_to_parallel;
-
-  // type_weight registers_out;
-
   int count_to_serial;
 
   always_comb begin
@@ -195,19 +189,18 @@ module Core
     if (reset) begin
       count_to_serial <= 0;
       count_to_parallel <= 0;
-      current_st_to_serial <= IDLE0;
-      current_st_to_parallel <= IDLE0;
       // input_map = '{default: '0};
       // registers_out = '{default: '0};
     end
     else begin
       // input_map = parallel_data_in;
       // registers_out[count_to_parallel] = serial_data_in;
-      current_st_to_serial <= next_st_to_serial;
-      current_st_to_parallel <= next_st_to_parallel;
 
-      if (serial_in_ce) begin
-        if (count_to_parallel < SERIAL_SIZE) begin
+      if (p_in_ce || p_wh_ce) begin
+        if (p_wh_ce && (count_to_parallel < 36)) begin
+          count_to_parallel <= count_to_parallel + 1;
+          parallel_valid_out <= 1'b0;
+        end else if (p_in_ce && (count_to_parallel < 25)) begin
           count_to_parallel <= count_to_parallel + 1;
           parallel_valid_out <= 1'b0;
         end else begin
@@ -216,7 +209,7 @@ module Core
         end
       end
       if (parallel_valid_in) begin
-        if (count_to_serial < PARALLEL_SIZE) begin
+        if (count_to_serial < 36) begin
           count_to_serial <= count_to_serial + 1;
           serial_valid_out <= 1'b1;
         end else begin
