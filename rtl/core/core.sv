@@ -188,22 +188,6 @@ module Core
     serial_data_out = parallel_data_in[count_to_serial];
     // parallel_data_out = registers_out;
     parallel_data_out[count_to_parallel] = serial_data_in;
-    unique case (current_st_to_serial)
-      IDLE0:
-        if (parallel_valid_in)
-          next_st_to_serial = COUNT;
-      COUNT:
-        if (count_to_serial >= PARALLEL_SIZE)
-          next_st_to_serial = IDLE0;
-    endcase
-    unique case (current_st_to_parallel)
-      IDLE0:
-        if (serial_in_ce)
-          next_st_to_parallel = COUNT;
-      COUNT:
-        if (count_to_parallel >= SERIAL_SIZE)
-          next_st_to_parallel = IDLE0;
-    endcase
   end
 
   always_ff @(posedge clk or posedge reset) begin
@@ -220,30 +204,23 @@ module Core
       // registers_out[count_to_parallel] = serial_data_in;
       current_st_to_serial <= next_st_to_serial;
       current_st_to_parallel <= next_st_to_parallel;
-      unique case (current_st_to_serial)
-        IDLE0: begin
+
+      if (serial_in_ce) begin
+        if (count_to_parallel < SERIAL_SIZE) begin
+          count_to_parallel <= count_to_parallel + 1;
+        end
+        else
+          parallel_valid_out <= 1'b1;
+      end
+      if (parallel_valid_in) begin
+        if (count_to_serial < PARALLEL_SIZE) begin
+          count_to_serial <= count_to_serial + 1;
+          serial_valid_out <= 1'b1;
+        end else begin
           count_to_serial <= 0;
           serial_valid_out <= 1'b0;
         end
-        COUNT:
-          if (count_to_serial < PARALLEL_SIZE) begin
-            count_to_serial <= count_to_serial + 1;
-            serial_valid_out <= 1'b1;
-          end
-      endcase
-      unique case (current_st_to_parallel)
-        IDLE0: begin
-          count_to_parallel <= 0;
-          parallel_valid_out <= 1'b0;
-        end
-        COUNT: begin
-          if (count_to_parallel < SERIAL_SIZE) begin
-            count_to_parallel <= count_to_parallel + 1;
-          end
-          else
-            parallel_valid_out <= 1'b1;
-        end
-      endcase
+      end
     end
   end
 
