@@ -1,7 +1,7 @@
 module Core
   import packConv::*;
   import data::*;
- #(
+#(
     parameter int QUANT          = 8,
     parameter int NBITS          = 20,
     parameter int NADDR          = 12,
@@ -13,35 +13,40 @@ module Core
     parameter int ROM            = 0,
     parameter int SERIAL_SIZE    = 36,
     parameter int PARALLEL_SIZE  = 9
-  )
-  (
-    input  logic clk, reset,
+) (
+    input logic clk,
+    reset,
 
     input  logic p_start,
     output logic p_end,
     output logic p_debug,
 
-    input  logic p_in_ce,
-    input  logic p_in_valid,
+    input logic p_in_ce,
+    input logic p_in_valid,
 
-    input  logic p_wh_ce,
-    input  logic p_wh_valid,
+    input logic p_wh_ce,
+    input logic p_wh_valid,
 
     output logic p_out_en,
     output logic p_out_valid,
 
     input  logic_vector p_in_data,
     output logic_vector p_out_data
-  );
+);
 
-  timeunit 1ns;
-  timeprecision 1ps;
+  timeunit 1ns; timeprecision 1ps;
 
-  typedef enum {IDLE, WEIGHT, DATA_IN, CONV, DATA_OUT} state_type;
+  typedef enum {
+    IDLE,
+    WEIGHT,
+    DATA_IN,
+    CONV,
+    DATA_OUT
+  } state_type;
   state_type current_st, next_st;
 
   // Tipos usados
-  type_input  input_map;
+  type_input input_map;
   type_output output_map;
 
   type_weight register_weight;
@@ -71,16 +76,16 @@ module Core
 
   state_type_conv current_st_conv, next_st_conv;
 
-  type_weight   registers;
-  type_weight   prod_c;
-  type_output   prod_a;
+  type_weight                    registers;
+  type_weight                    prod_c;
+  type_output                    prod_a;
 
-  logic       data_valid;
-  type_input  inputMAP;
-  type_weight weights;
-  logic signed[NBITS-1+QUANT:0] product;   // QUANT more bits for the multipliers
+  logic                          data_valid;
+  type_input                     inputMAP;
+  type_weight                    weights;
+  logic signed [NBITS-1+QUANT:0] product;  // QUANT more bits for the multipliers
 
-  logic[5:0] idx;
+  logic        [            5:0] idx;
 
 
 
@@ -111,24 +116,13 @@ module Core
   always_comb begin
     unique case (current_st)
       IDLE:
-        if (p_wh_ce)
-          next_st = WEIGHT;
-        else if (p_in_ce)
-          next_st = DATA_IN;
-        else if (p_start)
-          next_st = CONV;
-      WEIGHT:
-        if (s_end)
-          next_st = IDLE;
-      DATA_IN:
-        if (s_end)
-            next_st = IDLE;
-      CONV:
-        if (output_valid)
-            next_st = DATA_OUT;
-      DATA_OUT:
-        if (serial_data_out)
-          next_st = IDLE;
+      if (p_wh_ce) next_st = WEIGHT;
+      else if (p_in_ce) next_st = DATA_IN;
+      else if (p_start) next_st = CONV;
+      WEIGHT: if (s_end) next_st = IDLE;
+      DATA_IN: if (s_end) next_st = IDLE;
+      CONV: if (output_valid) next_st = DATA_OUT;
+      DATA_OUT: if (serial_data_out) next_st = IDLE;
       default: next_st = IDLE;
     endcase
   end
@@ -136,14 +130,14 @@ module Core
   always_comb begin
     p_end = s_end;
     start_conv = p_start;
-  //   p_end = 1'b1 ? current_st ==  IDLE: 1'b0;
-  //   start_conv = 1'b1 ? current_st == DATA_IN: 1'b0;
+    //   p_end = 1'b1 ? current_st ==  IDLE: 1'b0;
+    //   start_conv = 1'b1 ? current_st == DATA_IN: 1'b0;
   end
 
 
   always_ff @(posedge clk) begin
     if (reset) begin
-      registers_out = '{default: '0};
+      registers_out   = '{default: '0};
       register_weight = '{default: '0};
       s_end <= 1'b0;
       count_to_serial <= 0;
@@ -189,19 +183,20 @@ module Core
         CONV: begin
           data_valid <= 0;
           unique case (current_st_conv)
-            IDLE:     registers <= registers;
+            // IDLE:  registers <= registers;
             // IDLE: registers[24:0] <= inputMAP;
-            WR_MC:    registers <= prod_c;
+            WR_MC: registers <= prod_c;
             WR_OUT: begin
               data_valid <= 1;
               registers[8:0] <= prod_a;
             end
-            MU0: begin
-              // registers[0] <= product;
-              s_debug <= 1'b1;
-            end
+            // MU0: begin
+            //   // registers[0] <= product;
+            //   s_debug <= 1'b1;
+            // end
             default: begin
               registers[idx] <= product;
+              // $display(idx, product);
               // s_debug <= 1'b1;
             end
           endcase
@@ -214,8 +209,7 @@ module Core
 
   always_comb begin
     serial_data_in = p_in_data;
-    if (current_st == DATA_IN)
-      input_map <= parallel_data_out[24:0];
+    if (current_st == DATA_IN) input_map <= parallel_data_out[24:0];
   end
 
 
@@ -269,10 +263,10 @@ module Core
   // 9 states + IDEL - IDLE is blocking!
   always_comb begin
     unique case (current_st_conv)
-      IDLE1:     next_st_conv = start ? WR_MC : IDLE1;
+      IDLE1:   next_st_conv = start ? WR_MC : IDLE1;
       // WR_IFMAP: next_st_conv = WR_MC;
-      WR_MC:    next_st_conv = MU0;
-      WR_OUT:   next_st_conv = IDLE1;
+      WR_MC:   next_st_conv = MU0;
+      WR_OUT:  next_st_conv = IDLE1;
       default: next_st_conv = state_type_conv'(current_st_conv + 1);
     endcase
   end
@@ -282,19 +276,23 @@ module Core
   //
 
   // Instance of matrix multiplier "C"
-  Transform trf(
-    .pin(registers[24:0]),
-    .pout(prod_c)
+  Transform trf (
+      .pin (registers[24:0]),
+      .pout(prod_c)
   );
 
   assign idx = current_st_conv;
 
-  Multip multip0(.register(registers[idx]), .weight(weights[idx]), .product(product));
+  Multip multip0 (
+      .register(registers[idx]),
+      .weight  (weights[idx]),
+      .product (product)
+  );
 
   // Instance of matrix multiplier "A"
-  Inverse inv(
-    .pin(registers),
-    .pout(prod_a)
+  Inverse inv (
+      .pin (registers),
+      .pout(prod_a)
   );
 
   // Internal register bank to store intermediate results
@@ -328,19 +326,17 @@ endmodule
 
 module Multip
   import packConv::*;
- #(
-  parameter int QUANT = 8,
-  parameter int NBITS = 20
-  )
-  (
-    input  logic_vector register,
-    input  logic_vector weight,
+#(
+    parameter int QUANT = 8,
+    parameter int NBITS = 20
+) (
+    input logic_vector register,
+    input logic_vector weight,
     output logic signed [NBITS-1+QUANT:0] product
- );
-  timeunit 1ns;
-  timeprecision 1ps;
+);
+  timeunit 1ns; timeprecision 1ps;
   logic signed [NBITS-1+QUANT:0] partial_product;
 
-  assign partial_product = (NBITS+QUANT)'($signed(register) * $signed(weight));
+  assign partial_product = (NBITS + QUANT)'($signed(register) * $signed(weight));
   assign product = (NBITS)'(partial_product[NBITS-1+QUANT:QUANT]);
 endmodule
