@@ -105,6 +105,7 @@ module tb;
 
     p_wh_ce = 0;
     wait(p_end);
+    @(posedge clk);
 
     // Carregar dados de entrada
     $display("=== Loading data ===");
@@ -119,6 +120,7 @@ module tb;
 
     p_in_ce = 0;
     wait(p_end);
+    @(posedge clk);
 
     // Start processamento
     $display("=== Start processing ===");
