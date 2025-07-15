@@ -130,6 +130,8 @@ module Core
       s_end <= 1'b0;
       count_to_serial <= 0;
       count_to_parallel <= 0;
+      registers <= '{default: '0};
+      data_valid <= 0;
     end
     unique case (current_st)
       IDLE: begin
@@ -163,6 +165,17 @@ module Core
       // CONV:
       //     start_conv = 1'b1;
       CONV:
+        data_valid <= 0;
+        unique case (current_st_conv)
+          // IDLE:     registers <= registers;
+          IDLE: registers[24:0] <= inputMAP;
+          WR_MC:    registers <= prod_c;
+          WR_OUT: begin
+            data_valid <= 1;
+            registers[8:0] <= prod_a;
+          end
+          default:  registers[idx] <= product;
+        endcase
         if (output_valid) begin
           registers_out = output_map;
           s_end <= 1'b1;
@@ -303,24 +316,24 @@ module Core
   );
 
   // Internal register bank to store intermediate results
-  always_ff @(posedge clk or posedge reset) begin
-    if (reset) begin
-      registers <= '{default: '0};
-      data_valid <= 0;
-    end else begin
-      data_valid <= 0;
-      unique case (current_st_conv)
-        // IDLE:     registers <= registers;
-        IDLE: registers[24:0] <= inputMAP;
-        WR_MC:    registers <= prod_c;
-        WR_OUT: begin
-          data_valid <= 1;
-          registers[8:0] <= prod_a;
-        end
-        default:  registers[idx] <= product;
-      endcase
-    end
-  end
+  // always_ff @(posedge clk or posedge reset) begin
+  //   if (reset) begin
+  //     registers <= '{default: '0};
+  //     data_valid <= 0;
+  //   end else begin
+  //     data_valid <= 0;
+  //     unique case (current_st_conv)
+  //       // IDLE:     registers <= registers;
+  //       IDLE: registers[24:0] <= inputMAP;
+  //       WR_MC:    registers <= prod_c;
+  //       WR_OUT: begin
+  //         data_valid <= 1;
+  //         registers[8:0] <= prod_a;
+  //       end
+  //       default:  registers[idx] <= product;
+  //     endcase
+  //   end
+  // end
 
   // connect 9 first registers to the outputs
   always_comb begin
