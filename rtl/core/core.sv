@@ -192,9 +192,9 @@ module Core
               data_valid <= 1;
               registers[8:0] <= prod_a;
             end
+            default:  registers[idx] <= product;
           endcase
         end
-        default:  registers[idx] <= product;
       endcase
     end
   end
