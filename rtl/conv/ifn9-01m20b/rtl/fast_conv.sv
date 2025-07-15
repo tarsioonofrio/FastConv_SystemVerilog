@@ -114,7 +114,7 @@ module conv
           data_valid <= 1;
           registers[8:0] <= prod_a;
         end
-        default:  registers[idx] <= product;
+        default:  regisdata_validters[idx] <= product;
       endcase
     end
   end
