@@ -50,6 +50,7 @@ module Core
   logic out_ce;
   logic out_we;
   logic s_end;
+  logic output_valid;
 
   logic start_conv;
 
@@ -64,17 +65,17 @@ module Core
   logic_vector serial_data_out;
 
 
-  conv #(
-    .QUANT(QUANT)
-  ) convolucao (
-    .clk(clk),
-    .reset(reset),
-    .start(start_conv),
-    .inputMAP(input_map),
-    .weights(register_weight),
-    .outputMAP(output_map),
-    .data_valid(output_valid)
-  );
+  // conv #(
+  //   .QUANT(QUANT)
+  // ) convolucao (
+  //   .clk(clk),
+  //   .reset(reset),
+  //   .start(start_conv),
+  //   .inputMAP(input_map),
+  //   .weights(register_weight),
+  //   .outputMAP(output_map),
+  //   .data_valid(output_valid)
+  // );
 
   //
   // BLOCK: Control FSM
@@ -113,7 +114,6 @@ module Core
   end
 
   always_comb begin
-    serial_in_ce = 1'b1 ? p_in_ce || p_wh_ce: 1'b0;
     p_end = s_end;
     start_conv = p_start;
   //   p_end = 1'b1 ? current_st ==  IDLE: 1'b0;
@@ -182,7 +182,8 @@ module Core
     // serial_data_out = input_map[count_to_serial];
     serial_data_out = parallel_data_in[count_to_serial];
     // parallel_data_out = registers_out;
-    parallel_data_out[count_to_parallel] = serial_data_in;
+    if (current_st == DATA_IN)
+      parallel_data_out[count_to_parallel] = serial_data_in;
   end
 
   always_ff @(posedge clk or posedge reset) begin
@@ -220,4 +221,125 @@ module Core
     end
   end
 
+  // BLOCK: Convolution
+
+  // parameter int QUANT = 8,
+  // parameter int NBITS = 20,
+  // parameter int NMULT = 1,
+  // parameter int SMULT = 36
+  type_input  inputMAP;
+  type_weight weights;
+  type_output outputMAP;
+  logic       data_valid;
+  logic       start;
+
+  always_comb begin
+    start = start_conv;
+    inputMAP = input_map;
+    weights = register_weight;
+    output_map = outputMAP;
+    output_valid = data_valid;
+  end
+
+  state_type_conv current_st_conv, next_st_conv;
+
+  type_weight   registers;
+  type_weight   prod_c;
+  type_output   prod_a;
+
+
+  logic signed[NBITS-1+QUANT:0] product;   // QUANT more bits for the multipliers
+
+  logic[5:0] idx;
+
+
+  //
+  // Control FSM
+  //
+
+  always_ff @(posedge clk or posedge reset) begin
+    if (reset) begin
+      current_st_conv <= IDLE1;
+    end else begin
+      current_st_conv <= next_st_conv;
+    end
+  end
+
+  // 9 states + IDEL - IDLE is blocking!
+  always_comb begin
+    unique case (current_st_conv)
+      IDLE1:     next_st_conv = start ? WR_MC : IDLE1;
+      // WR_IFMAP: next_st_conv = WR_MC;
+      WR_MC:    next_st_conv = MU0;
+      WR_OUT:   next_st_conv = IDLE1;
+      default: next_st_conv = state_type_conv'(current_st_conv + 1);
+    endcase
+  end
+
+  //
+  // Data path
+  //
+
+  // Instance of matrix multiplier "C"
+  Transform trf(
+    .pin(registers[24:0]),
+    .pout(prod_c)
+  );
+
+  assign idx = current_st_conv;
+
+  Multip multip0(.register(registers[idx]), .weight(weights[idx]), .product(product));
+
+  // Instance of matrix multiplier "A"
+  Inverse inv(
+    .pin(registers),
+    .pout(prod_a)
+  );
+
+  // Internal register bank to store intermediate results
+  always_ff @(posedge clk or posedge reset) begin
+    if (reset) begin
+      registers <= '{default: '0};
+      data_valid <= 0;
+    end else begin
+      data_valid <= 0;
+      unique case (current_st_conv)
+        // IDLE:     registers <= registers;
+        IDLE: registers[24:0] <= inputMAP;
+        WR_MC:    registers <= prod_c;
+        WR_OUT: begin
+          data_valid <= 1;
+          registers[8:0] <= prod_a;
+        end
+        default:  registers[idx] <= product;
+      endcase
+    end
+  end
+
+  // connect 9 first registers to the outputs
+  always_comb begin
+    outputMAP = registers[8:0];
+  end
+
+
+endmodule
+
+
+module Multip
+  import packConv::*;
+ #(
+  parameter int QUANT = 8,
+  parameter int NBITS = 20
+  )
+  (
+    input  logic_vector register,
+    input  logic_vector weight,
+    output logic signed [NBITS-1+QUANT:0] product
+ );
+  timeunit 1ns;
+  timeprecision 1ps;
+  logic signed [NBITS-1+QUANT:0] partial_product;
+
+  assign partial_product = (NBITS+QUANT)'($signed(register) * $signed(weight));
+  assign product = (NBITS)'(partial_product[NBITS-1+QUANT:QUANT]);
 endmodule
