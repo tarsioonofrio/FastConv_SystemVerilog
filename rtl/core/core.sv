@@ -67,6 +67,22 @@ module Core
   int count_to_parallel;
   int count_to_serial;
 
+
+  state_type_conv current_st_conv, next_st_conv;
+
+  type_weight   registers;
+  type_weight   prod_c;
+  type_output   prod_a;
+
+  logic       data_valid;
+  type_input  inputMAP;
+  type_weight weights;
+  logic signed[NBITS-1+QUANT:0] product;   // QUANT more bits for the multipliers
+
+  logic[5:0] idx;
+
+
+
   // conv #(
   //   .QUANT(QUANT)
   // ) convolucao (
@@ -132,55 +148,55 @@ module Core
       count_to_parallel <= 0;
       registers <= '{default: '0};
       data_valid <= 0;
-    end
-    unique case (current_st)
-      IDLE: begin
-        registers_out = '{default: '0};
-        // register_weight <= '{default: '0};
-        s_end <= 1'b0;
+    end else begin
+      if (output_valid) begin
+        registers_out = output_map;
+        s_end <= 1'b1;
       end
-      WEIGHT: begin
-        if (p_wh_ce && (count_to_parallel < 36)) begin
-          register_weight[count_to_parallel] = serial_data_in;
-          count_to_parallel <= count_to_parallel + 1;
-          parallel_valid_out <= 1'b0;
-        end else begin
-          count_to_parallel <= 0;
-          parallel_valid_out <= 1'b1;
+      unique case (current_st)
+        IDLE: begin
+          registers_out = '{default: '0};
+          // register_weight <= '{default: '0};
+          s_end <= 1'b0;
         end
-        if (parallel_valid_out)
-          s_end <= 1'b1;
-      end
-      DATA_IN: begin
-        if (p_in_ce && (count_to_parallel < 25)) begin
-          count_to_parallel <= count_to_parallel + 1;
-          parallel_valid_out <= 1'b0;
-        end else begin
-          count_to_parallel <= 0;
-          parallel_valid_out <= 1'b1;
-        end
-        if (parallel_valid_out)
-            s_end <= 1'b1;
-      end
-      // CONV:
-      //     start_conv = 1'b1;
-      CONV:
-        data_valid <= 0;
-        unique case (current_st_conv)
-          // IDLE:     registers <= registers;
-          IDLE: registers[24:0] <= inputMAP;
-          WR_MC:    registers <= prod_c;
-          WR_OUT: begin
-            data_valid <= 1;
-            registers[8:0] <= prod_a;
+        WEIGHT: begin
+          if (p_wh_ce && (count_to_parallel < 36)) begin
+            register_weight[count_to_parallel] = serial_data_in;
+            count_to_parallel <= count_to_parallel + 1;
+            parallel_valid_out <= 1'b0;
+          end else begin
+            count_to_parallel <= 0;
+            parallel_valid_out <= 1'b1;
           end
-          default:  registers[idx] <= product;
-        endcase
-        if (output_valid) begin
-          registers_out = output_map;
-          s_end <= 1'b1;
+          if (parallel_valid_out)
+            s_end <= 1'b1;
         end
-    endcase
+        DATA_IN: begin
+          if (p_in_ce && (count_to_parallel < 25)) begin
+            count_to_parallel <= count_to_parallel + 1;
+            parallel_valid_out <= 1'b0;
+          end else begin
+            count_to_parallel <= 0;
+            parallel_valid_out <= 1'b1;
+          end
+          if (parallel_valid_out)
+              s_end <= 1'b1;
+        end
+        CONV: begin
+          data_valid <= 0;
+          unique case (current_st_conv)
+            // IDLE:     registers <= registers;
+            IDLE: registers[24:0] <= inputMAP;
+            WR_MC:    registers <= prod_c;
+            WR_OUT: begin
+              data_valid <= 1;
+              registers[8:0] <= prod_a;
+            end
+          endcase
+        end
+        default:  registers[idx] <= product;
+      endcase
+    end
   end
 
   // BLOCKS: CONNECT
@@ -246,10 +262,7 @@ module Core
   // parameter int NBITS = 20,
   // parameter int NMULT = 1,
   // parameter int SMULT = 36
-  type_input  inputMAP;
-  type_weight weights;
   type_output outputMAP;
-  logic       data_valid;
   logic       start;
 
   always_comb begin
@@ -259,18 +272,6 @@ module Core
     output_map = outputMAP;
     output_valid = data_valid;
   end
-
-  state_type_conv current_st_conv, next_st_conv;
-
-  type_weight   registers;
-  type_weight   prod_c;
-  type_output   prod_a;
-
-
-  logic signed[NBITS-1+QUANT:0] product;   // QUANT more bits for the multipliers
-
-  logic[5:0] idx;
-
 
   //
   // Control FSM
