@@ -51,6 +51,7 @@ module Core
   logic out_we;
   logic s_end;
   logic output_valid;
+  logic s_debug;
 
   logic start_conv;
 
@@ -117,10 +118,10 @@ module Core
         else if (p_start)
           next_st = CONV;
       WEIGHT:
-        if (parallel_valid_out)
+        if (s_end)
           next_st = IDLE;
       DATA_IN:
-        if (parallel_valid_out)
+        if (s_end)
             next_st = IDLE;
       CONV:
         if (output_valid)
@@ -128,6 +129,7 @@ module Core
       DATA_OUT:
         if (serial_data_out)
           next_st = IDLE;
+      default: next_st = IDLE;
     endcase
   end
 
@@ -149,6 +151,7 @@ module Core
       registers <= '{default: '0};
       data_valid <= 0;
     end else begin
+      s_debug <= 1'b0;
       if (output_valid) begin
         registers_out = output_map;
         s_end <= 1'b1;
@@ -163,36 +166,44 @@ module Core
           if (p_wh_ce && (count_to_parallel < 36)) begin
             register_weight[count_to_parallel] = serial_data_in;
             count_to_parallel <= count_to_parallel + 1;
-            parallel_valid_out <= 1'b0;
+            s_end <= 1'b0;
           end else begin
             count_to_parallel <= 0;
-            parallel_valid_out <= 1'b1;
-          end
-          if (parallel_valid_out)
             s_end <= 1'b1;
+          end
+          // if (parallel_valid_out)
+          //   s_end <= 1'b1;
         end
         DATA_IN: begin
           if (p_in_ce && (count_to_parallel < 25)) begin
+            registers[count_to_parallel] = serial_data_in;
             count_to_parallel <= count_to_parallel + 1;
-            parallel_valid_out <= 1'b0;
+            s_end <= 1'b0;
           end else begin
             count_to_parallel <= 0;
-            parallel_valid_out <= 1'b1;
+            s_end <= 1'b1;
           end
-          if (parallel_valid_out)
-              s_end <= 1'b1;
+          // if (parallel_valid_out)
+          //     s_end <= 1'b1;
         end
         CONV: begin
           data_valid <= 0;
           unique case (current_st_conv)
-            // IDLE:     registers <= registers;
-            IDLE: registers[24:0] <= inputMAP;
+            IDLE:     registers <= registers;
+            // IDLE: registers[24:0] <= inputMAP;
             WR_MC:    registers <= prod_c;
             WR_OUT: begin
               data_valid <= 1;
               registers[8:0] <= prod_a;
             end
-            default:  registers[idx] <= product;
+            MU0: begin
+              // registers[0] <= product;
+              s_debug <= 1'b1;
+            end
+            default: begin
+              registers[idx] <= product;
+              // s_debug <= 1'b1;
+            end
           endcase
         end
       endcase
@@ -208,16 +219,6 @@ module Core
   end
 
 
-  // always_ff @(posedge clk or posedge reset) begin
-  //   if (reset) begin
-  //     register_weight = '{default: '0};
-  //   end else begin
-  //     if (current_st == WEIGHT)
-  //       register_weight[count_to_parallel] = serial_data_in;
-  //   end
-  // end
-
-
   // ---------------------------------------------------------
   // BLOCK: serialize
 
@@ -226,24 +227,6 @@ module Core
     parallel_data_out[count_to_parallel] = serial_data_in;
   end
 
-  // always_ff @(posedge clk or posedge reset) begin
-  //   if (reset) begin
-  //     count_to_serial <= 0;
-  //     count_to_parallel <= 0;
-  //   end
-  //   else begin
-  //     if (p_in_ce || p_wh_ce) begin
-  //       if (p_wh_ce && (count_to_parallel < 36)) begin
-  //         count_to_parallel <= count_to_parallel + 1;
-  //         parallel_valid_out <= 1'b0;
-  //       end else if (p_in_ce && (count_to_parallel < 25)) begin
-  //         count_to_parallel <= count_to_parallel + 1;
-  //         parallel_valid_out <= 1'b0;
-  //       end else begin
-  //         count_to_parallel <= 0;
-  //         parallel_valid_out <= 1'b1;
-  //       end
-  //     end
   //     if (parallel_valid_in) begin
   //       if (count_to_serial < 36) begin
   //         count_to_serial <= count_to_serial + 1;
@@ -253,8 +236,6 @@ module Core
   //         serial_valid_out <= 1'b0;
   //       end
   //     end
-  //   end
-  // end
 
   // BLOCK: Convolution
 
@@ -267,7 +248,7 @@ module Core
 
   always_comb begin
     start = start_conv;
-    inputMAP = input_map;
+    // inputMAP = input_map;
     weights = register_weight;
     output_map = outputMAP;
     output_valid = data_valid;
