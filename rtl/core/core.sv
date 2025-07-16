@@ -76,30 +76,17 @@ module Core
 
   state_type_conv current_st_conv, next_st_conv;
 
-  type_weight                    registers;
-  type_weight                    prod_c;
-  type_output                    prod_a;
+  type_weight registers;
+  type_weight prod_c;
+  type_output prod_a;
+  type_input  inputMAP;
+  type_weight weights;
 
-  logic                          data_valid;
-  type_input                     inputMAP;
-  type_weight                    weights;
+  
   logic signed [NBITS-1+QUANT:0] product;  // QUANT more bits for the multipliers
+  logic        data_valid;
+  logic        [ 5:0] idx;
 
-  logic        [            5:0] idx;
-
-
-
-  // conv #(
-  //   .QUANT(QUANT)
-  // ) convolucao (
-  //   .clk(clk),
-  //   .reset(reset),
-  //   .start(start_conv),
-  //   .inputMAP(input_map),
-  //   .weights(register_weight),
-  //   .outputMAP(output_map),
-  //   .data_valid(output_valid)
-  // );
 
   //
   // BLOCK: Control FSM
@@ -130,15 +117,13 @@ module Core
   always_comb begin
     p_end = s_end;
     start_conv = p_start;
-    //   p_end = 1'b1 ? current_st ==  IDLE: 1'b0;
-    //   start_conv = 1'b1 ? current_st == DATA_IN: 1'b0;
   end
 
 
   always_ff @(posedge clk) begin
     if (reset) begin
-      registers_out   = '{default: '0};
-      register_weight = '{default: '0};
+      registers_out <= '{default: '0};
+      register_weight <= '{default: '0};
       s_end <= 1'b0;
       count_to_serial <= 0;
       count_to_parallel <= 0;
@@ -147,18 +132,17 @@ module Core
     end else begin
       s_debug <= 1'b0;
       if (output_valid) begin
-        registers_out = output_map;
+        registers_out <= output_map;
         s_end <= 1'b1;
       end
       unique case (current_st)
         IDLE: begin
-          registers_out = '{default: '0};
-          // register_weight <= '{default: '0};
+          registers_out <= '{default: '0};
           s_end <= 1'b0;
         end
         WEIGHT: begin
           if (p_wh_ce && (count_to_parallel < 36)) begin
-            register_weight[count_to_parallel] = serial_data_in;
+            register_weight[count_to_parallel] <= serial_data_in;
             count_to_parallel <= count_to_parallel + 1;
             s_end <= 1'b0;
           end else begin
@@ -170,35 +154,23 @@ module Core
         end
         DATA_IN: begin
           if (p_in_ce && (count_to_parallel < 25)) begin
-            registers[count_to_parallel] = serial_data_in;
+            registers[count_to_parallel] <= serial_data_in;
             count_to_parallel <= count_to_parallel + 1;
             s_end <= 1'b0;
           end else begin
             count_to_parallel <= 0;
             s_end <= 1'b1;
           end
-          // if (parallel_valid_out)
-          //     s_end <= 1'b1;
         end
         CONV: begin
           data_valid <= 0;
           unique case (current_st_conv)
-            // IDLE:  registers <= registers;
-            // IDLE: registers[24:0] <= inputMAP;
-            WR_MC: registers <= prod_c;
+            WR_MC:   registers <= prod_c;
             WR_OUT: begin
               data_valid <= 1;
               registers[8:0] <= prod_a;
             end
-            // MU0: begin
-            //   // registers[0] <= product;
-            //   s_debug <= 1'b1;
-            // end
-            default: begin
-              registers[idx] <= product;
-              // $display(idx, product);
-              // s_debug <= 1'b1;
-            end
+            default: registers[idx] <= product;
           endcase
         end
       endcase
@@ -209,7 +181,7 @@ module Core
 
   always_comb begin
     serial_data_in = p_in_data;
-    if (current_st == DATA_IN) input_map <= parallel_data_out[24:0];
+    if (current_st == DATA_IN) input_map = parallel_data_out[24:0];
   end
 
 
@@ -221,22 +193,9 @@ module Core
     parallel_data_out[count_to_parallel] = serial_data_in;
   end
 
-  //     if (parallel_valid_in) begin
-  //       if (count_to_serial < 36) begin
-  //         count_to_serial <= count_to_serial + 1;
-  //         serial_valid_out <= 1'b1;
-  //       end else begin
-  //         count_to_serial <= 0;
-  //         serial_valid_out <= 1'b0;
-  //       end
-  //     end
 
   // BLOCK: Convolution
 
-  // parameter int QUANT = 8,
-  // parameter int NBITS = 20,
-  // parameter int NMULT = 1,
-  // parameter int SMULT = 36
   type_output outputMAP;
   logic       start;
 
@@ -260,11 +219,9 @@ module Core
     end
   end
 
-  // 9 states + IDEL - IDLE is blocking!
   always_comb begin
     unique case (current_st_conv)
       IDLE1:   next_st_conv = start ? WR_MC : IDLE1;
-      // WR_IFMAP: next_st_conv = WR_MC;
       WR_MC:   next_st_conv = MU0;
       WR_OUT:  next_st_conv = IDLE1;
       default: next_st_conv = state_type_conv'(current_st_conv + 1);
@@ -295,32 +252,10 @@ module Core
       .pout(prod_a)
   );
 
-  // Internal register bank to store intermediate results
-  // always_ff @(posedge clk or posedge reset) begin
-  //   if (reset) begin
-  //     registers <= '{default: '0};
-  //     data_valid <= 0;
-  //   end else begin
-  //     data_valid <= 0;
-  //     unique case (current_st_conv)
-  //       // IDLE:     registers <= registers;
-  //       IDLE: registers[24:0] <= inputMAP;
-  //       WR_MC:    registers <= prod_c;
-  //       WR_OUT: begin
-  //         data_valid <= 1;
-  //         registers[8:0] <= prod_a;
-  //       end
-  //       default:  registers[idx] <= product;
-  //     endcase
-  //   end
-  // end
-
   // connect 9 first registers to the outputs
   always_comb begin
     outputMAP = registers[8:0];
   end
-
-
 endmodule
 
 
