@@ -228,7 +228,7 @@ module Core
       IDLE1: next_st_conv = start ? WR_MC : IDLE1;
       WR_MC: next_st_conv = MU;
       MU:
-      if (idx < 35) next_st_conv = MU;
+      if (idx < M1_SIZE*M2_SIZE-1) next_st_conv = MU;
       else next_st_conv = WR_OUT;
       WR_OUT: next_st_conv = IDLE1;
     endcase
@@ -240,7 +240,7 @@ module Core
 
   // Instance of matrix multiplier "C"
   Transform trf (
-      .pin (registers[24:0]),
+      .pin (registers[C1_SIZE*C1_SIZE-1:0]),
       .pout(prod_c)
   );
 
@@ -260,7 +260,7 @@ module Core
 
   // connect 9 first registers to the outputs
   always_comb begin
-    outputMAP = registers[8:0];
+    outputMAP = registers[A1_SIZE*A2_SIZE-1:0];
   end
 endmodule
 
