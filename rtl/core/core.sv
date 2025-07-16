@@ -151,8 +151,6 @@ module Core
             count_to_parallel <= 0;
             s_end <= 1'b1;
           end
-          // if (parallel_valid_out)
-          //   s_end <= 1'b1;
         end
         DATA_IN: begin
           if (p_in_ce && (count_to_parallel < 25)) begin
