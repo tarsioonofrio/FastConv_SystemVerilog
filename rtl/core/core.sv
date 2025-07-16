@@ -76,16 +76,16 @@ module Core
 
   state_type_conv current_st_conv, next_st_conv;
 
-  type_weight registers;
-  type_weight prod_c;
-  type_output prod_a;
-  type_input  inputMAP;
-  type_weight weights;
+  type_weight                    registers;
+  type_weight                    prod_c;
+  type_output                    prod_a;
+  type_input                     inputMAP;
+  type_weight                    weights;
 
-  
+
   logic signed [NBITS-1+QUANT:0] product;  // QUANT more bits for the multipliers
-  logic        data_valid;
-  logic        [ 5:0] idx;
+  logic                          data_valid;
+  logic        [            5:0] idx;
 
 
   //
@@ -129,6 +129,7 @@ module Core
       count_to_parallel <= 0;
       registers <= '{default: '0};
       data_valid <= 0;
+      idx <= 0;
     end else begin
       s_debug <= 1'b0;
       if (output_valid) begin
@@ -139,6 +140,7 @@ module Core
         IDLE: begin
           registers_out <= '{default: '0};
           s_end <= 1'b0;
+          idx <= 0;
         end
         WEIGHT: begin
           if (p_wh_ce && (count_to_parallel < 36)) begin
@@ -165,12 +167,16 @@ module Core
         CONV: begin
           data_valid <= 0;
           unique case (current_st_conv)
-            WR_MC:   registers <= prod_c;
+            WR_MC: registers <= prod_c;
             WR_OUT: begin
               data_valid <= 1;
               registers[8:0] <= prod_a;
             end
-            default: registers[idx] <= product;
+            MU: begin
+              registers[idx] <= product;
+              idx <= idx + 1;
+            end
+            // default: registers[idx] <= product;
           endcase
         end
       endcase
@@ -221,10 +227,12 @@ module Core
 
   always_comb begin
     unique case (current_st_conv)
-      IDLE1:   next_st_conv = start ? WR_MC : IDLE1;
-      WR_MC:   next_st_conv = MU0;
-      WR_OUT:  next_st_conv = IDLE1;
-      default: next_st_conv = state_type_conv'(current_st_conv + 1);
+      IDLE1: next_st_conv = start ? WR_MC : IDLE1;
+      WR_MC: next_st_conv = MU;
+      MU:
+      if (idx < 35) next_st_conv = MU;
+      else next_st_conv = WR_OUT;
+      WR_OUT: next_st_conv = IDLE1;
     endcase
   end
 
@@ -238,7 +246,7 @@ module Core
       .pout(prod_c)
   );
 
-  assign idx = current_st_conv;
+  // assign idx = current_st_conv;
 
   Multip multip0 (
       .register(registers[idx]),
