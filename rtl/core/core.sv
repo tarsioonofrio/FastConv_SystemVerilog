@@ -121,22 +121,22 @@ module Core
 
   always_ff @(posedge clk) begin
     if (reset) begin
+      registers <= '{default: '0};
       registers_out <= '{default: '0};
       register_weight <= '{default: '0};
       count_to_serial <= 0;
       count_to_parallel <= 0;
-      registers <= '{default: '0};
+      serial_valid_out <= 1'b0;
       r_data_end <= 1'b0;
       r_conv_end <= 0;
       r_mult_idx <= 0;
-      serial_valid_out <= 1'b0;
     end else begin
       unique case (current_st)
         IDLE: begin
           registers_out <= '{default: '0};
-          r_mult_idx <= 0;
           r_data_end <= 1'b0;
           r_conv_end <= 0;
+          r_mult_idx <= 0;
         end
         WEIGHT: begin
           if (p_wh_ce && (count_to_parallel < M1_SIZE * M2_SIZE)) begin
