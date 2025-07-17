@@ -133,7 +133,6 @@ module Core
     end else begin
       unique case (current_st)
         IDLE: begin
-          registers_out <= '{default: '0};
           r_data_end <= 1'b0;
           r_conv_end <= 0;
           r_mult_idx <= 0;
@@ -204,14 +203,12 @@ module Core
 
   // BLOCK: Convolution
 
-  type_output outputMAP;
   logic       start;
 
   always_comb begin
     start = start_conv;
     // inputMAP = input_map;
     weights = register_weight;
-    output_map = outputMAP;
     output_valid = r_conv_end;
   end
 
@@ -264,10 +261,6 @@ module Core
       .pout(prod_a)
   );
 
-  // connect 9 first registers to the outputs
-  always_comb begin
-    outputMAP = registers[A1_SIZE*A2_SIZE-1:0];
-  end
 endmodule
 
 
