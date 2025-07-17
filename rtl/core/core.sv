@@ -61,7 +61,6 @@ module Core
 
   // ----------- serial signals
   logic serial_in_ce;
-  logic_vector serial_data_in;
   logic parallel_valid_out;
   type_weight parallel_data_out;
   logic parallel_valid_in;
@@ -84,11 +83,22 @@ module Core
   logic signed [NBITS-1+QUANT:0] product;  // QUANT more bits for the multipliers
   logic                          r_conv_end;
   logic        [            5:0] r_mult_idx;
+  logic       start;
 
 
   //
   // BLOCK: Control FSM
   //
+
+  
+  always_comb begin
+    start = p_start;
+    parallel_data_out[count_to_parallel] = p_in_data;
+    if (current_st == DATA_IN) input_map = parallel_data_out[C1_SIZE*C2_SIZE-1:0];
+    // saving one register for data output
+    p_out_data = registers_out[count_to_serial-1];
+    p_end = r_data_end;
+  end
 
   always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
@@ -111,9 +121,6 @@ module Core
     endcase
   end
 
-  always_comb begin
-    p_end = r_data_end;
-  end
 
 
   always_ff @(posedge clk) begin
@@ -136,7 +143,7 @@ module Core
         end
         WEIGHT: begin
           if (p_wh_ce && (count_to_parallel < M1_SIZE * M2_SIZE)) begin
-            register_weight[count_to_parallel] <= serial_data_in;
+            register_weight[count_to_parallel] <= p_in_data;
             count_to_parallel <= count_to_parallel + 1;
             r_data_end <= 1'b0;
           end else begin
@@ -146,7 +153,7 @@ module Core
         end
         DATA_IN: begin
           if (p_in_ce && (count_to_parallel < C1_SIZE * C2_SIZE)) begin
-            registers[count_to_parallel] <= serial_data_in;
+            registers[count_to_parallel] <= p_in_data;
             count_to_parallel <= count_to_parallel + 1;
             r_data_end <= 1'b0;
           end else begin
@@ -181,24 +188,9 @@ module Core
     end
   end
 
-  // BLOCKS: CONNECT
-
-  always_comb begin
-    serial_data_in = p_in_data;
-    if (current_st == DATA_IN) input_map = parallel_data_out[C1_SIZE*C2_SIZE-1:0];
-    serial_data_out = registers_out[count_to_serial-1];
-    parallel_data_out[count_to_parallel] = serial_data_in;
-  end
-
-
 
   // BLOCK: Convolution
 
-  logic       start;
-
-  always_comb begin
-    start = p_start;
-  end
 
   //
   // Control FSM
