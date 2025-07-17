@@ -123,23 +123,19 @@ module Core
     if (reset) begin
       registers_out <= '{default: '0};
       register_weight <= '{default: '0};
-      r_data_end <= 1'b0;
       count_to_serial <= 0;
       count_to_parallel <= 0;
       registers <= '{default: '0};
+      r_data_end <= 1'b0;
       r_conv_end <= 0;
       r_mult_idx <= 0;
+      serial_valid_out <= 1'b0;
     end else begin
-      s_debug <= 1'b0;
-      // if (output_valid) begin
-      //   registers_out <= output_map;
-      //   r_data_end <= 1'b1;
-      // end
       unique case (current_st)
         IDLE: begin
           registers_out <= '{default: '0};
-          r_data_end <= 1'b0;
           r_mult_idx <= 0;
+          r_data_end <= 1'b0;
           r_conv_end <= 0;
         end
         WEIGHT: begin
@@ -176,7 +172,7 @@ module Core
           endcase
         end
         DATA_OUT: begin
-          if (count_to_serial < M1_SIZE * M2_SIZE) begin
+          if (count_to_serial < (A1_SIZE * A2_SIZE)) begin
             count_to_serial  <= count_to_serial + 1;
             serial_valid_out <= 1'b1;
           end else begin
@@ -201,7 +197,7 @@ module Core
   // BLOCK: serialize
 
   always_comb begin
-    serial_data_out = registers_out[count_to_serial];
+    serial_data_out = registers_out[count_to_serial-1];
     parallel_data_out[count_to_parallel] = serial_data_in;
   end
 
