@@ -8,12 +8,12 @@ package packConv;
   timeprecision 1ps;
 
   parameter int NBITS = 20;
-  
+
   parameter int NMULT = 1;
   parameter int SMULT = 36;
 
   // MU[SMULT]
-  typedef enum {MU, WR_OUT, IDLE1, WR_MC} state_type_conv;
+  typedef enum {IDLE1, WR_MC, MU, WR_OUT} state_type_conv;
 
 
   typedef logic [NBITS-1:0] logic_vector;
