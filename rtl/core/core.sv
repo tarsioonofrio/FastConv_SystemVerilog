@@ -55,7 +55,6 @@ module Core
   logic out_ce;
   logic out_we;
   logic r_data_end;
-  logic output_valid;
   logic s_debug;
 
   logic start_conv;
@@ -80,7 +79,6 @@ module Core
   type_weight                    prod_c;
   type_output                    prod_a;
   type_input                     inputMAP;
-  type_weight                    weights;
 
 
   logic signed [NBITS-1+QUANT:0] product;  // QUANT more bits for the multipliers
@@ -115,7 +113,6 @@ module Core
 
   always_comb begin
     p_end = r_data_end;
-    start_conv = p_start;
   end
 
 
@@ -189,16 +186,10 @@ module Core
   always_comb begin
     serial_data_in = p_in_data;
     if (current_st == DATA_IN) input_map = parallel_data_out[C1_SIZE*C2_SIZE-1:0];
-  end
-
-
-  // ---------------------------------------------------------
-  // BLOCK: serialize
-
-  always_comb begin
     serial_data_out = registers_out[count_to_serial-1];
     parallel_data_out[count_to_parallel] = serial_data_in;
   end
+
 
 
   // BLOCK: Convolution
@@ -206,10 +197,7 @@ module Core
   logic       start;
 
   always_comb begin
-    start = start_conv;
-    // inputMAP = input_map;
-    weights = register_weight;
-    output_valid = r_conv_end;
+    start = p_start;
   end
 
   //
@@ -251,7 +239,7 @@ module Core
 
   Multip multip0 (
       .register(registers[r_mult_idx]),
-      .weight  (weights[r_mult_idx]),
+      .weight  (register_weight[r_mult_idx]),
       .product (product)
   );
 
