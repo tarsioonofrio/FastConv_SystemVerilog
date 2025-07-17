@@ -14,10 +14,11 @@ module tb;
   parameter int ROM = 0;
   parameter int DATA = 0;
   parameter int DEBUG = 0;
+  parameter int LATENCY = 3;
 
   function automatic int data_test(int row, int col);
     case (DATA)
-      0:  return const_feat_in[row][col]; 
+      0:  return const_feat_in[row][col];
       1:  return const_weight[row][col];
       default:  return 0;
     endcase
@@ -53,7 +54,7 @@ module tb;
   Memory #(
     .NADDR(NADDR),
     .NBITS(NBITS),
-    .LATENCY(0),
+    .LATENCY(LATENCY),
     .ROM(ROM)
   ) memory (
     .clk(clk),
