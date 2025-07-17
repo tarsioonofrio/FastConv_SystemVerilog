@@ -21,10 +21,10 @@ module Core
     output logic p_end,
     output logic p_debug,
 
-    input logic p_in_ce,
+    input logic p_in_en,
     input logic p_in_valid,
 
-    input logic p_wh_ce,
+    input logic p_wh_en,
     input logic p_wh_valid,
 
     output logic p_out_en,
@@ -43,47 +43,29 @@ module Core
     CONV,
     DATA_OUT
   } state_type;
+
   state_type current_st, next_st;
 
-  // Tipos usados
-  type_input input_map;
-  type_output output_map;
+  type_weight r_weight;
+  type_output r_out_data;
 
-  type_weight register_weight;
-  type_output registers_out;
-
-  logic out_ce;
-  logic out_we;
   logic r_data_end;
-  logic s_debug;
+  logic r_out_en;
 
-  logic start_conv;
-
-  // ----------- serial signals
-  logic serial_in_ce;
-  logic parallel_valid_out;
-  type_weight parallel_data_out;
-  logic parallel_valid_in;
-  type_output parallel_data_in;
-  logic serial_valid_out;
-  logic_vector serial_data_out;
-
-  int count_to_parallel;
-  int count_to_serial;
+  int r_count_in;
+  int r_count_out;
 
 
   state_type_conv current_st_conv, next_st_conv;
 
-  type_weight                    registers;
-  type_weight                    prod_c;
-  type_output                    prod_a;
-  type_input                     inputMAP;
+  type_weight                    r_data_in;
+  type_weight                    w_prod_c;
+  type_output                    w_prod_a;
 
 
   logic signed [NBITS-1+QUANT:0] product;  // QUANT more bits for the multipliers
   logic                          r_conv_end;
   logic        [            5:0] r_mult_idx;
-  logic       start;
 
 
   //
@@ -92,9 +74,10 @@ module Core
 
 
   always_comb begin
-    start = p_start;
-    p_out_data = registers_out[count_to_serial-1];
     p_end = r_data_end;
+    p_out_en = r_out_en;
+    // saving one register[NBITS] for data output
+    p_out_data = r_out_data[r_count_out-1];
   end
 
   always_ff @(posedge clk or posedge reset) begin
@@ -108,8 +91,8 @@ module Core
   always_comb begin
     unique case (current_st)
       IDLE:
-        if (p_wh_ce) next_st = WEIGHT;
-        else if (p_in_ce) next_st = DATA_IN;
+        if (p_wh_en) next_st = WEIGHT;
+        else if (p_in_en) next_st = DATA_IN;
         else if (p_start) next_st = CONV;
       WEIGHT:   if (r_data_end) next_st = IDLE;
       DATA_IN:  if (r_data_end) next_st = IDLE;
@@ -120,62 +103,62 @@ module Core
 
   always_ff @(posedge clk) begin
     if (reset) begin
-      registers <= '{default: '0};
-      registers_out <= '{default: '0};
-      register_weight <= '{default: '0};
-      count_to_serial <= 0;
-      count_to_parallel <= 0;
-      serial_valid_out <= 1'b0;
+      r_weight <= '{default: '0};
+      r_data_in <= '{default: '0};
+      r_out_data <= '{default: '0};
+      r_count_out <= 1'b0;
+      r_count_in <= 1'b0;
+      r_out_en <= 1'b0;
       r_data_end <= 1'b0;
-      r_conv_end <= 0;
-      r_mult_idx <= 0;
+      r_conv_end <= 1'b0;
+      r_mult_idx <= 1'b0;
     end else begin
       unique case (current_st)
         IDLE: begin
           r_data_end <= 1'b0;
-          r_conv_end <= 0;
-          r_mult_idx <= 0;
+          r_conv_end <= 1'b0;
+          r_mult_idx <= 1'b0;
         end
         WEIGHT: begin
-          if (p_wh_ce && (count_to_parallel < M1_SIZE * M2_SIZE)) begin
-            register_weight[count_to_parallel] <= p_in_data;
-            count_to_parallel <= count_to_parallel + 1;
+          if (p_wh_en && (r_count_in < M1_SIZE * M2_SIZE)) begin
+            r_weight[r_count_in] <= p_in_data;
+            r_count_in <= r_count_in + 1;
             r_data_end <= 1'b0;
           end else begin
-            count_to_parallel <= 0;
+            r_count_in <= 1'b0;
             r_data_end <= 1'b1;
           end
         end
         DATA_IN: begin
-          if (p_in_ce && (count_to_parallel < C1_SIZE * C2_SIZE)) begin
-            registers[count_to_parallel] <= p_in_data;
-            count_to_parallel <= count_to_parallel + 1;
+          if (p_in_en && (r_count_in < C1_SIZE * C2_SIZE)) begin
+            r_data_in[r_count_in] <= p_in_data;
+            r_count_in <= r_count_in + 1;
             r_data_end <= 1'b0;
           end else begin
-            count_to_parallel <= 0;
+            r_count_in <= 1'b0;
             r_data_end <= 1'b1;
           end
         end
         CONV: begin
           unique case (current_st_conv)
-            WR_MC: registers <= prod_c;
+            WR_MC: r_data_in <= w_prod_c;
             MU: begin
-              registers[r_mult_idx] <= product;
+              r_data_in[r_mult_idx] <= product;
               r_mult_idx <= r_mult_idx + 1;
             end
             WR_OUT: begin
-              registers_out <= prod_a;
-              r_conv_end <= 1;
+              r_out_data <= w_prod_a;
+              r_conv_end <= 1'b1;
             end
           endcase
         end
         DATA_OUT: begin
-          if (count_to_serial < (A1_SIZE * A2_SIZE)) begin
-            count_to_serial  <= count_to_serial + 1;
-            serial_valid_out <= 1'b1;
+          if (r_count_out < (A1_SIZE * A2_SIZE)) begin
+            r_count_out  <= r_count_out + 1;
+            r_out_en <= 1'b1;
           end else begin
-            count_to_serial  <= 0;
-            serial_valid_out <= 1'b0;
+            r_count_out  <= 1'b0;
+            r_out_en <= 1'b0;
             r_data_end <= 1'b1;
           end
         end
@@ -201,7 +184,7 @@ module Core
 
   always_comb begin
     unique case (current_st_conv)
-      IDLE1: next_st_conv = start ? WR_MC : IDLE1;
+      IDLE1: next_st_conv = p_start ? WR_MC : IDLE1;
       WR_MC: next_st_conv = MU;
       MU:
         if (r_mult_idx < (M1_SIZE * M2_SIZE - 1))
@@ -218,22 +201,22 @@ module Core
 
   // Instance of matrix multiplier "C"
   Transform trf (
-      .pin (registers[C1_SIZE*C1_SIZE-1:0]),
-      .pout(prod_c)
+      .pin (r_data_in[C1_SIZE*C1_SIZE-1:0]),
+      .pout(w_prod_c)
   );
 
   // assign r_mult_idx = current_st_conv;
 
   Multip multip0 (
-      .register(registers[r_mult_idx]),
-      .weight  (register_weight[r_mult_idx]),
+      .register(r_data_in[r_mult_idx]),
+      .weight  (r_weight[r_mult_idx]),
       .product (product)
   );
 
   // Instance of matrix multiplier "A"
   Inverse inv (
-      .pin (registers),
-      .pout(prod_a)
+      .pin (r_data_in),
+      .pout(w_prod_a)
   );
 endmodule
 
