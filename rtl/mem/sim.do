@@ -2,8 +2,8 @@ if {[file isdirectory work]} { vdel -all -lib work }
 vlib work
 vmap work work
 
-vlog -work work -svinputport=relaxed ../../src/ifn9-01m20b/data.sv
-vlog -work work -svinputport=relaxed ../../src/ifn9-01m20b/rtl/pack_conv.sv
+vlog -work work -svinputport=relaxed ../conv/ifn9-01m20b/data.sv
+vlog -work work -svinputport=relaxed ../conv/ifn9-01m20b/rtl/pack_conv.sv
 vlog -work work -svinputport=relaxed ./mem.sv
 vlog -work work -svinputport=relaxed ./tb_mem.sv
 
@@ -14,5 +14,5 @@ set StdVitalGlitchNoWarnings 1
 
 do wave.do
 
-#run 50ns
-run -all
+run 200ns
+#run -all
