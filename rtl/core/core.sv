@@ -85,7 +85,7 @@ module Core
 
   logic signed [NBITS-1+QUANT:0] product;  // QUANT more bits for the multipliers
   logic                          r_conv_end;
-  logic        [            5:0] idx;
+  logic        [            5:0] r_mult_idx;
 
 
   //
@@ -108,7 +108,7 @@ module Core
         else if (p_start) next_st = CONV;
       WEIGHT:   if (r_data_end) next_st = IDLE;
       DATA_IN:  if (r_data_end) next_st = IDLE;
-      CONV:     if (current_st_conv) next_st = DATA_OUT;
+      CONV:     if (r_conv_end) next_st = DATA_OUT;
       DATA_OUT: if (r_data_end) next_st = IDLE;
     endcase
   end
@@ -128,7 +128,7 @@ module Core
       count_to_parallel <= 0;
       registers <= '{default: '0};
       r_conv_end <= 0;
-      idx <= 0;
+      r_mult_idx <= 0;
     end else begin
       s_debug <= 1'b0;
       // if (output_valid) begin
@@ -139,7 +139,7 @@ module Core
         IDLE: begin
           registers_out <= '{default: '0};
           r_data_end <= 1'b0;
-          idx <= 0;
+          r_mult_idx <= 0;
           r_conv_end <= 0;
         end
         WEIGHT: begin
@@ -166,8 +166,8 @@ module Core
           unique case (current_st_conv)
             WR_MC: registers <= prod_c;
             MU: begin
-              registers[idx] <= product;
-              idx <= idx + 1;
+              registers[r_mult_idx] <= product;
+              r_mult_idx <= r_mult_idx + 1;
             end
             WR_OUT: begin
               registers_out <= prod_a;
@@ -236,8 +236,10 @@ module Core
       IDLE1: next_st_conv = start ? WR_MC : IDLE1;
       WR_MC: next_st_conv = MU;
       MU:
-      if (idx < M1_SIZE * M2_SIZE - 1) next_st_conv = MU;
-      else next_st_conv = WR_OUT;
+        if (r_mult_idx < (M1_SIZE * M2_SIZE - 1))
+          next_st_conv = MU;
+        else
+          next_st_conv = WR_OUT;
       WR_OUT: next_st_conv = IDLE1;
     endcase
   end
@@ -252,11 +254,11 @@ module Core
       .pout(prod_c)
   );
 
-  // assign idx = current_st_conv;
+  // assign r_mult_idx = current_st_conv;
 
   Multip multip0 (
-      .register(registers[idx]),
-      .weight  (weights[idx]),
+      .register(registers[r_mult_idx]),
+      .weight  (weights[r_mult_idx]),
       .product (product)
   );
 
