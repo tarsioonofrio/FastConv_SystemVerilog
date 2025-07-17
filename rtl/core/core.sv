@@ -90,12 +90,9 @@ module Core
   // BLOCK: Control FSM
   //
 
-  
+
   always_comb begin
     start = p_start;
-    parallel_data_out[count_to_parallel] = p_in_data;
-    if (current_st == DATA_IN) input_map = parallel_data_out[C1_SIZE*C2_SIZE-1:0];
-    // saving one register for data output
     p_out_data = registers_out[count_to_serial-1];
     p_end = r_data_end;
   end
@@ -120,8 +117,6 @@ module Core
       DATA_OUT: if (r_data_end) next_st = IDLE;
     endcase
   end
-
-
 
   always_ff @(posedge clk) begin
     if (reset) begin
@@ -240,7 +235,6 @@ module Core
       .pin (registers),
       .pout(prod_a)
   );
-
 endmodule
 
 
