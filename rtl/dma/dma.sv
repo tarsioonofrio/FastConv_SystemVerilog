@@ -52,6 +52,11 @@ module Core
   int r_count_in;
   int r_count_out;
 
+  int r_addr_bias;
+  int r_addr_wh;
+  int r_addr_in;
+  int r_addr_out;
+
   logic_vector  data_in;
   logic_vector  data_out;
 
@@ -77,12 +82,6 @@ module Core
     .data_valid(data_valid_out)
   );
 
-
-  //
-  // BLOCK: Control FSM
-  //
-
-
   always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
       current_st <= IDLE;
@@ -90,17 +89,6 @@ module Core
       current_st <= next_st;
     end
   end
-
-  always_comb begin
-    unique case (current_st)
-      IDLE:     if (p_start) next_st = BIAS;
-      BIAS:     if (p_out_valid) next_st = WEIGHT;
-      WEIGHT:   if (r_count_wh == M1_SIZE * M2_SIZE) next_st = FEAT_IN;
-      FEAT_IN:  if (r_count_in == C1_SIZE * C2_SIZE) next_st = CONV;
-      FEAT_OUT: if (r_count_out == A1_SIZE * A2_SIZE) next_st = IDLE;
-    endcase
-  end
-
 
   always_comb begin
     // Feature input and weights
@@ -111,35 +99,63 @@ module Core
     // Feature output
     data_in <= p_in_data;
     chip_en <= p_in_en;
+
+    // State Machine
+    unique case (current_st)
+      IDLE:     if (p_start) next_st = BIAS;
+      BIAS:     if (p_out_valid) next_st = WEIGHT;
+      WEIGHT:   if (r_count_wh == M1_SIZE * M2_SIZE) next_st = FEAT_IN;
+      FEAT_IN:  if (r_count_in == C1_SIZE * C2_SIZE) next_st = CONV;
+      FEAT_OUT: if (r_count_out == A1_SIZE * A2_SIZE) next_st = IDLE;
+    endcase
+
+    // Address control
+    unique case (current_st)
+      FEAT_OUT: address <= r_addr_out;
+      BIAS:     address <= r_addr_bias;
+      default:  address <= r_addr_in;
+    endcase
   end
 
   always_ff @(posedge clk) begin
     if (reset) begin
-      r_count_out <= 0;
+      r_addr_wh <= 0;
+      r_addr_in <= 0;
+      r_addr_out <= 0;
+      r_addr_bias <= 0;
+      r_count_wh <= 0;
       r_count_in <= 0;
+      r_count_out <= 0;
     end else begin
       unique case (current_st)
         IDLE: begin
-          r_count_out <= 0;
+          r_count_wh <= 0;
           r_count_in <= 0;
+          r_count_out <= 0;
+        end
+        BIAS: begin
+          r_addr_bias <= r_addr_bias + 1;
         end
         WEIGHT: begin
           if (data_valid_out && (r_count_in < M1_SIZE * M2_SIZE))
             r_count_in <= r_count_in + 1;
+            r_addr_wh <= r_addr_wh + 1;
           else
-            r_count_in <= 1'b0;
+            r_count_in <= 0;
         end
         FEAT_IN: begin
           if (data_valid_out && (r_count_in < C1_SIZE * C2_SIZE))
             r_count_in <= r_count_in + 1;
+            r_addr_in <= r_addr_in + 1;
           else
-            r_count_in <= 1'b0;
+            r_count_in <= 0;
         end
         FEAT_OUT: begin
           if (p_in_valid && (r_count_out < (A1_SIZE * A2_SIZE)))
             r_count_out  <= r_count_out + 1;
+            r_addr_out <= r_addr_out + 1;
           else
-            r_count_out  <= 1'b0;
+            r_count_out  <= 0;
         end
       endcase
     end
