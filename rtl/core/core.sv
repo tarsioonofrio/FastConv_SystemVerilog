@@ -3,19 +3,9 @@ module Core
   import data::*;
 #(
     parameter int QUANT          = 8,
-    parameter int NBITS          = 20,
-    parameter int NADDR          = 12,
-    parameter int WEIGHT_SIZE    = 1,
-    parameter int BUFFER_IN_SIZE = 512,
-    parameter int WINDOW_IN_SIZE = 64,
-    parameter int WINDOW_IN_NUM  = 4,
-    parameter int LATENCY        = 0,
-    parameter int ROM            = 0,
-    parameter int SERIAL_SIZE    = 36,
-    parameter int PARALLEL_SIZE  = 9
+    parameter int NBITS          = 20
 ) (
-    input logic clk,
-    reset,
+    input logic clk, reset,
 
     input  logic p_start,
     output logic p_end,
@@ -39,33 +29,31 @@ module Core
   typedef enum {
     IDLE,
     WEIGHT,
-    DATA_IN,
+    FEAT_IN,
     CONV,
-    DATA_OUT
+    FEAT_OUT
   } state_type;
 
   state_type current_st, next_st;
+  state_type_conv current_st_conv, next_st_conv;
 
   type_weight r_weight;
-  type_output r_out_data;
+  type_output r_feat_out;
+  type_weight r_feat_in;
+
+  type_weight w_prod_c;
+  type_output w_prod_a;
 
   logic r_data_end;
   logic r_out_en;
+  logic r_conv_end;
 
   int r_count_in;
   int r_count_out;
 
-
-  state_type_conv current_st_conv, next_st_conv;
-
-  type_weight                    r_data_in;
-  type_weight                    w_prod_c;
-  type_output                    w_prod_a;
-
+  logic [5:0] r_mult_idx;
 
   logic signed [NBITS-1+QUANT:0] product;  // QUANT more bits for the multipliers
-  logic                          r_conv_end;
-  logic        [            5:0] r_mult_idx;
 
 
   //
@@ -77,7 +65,7 @@ module Core
     p_end = r_data_end;
     p_out_en = r_out_en;
     // saving one register[NBITS] for data output
-    p_out_data = r_out_data[r_count_out-1];
+    p_out_data = r_feat_out[r_count_out-1];
   end
 
   always_ff @(posedge clk or posedge reset) begin
@@ -92,20 +80,20 @@ module Core
     unique case (current_st)
       IDLE:
         if (p_wh_en) next_st = WEIGHT;
-        else if (p_in_en) next_st = DATA_IN;
+        else if (p_in_en) next_st = FEAT_IN;
         else if (p_start) next_st = CONV;
       WEIGHT:   if (r_data_end) next_st = IDLE;
-      DATA_IN:  if (r_data_end) next_st = IDLE;
-      CONV:     if (r_conv_end) next_st = DATA_OUT;
-      DATA_OUT: if (r_data_end) next_st = IDLE;
+      FEAT_IN:  if (r_data_end) next_st = IDLE;
+      CONV:     if (r_conv_end) next_st = FEAT_OUT;
+      FEAT_OUT: if (r_data_end) next_st = IDLE;
     endcase
   end
 
   always_ff @(posedge clk) begin
     if (reset) begin
       r_weight <= '{default: '0};
-      r_data_in <= '{default: '0};
-      r_out_data <= '{default: '0};
+      r_feat_in <= '{default: '0};
+      r_feat_out <= '{default: '0};
       r_count_out <= 1'b0;
       r_count_in <= 1'b0;
       r_out_en <= 1'b0;
@@ -129,9 +117,9 @@ module Core
             r_data_end <= 1'b1;
           end
         end
-        DATA_IN: begin
+        FEAT_IN: begin
           if (p_in_en && (r_count_in < C1_SIZE * C2_SIZE)) begin
-            r_data_in[r_count_in] <= p_in_data;
+            r_feat_in[r_count_in] <= p_in_data;
             r_count_in <= r_count_in + 1;
             r_data_end <= 1'b0;
           end else begin
@@ -141,18 +129,18 @@ module Core
         end
         CONV: begin
           unique case (current_st_conv)
-            WR_MC: r_data_in <= w_prod_c;
+            WR_MC: r_feat_in <= w_prod_c;
             MU: begin
-              r_data_in[r_mult_idx] <= product;
+              r_feat_in[r_mult_idx] <= product;
               r_mult_idx <= r_mult_idx + 1;
             end
             WR_OUT: begin
-              r_out_data <= w_prod_a;
+              r_feat_out <= w_prod_a;
               r_conv_end <= 1'b1;
             end
           endcase
         end
-        DATA_OUT: begin
+        FEAT_OUT: begin
           if (r_count_out < (A1_SIZE * A2_SIZE)) begin
             r_count_out  <= r_count_out + 1;
             r_out_en <= 1'b1;
@@ -201,21 +189,21 @@ module Core
 
   // Instance of matrix multiplier "C"
   Transform trf (
-      .pin (r_data_in[C1_SIZE*C1_SIZE-1:0]),
+      .pin (r_feat_in[C1_SIZE*C1_SIZE-1:0]),
       .pout(w_prod_c)
   );
 
   // assign r_mult_idx = current_st_conv;
 
   Multip multip0 (
-      .register(r_data_in[r_mult_idx]),
+      .register(r_feat_in[r_mult_idx]),
       .weight  (r_weight[r_mult_idx]),
       .product (product)
   );
 
   // Instance of matrix multiplier "A"
   Inverse inv (
-      .pin (r_data_in),
+      .pin (r_feat_in),
       .pout(w_prod_a)
   );
 endmodule

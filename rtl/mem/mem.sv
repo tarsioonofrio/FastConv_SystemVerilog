@@ -8,11 +8,11 @@ module Memory
     parameter int ROM     = 0
   )
   (
-    input logic            clk, reset, chip_en, wr_en,
-    input logic[NADDR-1:0] address,
-    input logic_vector     data_in,
-    output logic_vector    data_out,
-    output logic           data_valid
+    input  logic            clk, reset, chip_en, wr_en,
+    input  logic[NADDR-1:0] address,
+    input  logic_vector     data_in,
+    output logic_vector     data_out,
+    output logic            data_valid
   );
 
   timeunit 1ns;
