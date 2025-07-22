@@ -21,13 +21,17 @@ module Control
     output logic p_end,
     // output logic p_debug,
 
-    output logic p_in_en,
-    output logic p_in_valid,
-    output logic_vector p_in_data,
+    output logic p_fin_en,
+    output logic p_fin_valid,
 
-    input logic p_out_en,
-    input logic p_out_valid,
-    input logic_vector p_out_data
+    output logic p_wh_en,
+    output logic p_wh_valid,
+
+    input logic p_fout_en,
+    input logic p_fout_valid,
+
+    output logic_vector p_fin_data,
+    input logic_vector p_fout_data
 );
 
   timeunit 1ns; timeprecision 1ps;
@@ -44,7 +48,7 @@ module Control
   state_type current_st, next_st;
 
   logic r_data_end;
-  logic r_out_en;
+  logic r_fout_en;
   logic r_conv_end;
 
   int r_count_wh;
@@ -91,18 +95,18 @@ module Control
 
   always_comb begin
     // Feature input and weights
-    p_out_en <= chip_en;
-    p_out_data <= data_out;
-    p_out_valid <= data_valid_out;
+    p_fout_en <= chip_en;
+    p_fout_data <= data_out;
+    p_fout_valid <= data_valid_out;
 
     // Feature output
-    data_in <= p_in_data;
-    chip_en <= p_in_en;
+    data_in <= p_fin_data;
+    chip_en <= p_fin_en;
 
     // State Machine
     unique case (current_st)
       IDLE:     if (p_start) next_st = BIAS;
-      BIAS:     if (p_out_valid) next_st = WEIGHT;
+      BIAS:     if (p_fout_valid) next_st = WEIGHT;
       WEIGHT:   if (r_count_wh == M1_SIZE * M2_SIZE) next_st = FEAT_IN;
       FEAT_IN:  if (r_count_in == C1_SIZE * C2_SIZE) next_st = FEAT_OUT;
       FEAT_OUT: begin
@@ -163,7 +167,7 @@ module Control
             r_count_in <= 0;
         end
         FEAT_OUT: begin
-          if (p_in_valid && (r_count_out < (A1_SIZE * A2_SIZE))) begin
+          if (p_fin_valid && (r_count_out < (A1_SIZE * A2_SIZE))) begin
             r_count_out  <= r_count_out + 1;
             r_addr_out <= r_addr_out + 1;
           end else begin

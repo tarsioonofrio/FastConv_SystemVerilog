@@ -24,17 +24,17 @@ module tb;
   logic p_end;
   logic p_debug;
 
-  logic p_in_en;
-  logic p_in_valid;
+  logic p_fin_en;
+  logic p_fin_valid;
 
   logic p_wh_en;
   logic p_wh_valid;
 
-  logic p_out_en;
-  logic p_out_valid;
+  logic p_fout_en;
+  logic p_fout_valid;
 
-  logic_vector p_in_data;
-  logic_vector p_out_data;
+  logic_vector p_fin_data;
+  logic_vector p_fout_data;
 
   // Clock generation (10ns period)
   initial clk = 0;
@@ -61,17 +61,17 @@ module tb;
     .p_end(p_end),
     .p_debug(p_debug),
 
-    .p_in_en(p_in_en),
-    .p_in_valid(p_in_valid),
+    .p_fin_en(p_fin_en),
+    .p_fin_valid(p_fin_valid),
 
     .p_wh_en(p_wh_en),
     .p_wh_valid(p_wh_valid),
 
-    .p_out_en(p_out_en),
-    .p_out_valid(p_out_valid),
+    .p_fout_en(p_fout_en),
+    .p_fout_valid(p_fout_valid),
 
-    .p_in_data(p_in_data),
-    .p_out_data(p_out_data)
+    .p_fin_data(p_fin_data),
+    .p_fout_data(p_fout_data)
   );
 
   // Inicialização dos sinais e reset
@@ -82,10 +82,10 @@ module tb;
     reset = 1;
 
     // Inicializa sinais de controle e dados
-    p_in_en = 0;
+    p_fin_en = 0;
     p_wh_en = 0;
     p_start = 0;
-    p_in_data = '0;
+    p_fin_data = '0;
 
     // Aguarda 1 ciclos de clock
     @(posedge clk);
@@ -98,8 +98,8 @@ module tb;
     @(posedge clk);
 
     for (int i = 0; i < W2_SIZE; i++) begin
-      p_in_data = const_weight[0][i];
-      $display("Weight[%0d] = %0d", i, p_in_data);
+      p_fin_data = const_weight[0][i];
+      $display("Weight[%0d] = %0d", i, p_fin_data);
       @(posedge clk);
     end
 
@@ -109,16 +109,16 @@ module tb;
 
     // Carregar dados de entrada
     $display("=== Loading data ===");
-    p_in_en = 1;
+    p_fin_en = 1;
     @(posedge clk);
 
     for (int i = 0; i < FIN2_SIZE; i++) begin
-      p_in_data = const_feat_in[0][i];
-      $display("Input data[%0d] = %0d", i, p_in_data);
+      p_fin_data = const_feat_in[0][i];
+      $display("Input data[%0d] = %0d", i, p_fin_data);
       @(posedge clk);
     end
 
-    p_in_en = 0;
+    p_fin_en = 0;
     wait(p_end);
     @(posedge clk);
 
@@ -131,10 +131,10 @@ module tb;
     @(posedge clk);
     wait(p_end);
 
-    // Monitorar saída (p_out_valid = 1) e ler dados de saída
+    // Monitorar saída (p_fout_valid = 1) e ler dados de saída
     @(posedge clk);
-    if (p_out_valid) begin
-      $display("Time %0t: Output = %0d", $time, p_out_data);
+    if (p_fout_valid) begin
+      $display("Time %0t: Output = %0d", $time, p_fout_data);
     end
 
     $display("End simulation");
