@@ -37,7 +37,7 @@ module tb;
   always #5 clk = ~clk;
 
   // DUT instantiation
-  Core #(
+  Control #(
     .NADDR(NADDR),
     .NBITS(NBITS),
     .LATENCY(LATENCY),
@@ -65,6 +65,40 @@ module tb;
     .p_out_data(p_out_data)
   );
 
+  Core #(
+    .QUANT(QUANT),
+    .NBITS(NBITS),
+    .NADDR(NADDR),
+    .WEIGHT_SIZE(WEIGHT_SIZE),
+    .BUFFER_IN_SIZE(BUFFER_IN_SIZE),
+    .WINDOW_IN_SIZE(WINDOW_IN_SIZE),
+    .WINDOW_IN_NUM(WINDOW_IN_NUM),
+    .LATENCY(LATENCY),
+    .ROM(ROM),
+    .SERIAL_SIZE(SERIAL_SIZE),
+    .PARALLEL_SIZE(PARALLEL_SIZE)
+  ) dut (
+    .clk(clk),
+    .reset(reset),
+
+    .p_start(p_start),
+    .p_end(p_end),
+    .p_debug(p_debug),
+
+    .p_in_en(p_in_en),
+    .p_in_valid(p_in_valid),
+
+    .p_wh_en(p_wh_en),
+    .p_wh_valid(p_wh_valid),
+
+    .p_out_en(p_out_en),
+    .p_out_valid(p_out_valid),
+
+    .p_in_data(p_in_data),
+    .p_out_data(p_out_data)
+  );
+
+  
   // Inicialização dos sinais e reset
   initial begin
     $dumpfile("dump.vcd");

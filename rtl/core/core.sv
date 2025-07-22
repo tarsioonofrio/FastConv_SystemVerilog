@@ -2,8 +2,8 @@ module Core
   import packConv::*;
   import data::*;
 #(
-    parameter int QUANT          = 8,
-    parameter int NBITS          = 20
+    parameter int QUANT = 8,
+    parameter int NBITS = 20
 ) (
     input logic clk, reset,
 

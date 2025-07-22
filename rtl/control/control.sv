@@ -1,18 +1,18 @@
-module Core
+module Control
   import packConv::*;
   import data::*;
 #(
-    parameter int NADDR           = 12,
-    parameter int NBITS           = 20,
-    parameter int LATENCY         = 1,
-    parameter int ROM             = 0,
-    parameter int QUANT           = 8,
-    parameter int NADDR           = 12,
-    parameter int FEAT_IN_SIZE    = 32,
-    parameter int N_WINDOW        = 15,
-    parameter int N_CHANNEL_IN    = 1,
-    parameter int N_CHANNEL_OUT   = 1,
-    parameter int LAST_WINDOW     = 0
+    parameter int NADDR         = 12,
+    parameter int NBITS         = 20,
+    parameter int LATENCY       = 1,
+    parameter int ROM           = 0,
+    parameter int QUANT         = 8,
+    parameter int NADDR         = 12,
+    parameter int N_WINDOW      = 15,
+    parameter int N_CHANNEL_IN  = 1,
+    parameter int N_CHANNEL_OUT = 1,
+    parameter int FEAT_IN_SIZE  = 32,
+    parameter int LAST_WINDOW   = 0
 ) (
     input logic clk,
     input logic reset,
@@ -21,13 +21,13 @@ module Core
     output logic p_end,
     // output logic p_debug,
 
-    input logic p_in_en,
-    input logic p_in_valid,
-    input logic_vector p_in_data,
+    output logic p_in_en,
+    output logic p_in_valid,
+    output logic_vector p_in_data,
 
-    output logic p_out_en,
-    output logic p_out_valid,
-    output logic_vector p_out_data
+    input logic p_out_en,
+    input logic p_out_valid,
+    input logic_vector p_out_data
 );
 
   timeunit 1ns; timeprecision 1ps;
