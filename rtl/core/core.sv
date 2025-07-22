@@ -11,17 +11,17 @@ module Core
     output logic p_end,
     output logic p_debug,
 
-    input logic p_in_en,
-    input logic p_in_valid,
+    input logic p_fin_en,
+    input logic p_fin_valid,
 
     input logic p_wh_en,
     input logic p_wh_valid,
 
-    output logic p_out_en,
-    output logic p_out_valid,
+    output logic p_fout_en,
+    output logic p_fout_valid,
 
-    input  logic_vector p_in_data,
-    output logic_vector p_out_data
+    input  logic_vector p_fin_data,
+    output logic_vector p_fout_data
 );
 
   timeunit 1ns; timeprecision 1ps;
@@ -45,7 +45,7 @@ module Core
   type_output w_prod_a;
 
   logic r_data_end;
-  logic r_out_en;
+  logic r_fout_en;
   logic r_conv_end;
 
   int r_count_in;
@@ -63,9 +63,9 @@ module Core
 
   always_comb begin
     p_end = r_data_end;
-    p_out_en = r_out_en;
+    p_fout_en = r_fout_en;
     // saving one register[NBITS] for data output
-    p_out_data = r_feat_out[r_count_out-1];
+    p_fout_data = r_feat_out[r_count_out-1];
   end
 
   always_ff @(posedge clk or posedge reset) begin
@@ -80,7 +80,7 @@ module Core
     unique case (current_st)
       IDLE:
         if (p_wh_en) next_st = WEIGHT;
-        else if (p_in_en) next_st = FEAT_IN;
+        else if (p_fin_en) next_st = FEAT_IN;
         else if (p_start) next_st = CONV;
       WEIGHT:   if (r_data_end) next_st = IDLE;
       FEAT_IN:  if (r_data_end) next_st = IDLE;
@@ -96,7 +96,7 @@ module Core
       r_feat_out <= '{default: '0};
       r_count_out <= 1'b0;
       r_count_in <= 1'b0;
-      r_out_en <= 1'b0;
+      r_fout_en <= 1'b0;
       r_data_end <= 1'b0;
       r_conv_end <= 1'b0;
       r_mult_idx <= 1'b0;
@@ -109,7 +109,7 @@ module Core
         end
         WEIGHT: begin
           if (p_wh_en && (r_count_in < M1_SIZE * M2_SIZE)) begin
-            r_weight[r_count_in] <= p_in_data;
+            r_weight[r_count_in] <= p_fin_data;
             r_count_in <= r_count_in + 1;
             r_data_end <= 1'b0;
           end else begin
@@ -118,8 +118,8 @@ module Core
           end
         end
         FEAT_IN: begin
-          if (p_in_en && (r_count_in < C1_SIZE * C2_SIZE)) begin
-            r_feat_in[r_count_in] <= p_in_data;
+          if (p_fin_en && (r_count_in < C1_SIZE * C2_SIZE)) begin
+            r_feat_in[r_count_in] <= p_fin_data;
             r_count_in <= r_count_in + 1;
             r_data_end <= 1'b0;
           end else begin
@@ -143,10 +143,10 @@ module Core
         FEAT_OUT: begin
           if (r_count_out < (A1_SIZE * A2_SIZE)) begin
             r_count_out  <= r_count_out + 1;
-            r_out_en <= 1'b1;
+            r_fout_en <= 1'b1;
           end else begin
             r_count_out  <= 1'b0;
-            r_out_en <= 1'b0;
+            r_fout_en <= 1'b0;
             r_data_end <= 1'b1;
           end
         end
