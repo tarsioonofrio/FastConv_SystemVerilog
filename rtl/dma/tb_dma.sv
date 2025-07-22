@@ -6,34 +6,29 @@ module tb;
   import packConv::*;
 
   // Parâmetros conforme Core
-  localparam int QUANT            = 8;
-  localparam int NBITS            = 20;
-  localparam int NADDR            = 12;
-  localparam int WEIGHT_SIZE      = 1;
-  localparam int BUFFER_IN_SIZE   = 512;
-  localparam int WINDOW_IN_SIZE   = 64;
-  localparam int WINDOW_IN_NUM    = 4;
-  localparam int LATENCY          = 0;
-  localparam int ROM              = 0;
-  localparam int SERIAL_SIZE      = 36;
-  localparam int PARALLEL_SIZE    = 9;
+  localparam int NADDR           = 12;
+  localparam int NBITS           = 20;
+  localparam int LATENCY         = 1;
+  localparam int ROM             = 0;
+  localparam int QUANT           = 8;
+  localparam int NADDR           = 12;
+  localparam int FEAT_IN_SIZE    = 32;
+  localparam int N_WINDOW        = 15;
+  localparam int N_CHANNEL_IN    = 1;
+  localparam int N_CHANNEL_OUT   = 1;
+  localparam int LAST_WINDOW     = 0;
 
   logic clk, reset;
 
   logic p_start;
   logic p_end;
-  logic p_debug;
 
   logic p_in_en;
   logic p_in_valid;
-
-  logic p_wh_en;
-  logic p_wh_valid;
+  logic_vector p_in_data;
 
   logic p_out_en;
   logic p_out_valid;
-
-  logic_vector p_in_data;
   logic_vector p_out_data;
 
   // Clock generation (10ns period)
@@ -59,18 +54,13 @@ module tb;
 
     .p_start(p_start),
     .p_end(p_end),
-    .p_debug(p_debug),
 
     .p_in_en(p_in_en),
     .p_in_valid(p_in_valid),
-
-    .p_wh_en(p_wh_en),
-    .p_wh_valid(p_wh_valid),
+    .p_in_data(p_in_data),
 
     .p_out_en(p_out_en),
     .p_out_valid(p_out_valid),
-
-    .p_in_data(p_in_data),
     .p_out_data(p_out_data)
   );
 
@@ -83,7 +73,6 @@ module tb;
 
     // Inicializa sinais de controle e dados
     p_in_en = 0;
-    p_wh_en = 0;
     p_start = 0;
     p_in_data = '0;
 
@@ -94,7 +83,7 @@ module tb;
 
     // Carregar pesos
     $display("=== Loading weights ===");
-    p_wh_en = 1;
+    p_in_en = 1;
     @(posedge clk);
 
     for (int i = 0; i < W2_SIZE; i++) begin
@@ -103,7 +92,7 @@ module tb;
       @(posedge clk);
     end
 
-    p_wh_en = 0;
+    p_in_en = 0;
     wait(p_end);
     @(posedge clk);
 
