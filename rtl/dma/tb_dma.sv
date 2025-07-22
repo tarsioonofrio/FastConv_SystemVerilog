@@ -18,7 +18,8 @@ module tb;
   localparam int N_CHANNEL_OUT   = 1;
   localparam int LAST_WINDOW     = 0;
 
-  logic clk, reset;
+  logic clk;
+  logic reset;
 
   logic p_start;
   logic p_end;
