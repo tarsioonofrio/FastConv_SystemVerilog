@@ -17,8 +17,8 @@ module Core
     input logic clk,
     input logic reset,
 
-    // input  logic p_start,
-    // output logic p_end,
+    input  logic p_start,
+    output logic p_end,
     // output logic p_debug,
 
     input logic p_in_en,
@@ -125,10 +125,10 @@ module Core
 
   always_ff @(posedge clk) begin
     if (reset) begin
-      r_addr_wh      <= N_CHANNEL_OUT;
-      r_addr_in      <= N_CHANNEL_OUT + N_CHANNEL_OUT * M1_SIZE * M2_SIZE;
-      r_addr_out     <= N_CHANNEL_OUT + N_CHANNEL_OUT * M1_SIZE * M2_SIZE + N_CHANNEL_IN * FEAT_IN_SIZE * FEAT_IN_SIZE;
       r_addr_bias    <= 0;
+      r_addr_wh      <= N_CHANNEL_OUT;
+      r_addr_in      <= N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT;
+      r_addr_out     <= N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT + N_CHANNEL_IN * FEAT_IN_SIZE * FEAT_IN_SIZE;
       r_count_wh     <= 0;
       r_count_in     <= 0;
       r_count_out    <= 0;
@@ -136,10 +136,10 @@ module Core
     end else begin
       unique case (current_st)
         IDLE: begin
-          r_addr_wh      <= N_CHANNEL_OUT;
-          r_addr_in      <= N_CHANNEL_OUT + N_CHANNEL_OUT * M1_SIZE * M2_SIZE;
-          r_addr_out     <= N_CHANNEL_OUT + N_CHANNEL_OUT * M1_SIZE * M2_SIZE + N_CHANNEL_IN * FEAT_IN_SIZE * FEAT_IN_SIZE;
           r_addr_bias    <= 0;
+          r_addr_wh      <= N_CHANNEL_OUT;
+          r_addr_in      <= N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT;
+          r_addr_out     <= N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT + N_CHANNEL_IN * FEAT_IN_SIZE * FEAT_IN_SIZE;
           r_count_wh     <= 0;
           r_count_in     <= 0;
           r_count_out    <= 0;
