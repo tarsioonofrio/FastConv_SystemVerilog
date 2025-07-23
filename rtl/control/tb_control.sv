@@ -105,42 +105,40 @@ module tb;
     $dumpvars(0, tb);
 
     reset = 1;
-
-    // Inicializa sinais de controle e dados
-    p_in_en = 0;
     p_start = 0;
-    p_in_data = '0;
-
-    // Aguarda 1 ciclos de clock
     @(posedge clk);
     reset = 0;
+    p_start = 1;
+    @(posedge clk);
+    p_start = 0;
 
 
     // Carregar pesos
     $display("=== Loading weights ===");
-    p_in_en = 1;
-    @(posedge clk);
+    wait(p_wh_en);
 
     for (int i = 0; i < W2_SIZE; i++) begin
-      p_in_data = const_weight[0][i];
-      $display("Weight[%0d] = %0d", i, p_in_data);
+      wait(p_wh_valid);
+      // p_in_data = const_weight[0][i];
+      $display("Weight[%0d] = %0d", i, p_out_data);
       @(posedge clk);
     end
 
-    p_in_en = 0;
     wait(p_end);
     @(posedge clk);
 
     // Carregar dados de entrada
     $display("=== Loading data ===");
-    p_in_en = 1;
-    @(posedge clk);
+
+    wait(p_fin_en);
 
     for (int i = 0; i < FIN2_SIZE; i++) begin
-      p_in_data = const_feat_in[0][i];
-      $display("Input data[%0d] = %0d", i, p_in_data);
+      wait(p_fin_valid);
+      // p_in_data = const_feat_in[0][i];
+      $display("Weight[%0d] = %0d", i, p_out_data);
       @(posedge clk);
     end
+
 
     p_in_en = 0;
     wait(p_end);
