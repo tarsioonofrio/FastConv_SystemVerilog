@@ -96,18 +96,22 @@ module Core
       r_weight <= '{default: '0};
       r_feat_in <= '{default: '0};
       r_feat_out <= '{default: '0};
-      r_count_out <= 1'b0;
-      r_count_in <= 1'b0;
+      r_count_out <= 0;
+      r_count_in <= 0;
       r_fout_en <= 1'b0;
       r_data_end <= 1'b0;
       r_conv_end <= 1'b0;
       r_mult_idx <= 1'b0;
+      r_fout_valid <= 1'b0;
     end else begin
       unique case (current_st)
         IDLE: begin
+          r_feat_out <= '{default: '0};
+          r_fout_en <= 1'b0;
           r_data_end <= 1'b0;
           r_conv_end <= 1'b0;
           r_mult_idx <= 1'b0;
+          r_fout_valid <= 1'b0;
         end
         WEIGHT: begin
           if (p_wh_en && (r_count_in < M1_SIZE * M2_SIZE)) begin
