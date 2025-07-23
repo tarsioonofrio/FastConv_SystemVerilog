@@ -47,8 +47,9 @@ module Control
 
   state_type current_st, next_st;
 
-  logic r_data_end;
+  logic r_start_conv;
   logic r_fout_en;
+  logic r_data_end;
   logic r_conv_end;
 
   int r_count_wh;
@@ -99,7 +100,8 @@ module Control
       IDLE:     if (p_start) next_st = BIAS;
       BIAS:     if (p_fout_valid) next_st = WEIGHT;
       WEIGHT:   if (r_count_wh == M1_SIZE * M2_SIZE) next_st = FEAT_IN;
-      FEAT_IN:  if (r_count_fin == C1_SIZE * C2_SIZE) next_st = FEAT_OUT;
+      FEAT_IN:  if (r_count_fin == C1_SIZE * C2_SIZE) next_st = CONV;
+      CONV:     if (r_start_conv) next_st = FEAT_OUT;
       FEAT_OUT: begin
         if (r_count_window == N_WINDOW * N_WINDOW) next_st = WEIGHT;
         else
@@ -147,6 +149,7 @@ module Control
       r_count_fin    <= 0;
       r_count_fout   <= 0;
       r_count_window <= 0;
+      r_start_conv   <= 1'b0;
     end else begin
       unique case (current_st)
         IDLE: begin
@@ -158,6 +161,7 @@ module Control
           r_count_fin    <= 0;
           r_count_fout   <= 0;
           r_count_window <= 0;
+          r_start_conv   <= 1'b0;
         end
         BIAS: begin
           r_addr_bias <= r_addr_bias + 1;
@@ -176,7 +180,11 @@ module Control
           end else
             r_count_fin <= 0;
         end
+        CONV: begin
+          r_start_conv   <= 1'b1;
+        end
         FEAT_OUT: begin
+          r_start_conv   <= 1'b0;
           if (p_fout_valid && (r_count_fout < (A1_SIZE * A2_SIZE))) begin
             r_count_fout <= r_count_fout + 1;
             r_addr_fout <= r_addr_fout + 1;
