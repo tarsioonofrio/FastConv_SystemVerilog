@@ -31,7 +31,7 @@ module Control
     input logic p_fout_valid,
 
     output logic_vector p_fin_data,
-    input logic_vector p_fout_data
+    input  logic_vector p_fout_data
 );
 
   timeunit 1ns; timeprecision 1ps;
@@ -52,21 +52,21 @@ module Control
   logic r_conv_end;
 
   int r_count_wh;
-  int r_count_in;
-  int r_count_out;
+  int r_count_fin;
+  int r_count_fout;
 
   int r_addr_bias;
   int r_addr_wh;
-  int r_addr_in;
-  int r_addr_out;
+  int r_addr_fin;
+  int r_addr_fout;
   int r_count_window;
 
-  logic_vector data_in;
-  logic_vector data_out;
+  logic_vector data_fin;
+  logic_vector data_fout;
 
   logic chip_en;
   logic wr_en;
-  logic data_valid_out;
+  logic data_valid_fin;
   logic[NADDR-1:0] address;
 
   Memory #(
@@ -80,9 +80,9 @@ module Control
     .chip_en(chip_en),
     .wr_en(wr_en),
     .address(address),
-    .data_in(data_in),
-    .data_out(data_out),
-    .data_valid(data_valid_out)
+    .data_in(data_fout),
+    .data_out(data_fin),
+    .data_valid(data_valid_fin)
   );
 
   always_ff @(posedge clk or posedge reset) begin
@@ -94,21 +94,12 @@ module Control
   end
 
   always_comb begin
-    // Feature input and weights
-    p_fout_en <= chip_en;
-    p_fout_data <= data_out;
-    p_fout_valid <= data_valid_out;
-
-    // Feature output
-    data_in <= p_fin_data;
-    chip_en <= p_fin_en;
-
     // State Machine
     unique case (current_st)
       IDLE:     if (p_start) next_st = BIAS;
       BIAS:     if (p_fout_valid) next_st = WEIGHT;
       WEIGHT:   if (r_count_wh == M1_SIZE * M2_SIZE) next_st = FEAT_IN;
-      FEAT_IN:  if (r_count_in == C1_SIZE * C2_SIZE) next_st = FEAT_OUT;
+      FEAT_IN:  if (r_count_fin == C1_SIZE * C2_SIZE) next_st = FEAT_OUT;
       FEAT_OUT: begin
         if (r_count_window == N_WINDOW * N_WINDOW) next_st = WEIGHT;
         else
@@ -118,12 +109,31 @@ module Control
       end
     endcase
 
-    // Address control
+    // Wire control
     unique case (current_st)
-      BIAS:     address <= r_addr_bias;
-      WEIGHT:   address <= r_addr_wh;
-      FEAT_OUT: address <= r_addr_out;
-      default:  address <= r_addr_in;
+      BIAS: begin
+        address <= r_addr_bias;
+        p_fin_en <= chip_en;
+        p_fin_data <= data_fin;
+        p_fin_valid <= data_valid_fin;
+      end
+      WEIGHT: begin
+        address <= r_addr_wh;
+        p_fin_en <= chip_en;
+        p_fin_data <= data_fin;
+        p_fin_valid <= data_valid_fin;
+      end
+      FEAT_OUT: begin
+        data_fin <= p_fout_data;
+        chip_en <= p_fout_en;
+        address <= r_addr_fout;
+      end
+      default: begin
+        address <= r_addr_fin;
+        p_fin_en <= chip_en;
+        p_fin_data <= data_fin;
+        p_fin_valid <= data_valid_fin;
+      end
     endcase
   end
 
@@ -131,48 +141,48 @@ module Control
     if (reset) begin
       r_addr_bias    <= 0;
       r_addr_wh      <= N_CHANNEL_OUT;
-      r_addr_in      <= N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT;
-      r_addr_out     <= N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT + N_CHANNEL_IN * FEAT_IN_SIZE * FEAT_IN_SIZE;
+      r_addr_fin     <= N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT;
+      r_addr_fout    <= N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT + N_CHANNEL_IN * FEAT_IN_SIZE * FEAT_IN_SIZE;
       r_count_wh     <= 0;
-      r_count_in     <= 0;
-      r_count_out    <= 0;
+      r_count_fin    <= 0;
+      r_count_fout   <= 0;
       r_count_window <= 0;
     end else begin
       unique case (current_st)
         IDLE: begin
           r_addr_bias    <= 0;
           r_addr_wh      <= N_CHANNEL_OUT;
-          r_addr_in      <= N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT;
-          r_addr_out     <= N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT + N_CHANNEL_IN * FEAT_IN_SIZE * FEAT_IN_SIZE;
+          r_addr_fin     <= N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT;
+          r_addr_fout    <= N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT + N_CHANNEL_IN * FEAT_IN_SIZE * FEAT_IN_SIZE;
           r_count_wh     <= 0;
-          r_count_in     <= 0;
-          r_count_out    <= 0;
+          r_count_fin    <= 0;
+          r_count_fout   <= 0;
           r_count_window <= 0;
         end
         BIAS: begin
           r_addr_bias <= r_addr_bias + 1;
         end
         WEIGHT: begin
-          if (data_valid_out && (r_count_in < M1_SIZE * M2_SIZE)) begin
-            r_count_in <= r_count_in + 1;
+          if (data_valid_fin && (r_count_fin < M1_SIZE * M2_SIZE)) begin
+            r_count_fin <= r_count_fin + 1;
             r_addr_wh <= r_addr_wh + 1;
           end else
-            r_count_in <= 0;
+            r_count_fin <= 0;
         end
         FEAT_IN: begin
-          if (data_valid_out && (r_count_in < C1_SIZE * C2_SIZE)) begin
-            r_count_in <= r_count_in + 1;
-            r_addr_in <= r_addr_in + 1;
+          if (data_valid_fin && (r_count_fin < C1_SIZE * C2_SIZE)) begin
+            r_count_fin <= r_count_fin + 1;
+            r_addr_fin <= r_addr_fin + 1;
           end else
-            r_count_in <= 0;
+            r_count_fin <= 0;
         end
         FEAT_OUT: begin
-          if (p_fin_valid && (r_count_out < (A1_SIZE * A2_SIZE))) begin
-            r_count_out  <= r_count_out + 1;
-            r_addr_out <= r_addr_out + 1;
+          if (p_fout_valid && (r_count_fout < (A1_SIZE * A2_SIZE))) begin
+            r_count_fout <= r_count_fout + 1;
+            r_addr_fout <= r_addr_fout + 1;
           end else begin
             r_count_window <= r_count_window + 1;
-            r_count_out  <= 0;
+            r_count_fout  <= 0;
           end
         end
       endcase
