@@ -38,15 +38,16 @@ module Core
   state_type_conv current_st_conv, next_st_conv;
 
   type_weight r_weight;
-  type_output r_feat_out;
   type_weight r_feat_in;
+  type_output r_feat_out;
 
   type_weight w_prod_c;
   type_output w_prod_a;
 
-  logic r_data_end;
   logic r_fout_en;
   logic r_conv_end;
+  logic r_data_end;
+  logic r_fout_valid;
 
   int r_count_in;
   int r_count_out;
@@ -64,6 +65,7 @@ module Core
   always_comb begin
     p_end = r_data_end;
     p_fout_en = r_fout_en;
+    p_fout_valid = r_fout_valid;
     // saving one register[NBITS] for data output
     p_fout_data = r_feat_out[r_count_out-1];
   end
@@ -138,16 +140,19 @@ module Core
               r_feat_out <= w_prod_a;
               r_conv_end <= 1'b1;
             end
+            default: begin end
           endcase
         end
         FEAT_OUT: begin
           if (r_count_out < (A1_SIZE * A2_SIZE)) begin
             r_count_out  <= r_count_out + 1;
             r_fout_en <= 1'b1;
+            r_fout_valid <= 1'b1;
           end else begin
             r_count_out  <= 1'b0;
             r_fout_en <= 1'b0;
             r_data_end <= 1'b1;
+            r_fout_valid <= 1'b0;
           end
         end
       endcase
