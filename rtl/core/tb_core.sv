@@ -120,13 +120,18 @@ module tb;
     p_start = 0;
 
     @(posedge clk);
-    wait(p_end);
+    wait(p_fout_en);
 
+    $display("=== End processing ===");
     // Monitorar saída (p_fout_valid = 1) e ler dados de saída
     @(posedge clk);
-    if (p_fout_valid) begin
-      $display("Time %0t: Output = %0d", $time, p_fout_data);
+    for (int i = 0; i < FOUT2_SIZE; i++) begin
+      if (p_fout_en ) begin
+        $display("Time %0t | const_feat_out[%0d] = %0d | Output = %0d", $time, i, const_feat_out[0][i], p_fout_data);
+      end
+      @(posedge clk);
     end
+
 
     $display("End simulation");
     $finish;
