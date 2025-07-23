@@ -43,16 +43,7 @@ module tb;
   // DUT instantiation
   Core #(
     .QUANT(QUANT),
-    .NBITS(NBITS),
-    .NADDR(NADDR),
-    .WEIGHT_SIZE(WEIGHT_SIZE),
-    .BUFFER_IN_SIZE(BUFFER_IN_SIZE),
-    .WINDOW_IN_SIZE(WINDOW_IN_SIZE),
-    .WINDOW_IN_NUM(WINDOW_IN_NUM),
-    .LATENCY(LATENCY),
-    .ROM(ROM),
-    .SERIAL_SIZE(SERIAL_SIZE),
-    .PARALLEL_SIZE(PARALLEL_SIZE)
+    .NBITS(NBITS)
   ) dut (
     .clk(clk),
     .reset(reset),
