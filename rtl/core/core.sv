@@ -114,7 +114,7 @@ module Core
           r_fout_valid <= 1'b0;
         end
         WEIGHT: begin
-          if (p_wh_en && (r_count_in < M1_SIZE * M2_SIZE)) begin
+          if (p_wh_valid && (r_count_in < M1_SIZE * M2_SIZE)) begin
             r_weight[r_count_in] <= p_fin_data;
             r_count_in <= r_count_in + 1;
             r_data_end <= 1'b0;
@@ -124,7 +124,7 @@ module Core
           end
         end
         FEAT_IN: begin
-          if (p_fin_en && (r_count_in < C1_SIZE * C2_SIZE)) begin
+          if (p_fin_valid && (r_count_in < C1_SIZE * C2_SIZE)) begin
             r_feat_in[r_count_in] <= p_fin_data;
             r_count_in <= r_count_in + 1;
             r_data_end <= 1'b0;
