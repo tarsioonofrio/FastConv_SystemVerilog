@@ -73,8 +73,10 @@ module tb;
     reset = 1;
 
     // Inicializa sinais de controle e dados
-    p_fin_en = 0;
     p_wh_en = 0;
+    p_fin_en = 0;
+    p_wh_valid = 0;
+    p_fin_valid = 0;
     p_start = 0;
     p_fin_data = '0;
 
@@ -87,6 +89,8 @@ module tb;
     $display("=== Loading weights ===");
     p_wh_en = 1;
     @(posedge clk);
+    p_wh_en = 0;
+    p_wh_valid = 1;
 
     for (int i = 0; i < W2_SIZE; i++) begin
       p_fin_data = const_weight[0][i];
@@ -94,7 +98,7 @@ module tb;
       @(posedge clk);
     end
 
-    p_wh_en = 0;
+    p_wh_valid = 0;
     wait(p_end);
     @(posedge clk);
 
@@ -102,6 +106,8 @@ module tb;
     $display("=== Loading data ===");
     p_fin_en = 1;
     @(posedge clk);
+    p_fin_en = 0;
+    p_fin_valid = 1;
 
     for (int i = 0; i < FIN2_SIZE; i++) begin
       p_fin_data = const_feat_in[0][i];
@@ -109,7 +115,7 @@ module tb;
       @(posedge clk);
     end
 
-    p_fin_en = 0;
+    p_fin_valid = 0;
     wait(p_end);
     @(posedge clk);
 
