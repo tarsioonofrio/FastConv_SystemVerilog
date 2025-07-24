@@ -165,8 +165,6 @@ module Core
 
 
   // BLOCK: Convolution
-
-
   //
   // Control FSM
   //
