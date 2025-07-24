@@ -125,7 +125,6 @@ module tb;
     end
 
     wait(p_end);
-    @(posedge clk);
 
     // Carregar dados de entrada
     $display("=== Loading data ===");
@@ -140,23 +139,21 @@ module tb;
     end
 
 
-    p_in_en = 0;
     wait(p_end);
-    @(posedge clk);
 
     // Start processamento
     $display("=== Start processing ===");
-    p_start = 1;
-    @(posedge clk);
-    p_start = 0;
 
-    @(posedge clk);
-    wait(p_end);
+    wait(p_fout_en);
 
-    // Monitorar saída (p_out_valid = 1) e ler dados de saída
+    $display("=== End processing ===");
+    // Monitorar saída (p_fout_valid = 1) e ler dados de saída
     @(posedge clk);
-    if (p_out_valid) begin
-      $display("Time %0t: Output = %0d", $time, p_out_data);
+    for (int i = 0; i < FOUT2_SIZE; i++) begin
+      if (p_fout_en ) begin
+        $display("Time %0t | const_feat_out[%0d] = %0d | Output = %0d", $time, i, const_feat_out[0][i], p_fout_data);
+      end
+      @(posedge clk);
     end
 
     $display("End simulation");
