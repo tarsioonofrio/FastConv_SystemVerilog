@@ -46,7 +46,7 @@ module Core
 
   logic r_fout_en;
   logic r_conv_end;
-  logic r_data_end;
+  logic r_end;
   logic r_fout_valid;
 
   int r_count_in;
@@ -63,7 +63,7 @@ module Core
 
 
   always_comb begin
-    p_end = r_data_end;
+    p_end = r_end;
     p_fout_en = r_fout_en;
     p_fout_valid = r_fout_valid;
     // saving one register[NBITS] for data output
@@ -84,10 +84,10 @@ module Core
         if (p_wh_en) next_st = WEIGHT;
         else if (p_fin_en) next_st = FEAT_IN;
         else if (p_start) next_st = CONV;
-      WEIGHT:   if (r_data_end) next_st = IDLE;
-      FEAT_IN:  if (r_data_end) next_st = IDLE;
+      WEIGHT:   if (r_end) next_st = IDLE;
+      FEAT_IN:  if (r_end) next_st = IDLE;
       CONV:     if (r_conv_end) next_st = FEAT_OUT;
-      FEAT_OUT: if (r_data_end) next_st = IDLE;
+      FEAT_OUT: if (r_end) next_st = IDLE;
     endcase
   end
 
@@ -98,8 +98,8 @@ module Core
       r_feat_out <= '{default: '0};
       r_count_out <= 0;
       r_count_in <= 0;
+      r_end <= 1'b0;
       r_fout_en <= 1'b0;
-      r_data_end <= 1'b0;
       r_conv_end <= 1'b0;
       r_mult_idx <= 1'b0;
       r_fout_valid <= 1'b0;
@@ -108,7 +108,7 @@ module Core
         IDLE: begin
           r_feat_out <= '{default: '0};
           r_fout_en <= 1'b0;
-          r_data_end <= 1'b0;
+          r_end <= 1'b0;
           r_conv_end <= 1'b0;
           r_mult_idx <= 1'b0;
           r_fout_valid <= 1'b0;
@@ -117,20 +117,20 @@ module Core
           if (p_wh_valid && (r_count_in < M1_SIZE * M2_SIZE)) begin
             r_weight[r_count_in] <= p_fin_data;
             r_count_in <= r_count_in + 1;
-            r_data_end <= 1'b0;
+            r_end <= 1'b0;
           end else begin
             r_count_in <= 1'b0;
-            r_data_end <= 1'b1;
+            r_end <= 1'b1;
           end
         end
         FEAT_IN: begin
           if (p_fin_valid && (r_count_in < C1_SIZE * C2_SIZE)) begin
             r_feat_in[r_count_in] <= p_fin_data;
             r_count_in <= r_count_in + 1;
-            r_data_end <= 1'b0;
+            r_end <= 1'b0;
           end else begin
             r_count_in <= 1'b0;
-            r_data_end <= 1'b1;
+            r_end <= 1'b1;
           end
         end
         CONV: begin
@@ -155,7 +155,7 @@ module Core
           end else begin
             r_count_out  <= 1'b0;
             r_fout_en <= 1'b0;
-            r_data_end <= 1'b1;
+            r_end <= 1'b1;
             r_fout_valid <= 1'b0;
           end
         end
