@@ -7,7 +7,6 @@ module Control
     parameter int LATENCY       = 1,
     parameter int ROM           = 0,
     parameter int QUANT         = 8,
-    parameter int NADDR         = 12,
     parameter int N_WINDOW      = 15,
     parameter int N_CHANNEL_IN  = 1,
     parameter int N_CHANNEL_OUT = 1,
@@ -66,6 +65,7 @@ module Control
   logic_vector data_fout;
 
   logic chip_en;
+  logic r_chip_en;
   logic wr_en;
   logic data_valid_fin;
   logic[NADDR-1:0] address;
@@ -101,7 +101,7 @@ module Control
       BIAS:     if (p_fout_valid) next_st = WEIGHT;
       WEIGHT:   if (r_count_wh == M1_SIZE * M2_SIZE) next_st = FEAT_IN;
       FEAT_IN:  if (r_count_fin == C1_SIZE * C2_SIZE) next_st = FEAT_OUT;
-      IDLE:     if (r_start_conv) next_st = FEAT_O;
+      IDLE:     if (r_start_conv) next_st = FEAT_OUT;
       FEAT_OUT: begin
         if (r_count_window == N_WINDOW * N_WINDOW) next_st = WEIGHT;
         else
@@ -111,28 +111,32 @@ module Control
       end
     endcase
 
+    chip_en <= r_chip_en;
     // Wire control
     unique case (current_st)
       BIAS: begin
         address <= r_addr_bias;
-        p_fin_en <= chip_en;
+        chip_en <= r_chip_en;
+        p_fin_en <= r_chip_en;
         p_fin_data <= data_fin;
         p_fin_valid <= data_valid_fin;
       end
       WEIGHT: begin
         address <= r_addr_wh;
-        p_fin_en <= chip_en;
+        chip_en <= r_chip_en;
+        p_fin_en <= r_chip_en;
         p_fin_data <= data_fin;
         p_fin_valid <= data_valid_fin;
       end
       FEAT_OUT: begin
-        data_fin <= p_fout_data;
-        chip_en <= p_fout_en;
+        data_fout <= p_fout_data;
         address <= r_addr_fout;
+        chip_en <= p_fout_en;
       end
       default: begin
         address <= r_addr_fin;
-        p_fin_en <= chip_en;
+        chip_en <= r_chip_en;
+        p_fin_en <= r_chip_en;
         p_fin_data <= data_fin;
         p_fin_valid <= data_valid_fin;
       end
@@ -162,23 +166,30 @@ module Control
           r_count_fout   <= 0;
           r_count_window <= 0;
           r_start_conv   <= 1'b0;
+          r_chip_en      <= 1'b0;
         end
         BIAS: begin
           r_addr_bias <= r_addr_bias + 1;
+          r_chip_en   <= 1'b1;
         end
         WEIGHT: begin
           if (data_valid_fin && (r_count_fin < M1_SIZE * M2_SIZE)) begin
             r_count_fin <= r_count_fin + 1;
             r_addr_wh <= r_addr_wh + 1;
+            r_chip_en   <= 1'b1;
           end else
             r_count_fin <= 0;
+            r_chip_en   <= 1'b0;
         end
         FEAT_IN: begin
           if (data_valid_fin && (r_count_fin < C1_SIZE * C2_SIZE)) begin
             r_count_fin <= r_count_fin + 1;
             r_addr_fin <= r_addr_fin + 1;
-          end else
+            r_chip_en   <= 1'b1;
+          end else begin
             r_count_fin <= 0;
+            r_chip_en   <= 1'b0;
+          end
         end
         CONV: begin
           r_start_conv   <= 1'b1;
