@@ -17,7 +17,7 @@ module Control
     input logic reset,
 
     input  logic p_start,
-    input  logic p_start_conv,
+    output logic p_start_conv,
     output logic p_end,
     // output logic p_debug,
 
@@ -96,7 +96,7 @@ module Control
   end
 
   always_comb begin
-    p_start = r_start_conv;
+    p_start_conv <= r_start_conv;
     // State Machine
     unique case (current_st)
       IDLE:     if (p_start) next_st = BIAS;
