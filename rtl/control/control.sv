@@ -102,8 +102,8 @@ module Control
       IDLE:     if (p_start) next_st = BIAS;
       BIAS:     if (p_fout_valid) next_st = WEIGHT;
       WEIGHT:   if (r_count_wh == M1_SIZE * M2_SIZE) next_st = FEAT_IN;
-      FEAT_IN:  if (r_count_fin == C1_SIZE * C2_SIZE) next_st = FEAT_OUT;
-      IDLE:     if (r_start_conv) next_st = FEAT_OUT;
+      FEAT_IN:  if (r_count_fin == C1_SIZE * C2_SIZE) next_st = CONV;
+      CONV:     if (r_start_conv) next_st = FEAT_OUT;
       FEAT_OUT: begin
         if (r_count_window == N_WINDOW * N_WINDOW) next_st = WEIGHT;
         else
