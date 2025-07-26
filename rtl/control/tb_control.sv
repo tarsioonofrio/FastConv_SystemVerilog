@@ -11,7 +11,6 @@ module tb;
   localparam int LATENCY         = 1;
   localparam int ROM             = 0;
   localparam int QUANT           = 8;
-  localparam int NADDR           = 12;
   localparam int FEAT_IN_SIZE    = 32;
   localparam int N_WINDOW        = 15;
   localparam int N_CHANNEL_IN    = 1;
@@ -24,13 +23,13 @@ module tb;
   logic p_start;
   logic p_end;
 
-  logic p_in_en;
-  logic p_in_valid;
-  logic_vector p_in_data;
+  logic p_fin_en;
+  logic p_fin_valid;
+  logic_vector p_fin_data;
 
-  logic p_out_en;
-  logic p_out_valid;
-  logic_vector p_out_data;
+  logic p_fout_en;
+  logic p_fout_valid;
+  logic_vector p_fout_data;
 
   // Clock generation (10ns period)
   initial clk = 0;
@@ -56,13 +55,13 @@ module tb;
     .p_start(p_start),
     .p_end(p_end),
 
-    .p_in_en(p_in_en),
-    .p_in_valid(p_in_valid),
-    .p_in_data(p_in_data),
+    .p_fin_en(p_fin_en),
+    .p_fin_valid(p_fin_valid),
+    .p_fin_data(p_fin_data),
 
-    .p_out_en(p_out_en),
-    .p_out_valid(p_out_valid),
-    .p_out_data(p_out_data)
+    .p_fout_en(p_fout_en),
+    .p_fout_valid(p_fout_valid),
+    .p_fout_data(p_fout_data)
   );
 
   Core #(
@@ -77,7 +76,7 @@ module tb;
     .ROM(ROM),
     .SERIAL_SIZE(SERIAL_SIZE),
     .PARALLEL_SIZE(PARALLEL_SIZE)
-  ) dut (
+  ) core (
     .clk(clk),
     .reset(reset),
 
@@ -85,17 +84,17 @@ module tb;
     .p_end(p_end),
     .p_debug(p_debug),
 
-    .p_in_en(p_in_en),
-    .p_in_valid(p_in_valid),
+    .p_fin_en(p_fin_en),
+    .p_fin_valid(p_fin_valid),
 
     .p_wh_en(p_wh_en),
     .p_wh_valid(p_wh_valid),
 
-    .p_out_en(p_out_en),
-    .p_out_valid(p_out_valid),
+    .p_fout_en(p_fout_en),
+    .p_fout_valid(p_fout_valid),
 
-    .p_in_data(p_in_data),
-    .p_out_data(p_out_data)
+    .p_fin_data(p_fin_data),
+    .p_fout_data(p_fout_data)
   );
 
   
@@ -119,8 +118,8 @@ module tb;
 
     for (int i = 0; i < W2_SIZE; i++) begin
       wait(p_wh_valid);
-      // p_in_data = const_weight[0][i];
-      $display("Weight[%0d] = %0d", i, p_out_data);
+      // p_fin_data = const_weight[0][i];
+      $display("Weight[%0d] = %0d", i, p_fout_data);
       @(posedge clk);
     end
 
@@ -133,8 +132,8 @@ module tb;
 
     for (int i = 0; i < FIN2_SIZE; i++) begin
       wait(p_fin_valid);
-      // p_in_data = const_feat_in[0][i];
-      $display("Weight[%0d] = %0d", i, p_out_data);
+      // p_fin_data = const_feat_in[0][i];
+      $display("Weight[%0d] = %0d", i, p_fout_data);
       @(posedge clk);
     end
 
