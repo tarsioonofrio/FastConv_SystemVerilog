@@ -23,12 +23,19 @@ module tb;
   logic p_start;
   logic p_end;
 
+  logic p_start_conv;
+  logic p_end_conv;
+
   logic p_fin_en;
   logic p_fin_valid;
-  logic_vector p_fin_data;
+
+  logic p_wh_en;
+  logic p_wh_valid;
 
   logic p_fout_en;
   logic p_fout_valid;
+
+  logic_vector p_fin_data;
   logic_vector p_fout_data;
 
   // Clock generation (10ns period)
@@ -42,7 +49,6 @@ module tb;
     .LATENCY(LATENCY),
     .ROM(ROM),
     .QUANT(QUANT),
-    .NADDR(NADDR),
     .FEAT_IN_SIZE(FEAT_IN_SIZE),
     .N_WINDOW(N_WINDOW),
     .N_CHANNEL_IN(N_CHANNEL_IN),
@@ -57,25 +63,20 @@ module tb;
 
     .p_fin_en(p_fin_en),
     .p_fin_valid(p_fin_valid),
-    .p_fin_data(p_fin_data),
+
+    .p_wh_en(p_wh_en),
+    .p_wh_valid(p_wh_valid),
 
     .p_fout_en(p_fout_en),
     .p_fout_valid(p_fout_valid),
+
+    .p_fin_data(p_fin_data),
     .p_fout_data(p_fout_data)
   );
 
   Core #(
     .QUANT(QUANT),
-    .NBITS(NBITS),
-    .NADDR(NADDR),
-    .WEIGHT_SIZE(WEIGHT_SIZE),
-    .BUFFER_IN_SIZE(BUFFER_IN_SIZE),
-    .WINDOW_IN_SIZE(WINDOW_IN_SIZE),
-    .WINDOW_IN_NUM(WINDOW_IN_NUM),
-    .LATENCY(LATENCY),
-    .ROM(ROM),
-    .SERIAL_SIZE(SERIAL_SIZE),
-    .PARALLEL_SIZE(PARALLEL_SIZE)
+    .NBITS(NBITS)
   ) core (
     .clk(clk),
     .reset(reset),
