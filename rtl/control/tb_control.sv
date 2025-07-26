@@ -59,6 +59,7 @@ module tb;
     .reset(reset),
 
     .p_start(p_start),
+    .p_start_conv(p_start_conv),
     .p_end(p_end),
 
     .p_fin_en(p_fin_en),
@@ -81,8 +82,8 @@ module tb;
     .clk(clk),
     .reset(reset),
 
-    .p_start(p_start),
-    .p_end(p_end),
+    .p_start(p_start_conv),
+    .p_end(p_end_conv),
     .p_debug(p_debug),
 
     .p_fin_en(p_fin_en),
@@ -98,7 +99,7 @@ module tb;
     .p_fout_data(p_fout_data)
   );
 
-  
+
   // Inicialização dos sinais e reset
   initial begin
     $dumpfile("dump.vcd");
