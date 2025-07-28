@@ -33,9 +33,9 @@ module Memory
     if (ROM == 0 && chip_en == 1'b1)
       data_out = data[address];
     else if (ROM == 1 && chip_en == 1'b1)
-      data_out = $signed(const_weight[address]);
+      data_out = $signed(const_weight[address / FIN1_SIZE][address % FIN1_SIZE]);
     else if (ROM == 2 && chip_en == 1'b1)
-      data_out = $signed(const_feat_in[address]);
+      data_out = $signed(const_feat_in[address / W1_SIZE][address % W1_SIZE]);
     else
       data_out = '{default: '0};
   end

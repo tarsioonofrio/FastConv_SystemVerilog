@@ -99,16 +99,17 @@ module Control
     p_start_conv <= r_start_conv;
     // State Machine
     unique case (current_st)
-      IDLE:     if (p_start) next_st = BIAS;
-      BIAS:     next_st = WEIGHT;
+    // IDLE:     if (p_start) next_st = BIAS;
+      IDLE:     if (p_start) next_st = WEIGHT;
+      // BIAS:     next_st = WEIGHT;
       WEIGHT:   if (r_count_wh == M1_SIZE * M2_SIZE) next_st = FEAT_IN;
       FEAT_IN:  if (r_count_fin == C1_SIZE * C2_SIZE) next_st = CONV;
       CONV:     if (r_start_conv) next_st = FEAT_OUT;
       FEAT_OUT: begin
         if (r_count_window == N_WINDOW * N_WINDOW) next_st = WEIGHT;
         else
-        if (r_count_window == N_WINDOW * N_WINDOW * N_CHANNEL_OUT) next_st = BIAS;
-        else
+        // if (r_count_window == N_WINDOW * N_WINDOW * N_CHANNEL_OUT) next_st = BIAS;
+        // else
         if (r_count_window == N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN) next_st = IDLE;
       end
     endcase
