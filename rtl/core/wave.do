@@ -11,18 +11,18 @@ add wave -noupdate /tb/dut/p_wh_en
 add wave -noupdate /tb/dut/p_wh_valid
 add wave -noupdate /tb/dut/p_fout_en
 add wave -noupdate /tb/dut/p_fout_valid
-add wave -noupdate -radix decimal /tb/dut/p_fin_data
-add wave -noupdate -radix decimal /tb/dut/p_fout_data
+add wave -noupdate -radix decimal /tb/dut/p_in_data
+add wave -noupdate -radix decimal /tb/dut/p_out_data
 add wave -noupdate /tb/dut/current_st
 add wave -noupdate /tb/dut/next_st
 add wave -noupdate /tb/dut/current_st_conv
 add wave -noupdate /tb/dut/next_st_conv
-add wave -noupdate /tb/dut/r_data_end
 add wave -noupdate /tb/dut/r_fout_en
 add wave -noupdate /tb/dut/r_conv_end
-add wave -noupdate /tb/dut/r_count_in
-add wave -noupdate /tb/dut/r_count_out
-add wave -noupdate -radix decimal /tb/dut/r_mult_idx
+add wave -noupdate /tb/dut/r_end
+add wave -noupdate /tb/dut/r_fout_valid
+add wave -noupdate /tb/dut/r_count
+add wave -noupdate /tb/dut/r_mult_idx
 add wave -noupdate /tb/dut/product
 TreeUpdate [SetDefaultTree]
 WaveRestoreCursors {{Cursor 1} {977 ns} 0}
