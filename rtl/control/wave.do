@@ -11,8 +11,8 @@ add wave -noupdate -radix decimal /tb/dut/p_wh_en
 add wave -noupdate -radix decimal /tb/dut/p_wh_valid
 add wave -noupdate -radix decimal /tb/dut/p_fout_en
 add wave -noupdate -radix decimal /tb/dut/p_fout_valid
-add wave -noupdate -radix decimal /tb/dut/p_fin_data
-add wave -noupdate -radix decimal /tb/dut/p_fout_data
+add wave -noupdate -radix decimal /tb/dut/p_out_data
+add wave -noupdate -radix decimal /tb/dut/p_in_data
 add wave -noupdate -radix decimal /tb/dut/current_st
 add wave -noupdate -radix decimal /tb/dut/next_st
 add wave -noupdate -radix decimal /tb/dut/r_start_conv
@@ -25,22 +25,13 @@ add wave -noupdate -radix decimal /tb/dut/r_addr_wh
 add wave -noupdate -radix decimal /tb/dut/r_addr_fin
 add wave -noupdate -radix decimal /tb/dut/r_addr_fout
 add wave -noupdate -radix decimal /tb/dut/r_count_window
-add wave -noupdate -radix decimal /tb/dut/data_fin
-add wave -noupdate -radix decimal /tb/dut/data_fout
+add wave -noupdate -radix decimal /tb/dut/data_out
+add wave -noupdate -radix decimal /tb/dut/data_in
 add wave -noupdate -radix decimal /tb/dut/chip_en
 add wave -noupdate -radix decimal /tb/dut/r_chip_en
 add wave -noupdate -radix decimal /tb/dut/wr_en
-add wave -noupdate -radix decimal /tb/dut/data_valid_fin
+add wave -noupdate -radix decimal /tb/dut/data_valid_out
 add wave -noupdate -radix decimal /tb/dut/address
-add wave -noupdate -radix decimal /tb/dut/memory/clk
-add wave -noupdate -radix decimal /tb/dut/memory/reset
-add wave -noupdate -radix decimal /tb/dut/memory/chip_en
-add wave -noupdate -radix decimal /tb/dut/memory/wr_en
-add wave -noupdate -radix decimal /tb/dut/memory/address
-add wave -noupdate -radix decimal /tb/dut/memory/data_in
-add wave -noupdate -radix decimal /tb/dut/memory/data_out
-add wave -noupdate -radix decimal /tb/dut/memory/data_valid
-add wave -noupdate -radix decimal /tb/dut/memory/r_cycles_latency
 add wave -noupdate -radix decimal /tb/core/clk
 add wave -noupdate -radix decimal /tb/core/reset
 add wave -noupdate -radix decimal /tb/core/p_start
@@ -52,8 +43,8 @@ add wave -noupdate -radix decimal /tb/core/p_wh_en
 add wave -noupdate -radix decimal /tb/core/p_wh_valid
 add wave -noupdate -radix decimal /tb/core/p_fout_en
 add wave -noupdate -radix decimal /tb/core/p_fout_valid
-add wave -noupdate -radix decimal /tb/core/p_fin_data
-add wave -noupdate -radix decimal /tb/core/p_fout_data
+add wave -noupdate -radix decimal /tb/core/p_in_data
+add wave -noupdate -radix decimal /tb/core/p_out_data
 add wave -noupdate -radix decimal /tb/core/current_st
 add wave -noupdate -radix decimal /tb/core/next_st
 add wave -noupdate -radix decimal /tb/core/current_st_conv
@@ -83,4 +74,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {1507 ns} {1738 ns}
+WaveRestoreZoom {0 ns} {231 ns}
