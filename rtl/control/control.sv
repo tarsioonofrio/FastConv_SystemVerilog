@@ -19,7 +19,7 @@ module Control
     input  logic p_start,
     output logic p_end,
     output logic p_start_conv,
-    output logic p_end_conv,
+    input logic p_end_conv,
     // output logic p_debug,
 
     output logic p_wh_en,
@@ -105,7 +105,7 @@ module Control
     unique case (current_st)
     // IDLE:     if (p_start)      next_st = BIAS;
       IDLE:
-        if (p_start) 
+        if (p_start)
           next_st = WEIGHT;
       BIAS:
           next_st = WEIGHT;
@@ -114,21 +114,21 @@ module Control
         if (p_end_conv)
           next_st = FEAT_IN;
       FEAT_IN:
-        // if (r_count_fin == C1_SIZE * C2_SIZE)    
+        // if (r_count_fin == C1_SIZE * C2_SIZE)
         if (p_end_conv)
           next_st = CONV;
       CONV:
-        if (r_start_conv)                        
+        if (r_start_conv)
           next_st = FEAT_OUT;
       FEAT_OUT: begin
         if (p_end_conv) begin
-          if (r_count_window == N_WINDOW * N_WINDOW) 
+          if (r_count_window == N_WINDOW * N_WINDOW)
             next_st = WEIGHT;
           // else
-          // if (r_count_window == N_WINDOW * N_WINDOW * N_CHANNEL_OUT) 
+          // if (r_count_window == N_WINDOW * N_WINDOW * N_CHANNEL_OUT)
           //  next_st = BIAS;
           else
-          if (r_count_window == N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN) 
+          if (r_count_window == N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN)
             next_st = IDLE;
         end
       end
@@ -205,6 +205,8 @@ module Control
           r_end_wh       <= 1'b0;
           r_end_fin      <= 1'b0;
           r_start_conv   <= 1'b0;
+          // if (p_start)
+          //   r_wh_en      <= 1'b1;
         end
         BIAS: begin
           r_chip_en   <= 1'b1;
@@ -217,7 +219,6 @@ module Control
           r_count_fout <= 0;
           if (data_valid_out) begin
             r_addr_wh  <= r_addr_wh + 1;
-            // r_count_wh <= r_count_wh + 1;
           end
         end
         FEAT_IN: begin
@@ -227,7 +228,6 @@ module Control
           r_count_fout  <= 0;
           if (data_valid_out) begin
             r_addr_fin  <= r_addr_fin + 1;
-            // r_count_fin <= r_count_fin + 1 ;
           end
         end
         CONV: begin
