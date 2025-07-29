@@ -50,6 +50,8 @@ module Core
   logic r_end;
   logic r_fout_valid;
 
+  logic w_end_fout;
+
   int r_count_wh;
   int r_count_fin;
   int r_count_fout;
@@ -82,20 +84,21 @@ module Core
 
   always_comb begin
     p_end = 1'b0;
+    w_end_fout = 1'b0;
     unique case (current_st)
       IDLE:
         if (p_wh_en) next_st = WEIGHT;
-        else if (p_fin_en) next_st = FEAT_IN;
-        else if (p_start) next_st = CONV_C;
+        // else if (p_fin_en) next_st = FEAT_IN;
+        // else if (p_start) next_st = CONV_C;
       WEIGHT: begin
         if (r_count_wh == (M1_SIZE * M2_SIZE - 1)) begin
-          next_st = IDLE;
+          next_st = FEAT_IN;
           p_end = 1'b1;
         end
       end
       FEAT_IN: begin
         if (r_count_fin == (C1_SIZE * C2_SIZE - 1)) begin
-          next_st = IDLE;
+          next_st = CONV_C;
           p_end = 1'b1;
         end
       end
@@ -109,7 +112,10 @@ module Core
       FEAT_OUT: begin
         if (r_count_fout == (A1_SIZE * A2_SIZE)) begin
           next_st = IDLE;
+          w_end_fout = 1'b1;
           p_end = 1'b1;
+        end else begin
+
         end
       end
     endcase
@@ -164,11 +170,16 @@ module Core
           r_conv_end <= 1'b1;
         end
         FEAT_OUT: begin
-          r_fout_en    <= 1'b1;
           r_count_wh   <= 0;
           r_count_fin  <= 0;
-          r_fout_valid <= 1'b1;
           r_count_fout <= r_count_fout + 1;
+          if (w_end_fout) begin
+            r_fout_en    <= 1'b0;
+            r_fout_valid <= 1'b0;
+          end else begin
+            r_fout_en    <= 1'b1;
+            r_fout_valid <= 1'b1;
+          end
         end
       endcase
     end
