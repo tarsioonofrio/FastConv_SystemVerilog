@@ -171,10 +171,10 @@ module Control
         end
         WEIGHT: begin
           if (r_count < M1_SIZE * M2_SIZE) begin
+            r_chip_en <= 1'b1;
             if (data_valid_fin) begin
-              r_count <=  r_count + 1 ;
-              r_addr_wh   <= r_addr_wh + 1;
-              r_chip_en   <= 1'b1;
+              r_count   <=  r_count + 1 ;
+              r_addr_wh <= r_addr_wh + 1;
             end
           end else begin
             r_count <=  0;
@@ -183,10 +183,10 @@ module Control
         end
         FEAT_IN: begin
           if (r_count < C1_SIZE * C2_SIZE) begin
+            r_chip_en <= 1'b1;
             if (data_valid_fin) begin
               r_count <=  r_count + 1 ;
               r_addr_fin  <= r_addr_fin + 1;
-              r_chip_en   <= 1'b1;
             end
           end else begin
             r_count <=  0;
