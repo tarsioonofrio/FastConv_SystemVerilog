@@ -14,4 +14,4 @@ set StdArithNoWarnings 1
 set StdVitalGlitchNoWarnings 1
 do wave.do
 # run 2000ns
-# run -all
+run -all

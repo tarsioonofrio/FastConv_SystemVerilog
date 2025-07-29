@@ -30,8 +30,8 @@ module Control
     input logic p_fout_en,
     input logic p_fout_valid,
 
-    output logic_vector p_fin_data,
-    input  logic_vector p_fout_data
+    output logic_vector p_out_data,
+    input  logic_vector p_in_data
 );
 
   timeunit 1ns; timeprecision 1ps;
@@ -59,13 +59,13 @@ module Control
   int r_addr_fout;
   int r_count_window;
 
-  logic_vector data_fin;
-  logic_vector data_fout;
+  logic_vector data_out;
+  logic_vector data_in;
 
   logic chip_en;
   logic r_chip_en;
   logic wr_en;
-  logic data_valid_fin;
+  logic data_valid_out;
   logic[NADDR-1:0] address;
 
   Memory #(
@@ -79,9 +79,9 @@ module Control
     .chip_en(chip_en),
     .wr_en(wr_en),
     .address(address),
-    .data_in(data_fout),
-    .data_out(data_fin),
-    .data_valid(data_valid_fin)
+    .data_in(data_in),
+    .data_out(data_out),
+    .data_valid(data_valid_out)
   );
 
   always_ff @(posedge clk or posedge reset) begin
@@ -117,19 +117,19 @@ module Control
       BIAS: begin
         address <= r_addr_bias;
         chip_en <= r_chip_en;
-        p_fin_en <= r_chip_en;
-        p_fin_data <= data_fin;
-        p_fin_valid <= data_valid_fin;
+        // p_bias_en <= r_chip_en;
+        p_out_data <= data_out;
+        // p_bias_valid <= data_valid_out;
       end
       WEIGHT: begin
         address <= r_addr_wh;
         chip_en <= r_chip_en;
-        p_fin_en <= r_chip_en;
-        p_fin_data <= data_fin;
-        p_fin_valid <= data_valid_fin;
+        p_wh_en <= r_chip_en;
+        p_out_data <= data_out;
+        p_wh_valid <= data_valid_out;
       end
       FEAT_OUT: begin
-        data_fout <= p_fout_data;
+        data_in <= p_in_data;
         address <= r_addr_fout;
         chip_en <= p_fout_en;
       end
@@ -137,8 +137,8 @@ module Control
         address <= r_addr_fin;
         chip_en <= r_chip_en;
         p_fin_en <= r_chip_en;
-        p_fin_data <= data_fin;
-        p_fin_valid <= data_valid_fin;
+        p_out_data <= data_out;
+        p_fin_valid <= data_valid_out;
       end
     endcase
   end
@@ -172,7 +172,7 @@ module Control
         WEIGHT: begin
           if (r_count < M1_SIZE * M2_SIZE) begin
             r_chip_en <= 1'b1;
-            if (data_valid_fin) begin
+            if (data_valid_out) begin
               r_count   <=  r_count + 1 ;
               r_addr_wh <= r_addr_wh + 1;
             end
@@ -184,7 +184,7 @@ module Control
         FEAT_IN: begin
           if (r_count < C1_SIZE * C2_SIZE) begin
             r_chip_en <= 1'b1;
-            if (data_valid_fin) begin
+            if (data_valid_out) begin
               r_count <=  r_count + 1 ;
               r_addr_fin  <= r_addr_fin + 1;
             end

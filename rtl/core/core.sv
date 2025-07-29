@@ -20,8 +20,8 @@ module Core
     output logic p_fout_en,
     output logic p_fout_valid,
 
-    input  logic_vector p_fin_data,
-    output logic_vector p_fout_data
+    input  logic_vector p_in_data,
+    output logic_vector p_out_data
 );
 
   timeunit 1ns; timeprecision 1ps;
@@ -67,7 +67,7 @@ module Core
     p_fout_en = r_fout_en;
     p_fout_valid = r_fout_valid;
     // saving one register[NBITS] for data output
-    p_fout_data = r_feat_out[r_count_out-1];
+    p_out_data = r_feat_out[r_count_out-1];
   end
 
   always_ff @(posedge clk or posedge reset) begin
@@ -115,7 +115,7 @@ module Core
         end
         WEIGHT: begin
           if (p_wh_valid && (r_count_in < M1_SIZE * M2_SIZE)) begin
-            r_weight[r_count_in] <= p_fin_data;
+            r_weight[r_count_in] <= p_in_data;
             r_count_in <= r_count_in + 1;
             r_end <= 1'b0;
           end else begin
@@ -125,7 +125,7 @@ module Core
         end
         FEAT_IN: begin
           if (p_fin_valid && (r_count_in < C1_SIZE * C2_SIZE)) begin
-            r_feat_in[r_count_in] <= p_fin_data;
+            r_feat_in[r_count_in] <= p_in_data;
             r_count_in <= r_count_in + 1;
             r_end <= 1'b0;
           end else begin

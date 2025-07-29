@@ -35,8 +35,8 @@ module tb;
   logic p_fout_en;
   logic p_fout_valid;
 
-  logic_vector p_fin_data;
-  logic_vector p_fout_data;
+  logic_vector data_control2core;
+  logic_vector data_core2control;
 
   // Clock generation (10ns period)
   initial clk = 0;
@@ -62,17 +62,17 @@ module tb;
     .p_start_conv(p_start_conv),
     .p_end(p_end),
 
-    .p_fin_en(p_fin_en),
-    .p_fin_valid(p_fin_valid),
-
     .p_wh_en(p_wh_en),
     .p_wh_valid(p_wh_valid),
+
+    .p_fin_en(p_fin_en),
+    .p_fin_valid(p_fin_valid),
 
     .p_fout_en(p_fout_en),
     .p_fout_valid(p_fout_valid),
 
-    .p_fin_data(p_fin_data),
-    .p_fout_data(p_fout_data)
+    .p_out_data(data_control2core),
+    .p_in_data(data_core2control)
   );
 
   Core #(
@@ -86,17 +86,17 @@ module tb;
     .p_end(p_end_conv),
     .p_debug(p_debug),
 
-    .p_fin_en(p_fin_en),
-    .p_fin_valid(p_fin_valid),
-
     .p_wh_en(p_wh_en),
     .p_wh_valid(p_wh_valid),
+
+    .p_fin_en(p_fin_en),
+    .p_fin_valid(p_fin_valid),
 
     .p_fout_en(p_fout_en),
     .p_fout_valid(p_fout_valid),
 
-    .p_fin_data(p_fin_data),
-    .p_fout_data(p_fout_data)
+    .p_in_data(data_control2core),
+    .p_out_data(data_core2control)
   );
 
 
@@ -120,8 +120,8 @@ module tb;
 
     for (int i = 0; i < W2_SIZE; i++) begin
       wait(p_wh_valid);
-      // p_fin_data = const_weight[0][i];
-      $display("Weight[%0d] = %0d", i, p_fout_data);
+      // data_control2core = const_weight[0][i];
+      $display("Weight[%0d] = %0d", i, data_core2control);
       @(posedge clk);
     end
 
@@ -134,8 +134,8 @@ module tb;
 
     for (int i = 0; i < FIN2_SIZE; i++) begin
       wait(p_fin_valid);
-      // p_fin_data = const_feat_in[0][i];
-      $display("Weight[%0d] = %0d", i, p_fout_data);
+      // data_control2core = const_feat_in[0][i];
+      $display("Weight[%0d] = %0d", i, data_core2control);
       @(posedge clk);
     end
 
@@ -152,7 +152,7 @@ module tb;
     @(posedge clk);
     for (int i = 0; i < FOUT2_SIZE; i++) begin
       if (p_fout_en ) begin
-        $display("Time %0t | const_feat_out[%0d] = %0d | Output = %0d", $time, i, const_feat_out[0][i], p_fout_data);
+        $display("Time %0t | const_feat_out[%0d] = %0d | Output = %0d", $time, i, const_feat_out[0][i], data_core2control);
       end
       @(posedge clk);
     end
