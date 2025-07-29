@@ -88,13 +88,13 @@ module Core
         else if (p_fin_en) next_st = FEAT_IN;
         else if (p_start) next_st = CONV_C;
       WEIGHT: begin
-        if (r_count_wh == M1_SIZE * M2_SIZE) begin
+        if (r_count_wh == (M1_SIZE * M2_SIZE - 1)) begin
           next_st = IDLE;
           p_end = 1'b1;
         end
       end
       FEAT_IN: begin
-        if (r_count_fin == C1_SIZE * C2_SIZE) begin
+        if (r_count_fin == (C1_SIZE * C2_SIZE - 1)) begin
           next_st = IDLE;
           p_end = 1'b1;
         end
@@ -104,7 +104,7 @@ module Core
                   next_st = CONV_A;
       CONV_A:   next_st = FEAT_OUT;
       FEAT_OUT: begin
-        if (r_count_fout == A1_SIZE * A2_SIZE) begin
+        if (r_count_fout == (A1_SIZE * A2_SIZE)) begin
           next_st = IDLE;
           p_end = 1'b1;
         end
@@ -120,7 +120,6 @@ module Core
       r_count_wh <= 0;
       r_count_fin <= 0;
       r_count_fout <= 0;
-      r_end <= 1'b0;
       r_fout_en <= 1'b0;
       r_conv_end <= 1'b0;
       r_mult_idx <= 1'b0;
@@ -130,7 +129,6 @@ module Core
         IDLE: begin
           r_feat_out <= '{default: '0};
           r_fout_en <= 1'b0;
-          r_end <= 1'b0;
           r_conv_end <= 1'b0;
           r_mult_idx <= 1'b0;
           r_fout_valid <= 1'b0;
@@ -141,7 +139,6 @@ module Core
           if (p_wh_valid) begin
             r_weight[r_count_wh] <= p_in_data;
             r_count_wh <= r_count_wh + 1;
-            r_end <= 1'b0;
           end
         end
         FEAT_IN: begin
@@ -149,8 +146,7 @@ module Core
           r_count_fout <= 0;
           if (p_fin_valid) begin
             r_feat_in[r_count_fin] <= p_in_data;
-            r_count_fin <= r_count_fin + 1;
-            r_end <= 1'b0;
+            r_count_fin            <= r_count_fin + 1;
           end
         end
         CONV_C: begin
@@ -158,25 +154,18 @@ module Core
         end
         CONV_H: begin
           r_feat_in[r_mult_idx] <= product;
-          r_mult_idx <= r_mult_idx + 1;
+          r_mult_idx            <= r_mult_idx + 1;
         end
         CONV_A: begin
           r_feat_out <= w_prod_a;
           r_conv_end <= 1'b1;
         end
         FEAT_OUT: begin
-          r_count_wh <= 0;
-          r_count_fin <= 0;
-          if (r_count_fout < (A1_SIZE * A2_SIZE)) begin
-            r_count_fout  <= r_count_fout + 1;
-            r_fout_en <= 1'b1;
-            r_fout_valid <= 1'b1;
-          end else begin
-            r_count_fout <= 0;
-            r_end <= 1'b1;
-            r_fout_en <= 1'b0;
-            r_fout_valid <= 1'b0;
-          end
+          r_fout_en    <= 1'b1;
+          r_count_wh   <= 0;
+          r_count_fin  <= 0;
+          r_fout_valid <= 1'b1;
+          r_count_fout <= r_count_fout + 1;
         end
       endcase
     end
