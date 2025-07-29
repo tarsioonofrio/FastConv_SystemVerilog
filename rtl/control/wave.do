@@ -11,8 +11,8 @@ add wave -noupdate /tb/dut/p_fin_en
 add wave -noupdate /tb/dut/p_fin_valid
 add wave -noupdate /tb/dut/p_fout_en
 add wave -noupdate /tb/dut/p_fout_valid
-add wave -noupdate /tb/dut/p_out_data
-add wave -noupdate /tb/dut/p_in_data
+add wave -noupdate -radix decimal /tb/dut/p_out_data
+add wave -noupdate -radix decimal /tb/dut/p_in_data
 add wave -noupdate /tb/dut/current_st
 add wave -noupdate /tb/dut/next_st
 add wave -noupdate /tb/dut/r_start_conv
@@ -24,18 +24,17 @@ add wave -noupdate /tb/dut/r_fin_en
 add wave -noupdate /tb/dut/r_chip_en
 add wave -noupdate /tb/dut/r_end_wh
 add wave -noupdate /tb/dut/r_end_fin
-add wave -noupdate /tb/dut/r_count
 add wave -noupdate /tb/dut/r_addr_bias
 add wave -noupdate /tb/dut/r_addr_wh
 add wave -noupdate /tb/dut/r_addr_fin
 add wave -noupdate /tb/dut/r_addr_fout
 add wave -noupdate /tb/dut/r_count_window
-add wave -noupdate /tb/dut/data_out
-add wave -noupdate /tb/dut/data_in
+add wave -noupdate -radix decimal /tb/dut/data_out
+add wave -noupdate -radix decimal /tb/dut/data_in
 add wave -noupdate /tb/dut/chip_en
 add wave -noupdate /tb/dut/wr_en
 add wave -noupdate /tb/dut/data_valid_out
-add wave -noupdate /tb/dut/address
+add wave -noupdate -radix decimal /tb/dut/address
 add wave -noupdate /tb/core/clk
 add wave -noupdate /tb/core/reset
 add wave -noupdate /tb/core/p_start
@@ -47,8 +46,8 @@ add wave -noupdate /tb/core/p_wh_en
 add wave -noupdate /tb/core/p_wh_valid
 add wave -noupdate /tb/core/p_fout_en
 add wave -noupdate /tb/core/p_fout_valid
-add wave -noupdate /tb/core/p_in_data
-add wave -noupdate /tb/core/p_out_data
+add wave -noupdate -radix decimal /tb/core/p_in_data
+add wave -noupdate -radix decimal /tb/core/p_out_data
 add wave -noupdate /tb/core/current_st
 add wave -noupdate /tb/core/next_st
 add wave -noupdate /tb/core/current_st_conv
@@ -58,7 +57,7 @@ add wave -noupdate /tb/core/r_conv_end
 add wave -noupdate /tb/core/r_end
 add wave -noupdate /tb/core/r_fout_valid
 add wave -noupdate /tb/core/r_count
-add wave -noupdate /tb/core/r_mult_idx
+add wave -noupdate -radix decimal /tb/core/r_mult_idx
 add wave -noupdate /tb/core/product
 TreeUpdate [SetDefaultTree]
 WaveRestoreCursors {{Cursor 1} {760 ns} 0}
@@ -77,4 +76,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {1190 ns} {1421 ns}
+WaveRestoreZoom {1605 ns} {1836 ns}
