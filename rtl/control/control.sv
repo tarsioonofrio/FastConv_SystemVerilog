@@ -110,11 +110,9 @@ module Control
       BIAS:
           next_st = WEIGHT;
       WEIGHT:
-        // if (r_count_wh == M1_SIZE * M2_SIZE)
         if (p_end_conv)
           next_st = FEAT_IN;
       FEAT_IN:
-        // if (r_count_fin == C1_SIZE * C2_SIZE)
         if (p_end_conv)
           next_st = CONV;
       CONV:
