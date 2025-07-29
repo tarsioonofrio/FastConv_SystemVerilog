@@ -9,7 +9,7 @@ module tb;
   localparam int NADDR           = 12;
   localparam int NBITS           = 20;
   localparam int LATENCY         = 1;
-  localparam int ROM             = 0;
+  localparam int ROM             = 1;
   localparam int QUANT           = 8;
   localparam int FEAT_IN_SIZE    = 32;
   localparam int N_WINDOW        = 15;
