@@ -99,10 +99,13 @@ module Core
           p_end = 1'b1;
         end
       end
-      CONV_C:   next_st = CONV_H;
-      CONV_H:   if (r_mult_idx == (M1_SIZE * M2_SIZE - 1))
-                  next_st = CONV_A;
-      CONV_A:   next_st = FEAT_OUT;
+      CONV_C:
+        next_st = CONV_H;
+      CONV_H:
+      if (r_mult_idx == (M1_SIZE * M2_SIZE - 1))
+        next_st = CONV_A;
+      CONV_A:
+        next_st = FEAT_OUT;
       FEAT_OUT: begin
         if (r_count_fout == (A1_SIZE * A2_SIZE)) begin
           next_st = IDLE;
