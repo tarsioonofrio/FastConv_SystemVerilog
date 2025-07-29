@@ -33,8 +33,8 @@ module tb;
   logic p_fout_en;
   logic p_fout_valid;
 
-  logic_vector p_fin_data;
-  logic_vector p_fout_data;
+  logic_vector p_in_data;
+  logic_vector p_out_data;
 
   // Clock generation (10ns period)
   initial clk = 0;
@@ -61,8 +61,8 @@ module tb;
     .p_fout_en(p_fout_en),
     .p_fout_valid(p_fout_valid),
 
-    .p_fin_data(p_fin_data),
-    .p_fout_data(p_fout_data)
+    .p_in_data(p_in_data),
+    .p_out_data(p_out_data)
   );
 
   // Inicialização dos sinais e reset
@@ -78,7 +78,7 @@ module tb;
     p_wh_valid = 0;
     p_fin_valid = 0;
     p_start = 0;
-    p_fin_data = '0;
+    p_in_data = '0;
 
     // Aguarda 1 ciclos de clock
     @(posedge clk);
@@ -93,8 +93,8 @@ module tb;
     p_wh_valid = 1;
 
     for (int i = 0; i < W2_SIZE; i++) begin
-      p_fin_data = const_weight[0][i];
-      $display("Weight[%0d] = %0d", i, p_fin_data);
+      p_in_data = const_weight[0][i];
+      $display("Weight[%0d] = %0d", i, p_in_data);
       @(posedge clk);
     end
 
@@ -110,8 +110,8 @@ module tb;
     p_fin_valid = 1;
 
     for (int i = 0; i < FIN2_SIZE; i++) begin
-      p_fin_data = const_feat_in[0][i];
-      $display("Input data[%0d] = %0d", i, p_fin_data);
+      p_in_data = const_feat_in[0][i];
+      $display("Input data[%0d] = %0d", i, p_in_data);
       @(posedge clk);
     end
 
@@ -133,7 +133,7 @@ module tb;
     @(posedge clk);
     for (int i = 0; i < FOUT2_SIZE; i++) begin
       if (p_fout_en ) begin
-        $display("Time %0t | const_feat_out[%0d] = %0d | Output = %0d", $time, i, const_feat_out[0][i], p_fout_data);
+        $display("Time %0t | const_feat_out[%0d] = %0d | Output = %0d", $time, i, const_feat_out[0][i], p_out_data);
       end
       @(posedge clk);
     end
