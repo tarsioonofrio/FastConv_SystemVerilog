@@ -49,8 +49,7 @@ module Core
   logic r_end;
   logic r_fout_valid;
 
-  int r_count_in;
-  int r_count_out;
+  int r_count;
 
   logic [5:0] r_mult_idx;
 
@@ -67,7 +66,7 @@ module Core
     p_fout_en = r_fout_en;
     p_fout_valid = r_fout_valid;
     // saving one register[NBITS] for data output
-    p_out_data = r_feat_out[r_count_out-1];
+    p_out_data = r_feat_out[r_count-1];
   end
 
   always_ff @(posedge clk or posedge reset) begin
@@ -96,8 +95,8 @@ module Core
       r_weight <= '{default: '0};
       r_feat_in <= '{default: '0};
       r_feat_out <= '{default: '0};
-      r_count_out <= 0;
-      r_count_in <= 0;
+      r_count <= 0;
+      r_count <= 0;
       r_end <= 1'b0;
       r_fout_en <= 1'b0;
       r_conv_end <= 1'b0;
@@ -114,26 +113,26 @@ module Core
           r_fout_valid <= 1'b0;
         end
         WEIGHT: begin
-          if (r_count_in < M1_SIZE * M2_SIZE) begin
+          if (r_count < M1_SIZE * M2_SIZE) begin
             if (p_wh_valid) begin
-              r_weight[r_count_in] <= p_in_data;
-              r_count_in <= r_count_in + 1;
+              r_weight[r_count] <= p_in_data;
+              r_count <= r_count + 1;
               r_end <= 1'b0;
             end
           end else begin
-            r_count_in <= 1'b0;
+            r_count <= 1'b0;
             r_end <= 1'b1;
           end
         end
         FEAT_IN: begin
-          if (r_count_in < C1_SIZE * C2_SIZE) begin
+          if (r_count < C1_SIZE * C2_SIZE) begin
             if (p_fin_valid) begin
-              r_feat_in[r_count_in] <= p_in_data;
-              r_count_in <= r_count_in + 1;
+              r_feat_in[r_count] <= p_in_data;
+              r_count <= r_count + 1;
               r_end <= 1'b0;
             end
           end else begin
-            r_count_in <= 1'b0;
+            r_count <= 1'b0;
             r_end <= 1'b1;
           end
         end
@@ -152,12 +151,12 @@ module Core
           endcase
         end
         FEAT_OUT: begin
-          if (r_count_out < (A1_SIZE * A2_SIZE)) begin
-            r_count_out  <= r_count_out + 1;
+          if (r_count < (A1_SIZE * A2_SIZE)) begin
+            r_count  <= r_count + 1;
             r_fout_en <= 1'b1;
             r_fout_valid <= 1'b1;
           end else begin
-            r_count_out  <= 1'b0;
+            r_count  <= 1'b0;
             r_fout_en <= 1'b0;
             r_end <= 1'b1;
             r_fout_valid <= 1'b0;
