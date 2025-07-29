@@ -15,17 +15,15 @@ add wave -noupdate -radix decimal /tb/dut/p_in_data
 add wave -noupdate -radix decimal /tb/dut/p_out_data
 add wave -noupdate /tb/dut/current_st
 add wave -noupdate /tb/dut/next_st
-add wave -noupdate /tb/dut/current_st_conv
-add wave -noupdate /tb/dut/next_st_conv
 add wave -noupdate /tb/dut/r_fout_en
 add wave -noupdate /tb/dut/r_conv_end
 add wave -noupdate /tb/dut/r_end
 add wave -noupdate /tb/dut/r_fout_valid
 add wave -noupdate /tb/dut/r_count
-add wave -noupdate /tb/dut/r_mult_idx
+add wave -noupdate -radix decimal /tb/dut/r_mult_idx
 add wave -noupdate /tb/dut/product
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {977 ns} 0}
+WaveRestoreCursors {{Cursor 1} {1061 ns} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 300
 configure wave -valuecolwidth 100
