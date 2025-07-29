@@ -209,8 +209,8 @@ module Control
             end
           end
           else begin
-            r_count_wh  <= 0;
             // r_wh_en     <= 1'b0;
+            // r_count_wh  <= 0;
             // r_end_wh    <= 1'b1;
           end
         end
