@@ -171,11 +171,11 @@ module Control
       r_count_fin    <= 0;
       r_count_fout   <= 0;
       r_count_window <= 0;
-      r_start_conv   <= 1'b0;
       r_wh_en        <= 1'b0;
       r_fin_en       <= 1'b0;
       r_end_wh       <= 1'b0;
       r_end_fin      <= 1'b0;
+      r_start_conv   <= 1'b0;
     end else begin
       unique case (current_st)
         IDLE: begin
@@ -187,69 +187,51 @@ module Control
           r_count_fin    <= 0;
           r_count_fout   <= 0;
           r_count_window <= 0;
-          r_start_conv   <= 1'b0;
           r_wh_en        <= 1'b0;
           r_fin_en       <= 1'b0;
           r_end_wh       <= 1'b0;
           r_end_fin      <= 1'b0;
+          r_start_conv   <= 1'b0;
         end
         BIAS: begin
           r_addr_bias <= r_addr_bias + 1;
           r_chip_en   <= 1'b1;
         end
         WEIGHT: begin
-          r_count_fin  <=  0;
+          r_wh_en      <= 1'b1;
+          r_fin_en     <= 1'b0;
+          r_count_fin  <= 0;
           r_count_fout <= 0;
-          r_fin_en     <=  0;
-          if (r_count_wh < M1_SIZE * M2_SIZE) begin
-            r_wh_en     <= 1'b1;
-            if (data_valid_out) begin
-              r_count_wh <= r_count_wh + 1 ;
-              r_addr_wh  <= r_addr_wh + 1;
-            end
-          end
-          else begin
-            // r_wh_en     <= 1'b0;
-            // r_count_wh  <= 0;
-            // r_end_wh    <= 1'b1;
+          if (data_valid_out) begin
+            r_count_wh <= r_count_wh + 1 ;
+            r_addr_wh  <= r_addr_wh + 1;
           end
         end
         FEAT_IN: begin
+          r_wh_en       <= 1'b0;
+          r_fin_en      <= 1'b1;
           r_count_wh    <= 0;
           r_count_fout  <= 0;
-          r_wh_en       <= 0;
-          if (r_count_fin < C1_SIZE * C2_SIZE) begin
-            r_fin_en <= 1'b1;
-            if (data_valid_out) begin
-              r_count_fin <= r_count_fin + 1 ;
-              r_addr_fin  <= r_addr_fin + 1;
-            end
-          end
-          else begin
-            r_fin_en    <= 1'b0;
-            // r_count_fin <=  0;
-            // r_end_fin   <= 1'b1;
+          if (data_valid_out) begin
+            r_count_fin <= r_count_fin + 1 ;
+            r_addr_fin  <= r_addr_fin + 1;
           end
         end
         CONV: begin
+          r_wh_en      <= 1'b0;
+          r_fin_en     <= 1'b0;
           r_start_conv <= 1'b1;
         end
         FEAT_OUT: begin
+          r_wh_en      <= 1'b0;
+          r_fin_en     <= 1'b0;
           r_start_conv <= 1'b0;
           r_count_wh   <= 0;
           r_count_fin  <= 0;
-          r_wh_en      <= 0;
-          r_fin_en     <= 0;
-          if (r_count_fout < (A1_SIZE * A2_SIZE)) begin
-            if (p_fout_valid) begin
-              r_count_fout <= r_count_fout + 1;
-              r_addr_fout  <= r_addr_fout + 1;
-            end
+          if (p_fout_valid) begin
+            r_count_fout <= r_count_fout + 1;
+            r_addr_fout  <= r_addr_fout + 1;
           end
-          // else begin
-          //   r_count_window <= r_count_window + 1;
-          //   r_count_fout   <= 0;
-          // end
         end
       endcase
     end
