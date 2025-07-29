@@ -30,14 +30,13 @@ module Core
     IDLE,
     WEIGHT,
     FEAT_IN,
-    CONV,
+    CONV_C,
+    CONV_H,
+    CONV_A,
     FEAT_OUT
   } state_type;
 
-  typedef enum {IDLE1, WR_MC, MU, WR_OUT} state_type_conv;
-
   state_type current_st, next_st;
-  state_type_conv current_st_conv, next_st_conv;
 
   type_weight r_weight;
   type_weight r_feat_in;
@@ -84,10 +83,15 @@ module Core
       IDLE:
         if (p_wh_en) next_st = WEIGHT;
         else if (p_fin_en) next_st = FEAT_IN;
-        else if (p_start) next_st = CONV;
+        else if (p_start) next_st = CONV_C;
       WEIGHT:   if (r_end) next_st = IDLE;
       FEAT_IN:  if (r_end) next_st = IDLE;
-      CONV:     if (r_conv_end) next_st = FEAT_OUT;
+      CONV_C:   next_st = CONV_H;
+      CONV_H:   if (r_mult_idx < (M1_SIZE * M2_SIZE - 1))
+                  next_st = CONV_H;
+                else
+                  next_st = CONV_A;
+      CONV_A:   next_st = FEAT_OUT;
       FEAT_OUT: if (r_end) next_st = IDLE;
     endcase
   end
@@ -137,19 +141,16 @@ module Core
             r_end <= 1'b1;
           end
         end
-        CONV: begin
-          unique case (current_st_conv)
-            WR_MC: r_feat_in <= w_prod_c;
-            MU: begin
-              r_feat_in[r_mult_idx] <= product;
-              r_mult_idx <= r_mult_idx + 1;
-            end
-            WR_OUT: begin
-              r_feat_out <= w_prod_a;
-              r_conv_end <= 1'b1;
-            end
-            default: begin end
-          endcase
+        CONV_C: begin
+          r_feat_in <= w_prod_c;
+        end
+        CONV_H: begin
+          r_feat_in[r_mult_idx] <= product;
+          r_mult_idx <= r_mult_idx + 1;
+        end
+        CONV_A: begin
+          r_feat_out <= w_prod_a;
+          r_conv_end <= 1'b1;
         end
         FEAT_OUT: begin
           if (r_count < (A1_SIZE * A2_SIZE)) begin
@@ -173,26 +174,26 @@ module Core
   // Control FSM
   //
 
-  always_ff @(posedge clk or posedge reset) begin
-    if (reset) begin
-      current_st_conv <= IDLE1;
-    end else begin
-      current_st_conv <= next_st_conv;
-    end
-  end
+  // always_ff @(posedge clk or posedge reset) begin
+  //   if (reset) begin
+  //     current_st_conv <= IDLE1;
+  //   end else begin
+  //     current_st_conv <= next_st_conv;
+  //   end
+  // end
 
-  always_comb begin
-    unique case (current_st_conv)
-      IDLE1: next_st_conv = p_start ? WR_MC : IDLE1;
-      WR_MC: next_st_conv = MU;
-      MU:
-        if (r_mult_idx < (M1_SIZE * M2_SIZE - 1))
-          next_st_conv = MU;
-        else
-          next_st_conv = WR_OUT;
-      WR_OUT: next_st_conv = IDLE1;
-    endcase
-  end
+  // always_comb begin
+  //   unique case (current_st_conv)
+  //     IDLE1: next_st_conv = p_start ? WR_MC : IDLE1;
+  //     WR_MC: next_st_conv = MU;
+  //     MU:
+  //       if (r_mult_idx < (M1_SIZE * M2_SIZE - 1))
+  //         next_st_conv = MU;
+  //       else
+  //         next_st_conv = WR_OUT;
+  //     WR_OUT: next_st_conv = IDLE1;
+  //   endcase
+  // end
 
   //
   // Data path
