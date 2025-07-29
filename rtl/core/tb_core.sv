@@ -138,7 +138,7 @@ module tb;
       @(posedge clk);
     end
 
-
+    # 10ns;
     $display("End simulation");
     $finish;
   end
