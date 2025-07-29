@@ -59,6 +59,7 @@ module tb;
     .reset(reset),
 
     .p_start(p_start),
+    .p_end(p_end),
     .p_start_conv(p_start_conv),
     .p_end_conv(p_end_conv),
 
