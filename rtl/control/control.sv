@@ -211,19 +211,24 @@ module Control
           r_addr_bias <= r_addr_bias + 1;
         end
         WEIGHT: begin
-          r_wh_en      <= 1'b1;
           r_fin_en     <= 1'b0;
           r_count_fin  <= 0;
           r_count_fout <= 0;
-          if (data_valid_out) begin
+          if (p_end_conv)
+            r_wh_en      <= 1'b0;
+          else
+            r_wh_en      <= 1'b1;
+          if (data_valid_out)
             r_addr_wh  <= r_addr_wh + 1;
-          end
         end
         FEAT_IN: begin
           r_wh_en       <= 1'b0;
-          r_fin_en      <= 1'b1;
           r_count_wh    <= 0;
           r_count_fout  <= 0;
+          if (p_end_conv)
+            r_fin_en      <= 1'b0;
+          else
+            r_fin_en      <= 1'b1;
           if (data_valid_out) begin
             r_addr_fin  <= r_addr_fin + 1;
           end
