@@ -136,27 +136,27 @@ module Control
         chip_en     <= r_wh_en;
         p_wh_en     <= r_wh_en;
         p_fin_en    <= r_fin_en;
+        p_out_data  <= data_out;
         p_wh_valid  <= data_valid_out;
         p_fin_valid <= data_valid_out;
-        p_out_data  <= data_out;
       end
       default: begin
         address     <= r_addr_fin;
         chip_en     <= r_fin_en;
         p_wh_en     <= r_wh_en;
         p_fin_en    <= r_fin_en;
+        p_out_data  <= data_out;
         p_wh_valid  <= data_valid_out;
         p_fin_valid <= data_valid_out;
-        p_out_data  <= data_out;
       end
       FEAT_OUT: begin
+        address     <= r_addr_fout;
+        chip_en     <= p_fout_en;
+        data_in     <= p_in_data;
         p_wh_en     <= r_wh_en;
         p_fin_en    <= r_fin_en;
         p_wh_valid  <= data_valid_out;
         p_fin_valid <= data_valid_out;
-        data_in     <= p_in_data;
-        address     <= r_addr_fout;
-        chip_en     <= p_fout_en;
       end
     endcase
   end
@@ -194,8 +194,8 @@ module Control
           r_start_conv   <= 1'b0;
         end
         BIAS: begin
-          r_addr_bias <= r_addr_bias + 1;
           r_chip_en   <= 1'b1;
+          r_addr_bias <= r_addr_bias + 1;
         end
         WEIGHT: begin
           r_wh_en      <= 1'b1;
@@ -203,8 +203,8 @@ module Control
           r_count_fin  <= 0;
           r_count_fout <= 0;
           if (data_valid_out) begin
-            r_count_wh <= r_count_wh + 1 ;
             r_addr_wh  <= r_addr_wh + 1;
+            r_count_wh <= r_count_wh + 1;
           end
         end
         FEAT_IN: begin
@@ -213,8 +213,8 @@ module Control
           r_count_wh    <= 0;
           r_count_fout  <= 0;
           if (data_valid_out) begin
-            r_count_fin <= r_count_fin + 1 ;
             r_addr_fin  <= r_addr_fin + 1;
+            r_count_fin <= r_count_fin + 1 ;
           end
         end
         CONV: begin
@@ -229,8 +229,8 @@ module Control
           r_count_wh   <= 0;
           r_count_fin  <= 0;
           if (p_fout_valid) begin
-            r_count_fout <= r_count_fout + 1;
             r_addr_fout  <= r_addr_fout + 1;
+            r_count_fout <= r_count_fout + 1;
           end
         end
       endcase
