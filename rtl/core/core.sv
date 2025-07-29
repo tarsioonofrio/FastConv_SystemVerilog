@@ -50,9 +50,11 @@ module Core
   logic r_end;
   logic r_fout_valid;
 
-  int r_count;
+  int r_count_wh;
+  int r_count_fin;
+  int r_count_fout;
 
-  logic [5:0] r_mult_idx;
+  logic [6:0] r_mult_idx;
 
   logic signed [NBITS-1+QUANT:0] product;  // QUANT more bits for the multipliers
 
@@ -67,7 +69,7 @@ module Core
     p_fout_en = r_fout_en;
     p_fout_valid = r_fout_valid;
     // saving one register[NBITS] for data output
-    p_out_data = r_feat_out[r_count-1];
+    p_out_data = r_feat_out[r_count_fout - 1];
   end
 
   always_ff @(posedge clk or posedge reset) begin
@@ -101,7 +103,9 @@ module Core
       r_weight <= '{default: '0};
       r_feat_in <= '{default: '0};
       r_feat_out <= '{default: '0};
-      r_count <= 0;
+      r_count_wh <= 0;
+      r_count_fin <= 0;
+      r_count_fout <= 0;
       r_end <= 1'b0;
       r_fout_en <= 1'b0;
       r_conv_end <= 1'b0;
@@ -118,26 +122,30 @@ module Core
           r_fout_valid <= 1'b0;
         end
         WEIGHT: begin
-          if (r_count < M1_SIZE * M2_SIZE) begin
+          r_count_fin <= 0;
+          r_count_fout <= 0;
+          if (r_count_wh < M1_SIZE * M2_SIZE) begin
             if (p_wh_valid) begin
-              r_weight[r_count] <= p_in_data;
-              r_count <= r_count + 1;
+              r_weight[r_count_wh] <= p_in_data;
+              r_count_wh <= r_count_wh + 1;
               r_end <= 1'b0;
             end
           end else begin
-            r_count <= 0;
+            r_count_wh <= 0;
             r_end <= 1'b1;
           end
         end
         FEAT_IN: begin
-          if (r_count < C1_SIZE * C2_SIZE) begin
+          r_count_wh <= 0;
+          r_count_fout <= 0;
+          if (r_count_fin < C1_SIZE * C2_SIZE) begin
             if (p_fin_valid) begin
-              r_feat_in[r_count] <= p_in_data;
-              r_count <= r_count + 1;
+              r_feat_in[r_count_fin] <= p_in_data;
+              r_count_fin <= r_count_fin + 1;
               r_end <= 1'b0;
             end
           end else begin
-            r_count <= 0;
+            r_count_fin <= 0;
             r_end <= 1'b1;
           end
         end
@@ -153,14 +161,16 @@ module Core
           r_conv_end <= 1'b1;
         end
         FEAT_OUT: begin
-          if (r_count < (A1_SIZE * A2_SIZE)) begin
-            r_count  <= r_count + 1;
+          r_count_wh <= 0;
+          r_count_fin <= 0;
+          if (r_count_fout < (A1_SIZE * A2_SIZE)) begin
+            r_count_fout  <= r_count_fout + 1;
             r_fout_en <= 1'b1;
             r_fout_valid <= 1'b1;
           end else begin
-            r_count  <= 0;
-            r_fout_en <= 1'b0;
+            r_count_fout <= 0;
             r_end <= 1'b1;
+            r_fout_en <= 1'b0;
             r_fout_valid <= 1'b0;
           end
         end
@@ -170,30 +180,6 @@ module Core
 
 
   // BLOCK: Convolution
-  //
-  // Control FSM
-  //
-
-  // always_ff @(posedge clk or posedge reset) begin
-  //   if (reset) begin
-  //     current_st_conv <= IDLE1;
-  //   end else begin
-  //     current_st_conv <= next_st_conv;
-  //   end
-  // end
-
-  // always_comb begin
-  //   unique case (current_st_conv)
-  //     IDLE1: next_st_conv = p_start ? WR_MC : IDLE1;
-  //     WR_MC: next_st_conv = MU;
-  //     MU:
-  //       if (r_mult_idx < (M1_SIZE * M2_SIZE - 1))
-  //         next_st_conv = MU;
-  //       else
-  //         next_st_conv = WR_OUT;
-  //     WR_OUT: next_st_conv = IDLE1;
-  //   endcase
-  // end
 
   //
   // Data path
