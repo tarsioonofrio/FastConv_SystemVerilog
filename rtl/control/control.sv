@@ -207,10 +207,11 @@ module Control
               r_count_wh <= r_count_wh + 1 ;
               r_addr_wh  <= r_addr_wh + 1;
             end
-          end else begin
+          end 
+          else begin
             r_count_wh  <= 0;
             r_wh_en     <= 1'b0;
-            r_end_wh    <= 1'b1;
+            // r_end_wh    <= 1'b1;
           end
         end
         FEAT_IN: begin
@@ -223,10 +224,11 @@ module Control
               r_count_fin <= r_count_fin + 1 ;
               r_addr_fin  <= r_addr_fin + 1;
             end
-          end else begin
+          end 
+          else begin
             r_count_fin <=  0;
             r_fin_en    <= 1'b0;
-            r_end_fin   <= 1'b1;
+            // r_end_fin   <= 1'b1;
           end
         end
         CONV: begin
@@ -243,10 +245,11 @@ module Control
               r_count_fout <= r_count_fout + 1;
               r_addr_fout  <= r_addr_fout + 1;
             end
-          end else begin
-            r_count_window <= r_count_window + 1;
-            r_count_fout   <= 0;
-          end
+          end 
+          // else begin
+          //   r_count_window <= r_count_window + 1;
+          //   r_count_fout   <= 0;
+          // end
         end
       endcase
     end
