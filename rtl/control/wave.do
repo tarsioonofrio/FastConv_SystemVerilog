@@ -3,11 +3,12 @@ quietly WaveActivateNextPane {} 0
 add wave -noupdate /tb/dut/clk
 add wave -noupdate /tb/dut/reset
 add wave -noupdate /tb/dut/p_start
-add wave -noupdate /tb/dut/p_start_conv
 add wave -noupdate /tb/dut/p_end
+add wave -noupdate /tb/dut/p_start_conv
+add wave -noupdate /tb/dut/p_end_conv
 add wave -noupdate /tb/dut/p_wh_en
-add wave -noupdate /tb/dut/p_wh_valid
 add wave -noupdate /tb/dut/p_fin_en
+add wave -noupdate /tb/dut/p_wh_valid
 add wave -noupdate /tb/dut/p_fin_valid
 add wave -noupdate /tb/dut/p_fout_en
 add wave -noupdate /tb/dut/p_fout_valid
@@ -33,7 +34,6 @@ add wave -noupdate /tb/core/clk
 add wave -noupdate /tb/core/reset
 add wave -noupdate /tb/core/p_start
 add wave -noupdate /tb/core/p_end
-add wave -noupdate /tb/core/p_debug
 add wave -noupdate /tb/core/p_fin_en
 add wave -noupdate /tb/core/p_fin_valid
 add wave -noupdate /tb/core/p_wh_en
@@ -44,17 +44,14 @@ add wave -noupdate -radix decimal /tb/core/p_in_data
 add wave -noupdate -radix decimal /tb/core/p_out_data
 add wave -noupdate /tb/core/current_st
 add wave -noupdate /tb/core/next_st
-add wave -noupdate /tb/core/current_st_conv
-add wave -noupdate /tb/core/next_st_conv
 add wave -noupdate /tb/core/r_fout_en
 add wave -noupdate /tb/core/r_conv_end
 add wave -noupdate /tb/core/r_end
 add wave -noupdate /tb/core/r_fout_valid
-add wave -noupdate /tb/core/r_count
 add wave -noupdate -radix decimal /tb/core/r_mult_idx
 add wave -noupdate /tb/core/product
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {760 ns} 0}
+WaveRestoreCursors {{Cursor 1} {725 ns} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 300
 configure wave -valuecolwidth 100
@@ -70,4 +67,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {0 ns} {231 ns}
+WaveRestoreZoom {660 ns} {774 ns}
