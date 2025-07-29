@@ -51,8 +51,11 @@ module Control
   logic r_fout_en;
   logic r_data_end;
   logic r_conv_end;
-  logic r_end_state;
+  logic r_wh_en;
+  logic r_fin_en;
   logic r_chip_en;
+  logic r_end_wh;
+  logic r_end_fin;
 
   int r_count;
   int r_addr_bias;
@@ -97,11 +100,11 @@ module Control
     p_start_conv <= r_start_conv;
     // State Machine
     unique case (current_st)
-    // IDLE:     if (p_start) next_st = BIAS;
-      IDLE:     if (p_start) next_st = WEIGHT;
-      BIAS:     next_st = WEIGHT;
-      WEIGHT:   if (r_end_state) next_st = FEAT_IN;
-      FEAT_IN:  if (r_end_state) next_st = CONV;
+    // IDLE:     if (p_start)      next_st = BIAS;
+      IDLE:     if (p_start)      next_st = WEIGHT;
+      BIAS:                       next_st = WEIGHT;
+      WEIGHT:   if (r_end_wh)     next_st = FEAT_IN;
+      FEAT_IN:  if (r_end_fin)    next_st = CONV;
       CONV:     if (r_start_conv) next_st = FEAT_OUT;
       FEAT_OUT: begin
         if (r_count_window == N_WINDOW * N_WINDOW) next_st = WEIGHT;
@@ -124,30 +127,30 @@ module Control
       end
       WEIGHT: begin
         address     <= r_addr_wh;
-        chip_en     <= r_chip_en;
-        p_wh_en     <= r_chip_en;
+        chip_en     <= r_wh_en;
+        p_wh_en     <= r_wh_en;
+        p_fin_en    <= r_fin_en;
         p_wh_valid  <= data_valid_out;
-        p_fin_en    <= r_chip_en ^ r_chip_en;
-        p_fin_valid <= data_valid_out ^ data_valid_out;
+        p_fin_valid <= data_valid_out;
+        p_out_data  <= data_out;
+      end
+      default: begin
+        address     <= r_addr_fin;
+        chip_en     <= r_fin_en;
+        p_wh_en     <= r_wh_en;
+        p_fin_en    <= r_fin_en;
+        p_wh_valid  <= data_valid_out;
+        p_fin_valid <= data_valid_out;
         p_out_data  <= data_out;
       end
       FEAT_OUT: begin
-        p_wh_en     <= r_chip_en;
+        p_wh_en     <= r_wh_en;
+        p_fin_en    <= r_fin_en;
         p_wh_valid  <= data_valid_out;
-        p_fin_en    <= r_chip_en;
         p_fin_valid <= data_valid_out;
         data_in     <= p_in_data;
         address     <= r_addr_fout;
         chip_en     <= p_fout_en;
-      end
-      default: begin
-        address     <= r_addr_fin;
-        chip_en     <= r_chip_en;
-        p_wh_en     <= r_chip_en ^ r_chip_en;
-        p_wh_valid  <= data_valid_out ^ data_valid_out;
-        p_fin_en    <= r_chip_en;
-        p_fin_valid <= data_valid_out;
-        p_out_data  <= data_out;
       end
     endcase
   end
@@ -161,8 +164,10 @@ module Control
       r_count        <= 0;
       r_count_window <= 0;
       r_start_conv   <= 1'b0;
-      r_chip_en      <= 1'b0;
-      r_end_state    <= 1'b0;
+      r_wh_en        <= 1'b0;
+      r_fin_en       <= 1'b0;
+      r_end_wh       <= 1'b0;
+      r_end_fin      <= 1'b0;
     end else begin
       unique case (current_st)
         IDLE: begin
@@ -173,8 +178,10 @@ module Control
           r_count        <= 0;
           r_count_window <= 0;
           r_start_conv   <= 1'b0;
-          r_chip_en      <= 1'b0;
-          r_end_state    <= 1'b0;
+          r_wh_en        <= 1'b0;
+          r_fin_en       <= 1'b0;
+          r_end_wh       <= 1'b0;
+          r_end_fin      <= 1'b0;
         end
         BIAS: begin
           r_addr_bias <= r_addr_bias + 1;
@@ -182,30 +189,28 @@ module Control
         end
         WEIGHT: begin
           if (r_count < M1_SIZE * M2_SIZE) begin
-            r_chip_en   <= 1'b1;
-            r_end_state <= 1'b0;
+            r_wh_en     <= 1'b1;
             if (data_valid_out) begin
-              r_count   <=  r_count + 1 ;
+              r_count   <= r_count + 1 ;
               r_addr_wh <= r_addr_wh + 1;
             end
           end else begin
             r_count     <= 0;
-            r_chip_en   <= 1'b0;
-            r_end_state <= 1'b1;
+            r_wh_en     <= 1'b0;
+            r_end_wh    <= 1'b1;
           end
         end
         FEAT_IN: begin
           if (r_count < C1_SIZE * C2_SIZE) begin
-            r_chip_en <= 1'b1;
-            r_end_state <= 1'b0;
+            r_fin_en <= 1'b1;
             if (data_valid_out) begin
-              r_count    <=  r_count + 1 ;
+              r_count    <= r_count + 1 ;
               r_addr_fin <= r_addr_fin + 1;
             end
           end else begin
             r_count     <=  0;
-            r_chip_en   <= 1'b0;
-            r_end_state <= 1'b1;
+            r_fin_en    <= 1'b0;
+            r_end_fin   <= 1'b1;
           end
         end
         CONV: begin
@@ -213,6 +218,7 @@ module Control
         end
         FEAT_OUT: begin
           r_start_conv <= 1'b0;
+          // r_chip_en    <= 1'b0;
           if (r_count < (A1_SIZE * A2_SIZE)) begin
             if (p_fout_valid) begin
               r_count     <= r_count + 1;
