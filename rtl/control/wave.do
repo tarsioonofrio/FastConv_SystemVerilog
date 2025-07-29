@@ -16,14 +16,8 @@ add wave -noupdate -radix decimal /tb/dut/p_in_data
 add wave -noupdate /tb/dut/current_st
 add wave -noupdate /tb/dut/next_st
 add wave -noupdate /tb/dut/r_start_conv
-add wave -noupdate /tb/dut/r_fout_en
-add wave -noupdate /tb/dut/r_data_end
-add wave -noupdate /tb/dut/r_conv_end
 add wave -noupdate /tb/dut/r_wh_en
 add wave -noupdate /tb/dut/r_fin_en
-add wave -noupdate /tb/dut/r_chip_en
-add wave -noupdate /tb/dut/r_end_wh
-add wave -noupdate /tb/dut/r_end_fin
 add wave -noupdate /tb/dut/r_addr_bias
 add wave -noupdate /tb/dut/r_addr_wh
 add wave -noupdate /tb/dut/r_addr_fin
@@ -76,4 +70,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {1605 ns} {1836 ns}
+WaveRestoreZoom {0 ns} {231 ns}
