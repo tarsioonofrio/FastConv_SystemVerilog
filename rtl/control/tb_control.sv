@@ -60,7 +60,7 @@ module tb;
 
     .p_start(p_start),
     .p_start_conv(p_start_conv),
-    .p_end(p_end),
+    .p_end_conv(p_end_conv),
 
     .p_wh_en(p_wh_en),
     .p_wh_valid(p_wh_valid),
