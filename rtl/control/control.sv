@@ -103,14 +103,14 @@ module Control
     // State Machine
     unique case (current_st)
     // IDLE:     if (p_start)      next_st = BIAS;
-      IDLE:     
+      IDLE:
         if (p_start)                             next_st = WEIGHT;
       BIAS:                                      next_st = WEIGHT;
-      WEIGHT:   
+      WEIGHT:
         if (r_count_wh == M1_SIZE * M2_SIZE)     next_st = FEAT_IN;
-      FEAT_IN:  
+      FEAT_IN:
         if (r_count_fin == C1_SIZE * C2_SIZE)    next_st = CONV;
-      CONV:     
+      CONV:
         if (r_start_conv)                        next_st = FEAT_OUT;
       FEAT_OUT: begin
         if (r_count_window == N_WINDOW * N_WINDOW) next_st = WEIGHT;
@@ -198,33 +198,33 @@ module Control
           r_chip_en   <= 1'b1;
         end
         WEIGHT: begin
-          r_count_fin     <=  0;
-          r_count_fout        <= 0;
+          r_count_fin  <=  0;
+          r_count_fout <= 0;
           r_fin_en     <=  0;
           if (r_count_wh < M1_SIZE * M2_SIZE) begin
             r_wh_en     <= 1'b1;
             if (data_valid_out) begin
-              r_count_wh   <= r_count_wh + 1 ;
-              r_addr_wh <= r_addr_wh + 1;
+              r_count_wh <= r_count_wh + 1 ;
+              r_addr_wh  <= r_addr_wh + 1;
             end
           end else begin
-            r_count_wh     <= 0;
+            r_count_wh  <= 0;
             r_wh_en     <= 1'b0;
             r_end_wh    <= 1'b1;
           end
         end
         FEAT_IN: begin
-          r_count_wh     <= 0;
-          r_count_fout        <= 0;
-          r_wh_en     <= 0;
+          r_count_wh    <= 0;
+          r_count_fout  <= 0;
+          r_wh_en       <= 0;
           if (r_count_fin < C1_SIZE * C2_SIZE) begin
             r_fin_en <= 1'b1;
             if (data_valid_out) begin
-              r_count_fin    <= r_count_fin + 1 ;
-              r_addr_fin <= r_addr_fin + 1;
+              r_count_fin <= r_count_fin + 1 ;
+              r_addr_fin  <= r_addr_fin + 1;
             end
           end else begin
-            r_count_fin     <=  0;
+            r_count_fin <=  0;
             r_fin_en    <= 1'b0;
             r_end_fin   <= 1'b1;
           end
@@ -234,19 +234,18 @@ module Control
         end
         FEAT_OUT: begin
           r_start_conv <= 1'b0;
-          r_count_wh     <= 0;
-          r_count_fin     <=  0;
-          r_wh_en     <= 0;
-          r_fin_en     <=  0;
-          // r_chip_en    <= 1'b0;
+          r_count_wh   <= 0;
+          r_count_fin  <= 0;
+          r_wh_en      <= 0;
+          r_fin_en     <= 0;
           if (r_count_fout < (A1_SIZE * A2_SIZE)) begin
             if (p_fout_valid) begin
-              r_count_fout     <= r_count_fout + 1;
-              r_addr_fout <= r_addr_fout + 1;
+              r_count_fout <= r_count_fout + 1;
+              r_addr_fout  <= r_addr_fout + 1;
             end
           end else begin
             r_count_window <= r_count_window + 1;
-            r_count_fout        <= 0;
+            r_count_fout   <= 0;
           end
         end
       endcase
