@@ -24,7 +24,7 @@ module tb;
   logic p_end;
 
   logic p_start_conv;
-  logic p_end_conv;
+  logic p_end_conv[2:0];
 
   logic p_fin_en;
   logic p_fin_valid;

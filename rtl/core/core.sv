@@ -8,7 +8,7 @@ module Core
     input logic clk, reset,
 
     input  logic p_start,
-    output logic p_end,
+    output logic p_end[2:0],
     output logic p_debug,
 
     input logic p_fin_en,
@@ -83,7 +83,7 @@ module Core
   end
 
   always_comb begin
-    p_end = 1'b0;
+    p_end = '{1'b0, 1'b0, 1'b0};
     w_end_fout = 1'b0;
     unique case (current_st)
       IDLE:
@@ -93,13 +93,13 @@ module Core
       WEIGHT: begin
         if (r_count_wh == (M1_SIZE * M2_SIZE - 1)) begin
           next_st = FEAT_IN;
-          p_end = 1'b1;
+          p_end[0] = 1'b1;
         end
       end
       FEAT_IN: begin
         if (r_count_fin == (C1_SIZE * C2_SIZE - 1)) begin
           next_st = CONV_C;
-          p_end = 1'b1;
+          p_end[1] = 1'b1;
         end
       end
       CONV_C:
@@ -113,7 +113,7 @@ module Core
         if (r_count_fout == (A1_SIZE * A2_SIZE)) begin
           next_st = IDLE;
           w_end_fout = 1'b1;
-          p_end = 1'b1;
+          p_end[2] = 1'b1;
         end else begin
 
         end
