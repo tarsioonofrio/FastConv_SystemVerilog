@@ -21,7 +21,7 @@ module tb;
   logic clk, reset;
 
   logic p_start;
-  logic p_end;
+  logic p_end[2:0];
   logic p_debug;
 
   logic p_fin_en;
@@ -99,7 +99,7 @@ module tb;
     end
 
     p_wh_valid = 0;
-    wait(p_end);
+    wait(p_end[0]);
     @(posedge clk);
 
     // Carregar dados de entrada
@@ -116,7 +116,7 @@ module tb;
     end
 
     p_fin_valid = 0;
-    wait(p_end);
+    wait(p_end[1]);
     @(posedge clk);
 
     // Start processamento
@@ -137,6 +137,7 @@ module tb;
       end
       @(posedge clk);
     end
+    // wait(p_end[2]);
 
     # 10ns;
     $display("End simulation");

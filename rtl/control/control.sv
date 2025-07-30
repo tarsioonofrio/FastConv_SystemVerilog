@@ -19,7 +19,7 @@ module Control
     input  logic p_start,
     output logic p_end,
     output logic p_start_conv,
-    input logic p_end_conv,
+    input logic p_end_conv[2:0],
     // output logic p_debug,
 
     output logic p_wh_en,
@@ -110,16 +110,16 @@ module Control
       BIAS:
           next_st = WEIGHT;
       WEIGHT:
-        if (p_end_conv)
+        if (p_end_conv[0])
           next_st = FEAT_IN;
       FEAT_IN:
-        if (p_end_conv)
+        if (p_end_conv[1])
           next_st = CONV;
       CONV:
         if (r_start_conv)
           next_st = FEAT_OUT;
       FEAT_OUT: begin
-        if (p_end_conv) begin
+        if (p_end_conv[2]) begin
           if (r_count_window == N_WINDOW * N_WINDOW)
             next_st = WEIGHT;
           // else
@@ -212,7 +212,7 @@ module Control
           r_fin_en     <= 1'b0;
           r_count_fin  <= 0;
           r_count_fout <= 0;
-          if (p_end_conv)
+          if (p_end_conv[1])
             r_wh_en <= 1'b0;
           else
             r_wh_en <= 1'b1;
@@ -223,7 +223,7 @@ module Control
           r_wh_en      <= 1'b0;
           r_count_wh   <= 0;
           r_count_fout <= 0;
-          if (p_end_conv)
+          if (p_end_conv[1])
             r_fin_en <= 1'b0;
           else
             r_fin_en <= 1'b1;
