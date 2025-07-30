@@ -149,7 +149,7 @@ module Control
         p_fin_en    <= r_fin_en;
         p_out_data  <= data_out;
         p_wh_valid  <= data_valid_out;
-        p_fin_valid <= data_valid_out;
+        p_fin_valid <= 0;
       end
       default: begin
         address     <= r_addr_fin;
@@ -157,7 +157,7 @@ module Control
         p_wh_en     <= r_wh_en;
         p_fin_en    <= r_fin_en;
         p_out_data  <= data_out;
-        p_wh_valid  <= data_valid_out;
+        p_wh_valid  <= 0;
         p_fin_valid <= data_valid_out;
       end
       FEAT_OUT: begin
@@ -166,8 +166,8 @@ module Control
         data_in     <= p_in_data;
         p_wh_en     <= r_wh_en;
         p_fin_en    <= r_fin_en;
-        p_wh_valid  <= data_valid_out;
-        p_fin_valid <= data_valid_out;
+        p_wh_valid  <= 0;
+        p_fin_valid <= 0;
       end
     endcase
   end
