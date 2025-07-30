@@ -3,7 +3,7 @@ quietly WaveActivateNextPane {} 0
 add wave -noupdate /tb/dut/clk
 add wave -noupdate /tb/dut/reset
 add wave -noupdate /tb/dut/p_start
-add wave -noupdate /tb/dut/p_end
+add wave -noupdate -expand /tb/dut/p_end
 add wave -noupdate /tb/dut/p_debug
 add wave -noupdate /tb/dut/p_fin_en
 add wave -noupdate /tb/dut/p_fin_valid
