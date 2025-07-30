@@ -92,7 +92,7 @@ module Core
       WEIGHT: begin
         w_end[0] = 1'b0;
         w_end[1] = 1'b0;
-        if (r_count_wh == (M1_SIZE * M2_SIZE - 1)) begin
+        if (r_count_wh == (M1_SIZE * M2_SIZE)) begin
           next_st = FEAT_IN;
           w_end[0] = 1'b1;
         end
@@ -100,7 +100,7 @@ module Core
       FEAT_IN: begin
         w_end[0] = 1'b0;
         w_end[2] = 1'b0;
-        if (r_count_fin == (C1_SIZE * C2_SIZE - 1)) begin
+        if (r_count_fin == (C1_SIZE * C2_SIZE)) begin
           next_st = CONV_C;
           w_end[1] = 1'b1;
         end
