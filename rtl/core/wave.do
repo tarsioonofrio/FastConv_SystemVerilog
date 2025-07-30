@@ -4,7 +4,6 @@ add wave -noupdate /tb/dut/clk
 add wave -noupdate /tb/dut/reset
 add wave -noupdate /tb/dut/p_start
 add wave -noupdate -expand /tb/dut/p_end
-add wave -noupdate /tb/dut/p_debug
 add wave -noupdate /tb/dut/p_fin_en
 add wave -noupdate /tb/dut/p_fin_valid
 add wave -noupdate /tb/dut/p_wh_en
@@ -41,4 +40,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {1012 ns} {1163 ns}
+WaveRestoreZoom {554 ns} {705 ns}
