@@ -11,7 +11,7 @@ module Control
     parameter int N_CHANNEL_IN  = 1,
     parameter int N_CHANNEL_OUT = 1,
     parameter int FEAT_IN_SIZE  = 32,
-    parameter int FEAT_OUT_SIZE = 32,
+    parameter int FEAT_OUT_SIZE = 30,
     parameter int LAST_WINDOW   = 0
 ) (
     input logic clk,
@@ -69,7 +69,9 @@ module Control
   int r_addr_fin_idx;
   int r_addr_fin_base;
   int r_addr_fin[25:0];
-  int r_addr_fout;
+  int r_addr_fout_idx;
+  int r_addr_fout_base;
+  int r_addr_fout[9:0];
   int r_count_window;
 
   logic_vector data_out;
@@ -172,7 +174,7 @@ module Control
         p_fin_valid <= data_valid_out;
       end
       FEAT_OUT: begin
-        address     <= r_addr_fout;
+        address     <= r_addr_fout[r_addr_fout_idx];
         chip_en     <= p_fout_en;
         data_in     <= p_in_data;
         p_wh_en     <= r_wh_en;
@@ -185,35 +187,35 @@ module Control
 
   always_ff @(posedge clk) begin
     if (reset) begin
-      r_addr_bias     <= 0;
-      r_addr_wh       <= N_CHANNEL_OUT;
-      r_addr_fin_base <= N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT;
-      r_addr_fout     <= N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT + N_CHANNEL_IN * FEAT_IN_SIZE * FEAT_IN_SIZE;
-      r_count_wh      <= 0;
-      r_count_fin     <= 0;
-      r_count_fout    <= 0;
-      r_count_window  <= 0;
-      r_wh_en         <= 1'b0;
-      r_fin_en        <= 1'b0;
-      r_end_wh        <= 1'b0;
-      r_end_fin       <= 1'b0;
-      r_start_conv    <= 1'b0;
+      r_addr_bias      <= 0;
+      r_addr_wh        <= N_CHANNEL_OUT;
+      r_addr_fin_base  <= N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT;
+      r_addr_fout_base <= N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT + N_CHANNEL_IN * FEAT_IN_SIZE * FEAT_IN_SIZE;
+      r_count_wh       <= 0;
+      r_count_fin      <= 0;
+      r_count_fout     <= 0;
+      r_count_window   <= 0;
+      r_wh_en          <= 1'b0;
+      r_fin_en         <= 1'b0;
+      r_end_wh         <= 1'b0;
+      r_end_fin        <= 1'b0;
+      r_start_conv     <= 1'b0;
     end else begin
       unique case (current_st)
         IDLE: begin
-          r_addr_bias     <= 0;
-          r_addr_wh       <= N_CHANNEL_OUT;
-          r_addr_fin_base <= N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT;
-          r_addr_fout     <= N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT + N_CHANNEL_IN * FEAT_IN_SIZE * FEAT_IN_SIZE;
-          r_count_wh      <= 0;
-          r_count_fin     <= 0;
-          r_count_fout    <= 0;
-          r_count_window  <= 0;
-          r_wh_en         <= 1'b0;
-          r_fin_en        <= 1'b0;
-          r_end_wh        <= 1'b0;
-          r_end_fin       <= 1'b0;
-          r_start_conv    <= 1'b0;
+          r_addr_bias      <= 0;
+          r_addr_wh        <= N_CHANNEL_OUT;
+          r_addr_fin_base  <= N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT;
+          r_addr_fout_base <= N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT + N_CHANNEL_IN * FEAT_IN_SIZE * FEAT_IN_SIZE;
+          r_count_wh       <= 0;
+          r_count_fin      <= 0;
+          r_count_fout     <= 0;
+          r_count_window   <= 0;
+          r_wh_en          <= 1'b0;
+          r_fin_en         <= 1'b0;
+          r_end_wh         <= 1'b0;
+          r_end_fin        <= 1'b0;
+          r_start_conv     <= 1'b0;
         end
         BIAS: begin
           r_chip_en   <= 1'b1;
@@ -225,7 +227,6 @@ module Control
           r_count_fout <= 0;
           if (p_end_conv[1]) begin
             r_wh_en <= 1'b0;
-
           end
           else
             r_wh_en <= 1'b1;
@@ -264,6 +265,8 @@ module Control
           r_addr_fin[22]  <= r_addr_fin_base + FEAT_IN_SIZE*4 + 2;
           r_addr_fin[23]  <= r_addr_fin_base + FEAT_IN_SIZE*4 + 3;
           r_addr_fin[24]  <= r_addr_fin_base + FEAT_IN_SIZE*4 + 4;
+
+          r_addr_fin_base <= r_addr_fin_base + C1_SIZE;
         end
         FEAT_IN: begin
           r_wh_en      <= 1'b0;
@@ -282,6 +285,23 @@ module Control
           r_fin_en     <= 1'b0;
           r_start_conv <= 1'b1;
         end
+        ADDR_OUT: begin
+          // TODO: Implement address generation logic using if else statements and remove
+          // multiple registers, using one register
+          r_addr_fout[0]  <= r_addr_fout_base + 0;
+          r_addr_fout[1]  <= r_addr_fout_base + 1;
+          r_addr_fout[2]  <= r_addr_fout_base + 2;
+
+          r_addr_fout[3]  <= r_addr_fout_base + FEAT_OUT_SIZE + 0;
+          r_addr_fout[4]  <= r_addr_fout_base + FEAT_OUT_SIZE + 1;
+          r_addr_fout[5]  <= r_addr_fout_base + FEAT_OUT_SIZE + 2;
+
+          r_addr_fout[6]  <= r_addr_fout_base + FEAT_OUT_SIZE*2 + 0;
+          r_addr_fout[7]  <= r_addr_fout_base + FEAT_OUT_SIZE*2 + 1;
+          r_addr_fout[8]  <= r_addr_fout_base + FEAT_OUT_SIZE*2 + 2;
+
+          r_addr_fout_base <= r_addr_fout_base + A1_SIZE;
+        end
         FEAT_OUT: begin
           r_wh_en      <= 1'b0;
           r_fin_en     <= 1'b0;
@@ -289,8 +309,8 @@ module Control
           r_count_wh   <= 0;
           r_count_fin  <= 0;
           if (p_fout_valid) begin
-            r_addr_fout  <= r_addr_fout + 1;
-            r_count_fout <= r_count_fout + 1;
+            r_addr_fout_idx <= r_addr_fout_idx + 1;
+            r_count_fout     <= r_count_fout + 1;
           end
         end
       endcase
