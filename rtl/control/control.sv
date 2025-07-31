@@ -11,6 +11,7 @@ module Control
     parameter int N_CHANNEL_IN  = 1,
     parameter int N_CHANNEL_OUT = 1,
     parameter int FEAT_IN_SIZE  = 32,
+    parameter int FEAT_OUT_SIZE = 32,
     parameter int LAST_WINDOW   = 0
 ) (
     input logic clk,
@@ -41,6 +42,7 @@ module Control
     IDLE,
     BIAS,
     WEIGHT,
+    ADDR,
     FEAT_IN,
     CONV,
     FEAT_OUT
@@ -63,7 +65,8 @@ module Control
   int r_count_fout;
   int r_addr_bias;
   int r_addr_wh;
-  int r_addr_fin;
+  int r_addr_fin_base;
+  int r_addr_fin[25:0];
   int r_addr_fout;
   int r_count_window;
 
@@ -218,6 +221,37 @@ module Control
             r_wh_en <= 1'b1;
           if (data_valid_out)
             r_addr_wh  <= r_addr_wh + 1;
+        end
+        ADDR: begin
+          r_addr_fin[0]  <= r_addr_fin_base + 0;
+          r_addr_fin[1]  <= r_addr_fin_base + 1;
+          r_addr_fin[2]  <= r_addr_fin_base + 2;
+          r_addr_fin[3]  <= r_addr_fin_base + 3;
+          r_addr_fin[4]  <= r_addr_fin_base + 4;
+          
+          r_addr_fin[5]  <= r_addr_fin_base + FEAT_IN_SIZE + 0;
+          r_addr_fin[6]  <= r_addr_fin_base + FEAT_IN_SIZE + 1;
+          r_addr_fin[7]  <= r_addr_fin_base + FEAT_IN_SIZE + 2;
+          r_addr_fin[8]  <= r_addr_fin_base + FEAT_IN_SIZE + 3;
+          r_addr_fin[9]  <= r_addr_fin_base + FEAT_IN_SIZE + 4;
+
+          r_addr_fin[10]  <= r_addr_fin_base + FEAT_IN_SIZE*2 + 0;
+          r_addr_fin[11]  <= r_addr_fin_base + FEAT_IN_SIZE*2 + 1;
+          r_addr_fin[12]  <= r_addr_fin_base + FEAT_IN_SIZE*2 + 2;
+          r_addr_fin[13]  <= r_addr_fin_base + FEAT_IN_SIZE*2 + 3;
+          r_addr_fin[14]  <= r_addr_fin_base + FEAT_IN_SIZE*2 + 4;
+          
+          r_addr_fin[15]  <= r_addr_fin_base + FEAT_IN_SIZE*3 + 0;
+          r_addr_fin[16]  <= r_addr_fin_base + FEAT_IN_SIZE*3 + 1;
+          r_addr_fin[17]  <= r_addr_fin_base + FEAT_IN_SIZE*3 + 2;
+          r_addr_fin[18]  <= r_addr_fin_base + FEAT_IN_SIZE*3 + 3;
+          r_addr_fin[19]  <= r_addr_fin_base + FEAT_IN_SIZE*3 + 4;
+
+          r_addr_fin[20]  <= r_addr_fin_base + FEAT_IN_SIZE*4 + 0;
+          r_addr_fin[21]  <= r_addr_fin_base + FEAT_IN_SIZE*4 + 1;
+          r_addr_fin[22]  <= r_addr_fin_base + FEAT_IN_SIZE*4 + 2;
+          r_addr_fin[23]  <= r_addr_fin_base + FEAT_IN_SIZE*4 + 3;
+          r_addr_fin[24]  <= r_addr_fin_base + FEAT_IN_SIZE*4 + 4;       
         end
         FEAT_IN: begin
           r_wh_en      <= 1'b0;
