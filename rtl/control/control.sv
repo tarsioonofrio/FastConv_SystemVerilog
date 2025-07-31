@@ -42,9 +42,10 @@ module Control
     IDLE,
     BIAS,
     WEIGHT,
-    ADDR,
+    ADDR_IN,
     FEAT_IN,
     CONV,
+    ADDR_OUT,
     FEAT_OUT
   } state_type;
 
@@ -115,13 +116,17 @@ module Control
           next_st = WEIGHT;
       WEIGHT:
         if (p_end_conv[0])
-          next_st = FEAT_IN;
+          next_st = ADDR_IN;
+      ADDR_IN:
+        next_st = FEAT_IN;
       FEAT_IN:
         if (p_end_conv[1])
           next_st = CONV;
       CONV:
         if (r_start_conv)
-          next_st = FEAT_OUT;
+          next_st = ADDR_OUT;
+      ADDR_OUT:
+        next_st = FEAT_OUT;
       FEAT_OUT: begin
         if (p_end_conv[2]) begin
           if (r_count_window == N_WINDOW * N_WINDOW)
@@ -132,6 +137,8 @@ module Control
           else
           if (r_count_window == N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN)
             next_st = IDLE;
+          else
+            next_st = ADDR_IN;
         end
       end
     endcase
@@ -178,35 +185,35 @@ module Control
 
   always_ff @(posedge clk) begin
     if (reset) begin
-      r_addr_bias    <= 0;
-      r_addr_wh      <= N_CHANNEL_OUT;
-      r_addr_fin     <= N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT;
-      r_addr_fout    <= N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT + N_CHANNEL_IN * FEAT_IN_SIZE * FEAT_IN_SIZE;
-      r_count_wh     <= 0;
-      r_count_fin    <= 0;
-      r_count_fout   <= 0;
-      r_count_window <= 0;
-      r_wh_en        <= 1'b0;
-      r_fin_en       <= 1'b0;
-      r_end_wh       <= 1'b0;
-      r_end_fin      <= 1'b0;
-      r_start_conv   <= 1'b0;
+      r_addr_bias     <= 0;
+      r_addr_wh       <= N_CHANNEL_OUT;
+      r_addr_fin_base <= N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT;
+      r_addr_fout     <= N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT + N_CHANNEL_IN * FEAT_IN_SIZE * FEAT_IN_SIZE;
+      r_count_wh      <= 0;
+      r_count_fin     <= 0;
+      r_count_fout    <= 0;
+      r_count_window  <= 0;
+      r_wh_en         <= 1'b0;
+      r_fin_en        <= 1'b0;
+      r_end_wh        <= 1'b0;
+      r_end_fin       <= 1'b0;
+      r_start_conv    <= 1'b0;
     end else begin
       unique case (current_st)
         IDLE: begin
-          r_addr_bias    <= 0;
-          r_addr_wh      <= N_CHANNEL_OUT;
-          r_addr_fin     <= N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT;
-          r_addr_fout    <= N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT + N_CHANNEL_IN * FEAT_IN_SIZE * FEAT_IN_SIZE;
-          r_count_wh     <= 0;
-          r_count_fin    <= 0;
-          r_count_fout   <= 0;
-          r_count_window <= 0;
-          r_wh_en        <= 1'b0;
-          r_fin_en       <= 1'b0;
-          r_end_wh       <= 1'b0;
-          r_end_fin      <= 1'b0;
-          r_start_conv   <= 1'b0;
+          r_addr_bias     <= 0;
+          r_addr_wh       <= N_CHANNEL_OUT;
+          r_addr_fin_base <= N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT;
+          r_addr_fout     <= N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT + N_CHANNEL_IN * FEAT_IN_SIZE * FEAT_IN_SIZE;
+          r_count_wh      <= 0;
+          r_count_fin     <= 0;
+          r_count_fout    <= 0;
+          r_count_window  <= 0;
+          r_wh_en         <= 1'b0;
+          r_fin_en        <= 1'b0;
+          r_end_wh        <= 1'b0;
+          r_end_fin       <= 1'b0;
+          r_start_conv    <= 1'b0;
         end
         BIAS: begin
           r_chip_en   <= 1'b1;
@@ -216,14 +223,16 @@ module Control
           r_fin_en     <= 1'b0;
           r_count_fin  <= 0;
           r_count_fout <= 0;
-          if (p_end_conv[1])
+          if (p_end_conv[1]) begin
             r_wh_en <= 1'b0;
+
+          end
           else
             r_wh_en <= 1'b1;
           if (data_valid_out)
             r_addr_wh  <= r_addr_wh + 1;
         end
-        ADDR: begin
+        ADDR_IN: begin
           // TODO: Implement address generation logic using if else statements and remove
           // multiple registers, using one register
           r_addr_fin[0]  <= r_addr_fin_base + 0;
