@@ -2,7 +2,7 @@ if {[file isdirectory work]} { vdel -all -lib work }
 vlib work
 vmap work work
 
-vlog -work work -svinputport=relaxed ./data-mem.sv
+vlog -work work -svinputport=relaxed ./data-sim.sv
 vlog -work work -svinputport=relaxed ./pack_conv.sv
 vlog -work work -svinputport=relaxed ../conv/ifn9-06m20b/rtl/csa_lib.sv
 vlog -work work -svinputport=relaxed ../conv/ifn9-06m20b/rtl/mult_matrices.sv
