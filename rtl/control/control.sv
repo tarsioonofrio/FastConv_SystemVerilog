@@ -266,7 +266,7 @@ module Control
           r_addr_fin[23] <= r_addr_fin_base + FEAT_IN_SIZE * 4 + 3;
           r_addr_fin[24] <= r_addr_fin_base + FEAT_IN_SIZE * 4 + 4;
 
-          r_addr_fin_base <= r_addr_fin_base + C1_SIZE;
+          r_addr_fin_base <= r_addr_fin_base + A1_SIZE;
         end
         FEAT_IN: begin
           r_wh_en      <= 1'b0;
