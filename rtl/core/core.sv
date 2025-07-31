@@ -87,7 +87,7 @@ module Core
     unique case (current_st)
       IDLE:
         if (p_wh_en) next_st = WEIGHT;
-        // else if (p_fin_en) next_st = FEAT_IN;
+        else if (p_fin_en) next_st = FEAT_IN;
         // else if (p_start) next_st = CONV_C;
       WEIGHT: begin
         w_end[0] = 1'b0;

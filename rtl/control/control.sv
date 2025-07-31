@@ -66,10 +66,8 @@ module Control
   int r_count_fout;
   int r_addr_bias;
   int r_addr_wh;
-  int r_addr_fin_idx;
   int r_addr_fin_base;
   int r_addr_fin[25:0];
-  int r_addr_fout_idx;
   int r_addr_fout_base;
   int r_addr_fout[9:0];
   int r_count_window;
@@ -165,7 +163,7 @@ module Control
         p_fin_valid <= 0;
       end
       default: begin
-        address     <= r_addr_fin[r_addr_fin_idx];
+        address     <= r_addr_fin[r_count_fin];
         chip_en     <= r_fin_en;
         p_wh_en     <= r_wh_en;
         p_fin_en    <= r_fin_en;
@@ -174,7 +172,7 @@ module Control
         p_fin_valid <= data_valid_out;
       end
       FEAT_OUT: begin
-        address     <= r_addr_fout[r_addr_fout_idx];
+        address     <= r_addr_fout[r_count_fout];
         chip_en     <= r_fout_en;
         wr_en       <= r_fout_en;
         data_in     <= p_in_data;
@@ -226,13 +224,14 @@ module Control
           r_fin_en     <= 1'b0;
           r_count_fin  <= 0;
           r_count_fout <= 0;
+          if (data_valid_out)
+            r_addr_wh  <= r_addr_wh + 1;
           if (p_end_conv[1]) begin
             r_wh_en <= 1'b0;
+            r_addr_wh  <= 0;
           end
           else
             r_wh_en <= 1'b1;
-          if (data_valid_out)
-            r_addr_wh  <= r_addr_wh + 1;
         end
         ADDR_IN: begin
           // TODO: Implement address generation logic using if else statements and remove
@@ -273,13 +272,12 @@ module Control
           r_wh_en      <= 1'b0;
           r_count_wh   <= 0;
           r_count_fout <= 0;
+          if (data_valid_out)
+            r_count_fin  <= r_count_fin + 1;
           if (p_end_conv[1])
-            r_fin_en <= 1'b0;
+            r_fin_en    <= 1'b0;
           else
             r_fin_en <= 1'b1;
-          if (data_valid_out) begin
-            r_addr_fin_idx  <= r_addr_fin_idx + 1;
-          end
         end
         CONV: begin
           r_wh_en      <= 1'b0;
@@ -289,30 +287,27 @@ module Control
         ADDR_OUT: begin
           // TODO: Implement address generation logic using if else statements and remove
           // multiple registers, using one register
-          r_addr_fout[0]  <= r_addr_fout_base + 0;
-          r_addr_fout[1]  <= r_addr_fout_base + 1;
-          r_addr_fout[2]  <= r_addr_fout_base + 2;
+          r_addr_fout[0] <= r_addr_fout_base + 0;
+          r_addr_fout[1] <= r_addr_fout_base + 1;
+          r_addr_fout[2] <= r_addr_fout_base + 2;
 
-          r_addr_fout[3]  <= r_addr_fout_base + FEAT_OUT_SIZE + 0;
-          r_addr_fout[4]  <= r_addr_fout_base + FEAT_OUT_SIZE + 1;
-          r_addr_fout[5]  <= r_addr_fout_base + FEAT_OUT_SIZE + 2;
+          r_addr_fout[3] <= r_addr_fout_base + FEAT_OUT_SIZE + 0;
+          r_addr_fout[4] <= r_addr_fout_base + FEAT_OUT_SIZE + 1;
+          r_addr_fout[5] <= r_addr_fout_base + FEAT_OUT_SIZE + 2;
 
-          r_addr_fout[6]  <= r_addr_fout_base + FEAT_OUT_SIZE * 2 + 0;
-          r_addr_fout[7]  <= r_addr_fout_base + FEAT_OUT_SIZE * 2 + 1;
-          r_addr_fout[8]  <= r_addr_fout_base + FEAT_OUT_SIZE * 2 + 2;
+          r_addr_fout[6] <= r_addr_fout_base + FEAT_OUT_SIZE * 2 + 0;
+          r_addr_fout[7] <= r_addr_fout_base + FEAT_OUT_SIZE * 2 + 1;
+          r_addr_fout[8] <= r_addr_fout_base + FEAT_OUT_SIZE * 2 + 2;
 
           r_addr_fout_base <= r_addr_fout_base + A1_SIZE;
         end
         FEAT_OUT: begin
-          r_fout_en    <= 1'b1;
-          r_fout_en    <= 1'b1;
           r_start_conv <= 1'b0;
+          r_fout_en    <= 1'b1;
           r_count_wh   <= 0;
           r_count_fin  <= 0;
-          if (p_fout_valid) begin
-            r_addr_fout_idx <= r_addr_fout_idx + 1;
-            r_count_fout     <= r_count_fout + 1;
-          end
+          if (p_fout_valid)
+            r_count_fout <= r_count_fout + 1;
         end
       endcase
     end
