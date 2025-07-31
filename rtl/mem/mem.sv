@@ -25,7 +25,8 @@ module Memory
   always_ff @(posedge clk) begin
     if (reset)
       data <= '{default: '0};
-    else if (ROM == 0 && chip_en == 1'b1 && wr_en == 1'b1)
+    // else if (ROM == 0 && chip_en == 1'b1 && wr_en == 1'b1)
+    else if (chip_en == 1'b1 && wr_en == 1'b1)
       data[address] <= data_in;
   end
 

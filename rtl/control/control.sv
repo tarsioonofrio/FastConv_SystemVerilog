@@ -175,7 +175,8 @@ module Control
       end
       FEAT_OUT: begin
         address     <= r_addr_fout[r_addr_fout_idx];
-        chip_en     <= p_fout_en;
+        chip_en     <= r_fout_en;
+        wr_en       <= r_fout_en;
         data_in     <= p_in_data;
         p_wh_en     <= r_wh_en;
         p_fin_en    <= r_fin_en;
@@ -236,35 +237,35 @@ module Control
         ADDR_IN: begin
           // TODO: Implement address generation logic using if else statements and remove
           // multiple registers, using one register
-          r_addr_fin[0]  <= r_addr_fin_base + 0;
-          r_addr_fin[1]  <= r_addr_fin_base + 1;
-          r_addr_fin[2]  <= r_addr_fin_base + 2;
-          r_addr_fin[3]  <= r_addr_fin_base + 3;
-          r_addr_fin[4]  <= r_addr_fin_base + 4;
+          r_addr_fin[0] <= r_addr_fin_base + 0;
+          r_addr_fin[1] <= r_addr_fin_base + 1;
+          r_addr_fin[2] <= r_addr_fin_base + 2;
+          r_addr_fin[3] <= r_addr_fin_base + 3;
+          r_addr_fin[4] <= r_addr_fin_base + 4;
 
-          r_addr_fin[5]  <= r_addr_fin_base + FEAT_IN_SIZE + 0;
-          r_addr_fin[6]  <= r_addr_fin_base + FEAT_IN_SIZE + 1;
-          r_addr_fin[7]  <= r_addr_fin_base + FEAT_IN_SIZE + 2;
-          r_addr_fin[8]  <= r_addr_fin_base + FEAT_IN_SIZE + 3;
-          r_addr_fin[9]  <= r_addr_fin_base + FEAT_IN_SIZE + 4;
+          r_addr_fin[5] <= r_addr_fin_base + FEAT_IN_SIZE + 0;
+          r_addr_fin[6] <= r_addr_fin_base + FEAT_IN_SIZE + 1;
+          r_addr_fin[7] <= r_addr_fin_base + FEAT_IN_SIZE + 2;
+          r_addr_fin[8] <= r_addr_fin_base + FEAT_IN_SIZE + 3;
+          r_addr_fin[9] <= r_addr_fin_base + FEAT_IN_SIZE + 4;
 
-          r_addr_fin[10]  <= r_addr_fin_base + FEAT_IN_SIZE*2 + 0;
-          r_addr_fin[11]  <= r_addr_fin_base + FEAT_IN_SIZE*2 + 1;
-          r_addr_fin[12]  <= r_addr_fin_base + FEAT_IN_SIZE*2 + 2;
-          r_addr_fin[13]  <= r_addr_fin_base + FEAT_IN_SIZE*2 + 3;
-          r_addr_fin[14]  <= r_addr_fin_base + FEAT_IN_SIZE*2 + 4;
+          r_addr_fin[10] <= r_addr_fin_base + FEAT_IN_SIZE * 2 + 0;
+          r_addr_fin[11] <= r_addr_fin_base + FEAT_IN_SIZE * 2 + 1;
+          r_addr_fin[12] <= r_addr_fin_base + FEAT_IN_SIZE * 2 + 2;
+          r_addr_fin[13] <= r_addr_fin_base + FEAT_IN_SIZE * 2 + 3;
+          r_addr_fin[14] <= r_addr_fin_base + FEAT_IN_SIZE * 2 + 4;
 
-          r_addr_fin[15]  <= r_addr_fin_base + FEAT_IN_SIZE*3 + 0;
-          r_addr_fin[16]  <= r_addr_fin_base + FEAT_IN_SIZE*3 + 1;
-          r_addr_fin[17]  <= r_addr_fin_base + FEAT_IN_SIZE*3 + 2;
-          r_addr_fin[18]  <= r_addr_fin_base + FEAT_IN_SIZE*3 + 3;
-          r_addr_fin[19]  <= r_addr_fin_base + FEAT_IN_SIZE*3 + 4;
+          r_addr_fin[15] <= r_addr_fin_base + FEAT_IN_SIZE * 3 + 0;
+          r_addr_fin[16] <= r_addr_fin_base + FEAT_IN_SIZE * 3 + 1;
+          r_addr_fin[17] <= r_addr_fin_base + FEAT_IN_SIZE * 3 + 2;
+          r_addr_fin[18] <= r_addr_fin_base + FEAT_IN_SIZE * 3 + 3;
+          r_addr_fin[19] <= r_addr_fin_base + FEAT_IN_SIZE * 3 + 4;
 
-          r_addr_fin[20]  <= r_addr_fin_base + FEAT_IN_SIZE*4 + 0;
-          r_addr_fin[21]  <= r_addr_fin_base + FEAT_IN_SIZE*4 + 1;
-          r_addr_fin[22]  <= r_addr_fin_base + FEAT_IN_SIZE*4 + 2;
-          r_addr_fin[23]  <= r_addr_fin_base + FEAT_IN_SIZE*4 + 3;
-          r_addr_fin[24]  <= r_addr_fin_base + FEAT_IN_SIZE*4 + 4;
+          r_addr_fin[20] <= r_addr_fin_base + FEAT_IN_SIZE * 4 + 0;
+          r_addr_fin[21] <= r_addr_fin_base + FEAT_IN_SIZE * 4 + 1;
+          r_addr_fin[22] <= r_addr_fin_base + FEAT_IN_SIZE * 4 + 2;
+          r_addr_fin[23] <= r_addr_fin_base + FEAT_IN_SIZE * 4 + 3;
+          r_addr_fin[24] <= r_addr_fin_base + FEAT_IN_SIZE * 4 + 4;
 
           r_addr_fin_base <= r_addr_fin_base + C1_SIZE;
         end
@@ -296,15 +297,15 @@ module Control
           r_addr_fout[4]  <= r_addr_fout_base + FEAT_OUT_SIZE + 1;
           r_addr_fout[5]  <= r_addr_fout_base + FEAT_OUT_SIZE + 2;
 
-          r_addr_fout[6]  <= r_addr_fout_base + FEAT_OUT_SIZE*2 + 0;
-          r_addr_fout[7]  <= r_addr_fout_base + FEAT_OUT_SIZE*2 + 1;
-          r_addr_fout[8]  <= r_addr_fout_base + FEAT_OUT_SIZE*2 + 2;
+          r_addr_fout[6]  <= r_addr_fout_base + FEAT_OUT_SIZE * 2 + 0;
+          r_addr_fout[7]  <= r_addr_fout_base + FEAT_OUT_SIZE * 2 + 1;
+          r_addr_fout[8]  <= r_addr_fout_base + FEAT_OUT_SIZE * 2 + 2;
 
           r_addr_fout_base <= r_addr_fout_base + A1_SIZE;
         end
         FEAT_OUT: begin
-          r_wh_en      <= 1'b0;
-          r_fin_en     <= 1'b0;
+          r_fout_en    <= 1'b1;
+          r_fout_en    <= 1'b1;
           r_start_conv <= 1'b0;
           r_count_wh   <= 0;
           r_count_fin  <= 0;
