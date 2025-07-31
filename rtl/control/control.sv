@@ -65,6 +65,7 @@ module Control
   int r_count_fout;
   int r_addr_bias;
   int r_addr_wh;
+  int r_addr_fin_idx;
   int r_addr_fin_base;
   int r_addr_fin[25:0];
   int r_addr_fout;
@@ -155,7 +156,7 @@ module Control
         p_fin_valid <= 0;
       end
       default: begin
-        address     <= r_addr_fin;
+        address     <= r_addr_fin[r_addr_fin_idx];
         chip_en     <= r_fin_en;
         p_wh_en     <= r_wh_en;
         p_fin_en    <= r_fin_en;
@@ -223,12 +224,14 @@ module Control
             r_addr_wh  <= r_addr_wh + 1;
         end
         ADDR: begin
+          // TODO: Implement address generation logic using if else statements and remove
+          // multiple registers, using one register
           r_addr_fin[0]  <= r_addr_fin_base + 0;
           r_addr_fin[1]  <= r_addr_fin_base + 1;
           r_addr_fin[2]  <= r_addr_fin_base + 2;
           r_addr_fin[3]  <= r_addr_fin_base + 3;
           r_addr_fin[4]  <= r_addr_fin_base + 4;
-          
+
           r_addr_fin[5]  <= r_addr_fin_base + FEAT_IN_SIZE + 0;
           r_addr_fin[6]  <= r_addr_fin_base + FEAT_IN_SIZE + 1;
           r_addr_fin[7]  <= r_addr_fin_base + FEAT_IN_SIZE + 2;
@@ -240,7 +243,7 @@ module Control
           r_addr_fin[12]  <= r_addr_fin_base + FEAT_IN_SIZE*2 + 2;
           r_addr_fin[13]  <= r_addr_fin_base + FEAT_IN_SIZE*2 + 3;
           r_addr_fin[14]  <= r_addr_fin_base + FEAT_IN_SIZE*2 + 4;
-          
+
           r_addr_fin[15]  <= r_addr_fin_base + FEAT_IN_SIZE*3 + 0;
           r_addr_fin[16]  <= r_addr_fin_base + FEAT_IN_SIZE*3 + 1;
           r_addr_fin[17]  <= r_addr_fin_base + FEAT_IN_SIZE*3 + 2;
@@ -251,7 +254,7 @@ module Control
           r_addr_fin[21]  <= r_addr_fin_base + FEAT_IN_SIZE*4 + 1;
           r_addr_fin[22]  <= r_addr_fin_base + FEAT_IN_SIZE*4 + 2;
           r_addr_fin[23]  <= r_addr_fin_base + FEAT_IN_SIZE*4 + 3;
-          r_addr_fin[24]  <= r_addr_fin_base + FEAT_IN_SIZE*4 + 4;       
+          r_addr_fin[24]  <= r_addr_fin_base + FEAT_IN_SIZE*4 + 4;
         end
         FEAT_IN: begin
           r_wh_en      <= 1'b0;
@@ -262,7 +265,7 @@ module Control
           else
             r_fin_en <= 1'b1;
           if (data_valid_out) begin
-            r_addr_fin  <= r_addr_fin + 1;
+            r_addr_fin_idx  <= r_addr_fin_idx + 1;
           end
         end
         CONV: begin
