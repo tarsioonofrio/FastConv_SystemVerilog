@@ -60,6 +60,16 @@ add wave -noupdate -radix decimal /tb/core/r_count_wh
 add wave -noupdate -radix decimal /tb/core/r_count_fin
 add wave -noupdate -radix decimal /tb/core/r_count_fout
 add wave -noupdate -radix decimal /tb/core/r_mult_idx
+add wave -noupdate /tb/dut/memory/clk
+add wave -noupdate /tb/dut/memory/reset
+add wave -noupdate /tb/dut/memory/chip_en
+add wave -noupdate /tb/dut/memory/wr_en
+add wave -noupdate /tb/dut/memory/address
+add wave -noupdate /tb/dut/memory/data_in
+add wave -noupdate /tb/dut/memory/data_out
+add wave -noupdate /tb/dut/memory/data_valid
+add wave -noupdate /tb/dut/memory/data
+add wave -noupdate /tb/dut/memory/r_cycles_latency
 TreeUpdate [SetDefaultTree]
 WaveRestoreCursors {{Cursor 1} {771 ns} 0}
 quietly wave cursor active 1
@@ -77,4 +87,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {1674 ns} {1788 ns}
+WaveRestoreZoom {1692 ns} {1806 ns}
