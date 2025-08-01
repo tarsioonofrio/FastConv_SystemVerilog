@@ -29,6 +29,9 @@ add wave -noupdate -radix decimal -childformat {{{/tb/dut/r_addr_fin[25]} -radix
 add wave -noupdate /tb/dut/r_addr_fout
 add wave -noupdate -radix decimal /tb/dut/r_addr_fout_base
 add wave -noupdate /tb/dut/r_count_window
+add wave -noupdate -radix decimal /tb/dut/r_count_horizontal
+add wave -noupdate -radix decimal /tb/dut/r_count_vertical
+add wave -noupdate /tb/dut/w_horizontal_end
 add wave -noupdate -radix decimal /tb/dut/data_out
 add wave -noupdate -radix decimal /tb/dut/data_in
 add wave -noupdate /tb/dut/chip_en
@@ -73,7 +76,7 @@ add wave -noupdate /tb/dut/memory/data_valid
 add wave -noupdate /tb/dut/memory/data
 add wave -noupdate /tb/dut/memory/r_cycles_latency
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {3826 ns} 0}
+WaveRestoreCursors {{Cursor 1} {11917 ns} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 300
 configure wave -valuecolwidth 100
@@ -89,4 +92,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {3789 ns} {3903 ns}
+WaveRestoreZoom {11863 ns} {12087 ns}
