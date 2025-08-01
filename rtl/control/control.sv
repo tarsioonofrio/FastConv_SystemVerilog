@@ -311,7 +311,7 @@ module Control
           r_addr_fout[8] <= r_addr_fout_base + FEAT_OUT_SIZE * 2 + 2;
 
           if (w_horizontal_end)
-            r_addr_fout_base <= r_addr_fout_base + A1_SIZE + FEAT_OUT_SIZE * A1_SIZE;
+            r_addr_fout_base <= r_addr_fout_base + A1_SIZE + FEAT_OUT_SIZE * (A1_SIZE - 1);
           else
             r_addr_fout_base <= r_addr_fout_base + A1_SIZE;
         end
