@@ -186,10 +186,10 @@ module Control
       end
     endcase
 
-    if (r_count_horizontal == N_WINDOW)
-      w_horizontal_end <= 1'b1;
-    else
+    if (r_count_horizontal < N_WINDOW - 1)
       w_horizontal_end <= 1'b0;
+    else
+      w_horizontal_end <= 1'b1;
   end
 
   always_ff @(posedge clk) begin
@@ -275,9 +275,9 @@ module Control
           r_addr_fin[24] <= r_addr_fin_base + FEAT_IN_SIZE * 4 + 4;
 
           if (w_horizontal_end)
-            r_addr_fin_base <= r_addr_fin_base + A1_SIZE;
+            r_addr_fin_base <= r_addr_fin_base + C1_SIZE + FEAT_IN_SIZE * (A1_SIZE - 1);
           else
-            r_addr_fin_base <= r_addr_fin_base + A1_SIZE + FEAT_IN_SIZE * C1_SIZE;
+            r_addr_fin_base <= r_addr_fin_base + A1_SIZE;
         end
         FEAT_IN: begin
           r_wh_en      <= 1'b0;
@@ -310,7 +310,10 @@ module Control
           r_addr_fout[7] <= r_addr_fout_base + FEAT_OUT_SIZE * 2 + 1;
           r_addr_fout[8] <= r_addr_fout_base + FEAT_OUT_SIZE * 2 + 2;
 
-          r_addr_fout_base <= r_addr_fout_base + A1_SIZE;
+          if (w_horizontal_end)
+            r_addr_fout_base <= r_addr_fout_base + A1_SIZE + FEAT_OUT_SIZE * A1_SIZE;
+          else
+            r_addr_fout_base <= r_addr_fout_base + A1_SIZE;
         end
         FEAT_OUT: begin
           r_start_conv <= 1'b0;
@@ -319,13 +322,15 @@ module Control
           r_count_fin  <= 0;
           if (p_fout_valid) begin
             r_count_fout <= r_count_fout + 1;
-            r_count_window <= r_count_window + 1;
+          end
+          if (p_end_conv[2]) begin
             if (w_horizontal_end) begin
-              r_count_horizontal <= r_count_horizontal + 1;
-            end
-            else begin
               r_count_horizontal <= 0;
               r_count_vertical <= r_count_vertical + 1;
+            end
+            else begin
+              r_count_window <= r_count_window + 1;
+              r_count_horizontal <= r_count_horizontal + 1;
             end
           end
         end
