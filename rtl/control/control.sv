@@ -7,7 +7,7 @@ module Control
     parameter int LATENCY       = 1,
     parameter int ROM           = 0,
     parameter int QUANT         = 8,
-    parameter int N_WINDOW      = 15,
+    parameter int N_WINDOW      = 10,
     parameter int N_CHANNEL_IN  = 1,
     parameter int N_CHANNEL_OUT = 1,
     parameter int FEAT_IN_SIZE  = 32,
@@ -71,6 +71,8 @@ module Control
   int r_addr_fout_base;
   int r_addr_fout[9:0];
   int r_count_window;
+  int r_count_horizontal;
+  int r_count_vertical;
 
   logic_vector data_out;
   logic_vector data_in;
@@ -79,6 +81,7 @@ module Control
   logic wr_en;
   logic data_valid_out;
   logic[NADDR-1:0] address;
+  logic w_horizontal_end;
 
   Memory #(
     .NADDR(NADDR),
@@ -182,6 +185,11 @@ module Control
         p_fin_valid <= 0;
       end
     endcase
+
+    if (r_count_horizontal == N_WINDOW)
+      w_horizontal_end <= 1'b1;
+    else
+      w_horizontal_end <= 1'b0;
   end
 
   always_ff @(posedge clk) begin
@@ -266,16 +274,19 @@ module Control
           r_addr_fin[23] <= r_addr_fin_base + FEAT_IN_SIZE * 4 + 3;
           r_addr_fin[24] <= r_addr_fin_base + FEAT_IN_SIZE * 4 + 4;
 
-          r_addr_fin_base <= r_addr_fin_base + A1_SIZE;
+          if (w_horizontal_end)
+            r_addr_fin_base <= r_addr_fin_base + A1_SIZE;
+          else
+            r_addr_fin_base <= r_addr_fin_base + A1_SIZE + FEAT_IN_SIZE * C1_SIZE;
         end
         FEAT_IN: begin
           r_wh_en      <= 1'b0;
           r_count_wh   <= 0;
           r_count_fout <= 0;
           if (data_valid_out)
-            r_count_fin  <= r_count_fin + 1;
+            r_count_fin <= r_count_fin + 1;
           if (p_end_conv[1])
-            r_fin_en    <= 1'b0;
+            r_fin_en <= 1'b0;
           else
             r_fin_en <= 1'b1;
         end
@@ -306,8 +317,17 @@ module Control
           r_fout_en    <= 1'b1;
           r_count_wh   <= 0;
           r_count_fin  <= 0;
-          if (p_fout_valid)
+          if (p_fout_valid) begin
             r_count_fout <= r_count_fout + 1;
+            r_count_window <= r_count_window + 1;
+            if (w_horizontal_end) begin
+              r_count_horizontal <= r_count_horizontal + 1;
+            end
+            else begin
+              r_count_horizontal <= 0;
+              r_count_vertical <= r_count_vertical + 1;
+            end
+          end
         end
       endcase
     end
