@@ -18,7 +18,7 @@ module Memory
   timeunit 1ns;
   timeprecision 1ps;
 
-  logic_vector data[2**NADDR-1:0] = '{default: '0};
+  logic_vector data[0:2**NADDR-1] = '{default: '0};
 
   int r_cycles_latency;
 
