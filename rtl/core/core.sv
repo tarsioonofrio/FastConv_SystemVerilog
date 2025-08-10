@@ -8,8 +8,8 @@ module Core
     input logic clk, reset,
 
     input  logic p_start,
+    input  logic p_reuse,
     output logic p_end[2:0],
-    output logic p_debug,
 
     input logic p_fin_en,
     input logic p_fin_valid,
@@ -38,13 +38,15 @@ module Core
 
   state_type current_st, next_st;
 
+  type_input  r_feat_in;
   type_weight r_weight;
-  type_weight r_feat_in;
+  type_weight r_temp;
   type_output r_feat_out;
 
   type_weight w_prod_c;
   type_output w_prod_a;
 
+  logic r_reuse;
   logic r_fout_en;
   logic r_conv_end;
   logic r_end[2:0];
@@ -60,6 +62,13 @@ module Core
 
   logic signed [NBITS-1+QUANT:0] product;  // QUANT more bits for the multipliers
 
+  const int c_index[5*5] = {
+    00, 05, 10, 15, 20, 
+    01, 06, 11, 16, 21,
+    02, 07, 12, 17, 22,
+    03, 08, 13, 18, 23,
+    04, 09, 14, 19, 24
+  };
 
   //
   // BLOCK: Control FSM
@@ -119,7 +128,6 @@ module Core
           next_st = IDLE;
           w_end[2] = 1'b1;
         end else begin
-
         end
       end
     endcase
@@ -133,6 +141,7 @@ module Core
       r_count_wh <= 0;
       r_count_fin <= 0;
       r_count_fout <= 0;
+      r_reuse <= 1'b0;
       r_fout_en <= 1'b0;
       r_conv_end <= 1'b0;
       r_mult_idx <= 1'b0;
@@ -147,10 +156,29 @@ module Core
           r_mult_idx <= 1'b0;
           r_fout_valid <= 1'b0;
           r_end = '{1'b0, 1'b0, 1'b0};
+          r_count_wh <= 0;
+          r_count_fout <= 0;
+          r_reuse <= p_reuse;
+          if (p_reuse) begin
+            r_count_fin <= 10;
+            // TODO perform test using an index table
+            r_feat_in[00] <= r_feat_in[03];
+            r_feat_in[01] <= r_feat_in[04];
+            r_feat_in[05] <= r_feat_in[08];
+            r_feat_in[06] <= r_feat_in[09];
+            r_feat_in[10] <= r_feat_in[13];
+            r_feat_in[11] <= r_feat_in[14];
+            r_feat_in[15] <= r_feat_in[18];
+            r_feat_in[16] <= r_feat_in[19];
+            r_feat_in[20] <= r_feat_in[23];
+            r_feat_in[21] <= r_feat_in[24];
+          end else begin
+            r_count_fin <= 0;
+          end
         end
         WEIGHT: begin
-          r_count_fin <= 0;
-          r_count_fout <= 0;
+          // r_count_fin <= 0;
+          // r_count_fout <= 0;
           r_end[0] <= w_end[0];
           if (p_wh_valid) begin
             r_weight[r_count_wh] <= p_in_data;
@@ -158,28 +186,28 @@ module Core
           end
         end
         FEAT_IN: begin
-          r_count_wh <= 0;
-          r_count_fout <= 0;
+          // r_count_wh <= 0;
+          // r_count_fout <= 0;
           r_end[1] <= w_end[1];
           if (p_fin_valid) begin
-            r_feat_in[r_count_fin] <= p_in_data;
+            r_feat_in[c_index[r_count_fin]] <= p_in_data;
             r_count_fin            <= r_count_fin + 1;
           end
         end
         CONV_C: begin
-          r_feat_in <= w_prod_c;
+          r_temp <= w_prod_c;
         end
         CONV_H: begin
-          r_feat_in[r_mult_idx] <= product;
-          r_mult_idx            <= r_mult_idx + 1;
+          r_temp[r_mult_idx] <= product;
+          r_mult_idx         <= r_mult_idx + 1;
         end
         CONV_A: begin
           r_feat_out <= w_prod_a;
           r_conv_end <= 1'b1;
         end
         FEAT_OUT: begin
-          r_count_wh   <= 0;
-          r_count_fin  <= 0;
+          // r_count_wh   <= 0;
+          // r_count_fin  <= 0;
           r_count_fout <= r_count_fout + 1;
           r_end[2] <= w_end[2];
           if (w_end[2]) begin
@@ -210,14 +238,14 @@ module Core
   // assign r_mult_idx = current_st_conv;
 
   Multip multip0 (
-      .register(r_feat_in[r_mult_idx]),
+      .register(r_temp[r_mult_idx]),
       .weight  (r_weight[r_mult_idx]),
       .product (product)
   );
 
   // Instance of matrix multiplier "A"
   Inverse inv (
-      .pin (r_feat_in),
+      .pin (r_temp),
       .pout(w_prod_a)
   );
 endmodule

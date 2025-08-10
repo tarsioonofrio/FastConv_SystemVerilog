@@ -22,6 +22,7 @@ module tb;
 
   logic p_start;
   logic p_end;
+  logic p_reuse;
 
   logic p_start_conv;
   logic p_end_conv[2:0];
@@ -62,6 +63,7 @@ module tb;
     .p_end(p_end),
     .p_start_conv(p_start_conv),
     .p_end_conv(p_end_conv),
+    .p_reuse(p_reuse),
 
     .p_wh_en(p_wh_en),
     .p_wh_valid(p_wh_valid),
@@ -85,7 +87,7 @@ module tb;
 
     .p_start(p_start_conv),
     .p_end(p_end_conv),
-    .p_debug(p_debug),
+    .p_reuse(p_reuse),
 
     .p_wh_en(p_wh_en),
     .p_wh_valid(p_wh_valid),
