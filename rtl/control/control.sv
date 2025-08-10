@@ -20,8 +20,8 @@ module Control
     input  logic p_start,
     output logic p_end,
     output logic p_start_conv,
-    input logic p_end_conv[2:0],
-    // output logic p_debug,
+    output logic p_reuse,
+    input  logic p_end_conv[2:0],
 
     output logic p_wh_en,
     output logic p_wh_valid,
@@ -60,6 +60,7 @@ module Control
   logic r_chip_en;
   logic r_end_wh;
   logic r_end_fin;
+  logic r_reuse;
 
   int r_count_wh;
   int r_count_fin;
@@ -109,9 +110,10 @@ module Control
 
   always_comb begin
     p_start_conv <= r_start_conv;
+    p_reuse      <= r_reuse;
     // State Machine
     unique case (current_st)
-    // IDLE:     if (p_start)      next_st = BIAS;
+      // IDLE:     if (p_start)      next_st = BIAS;
       IDLE:
         if (p_start)
           next_st = WEIGHT;
@@ -202,6 +204,7 @@ module Control
       r_count_fin      <= 0;
       r_count_fout     <= 0;
       r_count_window   <= 0;
+      r_reuse          <= 1'b0;
       r_wh_en          <= 1'b0;
       r_fin_en         <= 1'b0;
       r_end_wh         <= 1'b0;
@@ -218,6 +221,7 @@ module Control
           r_count_fin      <= 0;
           r_count_fout     <= 0;
           r_count_window   <= 0;
+          r_reuse          <= 1'b0;
           r_wh_en          <= 1'b0;
           r_fin_en         <= 1'b0;
           r_end_wh         <= 1'b0;
@@ -243,41 +247,44 @@ module Control
         end
         ADDR_IN: begin
           // TODO: Implement address generation logic using if else statements and remove
+          // Addresses ordered by column and not by row to facilitate reading
+          // when reusing, which reuses the last two columns
           // multiple registers, using one register
-          r_addr_fin[0] <= r_addr_fin_base + 0;
-          r_addr_fin[1] <= r_addr_fin_base + 1;
-          r_addr_fin[2] <= r_addr_fin_base + 2;
-          r_addr_fin[3] <= r_addr_fin_base + 3;
-          r_addr_fin[4] <= r_addr_fin_base + 4;
+          r_addr_fin[00] <= r_addr_fin_base + 0; // 00
+          r_addr_fin[01] <= r_addr_fin_base + FEAT_IN_SIZE + 0; // 05
+          r_addr_fin[02] <= r_addr_fin_base + FEAT_IN_SIZE * 2 + 0; // 10
+          r_addr_fin[03] <= r_addr_fin_base + FEAT_IN_SIZE * 3 + 0; // 15
+          r_addr_fin[04] <= r_addr_fin_base + FEAT_IN_SIZE * 4 + 0; // 20
 
-          r_addr_fin[5] <= r_addr_fin_base + FEAT_IN_SIZE + 0;
-          r_addr_fin[6] <= r_addr_fin_base + FEAT_IN_SIZE + 1;
-          r_addr_fin[7] <= r_addr_fin_base + FEAT_IN_SIZE + 2;
-          r_addr_fin[8] <= r_addr_fin_base + FEAT_IN_SIZE + 3;
-          r_addr_fin[9] <= r_addr_fin_base + FEAT_IN_SIZE + 4;
+          r_addr_fin[05] <= r_addr_fin_base + 1; // 01
+          r_addr_fin[06] <= r_addr_fin_base + FEAT_IN_SIZE + 1; // 06
+          r_addr_fin[07] <= r_addr_fin_base + FEAT_IN_SIZE * 2 + 1; // 11
+          r_addr_fin[08] <= r_addr_fin_base + FEAT_IN_SIZE * 3 + 1; // 16
+          r_addr_fin[09] <= r_addr_fin_base + FEAT_IN_SIZE * 4 + 1; // 21
 
-          r_addr_fin[10] <= r_addr_fin_base + FEAT_IN_SIZE * 2 + 0;
-          r_addr_fin[11] <= r_addr_fin_base + FEAT_IN_SIZE * 2 + 1;
-          r_addr_fin[12] <= r_addr_fin_base + FEAT_IN_SIZE * 2 + 2;
-          r_addr_fin[13] <= r_addr_fin_base + FEAT_IN_SIZE * 2 + 3;
-          r_addr_fin[14] <= r_addr_fin_base + FEAT_IN_SIZE * 2 + 4;
+          r_addr_fin[10] <= r_addr_fin_base + 2; // 02
+          r_addr_fin[11] <= r_addr_fin_base + FEAT_IN_SIZE + 2; // 07
+          r_addr_fin[12] <= r_addr_fin_base + FEAT_IN_SIZE * 2 + 2; // 12
+          r_addr_fin[13] <= r_addr_fin_base + FEAT_IN_SIZE * 3 + 2; // 17
+          r_addr_fin[14] <= r_addr_fin_base + FEAT_IN_SIZE * 4 + 2; // 22
 
-          r_addr_fin[15] <= r_addr_fin_base + FEAT_IN_SIZE * 3 + 0;
-          r_addr_fin[16] <= r_addr_fin_base + FEAT_IN_SIZE * 3 + 1;
-          r_addr_fin[17] <= r_addr_fin_base + FEAT_IN_SIZE * 3 + 2;
-          r_addr_fin[18] <= r_addr_fin_base + FEAT_IN_SIZE * 3 + 3;
-          r_addr_fin[19] <= r_addr_fin_base + FEAT_IN_SIZE * 3 + 4;
+          r_addr_fin[15] <= r_addr_fin_base + 3; // 03
+          r_addr_fin[16] <= r_addr_fin_base + FEAT_IN_SIZE + 3; // 08
+          r_addr_fin[17] <= r_addr_fin_base + FEAT_IN_SIZE * 2 + 3; // 13
+          r_addr_fin[18] <= r_addr_fin_base + FEAT_IN_SIZE * 3 + 3; // 18
+          r_addr_fin[19] <= r_addr_fin_base + FEAT_IN_SIZE * 4 + 3; // 23
 
-          r_addr_fin[20] <= r_addr_fin_base + FEAT_IN_SIZE * 4 + 0;
-          r_addr_fin[21] <= r_addr_fin_base + FEAT_IN_SIZE * 4 + 1;
-          r_addr_fin[22] <= r_addr_fin_base + FEAT_IN_SIZE * 4 + 2;
-          r_addr_fin[23] <= r_addr_fin_base + FEAT_IN_SIZE * 4 + 3;
-          r_addr_fin[24] <= r_addr_fin_base + FEAT_IN_SIZE * 4 + 4;
+          r_addr_fin[20] <= r_addr_fin_base + 4; // 04
+          r_addr_fin[21] <= r_addr_fin_base + FEAT_IN_SIZE + 4; // 09
+          r_addr_fin[22] <= r_addr_fin_base + FEAT_IN_SIZE * 2 + 4; // 14
+          r_addr_fin[23] <= r_addr_fin_base + FEAT_IN_SIZE * 3 + 4; // 19
+          r_addr_fin[24] <= r_addr_fin_base + FEAT_IN_SIZE * 4 + 4; // 24
 
-          if (w_horizontal_end)
+          if (w_horizontal_end) begin
             r_addr_fin_base <= r_addr_fin_base + C1_SIZE + FEAT_IN_SIZE * (A1_SIZE - 1);
-          else
+          end else begin
             r_addr_fin_base <= r_addr_fin_base + A1_SIZE;
+          end
         end
         FEAT_IN: begin
           r_wh_en      <= 1'b0;
@@ -324,6 +331,13 @@ module Control
             r_count_fout <= r_count_fout + 1;
           end
           if (p_end_conv[2]) begin
+            if (w_horizontal_end) begin
+              r_count_fin <= 0;
+              r_reuse     <= 1'b0;
+            end else begin
+              r_count_fin <= 10;
+              r_reuse     <= 1'b1;
+            end
             if (w_horizontal_end) begin
               r_count_horizontal <= 0;
               r_count_vertical <= r_count_vertical + 1;
