@@ -1,0 +1,166 @@
+module tb;
+  timeunit 1ns;
+  timeprecision 1ps;
+
+  import data::*;
+  import packConv::*;
+
+  // Parâmetros conforme Core
+  localparam int NADDR           = 12;
+  localparam int NBITS           = 20;
+  localparam int LATENCY         = 1;
+  localparam int ROM             = 1;
+  localparam int QUANT           = 8;
+  localparam int FEAT_IN_SIZE    = 32;
+  localparam int N_WINDOW        = 10;
+  localparam int N_CHANNEL_IN    = 1;
+  localparam int N_CHANNEL_OUT   = 1;
+  localparam int LAST_WINDOW     = 0;
+
+  logic clk;
+  logic reset;
+
+  logic p_start;
+  logic p_end;
+  logic p_reuse;
+
+  logic p_start_conv;
+  logic p_end_conv[2:0];
+
+  logic p_fin_en;
+  logic p_fin_valid;
+
+  logic p_wh_en;
+  logic p_wh_valid;
+
+  logic p_fout_en;
+  logic p_fout_valid;
+
+  logic_vector data_control2core;
+  logic_vector data_core2control;
+
+  // Clock generation (10ns period)
+  initial clk = 0;
+  always #5 clk = ~clk;
+
+  // DUT instantiation
+  Control #(
+    .NADDR(NADDR),
+    .NBITS(NBITS),
+    .LATENCY(LATENCY),
+    .ROM(ROM),
+    .QUANT(QUANT),
+    .FEAT_IN_SIZE(FEAT_IN_SIZE),
+    .N_WINDOW(N_WINDOW),
+    .N_CHANNEL_IN(N_CHANNEL_IN),
+    .N_CHANNEL_OUT(N_CHANNEL_OUT),
+    .LAST_WINDOW(LAST_WINDOW)
+  ) dut (
+    .clk(clk),
+    .reset(reset),
+
+    .p_start(p_start),
+    .p_end(p_end),
+    .p_start_conv(p_start_conv),
+    .p_end_conv(p_end_conv),
+    .p_reuse(p_reuse),
+
+    .p_wh_en(p_wh_en),
+    .p_wh_valid(p_wh_valid),
+
+    .p_fin_en(p_fin_en),
+    .p_fin_valid(p_fin_valid),
+
+    .p_fout_en(p_fout_en),
+    .p_fout_valid(p_fout_valid),
+
+    .p_out_data(data_control2core),
+    .p_in_data(data_core2control)
+  );
+
+  Core #(
+    .QUANT(QUANT),
+    .NBITS(NBITS)
+  ) core (
+    .clk(clk),
+    .reset(reset),
+
+    .p_start(p_start_conv),
+    .p_end(p_end_conv),
+    .p_reuse(p_reuse),
+
+    .p_wh_en(p_wh_en),
+    .p_wh_valid(p_wh_valid),
+
+    .p_fin_en(p_fin_en),
+    .p_fin_valid(p_fin_valid),
+
+    .p_fout_en(p_fout_en),
+    .p_fout_valid(p_fout_valid),
+
+    .p_in_data(data_control2core),
+    .p_out_data(data_core2control)
+  );
+
+
+  // Inicialização dos sinais e reset
+  initial begin
+    $dumpfile("dump.vcd");
+    $dumpvars(0, tb);
+
+    reset = 1;
+    p_start = 0;
+    @(posedge clk);
+    reset = 0;
+    p_start = 1;
+    @(posedge clk);
+    p_start = 0;
+
+
+    // Carregar pesos
+    $display("=== Loading weights ===");
+    wait(p_wh_en);
+
+    for (int i = 0; i < W2_SIZE; i++) begin
+      wait(p_wh_valid);
+      // data_control2core = const_weight[0][i];
+      $display("Weight[%0d] = %0d", i, data_core2control);
+      @(posedge clk);
+    end
+
+    wait(p_end);
+
+    // Carregar dados de entrada
+    $display("=== Loading data ===");
+
+    wait(p_fin_en);
+
+    for (int i = 0; i < FIN2_SIZE; i++) begin
+      wait(p_fin_valid);
+      // data_control2core = const_feat_in[0][i];
+      $display("Weight[%0d] = %0d", i, data_core2control);
+      @(posedge clk);
+    end
+
+
+    wait(p_end);
+
+    // Start processamento
+    $display("=== Start processing ===");
+
+    wait(p_fout_en);
+
+    $display("=== End processing ===");
+    // Monitorar saída (p_fout_valid = 1) e ler dados de saída
+    @(posedge clk);
+    for (int i = 0; i < FOUT2_SIZE; i++) begin
+      if (p_fout_en ) begin
+        $display("Time %0t | const_feat_out[%0d] = %0d | Output = %0d", $time, i, const_feat_out[0][i], data_core2control);
+      end
+      @(posedge clk);
+    end
+
+    $display("End simulation");
+    $finish;
+  end
+endmodule
