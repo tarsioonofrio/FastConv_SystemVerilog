@@ -27,16 +27,27 @@ module Core
   timeunit 1ns; timeprecision 1ps;
 
   typedef enum {
-    IDLE,
+    IDLE_INPUT,
     WEIGHT,
     FEAT_IN,
+  } state_input_type;
+
+  typedef enum {
+    IDLE_CONV,
     CONV_C,
     CONV_H,
     CONV_A,
-    FEAT_OUT
-  } state_type;
+  } state_conv_type;
 
-  state_type current_st, next_st;
+  typedef enum {
+    IDLE_OUTPUT,
+    FEAT_OUT
+  } state_output_type;
+
+
+  state_input_type current_st_input, next_st_input;
+  state_conv_type current_st_conv, next_st_conv;
+  state_output_type current_st_output, next_st_output;
 
   type_input  r_feat_in;
   type_weight r_weight;
@@ -53,6 +64,7 @@ module Core
   logic r_fout_valid;
 
   logic w_end[2:0];
+  logic w_end_conv;
 
   int r_count_wh;
   int r_count_fin;
@@ -63,7 +75,7 @@ module Core
   logic signed [NBITS-1+QUANT:0] product;  // QUANT more bits for the multipliers
 
   const int c_index[5*5] = {
-    00, 05, 10, 15, 20, 
+    00, 05, 10, 15, 20,
     01, 06, 11, 16, 21,
     02, 07, 12, 17, 22,
     03, 08, 13, 18, 23,
@@ -85,21 +97,26 @@ module Core
 
   always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
-      current_st <= IDLE;
+      current_st_input  <= IDLE_INPUT;
+      current_st_conv   <= IDLE_CONV;
+      current_st_output <= IDLE_OUTPUT;
     end else begin
-      current_st <= next_st;
+      current_st_input  <= next_st_input;
+      current_st_conv   <= next_st_conv;
+      current_st_output <= next_st_output;
     end
   end
 
   always_comb begin
     w_end = '{1'b0, 1'b0, 1'b0};
-    unique case (current_st)
-      IDLE:
+    unique case (current_st_input)
+      IDLE: begin
+        w_end[0] = 1'b0;
+        w_end[1] = 1'b0;
         if (p_wh_en) next_st = WEIGHT;
         else if (p_fin_en) next_st = FEAT_IN;
-        // else if (p_start) next_st = CONV_C;
+      end
       WEIGHT: begin
-        w_end[0] = 1'b0;
         w_end[1] = 1'b0;
         if (r_count_wh == (M1_SIZE * M2_SIZE)) begin
           next_st = FEAT_IN;
@@ -108,26 +125,38 @@ module Core
       end
       FEAT_IN: begin
         w_end[0] = 1'b0;
-        w_end[2] = 1'b0;
         if (r_count_fin == (C1_SIZE * C2_SIZE)) begin
-          next_st = CONV_C;
+          next_st = IDLE_INPUT;
           w_end[1] = 1'b1;
         end
+      end
+    endcase
+
+    unique case (current_st_conv)
+      IDLE_CONV: begin
+        w_end_conv = 1'b0;
+        if (p_start) next_st = CONV_C;
       end
       CONV_C:
         next_st = CONV_H;
       CONV_H:
-      if (r_mult_idx == (M1_SIZE * M2_SIZE - 1))
-        next_st = CONV_A;
-      CONV_A:
-        next_st = FEAT_OUT;
+        if (r_mult_idx == (M1_SIZE * M2_SIZE - 1))
+          next_st = CONV_A;
+      CONV_A: begin
+        w_end_conv = 1'b1;
+        next_st = IDLE_CONV;
+      end
+    endcase
+
+    unique case (current_st_output)
+      IDLE: begin
+        w_end[2] = 1'b0;
+        if (w_end_conv) next_st = FEAT_OUT;
+      end
       FEAT_OUT: begin
-        w_end[0] = 1'b0;
-        w_end[1] = 1'b0;
         if (r_count_fout == (A1_SIZE * A2_SIZE)) begin
-          next_st = IDLE;
+          next_st = IDLE_OUTPUT;
           w_end[2] = 1'b1;
-        end else begin
         end
       end
     endcase
@@ -148,14 +177,10 @@ module Core
       r_fout_valid <= 1'b0;
       r_end = '{1'b0, 1'b0, 1'b0};
     end else begin
-      unique case (current_st)
+      unique case (current_st_input)
         IDLE: begin
-          r_feat_out <= '{default: '0};
-          r_fout_en <= 1'b0;
-          r_conv_end <= 1'b0;
-          r_mult_idx <= 1'b0;
-          r_fout_valid <= 1'b0;
-          r_end = '{1'b0, 1'b0, 1'b0};
+          r_end[0] = 1'b0;
+          r_end[1] = 1'b0;
           r_count_wh <= 0;
           r_count_fout <= 0;
           r_reuse <= p_reuse;
@@ -182,7 +207,7 @@ module Core
           r_end[0] <= w_end[0];
           if (p_wh_valid) begin
             r_weight[r_count_wh] <= p_in_data;
-            r_count_wh <= r_count_wh + 1;
+            r_count_wh           <= r_count_wh + 1;
           end
         end
         FEAT_IN: begin
@@ -191,8 +216,17 @@ module Core
           r_end[1] <= w_end[1];
           if (p_fin_valid) begin
             r_feat_in[c_index[r_count_fin]] <= p_in_data;
-            r_count_fin            <= r_count_fin + 1;
+            r_count_fin                     <= r_count_fin + 1;
           end
+        end
+      endcase
+
+      unique case (current_st_conv)
+        IDLE: begin
+          r_temp     <= '{default: '0};
+          r_feat_out <= '{default: '0};
+          r_conv_end <= 1'b0;
+          r_mult_idx <= 1'b0;
         end
         CONV_C: begin
           r_temp <= w_prod_c;
@@ -205,11 +239,20 @@ module Core
           r_feat_out <= w_prod_a;
           r_conv_end <= 1'b1;
         end
+      endcase
+
+      unique case (current_st_output)
+        IDLE: begin
+          r_end[2]     <= 1'b0;
+          r_fout_en    <= 1'b0;
+          r_conv_end   <= 1'b0;
+          r_fout_valid <= 1'b0;
+          r_count_fout <= 0;
+          r_feat_out   <= '{default: '0};
+        end
         FEAT_OUT: begin
-          // r_count_wh   <= 0;
-          // r_count_fin  <= 0;
+          r_end[2]     <= w_end[2];
           r_count_fout <= r_count_fout + 1;
-          r_end[2] <= w_end[2];
           if (w_end[2]) begin
             r_fout_en    <= 1'b0;
             r_fout_valid <= 1'b0;
@@ -224,7 +267,6 @@ module Core
 
 
   // BLOCK: Convolution
-
   //
   // Data path
   //
