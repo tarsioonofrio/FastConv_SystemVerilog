@@ -233,17 +233,20 @@ module Control
           r_addr_bias <= r_addr_bias + 1;
         end
         WEIGHT: begin
+          r_wh_en <= 1'b1;
           r_fin_en     <= 1'b0;
           r_count_fin  <= 0;
           r_count_fout <= 0;
           if (data_valid_out)
             r_addr_wh  <= r_addr_wh + 1;
-          if (p_end_conv[1]) begin
-            r_wh_en <= 1'b0;
-            r_addr_wh  <= 0;
-          end
-          else
+          if (r_addr_wh == 0)
             r_wh_en <= 1'b1;
+          else
+            r_wh_en <= 1'b0;
+          if (p_end_conv[1])
+            r_addr_wh  <= 0;
+          // else
+          //   r_wh_en <= 1'b1;
         end
         ADDR_IN: begin
           // TODO: Implement address generation logic using if else statements and remove
@@ -280,6 +283,7 @@ module Control
           r_addr_fin[23] <= r_addr_fin_base + FEAT_IN_SIZE * 3 + 4; // 19
           r_addr_fin[24] <= r_addr_fin_base + FEAT_IN_SIZE * 4 + 4; // 24
 
+          r_fin_en <= 1'b1;
           if (w_horizontal_end) begin
             r_addr_fin_base <= r_addr_fin_base + C1_SIZE + FEAT_IN_SIZE * (A1_SIZE - 1);
           end else begin
@@ -292,10 +296,8 @@ module Control
           r_count_fout <= 0;
           if (data_valid_out)
             r_count_fin <= r_count_fin + 1;
-          if (p_end_conv[1])
+          if (r_fin_en)
             r_fin_en <= 1'b0;
-          else
-            r_fin_en <= 1'b1;
         end
         CONV: begin
           r_wh_en      <= 1'b0;
