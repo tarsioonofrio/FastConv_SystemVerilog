@@ -29,14 +29,14 @@ module Core
   typedef enum {
     IDLE_INPUT,
     WEIGHT,
-    FEAT_IN,
+    FEAT_IN
   } state_input_type;
 
   typedef enum {
     IDLE_CONV,
     CONV_C,
     CONV_H,
-    CONV_A,
+    CONV_A
   } state_conv_type;
 
   typedef enum {
@@ -110,23 +110,23 @@ module Core
   always_comb begin
     w_end = '{1'b0, 1'b0, 1'b0};
     unique case (current_st_input)
-      IDLE: begin
+      IDLE_INPUT: begin
         w_end[0] = 1'b0;
         w_end[1] = 1'b0;
-        if (p_wh_en) next_st = WEIGHT;
-        else if (p_fin_en) next_st = FEAT_IN;
+        if (p_wh_en) next_st_input = WEIGHT;
+        else if (p_fin_en) next_st_input = FEAT_IN;
       end
       WEIGHT: begin
         w_end[1] = 1'b0;
         if (r_count_wh == (M1_SIZE * M2_SIZE)) begin
-          next_st = FEAT_IN;
+          next_st_input = FEAT_IN;
           w_end[0] = 1'b1;
         end
       end
       FEAT_IN: begin
         w_end[0] = 1'b0;
         if (r_count_fin == (C1_SIZE * C2_SIZE)) begin
-          next_st = IDLE_INPUT;
+          next_st_input = IDLE_INPUT;
           w_end[1] = 1'b1;
         end
       end
@@ -135,27 +135,27 @@ module Core
     unique case (current_st_conv)
       IDLE_CONV: begin
         w_end_conv = 1'b0;
-        if (p_start) next_st = CONV_C;
+        if (p_start) next_st_conv = CONV_C;
       end
       CONV_C:
-        next_st = CONV_H;
+        next_st_conv = CONV_H;
       CONV_H:
         if (r_mult_idx == (M1_SIZE * M2_SIZE - 1))
-          next_st = CONV_A;
+          next_st_conv = CONV_A;
       CONV_A: begin
         w_end_conv = 1'b1;
-        next_st = IDLE_CONV;
+        next_st_conv = IDLE_CONV;
       end
     endcase
 
     unique case (current_st_output)
-      IDLE: begin
+      IDLE_OUTPUT: begin
         w_end[2] = 1'b0;
-        if (w_end_conv) next_st = FEAT_OUT;
+        if (w_end_conv) next_st_output = FEAT_OUT;
       end
       FEAT_OUT: begin
         if (r_count_fout == (A1_SIZE * A2_SIZE)) begin
-          next_st = IDLE_OUTPUT;
+          next_st_output = IDLE_OUTPUT;
           w_end[2] = 1'b1;
         end
       end
@@ -178,7 +178,7 @@ module Core
       r_end = '{1'b0, 1'b0, 1'b0};
     end else begin
       unique case (current_st_input)
-        IDLE: begin
+        IDLE_INPUT: begin
           r_end[0] = 1'b0;
           r_end[1] = 1'b0;
           r_count_wh <= 0;
@@ -222,7 +222,7 @@ module Core
       endcase
 
       unique case (current_st_conv)
-        IDLE: begin
+        IDLE_CONV: begin
           r_temp     <= '{default: '0};
           r_feat_out <= '{default: '0};
           r_conv_end <= 1'b0;
@@ -242,7 +242,7 @@ module Core
       endcase
 
       unique case (current_st_output)
-        IDLE: begin
+        IDLE_OUTPUT: begin
           r_end[2]     <= 1'b0;
           r_fout_en    <= 1'b0;
           r_conv_end   <= 1'b0;

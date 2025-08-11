@@ -50,7 +50,6 @@ module tb;
 
     .p_start(p_start),
     .p_end(p_end),
-    .p_debug(p_debug),
 
     .p_fin_en(p_fin_en),
     .p_fin_valid(p_fin_valid),
