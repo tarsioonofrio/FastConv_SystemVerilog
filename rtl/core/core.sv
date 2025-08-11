@@ -205,6 +205,7 @@ module Core
           // r_count_fin <= 0;
           // r_count_fout <= 0;
           r_end[0] <= w_end[0];
+          r_end[1] <= w_end[1];
           if (p_wh_valid) begin
             r_weight[r_count_wh] <= p_in_data;
             r_count_wh           <= r_count_wh + 1;
@@ -213,6 +214,7 @@ module Core
         FEAT_IN: begin
           // r_count_wh <= 0;
           // r_count_fout <= 0;
+          r_end[0] <= w_end[0];
           r_end[1] <= w_end[1];
           if (p_fin_valid) begin
             r_feat_in[c_index[r_count_fin]] <= p_in_data;
@@ -223,8 +225,6 @@ module Core
 
       unique case (current_st_conv)
         IDLE_CONV: begin
-          r_temp     <= '{default: '0};
-          r_feat_out <= '{default: '0};
           r_conv_end <= 1'b0;
           r_mult_idx <= 1'b0;
         end
@@ -248,7 +248,7 @@ module Core
           r_conv_end   <= 1'b0;
           r_fout_valid <= 1'b0;
           r_count_fout <= 0;
-          r_feat_out   <= '{default: '0};
+          // r_feat_out   <= '{default: '0};
         end
         FEAT_OUT: begin
           r_end[2]     <= w_end[2];

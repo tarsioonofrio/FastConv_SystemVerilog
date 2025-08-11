@@ -40,6 +40,16 @@ module tb;
   initial clk = 0;
   always #5 clk = ~clk;
 
+
+  const int c_index[5*5] = {
+    00, 05, 10, 15, 20,
+    01, 06, 11, 16, 21,
+    02, 07, 12, 17, 22,
+    03, 08, 13, 18, 23,
+    04, 09, 14, 19, 24
+  };
+
+
   // DUT instantiation
   Core #(
     .QUANT(QUANT),
@@ -109,7 +119,7 @@ module tb;
     p_fin_valid = 1;
 
     for (int i = 0; i < FIN2_SIZE; i++) begin
-      p_in_data = const_feat_in[0][i];
+      p_in_data = const_feat_in[0][c_index[i]];
       $display("Input data[%0d] = %0d", i, p_in_data);
       @(posedge clk);
     end
