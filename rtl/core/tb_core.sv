@@ -108,7 +108,7 @@ module tb;
     end
 
     p_wh_valid = 0;
-    wait(p_end[0]);
+    // wait(p_end[0]);
     @(posedge clk);
 
     // Carregar dados de entrada
@@ -125,7 +125,7 @@ module tb;
     end
 
     p_fin_valid = 0;
-    wait(p_end[1]);
+    // wait(p_end[1]);
     @(posedge clk);
 
     // Start processamento
