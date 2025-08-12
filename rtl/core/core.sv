@@ -29,7 +29,7 @@ module Core
   typedef enum {
     IDLE_INPUT,
     WEIGHT,
-    FEAT_IN
+    FEAT_INPUT
   } state_input_type;
 
   typedef enum {
@@ -41,7 +41,7 @@ module Core
 
   typedef enum {
     IDLE_OUTPUT,
-    FEAT_OUT
+    FEAT_OUTPUT
   } state_output_type;
 
 
@@ -114,13 +114,13 @@ module Core
     w_end = '{1'b0, 1'b0, 1'b0};
 
     // if (p_wh_en) next_st_input = WEIGHT;
-    // else if (p_fin_en) next_st_input = FEAT_IN;
+    // else if (p_fin_en) next_st_input = FEAT_INPUT;
     // else next_st_input = IDLE_INPUT;
 
     w_wh_fin_en = {p_wh_en, p_fin_en};
     unique case (w_wh_fin_en)
       2'b10: next_st_input = WEIGHT;
-      2'b01: next_st_input = FEAT_IN;
+      2'b01: next_st_input = FEAT_INPUT;
       default: next_st_input = IDLE_INPUT;
     endcase
 
@@ -143,9 +143,9 @@ module Core
     unique case (current_st_output)
       IDLE_OUTPUT: begin
         w_end[2] = 1'b0;
-        if (w_end_conv) next_st_output = FEAT_OUT;
+        if (w_end_conv) next_st_output = FEAT_OUTPUT;
       end
-      FEAT_OUT: begin
+      FEAT_OUTPUT: begin
         if (r_count_fout == (A1_SIZE * A2_SIZE)) begin
           next_st_output = IDLE_OUTPUT;
           w_end[2] = 1'b1;
@@ -203,7 +203,7 @@ module Core
             r_count_wh           <= r_count_wh + 1;
           end
         end
-        FEAT_IN: begin
+        FEAT_INPUT: begin
           // r_count_wh <= 0;
           // r_count_fout <= 0;
           r_end[0] <= w_end[0];
@@ -243,7 +243,7 @@ module Core
           r_count_fout <= 0;
           // r_feat_out   <= '{default: '0};
         end
-        FEAT_OUT: begin
+        FEAT_OUTPUT: begin
           r_end[2]     <= w_end[2];
           r_count_fout <= r_count_fout + 1;
           if (w_end[2]) begin
