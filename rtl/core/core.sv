@@ -219,6 +219,7 @@ module Core
         IDLE_CONV: begin
           r_conv_end <= 1'b0;
           r_mult_idx <= 1'b0;
+          r_temp[C1_SIZE*C1_SIZE-1:0] <= r_feat_in;
         end
         CONV_C: begin
           r_temp <= w_prod_c;
@@ -265,7 +266,7 @@ module Core
 
   // Instance of matrix multiplier "C"
   Transform trf (
-      .pin (r_feat_in[C1_SIZE*C1_SIZE-1:0]),
+      .pin (r_temp[C1_SIZE*C1_SIZE-1:0]),
       .pout(w_prod_c)
   );
 
