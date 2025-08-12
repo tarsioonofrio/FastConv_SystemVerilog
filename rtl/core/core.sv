@@ -124,30 +124,6 @@ module Core
       default: next_st_input = IDLE_INPUT;
     endcase
 
-
-    // unique case (current_st_input)
-    //   IDLE_INPUT: begin
-    //     w_end[0] = 1'b0;
-    //     w_end[1] = 1'b0;
-    //     if (p_wh_en) next_st_input = WEIGHT;
-    //     else if (p_fin_en) next_st_input = FEAT_IN;
-    //   end
-    //   WEIGHT: begin
-    //     w_end[1] = 1'b0;
-    //     if (r_count_wh == (M1_SIZE * M2_SIZE)) begin
-    //       next_st_input = FEAT_IN;
-    //       w_end[0] = 1'b1;
-    //     end
-    //   end
-    //   FEAT_IN: begin
-    //     w_end[0] = 1'b0;
-    //     if (r_count_fin == (C1_SIZE * C2_SIZE)) begin
-    //       next_st_input = IDLE_INPUT;
-    //       w_end[1] = 1'b1;
-    //     end
-    //   end
-    // endcase
-
     unique case (current_st_conv)
       IDLE_CONV: begin
         w_end_conv = 1'b0;

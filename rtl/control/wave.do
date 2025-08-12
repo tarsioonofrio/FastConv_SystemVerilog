@@ -17,6 +17,8 @@ add wave -noupdate -radix decimal /tb/dut/p_fout_valid
 add wave -noupdate -radix decimal /tb/dut/p_out_data
 add wave -noupdate -radix decimal /tb/dut/p_in_data
 add wave -noupdate /tb/dut/r_reuse
+add wave -noupdate /tb/dut/w_wh_end
+add wave -noupdate /tb/dut/w_fin_end
 add wave -noupdate /tb/dut/current_st
 add wave -noupdate /tb/dut/next_st
 add wave -noupdate /tb/dut/r_reuse
@@ -61,7 +63,7 @@ add wave -noupdate /tb/core/current_st_conv
 add wave -noupdate /tb/core/next_st_conv
 add wave -noupdate /tb/core/current_st_output
 add wave -noupdate /tb/core/next_st_output
-add wave -noupdate -radix decimal /tb/core/r_feat_in
+add wave -noupdate -radix decimal -childformat {{{/tb/core/r_feat_in[24]} -radix decimal} {{/tb/core/r_feat_in[23]} -radix decimal} {{/tb/core/r_feat_in[22]} -radix decimal} {{/tb/core/r_feat_in[21]} -radix decimal} {{/tb/core/r_feat_in[20]} -radix decimal} {{/tb/core/r_feat_in[19]} -radix decimal} {{/tb/core/r_feat_in[18]} -radix decimal} {{/tb/core/r_feat_in[17]} -radix decimal} {{/tb/core/r_feat_in[16]} -radix decimal} {{/tb/core/r_feat_in[15]} -radix decimal} {{/tb/core/r_feat_in[14]} -radix decimal} {{/tb/core/r_feat_in[13]} -radix decimal} {{/tb/core/r_feat_in[12]} -radix decimal} {{/tb/core/r_feat_in[11]} -radix decimal} {{/tb/core/r_feat_in[10]} -radix decimal} {{/tb/core/r_feat_in[9]} -radix decimal} {{/tb/core/r_feat_in[8]} -radix decimal} {{/tb/core/r_feat_in[7]} -radix decimal} {{/tb/core/r_feat_in[6]} -radix decimal} {{/tb/core/r_feat_in[5]} -radix decimal} {{/tb/core/r_feat_in[4]} -radix decimal} {{/tb/core/r_feat_in[3]} -radix decimal} {{/tb/core/r_feat_in[2]} -radix decimal} {{/tb/core/r_feat_in[1]} -radix decimal} {{/tb/core/r_feat_in[0]} -radix decimal}} -expand -subitemconfig {{/tb/core/r_feat_in[24]} {-radix decimal} {/tb/core/r_feat_in[23]} {-radix decimal} {/tb/core/r_feat_in[22]} {-radix decimal} {/tb/core/r_feat_in[21]} {-radix decimal} {/tb/core/r_feat_in[20]} {-radix decimal} {/tb/core/r_feat_in[19]} {-radix decimal} {/tb/core/r_feat_in[18]} {-radix decimal} {/tb/core/r_feat_in[17]} {-radix decimal} {/tb/core/r_feat_in[16]} {-radix decimal} {/tb/core/r_feat_in[15]} {-radix decimal} {/tb/core/r_feat_in[14]} {-radix decimal} {/tb/core/r_feat_in[13]} {-radix decimal} {/tb/core/r_feat_in[12]} {-radix decimal} {/tb/core/r_feat_in[11]} {-radix decimal} {/tb/core/r_feat_in[10]} {-radix decimal} {/tb/core/r_feat_in[9]} {-radix decimal} {/tb/core/r_feat_in[8]} {-radix decimal} {/tb/core/r_feat_in[7]} {-radix decimal} {/tb/core/r_feat_in[6]} {-radix decimal} {/tb/core/r_feat_in[5]} {-radix decimal} {/tb/core/r_feat_in[4]} {-radix decimal} {/tb/core/r_feat_in[3]} {-radix decimal} {/tb/core/r_feat_in[2]} {-radix decimal} {/tb/core/r_feat_in[1]} {-radix decimal} {/tb/core/r_feat_in[0]} {-radix decimal}} /tb/core/r_feat_in
 add wave -noupdate -radix decimal /tb/core/r_weight
 add wave -noupdate -radix decimal /tb/core/r_temp
 add wave -noupdate -radix decimal /tb/core/r_feat_out
@@ -81,7 +83,7 @@ add wave -noupdate -radix decimal /tb/core/r_mult_idx
 add wave -noupdate /tb/core/product
 add wave -noupdate /tb/core/c_index
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {34 ns} 0}
+WaveRestoreCursors {{Cursor 1} {2135 ns} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 300
 configure wave -valuecolwidth 100
@@ -97,4 +99,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {0 ns} {224 ns}
+WaveRestoreZoom {2064 ns} {2288 ns}
