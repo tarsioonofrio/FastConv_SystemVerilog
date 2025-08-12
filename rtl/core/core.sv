@@ -74,6 +74,9 @@ module Core
 
   logic signed [NBITS-1+QUANT:0] product;  // QUANT more bits for the multipliers
 
+  logic [1:0] w_wh_fin_en;
+
+
   const int c_index[5*5] = {
     00, 05, 10, 15, 20,
     01, 06, 11, 16, 21,
@@ -109,28 +112,41 @@ module Core
 
   always_comb begin
     w_end = '{1'b0, 1'b0, 1'b0};
-    unique case (current_st_input)
-      IDLE_INPUT: begin
-        w_end[0] = 1'b0;
-        w_end[1] = 1'b0;
-        if (p_wh_en) next_st_input = WEIGHT;
-        else if (p_fin_en) next_st_input = FEAT_IN;
-      end
-      WEIGHT: begin
-        w_end[1] = 1'b0;
-        if (r_count_wh == (M1_SIZE * M2_SIZE)) begin
-          next_st_input = FEAT_IN;
-          w_end[0] = 1'b1;
-        end
-      end
-      FEAT_IN: begin
-        w_end[0] = 1'b0;
-        if (r_count_fin == (C1_SIZE * C2_SIZE)) begin
-          next_st_input = IDLE_INPUT;
-          w_end[1] = 1'b1;
-        end
-      end
+
+    // if (p_wh_en) next_st_input = WEIGHT;
+    // else if (p_fin_en) next_st_input = FEAT_IN;
+    // else next_st_input = IDLE_INPUT;
+
+    w_wh_fin_en = {p_wh_en, p_fin_en};
+    unique case (w_wh_fin_en)
+      2'b10: next_st_input = WEIGHT;
+      2'b01: next_st_input = FEAT_IN;
+      default: next_st_input = IDLE_INPUT;
     endcase
+
+
+    // unique case (current_st_input)
+    //   IDLE_INPUT: begin
+    //     w_end[0] = 1'b0;
+    //     w_end[1] = 1'b0;
+    //     if (p_wh_en) next_st_input = WEIGHT;
+    //     else if (p_fin_en) next_st_input = FEAT_IN;
+    //   end
+    //   WEIGHT: begin
+    //     w_end[1] = 1'b0;
+    //     if (r_count_wh == (M1_SIZE * M2_SIZE)) begin
+    //       next_st_input = FEAT_IN;
+    //       w_end[0] = 1'b1;
+    //     end
+    //   end
+    //   FEAT_IN: begin
+    //     w_end[0] = 1'b0;
+    //     if (r_count_fin == (C1_SIZE * C2_SIZE)) begin
+    //       next_st_input = IDLE_INPUT;
+    //       w_end[1] = 1'b1;
+    //     end
+    //   end
+    // endcase
 
     unique case (current_st_conv)
       IDLE_CONV: begin

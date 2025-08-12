@@ -92,13 +92,13 @@ module tb;
     // Aguarda 1 ciclos de clock
     @(posedge clk);
     reset = 0;
+    @(posedge clk);
 
 
     // Carregar pesos
     $display("=== Loading weights ===");
     p_wh_en = 1;
     @(posedge clk);
-    p_wh_en = 0;
     p_wh_valid = 1;
 
     for (int i = 0; i < W2_SIZE; i++) begin
@@ -107,6 +107,7 @@ module tb;
       @(posedge clk);
     end
 
+    p_wh_en = 0;
     p_wh_valid = 0;
     // wait(p_end[0]);
     @(posedge clk);
@@ -115,7 +116,6 @@ module tb;
     $display("=== Loading data ===");
     p_fin_en = 1;
     @(posedge clk);
-    p_fin_en = 0;
     p_fin_valid = 1;
 
     for (int i = 0; i < FIN2_SIZE; i++) begin
@@ -124,6 +124,7 @@ module tb;
       @(posedge clk);
     end
 
+    p_fin_en = 0;
     p_fin_valid = 0;
     // wait(p_end[1]);
     @(posedge clk);
