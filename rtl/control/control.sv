@@ -52,12 +52,10 @@ module Control
   state_type current_st, next_st;
 
   logic r_start_conv;
-  logic r_fout_en;
   logic r_data_end;
   logic r_conv_end;
   logic r_wh_en;
   logic r_fin_en;
-  logic r_chip_en;
   logic r_end_wh;
   logic r_end_fin;
   logic r_reuse;
@@ -75,13 +73,21 @@ module Control
   int r_count_horizontal;
   int r_count_vertical;
 
-  logic_vector data_out;
-  logic_vector data_in;
+  logic_vector w_mrd_out;
+  logic_vector w_mrd_in;
 
-  logic chip_en;
-  logic wr_en;
-  logic data_valid_out;
-  logic[NADDR-1:0] address;
+  logic_vector w_mwr_out;
+  logic_vector w_mwr_in;
+
+  logic w_mrd_chip;
+  logic w_mrd_wr;
+  logic w_mrd_valid;
+  logic[NADDR-1:0] w_mrd_addr;
+  logic w_mwr_chip;
+  logic w_mwr_wr;
+  logic w_mwr_valid;
+  logic[NADDR-1:0] w_mwr_addr;
+
   logic w_horizontal_end;
   logic w_wh_end;
   logic w_fin_end;
@@ -91,15 +97,31 @@ module Control
     .NBITS(NBITS),
     .LATENCY(LATENCY),
     .ROM(ROM)
-  ) memory (
+  ) memory_read(
     .clk(clk),
     .reset(reset),
-    .chip_en(chip_en),
-    .wr_en(wr_en),
-    .address(address),
-    .data_in(data_in),
-    .data_out(data_out),
-    .data_valid(data_valid_out)
+    .chip_en(w_mrd_chip),
+    .wr_en(w_mrd_wr),
+    .address(w_mrd_addr),
+    .data_in(w_mrd_in),
+    .data_out(w_mrd_out),
+    .data_valid(w_mrd_valid)
+  );
+
+  Memory #(
+    .NADDR(NADDR),
+    .NBITS(NBITS),
+    .LATENCY(LATENCY),
+    .ROM(0)
+  ) memory_write(
+    .clk(clk),
+    .reset(reset),
+    .chip_en(w_mwr_chip),
+    .wr_en(w_mwr_wr),
+    .address(w_mwr_addr),
+    .data_in(w_mwr_in),
+    .data_out(w_mwr_out),
+    .data_valid(w_mwr_valid)
   );
 
   always_ff @(posedge clk or posedge reset) begin
@@ -158,41 +180,36 @@ module Control
       end
     endcase
 
-    chip_en <= r_chip_en;
+    p_wh_en    <= r_wh_en;
+    p_fin_en   <= r_fin_en;
+    p_out_data <= w_mrd_out;
+
+    w_mwr_addr <= r_addr_fout[r_count_fout];
+    w_mwr_chip <= p_fout_en;
+    w_mwr_wr   <= p_fout_en;
+    w_mwr_in   <= p_in_data;
+
     // Wire control
     unique case (current_st)
       BIAS: begin
-        address <= r_addr_bias;
-        // chip_en <= r_bias_en;
-        // p_bias_en <= r_bias_en;
-        p_out_data <= data_out;
-        // p_bias_valid <= data_valid_out;
+        w_mrd_addr <= r_addr_bias;
+        // w_mrd_chip   <= r_bias_en;
+        // p_bias_en    <= r_bias_en;
+        // p_bias_valid <= w_mrd_valid;
       end
       WEIGHT: begin
-        address     <= r_addr_wh;
-        chip_en     <= r_wh_en;
-        p_wh_en     <= r_wh_en;
-        p_fin_en    <= r_fin_en;
-        p_out_data  <= data_out;
-        p_wh_valid  <= data_valid_out;
+        w_mrd_addr  <= r_addr_wh;
+        w_mrd_chip  <= r_wh_en;
+        p_wh_valid  <= w_mrd_valid;
         p_fin_valid <= 0;
       end
       default: begin
-        address     <= r_addr_fin[r_count_fin];
-        chip_en     <= r_fin_en;
-        p_wh_en     <= r_wh_en;
-        p_fin_en    <= r_fin_en;
-        p_out_data  <= data_out;
+        w_mrd_addr  <= r_addr_fin[r_count_fin];
+        w_mrd_chip  <= r_fin_en;
         p_wh_valid  <= 0;
-        p_fin_valid <= data_valid_out;
+        p_fin_valid <= w_mrd_valid;
       end
       FEAT_OUT: begin
-        address     <= r_addr_fout[r_count_fout];
-        chip_en     <= r_fout_en;
-        wr_en       <= r_fout_en;
-        data_in     <= p_in_data;
-        p_wh_en     <= r_wh_en;
-        p_fin_en    <= r_fin_en;
         p_wh_valid  <= 0;
         p_fin_valid <= 0;
       end
@@ -209,7 +226,7 @@ module Control
       r_addr_bias      <= 0;
       r_addr_wh        <= N_CHANNEL_OUT;
       r_addr_fin_base  <= N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT;
-      r_addr_fout_base <= N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT + N_CHANNEL_IN * FEAT_IN_SIZE * FEAT_IN_SIZE;
+      r_addr_fout_base <= 0;
       r_count_wh       <= 0;
       r_count_fin      <= 0;
       r_count_fout     <= 0;
@@ -226,7 +243,7 @@ module Control
           r_addr_bias      <= 0;
           r_addr_wh        <= N_CHANNEL_OUT;
           r_addr_fin_base  <= N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT;
-          r_addr_fout_base <= N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT + N_CHANNEL_IN * FEAT_IN_SIZE * FEAT_IN_SIZE;
+          r_addr_fout_base <= 0;
           r_count_wh       <= 0;
           r_count_fin      <= 0;
           r_count_fout     <= 0;
@@ -239,15 +256,14 @@ module Control
           r_start_conv     <= 1'b0;
         end
         BIAS: begin
-          r_chip_en   <= 1'b1;
           r_addr_bias <= r_addr_bias + 1;
         end
         WEIGHT: begin
-          r_wh_en  <= 1'b1;
-          r_fin_en <= 1'b0;
+          r_wh_en      <= 1'b1;
+          r_fin_en     <= 1'b0;
           r_count_fin  <= 0;
           r_count_fout <= 0;
-          if (data_valid_out) begin
+          if (w_mrd_valid) begin
             r_addr_wh  <= r_addr_wh + 1;
             r_count_wh <= r_count_wh + 1;
           end
@@ -260,7 +276,7 @@ module Control
           r_wh_en    <= 1'b0;
           r_count_wh <= 0;
 
-          // TODO: Implement address generation logic using if else statements and remove
+          // TODO: Implement w_mrd_addr generation logic using if else statements and remove
           // Addresses ordered by column and not by row to facilitate reading
           // when reusing, which reuses the last two columns
           // multiple registers, using one register
@@ -301,10 +317,11 @@ module Control
           end
         end
         FEAT_IN: begin
-          r_fin_en <= 1'b1;
+          r_wh_en      <= 1'b0;
+          r_fin_en     <= 1'b1;
           r_count_wh   <= 0;
           r_count_fout <= 0;
-          if (data_valid_out)
+          if (w_mrd_valid)
             r_count_fin <= r_count_fin + 1;
           // if (w_fin_end)
           //   r_fin_en <= 1'b0;
@@ -317,7 +334,7 @@ module Control
           r_start_conv <= 1'b1;
         end
         ADDR_OUT: begin
-          // TODO: Implement address generation logic using if else statements and remove
+          // TODO: Implement w_mrd_addr generation logic using if else statements and remove
           // multiple registers, using one register
           r_addr_fout[0] <= r_addr_fout_base + 0;
           r_addr_fout[1] <= r_addr_fout_base + 1;
@@ -338,7 +355,6 @@ module Control
         end
         FEAT_OUT: begin
           r_start_conv <= 1'b0;
-          r_fout_en    <= 1'b1;
           r_count_wh   <= 0;
           r_count_fin  <= 0;
           if (p_fout_valid) begin
