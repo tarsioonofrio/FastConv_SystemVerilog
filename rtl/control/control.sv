@@ -120,12 +120,12 @@ module Control
       BIAS:
           next_st = WEIGHT;
       WEIGHT:
-        if (p_end_conv[0])
+        if (r_count_wh == (M1_SIZE * M2_SIZE))
           next_st = ADDR_IN;
       ADDR_IN:
         next_st = FEAT_IN;
       FEAT_IN:
-        if (p_end_conv[1])
+        if (r_count_fin == (C1_SIZE * C2_SIZE))
           next_st = CONV;
       CONV:
         if (r_start_conv)
@@ -237,18 +237,23 @@ module Control
           r_fin_en     <= 1'b0;
           r_count_fin  <= 0;
           r_count_fout <= 0;
-          if (data_valid_out)
+          if (data_valid_out) begin
             r_addr_wh  <= r_addr_wh + 1;
-          if (r_addr_wh == 0)
-            r_wh_en <= 1'b1;
-          else
-            r_wh_en <= 1'b0;
-          if (p_end_conv[1])
-            r_addr_wh  <= 0;
+            r_count_wh <= r_count_wh + 1;
+          end
+          // if (r_addr_wh == 0)
+          //   r_wh_en <= 1'b1;
+          // else
+          //   r_wh_en <= 1'b0;
+          // if (p_end_conv[1])
+          //   r_addr_wh  <= 0;
           // else
           //   r_wh_en <= 1'b1;
         end
         ADDR_IN: begin
+          r_wh_en    <= 1'b0;
+          r_count_wh <= 0;
+
           // TODO: Implement address generation logic using if else statements and remove
           // Addresses ordered by column and not by row to facilitate reading
           // when reusing, which reuses the last two columns
@@ -283,7 +288,6 @@ module Control
           r_addr_fin[23] <= r_addr_fin_base + FEAT_IN_SIZE * 3 + 4; // 19
           r_addr_fin[24] <= r_addr_fin_base + FEAT_IN_SIZE * 4 + 4; // 24
 
-          r_fin_en <= 1'b1;
           if (w_horizontal_end) begin
             r_addr_fin_base <= r_addr_fin_base + C1_SIZE + FEAT_IN_SIZE * (A1_SIZE - 1);
           end else begin
@@ -291,13 +295,13 @@ module Control
           end
         end
         FEAT_IN: begin
-          r_wh_en      <= 1'b0;
+          r_fin_en <= 1'b1;
           r_count_wh   <= 0;
           r_count_fout <= 0;
           if (data_valid_out)
             r_count_fin <= r_count_fin + 1;
-          if (r_fin_en)
-            r_fin_en <= 1'b0;
+          // if (r_fin_en)
+          //   r_fin_en <= 1'b0;
         end
         CONV: begin
           r_wh_en      <= 1'b0;
