@@ -10,8 +10,8 @@ module Control
     parameter int N_WINDOW      = 10,
     parameter int N_CHANNEL_IN  = 1,
     parameter int N_CHANNEL_OUT = 1,
-    parameter int FEAT_IN_SIZE  = 32,
-    parameter int FEAT_OUT_SIZE = 30,
+    parameter int FEAT_INPUT_SIZE  = 32,
+    parameter int FEAT_OUTPUT_SIZE = 30,
     parameter int LAST_WINDOW   = 0
 ) (
     input logic clk,
@@ -38,18 +38,39 @@ module Control
 
   timeunit 1ns; timeprecision 1ps;
 
+  // typedef enum {
+  //   IDLE,
+  //   BIAS,
+  //   WEIGHT,
+  //   ADDR_INPUT,
+  //   FEAT_INPUT,
+  //   CONV,
+  //   ADDR_OUTPUT,
+  //   FEAT_OUTPUT
+  // } state_type;
+
   typedef enum {
-    IDLE,
+    IDLE_INPUT,
     BIAS,
     WEIGHT,
-    ADDR_IN,
-    FEAT_IN,
+    ADDR_INPUT,
+    FEAT_INPUT,
+  } state_type_input;
+  
+  typedef enum {
+    IDLE_CONV,
     CONV,
-    ADDR_OUT,
-    FEAT_OUT
-  } state_type;
+  } state_type_conv;
+  
+  typedef enum {
+    IDLE_OUTPUT,
+    ADDR_OUTPUT,
+    FEAT_OUTPUT
+  } state_type_output;
 
-  state_type current_st, next_st;
+  state_input_type current_st_input, next_st_input;
+  state_conv_type current_st_conv, next_st_conv;
+  state_output_type current_st_output, next_st_output;
 
   logic r_start_conv;
   logic r_data_end;
@@ -126,11 +147,16 @@ module Control
 
   always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
-      current_st <= IDLE;
+      current_st_input  <= IDLE_INPUT;
+      current_st_conv   <= IDLE_CONV;
+      current_st_output <= IDLE_OUTPUT;
     end else begin
-      current_st <= next_st;
+      current_st_input  <= next_st_input;
+      current_st_conv   <= next_st_conv;
+      current_st_output <= next_st_output;
     end
   end
+
 
   always_comb begin
     p_start_conv <= r_start_conv;
@@ -146,13 +172,13 @@ module Control
       WEIGHT: begin
         w_wh_end = 1'b0;
         if (r_count_wh == (M1_SIZE * M2_SIZE)) begin
-          next_st = ADDR_IN;
+          next_st = ADDR_INPUT;
           w_wh_end = 1'b1;
         end
       end
-      ADDR_IN:
-        next_st = FEAT_IN;
-      FEAT_IN: begin
+      ADDR_INPUT:
+        next_st = FEAT_INPUT;
+        FEAT_INPUT: begin
         w_fin_end = 1'b0;
         if (r_count_fin == (C1_SIZE * C2_SIZE)) begin
           next_st = CONV;
@@ -161,10 +187,10 @@ module Control
       end
       CONV:
         if (r_start_conv)
-          next_st = ADDR_OUT;
-      ADDR_OUT:
-        next_st = FEAT_OUT;
-      FEAT_OUT: begin
+          next_st = ADDR_OUTPUT;
+          ADDR_OUTPUT:
+        next_st = FEAT_OUTPUT;
+        FEAT_OUTPUT: begin
         if (p_end_conv[2]) begin
           if (r_count_window == N_WINDOW * N_WINDOW)
             next_st = WEIGHT;
@@ -175,7 +201,7 @@ module Control
           if (r_count_window == N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN)
             next_st = IDLE;
           else
-            next_st = ADDR_IN;
+            next_st = ADDR_INPUT;
         end
       end
     endcase
@@ -209,7 +235,13 @@ module Control
         p_wh_valid  <= 0;
         p_fin_valid <= w_mrd_valid;
       end
-      FEAT_OUT: begin
+      FEAT_OUTPUT: begin
+        address     <= r_addr_fout[r_count_fout];
+        chip_en     <= r_fout_en;
+        wr_en       <= r_fout_en;
+        data_in     <= p_in_data;
+        p_wh_en     <= r_wh_en;
+        p_fin_en    <= r_fin_en;
         p_wh_valid  <= 0;
         p_fin_valid <= 0;
       end
@@ -272,7 +304,7 @@ module Control
           // else
           //   r_wh_en <= 1'b1;
         end
-        ADDR_IN: begin
+        ADDR_INPUT: begin
           r_wh_en    <= 1'b0;
           r_count_wh <= 0;
 
@@ -281,44 +313,44 @@ module Control
           // when reusing, which reuses the last two columns
           // multiple registers, using one register
           r_addr_fin[00] <= r_addr_fin_base + 0; // 00
-          r_addr_fin[01] <= r_addr_fin_base + FEAT_IN_SIZE + 0; // 05
-          r_addr_fin[02] <= r_addr_fin_base + FEAT_IN_SIZE * 2 + 0; // 10
-          r_addr_fin[03] <= r_addr_fin_base + FEAT_IN_SIZE * 3 + 0; // 15
-          r_addr_fin[04] <= r_addr_fin_base + FEAT_IN_SIZE * 4 + 0; // 20
+          r_addr_fin[01] <= r_addr_fin_base + FEAT_INPUT_SIZE + 0; // 05
+          r_addr_fin[02] <= r_addr_fin_base + FEAT_INPUT_SIZE * 2 + 0; // 10
+          r_addr_fin[03] <= r_addr_fin_base + FEAT_INPUT_SIZE * 3 + 0; // 15
+          r_addr_fin[04] <= r_addr_fin_base + FEAT_INPUT_SIZE * 4 + 0; // 20
 
           r_addr_fin[05] <= r_addr_fin_base + 1; // 01
-          r_addr_fin[06] <= r_addr_fin_base + FEAT_IN_SIZE + 1; // 06
-          r_addr_fin[07] <= r_addr_fin_base + FEAT_IN_SIZE * 2 + 1; // 11
-          r_addr_fin[08] <= r_addr_fin_base + FEAT_IN_SIZE * 3 + 1; // 16
-          r_addr_fin[09] <= r_addr_fin_base + FEAT_IN_SIZE * 4 + 1; // 21
+          r_addr_fin[06] <= r_addr_fin_base + FEAT_INPUT_SIZE + 1; // 06
+          r_addr_fin[07] <= r_addr_fin_base + FEAT_INPUT_SIZE * 2 + 1; // 11
+          r_addr_fin[08] <= r_addr_fin_base + FEAT_INPUT_SIZE * 3 + 1; // 16
+          r_addr_fin[09] <= r_addr_fin_base + FEAT_INPUT_SIZE * 4 + 1; // 21
 
           r_addr_fin[10] <= r_addr_fin_base + 2; // 02
-          r_addr_fin[11] <= r_addr_fin_base + FEAT_IN_SIZE + 2; // 07
-          r_addr_fin[12] <= r_addr_fin_base + FEAT_IN_SIZE * 2 + 2; // 12
-          r_addr_fin[13] <= r_addr_fin_base + FEAT_IN_SIZE * 3 + 2; // 17
-          r_addr_fin[14] <= r_addr_fin_base + FEAT_IN_SIZE * 4 + 2; // 22
+          r_addr_fin[11] <= r_addr_fin_base + FEAT_INPUT_SIZE + 2; // 07
+          r_addr_fin[12] <= r_addr_fin_base + FEAT_INPUT_SIZE * 2 + 2; // 12
+          r_addr_fin[13] <= r_addr_fin_base + FEAT_INPUT_SIZE * 3 + 2; // 17
+          r_addr_fin[14] <= r_addr_fin_base + FEAT_INPUT_SIZE * 4 + 2; // 22
 
           r_addr_fin[15] <= r_addr_fin_base + 3; // 03
-          r_addr_fin[16] <= r_addr_fin_base + FEAT_IN_SIZE + 3; // 08
-          r_addr_fin[17] <= r_addr_fin_base + FEAT_IN_SIZE * 2 + 3; // 13
-          r_addr_fin[18] <= r_addr_fin_base + FEAT_IN_SIZE * 3 + 3; // 18
-          r_addr_fin[19] <= r_addr_fin_base + FEAT_IN_SIZE * 4 + 3; // 23
+          r_addr_fin[16] <= r_addr_fin_base + FEAT_INPUT_SIZE + 3; // 08
+          r_addr_fin[17] <= r_addr_fin_base + FEAT_INPUT_SIZE * 2 + 3; // 13
+          r_addr_fin[18] <= r_addr_fin_base + FEAT_INPUT_SIZE * 3 + 3; // 18
+          r_addr_fin[19] <= r_addr_fin_base + FEAT_INPUT_SIZE * 4 + 3; // 23
 
           r_addr_fin[20] <= r_addr_fin_base + 4; // 04
-          r_addr_fin[21] <= r_addr_fin_base + FEAT_IN_SIZE + 4; // 09
-          r_addr_fin[22] <= r_addr_fin_base + FEAT_IN_SIZE * 2 + 4; // 14
-          r_addr_fin[23] <= r_addr_fin_base + FEAT_IN_SIZE * 3 + 4; // 19
-          r_addr_fin[24] <= r_addr_fin_base + FEAT_IN_SIZE * 4 + 4; // 24
+          r_addr_fin[21] <= r_addr_fin_base + FEAT_INPUT_SIZE + 4; // 09
+          r_addr_fin[22] <= r_addr_fin_base + FEAT_INPUT_SIZE * 2 + 4; // 14
+          r_addr_fin[23] <= r_addr_fin_base + FEAT_INPUT_SIZE * 3 + 4; // 19
+          r_addr_fin[24] <= r_addr_fin_base + FEAT_INPUT_SIZE * 4 + 4; // 24
 
           if (w_horizontal_end) begin
-            r_addr_fin_base <= r_addr_fin_base + C1_SIZE + FEAT_IN_SIZE * (A1_SIZE - 1);
+            r_addr_fin_base <= r_addr_fin_base + C1_SIZE + FEAT_INPUT_SIZE * (A1_SIZE - 1);
           end else begin
             r_addr_fin_base <= r_addr_fin_base + A1_SIZE;
           end
         end
-        FEAT_IN: begin
+        FEAT_INPUT: begin
+          r_fin_en <= 1'b1;
           r_wh_en      <= 1'b0;
-          r_fin_en     <= 1'b1;
           r_count_wh   <= 0;
           r_count_fout <= 0;
           if (w_mrd_valid)
@@ -333,27 +365,27 @@ module Control
           r_fin_en     <= 1'b0;
           r_start_conv <= 1'b1;
         end
-        ADDR_OUT: begin
-          // TODO: Implement w_mrd_addr generation logic using if else statements and remove
+        ADDR_OUTPUT: begin
+          // TODO: Implement address generation logic using if else statements and remove
           // multiple registers, using one register
           r_addr_fout[0] <= r_addr_fout_base + 0;
           r_addr_fout[1] <= r_addr_fout_base + 1;
           r_addr_fout[2] <= r_addr_fout_base + 2;
 
-          r_addr_fout[3] <= r_addr_fout_base + FEAT_OUT_SIZE + 0;
-          r_addr_fout[4] <= r_addr_fout_base + FEAT_OUT_SIZE + 1;
-          r_addr_fout[5] <= r_addr_fout_base + FEAT_OUT_SIZE + 2;
+          r_addr_fout[3] <= r_addr_fout_base + FEAT_OUTPUT_SIZE + 0;
+          r_addr_fout[4] <= r_addr_fout_base + FEAT_OUTPUT_SIZE + 1;
+          r_addr_fout[5] <= r_addr_fout_base + FEAT_OUTPUT_SIZE + 2;
 
-          r_addr_fout[6] <= r_addr_fout_base + FEAT_OUT_SIZE * 2 + 0;
-          r_addr_fout[7] <= r_addr_fout_base + FEAT_OUT_SIZE * 2 + 1;
-          r_addr_fout[8] <= r_addr_fout_base + FEAT_OUT_SIZE * 2 + 2;
+          r_addr_fout[6] <= r_addr_fout_base + FEAT_OUTPUT_SIZE * 2 + 0;
+          r_addr_fout[7] <= r_addr_fout_base + FEAT_OUTPUT_SIZE * 2 + 1;
+          r_addr_fout[8] <= r_addr_fout_base + FEAT_OUTPUT_SIZE * 2 + 2;
 
           if (w_horizontal_end)
-            r_addr_fout_base <= r_addr_fout_base + A1_SIZE + FEAT_OUT_SIZE * (A1_SIZE - 1);
+            r_addr_fout_base <= r_addr_fout_base + A1_SIZE + FEAT_OUTPUT_SIZE * (A1_SIZE - 1);
           else
             r_addr_fout_base <= r_addr_fout_base + A1_SIZE;
         end
-        FEAT_OUT: begin
+        FEAT_OUTPUT: begin
           r_start_conv <= 1'b0;
           r_count_wh   <= 0;
           r_count_fin  <= 0;
