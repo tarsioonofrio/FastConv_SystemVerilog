@@ -83,6 +83,8 @@ module Control
   logic data_valid_out;
   logic[NADDR-1:0] address;
   logic w_horizontal_end;
+  logic w_wh_end;
+  logic w_fin_end;
 
   Memory #(
     .NADDR(NADDR),
@@ -119,14 +121,22 @@ module Control
           next_st = WEIGHT;
       BIAS:
           next_st = WEIGHT;
-      WEIGHT:
-        if (r_count_wh == (M1_SIZE * M2_SIZE))
+      WEIGHT: begin
+        w_wh_end = 1'b0;
+        if (r_count_wh == (M1_SIZE * M2_SIZE)) begin
           next_st = ADDR_IN;
+          w_wh_end = 1'b1;
+        end
+      end
       ADDR_IN:
         next_st = FEAT_IN;
-      FEAT_IN:
-        if (r_count_fin == (C1_SIZE * C2_SIZE))
+      FEAT_IN: begin
+        w_fin_end = 1'b0;
+        if (r_count_fin == (C1_SIZE * C2_SIZE)) begin
           next_st = CONV;
+          w_fin_end = 1'b1;
+        end
+      end
       CONV:
         if (r_start_conv)
           next_st = ADDR_OUT;
@@ -233,20 +243,16 @@ module Control
           r_addr_bias <= r_addr_bias + 1;
         end
         WEIGHT: begin
-          r_wh_en <= 1'b1;
-          r_fin_en     <= 1'b0;
+          r_wh_en  <= 1'b1;
+          r_fin_en <= 1'b0;
           r_count_fin  <= 0;
           r_count_fout <= 0;
           if (data_valid_out) begin
             r_addr_wh  <= r_addr_wh + 1;
             r_count_wh <= r_count_wh + 1;
           end
-          // if (r_addr_wh == 0)
-          //   r_wh_en <= 1'b1;
-          // else
+          // if (w_wh_end)
           //   r_wh_en <= 1'b0;
-          // if (p_end_conv[1])
-          //   r_addr_wh  <= 0;
           // else
           //   r_wh_en <= 1'b1;
         end
@@ -300,8 +306,10 @@ module Control
           r_count_fout <= 0;
           if (data_valid_out)
             r_count_fin <= r_count_fin + 1;
-          // if (r_fin_en)
+          // if (w_fin_end)
           //   r_fin_en <= 1'b0;
+          // else
+          //   r_fin_en <= 1'b1;
         end
         CONV: begin
           r_wh_en      <= 1'b0;
