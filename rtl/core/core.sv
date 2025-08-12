@@ -51,7 +51,7 @@ module Core
 
   type_input  r_feat_in;
   type_weight r_weight;
-  type_weight r_temp;
+  type_weight r_conv;
   type_output r_feat_out;
 
   type_weight w_prod_c;
@@ -219,13 +219,13 @@ module Core
         IDLE_CONV: begin
           r_conv_end <= 1'b0;
           r_mult_idx <= 1'b0;
-          r_temp[C1_SIZE*C1_SIZE-1:0] <= r_feat_in;
+          r_conv[C1_SIZE*C1_SIZE-1:0] <= r_feat_in;
         end
         CONV_C: begin
-          r_temp <= w_prod_c;
+          r_conv <= w_prod_c;
         end
         CONV_H: begin
-          r_temp[r_mult_idx] <= product;
+          r_conv[r_mult_idx] <= product;
           r_mult_idx         <= r_mult_idx + 1;
         end
         CONV_A: begin
@@ -266,21 +266,21 @@ module Core
 
   // Instance of matrix multiplier "C"
   Transform trf (
-      .pin (r_temp[C1_SIZE*C1_SIZE-1:0]),
+      .pin (r_conv[C1_SIZE*C1_SIZE-1:0]),
       .pout(w_prod_c)
   );
 
   // assign r_mult_idx = current_st_conv;
 
   Multip multip0 (
-      .register(r_temp[r_mult_idx]),
+      .register(r_conv[r_mult_idx]),
       .weight  (r_weight[r_mult_idx]),
       .product (product)
   );
 
   // Instance of matrix multiplier "A"
   Inverse inv (
-      .pin (r_temp),
+      .pin (r_conv),
       .pout(w_prod_a)
   );
 endmodule
