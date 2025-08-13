@@ -56,18 +56,18 @@ module Control
     WEIGHT,
     ADDR_INPUT,
     FEAT_INPUT
-  } state_type_input;
+  } state_input_type;
 
   typedef enum {
     IDLE_CONV,
     CONV
-  } state_type_conv;
+  } state_conv_type;
 
   typedef enum {
     IDLE_OUTPUT,
     ADDR_OUTPUT,
     FEAT_OUTPUT
-  } state_type_output;
+  } state_output_type;
 
   state_input_type current_st_input, next_st_input;
   state_conv_type current_st_conv, next_st_conv;
@@ -148,9 +148,9 @@ module Control
 
   always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
-      current_st_input  <= START_INPUT;
-      current_st_conv   <= START_CONV;
-      current_st_output <= START_OUTPUT;
+      current_st_input  <= START;
+      current_st_conv   <= IDLE_CONV;
+      current_st_output <= IDLE_OUTPUT;
     end else begin
       current_st_input  <= next_st_input;
       current_st_conv   <= next_st_conv;
@@ -168,35 +168,35 @@ module Control
       // IDLE:     if (p_start)      next_st = BIAS;
       START:
         if (p_start)
-          next_st = WEIGHT;
+          next_st_input = WEIGHT;
       IDLE_INPUT:
         if (p_end_conv[2]) begin
           if (r_count_window == N_WINDOW * N_WINDOW)
-            next_st = WEIGHT;
+            next_st_input = WEIGHT;
           // else
           // if (r_count_window == N_WINDOW * N_WINDOW * N_CHANNEL_OUT)
-          //  next_st = BIAS;
+          //  next_st_input = BIAS;
           else
           if (r_count_window == N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN)
-            next_st = IDLE;
+            next_st_input = IDLE_INPUT;
           else
-            next_st = ADDR_INPUT;
+            next_st_input = ADDR_INPUT;
         end
       BIAS:
-          next_st = WEIGHT;
+          next_st_input = WEIGHT;
       WEIGHT: begin
         w_wh_end = 1'b0;
         if (r_count_wh == (M1_SIZE * M2_SIZE)) begin
-          next_st = ADDR_INPUT;
+          next_st_input = ADDR_INPUT;
           w_wh_end = 1'b1;
         end
       end
       ADDR_INPUT:
-        next_st = FEAT_INPUT;
+        next_st_input = FEAT_INPUT;
       FEAT_INPUT: begin
         w_fin_end = 1'b0;
         if (r_count_fin == (C1_SIZE * C2_SIZE)) begin
-          next_st = IDLE_INPUT;
+          next_st_input = IDLE_INPUT;
           w_fin_end = 1'b1;
         end
       end
@@ -205,21 +205,20 @@ module Control
     unique case (current_st_conv)
       IDLE_CONV:
         if (w_fin_end)
-          next_st = IDLE_CONV;
+          next_st_conv = CONV;
       CONV:
-        if (r_start_conv)
-          next_st = IDLE_CONV;
+        next_st_conv = IDLE_CONV;
     endcase
 
     unique case (current_st_output)
       IDLE_OUTPUT:
         if (r_start_conv)
-          next_st = ADDR_OUTPUT;
+          next_st_output = ADDR_OUTPUT;
       ADDR_OUTPUT:
-        next_st = FEAT_OUTPUT;
+        next_st_output = FEAT_OUTPUT;
       FEAT_OUTPUT: begin
         if (p_end_conv[2]) begin
-          next_st = IDLE_OUTPUT;
+          next_st_output = IDLE_OUTPUT;
         end
       end
     endcase
@@ -283,7 +282,7 @@ module Control
       r_start_conv     <= 1'b0;
     end else begin
       unique case (current_st_input)
-        START_INPUT: begin
+        START: begin
           r_addr_bias      <= 0;
           r_addr_wh        <= N_CHANNEL_OUT;
           r_addr_fin_base  <= N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT;
@@ -375,11 +374,9 @@ module Control
 
       unique case (current_st_conv)
         IDLE_CONV: begin
-          r_start_conv     <= 1'b0;
+          r_start_conv <= 1'b0;
         end
         CONV: begin
-          r_wh_en      <= 1'b0;
-          r_fin_en     <= 1'b0;
           r_start_conv <= 1'b1;
         end
       endcase
