@@ -21,7 +21,7 @@ module tb;
   logic clk, reset;
 
   logic p_start;
-  logic p_end[2:0];
+  logic p_end[3:0];
   logic p_debug;
 
   logic p_fin_en;

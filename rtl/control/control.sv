@@ -207,7 +207,8 @@ module Control
         if (w_fin_end)
           next_st_conv = CONV;
       CONV:
-        next_st_conv = IDLE_CONV;
+        if (w_fin_end)
+          next_st_conv = IDLE_CONV;
     endcase
 
     unique case (current_st_output)
