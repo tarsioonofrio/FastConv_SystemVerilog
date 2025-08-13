@@ -9,7 +9,7 @@ module Core
 
     input  logic p_start,
     input  logic p_reuse,
-    output logic p_end[2:0],
+    output logic p_end[3:0],
 
     input logic p_fin_en,
     input logic p_fin_valid,
@@ -59,12 +59,11 @@ module Core
 
   logic r_reuse;
   logic r_fout_en;
-  logic r_conv_end;
-  logic r_end[2:0];
+  logic r_end[3:0];
   logic r_fout_valid;
 
-  logic w_end[2:0];
-  logic w_end_conv;
+  logic w_end[3:0];
+  // logic w_end[2];
 
   int r_count_wh;
   int r_count_fin;
@@ -111,7 +110,7 @@ module Core
   end
 
   always_comb begin
-    w_end = '{1'b0, 1'b0, 1'b0};
+    w_end = '{1'b0, 1'b0, 1'b0, 1'b0};
 
     // if (p_wh_en) next_st_input = WEIGHT;
     // else if (p_fin_en) next_st_input = FEAT_INPUT;
@@ -126,7 +125,7 @@ module Core
 
     unique case (current_st_conv)
       IDLE_CONV: begin
-        w_end_conv = 1'b0;
+        w_end[2] = 1'b0;
         if (p_start) next_st_conv = CONV_C;
       end
       CONV_C:
@@ -135,20 +134,20 @@ module Core
         if (r_mult_idx == (M1_SIZE * M2_SIZE - 1))
           next_st_conv = CONV_A;
       CONV_A: begin
-        w_end_conv = 1'b1;
+        w_end[2] = 1'b1;
         next_st_conv = IDLE_CONV;
       end
     endcase
 
     unique case (current_st_output)
       IDLE_OUTPUT: begin
-        w_end[2] = 1'b0;
-        if (w_end_conv) next_st_output = FEAT_OUTPUT;
+        w_end[3] = 1'b0;
+        if (w_end[2]) next_st_output = FEAT_OUTPUT;
       end
       FEAT_OUTPUT: begin
         if (r_count_fout == (A1_SIZE * A2_SIZE)) begin
           next_st_output = IDLE_OUTPUT;
-          w_end[2] = 1'b1;
+          w_end[3] = 1'b1;
         end
       end
     endcase
@@ -164,10 +163,9 @@ module Core
       r_count_fout <= 0;
       r_reuse <= 1'b0;
       r_fout_en <= 1'b0;
-      r_conv_end <= 1'b0;
       r_mult_idx <= 1'b0;
       r_fout_valid <= 1'b0;
-      r_end = '{1'b0, 1'b0, 1'b0};
+      r_end = '{1'b0, 1'b0, 1'b0, 1'b0};
     end else begin
       unique case (current_st_input)
         IDLE_INPUT: begin
@@ -217,7 +215,7 @@ module Core
 
       unique case (current_st_conv)
         IDLE_CONV: begin
-          r_conv_end <= 1'b0;
+          r_end[2] <= 1'b0;
           r_mult_idx <= 1'b0;
           r_conv[C1_SIZE*C1_SIZE-1:0] <= r_feat_in;
         end
@@ -230,23 +228,23 @@ module Core
         end
         CONV_A: begin
           r_feat_out <= w_prod_a;
-          r_conv_end <= 1'b1;
+          r_end[2] <= 1'b1;
         end
       endcase
 
       unique case (current_st_output)
         IDLE_OUTPUT: begin
-          r_end[2]     <= 1'b0;
+          r_end[3]     <= 1'b0;
           r_fout_en    <= 1'b0;
-          r_conv_end   <= 1'b0;
+          r_end[2]   <= 1'b0;
           r_fout_valid <= 1'b0;
           r_count_fout <= 0;
           // r_feat_out   <= '{default: '0};
         end
         FEAT_OUTPUT: begin
-          r_end[2]     <= w_end[2];
+          r_end[3]     <= w_end[3];
           r_count_fout <= r_count_fout + 1;
-          if (w_end[2]) begin
+          if (w_end[3]) begin
             r_fout_en    <= 1'b0;
             r_fout_valid <= 1'b0;
           end else begin
