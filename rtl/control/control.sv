@@ -50,18 +50,19 @@ module Control
   // } state_type;
 
   typedef enum {
+    START,
     IDLE_INPUT,
     BIAS,
     WEIGHT,
     ADDR_INPUT,
-    FEAT_INPUT,
+    FEAT_INPUT
   } state_type_input;
-  
+
   typedef enum {
     IDLE_CONV,
-    CONV,
+    CONV
   } state_type_conv;
-  
+
   typedef enum {
     IDLE_OUTPUT,
     ADDR_OUTPUT,
@@ -147,9 +148,9 @@ module Control
 
   always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
-      current_st_input  <= IDLE_INPUT;
-      current_st_conv   <= IDLE_CONV;
-      current_st_output <= IDLE_OUTPUT;
+      current_st_input  <= START_INPUT;
+      current_st_conv   <= START_CONV;
+      current_st_output <= START_OUTPUT;
     end else begin
       current_st_input  <= next_st_input;
       current_st_conv   <= next_st_conv;
@@ -162,35 +163,13 @@ module Control
     p_start_conv <= r_start_conv;
     p_reuse      <= r_reuse;
     // State Machine
-    unique case (current_st)
+
+    unique case (current_st_input)
       // IDLE:     if (p_start)      next_st = BIAS;
-      IDLE:
+      START:
         if (p_start)
           next_st = WEIGHT;
-      BIAS:
-          next_st = WEIGHT;
-      WEIGHT: begin
-        w_wh_end = 1'b0;
-        if (r_count_wh == (M1_SIZE * M2_SIZE)) begin
-          next_st = ADDR_INPUT;
-          w_wh_end = 1'b1;
-        end
-      end
-      ADDR_INPUT:
-        next_st = FEAT_INPUT;
-        FEAT_INPUT: begin
-        w_fin_end = 1'b0;
-        if (r_count_fin == (C1_SIZE * C2_SIZE)) begin
-          next_st = CONV;
-          w_fin_end = 1'b1;
-        end
-      end
-      CONV:
-        if (r_start_conv)
-          next_st = ADDR_OUTPUT;
-          ADDR_OUTPUT:
-        next_st = FEAT_OUTPUT;
-        FEAT_OUTPUT: begin
+      IDLE_INPUT:
         if (p_end_conv[2]) begin
           if (r_count_window == N_WINDOW * N_WINDOW)
             next_st = WEIGHT;
@@ -202,6 +181,45 @@ module Control
             next_st = IDLE;
           else
             next_st = ADDR_INPUT;
+        end
+      BIAS:
+          next_st = WEIGHT;
+      WEIGHT: begin
+        w_wh_end = 1'b0;
+        if (r_count_wh == (M1_SIZE * M2_SIZE)) begin
+          next_st = ADDR_INPUT;
+          w_wh_end = 1'b1;
+        end
+      end
+      ADDR_INPUT:
+        next_st = FEAT_INPUT;
+      FEAT_INPUT: begin
+        w_fin_end = 1'b0;
+        if (r_count_fin == (C1_SIZE * C2_SIZE)) begin
+          next_st = IDLE_INPUT;
+          w_fin_end = 1'b1;
+        end
+      end
+    endcase
+
+    unique case (current_st_conv)
+      IDLE_CONV:
+        if (w_fin_end)
+          next_st = IDLE_CONV;
+      CONV:
+        if (r_start_conv)
+          next_st = IDLE_CONV;
+    endcase
+
+    unique case (current_st_output)
+      IDLE_OUTPUT:
+        if (r_start_conv)
+          next_st = ADDR_OUTPUT;
+      ADDR_OUTPUT:
+        next_st = FEAT_OUTPUT;
+      FEAT_OUTPUT: begin
+        if (p_end_conv[2]) begin
+          next_st = IDLE_OUTPUT;
         end
       end
     endcase
@@ -216,7 +234,7 @@ module Control
     w_mwr_in   <= p_in_data;
 
     // Wire control
-    unique case (current_st)
+    unique case (current_st_input)
       BIAS: begin
         w_mrd_addr <= r_addr_bias;
         // w_mrd_chip   <= r_bias_en;
@@ -235,16 +253,10 @@ module Control
         p_wh_valid  <= 0;
         p_fin_valid <= w_mrd_valid;
       end
-      FEAT_OUTPUT: begin
-        address     <= r_addr_fout[r_count_fout];
-        chip_en     <= r_fout_en;
-        wr_en       <= r_fout_en;
-        data_in     <= p_in_data;
-        p_wh_en     <= r_wh_en;
-        p_fin_en    <= r_fin_en;
-        p_wh_valid  <= 0;
-        p_fin_valid <= 0;
-      end
+      // FEAT_OUTPUT: begin
+      //   p_wh_valid  <= 0;
+      //   p_fin_valid <= 0;
+      // end
     endcase
 
     if (r_count_horizontal < N_WINDOW - 1)
@@ -270,8 +282,8 @@ module Control
       r_end_fin        <= 1'b0;
       r_start_conv     <= 1'b0;
     end else begin
-      unique case (current_st)
-        IDLE: begin
+      unique case (current_st_input)
+        START_INPUT: begin
           r_addr_bias      <= 0;
           r_addr_wh        <= N_CHANNEL_OUT;
           r_addr_fin_base  <= N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT;
@@ -307,7 +319,6 @@ module Control
         ADDR_INPUT: begin
           r_wh_en    <= 1'b0;
           r_count_wh <= 0;
-
           // TODO: Implement w_mrd_addr generation logic using if else statements and remove
           // Addresses ordered by column and not by row to facilitate reading
           // when reusing, which reuses the last two columns
@@ -360,10 +371,23 @@ module Control
           // else
           //   r_fin_en <= 1'b1;
         end
+      endcase
+
+      unique case (current_st_conv)
+        IDLE_CONV: begin
+          r_start_conv     <= 1'b0;
+        end
         CONV: begin
           r_wh_en      <= 1'b0;
           r_fin_en     <= 1'b0;
           r_start_conv <= 1'b1;
+        end
+      endcase
+
+      unique case (current_st_output)
+        IDLE_OUTPUT: begin
+          r_addr_fout_base <= 0;
+          r_reuse          <= 1'b0;
         end
         ADDR_OUTPUT: begin
           // TODO: Implement address generation logic using if else statements and remove
