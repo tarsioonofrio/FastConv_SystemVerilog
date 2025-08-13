@@ -21,7 +21,7 @@ module Control
     output logic p_end,
     output logic p_start_conv,
     output logic p_reuse,
-    input  logic p_end_conv[2:0],
+    input  logic p_end_conv[3:0],
 
     output logic p_wh_en,
     output logic p_wh_valid,
@@ -169,8 +169,10 @@ module Control
       START:
         if (p_start)
           next_st_input = WEIGHT;
-      IDLE_INPUT:
-        if (p_end_conv[2]) begin
+      IDLE_INPUT: begin
+        w_fin_end = 1'b0;
+        w_wh_end = 1'b0;
+        if (p_end_conv[3]) begin
           if (r_count_window == N_WINDOW * N_WINDOW)
             next_st_input = WEIGHT;
           // else
@@ -182,6 +184,7 @@ module Control
           else
             next_st_input = ADDR_INPUT;
         end
+      end
       BIAS:
           next_st_input = WEIGHT;
       WEIGHT: begin
@@ -207,18 +210,18 @@ module Control
         if (w_fin_end)
           next_st_conv = CONV;
       CONV:
-        if (w_fin_end)
+        if (p_end_conv[2])
           next_st_conv = IDLE_CONV;
     endcase
 
     unique case (current_st_output)
       IDLE_OUTPUT:
-        if (r_start_conv)
+        if (p_end_conv[2])
           next_st_output = ADDR_OUTPUT;
       ADDR_OUTPUT:
         next_st_output = FEAT_OUTPUT;
       FEAT_OUTPUT: begin
-        if (p_end_conv[2]) begin
+        if (p_end_conv[3]) begin
           next_st_output = IDLE_OUTPUT;
         end
       end
@@ -299,6 +302,17 @@ module Control
           r_end_fin        <= 1'b0;
           r_start_conv     <= 1'b0;
         end
+        IDLE_INPUT: begin
+          r_count_wh       <= 0;
+          r_count_fin      <= 0;
+          r_count_fout     <= 0;
+          r_reuse          <= 1'b0;
+          r_wh_en          <= 1'b0;
+          r_fin_en         <= 1'b0;
+          r_end_wh         <= 1'b0;
+          r_end_fin        <= 1'b0;
+          r_start_conv     <= 1'b0;
+        end
         BIAS: begin
           r_addr_bias <= r_addr_bias + 1;
         end
@@ -360,7 +374,7 @@ module Control
           end
         end
         FEAT_INPUT: begin
-          r_fin_en <= 1'b1;
+          r_fin_en     <= 1'b1;
           r_wh_en      <= 1'b0;
           r_count_wh   <= 0;
           r_count_fout <= 0;
@@ -371,15 +385,17 @@ module Control
           // else
           //   r_fin_en <= 1'b1;
         end
-        default: begin end
       endcase
 
       unique case (current_st_conv)
         IDLE_CONV: begin
-          r_start_conv <= 1'b0;
+          if (w_fin_end)
+            r_start_conv <= 1'b1;
+          else
+            r_start_conv <= 1'b0;
         end
         CONV: begin
-          r_start_conv <= 1'b1;
+          r_start_conv <= 1'b0;
         end
       endcase
 
@@ -415,7 +431,7 @@ module Control
           if (p_fout_valid) begin
             r_count_fout <= r_count_fout + 1;
           end
-          if (p_end_conv[2]) begin
+          if (p_end_conv[3]) begin
             if (w_horizontal_end) begin
               r_count_fin <= 0;
               r_reuse     <= 1'b0;
@@ -425,10 +441,10 @@ module Control
             end
             if (w_horizontal_end) begin
               r_count_horizontal <= 0;
-              r_count_vertical <= r_count_vertical + 1;
+              r_count_vertical   <= r_count_vertical + 1;
             end
             else begin
-              r_count_window <= r_count_window + 1;
+              r_count_window     <= r_count_window + 1;
               r_count_horizontal <= r_count_horizontal + 1;
             end
           end

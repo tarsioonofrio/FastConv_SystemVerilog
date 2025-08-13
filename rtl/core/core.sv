@@ -194,8 +194,8 @@ module Core
         WEIGHT: begin
           // r_count_fin <= 0;
           // r_count_fout <= 0;
-          r_end[0] <= w_end[0];
-          r_end[1] <= w_end[1];
+          // r_end[0] <= 1'b0;
+          // r_end[1] <= 1'b0;
           if (p_wh_valid) begin
             r_weight[r_count_wh] <= p_in_data;
             r_count_wh           <= r_count_wh + 1;
@@ -204,8 +204,8 @@ module Core
         FEAT_INPUT: begin
           // r_count_wh <= 0;
           // r_count_fout <= 0;
-          r_end[0] <= w_end[0];
-          r_end[1] <= w_end[1];
+          // r_end[0] <= 1'b1;
+          // r_end[1] <= 1'b0;
           if (p_fin_valid) begin
             r_feat_in[c_index[r_count_fin]] <= p_in_data;
             r_count_fin                     <= r_count_fin + 1;
@@ -236,7 +236,6 @@ module Core
         IDLE_OUTPUT: begin
           r_end[3]     <= 1'b0;
           r_fout_en    <= 1'b0;
-          r_end[2]   <= 1'b0;
           r_fout_valid <= 1'b0;
           r_count_fout <= 0;
           // r_feat_out   <= '{default: '0};
