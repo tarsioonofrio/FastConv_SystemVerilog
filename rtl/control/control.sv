@@ -370,6 +370,7 @@ module Control
           // else
           //   r_fin_en <= 1'b1;
         end
+        default: begin end
       endcase
 
       unique case (current_st_conv)
