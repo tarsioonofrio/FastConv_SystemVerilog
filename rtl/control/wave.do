@@ -6,7 +6,7 @@ add wave -noupdate /tb/dut/p_start
 add wave -noupdate /tb/dut/p_end
 add wave -noupdate /tb/dut/p_start_conv
 add wave -noupdate /tb/dut/p_reuse
-add wave -noupdate /tb/dut/p_end_conv
+add wave -noupdate -expand /tb/dut/p_end_conv
 add wave -noupdate /tb/dut/p_wh_en
 add wave -noupdate /tb/dut/p_wh_valid
 add wave -noupdate /tb/dut/p_fin_en
@@ -67,32 +67,30 @@ add wave -noupdate /tb/core/p_wh_en
 add wave -noupdate /tb/core/p_wh_valid
 add wave -noupdate /tb/core/p_fout_en
 add wave -noupdate /tb/core/p_fout_valid
-add wave -noupdate /tb/core/p_in_data
-add wave -noupdate /tb/core/p_out_data
+add wave -noupdate -radix decimal /tb/core/p_in_data
+add wave -noupdate -radix decimal /tb/core/p_out_data
 add wave -noupdate /tb/core/current_st_input
 add wave -noupdate /tb/core/next_st_input
 add wave -noupdate /tb/core/current_st_conv
 add wave -noupdate /tb/core/next_st_conv
 add wave -noupdate /tb/core/current_st_output
 add wave -noupdate /tb/core/next_st_output
-add wave -noupdate /tb/core/r_feat_in
-add wave -noupdate /tb/core/r_weight
-add wave -noupdate /tb/core/r_conv
-add wave -noupdate /tb/core/r_feat_out
-add wave -noupdate /tb/core/w_prod_c
-add wave -noupdate /tb/core/w_prod_a
+add wave -noupdate -radix decimal /tb/core/r_feat_in
+add wave -noupdate -radix decimal /tb/core/r_weight
+add wave -noupdate -radix decimal /tb/core/r_conv
+add wave -noupdate -radix decimal /tb/core/r_feat_out
+add wave -noupdate -radix decimal /tb/core/w_prod_c
+add wave -noupdate -radix decimal /tb/core/w_prod_a
 add wave -noupdate /tb/core/r_reuse
 add wave -noupdate /tb/core/r_fout_en
-add wave -noupdate /tb/core/r_conv_end
 add wave -noupdate /tb/core/r_end
 add wave -noupdate /tb/core/r_fout_valid
 add wave -noupdate /tb/core/w_end
-add wave -noupdate /tb/core/w_end_conv
 add wave -noupdate /tb/core/r_count_wh
 add wave -noupdate /tb/core/r_count_fin
 add wave -noupdate /tb/core/r_count_fout
-add wave -noupdate /tb/core/r_mult_idx
 add wave -noupdate /tb/core/product
+add wave -noupdate -radix decimal /tb/core/r_mult_idx
 add wave -noupdate /tb/core/w_wh_fin_en
 add wave -noupdate /tb/core/c_index
 TreeUpdate [SetDefaultTree]
@@ -112,4 +110,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {1221 ns} {1445 ns}
+WaveRestoreZoom {1603 ns} {1827 ns}
