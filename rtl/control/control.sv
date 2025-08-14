@@ -38,17 +38,6 @@ module Control
 
   timeunit 1ns; timeprecision 1ps;
 
-  // typedef enum {
-  //   IDLE,
-  //   BIAS,
-  //   WEIGHT,
-  //   ADDR_INPUT,
-  //   FEAT_INPUT,
-  //   CONV,
-  //   ADDR_OUTPUT,
-  //   FEAT_OUTPUT
-  // } state_type;
-
   typedef enum {
     START,
     IDLE_INPUT,
@@ -116,6 +105,11 @@ module Control
   logic w_horizontal_end;
   logic w_wh_end;
   logic w_fin_end;
+  logic w_input_end;
+  logic w_conv_idle;
+  logic w_conv_end;
+  logic w_output_idle;
+
 
   Memory #(
     .NADDR(NADDR),
@@ -167,6 +161,11 @@ module Control
     p_reuse      <= r_reuse;
     // State Machine
 
+    w_input_end   = (current_st_input == END_INPUT)? 1'b1 : 1'b0;
+    w_conv_idle   = (current_st_conv == IDLE_CONV)? 1'b1 : 1'b0;
+    w_conv_end    = (current_st_conv == END_CONV)? 1'b1 : 1'b0;
+    w_output_idle = (current_st_output == IDLE_OUTPUT)? 1'b1 : 1'b0;
+
     unique case (current_st_input)
       // IDLE:     if (p_start)      next_st = BIAS;
       START:
@@ -205,31 +204,31 @@ module Control
         end
       end
       END_INPUT:
-        next_st_input = IDLE_INPUT;
+        if (w_conv_idle)
+          next_st_input = IDLE_INPUT;
     endcase
 
     unique case (current_st_conv)
       IDLE_CONV:
-        if (next_st_input == END_INPUT)
+        if (w_input_end)
           next_st_conv = CONV;
       CONV:
         if (p_end_conv[2])
           next_st_conv = END_CONV;
-      END_CONV:
-        next_st_conv = IDLE_CONV;
+      default:
+        if (w_output_idle)
+          next_st_conv = IDLE_CONV;
     endcase
 
     unique case (current_st_output)
       IDLE_OUTPUT:
-        if (next_st_conv == END_CONV)
+        if (w_conv_end)
           next_st_output = ADDR_OUTPUT;
       ADDR_OUTPUT:
         next_st_output = FEAT_OUTPUT;
-      FEAT_OUTPUT: begin
-        if (p_end_conv[3]) begin
+      FEAT_OUTPUT:
+        if (p_end_conv[3])
           next_st_output = END_OUTPUT;
-        end
-      end
       END_OUTPUT:
         next_st_output = IDLE_OUTPUT;
     endcase
@@ -316,6 +315,13 @@ module Control
           r_fin_en         <= 1'b0;
           r_end_wh         <= 1'b0;
           r_end_fin        <= 1'b0;
+          if (w_horizontal_end) begin
+            r_count_fin <= 0;
+            r_reuse     <= 1'b0;
+          end else begin
+            r_count_fin <= 10;
+            r_reuse     <= 1'b1;
+          end
         end
         BIAS: begin
           r_addr_bias <= r_addr_bias + 1;
@@ -394,7 +400,7 @@ module Control
 
       unique case (current_st_conv)
         IDLE_CONV: begin
-          if (w_fin_end)
+          if (w_input_end)
             r_start_conv <= 1'b1;
           else
             r_start_conv <= 1'b0;
@@ -435,13 +441,6 @@ module Control
             r_count_fout <= r_count_fout + 1;
           end
           if (p_end_conv[3]) begin
-            if (w_horizontal_end) begin
-              r_count_fin <= 0;
-              r_reuse     <= 1'b0;
-            end else begin
-              r_count_fin <= 10;
-              r_reuse     <= 1'b1;
-            end
             if (w_horizontal_end) begin
               r_count_horizontal <= 0;
               r_count_vertical   <= r_count_vertical + 1;
