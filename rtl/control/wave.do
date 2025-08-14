@@ -15,6 +15,10 @@ add wave -noupdate /tb/dut/p_fout_en
 add wave -noupdate /tb/dut/p_fout_valid
 add wave -noupdate -radix decimal /tb/dut/p_out_data
 add wave -noupdate -radix decimal /tb/dut/p_in_data
+add wave -noupdate /tb/dut/w_input_end
+add wave -noupdate /tb/dut/w_conv_idle
+add wave -noupdate /tb/dut/w_conv_end
+add wave -noupdate /tb/dut/w_output_idle
 add wave -noupdate /tb/dut/current_st_input
 add wave -noupdate /tb/dut/next_st_input
 add wave -noupdate /tb/dut/current_st_conv
@@ -110,4 +114,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {1603 ns} {1827 ns}
+WaveRestoreZoom {1889 ns} {2113 ns}
