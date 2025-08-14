@@ -55,21 +55,18 @@ module Control
     BIAS,
     WEIGHT,
     ADDR_INPUT,
-    FEAT_INPUT,
-    END_INPUT
+    FEAT_INPUT
   } state_input_type;
 
   typedef enum {
     IDLE_CONV,
-    CONV,
-    END_CONV
+    CONV
   } state_conv_type;
 
   typedef enum {
     IDLE_OUTPUT,
     ADDR_OUTPUT,
-    FEAT_OUTPUT,
-    END_OUTPUT
+    FEAT_OUTPUT
   } state_output_type;
 
   state_input_type current_st_input, next_st_input;
