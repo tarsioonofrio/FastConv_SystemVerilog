@@ -175,18 +175,16 @@ module Control
       IDLE_INPUT: begin
         w_fin_end = 1'b0;
         w_wh_end = 1'b0;
-        if (p_end_conv[3]) begin
-          if (r_count_window == N_WINDOW * N_WINDOW)
-            next_st_input = WEIGHT;
-          // else
-          // if (r_count_window == N_WINDOW * N_WINDOW * N_CHANNEL_OUT)
-          //  next_st_input = BIAS;
-          else
-          if (r_count_window == N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN)
-            next_st_input = IDLE_INPUT;
-          else
-            next_st_input = ADDR_INPUT;
-        end
+        if (r_count_window == N_WINDOW * N_WINDOW)
+          next_st_input = WEIGHT;
+        // else
+        // if (r_count_window == N_WINDOW * N_WINDOW * N_CHANNEL_OUT)
+        //  next_st_input = BIAS;
+        else
+        if (r_count_window == N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN)
+          next_st_input = IDLE_INPUT;
+        else
+          next_st_input = ADDR_INPUT;
       end
       BIAS:
           next_st_input = WEIGHT;
@@ -202,32 +200,38 @@ module Control
       FEAT_INPUT: begin
         w_fin_end = 1'b0;
         if (r_count_fin == (C1_SIZE * C2_SIZE)) begin
-          next_st_input = IDLE_INPUT;
+          next_st_input = END_INPUT;
           w_fin_end = 1'b1;
         end
       end
+      END_INPUT:
+        next_st_input = IDLE_INPUT;
     endcase
 
     unique case (current_st_conv)
       IDLE_CONV:
-        if (w_fin_end)
+        if (next_st_input == END_INPUT)
           next_st_conv = CONV;
       CONV:
         if (p_end_conv[2])
-          next_st_conv = IDLE_CONV;
+          next_st_conv = END_CONV;
+      END_CONV:
+        next_st_conv = IDLE_CONV;
     endcase
 
     unique case (current_st_output)
       IDLE_OUTPUT:
-        if (p_end_conv[2])
+        if (next_st_conv == END_CONV)
           next_st_output = ADDR_OUTPUT;
       ADDR_OUTPUT:
         next_st_output = FEAT_OUTPUT;
       FEAT_OUTPUT: begin
         if (p_end_conv[3]) begin
-          next_st_output = IDLE_OUTPUT;
+          next_st_output = END_OUTPUT;
         end
       end
+      END_OUTPUT:
+        next_st_output = IDLE_OUTPUT;
     endcase
 
     p_wh_en    <= r_wh_en;
