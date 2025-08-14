@@ -305,13 +305,10 @@ module Control
         IDLE_INPUT: begin
           r_count_wh       <= 0;
           r_count_fin      <= 0;
-          r_count_fout     <= 0;
-          r_reuse          <= 1'b0;
           r_wh_en          <= 1'b0;
           r_fin_en         <= 1'b0;
           r_end_wh         <= 1'b0;
           r_end_fin        <= 1'b0;
-          r_start_conv     <= 1'b0;
         end
         BIAS: begin
           r_addr_bias <= r_addr_bias + 1;
@@ -402,7 +399,7 @@ module Control
       unique case (current_st_output)
         IDLE_OUTPUT: begin
           r_addr_fout_base <= 0;
-          r_reuse          <= 1'b0;
+          // r_reuse          <= 1'b0;
         end
         ADDR_OUTPUT: begin
           // TODO: Implement address generation logic using if else statements and remove
@@ -425,9 +422,6 @@ module Control
             r_addr_fout_base <= r_addr_fout_base + A1_SIZE;
         end
         FEAT_OUTPUT: begin
-          r_start_conv <= 1'b0;
-          r_count_wh   <= 0;
-          r_count_fin  <= 0;
           if (p_fout_valid) begin
             r_count_fout <= r_count_fout + 1;
           end
