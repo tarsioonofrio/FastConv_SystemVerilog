@@ -389,6 +389,7 @@ module Control
           // else
           //   r_fin_en <= 1'b1;
         end
+        END_INPUT: begin end
       endcase
 
       unique case (current_st_conv)
@@ -401,6 +402,7 @@ module Control
         CONV: begin
           r_start_conv <= 1'b0;
         end
+        END_CONV: begin end
       endcase
 
       unique case (current_st_output)
@@ -450,6 +452,7 @@ module Control
             end
           end
         end
+        END_OUTPUT: begin end
       endcase
     end
   end
