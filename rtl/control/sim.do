@@ -16,7 +16,11 @@ set StdArithNoWarnings 1
 set StdVitalGlitchNoWarnings 1
 do wave.do
 do mem.do
+
+# all blocks
 #run 50000ns
-run 4000ns
-#run 13000ns
+# 4 blocks
+#run 4000ns
+# one line
+run 7000ns
 #run -all
