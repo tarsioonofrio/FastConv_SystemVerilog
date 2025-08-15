@@ -327,6 +327,14 @@ module Control
             r_count_fin <= 10;
             r_reuse     <= 1'b1;
           end
+          if (w_horizontal_end) begin
+            r_count_horizontal <= 0;
+            r_count_vertical   <= r_count_vertical + 1;
+          end
+          else begin
+            r_count_window     <= r_count_window + 1;
+            r_count_horizontal <= r_count_horizontal + 1;
+          end
         end
         BIAS: begin
           r_addr_bias <= r_addr_bias + 1;
@@ -447,14 +455,6 @@ module Control
             else
               r_addr_fout_base <= r_addr_fout_base + A1_SIZE;
 
-            if (w_horizontal_end) begin
-              r_count_horizontal <= 0;
-              r_count_vertical   <= r_count_vertical + 1;
-            end
-            else begin
-              r_count_window     <= r_count_window + 1;
-              r_count_horizontal <= r_count_horizontal + 1;
-            end
           end
         end
         default: begin end

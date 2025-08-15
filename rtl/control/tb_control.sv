@@ -12,7 +12,7 @@ module tb;
   localparam int ROM              = 1;
   localparam int QUANT            = 8;
   localparam int FEAT_INPUT_SIZE  = 32;
-  localparam int FEAT_OUTPUT_SIZE = 32;
+  localparam int FEAT_OUTPUT_SIZE = 30;
   localparam int N_WINDOW         = 10;
   localparam int N_CHANNEL_IN     = 1;
   localparam int N_CHANNEL_OUT    = 1;
