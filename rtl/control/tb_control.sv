@@ -145,7 +145,6 @@ module tb;
     end
 
 
-    wait(p_end);
 
     // Start processamento
     $display("=== Start processing ===");
@@ -161,6 +160,8 @@ module tb;
       end
       @(posedge clk);
     end
+
+    wait(p_end);
 
     $display("End simulation");
     $finish;
