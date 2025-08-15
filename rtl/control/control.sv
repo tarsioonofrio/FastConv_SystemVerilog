@@ -2,17 +2,17 @@ module Control
   import packConv::*;
   import data::*;
 #(
-    parameter int NADDR         = 12,
-    parameter int NBITS         = 20,
-    parameter int LATENCY       = 1,
-    parameter int ROM           = 0,
-    parameter int QUANT         = 8,
-    parameter int N_WINDOW      = 10,
-    parameter int N_CHANNEL_IN  = 1,
-    parameter int N_CHANNEL_OUT = 1,
+    parameter int NADDR            = 12,
+    parameter int NBITS            = 20,
+    parameter int LATENCY          = 1,
+    parameter int ROM              = 0,
+    parameter int QUANT            = 8,
+    parameter int N_WINDOW         = 10,
+    parameter int N_CHANNEL_IN     = 1,
+    parameter int N_CHANNEL_OUT    = 1,
     parameter int FEAT_INPUT_SIZE  = 32,
     parameter int FEAT_OUTPUT_SIZE = 30,
-    parameter int LAST_WINDOW   = 0
+    parameter int LAST_WINDOW      = 0
 ) (
     input logic clk,
     input logic reset,
@@ -39,13 +39,14 @@ module Control
   timeunit 1ns; timeprecision 1ps;
 
   typedef enum {
-    START,
+    IDLE_CONTROL,
     IDLE_INPUT,
     BIAS,
     WEIGHT,
     ADDR_INPUT,
     FEAT_INPUT,
-    END_INPUT
+    END_INPUT,
+    END_CONTROL
   } state_input_type;
 
   typedef enum {
@@ -87,21 +88,22 @@ module Control
   int r_count_horizontal;
   int r_count_vertical;
 
-  logic_vector w_mrd_out;
-  logic_vector w_mrd_in;
+  logic_vector w_mem_rd_out;
+  logic_vector w_mem_rd_in;
 
-  logic_vector w_mwr_out;
-  logic_vector w_mwr_in;
+  logic_vector w_mem_wr_out;
+  logic_vector w_mem_wr_in;
 
-  logic w_mrd_chip;
-  logic w_mrd_wr;
-  logic w_mrd_valid;
-  logic[NADDR-1:0] w_mrd_addr;
-  logic w_mwr_chip;
-  logic w_mwr_wr;
-  logic w_mwr_valid;
-  logic[NADDR-1:0] w_mwr_addr;
+  logic w_mem_rd_chip;
+  logic w_mem_rd_wr;
+  logic w_mem_rd_valid;
+  logic[NADDR-1:0] w_mem_rd_addr;
+  logic w_mem_wr_chip;
+  logic w_mem_wr_wr;
+  logic w_mem_wr_valid;
+  logic[NADDR-1:0] w_mem_wr_addr;
 
+  logic w_end;
   logic w_horizontal_end;
   logic w_wh_end;
   logic w_fin_end;
@@ -119,12 +121,12 @@ module Control
   ) memory_read(
     .clk(clk),
     .reset(reset),
-    .chip_en(w_mrd_chip),
-    .wr_en(w_mrd_wr),
-    .address(w_mrd_addr),
-    .data_in(w_mrd_in),
-    .data_out(w_mrd_out),
-    .data_valid(w_mrd_valid)
+    .chip_en(w_mem_rd_chip),
+    .wr_en(w_mem_rd_wr),
+    .address(w_mem_rd_addr),
+    .data_in(w_mem_rd_in),
+    .data_out(w_mem_rd_out),
+    .data_valid(w_mem_rd_valid)
   );
 
   Memory #(
@@ -135,17 +137,17 @@ module Control
   ) memory_write(
     .clk(clk),
     .reset(reset),
-    .chip_en(w_mwr_chip),
-    .wr_en(w_mwr_wr),
-    .address(w_mwr_addr),
-    .data_in(w_mwr_in),
-    .data_out(w_mwr_out),
-    .data_valid(w_mwr_valid)
+    .chip_en(w_mem_wr_chip),
+    .wr_en(w_mem_wr_wr),
+    .address(w_mem_wr_addr),
+    .data_in(w_mem_wr_in),
+    .data_out(w_mem_wr_out),
+    .data_valid(w_mem_wr_valid)
   );
 
   always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
-      current_st_input  <= START;
+      current_st_input  <= IDLE_CONTROL;
       current_st_conv   <= IDLE_CONV;
       current_st_output <= IDLE_OUTPUT;
     end else begin
@@ -168,20 +170,22 @@ module Control
 
     unique case (current_st_input)
       // IDLE:     if (p_start)      next_st = BIAS;
-      START:
+      IDLE_CONTROL: begin
         if (p_start)
           next_st_input = WEIGHT;
+          p_end = 1'b0;
+      end
       IDLE_INPUT: begin
         w_fin_end = 1'b0;
         w_wh_end = 1'b0;
-        if (r_count_window == N_WINDOW * N_WINDOW)
-          next_st_input = WEIGHT;
-        // else
+        if (r_count_window == N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN)
+          next_st_input = END_CONTROL;
+        else
         // if (r_count_window == N_WINDOW * N_WINDOW * N_CHANNEL_OUT)
         //  next_st_input = BIAS;
-        else
-        if (r_count_window == N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN)
-          next_st_input = IDLE_INPUT;
+        // else
+        if (r_count_window == N_WINDOW * N_WINDOW)
+          next_st_input = WEIGHT;
         else
           next_st_input = ADDR_INPUT;
       end
@@ -206,6 +210,8 @@ module Control
       END_INPUT:
         if (w_conv_idle)
           next_st_input = IDLE_INPUT;
+      END_CONTROL:
+        p_end = 1'b1;
     endcase
 
     unique case (current_st_conv)
@@ -235,32 +241,32 @@ module Control
 
     p_wh_en    <= r_wh_en;
     p_fin_en   <= r_fin_en;
-    p_out_data <= w_mrd_out;
+    p_out_data <= w_mem_rd_out;
 
-    w_mwr_addr <= r_addr_fout[r_count_fout];
-    w_mwr_chip <= p_fout_en;
-    w_mwr_wr   <= p_fout_en;
-    w_mwr_in   <= p_in_data;
+    w_mem_wr_addr <= r_addr_fout[r_count_fout];
+    w_mem_wr_chip <= p_fout_en;
+    w_mem_wr_wr   <= p_fout_en;
+    w_mem_wr_in   <= p_in_data;
 
     // Wire control
     unique case (current_st_input)
       BIAS: begin
-        w_mrd_addr <= r_addr_bias;
-        // w_mrd_chip   <= r_bias_en;
+        w_mem_rd_addr <= r_addr_bias;
+        // w_mem_rd_chip   <= r_bias_en;
         // p_bias_en    <= r_bias_en;
-        // p_bias_valid <= w_mrd_valid;
+        // p_bias_valid <= w_mem_rd_valid;
       end
       WEIGHT: begin
-        w_mrd_addr  <= r_addr_wh;
-        w_mrd_chip  <= r_wh_en;
-        p_wh_valid  <= w_mrd_valid;
+        w_mem_rd_addr  <= r_addr_wh;
+        w_mem_rd_chip  <= r_wh_en;
+        p_wh_valid  <= w_mem_rd_valid;
         p_fin_valid <= 0;
       end
       default: begin
-        w_mrd_addr  <= r_addr_fin[r_count_fin];
-        w_mrd_chip  <= r_fin_en;
+        w_mem_rd_addr  <= r_addr_fin[r_count_fin];
+        w_mem_rd_chip  <= r_fin_en;
         p_wh_valid  <= 0;
-        p_fin_valid <= w_mrd_valid;
+        p_fin_valid <= w_mem_rd_valid;
       end
       // FEAT_OUTPUT: begin
       //   p_wh_valid  <= 0;
@@ -292,7 +298,7 @@ module Control
       r_start_conv     <= 1'b0;
     end else begin
       unique case (current_st_input)
-        START: begin
+        IDLE_CONTROL: begin
           r_addr_bias      <= 0;
           r_addr_wh        <= N_CHANNEL_OUT;
           r_addr_fin_base  <= N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT;
@@ -331,7 +337,7 @@ module Control
           r_fin_en     <= 1'b0;
           r_count_fin  <= 0;
           r_count_fout <= 0;
-          if (w_mrd_valid) begin
+          if (w_mem_rd_valid) begin
             r_addr_wh  <= r_addr_wh + 1;
             r_count_wh <= r_count_wh + 1;
           end
@@ -343,7 +349,7 @@ module Control
         ADDR_INPUT: begin
           r_wh_en    <= 1'b0;
           r_count_wh <= 0;
-          // TODO: Implement w_mrd_addr generation logic using if else statements and remove
+          // TODO: Implement w_mem_rd_addr generation logic using if else statements and remove
           // Addresses ordered by column and not by row to facilitate reading
           // when reusing, which reuses the last two columns
           // multiple registers, using one register
@@ -388,14 +394,14 @@ module Control
           r_wh_en      <= 1'b0;
           r_count_wh   <= 0;
           r_count_fout <= 0;
-          if (w_mrd_valid)
+          if (w_mem_rd_valid)
             r_count_fin <= r_count_fin + 1;
           // if (w_fin_end)
           //   r_fin_en <= 1'b0;
           // else
           //   r_fin_en <= 1'b1;
         end
-        END_INPUT: begin end
+        default: begin end
       endcase
 
       unique case (current_st_conv)
