@@ -81,23 +81,22 @@ module Control
   int r_addr_bias;
   int r_addr_wh;
   int r_addr_fin_base;
-  int r_addr_fin[25:0];
+  int r_addr_fin[25-1:0];
   int r_addr_fout_base;
-  int r_addr_fout[9:0];
+  int r_addr_fout[9-1:0];
   int r_count_window;
   int r_count_horizontal;
   int r_count_vertical;
 
   logic_vector w_mem_rd_out;
   logic_vector w_mem_rd_in;
-
-  logic_vector w_mem_wr_out;
-  logic_vector w_mem_wr_in;
-
   logic w_mem_rd_chip;
   logic w_mem_rd_wr;
   logic w_mem_rd_valid;
   logic[NADDR-1:0] w_mem_rd_addr;
+
+  logic_vector w_mem_wr_out;
+  logic_vector w_mem_wr_in;
   logic w_mem_wr_chip;
   logic w_mem_wr_wr;
   logic w_mem_wr_valid;
@@ -229,7 +228,7 @@ module Control
     unique case (current_st_output)
       IDLE_OUTPUT:
         if (w_conv_end)
-          next_st_output = ADDR_OUTPUT;
+          next_st_output = FEAT_OUTPUT;
       ADDR_OUTPUT:
         next_st_output = FEAT_OUTPUT;
       FEAT_OUTPUT:
@@ -336,7 +335,6 @@ module Control
           r_wh_en      <= 1'b1;
           r_fin_en     <= 1'b0;
           r_count_fin  <= 0;
-          r_count_fout <= 0;
           if (w_mem_rd_valid) begin
             r_addr_wh  <= r_addr_wh + 1;
             r_count_wh <= r_count_wh + 1;
@@ -393,7 +391,6 @@ module Control
           r_fin_en     <= 1'b1;
           r_wh_en      <= 1'b0;
           r_count_wh   <= 0;
-          r_count_fout <= 0;
           if (w_mem_rd_valid)
             r_count_fin <= r_count_fin + 1;
           // if (w_fin_end)
@@ -419,10 +416,11 @@ module Control
 
       unique case (current_st_output)
         IDLE_OUTPUT: begin
-          r_addr_fout_base <= 0;
+          // r_addr_fout_base <= 0;
           // r_reuse          <= 1'b0;
-        end
-        ADDR_OUTPUT: begin
+          r_count_fout <= 0;
+        // end
+        // ADDR_OUTPUT: begin
           // TODO: Implement address generation logic using if else statements and remove
           // multiple registers, using one register
           r_addr_fout[0] <= r_addr_fout_base + 0;
@@ -436,17 +434,19 @@ module Control
           r_addr_fout[6] <= r_addr_fout_base + FEAT_OUTPUT_SIZE * 2 + 0;
           r_addr_fout[7] <= r_addr_fout_base + FEAT_OUTPUT_SIZE * 2 + 1;
           r_addr_fout[8] <= r_addr_fout_base + FEAT_OUTPUT_SIZE * 2 + 2;
+          if (p_fout_valid)
+            r_count_fout <= r_count_fout + 1;
 
-          if (w_horizontal_end)
-            r_addr_fout_base <= r_addr_fout_base + A1_SIZE + FEAT_OUTPUT_SIZE * (A1_SIZE - 1);
-          else
-            r_addr_fout_base <= r_addr_fout_base + A1_SIZE;
         end
         FEAT_OUTPUT: begin
-          if (p_fout_valid) begin
+          if (p_fout_valid)
             r_count_fout <= r_count_fout + 1;
-          end
           if (p_end_conv[3]) begin
+            if (w_horizontal_end)
+              r_addr_fout_base <= r_addr_fout_base + A1_SIZE + FEAT_OUTPUT_SIZE * (A1_SIZE - 1);
+            else
+              r_addr_fout_base <= r_addr_fout_base + A1_SIZE;
+
             if (w_horizontal_end) begin
               r_count_horizontal <= 0;
               r_count_vertical   <= r_count_vertical + 1;
@@ -457,7 +457,7 @@ module Control
             end
           end
         end
-        END_OUTPUT: begin end
+        default: begin end
       endcase
     end
   end
