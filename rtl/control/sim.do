@@ -2,6 +2,15 @@ if {[file isdirectory work]} { vdel -all -lib work }
 vlib work
 vmap work work
 
+# vlog -cover sbcefx -work work -svinputport=relaxed ./data-sim.sv
+# vlog -cover sbcefx -work work -svinputport=relaxed ./pack_conv.sv
+# vlog -cover sbcefx -work work -svinputport=relaxed ../conv/ifn9-06m20b/rtl/csa_lib.sv
+# vlog -cover sbcefx -work work -svinputport=relaxed ../conv/ifn9-06m20b/rtl/mult_matrices.sv
+# vlog -cover sbcefx -work work -svinputport=relaxed ../core/core.sv
+# vlog -cover sbcefx -work work -svinputport=relaxed ../mem/mem.sv
+# vlog -cover sbcefx -work work -svinputport=relaxed ./control.sv
+# vlog -cover sbcefx -work work -svinputport=relaxed ./tb_control.sv
+
 vlog -work work -svinputport=relaxed ./data-sim.sv
 vlog -work work -svinputport=relaxed ./pack_conv.sv
 vlog -work work -svinputport=relaxed ../conv/ifn9-06m20b/rtl/csa_lib.sv
@@ -11,6 +20,8 @@ vlog -work work -svinputport=relaxed ../mem/mem.sv
 vlog -work work -svinputport=relaxed ./control.sv
 vlog -work work -svinputport=relaxed ./tb_control.sv
 
+
+# vsim -voptargs=+acc -coverage -t ns work.tb
 vsim -voptargs=+acc -t ns work.tb
 set StdArithNoWarnings 1
 set StdVitalGlitchNoWarnings 1
@@ -24,3 +35,5 @@ do mem.do
 # one line
 run 7000ns
 #run -all
+
+# coverage report -output report.txt -srcfile=* -assert -directive -cvg -codeAll
