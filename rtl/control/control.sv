@@ -162,10 +162,10 @@ module Control
     p_reuse      <= r_reuse;
     // State Machine
 
-    w_input_end   = (current_st_input == END_INPUT)? 1'b1 : 1'b0;
-    w_conv_idle   = (current_st_conv == IDLE_CONV)? 1'b1 : 1'b0;
-    w_conv_end    = (current_st_conv == END_CONV)? 1'b1 : 1'b0;
-    w_output_idle = (current_st_output == IDLE_OUTPUT)? 1'b1 : 1'b0;
+    w_input_end   = (current_st_input == END_INPUT);
+    w_conv_idle   = (current_st_conv == IDLE_CONV);
+    w_conv_end    = (current_st_conv == END_CONV);
+    w_output_idle = (current_st_output == IDLE_OUTPUT);
 
     unique case (current_st_input)
       // IDLE:     if (p_start)      next_st = BIAS;
@@ -444,7 +444,6 @@ module Control
           r_addr_fout[8] <= r_addr_fout_base + FEAT_OUTPUT_SIZE * 2 + 2;
           if (p_fout_valid)
             r_count_fout <= r_count_fout + 1;
-
         end
         FEAT_OUTPUT: begin
           if (p_fout_valid)
