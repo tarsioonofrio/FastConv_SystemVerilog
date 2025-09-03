@@ -47,7 +47,7 @@ puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 puts "Load hdl files"
 puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 
-	read_hdl -sv "../data.sv ../rtl/pack_conv.sv ../rtl/csa_lib.sv ../rtl/mult_matrices.sv ../rtl/fast_conv.sv"
+	read_hdl -sv "../../../../../data/ifn9/data.sv ./pack_conv.sv ../../../../csa_lib.sv ../../../../mult-matrices/ifn9/mult_matrices.sv ../../rtl/fast_conv.sv ../../../testbench.sv"
 
 
 
@@ -156,5 +156,5 @@ puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 
 
 
-    
+
     exit
