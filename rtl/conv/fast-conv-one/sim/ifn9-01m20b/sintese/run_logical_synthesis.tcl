@@ -54,7 +54,7 @@ puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
     	../pack_conv.sv
     	${GIT_ROOT}/rtl/csa/csa_lib.sv
     	${GIT_ROOT}/rtl/mult-matrices/ifn9/mult_matrices.sv
-    	${GIT_ROOT}/rtl/fast_conv.sv
+    	${GIT_ROOT}/rtl/conv/fast-conv-one/rtl/fast_conv.sv
     	${GIT_ROOT}/rtl/conv/testbench.sv
 	"
 
