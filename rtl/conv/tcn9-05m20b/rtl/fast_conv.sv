@@ -1,8 +1,17 @@
+//-------------------------------------------------------------------------
+// FERNANDO MORAES                                          24/October/2024
+//-------------------------------------------------------------------------
+
+//-------------------------------------------------------------------------
+// FAST CONVOLUTION
+//-------------------------------------------------------------------------
+import packConv::*;
+import data::*;
+
 module Multip
-  import packConv::*;
  #(
-    parameter int QUANT = 8,
-    parameter int NBITS = 20
+  parameter int QUANT = 8,
+  parameter int NBITS = 20
   )
   (
     input  logic_vector register,
@@ -21,10 +30,10 @@ endmodule
 module conv
   import packConv::*;
  #(
-   parameter int QUANT = 8,
-   parameter int NBITS = 20,
-   parameter int NMULT = 5,
-   parameter int SMULT = 5
+    parameter int QUANT = 8,
+    parameter int NBITS = 20
+    // parameter int NMULT = 6,
+    // parameter int SMULT = 6
   )
   (
     input  logic       clk, reset, start,
@@ -37,17 +46,22 @@ module conv
   timeunit 1ns;
   timeprecision 1ps;
 
-  type_input    registers;
-  type_matrix_c prod_c;
+  state_type current_st, next_st;
+
+  type_weight   registers;
+  type_matrix_c prod_c0;
+  type_weight   prod_c;
   type_output   prod_a;
 
   logic signed[NBITS-1+QUANT:0] product[0:NMULT-1];   // QUANT more bits for the multipliers
 
   logic[5:0] idx[0:NMULT-1];
 
+
   //
   // Control FSM
   //
+
   always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
       current_st <= IDLE;
@@ -56,6 +70,7 @@ module conv
     end
   end
 
+  // 9 states + IDEL - IDLE is blocking!
   always_comb begin
     unique case (current_st)
       IDLE:     next_st = start ? WR_IFMAP : IDLE;
@@ -72,7 +87,7 @@ module conv
 
   // Instance of matrix multiplier "C"
   Transform trf(
-    .pin(registers),
+    .pin(registers[C1_SIZE*C1_SIZE-1:0]),
     .pout(prod_c)
   );
 
@@ -96,13 +111,14 @@ module conv
       registers <= '{default: '0};
       data_valid <= 0;
     end else begin
-      data_valid <= 0;  // default
+      data_valid <= 0;
       unique case (current_st)
         IDLE:     registers <= registers;
-        WR_IFMAP: registers <= inputMAP;
-        WR_MC:    registers <= prod_c;        WR_OUT: begin
+        WR_IFMAP: registers[C1_SIZE*C1_SIZE-1:0] <= inputMAP;
+        WR_MC:    registers <= prod_c;
+        WR_OUT: begin
           data_valid <= 1;
-          registers[8:0] <= prod_a;
+          registers[A1_SIZE*A1_SIZE-1:0] <= prod_a;
         end
         default:  begin
           for (int i = 0; i < NMULT; i++) begin
@@ -113,7 +129,9 @@ module conv
     end
   end
 
+  // connect 9 first registers to the outputs
   always_comb begin
-    outputMAP = registers[8:0];
+    outputMAP = registers[A1_SIZE*A1_SIZE-1:0];
   end
+
 endmodule
