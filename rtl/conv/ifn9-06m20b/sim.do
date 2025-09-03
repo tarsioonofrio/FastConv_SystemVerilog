@@ -11,6 +11,7 @@ vlog -work work  $DATA_SV
 vlog -work work  ./rtl/pack_conv.sv
 vlog -work work -svinputport=relaxed ./rtl/csa_lib.sv
 vlog -work work -svinputport=relaxed ./rtl/mult_matrices.sv
+vlog -work work -svinputport=relaxed ./rtl/mux_mult/mux_mult_06.sv
 vlog -work work -svinputport=relaxed ./rtl/fast_conv.sv
 vlog -work work -svinputport=relaxed ../../../testbench/tb_conv.sv
 
