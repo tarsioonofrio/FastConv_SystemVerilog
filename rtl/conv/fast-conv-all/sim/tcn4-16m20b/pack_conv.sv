@@ -9,7 +9,7 @@ package packConv;
 
   parameter int NMULT = 16;
 
-  typedef enum {IDLE, WR_IFMAP, WR_MC, MU, WR_OUT} state_type;
+  typedef enum {IDLE, WR_IFMAP, WR_MC, MULT, WR_OUT} state_type;
 
   parameter int NBITS = 20;   // 32 bits generate too large hardware!!
 

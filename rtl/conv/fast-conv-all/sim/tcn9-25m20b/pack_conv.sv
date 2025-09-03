@@ -7,9 +7,10 @@ package packConv;
   timeunit 1ns;
   timeprecision 1ps;
 
+  parameter int NMULT = 25;
   parameter int NBITS = 20;   // 32 bits generate too large hardware!!
 
-  typedef enum {IDLE, WR_IFMAP, WR_MC, MU, WR_OUT} state_type;
+  typedef enum {IDLE, WR_IFMAP, WR_MC, MULT, WR_OUT} state_type;
   state_type current_st, next_st;
 
   typedef logic [NBITS-1:0] logic_vector;
