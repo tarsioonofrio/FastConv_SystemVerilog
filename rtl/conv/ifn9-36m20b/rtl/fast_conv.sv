@@ -75,7 +75,7 @@ module conv
     unique case (current_st)
       IDLE:     next_st = start ? WR_IFMAP : IDLE;
       WR_IFMAP: next_st = WR_MC;
-      WR_MC:    next_st = MU0;
+      WR_MC:    next_st = MULT;
       WR_OUT:   next_st = IDLE;
       default: next_st = state_type'(current_st + 1);
     endcase
@@ -91,11 +91,9 @@ module conv
     .pout(prod_c)
   );
 
-  assign idx = addr[current_st];
-
   generate
     for (genvar i = 0; i < NMULT; i++) begin
-      Multip multip(.register(registers[idx[i]]), .weight(weights[idx[i]]), .product(product[i]));
+      Multip multip(.register(registers[i]), .weight(weights[i]), .product(product[i]));
     end
   endgenerate
 
@@ -122,7 +120,7 @@ module conv
         end
         default:  begin
           for (int i = 0; i < NMULT; i++) begin
-            registers[idx[i]] <= product[i];
+            registers[i] <= product[i];
           end
         end
       endcase

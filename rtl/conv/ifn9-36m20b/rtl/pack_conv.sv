@@ -8,7 +8,7 @@ package packConv;
   timeprecision 1ps;
 
   parameter int NMULT = 36;
-  typedef enum {IDLE, WR_IFMAP, WR_MC, MU, WR_OUT} state_type;
+  typedef enum {IDLE, WR_IFMAP, WR_MC, MULT, WR_OUT} state_type;
 
 
   parameter int NBITS = 20;
