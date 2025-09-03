@@ -7,23 +7,16 @@ package packConv;
   timeunit 1ns;
   timeprecision 1ps;
 
-  parameter int NBITS = 20;   // 32 bits generate too large hardware!!
+  parameter int NMULT = 8;
 
-  parameter int NMULT = 5;
-  parameter int SMULT = 5;
-
-  localparam logic [5:0] addr [0:SMULT-1][0:NMULT-1] = '{
-    '{ 0,  1,  2,  3,  4},
-    '{ 5,  6,  7,  8,  9},
-    '{10, 11, 12, 13, 14},
-    '{15, 16, 17, 18, 19},
-    '{20, 21, 22, 23, 24}
+  localparam logic [4:0] addr [0:1][0:7] = '{
+    '{ 0,  1,  2,  3, 4,  5,  6,  7},
+    '{ 8,  9, 10, 11, 12, 13, 14, 15}
   };
 
-  // MU[SMULT]
-  typedef enum {MU[6], WR_OUT, IDLE, WR_IFMAP, WR_MC} state_type;
-  state_type current_st, next_st;
+  typedef enum {MULT[2], WR_OUT, IDLE, WR_IFMAP, WR_MC} state_type;
 
+  parameter int NBITS = 20;   // 32 bits generate too large hardware!!
 
   typedef logic [NBITS-1:0] logic_vector;
 
@@ -35,10 +28,9 @@ package packConv;
   typedef logic_vector type_matrix_a [C1_SIZE*M1_SIZE-1:0];     // array with  8 parameters
 
   // definitions for the CSA adders
-  typedef logic_vector two_words    [1:0];
-  typedef logic_vector four_words   [3:0];
-  typedef logic_vector six_words    [5:0];
-  typedef logic_vector eight_words  [7:0];
-  typedef logic_vector ten_words    [9:0];
-
+  typedef logic_vector[1:0] two_words   ;
+  typedef logic_vector[3:0] four_words  ;
+  typedef logic_vector[5:0] six_words   ;
+  typedef logic_vector[7:0] eight_words ;
+  typedef logic_vector[9:0] ten_words   ;
 endpackage
