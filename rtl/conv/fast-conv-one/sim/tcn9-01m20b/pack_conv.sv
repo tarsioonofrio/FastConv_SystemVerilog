@@ -9,7 +9,7 @@ package packConv;
 
   parameter int NBITS = 20;   // 32 bits generate too large hardware!!
   // MU[SMULT]
-  typedef enum {MU[25], WR_OUT, IDLE, WR_IFMAP, WR_MC} state_type;
+  typedef enum {MULT[25], WR_OUT, IDLE, WR_IFMAP, WR_MC} state_type;
 
   typedef logic [NBITS-1:0] logic_vector;
 

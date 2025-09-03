@@ -5,14 +5,15 @@ vmap work work
 if {[info exists ::env(DATA)]} {
     set DATA_SV $::env(DATA)
 } else {
-    set DATA_SV "./data.sv"
+    set DATA_SV "../../../../../data/ifn9/data.sv"
 }
 vlog -work work  $DATA_SV
-vlog -work work  ./rtl/pack_conv.sv
-vlog -work work -svinputport=relaxed ./rtl/csa_lib.sv
-vlog -work work -svinputport=relaxed ./rtl/mult_matrices.sv
-vlog -work work -svinputport=relaxed ./rtl/fast_conv.sv
-vlog -work work -svinputport=relaxed ../../../testbench/tb_conv.sv
+vlog -work work  ./pack_conv.sv
+vlog -work work -svinputport=relaxed ../../../../csa/csa_lib.sv
+vlog -work work -svinputport=relaxed ../../../../mult-matrices/ifn9/mult_matrices.sv
+vlog -work work -svinputport=relaxed ../../../../mux-mult/ifn9/mux_mult_12.sv
+vlog -work work -svinputport=relaxed ../../rtl/fast_conv.sv
+vlog -work work -svinputport=relaxed ../../../testbench.sv
 
 vsim -voptargs=+acc -t ns work.tb
 

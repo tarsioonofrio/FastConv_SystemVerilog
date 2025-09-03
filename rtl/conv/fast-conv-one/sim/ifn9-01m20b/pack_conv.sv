@@ -13,7 +13,7 @@ package packConv;
   parameter int SMULT = 36;
 
   // MU[SMULT]
-  typedef enum {MU[36], WR_OUT, IDLE, WR_IFMAP, WR_MC} state_type;
+  typedef enum {MULT[36], WR_OUT, IDLE, WR_IFMAP, WR_MC} state_type;
 
 
   typedef logic [NBITS-1:0] logic_vector;
