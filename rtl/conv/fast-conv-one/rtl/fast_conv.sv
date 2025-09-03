@@ -75,7 +75,7 @@ module conv
     unique case (current_st)
       IDLE:     next_st = start ? WR_IFMAP : IDLE;
       WR_IFMAP: next_st = WR_MC;
-      WR_MC:    next_st = MU0;
+      WR_MC:    next_st = MULT0;
       WR_OUT:   next_st = IDLE;
       default: next_st = state_type'(current_st + 1);
     endcase
