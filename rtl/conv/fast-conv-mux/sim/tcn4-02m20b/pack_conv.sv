@@ -7,17 +7,21 @@ package packConv;
   timeunit 1ns;
   timeprecision 1ps;
 
-  parameter int NMULT = 4;
-  parameter int SMULT = 4;
+  parameter int NMULT = 2;
+  parameter int SMULT = 8;
 
-  localparam logic [4:0] addr [0:3][0:3] = '{
-    '{ 0,  1,  2,  3},
-    '{ 4,  5,  6,  7},
-    '{ 8,  9, 10, 11},
-    '{12, 13, 14, 15}
+  localparam logic [4:0] addr [0:SMULT-1][0:NMULT-1] = '{
+    '{ 0,  1},
+    '{ 2,  3},
+    '{ 4,  5},
+    '{ 6,  7},
+    '{ 8,  9},
+    '{10, 11},
+    '{12, 13},
+    '{14, 15}
   };
 
-  typedef enum {MU[4], WR_OUT, IDLE, WR_IFMAP, WR_MC} state_type;
+  typedef enum {MULT[8], WR_OUT, IDLE, WR_IFMAP, WR_MC} state_type;
 
   parameter int NBITS = 20;   // 32 bits generate too large hardware!!
 
@@ -36,4 +40,5 @@ package packConv;
   typedef logic_vector[5:0] six_words   ;
   typedef logic_vector[7:0] eight_words ;
   typedef logic_vector[9:0] ten_words   ;
+
 endpackage
