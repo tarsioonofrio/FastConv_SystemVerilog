@@ -5,9 +5,10 @@
 //-------------------------------------------------------------------------
 // FAST CONVOLUTION
 //-------------------------------------------------------------------------
+import packConv::*;
+import data::*;
 
 module Multip
-  import packConv::*;
  #(
   parameter int QUANT = 8,
   parameter int NBITS = 20
@@ -30,8 +31,9 @@ module conv
   import packConv::*;
  #(
     parameter int QUANT = 8,
-    parameter int NBITS = 20,
-    parameter int NMULT = 36
+    parameter int NBITS = 20
+    // parameter int NMULT = 6,
+    // parameter int SMULT = 6
   )
   (
     input  logic       clk, reset, start,
@@ -53,6 +55,9 @@ module conv
 
   logic signed[NBITS-1+QUANT:0] product[0:NMULT-1];   // QUANT more bits for the multipliers
 
+  logic[5:0] idx[0:NMULT-1];
+
+
   //
   // Control FSM
   //
@@ -70,9 +75,9 @@ module conv
     unique case (current_st)
       IDLE:     next_st = start ? WR_IFMAP : IDLE;
       WR_IFMAP: next_st = WR_MC;
-      WR_MC:    next_st = MU;
-      MU:       next_st = WR_OUT;
-      default:   next_st = IDLE;
+      WR_MC:    next_st = MU0;
+      WR_OUT:   next_st = IDLE;
+      default: next_st = state_type'(current_st + 1);
     endcase
   end
 
@@ -82,13 +87,15 @@ module conv
 
   // Instance of matrix multiplier "C"
   Transform trf(
-    .pin(registers[24:0]),
+    .pin(registers[C1_SIZE*C1_SIZE-1:0]),
     .pout(prod_c)
   );
 
+  assign idx = addr[current_st];
+
   generate
     for (genvar i = 0; i < NMULT; i++) begin
-      Multip multip(.register(registers[i]), .weight(weights[i]), .product(product[i]));
+      Multip multip(.register(registers[idx[i]]), .weight(weights[idx[i]]), .product(product[i]));
     end
   endgenerate
 
@@ -107,15 +114,15 @@ module conv
       data_valid <= 0;
       unique case (current_st)
         IDLE:     registers <= registers;
-        WR_IFMAP: registers[24:0] <= inputMAP;
+        WR_IFMAP: registers[C1_SIZE*C1_SIZE-1:0] <= inputMAP;
         WR_MC:    registers <= prod_c;
         WR_OUT: begin
-          data_valid <=1;
-          registers[8:0] <= prod_a;
+          data_valid <= 1;
+          registers[A1_SIZE*A1_SIZE-1:0] <= prod_a;
         end
         default:  begin
           for (int i = 0; i < NMULT; i++) begin
-            registers[i] <= product[i];
+            registers[idx[i]] <= product[i];
           end
         end
       endcase
@@ -124,7 +131,7 @@ module conv
 
   // connect 9 first registers to the outputs
   always_comb begin
-    outputMAP = registers[8:0];
+    outputMAP = registers[A1_SIZE*A1_SIZE-1:0];
   end
 
 endmodule
