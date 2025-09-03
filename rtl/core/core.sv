@@ -70,6 +70,7 @@ module Core
   int r_count_fout;
 
   logic [6:0] r_mult_idx;
+  logic [6:0] r_mult_idx_output[0:NMULT-1];
 
   logic signed [NBITS-1+QUANT:0] product;  // QUANT more bits for the multipliers
 
@@ -131,7 +132,7 @@ module Core
       CONV_C:
         next_st_conv = CONV_H;
       CONV_H:
-        if (r_mult_idx == (M1_SIZE * M2_SIZE - 1))
+        if (r_mult_idx == (SMULT - 1))
           next_st_conv = CONV_A;
       CONV_A: begin
         w_end[2] = 1'b1;
@@ -267,13 +268,27 @@ module Core
       .pout(w_prod_c)
   );
 
-  // assign r_mult_idx = current_st_conv;
+  // Multip multip0 (
+  //     .register(r_conv[r_mult_idx]),
+  //     .weight  (r_weight[r_mult_idx]),
+  //     .product (product)
+  // );
 
-  Multip multip0 (
-      .register(r_conv[r_mult_idx]),
-      .weight  (r_weight[r_mult_idx]),
-      .product (product)
+  MuxMult mux_mult(
+    .idx_in(r_mult_idx),
+    .idx_out(r_mult_idx_output)
   );
+
+  generate
+    for (genvar i = 0; i < NMULT; i++) begin
+      Multip multip(
+        .register(r_conv[r_mult_idx_output[i]]),
+        .weight(r_weight[r_mult_idx_output[i]]),
+        .product(product[i])
+      );
+    end
+  endgenerate
+
 
   // Instance of matrix multiplier "A"
   Inverse inv (
