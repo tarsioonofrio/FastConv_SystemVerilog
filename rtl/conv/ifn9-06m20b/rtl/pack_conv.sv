@@ -20,7 +20,7 @@ package packConv;
   };
 
   // MU[SMULT]
-  typedef enum {MU[6], WR_OUT, IDLE, WR_IFMAP, WR_MC} state_type;
+  typedef enum {MULT[6], WR_OUT, IDLE, WR_IFMAP, WR_MC} state_type;
 
   parameter int NBITS = 20;
 
