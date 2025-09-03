@@ -9,6 +9,7 @@ import packConv::*;
 import data::*;
 
 module Multip
+  import packConv::*;
  #(
   parameter int QUANT = 8,
   parameter int NBITS = 20
@@ -49,13 +50,12 @@ module conv
   state_type current_st, next_st;
 
   type_weight   registers;
-  type_matrix_c prod_c0;
   type_weight   prod_c;
   type_output   prod_a;
 
-  logic signed[NBITS-1+QUANT:0] product[0:NMULT-1];   // QUANT more bits for the multipliers
+  logic signed[NBITS-1+QUANT:0] product;   // QUANT more bits for the multipliers
 
-  logic[5:0] idx[0:NMULT-1];
+  logic[5:0] idx;
 
 
   //
@@ -91,13 +91,9 @@ module conv
     .pout(prod_c)
   );
 
-  assign idx = addr[current_st];
+  assign idx = current_st;
 
-  generate
-    for (genvar i = 0; i < NMULT; i++) begin
-      Multip multip(.register(registers[idx[i]]), .weight(weights[idx[i]]), .product(product[i]));
-    end
-  endgenerate
+  Multip multip0(.register(registers[idx]), .weight(weights[idx]), .product(product));
 
   // Instance of matrix multiplier "A"
   Inverse inv(
@@ -120,11 +116,7 @@ module conv
           data_valid <= 1;
           registers[A1_SIZE*A1_SIZE-1:0] <= prod_a;
         end
-        default:  begin
-          for (int i = 0; i < NMULT; i++) begin
-            registers[idx[i]] <= product[i];
-          end
-        end
+        default:  registers[idx] <= product;
       endcase
     end
   end
