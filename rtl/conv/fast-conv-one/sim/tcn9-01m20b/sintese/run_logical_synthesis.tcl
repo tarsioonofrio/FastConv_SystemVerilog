@@ -47,8 +47,18 @@ puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 puts "Load hdl files"
 puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 
-	read_hdl -sv "../data.sv ../rtl/pack_conv.sv ../rtl/csa_lib.sv ../rtl/mult_matrices.sv ../rtl/fast_conv.sv"
+    set GIT_ROOT [exec git rev-parse --show-toplevel]
 
+	set HDL_FILES "
+    	${GIT_ROOT}/data/tcn9/data.sv
+    	../pack_conv.sv
+    	${GIT_ROOT}/rtl/csa/csa_lib.sv
+    	${GIT_ROOT}/rtl/mult-matrices/tcn9/mult_matrices.sv
+    	${GIT_ROOT}/rtl/fast_conv.sv
+    	${GIT_ROOT}/rtl/conv/testbench.sv
+	"
+
+	read_hdl -sv $HDL_FILES
 
 
 puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
@@ -156,5 +166,5 @@ puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 
 
 
-    
+
     exit
