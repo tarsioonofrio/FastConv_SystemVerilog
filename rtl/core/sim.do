@@ -2,12 +2,14 @@ if {[file isdirectory work]} { vdel -all -lib work }
 vlib work
 vmap work work
 
-vlog -work work -svinputport=relaxed ./data.sv
+set GIT_ROOT [exec git rev-parse --show-toplevel]
+
+vlog -work work -svinputport=relaxed ${GIT_ROOT}/data/ifn9/data.sv
 vlog -work work -svinputport=relaxed ./pack_conv.sv
-vlog -work work -svinputport=relaxed ../conv/ifn9-06m20b/rtl/csa_lib.sv
-vlog -work work -svinputport=relaxed ../conv/ifn9-06m20b/rtl/mult_matrices.sv
-vlog -work work -svinputport=relaxed ./core.sv
-vlog -work work -svinputport=relaxed ./tb_core.sv
+vlog -work work -svinputport=relaxed ${GIT_ROOT}/rtl/csa/csa_lib.sv
+vlog -work work -svinputport=relaxed ${GIT_ROOT}/rtl/mult-matrices/ifn9/mult_matrices.sv
+vlog -work work -svinputport=relaxed ${GIT_ROOT}/rtl/fast_conv.sv
+vlog -work work -svinputport=relaxed ${GIT_ROOT}/rtl/conv/testbench.sv
 
 vsim -voptargs=+acc -t ns work.tb
 set StdArithNoWarnings 1
