@@ -21,7 +21,7 @@ package packConv;
   };
 
   // MU[SMULT]
-  typedef enum {MULT[6], WR_OUT, IDLE, WR_IFMAP, WR_MC} state_type;
+  typedef enum {MULT[5], WR_OUT, IDLE, WR_IFMAP, WR_MC} state_type;
   state_type current_st, next_st;
 
 
