@@ -3,10 +3,9 @@
 //-------------------------------------------------------------------------
 
 module MuxMult
-  import packConv::*;
 (
   input  logic[6:0] idx_in, // current state
-  output logic[6:0] idx_out[0:NMULT-1]  // index array output
+  output logic[6:0] idx[0:NMULT-1]  // index array output
 )
 
   always_comb begin
