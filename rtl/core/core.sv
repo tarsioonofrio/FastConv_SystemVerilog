@@ -72,7 +72,7 @@ module Core
   logic [6:0] r_mult_idx;
   logic [6:0] r_mult_idx_output[0:NMULT-1];
 
-  logic signed [NBITS-1+QUANT:0] product;  // QUANT more bits for the multipliers
+  logic signed [NBITS-1+QUANT:0] product [0:NMULT-1];  // QUANT more bits for the multipliers
 
   logic [1:0] w_wh_fin_en;
 
@@ -224,7 +224,9 @@ module Core
           r_conv <= w_prod_c;
         end
         CONV_H: begin
-          r_conv[r_mult_idx] <= product;
+          for (int i = 0; i < NMULT; i++) begin
+            r_conv[r_mult_idx_output[i]] <= product[i];
+          end
           r_mult_idx         <= r_mult_idx + 1;
         end
         CONV_A: begin
