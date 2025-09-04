@@ -9,8 +9,8 @@ vlog -work work -svinputport=relaxed ${GIT_ROOT}/rtl/conv/fast-conv-mux/sim/ifn9
 vlog -work work -svinputport=relaxed ${GIT_ROOT}/rtl/csa/csa_lib.sv
 vlog -work work -svinputport=relaxed ${GIT_ROOT}/rtl/mux-mult/ifn9/mux_mult_06_idx.sv
 vlog -work work -svinputport=relaxed ${GIT_ROOT}/rtl/mult-matrices/ifn9/mult_matrices.sv
-vlog -work work -svinputport=relaxed ${GIT_ROOT}/rtl/conv/fast-conv-mux/rtl/fast_conv.sv
-vlog -work work -svinputport=relaxed ${GIT_ROOT}/rtl/conv/testbench.sv
+vlog -work work -svinputport=relaxed ./core.sv
+vlog -work work -svinputport=relaxed ./tb_core.sv
 
 vsim -voptargs=+acc -t ns work.tb
 set StdArithNoWarnings 1
