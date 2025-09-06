@@ -1,6 +1,15 @@
 for SVDIR in ../fast-convolution-rtl/test/*/sv/; do
-    VAR=$(basename "$(dirname "$SVDIR")")  # extrai o nome entre test/ e /sv/
-    DST="./rtl/mux-mult/$VAR/"
-    mkdir -p "$DST"
-    rsync -av "$SVDIR" "$DST"
+    VAR=$(basename "$(dirname "$SVDIR")")
+    VAR=${VAR//1d-/}
+    VAR=${VAR//2d-/}
+    # Copy mux_mult
+    MUX="./rtl/mux-mult/$VAR/"
+    mkdir -p "$MUX"
+    cp "$SVDIR"/mux_mult* "$MUX"
+
+    # Copy mult matrices
+    MAT="./rtl/mult-matrices/$VAR/"
+    mkdir -p "$MAT"
+    cp "$SVDIR"/mult-matrices* "$MAT"
+
 done
