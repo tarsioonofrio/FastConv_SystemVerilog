@@ -76,7 +76,7 @@ puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 puts "Write Reports"
 puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 
-    set OUT_FILES ./results
+#    set OUT_FILES ./results
 
 	# Reports clock-gating information for the design
 	report_clock_gating > ${OUT_FILES}/reports/${TOP_MODULE}_clock_gating.rpt
