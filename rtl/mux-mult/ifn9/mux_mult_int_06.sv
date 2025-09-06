@@ -4,10 +4,10 @@
 
 module MuxMult
   import packConv::*;
-(
-  input  state_type current_st,  // current state
-  output logic[5:0] idx[0:NMULT-1]    // index array output
-);
+  (
+    input  logic[6:0] idx_in, // current state
+    output logic[6:0] idx_out[0:NMULT-1]  // index array output
+  );
 
   always_comb begin
     unique case (current_st)
