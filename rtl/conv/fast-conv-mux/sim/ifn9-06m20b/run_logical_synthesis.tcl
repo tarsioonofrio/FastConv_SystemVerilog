@@ -12,7 +12,7 @@ set HDL_FILES "
    	../pack_conv.sv
    	${GIT_ROOT}/rtl/csa/csa_lib.sv
    	${GIT_ROOT}/rtl/mult-matrices/ifn9/mult_matrices.sv
-   	${GIT_ROOT}/rtl/conv/fast-conv-one/rtl/fast_conv.sv
+   	${GIT_ROOT}/rtl/conv/fast-conv-mux/rtl/fast_conv.sv
 "
 
 source ${GIT_ROOT}/synthesis/run_logical_synthesis.tcl
