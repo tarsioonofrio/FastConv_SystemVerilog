@@ -278,7 +278,7 @@ module Core
 
   MuxMult mux_mult(
     .idx_in(r_mult_idx),
-    .idx(r_mult_idx_output)
+    .idx_out(r_mult_idx_output)
   );
 
   generate
