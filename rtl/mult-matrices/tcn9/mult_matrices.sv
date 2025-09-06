@@ -1,14 +1,18 @@
 module Transform
   import packConv::*;
+ #(
+  parameter int QUANT = 8,
+  parameter int NBITS = 20
+  )
   (
     input  type_input pin,
     output type_weight pout
-  );
+ );
   timeunit 1ns;
   timeprecision 1ps;
 
-  type_matrix_c partial;
-
+  type_input partial;
+  
   // Instance of matrix multiplier "C"
   MatrixC0 matrix_c0(
     .P(pin),
@@ -21,16 +25,19 @@ module Transform
 endmodule
 
 
-
 module Inverse
   import packConv::*;
+ #(
+  parameter int QUANT = 8,
+  parameter int NBITS = 20
+  )
   (
-    input  type_weight pin,
+    input  type_matrix_a pin,
     output type_output pout
  );
   timeunit 1ns;
   timeprecision 1ps;
-
+  
   type_matrix_a partial;
 
   MatrixA1 matrix_a1 (

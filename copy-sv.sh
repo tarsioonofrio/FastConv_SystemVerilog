@@ -10,6 +10,6 @@ for SVDIR in ../fast-convolution-rtl/test/*/sv/; do
     # Copy mult matrices
     MAT="./rtl/mult-matrices/$VAR/"
     mkdir -p "$MAT"
-    cp "$SVDIR"/mult-matrices* "$MAT"
+    cp "$SVDIR"/mult_matrices.sv "$MAT"
 
 done
