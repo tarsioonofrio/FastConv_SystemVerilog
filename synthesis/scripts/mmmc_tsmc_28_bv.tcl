@@ -1,10 +1,12 @@
+set GIT_ROOT [exec git rev-parse --show-toplevel]
+set CONSTRAINTS_PATH ${GIT_ROOT}/synthesis/scripts
+
 #################################################################################
 # tsmc 28 nm
 #################################################################################
 
 set LIB_PATH /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End
 set TECH_PATH /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Back_End
-set CONSTRAINTS_PATH ./scripts
 
 #################################################################
 ## library_sets (lib from library)
@@ -56,7 +58,7 @@ create_timing_condition -name timing_cond_0p99v_m40c \
  create_rc_corner -name rc_corner_125c_capwst \
     -temperature 125.0 \
      -qrc_tech ${TECH_PATH}/qrc/RC_QRC_crn28hpc+_1p09m+ut-alrdl_5x1y1z1u_rcworst/qrcTechFile
-    
+
  create_rc_corner -name rc_corner_25c_captyp \
      -temperature 25.0 \
     -qrc_tech ${TECH_PATH}/qrc/RC_QRC_crn28hpc+_1p09m+ut-alrdl_5x1y1z1u_typical/qrcTechFile
