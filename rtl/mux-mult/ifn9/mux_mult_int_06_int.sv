@@ -5,12 +5,12 @@
 module MuxMult
   import packConv::*;
 (
-  input  logic[6:0] idx_in, // current state
-  output logic[6:0] idx[0:NMULT-1]  // index array output
+  input  state_type current_st,  // current state
+  output logic[5:0] idx[0:NMULT-1]    // index array output
 );
 
   always_comb begin
-    unique case (idx_in)
+    unique case (current_st)
       0: begin idx[0]=0; idx[1]=1; idx[2]=2; idx[3]=3; idx[4]=4; idx[5]=5; end
       1: begin idx[0]=6; idx[1]=7; idx[2]=8; idx[3]=9; idx[4]=10; idx[5]=11; end
       2: begin idx[0]=12; idx[1]=13; idx[2]=14; idx[3]=15; idx[4]=16; idx[5]=17; end
