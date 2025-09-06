@@ -10,11 +10,11 @@ module MuxMult
   );
 
   always_comb begin
-    unique case (current_st)
-      0: begin idx[0]=0; idx[1]=1; idx[2]=2; idx[3]=3; idx[4]=4; idx[5]=5; idx[6]=6; idx[7]=7; idx[8]=8; end
-      1: begin idx[0]=9; idx[1]=10; idx[2]=11; idx[3]=12; idx[4]=13; idx[5]=14; idx[6]=15; idx[7]=16; idx[8]=17; end
-      2: begin idx[0]=18; idx[1]=19; idx[2]=20; idx[3]=21; idx[4]=22; idx[5]=23; idx[6]=24; idx[7]=25; idx[8]=26; end
-      3: begin idx[0]=27; idx[1]=28; idx[2]=29; idx[3]=30; idx[4]=31; idx[5]=32; idx[6]=33; idx[7]=34; idx[8]=35; end
+    unique case (idx_in)
+      0: begin idx_out[0]=0; idx_out[1]=1; idx_out[2]=2; idx_out[3]=3; idx_out[4]=4; idx_out[5]=5; idx_out[6]=6; idx_out[7]=7; idx_out[8]=8; end
+      1: begin idx_out[0]=9; idx_out[1]=10; idx_out[2]=11; idx_out[3]=12; idx_out[4]=13; idx_out[5]=14; idx_out[6]=15; idx_out[7]=16; idx_out[8]=17; end
+      2: begin idx_out[0]=18; idx_out[1]=19; idx_out[2]=20; idx_out[3]=21; idx_out[4]=22; idx_out[5]=23; idx_out[6]=24; idx_out[7]=25; idx_out[8]=26; end
+      3: begin idx_out[0]=27; idx_out[1]=28; idx_out[2]=29; idx_out[3]=30; idx_out[4]=31; idx_out[5]=32; idx_out[6]=33; idx_out[7]=34; idx_out[8]=35; end
     default: begin end
     endcase
   end
