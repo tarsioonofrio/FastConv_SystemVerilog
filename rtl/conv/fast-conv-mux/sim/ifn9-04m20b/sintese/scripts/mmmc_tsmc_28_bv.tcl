@@ -1,3 +1,4 @@
+set GIT_ROOT [exec git rev-parse --show-toplevel]
 set CONSTRAINTS_PATH ${GIT_ROOT}/synthesis/scripts
 
 #################################################################################
