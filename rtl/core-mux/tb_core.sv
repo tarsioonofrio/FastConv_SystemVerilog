@@ -23,6 +23,7 @@ module tb;
   logic p_start;
   logic p_end[3:0];
   logic p_debug;
+  logic p_reuse;
 
   logic p_fin_en;
   logic p_fin_valid;
@@ -60,6 +61,7 @@ module tb;
 
     .p_start(p_start),
     .p_end(p_end),
+    .p_reuse(p_reuse),
 
     .p_fin_en(p_fin_en),
     .p_fin_valid(p_fin_valid),
