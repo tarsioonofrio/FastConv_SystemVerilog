@@ -9,6 +9,9 @@ module MuxMult
   output logic[5:0] idx[0:NMULT-1]    // index array output
 );
 
+  timeunit 1ns;
+  timeprecision 1ps;
+
   always_comb begin
     for (int i = 0; i < NMULT; i++) idx[i] = '0;
 
