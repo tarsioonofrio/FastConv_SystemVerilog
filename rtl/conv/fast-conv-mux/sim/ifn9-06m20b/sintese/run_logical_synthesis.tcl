@@ -3,7 +3,7 @@
 ###############################################################################
 set TOP_MODULE conv
 
-set OUT_FILES ./sintese/results
+set OUT_FILES ./results
 
 set GIT_ROOT [exec git rev-parse --show-toplevel]
 
