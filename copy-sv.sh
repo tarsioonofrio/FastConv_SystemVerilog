@@ -12,4 +12,14 @@ for SVDIR in ../fast-convolution-rtl/test/*/sv/; do
     mkdir -p "$MAT"
     cp "$SVDIR"/mult_matrices.sv "$MAT"
 
+    # Copy param
+    PARAM="./rtl/etc/$VAR/"
+    mkdir -p "$PARAM"
+    cp "$SVDIR"/param.sv "$PARAM"
+
+    # Copy data
+    # PARAM="./rtl/etc/$VAR/"
+    # mkdir -p "$PARAM"
+    # cp "$SVDIR"/param.sv "$PARAM"
+
 done

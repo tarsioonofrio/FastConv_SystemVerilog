@@ -2,8 +2,14 @@
 // Index multiplexer module for selecting register indices based on state
 //-------------------------------------------------------------------------
 
+package pack_mux_mult;
+  parameter int NMULT = 9;
+  parameter int SMULT = 4;
+endpackage
+
+
 module MuxMult
-  import packConv::*;
+  import pack_mux_mult::*;
   (
     input  state_type current_st,  // current state
     output logic[5:0] idx[0:NMULT-1]    // index array output
