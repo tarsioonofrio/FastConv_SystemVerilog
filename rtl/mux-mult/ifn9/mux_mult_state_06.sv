@@ -10,6 +10,8 @@ module MuxMult
 );
 
   always_comb begin
+    for (int i = 0; i < NMULT; i++) idx[i] = '0;
+
     unique case (current_st)
       MULT0: begin idx[0]=0; idx[1]=1; idx[2]=2; idx[3]=3; idx[4]=4; idx[5]=5; end
       MULT1: begin idx[0]=6; idx[1]=7; idx[2]=8; idx[3]=9; idx[4]=10; idx[5]=11; end
