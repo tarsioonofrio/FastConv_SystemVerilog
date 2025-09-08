@@ -4,17 +4,15 @@
 
 module MuxMult
   import packConv::*;
-(
-  input  state_type current_st,  // current state
-  output logic[5:0] idx[0:NMULT-1]    // index array output
-);
+  (
+    input  state_type current_st,  // current state
+    output logic[5:0] idx[0:NMULT-1]    // index array output
+  );
 
   timeunit 1ns;
   timeprecision 1ps;
 
   always_comb begin
-    for (int i = 0; i < NMULT; i++) idx[i] = '0;
-
     unique case (current_st)
       default: begin idx[0]=0; idx[1]=1; idx[2]=2; idx[3]=3; idx[4]=4; idx[5]=5; end
       MULT1: begin idx[0]=6; idx[1]=7; idx[2]=8; idx[3]=9; idx[4]=10; idx[5]=11; end
