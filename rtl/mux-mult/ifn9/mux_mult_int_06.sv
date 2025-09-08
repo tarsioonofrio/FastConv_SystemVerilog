@@ -9,6 +9,9 @@ module MuxMult
     output logic[6:0] idx_out[0:NMULT-1]  // index array output
   );
 
+  timeunit 1ns;
+  timeprecision 1ps;
+
   always_comb begin
     unique case (idx_in)
       default: begin idx_out[0]=0; idx_out[1]=1; idx_out[2]=2; idx_out[3]=3; idx_out[4]=4; idx_out[5]=5; end
