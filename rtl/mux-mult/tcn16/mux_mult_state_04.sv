@@ -11,7 +11,7 @@ module MuxMult
 
   always_comb begin
     unique case (current_st)
-      MULT0: begin idx[0]=0; idx[1]=1; idx[2]=2; idx[3]=3; end
+      default: begin idx[0]=0; idx[1]=1; idx[2]=2; idx[3]=3; end
       MULT1: begin idx[0]=4; idx[1]=5; idx[2]=6; idx[3]=7; end
       MULT2: begin idx[0]=8; idx[1]=9; idx[2]=10; idx[3]=11; end
       MULT3: begin idx[0]=12; idx[1]=13; idx[2]=14; idx[3]=15; end
@@ -20,7 +20,6 @@ module MuxMult
       MULT6: begin idx[0]=24; idx[1]=25; idx[2]=26; idx[3]=27; end
       MULT7: begin idx[0]=28; idx[1]=29; idx[2]=30; idx[3]=31; end
       MULT8: begin idx[0]=32; idx[1]=33; idx[2]=34; idx[3]=35; end
-    default: begin end
     endcase
   end
 
