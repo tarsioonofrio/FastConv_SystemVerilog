@@ -11,10 +11,9 @@ module MuxMult
 
   always_comb begin
     unique case (idx_in)
-      0: begin idx_out[0]=0; idx_out[1]=1; end
-      1: begin idx_out[0]=2; idx_out[1]=3; end
-      2: begin idx_out[0]=4; idx_out[1]=5; end
-    default: begin end
+      default: begin idx_out[0]=0; idx_out[1]=1; end
+      MULT1: begin idx_out[0]=2; idx_out[1]=3; end
+      MULT2: begin idx_out[0]=4; idx_out[1]=5; end
     endcase
   end
 
