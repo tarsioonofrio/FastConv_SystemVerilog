@@ -6,7 +6,7 @@
 // FA adder
 //--------------------------------------------------------------
 module FA
-     import packConv::*;
+     import pack_typedef::*;
 (
   input  logic [NBITS-1:0] a, b, c,
   output logic [NBITS-1:0] sum, cout
@@ -23,7 +23,7 @@ endmodule
 // CSA 1  -  output equal to input
 //--------------------------------------------------------------
 module CSA_1
-    import packConv::*;
+    import pack_typedef::*;
 (
   input  logic [NBITS-1:0] op0,
   output logic [NBITS-1:0] sum
@@ -40,7 +40,7 @@ endmodule
 // 2 inputs ADDER
 //--------------------------------------------------------------
 module CSA_2
-    import packConv::*;
+    import pack_typedef::*;
 (
   input  logic [NBITS-1:0] op0, op1,
   output logic [NBITS-1:0] sum
@@ -56,7 +56,7 @@ endmodule
 // CSA - CARRY SAVE ADDER with 3 inputs
 //--------------------------------------------------------------
 module CSA_3
-    import packConv::*;
+    import pack_typedef::*;
 (
   input  logic [NBITS-1:0] op0, op1, op2,
   output logic [NBITS-1:0] sum
@@ -74,7 +74,7 @@ endmodule
 // CSA - CARRY SAVE ADDER with 4 inputs
 //--------------------------------------------------------------
 module CSA_4    
-     import packConv::*;
+     import pack_typedef::*;
 (
   input  logic [NBITS-1:0] op0, op1, op2, op3,
   output logic [NBITS-1:0] sum
@@ -95,7 +95,7 @@ endmodule
 // CSA - CARRY SAVE ADDER with 5 inputs
 //--------------------------------------------------------------
 module CSA_5
-     import packConv::*;
+     import pack_typedef::*;
 (
   input  logic [NBITS-1:0] op0, op1, op2, op3, op4,
   output logic [NBITS-1:0] sum
@@ -121,7 +121,7 @@ endmodule
 // CSA - CARRY SAVE ADDER with 6 inputs
 //--------------------------------------------------------------
 module CSA_6
-     import packConv::*;
+     import pack_typedef::*;
 (
   input  logic [NBITS-1:0] op0, op1, op2, op3, op4, op5,
   output logic [NBITS-1:0] sum
@@ -146,7 +146,7 @@ endmodule
 // CSA - CARRY SAVE ADDER with 7 inputs
 //--------------------------------------------------------------
 module CSA_7
-      import packConv::*;
+      import pack_typedef::*;
 (
   input  logic [NBITS-1:0] op0, op1, op2, op3, op4, op5, op6,
   output logic [NBITS-1:0] sum
@@ -175,7 +175,7 @@ endmodule
 // CSA - CARRY SAVE ADDER with 8 inputs
 //--------------------------------------------------------------
 module CSA_8
-     import packConv::*;
+     import pack_typedef::*;
 (
   input  logic [NBITS-1:0] op0, op1, op2, op3, op4, op5, op6, op7,
   output logic [NBITS-1:0] sum
@@ -205,7 +205,7 @@ endmodule
 // CSA - CARRY SAVE ADDER with 9 inputs
 //--------------------------------------------------------------
 module CSA_9
-     import packConv::*;
+     import pack_typedef::*;
 (
   input  logic [NBITS-1:0] op0, op1, op2, op3, op4, op5, op6, op7, op8,
   output logic [NBITS-1:0] sum
@@ -236,7 +236,7 @@ endmodule
 // CSA - CARRY SAVE ADDER with 9 inputs
 //--------------------------------------------------------------
 module CSA_12
-     import packConv::*;
+     import pack_typedef::*;
 (
   input  logic [NBITS-1:0] op0, op1, op2, op3, op4, op5, op6, op7, op8, op9, op10, op11,
   output logic [NBITS-1:0] sum
@@ -273,7 +273,7 @@ endmodule
 // CSA - CARRY SAVE ADDER with 16 inputs
 //--------------------------------------------------------------
 module CSA_16
-     import packConv::*;
+     import pack_typedef::*;
 (
   input  logic [NBITS-1:0] op0, op1, op2, op3, op4, op5, op6, op7,
                                op8, op9, op10, op11, op12, op13, op14, op15,
@@ -316,7 +316,7 @@ endmodule
 // CSA - CARRY SAVE ADDER with 18 inputs (using an array)
 //--------------------------------------------------------------
 module CSA_18
-     import packConv::*;
+     import pack_typedef::*;
 (
   input  logic[NBITS-1:0] inputs[18], // 18 operandos de entrada
   output logic [NBITS-1:0] sum

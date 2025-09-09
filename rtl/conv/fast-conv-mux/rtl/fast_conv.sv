@@ -7,6 +7,8 @@
 //-------------------------------------------------------------------------
 import packConv::*;
 import data::*;
+import pack_typedef::*;
+import pack_param::*;
 
 module Multip
  #(
@@ -93,9 +95,11 @@ module conv
 
   // assign idx = addr[current_st];
 
+  typedef logic[5:0] idx_in_logic;
+
   MuxMult mux_mult(
-    .current_st(current_st),
-    .idx(idx)
+    .idx_in(idx_in_logic'(current_st)),
+    .idx_out(idx)
   );
 
   generate
