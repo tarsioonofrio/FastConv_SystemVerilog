@@ -39,6 +39,7 @@ module tb;
 
   // Test process to iterate over the input maps
   initial begin
+    $display("NBITS = %0d", NBITS);
 
     // Configurações iniciais
     $dumpfile("dump.vcd");  // Arquivo VCD para waveform
@@ -107,7 +108,6 @@ module tb;
       end
     end
   end
-
 
   final begin
     integer log_f;

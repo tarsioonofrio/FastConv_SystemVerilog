@@ -6,7 +6,7 @@ package packConv;
   timeunit 1ns;
   timeprecision 1ps;
 
-  parameter int NBITS = 20;
+  // parameter int NBITS = 20;
 
   parameter int NMULT = 6;
   parameter int SMULT = 6;
