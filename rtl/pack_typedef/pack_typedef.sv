@@ -7,7 +7,13 @@ package pack_typedef;
   timeunit 1ns;
   timeprecision 1ps;
 
-  parameter int NBITS = 20;
+  // Permite override na COMPILAÇÃO: vlog +define+NBITS=23
+  `ifndef NBITS
+    `define NBITS 20
+  `endif
+
+  // Valor único e centralizado para o projeto
+  parameter int NBITS = `NBITS;
 
   typedef logic [NBITS-1:0] logic_vector;
 
