@@ -9,10 +9,9 @@ endpackage
 
 
 module MuxMult
-  import pack_mux_mult::*;
   (
-    input  state_type current_st,  // current state
-    output logic[5:0] idx[0:NMULT-1]    // index array output
+    input  logic[5:0] current_st,  // current state
+    output logic[5:0] idx[0:6-1]    // index array output
   );
 
   timeunit 1ns;

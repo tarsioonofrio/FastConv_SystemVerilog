@@ -7,8 +7,10 @@ module tb;
   timeunit 1ns;
   timeprecision 1ps;
 
-  import packConv::*;
+  // import packConv::*;
   import data::*;
+  import pack_typedef::*;
+  import pack_param::*;
 
   type_weight weight;
   type_input inputMAP;
