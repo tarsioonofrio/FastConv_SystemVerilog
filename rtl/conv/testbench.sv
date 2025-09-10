@@ -7,8 +7,10 @@ module tb;
   timeunit 1ns;
   timeprecision 1ps;
 
-  import packConv::*;
+  // import packConv::*;
   import data::*;
+  import pack_typedef::*;
+  import pack_param::*;
 
   type_weight weight;
   type_input inputMAP;
@@ -37,6 +39,7 @@ module tb;
 
   // Test process to iterate over the input maps
   initial begin
+    $display("NBITS = %0d", NBITS);
 
     // Configurações iniciais
     $dumpfile("dump.vcd");  // Arquivo VCD para waveform
@@ -105,7 +108,6 @@ module tb;
       end
     end
   end
-
 
   final begin
     integer log_f;

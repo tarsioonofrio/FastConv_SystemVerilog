@@ -9,16 +9,36 @@ if {[info exists ::env(DATA)]} {
 } else {
     set DATA_SV "${GIT_ROOT}/data/ifn9/data.sv"
 }
-vlog -work work  $DATA_SV
-vlog -work work  ./pack_conv.sv
-vlog -work work -svinputport=relaxed ${GIT_ROOT}/rtl/csa/csa_lib.sv
-vlog -work work -svinputport=relaxed ${GIT_ROOT}/rtl/mux-mult/ifn9/mux_mult_state_06.sv
-vlog -work work -svinputport=relaxed ${GIT_ROOT}/rtl/mult-matrices/ifn9/mult_matrices_simplified.sv
-vlog -work work -svinputport=relaxed ${GIT_ROOT}/rtl/conv/fast-conv-mux/rtl/fast_conv.sv
-vlog -work work -svinputport=relaxed ${GIT_ROOT}/rtl/conv/testbench.sv
+vlog -work work  -svinputport=relaxed $DATA_SV
+vlog -work work  -svinputport=relaxed ./pack_conv.sv
+
+# Read key=value defines from define.txt and build the +define+key=value flags
+set defines_file "${GIT_ROOT}/rtl/conv/fast-conv-mux/sim/ifn9-06m20b/define.txt"
+set define_flags ""
+
+if {[file exists $defines_file]} {
+    set fp_def [open $defines_file r]
+    while {[gets $fp_def line] >= 0} {
+        set line_trim [string trim $line]
+        if { $line_trim ne "" && [string first "=" $line_trim] > 0 } {
+            set define_flags "$define_flags+define+$line_trim "
+        }
+    }
+    close $fp_def
+}
+# Read the file_list.txt file and execute vlog commands for each line, passing defines
+set file_list "${GIT_ROOT}/rtl/conv/fast-conv-mux/sim/ifn9-06m20b/file_list.txt"
+set fp [open $file_list r]
+while {[gets $fp line] >= 0} {
+    if {[string trim $line] ne ""} {
+        vlog -work work $define_flags -svinputport=relaxed ${GIT_ROOT}/$line
+    }
+}
+close $fp
+
+vlog -work work $define_flags -svinputport=relaxed ${GIT_ROOT}/rtl/conv/testbench.sv
 
 vsim -voptargs=+acc -t ns work.tb
-
 
 set StdArithNoWarnings 1
 set StdVitalGlitchNoWarnings 1
