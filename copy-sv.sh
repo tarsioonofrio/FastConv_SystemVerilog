@@ -8,14 +8,16 @@ for SVDIR in ../fast-convolution-rtl/test/*/sv/; do
     cp "$SVDIR"/mux_mult* "$MUX"
 
     # Copy mult matrices
-    MAT="./rtl/mult-matrices/$VAR/"
-    mkdir -p "$MAT"
-    cp "$SVDIR"/mult_matrices.sv "$MAT"
+    if [[ "$SVDIR" == *"2d-"* ]]; then
+        MAT="./rtl/mult-matrices/$VAR/"
+        mkdir -p "$MAT"
+        cp "$SVDIR"/mult_matrices.sv "$MAT"
+    fi
 
     # Copy param
-    PARAM="./rtl/param/$VAR/"
+    PARAM="./rtl/pack_param/$VAR/"
     mkdir -p "$PARAM"
-    cp "$SVDIR"/param.sv "$PARAM"
+    cp "$SVDIR"/pack_param.sv "$PARAM"
 
     # Copy data
     # PARAM="./rtl/etc/$VAR/"

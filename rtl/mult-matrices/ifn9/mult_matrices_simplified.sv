@@ -1,5 +1,5 @@
 module Transform
-  import packConv::*;
+  import pack_typedef::*;
   (
     input  type_input pin,
     output type_weight pout
@@ -23,7 +23,7 @@ endmodule
 
 
 module Inverse
-  import packConv::*;
+  import pack_typedef::*;
   (
     input  type_weight pin,
     output type_output pout
@@ -45,7 +45,7 @@ endmodule
 
 
 module MatrixC0
-  import packConv::*;
+  import pack_typedef::*;
   (
     input  type_input P,
     output type_matrix_c soma
@@ -116,7 +116,7 @@ endmodule
 
 
 module MatrixC1
-  import packConv::*;
+  import pack_typedef::*;
   (
     input  type_matrix_c P,
     output type_weight soma
@@ -192,7 +192,7 @@ endmodule
 
 
 module MatrixA1
-  import packConv::*;
+  import pack_typedef::*;
   (
     input  type_weight P,
     output type_matrix_a soma
@@ -245,7 +245,7 @@ endmodule
 
 
 module MatrixA0
-  import packConv::*;
+  import pack_typedef::*;
   (
     input  type_matrix_a P,
     output type_output soma
