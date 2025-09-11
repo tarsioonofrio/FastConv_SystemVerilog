@@ -1,6 +1,7 @@
-set DB_FILE ./results/gate_level/conv_logic_mapped.db 
+
+# set DB_FILE ./results/gate_level/conv_logic_mapped.db
 set START_TIME 0ns
-set CONSTRAINTS_PATH ./scripts
+set CONSTRAINTS_PATH ${GIT_ROOT}/synthesis/scripts
 
 
 set LIB_PATH /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End
@@ -41,7 +42,7 @@ read_db ${DB_FILE}
 
 set_db interconnect_mode ple
 
-read_stimulus ../simSDF/conv.shm -dut_instance tb.conv -start ${START_TIME}
+read_stimulus ${PWD}/../simSDF/conv.shm -dut_instance tb.conv -start ${START_TIME}
 #compute_power -mode average
 report_power -header -unit mW >  power_evaluation.txt
 
