@@ -3,7 +3,9 @@ module tb;
   timeprecision 1ps;
 
   import data::*;
-  import packConv::*;
+  import pack_typedef::*;
+  import pack_param::*;
+  import pack_mux_mult::*;
 
   // Parâmetros conforme Core
   localparam int QUANT            = 8;

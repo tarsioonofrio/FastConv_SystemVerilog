@@ -1,6 +1,7 @@
 module Core
-  import packConv::*;
-  import data::*;
+  import pack_typedef::*;
+  import pack_param::*;
+  import pack_mux_mult::*;
 #(
     parameter int QUANT = 8,
     parameter int NBITS = 20
@@ -69,8 +70,8 @@ module Core
   int r_count_fin;
   int r_count_fout;
 
-  logic [6:0] r_mult_idx;
-  logic [6:0] r_mult_idx_output[0:NMULT-1];
+  logic [5:0] r_mult_idx;
+  logic [5:0] r_mult_idx_output[0:NMULT-1];
 
   logic signed [NBITS-1+QUANT:0] product [0:NMULT-1];  // QUANT more bits for the multipliers
 
@@ -301,7 +302,7 @@ endmodule
 
 
 module Multip
-  import packConv::*;
+  import pack_typedef::*;
 #(
     parameter int QUANT = 8,
     parameter int NBITS = 20

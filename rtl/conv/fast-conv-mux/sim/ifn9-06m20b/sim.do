@@ -10,10 +10,9 @@ if {[info exists ::env(DATA)]} {
     set DATA_SV "${GIT_ROOT}/data/ifn9/data.sv"
 }
 vlog -work work  -svinputport=relaxed $DATA_SV
-vlog -work work  -svinputport=relaxed ./pack_conv.sv
 
 # Read key=value defines from define.txt and build the +define+key=value flags
-set defines_file "${GIT_ROOT}/rtl/conv/fast-conv-mux/sim/ifn9-06m20b/define.txt"
+set defines_file "[pwd]/define.txt"
 set define_flags ""
 
 if {[file exists $defines_file]} {
