@@ -2,8 +2,9 @@
 // CONVOLUTION  TB
 // -------------------------------------------------------------------------
 module tb;
-  import packConv::*;
   import data::*;
+  import pack_typedef::*;
+  import pack_param::*;
 
   timeunit 1ns;
   timeprecision 1ps;
