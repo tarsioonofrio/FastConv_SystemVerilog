@@ -1,6 +1,7 @@
 module Memory
-  import packConv::*;
-  import data::*;
+    import data::*;
+    import pack_typedef::*;
+    import pack_param::*;
  #(
     parameter int NADDR   = 12,
     parameter int NBITS   = 20,
