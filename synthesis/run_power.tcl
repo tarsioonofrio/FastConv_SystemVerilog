@@ -42,7 +42,7 @@ read_db ${DB_FILE}
 
 set_db interconnect_mode ple
 
-read_stimulus ${PWD}/../simSDF/conv.shm -dut_instance tb.conv -start ${START_TIME}
+read_stimulus $SHM -dut_instance tb.conv -start ${START_TIME}
 #compute_power -mode average
 report_power -header -unit mW >  power_evaluation.txt
 
