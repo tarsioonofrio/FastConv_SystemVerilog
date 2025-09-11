@@ -1,4 +1,5 @@
 cd ./sintese/
+module purge
 module load genus > /dev/null 2>&1
 genus -f run_logical_synthesis.tcl
 
