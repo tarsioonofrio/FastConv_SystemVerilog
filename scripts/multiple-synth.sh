@@ -1,6 +1,6 @@
 SCRIPT=$(pwd)
 
-for dir in "$@"; do
+for dir in "$1"; do
   echo "Processando o diretório: $dir"
   cd "$dir/sintese" || { echo "Não foi possível entrar em $dir/sintese"; continue; }
 
