@@ -25,6 +25,6 @@ if { [file exists $file_list_path] } {
 
 append HDL_FILES "${GIT_ROOT}/rtl/conv/fast-conv-mux/rtl/fast_conv.sv"
 
-set DEFINE "NBITS=20"
+set DEFINE "-define NBITS=20"
 
 source ${GIT_ROOT}/synthesis/run_logical_synthesis.tcl
