@@ -3,7 +3,8 @@ module tb;
   timeprecision 1ps;
 
   import data::*;
-  import packConv::*;
+  import pack_typedef::*;
+  import pack_param::*;
 
   // Parâmetros conforme Core
   localparam int NADDR            = 12;
