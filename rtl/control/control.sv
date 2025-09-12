@@ -75,11 +75,13 @@ module Control
   logic r_end_fin;
   logic r_reuse;
 
-  int r_count_wh;
+  int current_r_count_wh;
+  int next_r_count_wh;
   int r_count_fin;
   int r_count_fout;
   int r_addr_bias;
-  int r_addr_wh;
+  int current_r_addr_wh;
+  int next_r_addr_wh;
   int r_addr_fin_base;
   int r_addr_fin[25-1:0];
   int r_addr_fout_base;
@@ -149,10 +151,14 @@ module Control
       current_st_input  <= IDLE_CONTROL;
       current_st_conv   <= IDLE_CONV;
       current_st_output <= IDLE_OUTPUT;
+      current_r_addr_wh <= 0;
+      current_r_count_wh <= 0;
     end else begin
       current_st_input  <= next_st_input;
       current_st_conv   <= next_st_conv;
       current_st_output <= next_st_output;
+      current_r_addr_wh <= next_r_addr_wh;
+      current_r_count_wh <= next_r_count_wh;
     end
   end
 
@@ -192,7 +198,12 @@ module Control
           next_st_input = WEIGHT;
       WEIGHT: begin
         w_wh_end = 1'b0;
-        if (r_count_wh == (M1_SIZE * M2_SIZE)) begin
+        if (w_mem_rd_valid) begin
+          next_r_addr_wh  <= current_r_addr_wh + 1;
+          next_r_count_wh <= current_r_count_wh + 1;
+        end
+
+        if (current_r_count_wh == (M1_SIZE * M2_SIZE)) begin
           next_st_input = ADDR_INPUT;
           w_wh_end = 1'b1;
         end
@@ -256,7 +267,7 @@ module Control
         // p_bias_valid <= w_mem_rd_valid;
       end
       WEIGHT: begin
-        w_mem_rd_addr  <= r_addr_wh;
+        w_mem_rd_addr  <= current_r_addr_wh;
         w_mem_rd_chip  <= r_wh_en;
         p_wh_valid  <= w_mem_rd_valid;
         p_fin_valid <= 0;
@@ -282,10 +293,9 @@ module Control
   always_ff @(posedge clk) begin
     if (reset) begin
       r_addr_bias      <= 0;
-      r_addr_wh        <= N_CHANNEL_OUT;
+      current_r_addr_wh        <= N_CHANNEL_OUT;
       r_addr_fin_base  <= N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT;
       r_addr_fout_base <= 0;
-      r_count_wh       <= 0;
       r_count_fin      <= 0;
       r_count_fout     <= 0;
       r_count_window   <= 0;
@@ -299,10 +309,10 @@ module Control
       unique case (current_st_input)
         IDLE_CONTROL: begin
           r_addr_bias      <= 0;
-          r_addr_wh        <= N_CHANNEL_OUT;
+          current_r_addr_wh        <= N_CHANNEL_OUT;
           r_addr_fin_base  <= N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT;
           r_addr_fout_base <= 0;
-          r_count_wh       <= 0;
+          current_r_count_wh       <= 0;
           r_count_fin      <= 0;
           r_count_fout     <= 0;
           r_count_window   <= 0;
@@ -314,7 +324,7 @@ module Control
           r_start_conv     <= 1'b0;
         end
         IDLE_INPUT: begin
-          r_count_wh       <= 0;
+          current_r_count_wh       <= 0;
           r_count_fin      <= 0;
           r_wh_en          <= 1'b0;
           r_fin_en         <= 1'b0;
@@ -343,10 +353,10 @@ module Control
           r_wh_en      <= 1'b1;
           r_fin_en     <= 1'b0;
           r_count_fin  <= 0;
-          if (w_mem_rd_valid) begin
-            r_addr_wh  <= r_addr_wh + 1;
-            r_count_wh <= r_count_wh + 1;
-          end
+          // if (w_mem_rd_valid) begin
+          //   // current_r_addr_wh  <= current_r_addr_wh + 1;
+          //   r_count_wh <= r_count_wh + 1;
+          // end
           // if (w_wh_end)
           //   r_wh_en <= 1'b0;
           // else
@@ -354,7 +364,7 @@ module Control
         end
         ADDR_INPUT: begin
           r_wh_en    <= 1'b0;
-          r_count_wh <= 0;
+          current_r_count_wh <= 0;
           // TODO: Implement w_mem_rd_addr generation logic using if else statements and remove
           // Addresses ordered by column and not by row to facilitate reading
           // when reusing, which reuses the last two columns
@@ -398,7 +408,7 @@ module Control
         FEAT_INPUT: begin
           r_fin_en     <= 1'b1;
           r_wh_en      <= 1'b0;
-          r_count_wh   <= 0;
+          current_r_count_wh   <= 0;
           if (w_mem_rd_valid)
             r_count_fin <= r_count_fin + 1;
           // if (w_fin_end)
