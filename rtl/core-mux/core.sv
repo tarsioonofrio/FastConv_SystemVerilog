@@ -66,7 +66,8 @@ module Core
   logic w_end[3:0];
   // logic w_end[2];
 
-  int r_count_wh;
+  int current_r_count_wh;
+  int next_r_count_wh;
   int r_count_fin;
   int r_count_fout;
 
@@ -104,10 +105,12 @@ module Core
       current_st_input  <= IDLE_INPUT;
       current_st_conv   <= IDLE_CONV;
       current_st_output <= IDLE_OUTPUT;
+      current_r_count_wh    <= 0;
     end else begin
       current_st_input  <= next_st_input;
       current_st_conv   <= next_st_conv;
       current_st_output <= next_st_output;
+      current_r_count_wh    <= next_r_count_wh;
     end
   end
 
@@ -123,6 +126,14 @@ module Core
       2'b10: next_st_input = WEIGHT;
       2'b01: next_st_input = FEAT_INPUT;
       default: next_st_input = IDLE_INPUT;
+    endcase
+
+    unique case (current_st_input)
+      WEIGHT: begin
+        if (p_wh_valid) begin
+          next_r_count_wh    <= current_r_count_wh + 1;
+        end
+      end
     endcase
 
     unique case (current_st_conv)
@@ -160,7 +171,7 @@ module Core
       r_weight <= '{default: '0};
       r_feat_in <= '{default: '0};
       r_feat_out <= '{default: '0};
-      r_count_wh <= 0;
+      current_r_count_wh <= 0;
       r_count_fin <= 0;
       r_count_fout <= 0;
       r_reuse <= 1'b0;
@@ -173,7 +184,7 @@ module Core
         IDLE_INPUT: begin
           r_end[0] = 1'b0;
           r_end[1] = 1'b0;
-          r_count_wh <= 0;
+          current_r_count_wh <= 0;
           r_count_fout <= 0;
           r_reuse <= p_reuse;
           if (p_reuse) begin
@@ -199,12 +210,12 @@ module Core
           // r_end[0] <= 1'b0;
           // r_end[1] <= 1'b0;
           if (p_wh_valid) begin
-            r_weight[r_count_wh] <= p_in_data;
-            r_count_wh           <= r_count_wh + 1;
+            r_weight[current_r_count_wh] <= p_in_data;
+            // current_r_count_wh           <= current_r_count_wh + 1;
           end
         end
         FEAT_INPUT: begin
-          // r_count_wh <= 0;
+          // current_r_count_wh <= 0;
           // r_count_fout <= 0;
           // r_end[0] <= 1'b1;
           // r_end[1] <= 1'b0;
