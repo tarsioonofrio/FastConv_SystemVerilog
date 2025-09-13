@@ -201,6 +201,8 @@ module Core
           if (p_wh_valid) begin
             r_weight[r_count_wh] <= p_in_data;
             r_count_wh           <= r_count_wh + 1;
+            $display("%0t - p_wh_valid: %0b, r_count_wh: %0d, p_in_data: %p", $time, p_wh_valid, r_count_wh, p_in_data);
+
           end
         end
         FEAT_INPUT: begin

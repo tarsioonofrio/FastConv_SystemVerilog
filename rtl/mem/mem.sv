@@ -42,13 +42,13 @@ module Memory
 
   always_ff @(posedge clk) begin
     if (reset || r_cycles_latency == 0)
-      r_cycles_latency <= LATENCY;
+      r_cycles_latency <= LATENCY - 1;
     else if (chip_en == 1'b1)
       r_cycles_latency <= r_cycles_latency - 1;
   end
 
   always_comb begin
-    if (r_cycles_latency == 0)
+    if (r_cycles_latency == 0 && chip_en == 1'b1)
       data_valid = 1'b1;
     else
       data_valid = 1'b0;
