@@ -175,8 +175,6 @@ module Control
           p_end = 1'b0;
       end
       IDLE_INPUT: begin
-        w_fin_end = 1'b0;
-        w_wh_end = 1'b0;
         if (r_count_window == N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN)
           next_st_input = END_CONTROL;
         else
@@ -191,7 +189,7 @@ module Control
       BIAS:
           next_st_input = WEIGHT;
       WEIGHT: begin
-        w_wh_end = 1'b0;
+        // w_wh_end = 1'b0;
         if (r_count_wh == (M1_SIZE * M2_SIZE)) begin
           next_st_input = ADDR_INPUT;
           w_wh_end = 1'b1;
@@ -200,7 +198,7 @@ module Control
       ADDR_INPUT:
         next_st_input = FEAT_INPUT;
       FEAT_INPUT: begin
-        w_fin_end = 1'b0;
+        // w_fin_end = 1'b0;
         if (r_count_fin == (C1_SIZE * C2_SIZE)) begin
           next_st_input = END_INPUT;
           w_fin_end = 1'b1;
@@ -209,8 +207,6 @@ module Control
       END_INPUT:
         if (w_conv_idle)
           next_st_input = IDLE_INPUT;
-      END_CONTROL:
-        p_end = 1'b1;
     endcase
 
     unique case (current_st_conv)
@@ -238,8 +234,8 @@ module Control
         next_st_output = IDLE_OUTPUT;
     endcase
 
-    p_wh_en    <= r_wh_en;
-    p_fin_en   <= r_fin_en;
+    // p_wh_en    <= r_wh_en;
+    // p_fin_en   <= r_fin_en;
     p_out_data <= w_mem_rd_out;
 
     w_mem_wr_addr <= r_addr_fout[r_count_fout];
@@ -248,6 +244,12 @@ module Control
     w_mem_wr_in   <= p_in_data;
 
     // Wire control
+    p_wh_en <= 1'b0;
+    p_fin_en <= 1'b0;
+    p_wh_valid  <= 1'b0;
+    p_fin_valid <= 1'b0;
+    w_fin_end = 1'b0;
+    w_wh_end = 1'b0;
     unique case (current_st_input)
       BIAS: begin
         w_mem_rd_addr <= r_addr_bias;
@@ -259,14 +261,17 @@ module Control
         w_mem_rd_addr  <= r_addr_wh;
         w_mem_rd_chip  <= r_wh_en;
         p_wh_valid  <= w_mem_rd_valid;
-        p_fin_valid <= 0;
+        p_wh_en <= 1'b1;
       end
-      default: begin
+      END_CONTROL:
+        p_end = 1'b1;
+      FEAT_INPUT: begin
         w_mem_rd_addr  <= r_addr_fin[r_count_fin];
         w_mem_rd_chip  <= r_fin_en;
-        p_wh_valid  <= 0;
         p_fin_valid <= w_mem_rd_valid;
+        p_fin_en <= 1'b1;
       end
+      default: begin end
       // FEAT_OUTPUT: begin
       //   p_wh_valid  <= 0;
       //   p_fin_valid <= 0;
