@@ -66,9 +66,9 @@ module Core
   logic w_end[3:0];
   // logic w_end[2];
 
-  int current_r_count_wh;
-  int next_r_count_wh;
-  int r_count_fin;
+  int r_count_wh;
+  int current_r_count_fin;
+  int next_r_count_fin;
   int r_count_fout;
 
   logic [5:0] r_mult_idx;
@@ -105,12 +105,12 @@ module Core
       current_st_input  <= IDLE_INPUT;
       current_st_conv   <= IDLE_CONV;
       current_st_output <= IDLE_OUTPUT;
-      current_r_count_wh    <= 0;
+      current_r_count_fin    <= 0;
     end else begin
       current_st_input  <= next_st_input;
       current_st_conv   <= next_st_conv;
       current_st_output <= next_st_output;
-      current_r_count_wh    <= next_r_count_wh;
+      current_r_count_fin    <= next_r_count_fin;
     end
   end
 
@@ -129,9 +129,16 @@ module Core
     endcase
 
     unique case (current_st_input)
-      WEIGHT: begin
+    IDLE_INPUT: begin
+      if (p_reuse) begin
+        next_r_count_fin <= 10;
+      end else begin
+        next_r_count_fin <= 0;
+      end
+    end
+      FEAT_INPUT: begin
         if (p_wh_valid) begin
-          next_r_count_wh    <= current_r_count_wh + 1;
+          next_r_count_fin    <= current_r_count_fin + 1;
         end
       end
     endcase
@@ -171,8 +178,8 @@ module Core
       r_weight <= '{default: '0};
       r_feat_in <= '{default: '0};
       r_feat_out <= '{default: '0};
-      current_r_count_wh <= 0;
-      r_count_fin <= 0;
+      r_count_wh <= 0;
+      // r_count_fin <= 0;
       r_count_fout <= 0;
       r_reuse <= 1'b0;
       r_fout_en <= 1'b0;
@@ -184,11 +191,11 @@ module Core
         IDLE_INPUT: begin
           r_end[0] = 1'b0;
           r_end[1] = 1'b0;
-          current_r_count_wh <= 0;
+          r_count_wh <= 0;
           r_count_fout <= 0;
           r_reuse <= p_reuse;
           if (p_reuse) begin
-            r_count_fin <= 10;
+            // next_r_count_fin <= 10;
             // TODO perform test using an index table
             r_feat_in[00] <= r_feat_in[03];
             r_feat_in[01] <= r_feat_in[04];
@@ -200,8 +207,8 @@ module Core
             r_feat_in[16] <= r_feat_in[19];
             r_feat_in[20] <= r_feat_in[23];
             r_feat_in[21] <= r_feat_in[24];
-          end else begin
-            r_count_fin <= 0;
+          // end else begin
+          //   next_r_count_fin <= 0;
           end
         end
         WEIGHT: begin
@@ -210,18 +217,18 @@ module Core
           // r_end[0] <= 1'b0;
           // r_end[1] <= 1'b0;
           if (p_wh_valid) begin
-            r_weight[current_r_count_wh] <= p_in_data;
-            // current_r_count_wh           <= current_r_count_wh + 1;
+            r_weight[r_count_wh] <= p_in_data;
+            r_count_wh           <= r_count_wh + 1;
           end
         end
         FEAT_INPUT: begin
-          // current_r_count_wh <= 0;
+          // r_count_wh <= 0;
           // r_count_fout <= 0;
           // r_end[0] <= 1'b1;
           // r_end[1] <= 1'b0;
           if (p_fin_valid) begin
-            r_feat_in[c_index[r_count_fin]] <= p_in_data;
-            r_count_fin                     <= r_count_fin + 1;
+            r_feat_in[c_index[next_r_count_fin]] <= p_in_data;
+            // r_count_fin                     <= r_count_fin + 1;
           end
         end
       endcase
