@@ -1,4 +1,5 @@
 module Control
+  import pack_def::*;
   import pack_typedef::*;
   import pack_param::*;
 #(
