@@ -3,6 +3,7 @@ module tb;
   timeprecision 1ps;
 
   import data::*;
+  import pack_def::*;
   import pack_typedef::*;
   import pack_param::*;
 

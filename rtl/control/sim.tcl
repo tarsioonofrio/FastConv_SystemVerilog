@@ -12,7 +12,7 @@ set GIT_ROOT [exec git rev-parse --show-toplevel]
 # vlog -work work  -svinputport=relaxed $DATA_SV
 
 # Read key=value defines from define.txt and build the +define+key=value flags
-set defines_file "define.txt"
+set defines_file "list_def.txt"
 set define_flags ""
 
 if {[file exists $defines_file]} {
@@ -27,8 +27,9 @@ if {[file exists $defines_file]} {
 }
 
 vlog -work work -svinputport=relaxed ./data-sim.sv
+
 # Read the file_list.txt file and execute vlog commands for each line, passing defines
-set file_list "file_list.txt"
+set file_list "list-file.txt"
 set fp [open $file_list r]
 while {[gets $fp line] >= 0} {
     if {[string trim $line] ne ""} {
@@ -37,13 +38,6 @@ while {[gets $fp line] >= 0} {
 }
 close $fp
 
-# vlog -work work $define_flags -svinputport=relaxed ${GIT_ROOT}/rtl/pack_param/ifn9/pack_param.sv
-# vlog -work work $define_flags -svinputport=relaxed ${GIT_ROOT}/rtl/pack_typedef/pack_typedef.sv
-# vlog -work work $define_flags -svinputport=relaxed ${GIT_ROOT}/rtl/csa/csa_lib.sv
-# vlog -work work $define_flags -svinputport=relaxed ${GIT_ROOT}/rtl/mux-mult/ifn9/mux_mult_06.sv
-# vlog -work work $define_flags -svinputport=relaxed ${GIT_ROOT}/rtl/mult-matrices/ifn9/mult_matrices_simplified.sv
-# vlog -work work $define_flags -svinputport=relaxed ${GIT_ROOT}/rtl/core-mux/core.sv
-# vlog -work work $define_flags -svinputport=relaxed ${GIT_ROOT}/rtl/mem/mem.sv
 
 vlog -work work $define_flags -svinputport=relaxed ./control.sv
 vlog -work work $define_flags -svinputport=relaxed ./tb_control.sv

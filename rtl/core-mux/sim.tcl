@@ -12,7 +12,7 @@ if {[info exists ::env(DATA)]} {
 vlog -work work  -svinputport=relaxed $DATA_SV
 
 # Read key=value defines from define.txt and build the +define+key=value flags
-set defines_file "define.txt"
+set defines_file "list_def.txt"
 set define_flags ""
 
 if {[file exists $defines_file]} {
@@ -26,7 +26,7 @@ if {[file exists $defines_file]} {
     close $fp_def
 }
 # Read the file_list.txt file and execute vlog commands for each line, passing defines
-set file_list "${GIT_ROOT}/rtl/conv/fast-conv-mux/sim/ifn9-06m20b/file_list.txt"
+set file_list "list_file.txt"
 set fp [open $file_list r]
 while {[gets $fp line] >= 0} {
     if {[string trim $line] ne ""} {

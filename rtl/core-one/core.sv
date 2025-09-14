@@ -1,6 +1,8 @@
 module Core
-  import packConv::*;
-  import data::*;
+  import pack_def::*;
+  import pack_param::*;
+  import pack_typedef::*;
+  import pack_mux_mult::*;
 #(
     parameter int QUANT = 8,
     parameter int NBITS = 20

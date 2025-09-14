@@ -2,18 +2,11 @@
 // FERNANDO MORAES                                          24/October/2024
 //-------------------------------------------------------------------------
 package pack_typedef;
-  import pack_param::*;
-
   timeunit 1ns;
   timeprecision 1ps;
 
-  // Permite override na COMPILAÇÃO: vlog +define+NBITS=23
-  `ifndef NBITS
-    `define NBITS 20
-  `endif
-
-  // Valor único e centralizado para o projeto
-  parameter int NBITS = `NBITS;
+  import pack_def::*;
+  import pack_param::*;
 
   typedef logic [NBITS-1:0] logic_vector;
 
