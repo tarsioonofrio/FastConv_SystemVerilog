@@ -15,7 +15,7 @@ for SVDIR in ../fast-convolution-rtl/test/*/sv/; do
     fi
 
     # Copy param
-    PARAM="./rtl/pack_param/$VAR/"
+    PARAM="./rtl/pack-param/$VAR/"
     mkdir -p "$PARAM"
     cp "$SVDIR"/pack_param.sv "$PARAM"
 
