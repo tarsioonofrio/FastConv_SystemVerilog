@@ -42,6 +42,8 @@ module tb;
   logic_vector data_control2core;
   logic_vector data_core2control;
 
+  int count_fout = 0;
+
   // Clock generation (10ns period)
   initial clk = 0;
   always #5 clk = ~clk;
@@ -122,45 +124,30 @@ module tb;
 
 
     // Carregar pesos
-    $display("=== Loading weights ===");
-    wait(p_wh_en);
-
-    for (int i = 0; i < W2_SIZE; i++) begin
-      wait(p_wh_valid);
-      // data_control2core = const_weight[0][i];
-      $display("Weight[%0d] = %0d", i, data_core2control);
-      @(posedge clk);
-    end
-
-    wait(p_end);
-
-    // Carregar dados de entrada
-    $display("=== Loading data ===");
-
-    wait(p_fin_en);
-
-    for (int i = 0; i < FIN2_SIZE; i++) begin
-      wait(p_fin_valid);
-      // data_control2core = const_feat_in[0][i];
-      $display("Weight[%0d] = %0d", i, data_core2control);
-      @(posedge clk);
-    end
-
-
+    // $display("=== Loading weights ===");
+    // wait(p_wh_en);
+    // for (int i = 0; i < W2_SIZE; i++) begin
+    //   wait(p_wh_valid);
+    //   // data_control2core = const_weight[0][i];
+    //   $display("Weight[%0d] = %0d", i, data_control2core);
+    //   @(posedge clk);
+    // end
 
     // Start processamento
     $display("=== Start processing ===");
 
-    wait(p_fout_en);
 
-    $display("=== End processing ===");
     // Monitorar saída (p_fout_valid = 1) e ler dados de saída
-    @(posedge clk);
     for (int i = 0; i < FOUT2_SIZE; i++) begin
-      if (p_fout_en ) begin
-        $display("Time %0t | const_feat_out[%0d] = %0d | Output = %0d", $time, i, const_feat_out[0][i], data_core2control);
-      end
       @(posedge clk);
+      wait(p_fout_en);
+      for (int j = 0; j < FOUT2_SIZE; j++) begin
+        @(posedge clk);
+        wait(p_fout_valid);
+        if ($signed(const_feat_out_batch[i][j]) != $signed(data_core2control)) begin
+          $display("Time %0t | const_feat_out[%0d][%0d] = %0d | Output = %0d", $time, i, j, const_feat_out_batch[i][j], data_core2control);
+        end
+      end
     end
 
     wait(p_end);
@@ -168,4 +155,6 @@ module tb;
     $display("End simulation");
     $finish;
   end
+
+
 endmodule
