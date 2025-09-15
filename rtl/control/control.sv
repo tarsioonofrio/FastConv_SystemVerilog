@@ -82,9 +82,9 @@ module Control
   int r_addr_bias;
   int r_addr_wh;
   int r_addr_fin_base;
-  int r_addr_fin[25-1:0];
+  int r_addr_fin[C1_SIZE*C1_SIZE-1:0];
   int r_addr_fout_base;
-  int r_addr_fout[9-1:0];
+  int r_addr_fout[A1_SIZE*A2_SIZE-1:0];
   int r_count_window;
   int r_count_horizontal;
   int r_count_vertical;
