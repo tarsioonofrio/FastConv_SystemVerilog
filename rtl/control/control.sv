@@ -76,15 +76,15 @@ module Control
   logic r_end_fin;
   logic r_reuse;
 
-  int r_count_wh;
-  int r_count_fin;
-  int r_count_fout;
-  int r_addr_bias;
-  int r_addr_wh;
-  int r_addr_fin_base;
-  int r_addr_fin[C1_SIZE*C1_SIZE-1:0];
-  int r_addr_fout_base;
-  int r_addr_fout[A1_SIZE*A2_SIZE-1:0];
+  logic [$clog2(M1_SIZE*M2_SIZE)-1:0] r_count_wh;
+  logic [$clog2(C1_SIZE*C2_SIZE)-1:0] r_count_fin;
+  logic [$clog2(A1_SIZE*A2_SIZE)-1:0] r_count_fout;
+  logic [$clog2(N_CHANNEL_OUT)-1:0] r_addr_bias;
+  logic [$clog2(M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT)-1:0] r_addr_wh;
+  logic [$clog2(N_CHANNEL_IN * FEAT_INPUT_SIZE * FEAT_INPUT_SIZE)-1:0] r_addr_fin_base;
+  logic [$clog2(N_CHANNEL_IN * FEAT_INPUT_SIZE * FEAT_INPUT_SIZE)-1:0] r_addr_fin[C1_SIZE*C1_SIZE-1:0];
+  logic [$clog2(N_CHANNEL_OUT * FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE)-1:0] r_addr_fout_base;
+  logic [$clog2(N_CHANNEL_OUT * FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE)-1:0] r_addr_fout[A1_SIZE*A2_SIZE-1:0];
   int r_count_window;
   int r_count_horizontal;
   int r_count_vertical;
