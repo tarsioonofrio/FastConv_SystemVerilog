@@ -71,8 +71,8 @@ module Core
   int r_count_fin;
   int r_count_fout;
 
-  logic [5:0] r_mult_idx;
-  logic [5:0] r_mult_idx_output[0:NMULT-1];
+  logic [$clog2(SMULT-1):0] r_mult_idx;
+  logic [$clog2(SMULT*SMULT-1):0] r_mult_idx_output[0:NMULT-1];
 
   logic signed [NBITS-1+QUANT:0] product [0:NMULT-1];  // QUANT more bits for the multipliers
 
