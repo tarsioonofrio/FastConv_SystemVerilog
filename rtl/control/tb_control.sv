@@ -146,13 +146,14 @@ module tb;
         wait(p_fout_valid);
         if ($signed(const_feat_out_batch[i][j]) != $signed(data_core2control)) begin
           $display("Time %0t | const_feat_out[%0d][%0d] = %0d | Output = %0d", $time, i, j, const_feat_out_batch[i][j], data_core2control);
+          $display("=== ERROR - End simulation ====");
         end
       end
     end
 
     wait(p_end);
 
-    $display("End simulation");
+    $display("=== No errors - End simulation ===");
     $finish;
   end
 

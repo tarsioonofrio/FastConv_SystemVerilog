@@ -85,9 +85,9 @@ module Control
   logic [$clog2(N_CHANNEL_IN * FEAT_INPUT_SIZE * FEAT_INPUT_SIZE)-1:0] r_addr_fin[C1_SIZE*C1_SIZE-1:0];
   logic [$clog2(N_CHANNEL_OUT * FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE)-1:0] r_addr_fout_base;
   logic [$clog2(N_CHANNEL_OUT * FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE)-1:0] r_addr_fout[A1_SIZE*A2_SIZE-1:0];
-  int r_count_window;
-  int r_count_horizontal;
-  int r_count_vertical;
+  logic [$clog2(N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN)-1:0] r_count_window;
+  logic [$clog2(N_WINDOW)-1:0] r_count_horizontal;
+  // int r_count_vertical;
 
   logic_vector w_mem_rd_out;
   logic_vector w_mem_rd_in;
@@ -335,7 +335,7 @@ module Control
           end
           if (w_horizontal_end) begin
             r_count_horizontal <= 0;
-            r_count_vertical   <= r_count_vertical + 1;
+            // r_count_vertical   <= r_count_vertical + 1;
           end
           else begin
             r_count_window     <= r_count_window + 1;
