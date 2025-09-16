@@ -67,12 +67,12 @@ module Core
   logic w_end[3:0];
   // logic w_end[2];
 
-  int r_count_wh;
-  int r_count_fin;
-  int r_count_fout;
+  logic [$clog2(M1_SIZE*M2_SIZE):0] r_count_wh;
+  logic [$clog2(C1_SIZE*C2_SIZE):0] r_count_fin;
+  logic [$clog2(A1_SIZE*A2_SIZE):0] r_count_fout;
 
-  logic [5:0] r_mult_idx;
-  logic [5:0] r_mult_idx_output[0:NMULT-1];
+  logic [$clog2(SMULT-1):0] r_mult_idx;
+  logic [$clog2(SMULT*SMULT-1):0] r_mult_idx_output[0:NMULT-1];
 
   logic signed [NBITS-1+QUANT:0] product [0:NMULT-1];  // QUANT more bits for the multipliers
 
