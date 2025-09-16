@@ -86,7 +86,10 @@ module Control
   logic [$clog2(N_CHANNEL_OUT * FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE)-1:0] r_addr_fout_base;
   logic [$clog2(N_CHANNEL_OUT * FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE)-1:0] r_addr_fout[A1_SIZE*A2_SIZE-1:0];
   logic [$clog2(N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN)-1:0] r_count_window;
-  logic [$clog2(N_WINDOW)-1:0] r_count_horizontal;
+  // Por algum motivo que não entendo o contador de linhas horizontais só funciona se for inteiro,
+  // se trocar para logic [$clog2(N_WINDOW):0] ou qualquer números de bits dá erro na convolução
+  int r_count_horizontal;
+  // logic [$clog2(N_WINDOW):0] r_count_horizontal;
   // int r_count_vertical;
 
   logic_vector w_mem_rd_out;
