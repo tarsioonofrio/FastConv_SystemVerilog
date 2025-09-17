@@ -26,7 +26,7 @@ if {[file exists $defines_file]} {
     close $fp_def
 }
 # Read the file_list.txt file and execute vlog commands for each line, passing defines
-set file_list "${GIT_ROOT}/rtl/conv/fast-conv-mux/sim/ifn9-06m20b/file_list.txt"
+set file_list "file_list.txt"
 set fp [open $file_list r]
 while {[gets $fp line] >= 0} {
     if {[string trim $line] ne ""} {
@@ -35,9 +35,9 @@ while {[gets $fp line] >= 0} {
 }
 close $fp
 
-vlog -work work $define_flags -svinputport=relaxed ${GIT_ROOT}/rtl/conv/fast-conv-mux/rtl/fast_conv.sv
-
-vlog -work work $define_flags -svinputport=relaxed ${GIT_ROOT}/rtl/conv/testbench.sv
+vlog -work work $define_flags -svinputport=relaxed pack_conv.sv
+vlog -work work $define_flags -svinputport=relaxed ${GIT_ROOT}/contrib/old-conv/fast-conv-mux/rtl/fast_conv.sv
+vlog -work work $define_flags -svinputport=relaxed ${GIT_ROOT}/contrib/old-conv/testbench.sv
 
 vsim -voptargs=+acc -t ns work.tb
 
