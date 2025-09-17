@@ -9,7 +9,7 @@ puts "Load the pdk using MMMC"
 puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 
 	# Multi-Mode Multi-Corner (MMMC)
-	read_mmmc "${GIT_ROOT}/synthesis/scripts/mmmc_tsmc_28_bv.tcl"
+	read_mmmc "${GIT_ROOT}/synthesis/source/scripts/mmmc_tsmc_28_bv.tcl"
 
 
 puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
