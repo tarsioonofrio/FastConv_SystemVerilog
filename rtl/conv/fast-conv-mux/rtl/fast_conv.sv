@@ -57,7 +57,7 @@ module conv
 
   logic signed[NBITS-1+QUANT:0] product[0:NMULT-1];   // QUANT more bits for the multipliers
 
-  logic[5:0] idx[0:NMULT-1];
+  logic[6:0] idx[0:NMULT-1];
 
 
   //
