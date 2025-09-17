@@ -22,7 +22,7 @@ module Control
     output logic p_end,
     output logic p_start_conv,
     output logic p_reuse,
-    input  logic p_end_conv[3:0],
+    input  logic p_end_conv[1:0],
 
     output logic p_wh_en,
     output logic p_wh_valid,
@@ -218,7 +218,7 @@ module Control
         if (w_input_end)
           next_st_conv = CONV;
       CONV:
-        if (p_end_conv[2])
+        if (p_end_conv[0])
           next_st_conv = END_CONV;
       default:
         if (w_output_idle)
@@ -232,7 +232,7 @@ module Control
       ADDR_OUTPUT:
         next_st_output = FEAT_OUTPUT;
       FEAT_OUTPUT:
-        if (p_end_conv[3])
+        if (p_end_conv[1])
           next_st_output = END_OUTPUT;
       END_OUTPUT:
         next_st_output = IDLE_OUTPUT;
@@ -457,7 +457,7 @@ module Control
         FEAT_OUTPUT: begin
           if (p_fout_valid)
             r_count_fout <= r_count_fout + 1;
-          if (p_end_conv[3]) begin
+          if (p_end_conv[1]) begin
             if (w_horizontal_end)
               r_addr_fout_base <= r_addr_fout_base + A1_SIZE + FEAT_OUTPUT_SIZE * (A1_SIZE - 1);
             else
