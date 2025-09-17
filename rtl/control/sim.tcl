@@ -41,7 +41,8 @@ close $fp
 
 vlog -work work $define_flags -svinputport=relaxed ./control.sv
 vlog -work work $define_flags -svinputport=relaxed ./tb_control.sv
-# vsim -voptargs=+acc -coverage -t ns work.tb
+# to show FSM
+# vsim -voptargs=+acc -t ns -fsmdebug -coverage -debugDB work.tb
 vsim -voptargs=+acc -t ns work.tb
 set StdArithNoWarnings 1
 set StdVitalGlitchNoWarnings 1
@@ -55,5 +56,5 @@ do mem.do
 # one line
 # run 7000ns
 run -all
-
+    
 # coverage report -output report.txt -srcfile=* -assert -directive -cvg -codeAll
