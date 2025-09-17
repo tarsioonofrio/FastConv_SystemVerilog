@@ -27,4 +27,4 @@ append HDL_FILES "${GIT_ROOT}/rtl/conv/fast-conv-mux/rtl/fast_conv.sv"
 
 set DEFINE "-define NBITS=20"
 
-source ${GIT_ROOT}/synthesis/run_logical_synthesis.tcl
+source ${GIT_ROOT}/synthesis/source/run_logical_synthesis.tcl
