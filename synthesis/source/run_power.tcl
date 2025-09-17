@@ -1,7 +1,7 @@
 
 # set DB_FILE ./results/gate_level/conv_logic_mapped.db
 set START_TIME 0ns
-set CONSTRAINTS_PATH ${GIT_ROOT}/synthesis/scripts
+set CONSTRAINTS_PATH ${GIT_ROOT}/synthesis/source/scripts
 
 
 set LIB_PATH /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End
