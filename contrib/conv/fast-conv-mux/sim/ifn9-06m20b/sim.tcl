@@ -36,8 +36,8 @@ while {[gets $fp line] >= 0} {
 close $fp
 
 vlog -work work $define_flags -svinputport=relaxed pack_conv.sv
-vlog -work work $define_flags -svinputport=relaxed ${GIT_ROOT}/contrib/old-conv/fast-conv-mux/rtl/fast_conv.sv
-vlog -work work $define_flags -svinputport=relaxed ${GIT_ROOT}/contrib/old-conv/testbench.sv
+vlog -work work $define_flags -svinputport=relaxed ${GIT_ROOT}/contrib/conv/fast-conv-mux/rtl/fast_conv.sv
+vlog -work work $define_flags -svinputport=relaxed ${GIT_ROOT}/contrib/conv/testbench.sv
 
 vsim -voptargs=+acc -t ns work.tb
 
