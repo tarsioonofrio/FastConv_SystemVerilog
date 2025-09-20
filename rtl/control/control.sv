@@ -34,7 +34,12 @@ module Control
     input logic p_fout_valid,
 
     output logic_vector p_out_data,
-    input  logic_vector p_in_data
+    input  logic_vector p_in_data,
+
+    output type_input  p_input,
+    output type_weight p_weights,
+    input  type_output p_output,
+    input  logic       p_valid
 );
 
   timeunit 1ns; timeprecision 1ps;
@@ -115,6 +120,81 @@ module Control
   logic w_conv_end;
   logic w_output_idle;
 
+
+  ////////////////////////////////
+
+  type_input  r_feat_in;
+  type_weight r_weight;
+  type_weight r_conv;
+  type_output r_feat_out;
+
+  // type_weight w_prod_c;
+  // type_output w_prod_a;
+
+  // logic r_fout_en;
+  // logic r_fout_valid;
+
+  // logic w_end[1:0];
+  // logic w_end[0];
+
+  // logic [$clog2(M1_SIZE*M2_SIZE):0] r_count_wh;
+  // logic [$clog2(C1_SIZE*C2_SIZE):0] r_count_fin;
+  // logic [$clog2(A1_SIZE*A2_SIZE):0] r_count_fout;
+
+  // logic [$clog2(SMULT-1):0] r_mult_idx;
+  // logic [$clog2(SMULT*SMULT-1):0] r_mult_idx_output[0:NMULT-1];
+
+  // logic signed [NBITS-1+QUANT:0] product [0:NMULT-1];  // QUANT more bits for the multipliers
+
+  // logic [1:0] w_wh_fin_en;
+
+  always_ff @(posedge clk) begin
+    if (reset) begin
+      r_weight <= '{default: '0};
+      r_feat_in <= '{default: '0};
+      r_feat_out <= '{default: '0};
+    end else begin
+      unique case (current_st_input)
+        IDLE_INPUT: begin
+          if (p_reuse) begin
+            r_count_fin <= 10;
+            // TODO perform test using an index table
+            r_feat_in[00] <= r_feat_in[03];
+            r_feat_in[01] <= r_feat_in[04];
+            r_feat_in[05] <= r_feat_in[08];
+            r_feat_in[06] <= r_feat_in[09];
+            r_feat_in[10] <= r_feat_in[13];
+            r_feat_in[11] <= r_feat_in[14];
+            r_feat_in[15] <= r_feat_in[18];
+            r_feat_in[16] <= r_feat_in[19];
+            r_feat_in[20] <= r_feat_in[23];
+            r_feat_in[21] <= r_feat_in[24];
+          end else begin
+            r_count_fin <= 0;
+          end
+        end
+        WEIGHT: begin
+          if (p_wh_valid) begin
+            r_weight[r_count_wh] <= p_in_data;
+            // r_count_wh           <= r_count_wh + 1;
+          end
+        end
+        FEAT_INPUT: begin
+          if (p_fin_valid) begin
+            r_feat_in[c_index[r_count_fin]] <= p_in_data;
+            // r_count_fin                     <= r_count_fin + 1;
+          end
+        end
+      endcase
+
+      // unique case (current_st_output)
+      //   IDLE_OUTPUT:
+      //     r_count_fout <= 0;
+      //   FEAT_OUTPUT:
+      //     r_count_fout <= r_count_fout + 1;
+      // endcase
+    end
+  end
 
   Memory #(
     .NADDR(NADDR),
@@ -321,6 +401,10 @@ module Control
           r_end_wh         <= 1'b0;
           r_end_fin        <= 1'b0;
           r_start_conv     <= 1'b0;
+          ////////
+          r_weight <= '{default: '0};
+          r_feat_in <= '{default: '0};
+          r_feat_out <= '{default: '0};
         end
         IDLE_INPUT: begin
           r_count_wh       <= 0;
@@ -335,6 +419,17 @@ module Control
           end else begin
             r_count_fin <= 10;
             r_reuse     <= 1'b1;
+            // TODO perform test using an index table
+            r_feat_in[00] <= r_feat_in[03];
+            r_feat_in[01] <= r_feat_in[04];
+            r_feat_in[05] <= r_feat_in[08];
+            r_feat_in[06] <= r_feat_in[09];
+            r_feat_in[10] <= r_feat_in[13];
+            r_feat_in[11] <= r_feat_in[14];
+            r_feat_in[15] <= r_feat_in[18];
+            r_feat_in[16] <= r_feat_in[19];
+            r_feat_in[20] <= r_feat_in[23];
+            r_feat_in[21] <= r_feat_in[24];
           end
           if (w_horizontal_end) begin
             r_count_horizontal <= 0;
@@ -355,6 +450,7 @@ module Control
           if (w_mem_rd_valid) begin
             r_addr_wh  <= r_addr_wh + 1;
             r_count_wh <= r_count_wh + 1;
+            r_weight[r_count_wh] <= w_mem_rd_out;
           end
           // if (w_wh_end)
           //   r_wh_en <= 1'b0;
@@ -408,8 +504,10 @@ module Control
           r_fin_en     <= 1'b1;
           r_wh_en      <= 1'b0;
           r_count_wh   <= 0;
-          if (w_mem_rd_valid)
+          if (w_mem_rd_valid) begin
             r_count_fin <= r_count_fin + 1;
+            r_feat_in[c_index[r_count_fin]] <= w_mem_rd_out;
+          end
           // if (w_fin_end)
           //   r_fin_en <= 1'b0;
           // else
