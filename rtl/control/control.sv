@@ -148,53 +148,20 @@ module Control
 
   // logic [1:0] w_wh_fin_en;
 
-  always_ff @(posedge clk) begin
-    if (reset) begin
-      r_weight <= '{default: '0};
-      r_feat_in <= '{default: '0};
-      r_feat_out <= '{default: '0};
-    end else begin
-      unique case (current_st_input)
-        IDLE_INPUT: begin
-          if (p_reuse) begin
-            r_count_fin <= 10;
-            // TODO perform test using an index table
-            r_feat_in[00] <= r_feat_in[03];
-            r_feat_in[01] <= r_feat_in[04];
-            r_feat_in[05] <= r_feat_in[08];
-            r_feat_in[06] <= r_feat_in[09];
-            r_feat_in[10] <= r_feat_in[13];
-            r_feat_in[11] <= r_feat_in[14];
-            r_feat_in[15] <= r_feat_in[18];
-            r_feat_in[16] <= r_feat_in[19];
-            r_feat_in[20] <= r_feat_in[23];
-            r_feat_in[21] <= r_feat_in[24];
-          end else begin
-            r_count_fin <= 0;
-          end
-        end
-        WEIGHT: begin
-          if (p_wh_valid) begin
-            r_weight[r_count_wh] <= p_in_data;
-            // r_count_wh           <= r_count_wh + 1;
-          end
-        end
-        FEAT_INPUT: begin
-          if (p_fin_valid) begin
-            r_feat_in[c_index[r_count_fin]] <= p_in_data;
-            // r_count_fin                     <= r_count_fin + 1;
-          end
-        end
-      endcase
-
-      // unique case (current_st_output)
-      //   IDLE_OUTPUT:
-      //     r_count_fout <= 0;
-      //   FEAT_OUTPUT:
-      //     r_count_fout <= r_count_fout + 1;
-      // endcase
-    end
-  end
+  // always_ff @(posedge clk) begin
+  //   if (reset) begin
+  //     r_weight <= '{default: '0};
+  //     r_feat_in <= '{default: '0};
+  //     r_feat_out <= '{default: '0};
+  //   end else begin
+  //     unique case (current_st_output)
+  //       IDLE_OUTPUT:
+  //         r_count_fout <= 0;
+  //       FEAT_OUTPUT:
+  //         r_count_fout <= r_count_fout + 1;
+  //     endcase
+  //   end
+  // end
 
   Memory #(
     .NADDR(NADDR),
