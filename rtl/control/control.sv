@@ -24,7 +24,7 @@ module Control
     input  logic p_conv_end,
 
     output type_input  p_input,
-    output type_weight p_weights,
+    output type_weight p_weight,
     input  type_output p_output
 );
 
@@ -64,7 +64,6 @@ module Control
   logic r_fin_en;
   logic r_end_wh;
   logic r_end_fin;
-  logic r_end_fout;
   logic r_reuse;
   logic r_fout_en;
 
@@ -100,9 +99,10 @@ module Control
 
   logic w_end;
   logic w_horizontal_end;
-  logic w_wh_end;
-  logic w_fin_end;
-  logic w_input_end;
+  logic w_end_wh;
+  logic w_end_fin;
+  // logic w_input_end;
+  logic w_end_fout;
   logic w_conv_idle;
   logic w_conv_end;
   logic w_output_idle;
@@ -196,7 +196,7 @@ module Control
   always_comb begin
     p_conv_start <= r_start_conv;
 
-    w_input_end   = (current_st_input == END_INPUT);
+    // w_input_end   = (current_st_input == END_INPUT);
     w_conv_idle   = (current_st_conv == IDLE_CONV);
     w_conv_end    = (current_st_conv == END_CONV);
     w_output_idle = (current_st_output == IDLE_OUTPUT);
@@ -223,19 +223,19 @@ module Control
       BIAS:
           next_st_input = WEIGHT;
       WEIGHT: begin
-        // w_wh_end = 1'b0;
+        // w_end_wh = 1'b0;
         if (r_count_wh == (M1_SIZE * M2_SIZE)) begin
           next_st_input = ADDR_INPUT;
-          w_wh_end = 1'b1;
+          w_end_wh = 1'b1;
         end
       end
       ADDR_INPUT:
         next_st_input = FEAT_INPUT;
       FEAT_INPUT: begin
-        // w_fin_end = 1'b0;
+        // w_end_fin = 1'b0;
         if (r_count_fin == (C1_SIZE * C2_SIZE)) begin
           next_st_input = END_INPUT;
-          w_fin_end = 1'b1;
+          w_end_fin = 1'b1;
         end
       end
       END_INPUT:
@@ -243,15 +243,16 @@ module Control
           next_st_input = IDLE_INPUT;
     endcase
 
-    r_end_fout = 1'b0;
     unique case (current_st_output)
-      IDLE_OUTPUT:
+      IDLE_OUTPUT: begin
+        w_end_fout = 1'b0;
         if (p_conv_end)
           next_st_output = FEAT_OUTPUT;
+      end
       FEAT_OUTPUT:
         if (r_count_fout == (A1_SIZE * A2_SIZE)) begin
           next_st_output = IDLE_OUTPUT;
-          r_end_fout = 1'b1;
+          w_end_fout = 1'b1;
         end
     endcase
 
@@ -261,8 +262,8 @@ module Control
     w_mem_wr_in   <= r_feat_out[r_count_fout];
 
     // Wire control
-    w_fin_end = 1'b0;
-    w_wh_end = 1'b0;
+    w_end_fin = 1'b0;
+    w_end_wh = 1'b0;
     unique case (current_st_input)
       BIAS: begin
         w_mem_rd_addr <= r_addr_bias;
@@ -377,7 +378,7 @@ module Control
             r_count_wh <= r_count_wh + 1;
             r_weight[r_count_wh] <= w_mem_rd_out;
           end
-          // if (w_wh_end)
+          // if (w_end_wh)
           //   r_wh_en <= 1'b0;
           // else
           //   r_wh_en <= 1'b1;
@@ -433,7 +434,7 @@ module Control
             r_count_fin <= r_count_fin + 1;
             r_feat_in[c_index[r_count_fin]] <= w_mem_rd_out;
           end
-          // if (w_fin_end)
+          // if (w_end_fin)
           //   r_fin_en <= 1'b0;
           // else
           //   r_fin_en <= 1'b1;

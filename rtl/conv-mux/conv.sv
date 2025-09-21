@@ -28,7 +28,7 @@ module Conv
 
   state_type current_state, next_state;
 
-  type_weight r_conv;
+  type_weight r_feat;
 
   type_weight w_prod_c;
   type_output w_prod_a;
@@ -109,15 +109,15 @@ module Conv
         IDLE_CONV: begin
           r_end <= 1'b0;
           r_idx_in <= 1'b0;
-          r_conv[C1_SIZE*C1_SIZE-1:0] <= p_input;
+          r_feat[C1_SIZE*C1_SIZE-1:0] <= p_input;
         end
         CONV_C: begin
-          r_conv <= w_prod_c;
+          r_feat <= w_prod_c;
         end
         CONV_H: begin
           r_idx_in <= r_idx_in + 1;
           for (int i = 0; i < NMULT; i++) begin
-            r_conv[r_idx_out[i]] <= product[i];
+            r_feat[r_idx_out[i]] <= product[i];
           end
         end
         CONV_A: begin
@@ -157,12 +157,12 @@ module Conv
 
   // Instance of matrix multiplier "C"
   Transform trf (
-      .pin (r_conv[C1_SIZE*C1_SIZE-1:0]),
+      .pin (r_feat[C1_SIZE*C1_SIZE-1:0]),
       .pout(w_prod_c)
   );
 
   // Multip multip0 (
-  //     .register(r_conv[r_idx_in]),
+  //     .register(r_feat[r_idx_in]),
   //     .weight  (p_weight[r_idx_in]),
   //     .product (product)
   // );
@@ -175,7 +175,7 @@ module Conv
   generate
     for (genvar i = 0; i < NMULT; i++) begin
       Multip multip(
-        .register(r_conv[r_idx_out[i]]),
+        .register(r_feat[r_idx_out[i]]),
         .weight(p_weight[r_idx_out[i]]),
         .product(product[i])
       );
@@ -185,7 +185,7 @@ module Conv
 
   // Instance of matrix multiplier "A"
   Inverse inv (
-      .pin (r_conv),
+      .pin (r_feat),
       .pout(w_prod_a)
   );
 endmodule
