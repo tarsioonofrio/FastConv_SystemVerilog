@@ -37,7 +37,7 @@ close $fp
 
 
 vlog -work work -svinputport=relaxed ./core.sv
-vlog -work work -svinputport=relaxed ./tb_core.sv
+vlog -work work -svinputport=relaxed ./testbench.sv
 
 vsim -voptargs=+acc -t ns work.tb
 set StdArithNoWarnings 1
