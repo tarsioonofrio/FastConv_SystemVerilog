@@ -23,7 +23,7 @@ module tb;
 
 
   // Instantiate conv_rapida entity
-  Core #(
+  Conv #(
     .QUANT(QUANT_BITS)
   ) dut (
     .clk(clk),
