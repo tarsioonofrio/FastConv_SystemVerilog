@@ -20,26 +20,12 @@ module Control
 
     input  logic p_start,
     output logic p_end,
-    output logic p_start_conv,
-    output logic p_reuse,
-    input  logic p_end_conv[1:0],
-
-    output logic p_wh_en,
-    output logic p_wh_valid,
-
-    output logic p_fin_en,
-    output logic p_fin_valid,
-
-    input logic p_fout_en,
-    input logic p_fout_valid,
-
-    output logic_vector p_out_data,
-    input  logic_vector p_in_data,
+    output logic p_conv_start,
+    input  logic p_conv_end,
 
     output type_input  p_input,
     output type_weight p_weights,
-    input  type_output p_output,
-    input  logic       p_valid
+    input  type_output p_output
 );
 
   timeunit 1ns; timeprecision 1ps;
@@ -209,7 +195,7 @@ module Control
 
 
   always_comb begin
-    p_start_conv <= r_start_conv;
+    p_conv_start <= r_start_conv;
     p_reuse      <= r_reuse;
     // State Machine
 
@@ -265,7 +251,7 @@ module Control
         if (w_input_end)
           next_st_conv = CONV;
       CONV:
-        if (p_end_conv[0])
+        if (p_conv_end)
           next_st_conv = END_CONV;
       default:
         if (w_output_idle)
@@ -279,7 +265,7 @@ module Control
       ADDR_OUTPUT:
         next_st_output = FEAT_OUTPUT;
       FEAT_OUTPUT:
-        if (p_end_conv[1])
+        if (p_conv_end)
           next_st_output = END_OUTPUT;
       END_OUTPUT:
         next_st_output = IDLE_OUTPUT;
@@ -522,7 +508,7 @@ module Control
         FEAT_OUTPUT: begin
           if (p_fout_valid)
             r_count_fout <= r_count_fout + 1;
-          if (p_end_conv[1]) begin
+          if (p_conv_end) begin
             if (w_horizontal_end)
               r_addr_fout_base <= r_addr_fout_base + A1_SIZE + FEAT_OUTPUT_SIZE * (A1_SIZE - 1);
             else
