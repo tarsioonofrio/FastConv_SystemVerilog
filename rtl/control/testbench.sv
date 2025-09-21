@@ -25,22 +25,13 @@ module tb;
 
   logic p_start;
   logic p_end;
-  logic p_reuse;
 
-  logic p_start_conv;
-  logic p_end_conv[1:0];
+  logic p_conv_start;
+  logic p_conv_end;
 
-  logic p_fin_en;
-  logic p_fin_valid;
-
-  logic p_wh_en;
-  logic p_wh_valid;
-
-  logic p_fout_en;
-  logic p_fout_valid;
-
-  logic_vector data_control2core;
-  logic_vector data_core2control;
+  type_input p_input;
+  type_weight p_weight;
+  type_output p_output;
 
   int count_fout = 0;
 
@@ -67,45 +58,25 @@ module tb;
 
     .p_start(p_start),
     .p_end(p_end),
-    .p_start_conv(p_start_conv),
-    .p_end_conv(p_end_conv),
-    .p_reuse(p_reuse),
-
-    .p_wh_en(p_wh_en),
-    .p_wh_valid(p_wh_valid),
-
-    .p_fin_en(p_fin_en),
-    .p_fin_valid(p_fin_valid),
-
-    .p_fout_en(p_fout_en),
-    .p_fout_valid(p_fout_valid),
-
-    .p_out_data(data_control2core),
-    .p_in_data(data_core2control)
+    .p_conv_start(p_conv_start),
+    .p_conv_end(p_conv_end),
+    .p_input(p_input),
+    .p_weight(p_weight),
+    .p_output(p_output)
   );
 
-  Core #(
+  Conv #(
     .QUANT(QUANT),
     .NBITS(NBITS)
-  ) core (
+  ) conv (
     .clk(clk),
     .reset(reset),
 
-    .p_start(p_start_conv),
-    .p_end(p_end_conv),
-    .p_reuse(p_reuse),
-
-    .p_wh_en(p_wh_en),
-    .p_wh_valid(p_wh_valid),
-
-    .p_fin_en(p_fin_en),
-    .p_fin_valid(p_fin_valid),
-
-    .p_fout_en(p_fout_en),
-    .p_fout_valid(p_fout_valid),
-
-    .p_in_data(data_control2core),
-    .p_out_data(data_core2control)
+    .p_start(p_conv_start),
+    .p_end(p_conv_end),
+    .p_input(p_input),
+    .p_weight(p_weight),
+    .p_output(p_output)
   );
 
 
@@ -125,7 +96,7 @@ module tb;
 
     // Carregar pesos
     // $display("=== Loading weights ===");
-    // wait(p_wh_en);
+    // wait(p_weight);
     // for (int i = 0; i < W2_SIZE; i++) begin
     //   wait(p_wh_valid);
     //   // data_control2core = const_weight[0][i];
@@ -140,12 +111,10 @@ module tb;
     // Monitorar saída (p_fout_valid = 1) e ler dados de saída
     for (int i = 0; i < FOUT2_SIZE; i++) begin
       @(posedge clk);
-      wait(p_fout_en);
+      wait(p_conv_end);
       for (int j = 0; j < FOUT2_SIZE; j++) begin
-        @(posedge clk);
-        wait(p_fout_valid);
-        if ($signed(const_feat_out_batch[i][j]) != $signed(data_core2control)) begin
-          $display("Time %0t | const_feat_out[%0d][%0d] = %0d | Output = %0d", $time, i, j, const_feat_out_batch[i][j], data_core2control);
+        if ($signed(const_feat_out_batch[i][j]) != $signed(p_output[j])) begin
+          $display("Time %0t | const_feat_out[%0d][%0d] = %0d | Output = %0d", $time, i, j, const_feat_out_batch[i][j], p_output[j]);
           $display("=== ERROR - End simulation ====");
         end
       end
