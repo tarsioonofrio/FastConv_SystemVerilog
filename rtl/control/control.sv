@@ -49,7 +49,6 @@ module Control
 
   typedef enum {
     IDLE_OUTPUT,
-    ADDR_OUTPUT,
     FEAT_OUTPUT,
     END_OUTPUT
   } state_output_type;
@@ -65,7 +64,9 @@ module Control
   logic r_fin_en;
   logic r_end_wh;
   logic r_end_fin;
+  logic r_end_fout;
   logic r_reuse;
+  logic r_fout_en;
 
   logic [$clog2(M1_SIZE*M2_SIZE)-1:0] r_count_wh;
   logic [$clog2(C1_SIZE*C2_SIZE)-1:0] r_count_fin;
@@ -184,11 +185,9 @@ module Control
   always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
       current_st_input  <= IDLE_CONTROL;
-      current_st_conv   <= IDLE_CONV;
       current_st_output <= IDLE_OUTPUT;
     end else begin
       current_st_input  <= next_st_input;
-      current_st_conv   <= next_st_conv;
       current_st_output <= next_st_output;
     end
   end
@@ -196,8 +195,6 @@ module Control
 
   always_comb begin
     p_conv_start <= r_start_conv;
-    p_reuse      <= r_reuse;
-    // State Machine
 
     w_input_end   = (current_st_input == END_INPUT);
     w_conv_idle   = (current_st_conv == IDLE_CONV);
@@ -246,45 +243,24 @@ module Control
           next_st_input = IDLE_INPUT;
     endcase
 
-    unique case (current_st_conv)
-      IDLE_CONV:
-        if (w_input_end)
-          next_st_conv = CONV;
-      CONV:
-        if (p_conv_end)
-          next_st_conv = END_CONV;
-      default:
-        if (w_output_idle)
-          next_st_conv = IDLE_CONV;
-    endcase
-
+    r_end_fout = 1'b0;
     unique case (current_st_output)
       IDLE_OUTPUT:
-        if (w_conv_end)
-          next_st_output = FEAT_OUTPUT;
-      ADDR_OUTPUT:
-        next_st_output = FEAT_OUTPUT;
-      FEAT_OUTPUT:
         if (p_conv_end)
-          next_st_output = END_OUTPUT;
-      END_OUTPUT:
-        next_st_output = IDLE_OUTPUT;
+          next_st_output = FEAT_OUTPUT;
+      FEAT_OUTPUT:
+        if (r_count_fout == (A1_SIZE * A2_SIZE)) begin
+          next_st_output = IDLE_OUTPUT;
+          r_end_fout = 1'b1;
+        end
     endcase
 
-    // p_wh_en    <= r_wh_en;
-    // p_fin_en   <= r_fin_en;
-    p_out_data <= w_mem_rd_out;
-
     w_mem_wr_addr <= r_addr_fout[r_count_fout];
-    w_mem_wr_chip <= p_fout_en;
-    w_mem_wr_wr   <= p_fout_en;
-    w_mem_wr_in   <= p_in_data;
+    w_mem_wr_chip <= r_fout_en;
+    w_mem_wr_wr   <= r_fout_en;
+    w_mem_wr_in   <= r_feat_out[r_count_fout];
 
     // Wire control
-    p_wh_en <= 1'b0;
-    p_fin_en <= 1'b0;
-    p_wh_valid  <= 1'b0;
-    p_fin_valid <= 1'b0;
     w_fin_end = 1'b0;
     w_wh_end = 1'b0;
     unique case (current_st_input)
@@ -297,16 +273,12 @@ module Control
       WEIGHT: begin
         w_mem_rd_addr  <= r_addr_wh;
         w_mem_rd_chip  <= r_wh_en;
-        p_wh_valid  <= w_mem_rd_valid;
-        p_wh_en <= 1'b1;
       end
       END_CONTROL:
         p_end = 1'b1;
       FEAT_INPUT: begin
         w_mem_rd_addr  <= r_addr_fin[r_count_fin];
         w_mem_rd_chip  <= r_fin_en;
-        p_fin_valid <= w_mem_rd_valid;
-        p_fin_en <= 1'b1;
       end
       default: begin end
       // FEAT_OUTPUT: begin
@@ -469,26 +441,10 @@ module Control
         default: begin end
       endcase
 
-      unique case (current_st_conv)
-        IDLE_CONV: begin
-          if (w_input_end)
-            r_start_conv <= 1'b1;
-          else
-            r_start_conv <= 1'b0;
-        end
-        CONV: begin
-          r_start_conv <= 1'b0;
-        end
-        END_CONV: begin end
-      endcase
-
       unique case (current_st_output)
         IDLE_OUTPUT: begin
-          // r_addr_fout_base <= 0;
-          // r_reuse          <= 1'b0;
+          r_fout_en    <= 1'b0;
           r_count_fout <= 0;
-        // end
-        // ADDR_OUTPUT: begin
           // TODO: Implement address generation logic using if else statements and remove
           // multiple registers, using one register
           r_addr_fout[0] <= r_addr_fout_base + 0;
@@ -502,19 +458,17 @@ module Control
           r_addr_fout[6] <= r_addr_fout_base + FEAT_OUTPUT_SIZE * 2 + 0;
           r_addr_fout[7] <= r_addr_fout_base + FEAT_OUTPUT_SIZE * 2 + 1;
           r_addr_fout[8] <= r_addr_fout_base + FEAT_OUTPUT_SIZE * 2 + 2;
-          if (p_fout_valid)
-            r_count_fout <= r_count_fout + 1;
         end
         FEAT_OUTPUT: begin
-          if (p_fout_valid)
-            r_count_fout <= r_count_fout + 1;
-          if (p_conv_end) begin
-            if (w_horizontal_end)
-              r_addr_fout_base <= r_addr_fout_base + A1_SIZE + FEAT_OUTPUT_SIZE * (A1_SIZE - 1);
-            else
-              r_addr_fout_base <= r_addr_fout_base + A1_SIZE;
-
-          end
+          r_fout_en    <= 1'b1;
+          r_count_fout <= r_count_fout + 1;
+        end
+        END_OUTPUT: begin
+          r_fout_en    <= 1'b0;
+          if (w_horizontal_end)
+            r_addr_fout_base <= r_addr_fout_base + A1_SIZE + FEAT_OUTPUT_SIZE * (A1_SIZE - 1);
+          else
+            r_addr_fout_base <= r_addr_fout_base + A1_SIZE;
         end
         default: begin end
       endcase
