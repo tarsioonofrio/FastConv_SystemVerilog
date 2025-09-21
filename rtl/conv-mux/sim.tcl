@@ -36,7 +36,7 @@ while {[gets $fp line] >= 0} {
 close $fp
 
 
-vlog -work work -svinputport=relaxed ./core.sv
+vlog -work work -svinputport=relaxed ./conv.sv
 vlog -work work -svinputport=relaxed ./testbench.sv
 
 vsim -voptargs=+acc -t ns work.tb
