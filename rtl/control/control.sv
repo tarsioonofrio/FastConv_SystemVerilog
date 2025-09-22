@@ -42,8 +42,7 @@ module Control
 
   typedef enum {
     IDLE_OUTPUT,
-    FEAT_OUTPUT,
-    END_OUTPUT
+    FEAT_OUTPUT
   } state_output_type;
 
   state_input_type current_st_input, next_st_input;
@@ -210,15 +209,14 @@ module Control
           next_st_output = FEAT_OUTPUT;
       end
       FEAT_OUTPUT: begin
+        w_end_fout = 1'b0;
         w_mem_wr_wr = 1'b1;
         w_mem_wr_chip = 1'b1;
         if (r_count_fout == (A1_SIZE * A2_SIZE)) begin
-          next_st_output = END_OUTPUT;
+          next_st_output = IDLE_OUTPUT;
           w_end_fout = 1'b1;
         end
       end
-      END_OUTPUT:
-        next_st_output = IDLE_OUTPUT;
     endcase
 
     w_mem_wr_addr <= r_addr_fout[r_count_fout];
@@ -429,15 +427,12 @@ module Control
           // r_fout_en    <= 1'b1;
           r_count_fout <= r_count_fout + 1;
           r_mem_rd_in <= r_feat_out[r_count_fout];
+          if (w_end_fout)
+            if (w_horizontal_end)
+              r_addr_fout_base <= r_addr_fout_base + A1_SIZE + FEAT_OUTPUT_SIZE * (A1_SIZE - 1);
+            else
+              r_addr_fout_base <= r_addr_fout_base + A1_SIZE;
         end
-        END_OUTPUT: begin
-          if (w_horizontal_end)
-            r_addr_fout_base <= r_addr_fout_base + A1_SIZE + FEAT_OUTPUT_SIZE * (A1_SIZE - 1);
-          else
-            r_addr_fout_base <= r_addr_fout_base + A1_SIZE;
-          // r_fout_en    <= 1'b0;
-        end
-        default: begin end
       endcase
     end
   end
