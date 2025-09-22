@@ -75,6 +75,8 @@ module Control
   int r_count_horizontal;
   // logic [$clog2(N_WINDOW):0] r_count_horizontal;
   // int r_count_vertical;
+  logic_vector r_mem_wr_in;
+
 
   logic_vector w_mem_rd_out;
   logic_vector w_mem_rd_in;
@@ -155,7 +157,8 @@ module Control
     p_conv_start <= 1'b0;
     p_input <= r_feat_in;
     p_weight <= r_weight;
-    p_output <= r_feat_out;
+    // p_output <= r_feat_out;
+    w_mem_wr_in <= r_mem_wr_in;
 
     w_output_idle = (current_st_output == IDLE_OUTPUT);
 
@@ -195,7 +198,6 @@ module Control
           next_st_input = END_INPUT;
           w_end_fin = 1'b1;
           p_conv_start <= 1'b1;
-
         end
       end
       END_INPUT:
@@ -219,7 +221,7 @@ module Control
     w_mem_wr_addr <= r_addr_fout[r_count_fout];
     w_mem_wr_chip <= r_fout_en;
     w_mem_wr_wr   <= r_fout_en;
-    w_mem_wr_in   <= r_feat_out[r_count_fout];
+    // w_mem_wr_in   <= r_feat_out[r_count_fout];
 
     // Wire control
     w_end_fin = 1'b0;
@@ -419,10 +421,13 @@ module Control
           r_addr_fout[6] <= r_addr_fout_base + FEAT_OUTPUT_SIZE * 2 + 0;
           r_addr_fout[7] <= r_addr_fout_base + FEAT_OUTPUT_SIZE * 2 + 1;
           r_addr_fout[8] <= r_addr_fout_base + FEAT_OUTPUT_SIZE * 2 + 2;
+          if (p_conv_end)
+            r_feat_out <= p_output;
         end
         FEAT_OUTPUT: begin
           r_fout_en    <= 1'b1;
           r_count_fout <= r_count_fout + 1;
+          r_mem_wr_in <= r_feat_out[r_count_fout];
         end
         END_OUTPUT: begin
           r_fout_en    <= 1'b0;
