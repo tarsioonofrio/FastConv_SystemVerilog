@@ -37,7 +37,6 @@ module Control
     WEIGHT,
     ADDR_INPUT,
     FEAT_INPUT,
-    END_INPUT,
     END_CONTROL
   } state_input_type;
 
@@ -195,14 +194,11 @@ module Control
       FEAT_INPUT: begin
         // w_end_fin = 1'b0;
         if (r_count_fin == (C1_SIZE * C2_SIZE)) begin
-          next_st_input = END_INPUT;
+          next_st_input = IDLE_INPUT;
           w_end_fin = 1'b1;
           p_conv_start <= 1'b1;
         end
       end
-      END_INPUT:
-        if (w_conv_idle)
-          next_st_input = IDLE_INPUT;
     endcase
 
     unique case (current_st_output)
@@ -217,10 +213,12 @@ module Control
         w_mem_wr_wr = 1'b1;
         w_mem_wr_chip = 1'b1;
         if (r_count_fout == (A1_SIZE * A2_SIZE)) begin
-          next_st_output = IDLE_OUTPUT;
+          next_st_output = END_OUTPUT;
           w_end_fout = 1'b1;
         end
       end
+      END_OUTPUT:
+        next_st_output = IDLE_OUTPUT;
     endcase
 
     w_mem_wr_addr <= r_addr_fout[r_count_fout];
@@ -433,11 +431,11 @@ module Control
           r_mem_rd_in <= r_feat_out[r_count_fout];
         end
         END_OUTPUT: begin
-          // r_fout_en    <= 1'b0;
           if (w_horizontal_end)
             r_addr_fout_base <= r_addr_fout_base + A1_SIZE + FEAT_OUTPUT_SIZE * (A1_SIZE - 1);
           else
             r_addr_fout_base <= r_addr_fout_base + A1_SIZE;
+          // r_fout_en    <= 1'b0;
         end
         default: begin end
       endcase
