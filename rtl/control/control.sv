@@ -42,19 +42,12 @@ module Control
   } state_input_type;
 
   typedef enum {
-    IDLE_CONV,
-    CONV,
-    END_CONV
-  } state_conv_type;
-
-  typedef enum {
     IDLE_OUTPUT,
     FEAT_OUTPUT,
     END_OUTPUT
   } state_output_type;
 
   state_input_type current_st_input, next_st_input;
-  state_conv_type current_st_conv, next_st_conv;
   state_output_type current_st_output, next_st_output;
 
   logic r_start_conv;
@@ -115,41 +108,6 @@ module Control
   type_weight r_conv;
   type_output r_feat_out;
 
-  // type_weight w_prod_c;
-  // type_output w_prod_a;
-
-  // logic r_fout_en;
-  // logic r_fout_valid;
-
-  // logic w_end[1:0];
-  // logic w_end[0];
-
-  // logic [$clog2(M1_SIZE*M2_SIZE):0] r_count_wh;
-  // logic [$clog2(C1_SIZE*C2_SIZE):0] r_count_fin;
-  // logic [$clog2(A1_SIZE*A2_SIZE):0] r_count_fout;
-
-  // logic [$clog2(SMULT-1):0] r_mult_idx;
-  // logic [$clog2(SMULT*SMULT-1):0] r_mult_idx_output[0:NMULT-1];
-
-  // logic signed [NBITS-1+QUANT:0] product [0:NMULT-1];  // QUANT more bits for the multipliers
-
-  // logic [1:0] w_wh_fin_en;
-
-  // always_ff @(posedge clk) begin
-  //   if (reset) begin
-  //     r_weight <= '{default: '0};
-  //     r_feat_in <= '{default: '0};
-  //     r_feat_out <= '{default: '0};
-  //   end else begin
-  //     unique case (current_st_output)
-  //       IDLE_OUTPUT:
-  //         r_count_fout <= 0;
-  //       FEAT_OUTPUT:
-  //         r_count_fout <= r_count_fout + 1;
-  //     endcase
-  //   end
-  // end
-
   Memory #(
     .NADDR(NADDR),
     .NBITS(NBITS),
@@ -194,11 +152,11 @@ module Control
 
 
   always_comb begin
-    p_conv_start <= r_start_conv;
+    p_conv_start <= 1'b0;
+    p_input <= r_feat_in;
+    p_weight <= r_weight;
+    p_output <= r_feat_out;
 
-    // w_input_end   = (current_st_input == END_INPUT);
-    w_conv_idle   = (current_st_conv == IDLE_CONV);
-    w_conv_end    = (current_st_conv == END_CONV);
     w_output_idle = (current_st_output == IDLE_OUTPUT);
 
     unique case (current_st_input)
@@ -236,6 +194,8 @@ module Control
         if (r_count_fin == (C1_SIZE * C2_SIZE)) begin
           next_st_input = END_INPUT;
           w_end_fin = 1'b1;
+          p_conv_start <= 1'b1;
+
         end
       end
       END_INPUT:
