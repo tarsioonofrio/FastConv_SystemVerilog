@@ -51,7 +51,7 @@ do mem.do
 
 # all blocks
 #run 50000ns
-run 1000ns
+run 2000ns
 # 4 blocks
 #run 4000ns
 # one line

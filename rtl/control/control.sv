@@ -75,7 +75,7 @@ module Control
   int r_count_horizontal;
   // logic [$clog2(N_WINDOW):0] r_count_horizontal;
   // int r_count_vertical;
-  logic_vector r_mem_wr_in;
+  logic_vector r_mem_rd_in;
 
 
   logic_vector w_mem_rd_out;
@@ -158,7 +158,7 @@ module Control
     p_input <= r_feat_in;
     p_weight <= r_weight;
     // p_output <= r_feat_out;
-    w_mem_wr_in <= r_mem_wr_in;
+    // w_mem_wr_in <= r_mem_wd_in;
 
     w_output_idle = (current_st_output == IDLE_OUTPUT);
 
@@ -208,20 +208,23 @@ module Control
     unique case (current_st_output)
       IDLE_OUTPUT: begin
         w_end_fout = 1'b0;
+        w_mem_wr_wr = 1'b0;
+        w_mem_wr_chip = 1'b0;
         if (p_conv_end)
           next_st_output = FEAT_OUTPUT;
       end
-      FEAT_OUTPUT:
+      FEAT_OUTPUT: begin
+        w_mem_wr_wr = 1'b1;
+        w_mem_wr_chip = 1'b1;
         if (r_count_fout == (A1_SIZE * A2_SIZE)) begin
           next_st_output = IDLE_OUTPUT;
           w_end_fout = 1'b1;
         end
+      end
     endcase
 
     w_mem_wr_addr <= r_addr_fout[r_count_fout];
-    w_mem_wr_chip <= r_fout_en;
-    w_mem_wr_wr   <= r_fout_en;
-    // w_mem_wr_in   <= r_feat_out[r_count_fout];
+    w_mem_wr_in   <= r_feat_out[r_count_fout];
 
     // Wire control
     w_end_fin = 1'b0;
@@ -406,7 +409,7 @@ module Control
 
       unique case (current_st_output)
         IDLE_OUTPUT: begin
-          r_fout_en    <= 1'b0;
+          // r_fout_en    <= 1'b0;
           r_count_fout <= 0;
           // TODO: Implement address generation logic using if else statements and remove
           // multiple registers, using one register
@@ -425,12 +428,12 @@ module Control
             r_feat_out <= p_output;
         end
         FEAT_OUTPUT: begin
-          r_fout_en    <= 1'b1;
+          // r_fout_en    <= 1'b1;
           r_count_fout <= r_count_fout + 1;
-          r_mem_wr_in <= r_feat_out[r_count_fout];
+          r_mem_rd_in <= r_feat_out[r_count_fout];
         end
         END_OUTPUT: begin
-          r_fout_en    <= 1'b0;
+          // r_fout_en    <= 1'b0;
           if (w_horizontal_end)
             r_addr_fout_base <= r_addr_fout_base + A1_SIZE + FEAT_OUTPUT_SIZE * (A1_SIZE - 1);
           else
