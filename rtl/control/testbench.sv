@@ -79,6 +79,7 @@ module tb;
     .p_output(p_output)
   );
 
+  int i, j;
 
   // Inicialização dos sinais e reset
   initial begin
@@ -93,26 +94,16 @@ module tb;
     @(posedge clk);
     p_start = 0;
 
-
-    // Carregar pesos
-    // $display("=== Loading weights ===");
-    // wait(p_weight);
-    // for (int i = 0; i < W2_SIZE; i++) begin
-    //   wait(p_wh_valid);
-    //   // data_control2core = const_weight[0][i];
-    //   $display("Weight[%0d] = %0d", i, data_control2core);
-    //   @(posedge clk);
-    // end
-
     // Start processamento
     $display("=== Start processing ===");
 
-
     // Monitorar saída (p_fout_valid = 1) e ler dados de saída
-    for (int i = 0; i < FOUT2_SIZE; i++) begin
+    for (i = 0; i < FOUT1_SIZE; i++) begin
       @(posedge clk);
       wait(p_conv_end);
-      for (int j = 0; j < FOUT2_SIZE; j++) begin
+      @(posedge clk);
+      // $display("*** Time %0t | i = %0d ***", $time, i);
+      for (j = 0; j < FOUT2_SIZE; j++) begin
         if ($signed(const_feat_out_batch[i][j]) != $signed(p_output[j])) begin
           $display("Time %0t | const_feat_out[%0d][%0d] = %0d | Output = %0d", $time, i, j, const_feat_out_batch[i][j], p_output[j]);
           $display("=== ERROR - End simulation ====");
