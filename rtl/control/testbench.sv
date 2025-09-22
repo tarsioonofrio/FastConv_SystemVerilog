@@ -79,7 +79,6 @@ module tb;
     .p_output(p_output)
   );
 
-  int i, j;
 
   // Inicialização dos sinais e reset
   initial begin
@@ -98,12 +97,12 @@ module tb;
     $display("=== Start processing ===");
 
     // Monitorar saída (p_fout_valid = 1) e ler dados de saída
-    for (i = 0; i < FOUT1_SIZE; i++) begin
+    for (int i = 0; i < FOUT1_SIZE; i++) begin
       @(posedge clk);
       wait(p_conv_end);
       @(posedge clk);
       // $display("*** Time %0t | i = %0d ***", $time, i);
-      for (j = 0; j < FOUT2_SIZE; j++) begin
+      for (int j = 0; j < FOUT2_SIZE; j++) begin
         if ($signed(const_feat_out_batch[i][j]) != $signed(p_output[j])) begin
           $display("Time %0t | const_feat_out[%0d][%0d] = %0d | Output = %0d", $time, i, j, const_feat_out_batch[i][j], p_output[j]);
           $display("=== ERROR - End simulation ====");
