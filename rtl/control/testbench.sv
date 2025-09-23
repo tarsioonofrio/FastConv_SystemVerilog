@@ -156,15 +156,15 @@ module tb;
     // Start processamento
     $display("=== Start processing ===");
 
-    // Monitorar saída (p_fout_valid = 1) e ler dados de saída
-    for (int i = 0; i < FOUT1_SIZE; i++) begin
+    for (int i = 0; i < FOUT2_SIZE; i++) begin
       @(posedge clk);
       wait(p_conv_end);
       @(posedge clk);
-      // $display("*** Time %0t | i = %0d ***", $time, i);
       for (int j = 0; j < FOUT2_SIZE; j++) begin
-        if ($signed(const_feat_out_batch[i][j]) != $signed(p_output[j])) begin
-          $display("Time %0t | const_feat_out[%0d][%0d] = %0d | Output = %0d", $time, i, j, const_feat_out_batch[i][j], p_output[j]);
+        @(posedge clk);
+        wait(w_write_en);
+        if ($signed(const_feat_out_batch[i][j]) != $signed(w_write_data)) begin
+          $display("Time %0t | const_feat_out[%0d][%0d] = %0d | Output = %0d", $time, i, j, const_feat_out_batch[i][j], w_write_data);
           $display("=== ERROR - End simulation ====");
         end
       end
