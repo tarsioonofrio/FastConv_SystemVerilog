@@ -27,19 +27,19 @@ module Control
     output type_weight p_weight,
     input  type_output p_output,
 
-    output logic_vector p_read_mem_in,
-    output logic p_read_mem_chip,
-    output logic p_read_mem_wr,
-    output logic[NADDR-1:0] p_read_mem_addr,
-    input  logic_vector p_read_mem_out,
-    input  logic p_read_mem_valid,
+    output logic p_read_en,
+    // output logic p_read_wr,
+    output logic[NADDR-1:0] p_read_addr,
+    // input  logic_vector p_read_out,
+    input logic_vector p_read_data,
+    input  logic p_read_valid,
 
-    output logic_vector p_write_mem_in,
-    output logic p_write_mem_chip,
-    output logic p_write_mem_wr,
-    output logic[NADDR-1:0] p_write_mem_addr,
-    input  logic_vector p_write_mem_out,
-    input  logic p_write_mem_valid
+    // output logic_vector p_write_in,
+    // output logic p_write_chip,
+    output logic p_write_en,
+    output logic[NADDR-1:0] p_write_addr,
+    output  logic_vector p_write_data
+    // input  logic p_write_valid
 );
 
   timeunit 1ns; timeprecision 1ps;
@@ -158,15 +158,15 @@ module Control
     unique case (current_st_output)
       IDLE_OUTPUT: begin
         w_end_fout = 1'b0;
-        p_write_mem_wr = 1'b0;
-        p_write_mem_chip = 1'b0;
+        p_write_en = 1'b0;
+        // p_write_chip = 1'b0;
         if (p_conv_end)
           next_st_output = FEAT_OUTPUT;
       end
       FEAT_OUTPUT: begin
         w_end_fout = 1'b0;
-        p_write_mem_wr = 1'b1;
-        p_write_mem_chip = 1'b1;
+        p_write_en = 1'b1;
+        // p_write_chip = 1'b1;
         if (r_count_fout == (A1_SIZE * A2_SIZE)) begin
           next_st_output = IDLE_OUTPUT;
           w_end_fout = 1'b1;
@@ -174,28 +174,28 @@ module Control
       end
     endcase
 
-    p_write_mem_addr <= r_addr_fout[r_count_fout];
-    p_write_mem_in   <= r_feat_out[r_count_fout];
+    p_write_addr <= r_addr_fout[r_count_fout];
+    p_write_data   <= r_feat_out[r_count_fout];
 
     // Wire control
     w_end_fin = 1'b0;
     w_end_wh = 1'b0;
     unique case (current_st_input)
       BIAS: begin
-        p_read_mem_addr <= r_addr_bias;
-        // p_read_mem_chip   <= r_bias_en;
+        p_read_addr <= r_addr_bias;
+        // p_read_en   <= r_bias_en;
         // p_bias_en    <= r_bias_en;
-        // p_bias_valid <= p_read_mem_valid;
+        // p_bias_valid <= p_read_valid;
       end
       WEIGHT: begin
-        p_read_mem_addr  <= r_addr_wh;
-        p_read_mem_chip  <= r_wh_en;
+        p_read_addr  <= r_addr_wh;
+        p_read_en  <= r_wh_en;
       end
       END_CONTROL:
         p_end = 1'b1;
       FEAT_INPUT: begin
-        p_read_mem_addr  <= r_addr_fin[r_count_fin];
-        p_read_mem_chip  <= r_fin_en;
+        p_read_addr  <= r_addr_fin[r_count_fin];
+        p_read_en  <= r_fin_en;
       end
       default: begin end
       // FEAT_OUTPUT: begin
@@ -289,10 +289,10 @@ module Control
           r_wh_en      <= 1'b1;
           r_fin_en     <= 1'b0;
           r_count_fin  <= 0;
-          if (p_read_mem_valid) begin
+          if (p_read_valid) begin
             r_addr_wh  <= r_addr_wh + 1;
             r_count_wh <= r_count_wh + 1;
-            r_weight[r_count_wh] <= p_read_mem_out;
+            r_weight[r_count_wh] <= p_read_data;
           end
           // if (w_end_wh)
           //   r_wh_en <= 1'b0;
@@ -302,7 +302,7 @@ module Control
         ADDR_INPUT: begin
           r_wh_en    <= 1'b0;
           r_count_wh <= 0;
-          // TODO: Implement p_read_mem_addr generation logic using if else statements and remove
+          // TODO: Implement p_read_addr generation logic using if else statements and remove
           // Addresses ordered by column and not by row to facilitate reading
           // when reusing, which reuses the last two columns
           // multiple registers, using one register
@@ -346,9 +346,9 @@ module Control
           r_fin_en     <= 1'b1;
           r_wh_en      <= 1'b0;
           r_count_wh   <= 0;
-          if (p_read_mem_valid) begin
+          if (p_read_valid) begin
             r_count_fin <= r_count_fin + 1;
-            r_feat_in[c_index[r_count_fin]] <= p_read_mem_out;
+            r_feat_in[c_index[r_count_fin]] <= p_read_data;
           end
           // if (w_end_fin)
           //   r_fin_en <= 1'b0;
