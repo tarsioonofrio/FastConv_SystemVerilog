@@ -33,27 +33,10 @@ add wave -noupdate -radix decimal /tb/dut/r_addr_fout_base
 add wave -noupdate -radix decimal /tb/dut/r_addr_fout
 add wave -noupdate -radix decimal /tb/dut/r_count_window
 add wave -noupdate -radix decimal /tb/dut/r_count_horizontal
-add wave -noupdate -radix decimal /tb/dut/w_mem_rd_out
-add wave -noupdate -radix decimal /tb/dut/w_mem_rd_in
-add wave -noupdate /tb/dut/w_mem_rd_chip
-add wave -noupdate /tb/dut/w_mem_rd_wr
-add wave -noupdate /tb/dut/w_mem_rd_valid
-add wave -noupdate -radix decimal /tb/dut/w_mem_rd_addr
-add wave -noupdate -radix decimal /tb/dut/w_mem_wr_out
-add wave -noupdate -radix decimal /tb/dut/w_mem_wr_in
-add wave -noupdate /tb/dut/w_mem_wr_chip
-add wave -noupdate /tb/dut/w_mem_wr_wr
-add wave -noupdate /tb/dut/w_mem_wr_valid
-add wave -noupdate -radix decimal /tb/dut/w_mem_wr_addr
-add wave -noupdate -radix decimal /tb/dut/r_mem_wr_in
-add wave -noupdate /tb/dut/w_end
 add wave -noupdate /tb/dut/w_horizontal_end
 add wave -noupdate /tb/dut/w_end_wh
 add wave -noupdate /tb/dut/w_end_fin
 add wave -noupdate /tb/dut/w_end_fout
-add wave -noupdate /tb/dut/w_conv_idle
-add wave -noupdate /tb/dut/w_conv_end
-add wave -noupdate /tb/dut/w_output_idle
 add wave -noupdate -radix decimal /tb/dut/r_feat_in
 add wave -noupdate -radix decimal /tb/dut/r_weight
 add wave -noupdate -radix decimal /tb/dut/r_conv
@@ -73,8 +56,20 @@ add wave -noupdate /tb/conv/w_end
 add wave -noupdate -radix decimal /tb/conv/r_idx_in
 add wave -noupdate -radix decimal /tb/conv/r_idx_out
 add wave -noupdate -radix decimal /tb/conv/product
+add wave -noupdate /tb/dut/p_read_mem_chip
+add wave -noupdate /tb/dut/p_read_mem_in
+add wave -noupdate /tb/dut/p_read_mem_wr
+add wave -noupdate -radix decimal /tb/dut/p_read_mem_addr
+add wave -noupdate -radix decimal /tb/dut/p_read_mem_out
+add wave -noupdate /tb/dut/p_read_mem_valid
+add wave -noupdate -radix decimal /tb/dut/p_write_mem_in
+add wave -noupdate /tb/dut/p_write_mem_chip
+add wave -noupdate /tb/dut/p_write_mem_wr
+add wave -noupdate -radix decimal /tb/dut/p_write_mem_addr
+add wave -noupdate -radix decimal /tb/dut/p_write_mem_out
+add wave -noupdate /tb/dut/p_write_mem_valid
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {43955 ns} 1 Red default} {{Cursor 2} {775 ns} 0}
+WaveRestoreCursors {{Cursor 1} {25 ns} 0 Red default} {{Cursor 2} {0 ns} 0}
 quietly wave cursor active 2
 configure wave -namecolwidth 300
 configure wave -valuecolwidth 100
@@ -90,4 +85,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {788 ns} {1012 ns}
+WaveRestoreZoom {1788 ns} {2012 ns}
