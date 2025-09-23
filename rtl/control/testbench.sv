@@ -33,6 +33,21 @@ module tb;
   type_weight p_weight;
   type_output p_output;
 
+  logic w_read_mem_chip;
+  logic w_read_mem_wr;
+  logic w_read_mem_valid;
+  logic[NADDR-1:0] w_read_mem_addr;
+  logic_vector w_read_mem_out;
+  logic_vector w_read_mem_in;
+
+  logic w_write_mem_chip;
+  logic w_write_mem_wr;
+  logic w_write_mem_valid;
+  logic[NADDR-1:0] w_write_mem_addr;
+  logic_vector w_write_mem_out;
+  logic_vector w_write_mem_in;
+
+
   int count_fout = 0;
 
   // Clock generation (10ns period)
@@ -62,7 +77,53 @@ module tb;
     .p_conv_end(p_conv_end),
     .p_input(p_input),
     .p_weight(p_weight),
-    .p_output(p_output)
+    .p_output(p_output),
+
+    .p_read_mem_chip(w_read_mem_chip),
+    .p_read_mem_wr(w_read_mem_wr),
+    .p_read_mem_addr(w_read_mem_addr),
+    .p_read_mem_valid(w_read_mem_valid),
+    .p_read_mem_in(w_read_mem_in),
+    .p_read_mem_out(w_read_mem_out),
+
+    .p_write_mem_chip(w_write_mem_chip),
+    .p_write_mem_wr(w_write_mem_wr),
+    .p_write_mem_addr(w_write_mem_addr),
+    .p_write_mem_valid(w_write_mem_valid),
+    .p_write_mem_in(w_write_mem_in),
+    .p_write_mem_out(w_write_mem_out)
+  );
+
+  Memory #(
+    .NADDR(NADDR),
+    .NBITS(NBITS),
+    .LATENCY(LATENCY),
+    .ROM(ROM)
+  ) memory_read(
+    .clk(clk),
+    .reset(reset),
+    .chip_en(w_read_mem_chip),
+    .wr_en(w_read_mem_wr),
+    .address(w_read_mem_addr),
+    .data_in(w_read_mem_in),
+    .data_out(w_read_mem_out),
+    .data_valid(w_read_mem_valid)
+  );
+
+  Memory #(
+    .NADDR(NADDR),
+    .NBITS(NBITS),
+    .LATENCY(LATENCY),
+    .ROM(0)
+  ) memory_write(
+    .clk(clk),
+    .reset(reset),
+    .chip_en(w_write_mem_chip),
+    .wr_en(w_write_mem_wr),
+    .address(w_write_mem_addr),
+    .data_in(w_write_mem_in),
+    .data_out(w_write_mem_out),
+    .data_valid(w_write_mem_valid)
   );
 
   Conv #(
@@ -78,7 +139,6 @@ module tb;
     .p_weight(p_weight),
     .p_output(p_output)
   );
-
 
   // Inicialização dos sinais e reset
   initial begin
