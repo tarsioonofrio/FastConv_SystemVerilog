@@ -156,7 +156,7 @@ module tb;
     // Start processamento
     $display("=== Start processing ===");
 
-    for (int i = 0; i < FOUT2_SIZE; i++) begin
+    for (int i = 0; i < FOUT1_SIZE; i++) begin
       @(posedge clk);
       wait(p_conv_end);
       @(posedge clk);
