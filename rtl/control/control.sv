@@ -15,8 +15,8 @@ module Control
     parameter int FEAT_OUTPUT_SIZE = 30,
     parameter int LAST_WINDOW      = 0
 ) (
-    input logic clk,
-    input logic reset,
+    input  logic clk,
+    input  logic reset,
 
     input  logic p_start,
     output logic p_end,
@@ -25,7 +25,21 @@ module Control
 
     output type_input  p_input,
     output type_weight p_weight,
-    input  type_output p_output
+    input  type_output p_output,
+
+    output logic_vector p_read_mem_in,
+    output logic p_read_mem_chip,
+    output logic p_read_mem_wr,
+    output logic[NADDR-1:0] p_read_mem_addr,
+    input  logic_vector p_read_mem_out,
+    input  logic p_read_mem_valid,
+
+    output logic_vector p_write_mem_in,
+    output logic p_write_mem_chip,
+    output logic p_write_mem_wr,
+    output logic[NADDR-1:0] p_write_mem_addr,
+    input  logic_vector p_write_mem_out,
+    input  logic p_write_mem_valid
 );
 
   timeunit 1ns; timeprecision 1ps;
@@ -71,74 +85,17 @@ module Control
   // Por algum motivo que não entendo o contador de linhas horizontais só funciona se for inteiro,
   // se trocar para logic [$clog2(N_WINDOW):0] ou qualquer números de bits dá erro na convolução
   int r_count_horizontal;
-  // logic [$clog2(N_WINDOW):0] r_count_horizontal;
-  // int r_count_vertical;
-  logic_vector r_mem_rd_in;
 
-
-  logic_vector w_mem_rd_out;
-  logic_vector w_mem_rd_in;
-  logic w_mem_rd_chip;
-  logic w_mem_rd_wr;
-  logic w_mem_rd_valid;
-  logic[NADDR-1:0] w_mem_rd_addr;
-
-  logic_vector w_mem_wr_out;
-  logic_vector w_mem_wr_in;
-  logic w_mem_wr_chip;
-  logic w_mem_wr_wr;
-  logic w_mem_wr_valid;
-  logic[NADDR-1:0] w_mem_wr_addr;
-
-  logic w_end;
   logic w_horizontal_end;
   logic w_end_wh;
   logic w_end_fin;
-  // logic w_input_end;
   logic w_end_fout;
-  logic w_conv_idle;
-  logic w_conv_end;
-  logic w_output_idle;
 
-
-  ////////////////////////////////
 
   type_input  r_feat_in;
   type_weight r_weight;
   type_weight r_conv;
   type_output r_feat_out;
-
-  Memory #(
-    .NADDR(NADDR),
-    .NBITS(NBITS),
-    .LATENCY(LATENCY),
-    .ROM(ROM)
-  ) memory_read(
-    .clk(clk),
-    .reset(reset),
-    .chip_en(w_mem_rd_chip),
-    .wr_en(w_mem_rd_wr),
-    .address(w_mem_rd_addr),
-    .data_in(w_mem_rd_in),
-    .data_out(w_mem_rd_out),
-    .data_valid(w_mem_rd_valid)
-  );
-
-  Memory #(
-    .NADDR(NADDR),
-    .NBITS(NBITS),
-    .LATENCY(LATENCY),
-    .ROM(0)
-  ) memory_write(
-    .clk(clk),
-    .reset(reset),
-    .chip_en(w_mem_wr_chip),
-    .wr_en(w_mem_wr_wr),
-    .address(w_mem_wr_addr),
-    .data_in(w_mem_wr_in),
-    .data_out(w_mem_wr_out),
-    .data_valid(w_mem_wr_valid)
-  );
 
   always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
@@ -156,9 +113,7 @@ module Control
     p_input <= r_feat_in;
     p_weight <= r_weight;
     // p_output <= r_feat_out;
-    // w_mem_wr_in <= r_mem_wd_in;
-
-    w_output_idle = (current_st_output == IDLE_OUTPUT);
+    // p_write_mem_in <= r_mem_wd_in;
 
     unique case (current_st_input)
       // IDLE:     if (p_start)      next_st = BIAS;
@@ -203,15 +158,15 @@ module Control
     unique case (current_st_output)
       IDLE_OUTPUT: begin
         w_end_fout = 1'b0;
-        w_mem_wr_wr = 1'b0;
-        w_mem_wr_chip = 1'b0;
+        p_write_mem_wr = 1'b0;
+        p_write_mem_chip = 1'b0;
         if (p_conv_end)
           next_st_output = FEAT_OUTPUT;
       end
       FEAT_OUTPUT: begin
         w_end_fout = 1'b0;
-        w_mem_wr_wr = 1'b1;
-        w_mem_wr_chip = 1'b1;
+        p_write_mem_wr = 1'b1;
+        p_write_mem_chip = 1'b1;
         if (r_count_fout == (A1_SIZE * A2_SIZE)) begin
           next_st_output = IDLE_OUTPUT;
           w_end_fout = 1'b1;
@@ -219,28 +174,28 @@ module Control
       end
     endcase
 
-    w_mem_wr_addr <= r_addr_fout[r_count_fout];
-    w_mem_wr_in   <= r_feat_out[r_count_fout];
+    p_write_mem_addr <= r_addr_fout[r_count_fout];
+    p_write_mem_in   <= r_feat_out[r_count_fout];
 
     // Wire control
     w_end_fin = 1'b0;
     w_end_wh = 1'b0;
     unique case (current_st_input)
       BIAS: begin
-        w_mem_rd_addr <= r_addr_bias;
-        // w_mem_rd_chip   <= r_bias_en;
+        p_read_mem_addr <= r_addr_bias;
+        // p_read_mem_chip   <= r_bias_en;
         // p_bias_en    <= r_bias_en;
-        // p_bias_valid <= w_mem_rd_valid;
+        // p_bias_valid <= p_read_mem_valid;
       end
       WEIGHT: begin
-        w_mem_rd_addr  <= r_addr_wh;
-        w_mem_rd_chip  <= r_wh_en;
+        p_read_mem_addr  <= r_addr_wh;
+        p_read_mem_chip  <= r_wh_en;
       end
       END_CONTROL:
         p_end = 1'b1;
       FEAT_INPUT: begin
-        w_mem_rd_addr  <= r_addr_fin[r_count_fin];
-        w_mem_rd_chip  <= r_fin_en;
+        p_read_mem_addr  <= r_addr_fin[r_count_fin];
+        p_read_mem_chip  <= r_fin_en;
       end
       default: begin end
       // FEAT_OUTPUT: begin
@@ -334,10 +289,10 @@ module Control
           r_wh_en      <= 1'b1;
           r_fin_en     <= 1'b0;
           r_count_fin  <= 0;
-          if (w_mem_rd_valid) begin
+          if (p_read_mem_valid) begin
             r_addr_wh  <= r_addr_wh + 1;
             r_count_wh <= r_count_wh + 1;
-            r_weight[r_count_wh] <= w_mem_rd_out;
+            r_weight[r_count_wh] <= p_read_mem_out;
           end
           // if (w_end_wh)
           //   r_wh_en <= 1'b0;
@@ -347,7 +302,7 @@ module Control
         ADDR_INPUT: begin
           r_wh_en    <= 1'b0;
           r_count_wh <= 0;
-          // TODO: Implement w_mem_rd_addr generation logic using if else statements and remove
+          // TODO: Implement p_read_mem_addr generation logic using if else statements and remove
           // Addresses ordered by column and not by row to facilitate reading
           // when reusing, which reuses the last two columns
           // multiple registers, using one register
@@ -391,9 +346,9 @@ module Control
           r_fin_en     <= 1'b1;
           r_wh_en      <= 1'b0;
           r_count_wh   <= 0;
-          if (w_mem_rd_valid) begin
+          if (p_read_mem_valid) begin
             r_count_fin <= r_count_fin + 1;
-            r_feat_in[c_index[r_count_fin]] <= w_mem_rd_out;
+            r_feat_in[c_index[r_count_fin]] <= p_read_mem_out;
           end
           // if (w_end_fin)
           //   r_fin_en <= 1'b0;
@@ -426,7 +381,7 @@ module Control
         FEAT_OUTPUT: begin
           // r_fout_en    <= 1'b1;
           r_count_fout <= r_count_fout + 1;
-          r_mem_rd_in <= r_feat_out[r_count_fout];
+          // r_mem_rd_in <= r_feat_out[r_count_fout];
           if (w_end_fout)
             if (w_horizontal_end)
               r_addr_fout_base <= r_addr_fout_base + A1_SIZE + FEAT_OUTPUT_SIZE * (A1_SIZE - 1);
