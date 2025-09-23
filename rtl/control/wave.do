@@ -56,18 +56,6 @@ add wave -noupdate /tb/conv/w_end
 add wave -noupdate -radix decimal /tb/conv/r_idx_in
 add wave -noupdate -radix decimal /tb/conv/r_idx_out
 add wave -noupdate -radix decimal /tb/conv/product
-add wave -noupdate /tb/dut/p_read_mem_chip
-add wave -noupdate /tb/dut/p_read_mem_in
-add wave -noupdate /tb/dut/p_read_mem_wr
-add wave -noupdate -radix decimal /tb/dut/p_read_mem_addr
-add wave -noupdate -radix decimal /tb/dut/p_read_mem_out
-add wave -noupdate /tb/dut/p_read_mem_valid
-add wave -noupdate -radix decimal /tb/dut/p_write_mem_in
-add wave -noupdate /tb/dut/p_write_mem_chip
-add wave -noupdate /tb/dut/p_write_mem_wr
-add wave -noupdate -radix decimal /tb/dut/p_write_mem_addr
-add wave -noupdate -radix decimal /tb/dut/p_write_mem_out
-add wave -noupdate /tb/dut/p_write_mem_valid
 TreeUpdate [SetDefaultTree]
 WaveRestoreCursors {{Cursor 1} {25 ns} 0 Red default} {{Cursor 2} {0 ns} 0}
 quietly wave cursor active 2
