@@ -29,13 +29,12 @@ module Control
 
     output logic p_read_en,
     output logic[NADDR-1:0] p_read_addr,
-    input logic_vector p_read_data,
+    input  logic_vector p_read_data,
     input  logic p_read_valid,
 
     output logic p_write_en,
     output logic[NADDR-1:0] p_write_addr,
     output  logic_vector p_write_data
-    // input  logic p_write_valid
 );
 
   timeunit 1ns; timeprecision 1ps;
@@ -58,14 +57,10 @@ module Control
   state_input_type current_st_input, next_st_input;
   state_output_type current_st_output, next_st_output;
 
-  logic r_start_conv;
-  logic r_data_end;
-  logic r_conv_end;
   logic r_wh_en;
   logic r_fin_en;
   logic r_end_wh;
   logic r_end_fin;
-  logic r_reuse;
   logic r_fout_en;
 
   logic [$clog2(M1_SIZE*M2_SIZE)-1:0] r_count_wh;
@@ -78,11 +73,12 @@ module Control
   logic [$clog2(N_CHANNEL_OUT * FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE)-1:0] r_addr_fout_base;
   logic [$clog2(N_CHANNEL_OUT * FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE)-1:0] r_addr_fout[A1_SIZE*A2_SIZE-1:0];
   logic [$clog2(N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN)-1:0] r_count_window;
+
   // Por algum motivo que não entendo o contador de linhas horizontais só funciona se for inteiro,
   // se trocar para logic [$clog2(N_WINDOW):0] ou qualquer números de bits dá erro na convolução
   int r_count_horizontal;
 
-  logic w_horizontal_end;
+  logic w_end_horizontal;
   logic w_end_wh;
   logic w_end_fin;
   logic w_end_fout;
@@ -90,7 +86,6 @@ module Control
 
   type_input  r_feat_in;
   type_weight r_weight;
-  type_weight r_conv;
   type_output r_feat_out;
 
   always_ff @(posedge clk or posedge reset) begin
@@ -131,7 +126,6 @@ module Control
       BIAS:
           next_st_input = WEIGHT;
       WEIGHT: begin
-        // w_end_wh = 1'b0;
         if (r_count_wh == (M1_SIZE * M2_SIZE)) begin
           next_st_input = ADDR_INPUT;
           w_end_wh = 1'b1;
@@ -140,7 +134,6 @@ module Control
       ADDR_INPUT:
         next_st_input = FEAT_INPUT;
       FEAT_INPUT: begin
-        // w_end_fin = 1'b0;
         if (r_count_fin == (C1_SIZE * C2_SIZE)) begin
           next_st_input = IDLE_INPUT;
           w_end_fin = 1'b1;
@@ -193,9 +186,9 @@ module Control
     endcase
 
     if (r_count_horizontal < N_WINDOW - 1)
-      w_horizontal_end <= 1'b0;
+      w_end_horizontal <= 1'b0;
     else
-      w_horizontal_end <= 1'b1;
+      w_end_horizontal <= 1'b1;
   end
 
   always_ff @(posedge clk) begin
@@ -208,12 +201,10 @@ module Control
       r_count_fin      <= 0;
       r_count_fout     <= 0;
       r_count_window   <= 0;
-      r_reuse          <= 1'b0;
       r_wh_en          <= 1'b0;
       r_fin_en         <= 1'b0;
       r_end_wh         <= 1'b0;
       r_end_fin        <= 1'b0;
-      r_start_conv     <= 1'b0;
     end else begin
       unique case (current_st_input)
         IDLE_CONTROL: begin
@@ -225,12 +216,10 @@ module Control
           r_count_fin      <= 0;
           r_count_fout     <= 0;
           r_count_window   <= 0;
-          r_reuse          <= 1'b0;
           r_wh_en          <= 1'b0;
           r_fin_en         <= 1'b0;
           r_end_wh         <= 1'b0;
           r_end_fin        <= 1'b0;
-          r_start_conv     <= 1'b0;
           r_weight <= '{default: '0};
           r_feat_in <= '{default: '0};
           r_feat_out <= '{default: '0};
@@ -242,12 +231,10 @@ module Control
           r_fin_en         <= 1'b0;
           r_end_wh         <= 1'b0;
           r_end_fin        <= 1'b0;
-          if (w_horizontal_end) begin
+          if (w_end_horizontal) begin
             r_count_fin <= 0;
-            r_reuse     <= 1'b0;
           end else begin
             r_count_fin <= 10;
-            r_reuse     <= 1'b1;
             // TODO perform test using an index table
             r_feat_in[00] <= r_feat_in[03];
             r_feat_in[01] <= r_feat_in[04];
@@ -260,7 +247,7 @@ module Control
             r_feat_in[20] <= r_feat_in[23];
             r_feat_in[21] <= r_feat_in[24];
           end
-          if (w_horizontal_end) begin
+          if (w_end_horizontal) begin
             r_count_horizontal <= 0;
           end
           else begin
@@ -318,7 +305,7 @@ module Control
           r_addr_fin[23] <= r_addr_fin_base + FEAT_INPUT_SIZE * 3 + 4; // 19
           r_addr_fin[24] <= r_addr_fin_base + FEAT_INPUT_SIZE * 4 + 4; // 24
 
-          if (w_horizontal_end) begin
+          if (w_end_horizontal) begin
             r_addr_fin_base <= r_addr_fin_base + C1_SIZE + FEAT_INPUT_SIZE * (A1_SIZE - 1);
           end else begin
             r_addr_fin_base <= r_addr_fin_base + A1_SIZE;
@@ -360,7 +347,7 @@ module Control
           r_count_fout <= r_count_fout + 1;
           // r_mem_rd_in <= r_feat_out[r_count_fout];
           if (w_end_fout)
-            if (w_horizontal_end)
+            if (w_end_horizontal)
               r_addr_fout_base <= r_addr_fout_base + A1_SIZE + FEAT_OUTPUT_SIZE * (A1_SIZE - 1);
             else
               r_addr_fout_base <= r_addr_fout_base + A1_SIZE;
