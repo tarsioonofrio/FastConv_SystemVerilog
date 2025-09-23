@@ -100,6 +100,9 @@ module Control
     p_input <= r_feat_in;
     p_weight <= r_weight;
 
+    w_end_wh = 1'b0;
+    w_end_fin = 1'b0;
+    w_end_fout = 1'b0;
     unique case (current_st_input)
       // IDLE:     if (p_start)      next_st = BIAS;
       IDLE_CONTROL: begin
@@ -169,8 +172,6 @@ module Control
     endcase
 
     // Wire control
-    w_end_fin = 1'b0;
-    w_end_wh = 1'b0;
     unique case (current_st_input)
       BIAS: begin
         p_read_addr <= r_addr_bias;
@@ -240,6 +241,9 @@ module Control
       r_fin_en         <= 1'b0;
       r_end_wh         <= 1'b0;
       r_end_fin        <= 1'b0;
+      r_weight         <= '{default: '0};
+      r_feat_in        <= '{default: '0};
+      r_feat_out       <= '{default: '0};
     end else begin
       unique case (current_st_input)
         IDLE_CONTROL: begin
@@ -295,7 +299,6 @@ module Control
           end else begin
             r_addr_fin <= r_addr_fin + A1_SIZE;
           end
-
         end
         BIAS: begin
           r_addr_bias <= r_addr_bias + 1;
