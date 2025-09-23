@@ -80,17 +80,12 @@ module tb;
     .p_output(p_output),
 
     .p_read_en(w_read_en),
-    // .p_read_wr(w_read_wr),
     .p_read_addr(w_read_addr),
     .p_read_valid(w_read_valid),
     .p_read_data(w_read_data),
-    // .p_read_out(w_read_out),
 
-    // .p_write_chip(w_write_chip),
     .p_write_en(w_write_en),
     .p_write_addr(w_write_addr),
-    // .p_write_valid(w_write_valid),
-    // .p_write_in(w_write_in),
     .p_write_data(w_write_data)
   );
 
@@ -171,7 +166,6 @@ module tb;
     end
 
     wait(p_end);
-
     $display("=== No errors - End simulation ===");
     $finish;
   end

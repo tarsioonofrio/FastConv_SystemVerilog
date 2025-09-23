@@ -28,14 +28,10 @@ module Control
     input  type_output p_output,
 
     output logic p_read_en,
-    // output logic p_read_wr,
     output logic[NADDR-1:0] p_read_addr,
-    // input  logic_vector p_read_out,
     input logic_vector p_read_data,
     input  logic p_read_valid,
 
-    // output logic_vector p_write_in,
-    // output logic p_write_chip,
     output logic p_write_en,
     output logic[NADDR-1:0] p_write_addr,
     output  logic_vector p_write_data
@@ -112,8 +108,6 @@ module Control
     p_conv_start <= 1'b0;
     p_input <= r_feat_in;
     p_weight <= r_weight;
-    // p_output <= r_feat_out;
-    // p_write_mem_in <= r_mem_wd_in;
 
     unique case (current_st_input)
       // IDLE:     if (p_start)      next_st = BIAS;
@@ -159,14 +153,12 @@ module Control
       IDLE_OUTPUT: begin
         w_end_fout = 1'b0;
         p_write_en = 1'b0;
-        // p_write_chip = 1'b0;
         if (p_conv_end)
           next_st_output = FEAT_OUTPUT;
       end
       FEAT_OUTPUT: begin
         w_end_fout = 1'b0;
         p_write_en = 1'b1;
-        // p_write_chip = 1'b1;
         if (r_count_fout == (A1_SIZE * A2_SIZE)) begin
           next_st_output = IDLE_OUTPUT;
           w_end_fout = 1'b1;
@@ -198,10 +190,6 @@ module Control
         p_read_en  <= r_fin_en;
       end
       default: begin end
-      // FEAT_OUTPUT: begin
-      //   p_wh_valid  <= 0;
-      //   p_fin_valid <= 0;
-      // end
     endcase
 
     if (r_count_horizontal < N_WINDOW - 1)
@@ -243,7 +231,6 @@ module Control
           r_end_wh         <= 1'b0;
           r_end_fin        <= 1'b0;
           r_start_conv     <= 1'b0;
-          ////////
           r_weight <= '{default: '0};
           r_feat_in <= '{default: '0};
           r_feat_out <= '{default: '0};
@@ -275,7 +262,6 @@ module Control
           end
           if (w_horizontal_end) begin
             r_count_horizontal <= 0;
-            // r_count_vertical   <= r_count_vertical + 1;
           end
           else begin
             r_count_window     <= r_count_window + 1;
@@ -294,10 +280,6 @@ module Control
             r_count_wh <= r_count_wh + 1;
             r_weight[r_count_wh] <= p_read_data;
           end
-          // if (w_end_wh)
-          //   r_wh_en <= 1'b0;
-          // else
-          //   r_wh_en <= 1'b1;
         end
         ADDR_INPUT: begin
           r_wh_en    <= 1'b0;
@@ -350,17 +332,12 @@ module Control
             r_count_fin <= r_count_fin + 1;
             r_feat_in[c_index[r_count_fin]] <= p_read_data;
           end
-          // if (w_end_fin)
-          //   r_fin_en <= 1'b0;
-          // else
-          //   r_fin_en <= 1'b1;
         end
         default: begin end
       endcase
 
       unique case (current_st_output)
         IDLE_OUTPUT: begin
-          // r_fout_en    <= 1'b0;
           r_count_fout <= 0;
           // TODO: Implement address generation logic using if else statements and remove
           // multiple registers, using one register
