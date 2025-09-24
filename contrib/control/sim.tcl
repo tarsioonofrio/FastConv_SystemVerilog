@@ -40,7 +40,7 @@ close $fp
 
 
 vlog -work work $define_flags -svinputport=relaxed ./control.sv
-vlog -work work $define_flags -svinputport=relaxed ./testbench.sv
+vlog -work work $define_flags -svinputport=relaxed ./tb_control.sv
 # to show FSM
 # vsim -voptargs=+acc -t ns -fsmdebug -coverage -debugDB work.tb
 vsim -voptargs=+acc -t ns work.tb
@@ -51,11 +51,10 @@ do mem.do
 
 # all blocks
 #run 50000ns
-# run 2000ns
 # 4 blocks
 #run 4000ns
 # one line
-run 7000ns
-# run -all
-
+# run 7000ns
+run -all
+    
 # coverage report -output report.txt -srcfile=* -assert -directive -cvg -codeAll
