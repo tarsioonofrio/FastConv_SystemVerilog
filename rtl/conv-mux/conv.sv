@@ -43,15 +43,6 @@ module Conv
 
   logic signed [NBITS-1+QUANT:0] product [0:NMULT-1];  // QUANT more bits for the multipliers
 
-
-  // const int c_index[5*5] = {
-  //   00, 05, 10, 15, 20,
-  //   01, 06, 11, 16, 21,
-  //   02, 07, 12, 17, 22,
-  //   03, 08, 13, 18, 23,
-  //   04, 09, 14, 19, 24
-  // };
-
   //
   // BLOCK: Control FSM
   //
@@ -85,19 +76,6 @@ module Conv
         next_state = IDLE_CONV;
       end
     endcase
-
-    // unique case (current_state_output)
-    //   IDLE_OUTPUT: begin
-    //     w_end[1] = 1'b0;
-    //     if (w_end[0]) next_st_output = FEAT_OUTPUT;
-    //   end
-    //   FEAT_OUTPUT: begin
-    //     if (r_count_fout == (A1_SIZE * A2_SIZE)) begin
-    //       next_st_output = IDLE_OUTPUT;
-    //       w_end[1] = 1'b1;
-    //     end
-    //   end
-    // endcase
   end
 
   always_ff @(posedge clk) begin
@@ -121,31 +99,9 @@ module Conv
           end
         end
         CONV_A: begin
-          // r_feat_out <= w_prod_a;
           r_end <= 1'b1;
         end
       endcase
-
-      // unique case (current_state_output)
-      //   IDLE_OUTPUT: begin
-      //     r_end[1]     <= 1'b0;
-      //     r_fout_en    <= 1'b0;
-      //     r_fout_valid <= 1'b0;
-      //     r_count_fout <= 0;
-      //     // r_feat_out   <= '{default: '0};
-      //   end
-      //   FEAT_OUTPUT: begin
-      //     r_end[1]     <= w_end[1];
-      //     r_count_fout <= r_count_fout + 1;
-      //     if (w_end[1]) begin
-      //       r_fout_en    <= 1'b0;
-      //       r_fout_valid <= 1'b0;
-      //     end else begin
-      //       r_fout_en    <= 1'b1;
-      //       r_fout_valid <= 1'b1;
-      //     end
-      //   end
-      // endcase
     end
   end
 
