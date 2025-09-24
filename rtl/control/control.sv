@@ -57,8 +57,8 @@ module Control
 
   logic r_wh_en;
   logic r_fin_en;
-  logic r_end_wh;
-  logic r_end_fin;
+  // logic r_end_wh;
+  // logic r_end_fin;
   logic r_fout_en;
 
   logic [$clog2(M1_SIZE*M2_SIZE)-1:0] r_count_wh;
@@ -75,7 +75,7 @@ module Control
 
   logic w_end_fin_horizontal;
   logic w_end_fout_horizontal;
-  logic w_end_wh;
+  // logic w_end_wh;
   logic w_end_fin;
   logic w_end_fout;
 
@@ -99,7 +99,7 @@ module Control
     p_weight <= r_weight;
 
     p_conv_start <= 1'b0;
-    w_end_wh = 1'b0;
+    // w_end_wh = 1'b0;
     w_end_fin = 1'b0;
     w_end_fout = 1'b0;
     unique case (current_st_input)
@@ -114,7 +114,7 @@ module Control
       WEIGHT: begin
         if (r_count_wh == (M1_SIZE * M2_SIZE)) begin
           next_st_input = FEAT_INPUT;
-          w_end_wh = 1'b1;
+          // w_end_wh = 1'b1;
         end
       end
       FEAT_INPUT: begin
@@ -244,8 +244,8 @@ module Control
       r_count_fout_horizontal <= 0;
       r_wh_en          <= 1'b0;
       r_fin_en         <= 1'b0;
-      r_end_wh         <= 1'b0;
-      r_end_fin        <= 1'b0;
+      // r_end_wh         <= 1'b0;
+      // r_end_fin        <= 1'b0;
       r_weight         <= '{default: '0};
       r_feat_in        <= '{default: '0};
       r_feat_out       <= '{default: '0};
@@ -264,8 +264,8 @@ module Control
           r_count_fout_horizontal <= 0;
           r_wh_en          <= 1'b0;
           r_fin_en         <= 1'b0;
-          r_end_wh         <= 1'b0;
-          r_end_fin        <= 1'b0;
+          // r_end_wh         <= 1'b0;
+          // r_end_fin        <= 1'b0;
           r_weight         <= '{default: '0};
           r_feat_in        <= '{default: '0};
           r_feat_out       <= '{default: '0};
@@ -299,8 +299,8 @@ module Control
             r_count_fin      <= 0;
             r_wh_en          <= 1'b0;
             r_fin_en         <= 1'b0;
-            r_end_wh         <= 1'b0;
-            r_end_fin        <= 1'b0;
+            // r_end_wh         <= 1'b0;
+            // r_end_fin        <= 1'b0;
             if (w_end_fin_horizontal) begin
               r_count_fin <= 0;
               r_count_fin_horizontal <= 0;
