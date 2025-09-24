@@ -24,7 +24,8 @@ module tb;
 
   // Instantiate conv_rapida entity
   Conv #(
-    .QUANT(QUANT_BITS)
+    .QUANT(QUANT)
+    .NBITS(NBITS)
   ) dut (
     .clk(clk),
     .reset(reset),
