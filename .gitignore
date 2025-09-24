@@ -3,7 +3,8 @@ transcript
 vsim*
 work
 xcelium*
-xrun.*
+xrun.log
+xrun.history
 *.cache
 *.vcd
 *.runs
