@@ -1,14 +1,14 @@
 ###############################################################################
 # TOP
 ###############################################################################
-set TOP_MODULE conv
+set TOP_MODULE control
 
 set OUT_FILES "[pwd]/results"
 
 set GIT_ROOT [exec git rev-parse --show-toplevel]
 
 # Read file_list.txt and concatenate its contents into a variable
-set file_list_path "../list-file.txt"
+set file_list_path "list-file.txt"
 
 set HDL_FILES ""
 
@@ -22,8 +22,6 @@ if { [file exists $file_list_path] } {
     }
     close $fp
 }
-
-append HDL_FILES "${GIT_ROOT}/contrib/conv/fast-conv-mux/rtl/fast_conv.sv"
 
 set DEFINE "-define NBITS=20"
 
