@@ -3,7 +3,8 @@ transcript
 vsim*
 work
 xcelium*
-xrun.*
+xrun.log
+xrun.history
 *.cache
 *.vcd
 *.runs
@@ -30,3 +31,12 @@ modelsim.ini
 *.trn
 genus.cmd*
 genus.log*
+
+*.vstf
+*.png
+*.jpg
+*.jpeg
+*.bmp
+*.gif
+*.tiff
+*.webp
