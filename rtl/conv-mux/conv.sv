@@ -59,7 +59,8 @@ module Conv
   always_comb begin
     p_end = r_end;
     w_end = 1'b0;
-    p_output <= w_prod_a;
+    p_output = w_prod_a;
+    next_state  = current_state;
 
     unique case (current_state)
       IDLE_CONV: begin
@@ -81,7 +82,7 @@ module Conv
   always_ff @(posedge clk) begin
     if (reset) begin
       r_idx_in <= 1'b0;
-      r_end = 1'b0;
+      r_end <= 1'b0;
     end else begin
       unique case (current_state)
         IDLE_CONV: begin
