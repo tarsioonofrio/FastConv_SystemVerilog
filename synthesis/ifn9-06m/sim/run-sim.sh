@@ -7,7 +7,7 @@ GIT_ROOT=$(git rev-parse --show-toplevel)
 # Testbench e pack conforme usado no histórico
 TB=${GIT_ROOT}/rtl/system/testbench-synth.sv
 
-GATE=../synth/results/gate_level/system_logic_mapped.v
+GATE=../logical/results/gate_level/system_logic_mapped.v
 
 # Monta lista de arquivos (uma só linha, sem newline), prefixando GIT_ROOT
 files=""
