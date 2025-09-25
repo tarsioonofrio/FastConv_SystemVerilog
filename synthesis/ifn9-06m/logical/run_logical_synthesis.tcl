@@ -24,9 +24,22 @@ if { [file exists $file_list_path] } {
     close $fp
 }
 
+set defines_file "../list-define.txt"
+set DEFINE_FLAGS ""
+
+if {[file exists $defines_file]} {
+    set fp_def [open $defines_file r]
+    while {[gets $fp_def line] >= 0} {
+        set line_trim [string trim $line]
+        # remove -define do início de cada linha
+        set line_trim [string range $line_trim 8 end]
+        if { $line_trim ne "" && [string first "=" $line_trim] > 0 } {
+            set DEFINE_FLAGS "$DEFINE_FLAGS $line_trim "
+        }
+    }
+    close $fp_def
+}
+
 append HDL_FILES "${GIT_ROOT}/rtl/system/system.sv"
-
-
-set DEFINE "-define NBITS=20"
 
 source ${GIT_ROOT}/synthesis/source/run_logical_synthesis.tcl
