@@ -9,7 +9,7 @@ set OUT_FILES "[pwd]/results"
 set GIT_ROOT [exec git rev-parse --show-toplevel]
 
 # Read file_list.txt and concatenate its contents into a variable
-set file_list_path "list-file.txt"
+set file_list_path "../list-file.txt"
 
 set HDL_FILES ""
 
@@ -23,6 +23,9 @@ if { [file exists $file_list_path] } {
     }
     close $fp
 }
+
+append HDL_FILES "${GIT_ROOT}/rtl/system/system.sv"
+
 
 set DEFINE "-define NBITS=20"
 
