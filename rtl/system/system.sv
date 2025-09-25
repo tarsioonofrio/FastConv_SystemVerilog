@@ -21,7 +21,8 @@ module System
   output logic p_end
 );
 
-  timeunit 1ns; timeprecision 1ps;
+  timeunit 1ns;
+  timeprecision 1ps;
 
   logic w_conv_start;
   logic w_conv_end;
