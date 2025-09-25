@@ -322,7 +322,6 @@ module Control
             end
           end
         end
-        default: begin end
       endcase
 
       unique case (current_st_output)
