@@ -13,7 +13,7 @@ GATE=../logical/results/gate_level/system_logic_mapped.v
 files=""
 while IFS= read -r line; do
   files="$files$GIT_ROOT/$line "
-done < list-file.txt
+done < ../list-file.txt
 
 # Monta defines: prefixa -define em cada linha e junta em uma só linha
 # defines=$(sed 's/^/-define /' list_def.txt | tr '\n' ' ' | sed 's/ $//')
