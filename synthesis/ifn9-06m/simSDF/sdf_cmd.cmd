@@ -1,6 +1,6 @@
-SDF_FILE = "../sintese/results/gate_level/conv_analysis_view_0p90v_25c_captyp_nominal.sdf",
+SDF_FILE = "../synth/results/gate_level/system_analysis_view_0p90v_25c_captyp_nominal.sdf",
 LOG_FILE = "./sdf_log.log",
-SCOPE = tb.conv;
+SCOPE = tb.dut;
 MTM_CONTROL = "MAXIMUM",
 SCALE_FACTORS = "1.0:1.0:1.0",
 SCALE_TYPE = "FROM_MAXIMUM";

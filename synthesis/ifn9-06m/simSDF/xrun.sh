@@ -5,7 +5,7 @@ module load xcelium > /dev/null 2>&1
 GIT_ROOT=$(git rev-parse --show-toplevel)
 
 # Testbench e pack conforme usado no histórico
-TB=${GIT_ROOT}/rtl/system/testbench.sv
+TB=${GIT_ROOT}/rtl/system/testbench-synth.sv
 
 GATE=../synth/results/gate_level/system_logic_mapped.v
 
