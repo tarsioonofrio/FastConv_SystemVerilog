@@ -95,6 +95,8 @@ module Control
     p_input = r_feat_in;
     p_weight = r_weight;
 
+    next_st_input  = current_st_input;
+    next_st_output = current_st_output;
     p_conv_start = 1'b0;
     w_end_fin = 1'b0;
     w_end_fout = 1'b0;
