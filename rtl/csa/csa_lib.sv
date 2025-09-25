@@ -5,8 +5,10 @@
 //--------------------------------------------------------------
 // FA adder
 //--------------------------------------------------------------
+import pack_def::*;
+import pack_typedef::*;
+
 module FA
-     import pack_typedef::*;
 (
   input  logic [NBITS-1:0] a, b, c,
   output logic [NBITS-1:0] sum, cout
@@ -23,7 +25,6 @@ endmodule
 // CSA 1  -  output equal to input
 //--------------------------------------------------------------
 module CSA_1
-    import pack_typedef::*;
 (
   input  logic [NBITS-1:0] op0,
   output logic [NBITS-1:0] sum
@@ -31,7 +32,7 @@ module CSA_1
 
   timeunit 1ns;
   timeprecision 1ps;
-  
+
   assign sum = op0;
 endmodule
 
@@ -40,7 +41,6 @@ endmodule
 // 2 inputs ADDER
 //--------------------------------------------------------------
 module CSA_2
-    import pack_typedef::*;
 (
   input  logic [NBITS-1:0] op0, op1,
   output logic [NBITS-1:0] sum
@@ -48,7 +48,7 @@ module CSA_2
 
   timeunit 1ns;
   timeprecision 1ps;
-  
+
   assign sum = op1 + op0;
 endmodule
 
@@ -56,14 +56,13 @@ endmodule
 // CSA - CARRY SAVE ADDER with 3 inputs
 //--------------------------------------------------------------
 module CSA_3
-    import pack_typedef::*;
 (
   input  logic [NBITS-1:0] op0, op1, op2,
   output logic [NBITS-1:0] sum
 );
   timeunit 1ns;
   timeprecision 1ps;
-  
+
   logic [NBITS-1:0] sum_Q, cout_Q;
 
   FA layer1(.a(op2), .b(op1), .c(op0), .sum(sum_Q), .cout(cout_Q));
@@ -73,15 +72,14 @@ endmodule
 //--------------------------------------------------------------
 // CSA - CARRY SAVE ADDER with 4 inputs
 //--------------------------------------------------------------
-module CSA_4    
-     import pack_typedef::*;
+module CSA_4
 (
   input  logic [NBITS-1:0] op0, op1, op2, op3,
   output logic [NBITS-1:0] sum
 );
   timeunit 1ns;
   timeprecision 1ps;
-  
+
   two_words sumL1;
   logic [NBITS-1:0] sum_Q, cout_Q;
 
@@ -95,14 +93,13 @@ endmodule
 // CSA - CARRY SAVE ADDER with 5 inputs
 //--------------------------------------------------------------
 module CSA_5
-     import pack_typedef::*;
 (
   input  logic [NBITS-1:0] op0, op1, op2, op3, op4,
   output logic [NBITS-1:0] sum
 );
   timeunit 1ns;
   timeprecision 1ps;
-  
+
   four_words sumL1;
   two_words sumL2;
   logic [NBITS-1:0] sum_Q, cout_Q;
@@ -121,14 +118,13 @@ endmodule
 // CSA - CARRY SAVE ADDER with 6 inputs
 //--------------------------------------------------------------
 module CSA_6
-     import pack_typedef::*;
 (
   input  logic [NBITS-1:0] op0, op1, op2, op3, op4, op5,
   output logic [NBITS-1:0] sum
 );
   timeunit 1ns;
   timeprecision 1ps;
-  
+
   four_words sumL1, sumL2;
   logic [NBITS-1:0] sum_Q, cout_Q;
 
@@ -136,7 +132,7 @@ module CSA_6
   FA L1b(.a(op2), .b(op1), .c(op0), .sum(sumL1[2]), .cout(sumL1[3]));
 
   FA L2(.a(sumL1[0]), .b(sumL1[1]), .c(sumL1[2]), .sum(sumL2[0]), .cout(sumL2[1]));
-  
+
   FA L3(.a(sumL2[0]), .b(sumL2[1]), .c(sumL1[3]), .sum(sum_Q), .cout(cout_Q));
 
   assign sum = sum_Q + cout_Q;
@@ -146,14 +142,13 @@ endmodule
 // CSA - CARRY SAVE ADDER with 7 inputs
 //--------------------------------------------------------------
 module CSA_7
-      import pack_typedef::*;
 (
   input  logic [NBITS-1:0] op0, op1, op2, op3, op4, op5, op6,
   output logic [NBITS-1:0] sum
 );
   timeunit 1ns;
   timeprecision 1ps;
-  
+
   four_words sumL1, sumL2;
   two_words sumL3;
   logic [NBITS-1:0] sum_Q, cout_Q;
@@ -175,14 +170,13 @@ endmodule
 // CSA - CARRY SAVE ADDER with 8 inputs
 //--------------------------------------------------------------
 module CSA_8
-     import pack_typedef::*;
 (
   input  logic [NBITS-1:0] op0, op1, op2, op3, op4, op5, op6, op7,
   output logic [NBITS-1:0] sum
 );
   timeunit 1ns;
   timeprecision 1ps;
-  
+
   four_words sumL1, sumL2;
   two_words sumL3;
   logic [NBITS-1:0] sum_Q, cout_Q;
@@ -205,14 +199,13 @@ endmodule
 // CSA - CARRY SAVE ADDER with 9 inputs
 //--------------------------------------------------------------
 module CSA_9
-     import pack_typedef::*;
 (
   input  logic [NBITS-1:0] op0, op1, op2, op3, op4, op5, op6, op7, op8,
   output logic [NBITS-1:0] sum
 );
   timeunit 1ns;
   timeprecision 1ps;
-  
+
   six_words sumL1;
   four_words sumL2;
   two_words sumL3;
@@ -236,14 +229,13 @@ endmodule
 // CSA - CARRY SAVE ADDER with 9 inputs
 //--------------------------------------------------------------
 module CSA_12
-     import pack_typedef::*;
 (
   input  logic [NBITS-1:0] op0, op1, op2, op3, op4, op5, op6, op7, op8, op9, op10, op11,
   output logic [NBITS-1:0] sum
 );
   timeunit 1ns;
   timeprecision 1ps;
-  
+
   eight_words sumL1;
   four_words sumL2;
   four_words sumL3;
@@ -273,7 +265,6 @@ endmodule
 // CSA - CARRY SAVE ADDER with 16 inputs
 //--------------------------------------------------------------
 module CSA_16
-     import pack_typedef::*;
 (
   input  logic [NBITS-1:0] op0, op1, op2, op3, op4, op5, op6, op7,
                                op8, op9, op10, op11, op12, op13, op14, op15,
@@ -281,7 +272,7 @@ module CSA_16
 );
   timeunit 1ns;
   timeprecision 1ps;
-  
+
   ten_words sumL1;
   six_words sumL2;
   four_words sumL3, sumL4;
@@ -316,14 +307,13 @@ endmodule
 // CSA - CARRY SAVE ADDER with 18 inputs (using an array)
 //--------------------------------------------------------------
 module CSA_18
-     import pack_typedef::*;
 (
   input  logic[NBITS-1:0] inputs[18], // 18 operandos de entrada
   output logic [NBITS-1:0] sum
 );
   timeunit 1ns;
   timeprecision 1ps;
-  
+
   typedef logic [NBITS-1:0] layer1 [0:11];
   typedef logic [NBITS-1:0] layer2 [0:8];
   typedef logic [NBITS-1:0] layer3 [0:5];
@@ -377,8 +367,3 @@ module CSA_18
   assign sum = sum_Q + cout_Q;
 
 endmodule
-
-
-
-
-

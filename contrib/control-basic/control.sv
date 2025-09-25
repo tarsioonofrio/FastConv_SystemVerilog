@@ -53,13 +53,9 @@ module Control
 
   logic r_start_conv;
   logic r_fout_en;
-  logic r_data_end;
-  logic r_conv_end;
   logic r_wh_en;
   logic r_fin_en;
   logic r_chip_en;
-  logic r_end_wh;
-  logic r_end_fin;
 
   int r_count_wh;
   int r_count_fin;
