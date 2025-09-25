@@ -1,3 +1,6 @@
+rm -rf dut.shm
+rm -rf xcelium.d
+
 module purge
 module load xcelium > /dev/null 2>&1
 
