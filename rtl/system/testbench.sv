@@ -73,13 +73,13 @@ module tb;
 
     for (int i = 0; i < FOUT1_SIZE; i++) begin
       @(posedge clk);
-      wait(dut.w_conv_end);
+      wait(dut.control.p_conv_end);
       @(posedge clk);
       for (int j = 0; j < FOUT2_SIZE; j++) begin
         @(posedge clk);
-        wait(dut.w_write_en);
-        if ($signed(const_feat_out_batch[i][j]) != $signed(dut.w_write_data)) begin
-          $display("Time %0t | const_feat_out[%0d][%0d] = %0d | Output = %0d", $time, i, j, const_feat_out_batch[i][j], dut.w_write_data);
+        wait(dut.control.p_write_en);
+        if ($signed(const_feat_out_batch[i][j]) != $signed(dut.control.p_write_data)) begin
+          $display("Time %0t | const_feat_out[%0d][%0d] = %0d | Output = %0d", $time, i, j, const_feat_out_batch[i][j], dut.control.p_write_data);
           $display("=== ERROR - End simulation ====");
         end
       end
