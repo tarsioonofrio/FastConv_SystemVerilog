@@ -17,7 +17,7 @@ FastConv is an optimized 2D convolution architecture (Toom-Cook and variants) de
 ## Prerequisites
 
 - Git and Python 3.8+ (to run the automation scripts and the `fast-conv` utility).
-- The `fast-conv` CLI installed in the PATH (https://github.com/paulocaroli/fast-conv) to generate new datasets/RTL.
+- The `fast-conv` CLI installed in the PATH to generate new datasets/RTL.
 - ModelSim/QuestaSim (or another `vsim`-compatible simulator) for functional simulation.
 - Cadence Genus (logic synthesis) and Cadence Xcelium (post-synthesis simulation) configured in the environment.
 - Optional Verilator for static linting via `veridian`.
