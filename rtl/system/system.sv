@@ -125,28 +125,4 @@ module System
     .p_output(w_output)
   );
 
-  `ifdef DEBUG
-    initial begin
-      // Start processamento
-      $display("=== Start debuging ===");
-
-      for (int i = 0; i < FOUT1_SIZE; i++) begin
-        @(posedge clk);
-        wait(p_conv_end);
-        @(posedge clk);
-        for (int j = 0; j < FOUT2_SIZE; j++) begin
-          @(posedge clk);
-          wait(w_write_en);
-          if ($signed(const_feat_out_batch[i][j]) != $signed(w_write_data)) begin
-            $display("Time %0t | const_feat_out[%0d][%0d] = %0d | Output = %0d", $time, i, j, const_feat_out_batch[i][j], w_write_data);
-            $display("=== ERROR - End debuging ====");
-          end
-        end
-      end
-
-      wait(p_end);
-      $display("=== No errors - End debuging ===");
-    end
-  `endif
-
 endmodule
