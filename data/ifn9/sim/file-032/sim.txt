@@ -1,8 +1,11 @@
-Feature: (0, 127)
-Weights: (0, 127)
+Feature: None
+Weights: None
 Image side: 32
-Output default and naive are equals: True
-R2: 1.0%
+Quantization bits: 8
+Output default and naive are equals: False
+
+R2: 0.9994582771343704%
+
 Totals
 Naive
 Convolutions: 900
