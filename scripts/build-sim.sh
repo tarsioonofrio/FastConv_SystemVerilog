@@ -12,15 +12,14 @@ fast-conv init 2d -o $2
 fast-conv build 2d $3
 
 # bind 2d fast convolution with nested method
-fast-conv build 2d bind $4
+fast-conv build 2d bind nest
 # quantizate with 4 shifs
-fast-conv quant shift -b $5
+# fast-conv quant shift -b 8
 
-fast-conv sim rand -i 032 -n 032 -d 032
-fast-conv sim rand -i 064 -n 064 -d 064
-fast-conv sim rand -i 128 -n 128 -d 128
-fast-conv sim rand -i 256 -n 256 -d 256
-fast-conv sim rand -i 512 -n 512 -d 512
+fast-conv sim normal -i 032 -n 032 -d 032
+fast-conv sim normal -i 062 -n 062 -d 062
+fast-conv sim normal -i 122 -n 122 -d 122
+fast-conv sim normal -i 244 -n 244 -d 244
+# fast-conv sim rand -i 488 -n 488 -d 488
 
-rm -rf build
-rm -rf clib
+rm -rf build clib sv

@@ -1,0 +1,16 @@
+Feature: None
+Weights: None
+Image side: 244
+Quantization bits: 8
+Output default and naive are equals: False
+
+R2: 0.9964246237564955%
+
+Totals
+Naive
+Convolutions: 58564
+Multiplications: 527076
+Additions: 468512
+Fast
+Convolutions: 6561
+Multiplications: 164025
