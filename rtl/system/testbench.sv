@@ -2,23 +2,23 @@ module tb;
   timeunit 1ns;
   timeprecision 1ps;
 
-  import data::*;
   import pack_def::*;
-  import pack_typedef::*;
+  import pack_data::*;
   import pack_param::*;
+  import pack_typedef::*;
 
   // Parâmetros conforme Core
-  localparam int NADDR            = 12;
-  localparam int NBITS            = 20;
-  localparam int LATENCY          = 1;
-  localparam int ROM              = 1;
-  localparam int QUANT            = 8;
-  localparam int FEAT_INPUT_SIZE  = 32;
-  localparam int FEAT_OUTPUT_SIZE = 30;
-  localparam int N_WINDOW         = 10;
-  localparam int N_CHANNEL_IN     = 1;
-  localparam int N_CHANNEL_OUT    = 1;
-  localparam int LAST_WINDOW      = 0;
+  parameter int NADDR            = 12;
+  parameter int NBITS            = 20;
+  parameter int LATENCY          = 1;
+  parameter int ROM              = 1;
+  parameter int QUANT            = 8;
+  parameter int FEAT_INPUT_SIZE  = 32;
+  parameter int FEAT_OUTPUT_SIZE = 30;
+  parameter int N_WINDOW         = 10;
+  parameter int N_CHANNEL_IN     = 1;
+  parameter int N_CHANNEL_OUT    = 1;
+  parameter int LAST_WINDOW      = 0;
 
   logic clk;
   logic reset;
@@ -26,6 +26,19 @@ module tb;
   logic p_start;
   logic p_end;
 
+  logic w_read_en;
+  logic w_read_wr;
+  logic w_read_valid;
+  logic[NADDR-1:0] w_read_addr;
+  logic_vector w_read_in;
+  logic_vector w_read_data;
+
+  logic w_write_chip;
+  logic w_write_en;
+  logic w_write_valid;
+  logic[NADDR-1:0] w_write_addr;
+  logic_vector w_write_data;
+  logic_vector w_write_out;
 
   int count_fout = 0;
 
@@ -51,7 +64,48 @@ module tb;
     .reset(reset),
 
     .p_start(p_start),
-    .p_end(p_end)
+    .p_end(p_end),
+
+    .p_read_en(w_read_en),
+    .p_read_addr(w_read_addr),
+    .p_read_valid(w_read_valid),
+    .p_read_data(w_read_data),
+
+    .p_write_en(w_write_en),
+    .p_write_addr(w_write_addr),
+    .p_write_data(w_write_data)
+  );
+
+  Memory #(
+    .NADDR(NADDR),
+    .NBITS(NBITS),
+    .LATENCY(LATENCY),
+    .ROM(ROM)
+  ) memory_read(
+    .clk(clk),
+    .reset(reset),
+    .chip_en(w_read_en),
+    .wr_en(w_read_wr),
+    .address(w_read_addr),
+    .data_in(w_read_in),
+    .data_out(w_read_data),
+    .data_valid(w_read_valid)
+  );
+
+  Memory #(
+    .NADDR(NADDR),
+    .NBITS(NBITS),
+    .LATENCY(LATENCY),
+    .ROM(0)
+  ) memory_write(
+    .clk(clk),
+    .reset(reset),
+    .chip_en(w_write_en),
+    .wr_en(w_write_en),
+    .address(w_write_addr),
+    .data_in(w_write_data),
+    .data_out(w_write_out),
+    .data_valid(w_write_valid)
   );
 
   // Inicialização dos sinais e reset
@@ -70,6 +124,20 @@ module tb;
 
     @(posedge clk);
     p_start = 0;
+
+    for (int i = 0; i < FOUT1_SIZE; i++) begin
+      @(posedge clk);
+      wait(dut.control.p_conv_end);
+      @(posedge clk);
+      for (int j = 0; j < FOUT2_SIZE; j++) begin
+        @(posedge clk);
+        wait(w_write_en);
+        if ($signed(const_feat_out_batch[i][j]) != $signed(w_write_data)) begin
+          $display("Time %0t | const_feat_out[%0d][%0d] = %0d | Output = %0d", $time, i, j, const_feat_out_batch[i][j], w_write_data);
+          $display("=== ERROR - End simulation ====");
+        end
+      end
+    end
 
     wait(p_end);
     $display("=== No errors - End simulation ===");
