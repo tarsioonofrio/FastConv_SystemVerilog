@@ -22,4 +22,4 @@ done < ../list-file.txt
 # defines=$(sed 's/^/-define /' list_def.txt | tr '\n' ' ' | sed 's/ $//')
 
 # Chamada do xrun (mantendo args.txt como no histórico)
-xrun $files $TB $GATE -f ../list-define.txt -f args.txt -run -exit
+xrun -f args.txt $files $TB $GATE -f ../list-define.txt -run -exit
