@@ -1,8 +1,7 @@
 # https://github.com/vivekmalneedi/veridian?tab=readme-ov-file#configuration
 # list of directories to recursively search for SystemVerilog/Verilog sources
 source_dirs:
-  - src/tc4n-m4b20c6/rtl
-  # - tc4m20b6c/
+  - rtl/
 verilator:
   # verilator configuration
   syntax:

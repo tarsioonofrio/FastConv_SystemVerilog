@@ -1,7 +1,6 @@
 ###############################################################################
 # TOP
 ###############################################################################
-# set TOP_MODULE conv
 
 
 puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
@@ -24,6 +23,7 @@ puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 
 	### keep hierarchy
 	set_db auto_ungroup none
+	set_db hdl_parameter_naming_style ""
 
 	### Set PLE (Generates a set of load values, which were obtained from the physical layout..
 	# estimator (PLE) or wire-load model, for all the nets in the specified design)
@@ -110,7 +110,6 @@ puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 	#---
 	report_power -unit mW > ${OUT_FILES}/reports/${TOP_MODULE}_power_${CURRENT_VIEW}.rpt
 
-
 	### Report timming -unconstrained amd -verbose
 	report timing -lint -verbose > ${OUT_FILES}/reports/${TOP_MODULE}_timing_setup_${CURRENT_VIEW}_verbose.rpt
 	report_timing -unconstrained > ${OUT_FILES}/reports/${TOP_MODULE}_timing_setup_${CURRENT_VIEW}_verbose_unconstrained.rpt
@@ -149,12 +148,8 @@ puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 	### To generate all files needed to be loaded in an Innovus session, use the following command:
 	write_design -innovus -base_name ${OUT_FILES}/physical_synthesis/work/data
 
-
     ### será usado para power analysis
 	set CURRENT_VIEW analysis_view_0p90v_25c_captyp_nominal
 	write_db ${OUT_FILES}/gate_level/${TOP_MODULE}_logic_mapped.db
 
-
-
-
-    exit
+	exit
