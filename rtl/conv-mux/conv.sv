@@ -91,6 +91,7 @@ module Conv
           r_feat[C1_SIZE*C1_SIZE-1:0] <= p_input;
         end
         CONV_C: begin
+          r_end <= 1'b0;
           r_feat <= w_prod_c;
         end
         CONV_H: begin

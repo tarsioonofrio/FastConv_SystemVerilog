@@ -12,7 +12,7 @@ set GIT_ROOT [exec git rev-parse --show-toplevel]
 # vlog -work work  -svinputport=relaxed $DATA_SV
 
 # Read key=value defines from define.txt and build the +define+key=value flags
-set defines_file "list_def.txt"
+set defines_file "list-def.txt"
 set define_flags ""
 
 if {[file exists $defines_file]} {
@@ -55,7 +55,7 @@ do wave.do
 # 4 blocks
 #run 4000ns
 # one line
-run 7000ns
-# run -all
+# run 7000ns
+run -all
 
 # coverage report -output report.txt -srcfile=* -assert -directive -cvg -codeAll
