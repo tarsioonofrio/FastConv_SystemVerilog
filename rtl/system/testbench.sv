@@ -2,10 +2,10 @@ module tb;
   timeunit 1ns;
   timeprecision 1ps;
 
-  import data::*;
   import pack_def::*;
-  import pack_typedef::*;
+  import pack_data::*;
   import pack_param::*;
+  import pack_typedef::*;
 
   // Parâmetros conforme Core
   localparam int NADDR            = 12;

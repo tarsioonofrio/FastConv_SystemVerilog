@@ -26,8 +26,6 @@ if {[file exists $defines_file]} {
     close $fp_def
 }
 
-vlog -work work -svinputport=relaxed ./data-sim.sv
-
 # Read the file_list.txt file and execute vlog commands for each line, passing defines
 set file_list "list-file.txt"
 set fp [open $file_list r]
@@ -55,7 +53,7 @@ do mem.do
 # 4 blocks
 #run 4000ns
 # one line
-run 7000ns
-# run -all
+# run 7000ns
+run -all
 
 # coverage report -output report.txt -srcfile=* -assert -directive -cvg -codeAll

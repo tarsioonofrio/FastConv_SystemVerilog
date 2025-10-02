@@ -1,6 +1,6 @@
 module Memory
-    import data::*;
     import pack_def::*;
+    import pack_data::*;
     import pack_typedef::*;
  #(
     parameter int NADDR   = 12,
