@@ -7,19 +7,6 @@ module tb;
   import pack_param::*;
   import pack_typedef::*;
 
-  // Parâmetros conforme Core
-  parameter int NADDR            = 12;
-  parameter int NBITS            = 20;
-  parameter int LATENCY          = 1;
-  parameter int ROM              = 1;
-  parameter int QUANT            = 8;
-  parameter int FEAT_INPUT_SIZE  = 32;
-  parameter int FEAT_OUTPUT_SIZE = 30;
-  parameter int N_WINDOW         = 10;
-  parameter int N_CHANNEL_IN     = 1;
-  parameter int N_CHANNEL_OUT    = 1;
-  parameter int LAST_WINDOW      = 0;
-
   logic clk;
   logic reset;
 
@@ -34,19 +21,7 @@ module tb;
   always #5 clk = ~clk;
 
   // DUT instantiation
-  System #(
-    .NADDR(NADDR),
-    .NBITS(NBITS),
-    .LATENCY(LATENCY),
-    .ROM(ROM),
-    .QUANT(QUANT),
-    .FEAT_INPUT_SIZE(FEAT_INPUT_SIZE),
-    .FEAT_OUTPUT_SIZE(FEAT_OUTPUT_SIZE),
-    .N_WINDOW(N_WINDOW),
-    .N_CHANNEL_IN(N_CHANNEL_IN),
-    .N_CHANNEL_OUT(N_CHANNEL_OUT),
-    .LAST_WINDOW(LAST_WINDOW)
-  ) dut (
+  System dut (
     .clk(clk),
     .reset(reset),
 
@@ -56,9 +31,6 @@ module tb;
 
   // Inicialização dos sinais e reset
   initial begin
-    $dumpfile("dump.vcd");
-    $dumpvars(0, tb);
-
     reset = 1;
     p_start = 0;
     @(posedge clk);
@@ -74,6 +46,7 @@ module tb;
     for (int i = 0; i < FOUT1_SIZE; i++) begin
       @(posedge clk);
       wait(dut.control.p_conv_end);
+      $display("=== OI ====");
       @(posedge clk);
       for (int j = 0; j < FOUT2_SIZE; j++) begin
         @(posedge clk);
