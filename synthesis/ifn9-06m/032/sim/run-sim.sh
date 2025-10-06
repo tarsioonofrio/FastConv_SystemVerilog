@@ -1,3 +1,5 @@
+
+
 rm -rf dut.shm
 rm -rf xcelium.d
 
@@ -6,6 +8,8 @@ module load xcelium > /dev/null 2>&1
 
 # Raiz do repo para prefixar cada entrada do list_file.txt
 GIT_ROOT=$(git rev-parse --show-toplevel)
+
+DATA_FILE="${GIT_ROOT}/data/ifn9/sim/sim-032/pack_data.sv"
 
 # Testbench e pack conforme usado no histórico
 TB=${GIT_ROOT}/rtl/system/testbench-synth.sv
@@ -22,4 +26,4 @@ done < ../../list-file.txt
 # defines=$(sed 's/^/-define /' list_def.txt | tr '\n' ' ' | sed 's/ $//')
 
 # Chamada do xrun (mantendo args.txt como no histórico)
-xrun -f args.txt $files $TB $GATE -f ../../list-define.txt -run -exit
+xrun -f args.txt $DATA_FILE $files $TB $GATE -f ../../list-define.txt -run -exit
