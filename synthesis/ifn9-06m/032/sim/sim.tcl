@@ -12,7 +12,7 @@ set GIT_ROOT [exec git rev-parse --show-toplevel]
 # vlog -work work  -svinputport=relaxed $DATA_SV
 
 # Read key=value defines from define.txt and build the +define+key=value flags
-set defines_file "../list-def.txt"
+set defines_file "../../list-def.txt"
 set define_flags ""
 
 if {[file exists $defines_file]} {
@@ -30,7 +30,7 @@ if {[file exists $defines_file]} {
 # vlog -work work -svinputport=relaxed ./data-sim.sv
 
 # Read the file_list.txt file and execute vlog commands for each line, passing defines
-set file_list "../list-file.txt"
+set file_list "../../list-file.txt"
 set fp [open $file_list r]
 while {[gets $fp line] >= 0} {
     if {[string trim $line] ne ""} {
@@ -40,7 +40,7 @@ while {[gets $fp line] >= 0} {
 close $fp
 
 vlog -work work $define_flags -svinputport=relaxed /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v
-vlog -work work $define_flags -svinputport=relaxed ../logical/results/gate_level/system_logic_mapped.v
+vlog -work work $define_flags -svinputport=relaxed ../../logical/results/gate_level/system_logic_mapped.v
 vlog -work work $define_flags -svinputport=relaxed ${GIT_ROOT}/rtl/system/testbench-netlist.sv
 # to show FSM
 # vsim -voptargs=+acc -t ns -fsmdebug -coverage -debugDB work.tb
