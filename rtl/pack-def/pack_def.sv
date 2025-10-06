@@ -8,7 +8,7 @@ package pack_def;
 
   // Permite override na COMPILAÇÃO: vlog +define+NBITS=23
   `ifndef NADDR
-    `define NADDR 12
+    `define NADDR 16
   `endif
   `ifndef NBITS
     `define NBITS 20
