@@ -9,9 +9,6 @@
 | `LATENCY` | `int` | Number of cycles a memory read takes to become valid. |
 | `ROM` | `int` | Enables ROM mode on the memory model when set to `1`. |
 | `QUANT` | `int` | Number of fractional bits tracked inside the multipliers. |
-| `FEAT_INPUT_SIZE` | `int` | Spatial dimension of the padded input tile. |
-| `FEAT_OUTPUT_SIZE` | `int` | Spatial dimension of the produced output tile. |
-| `N_WINDOW` | `int` | Number of Winograd windows processed per feature map. |
 | `N_CHANNEL_IN` | `int` | Count of input feature channels. |
 | `N_CHANNEL_OUT` | `int` | Count of output feature channels. |
 | `LAST_WINDOW` | `int` | Flag or index describing the last window in the processing sequence. |
