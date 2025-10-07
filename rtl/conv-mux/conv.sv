@@ -35,9 +35,6 @@ module Conv
 
   logic r_end;
 
-  logic w_end;
-  // logic w_end[0];
-
   logic [$clog2(SMULT-1):0] r_idx_in;
   logic [$clog2(SMULT*SMULT-1):0] r_idx_out[0:NMULT-1];
 
@@ -58,24 +55,19 @@ module Conv
 
   always_comb begin
     p_end = r_end;
-    w_end = 1'b0;
     p_output = w_prod_a;
     next_state  = current_state;
 
     unique case (current_state)
-      IDLE_CONV: begin
-        w_end = 1'b0;
+      IDLE_CONV:
         if (p_start) next_state = CONV_C;
-      end
       CONV_C:
         next_state = CONV_H;
       CONV_H:
         if (r_idx_in == (SMULT - 1))
           next_state = CONV_A;
-      CONV_A: begin
-        w_end = 1'b1;
+      CONV_A:
         next_state = IDLE_CONV;
-      end
     endcase
   end
 

@@ -97,9 +97,9 @@ module Control
   always_comb begin
     p_input      = r_feat_in;
     p_weight     = r_weight;
-    p_conv_start = w_end_fin;
     p_write_data = r_feat_out[r_count_fout];
     p_end        = (current_st_input == END_CONTROL) ? 1'b1 : 1'b0;
+    p_conv_start = w_end_fin;
 
     if (r_count_fin_horizontal < N_WINDOW - 1)
       w_end_fin_horizontal = 1'b0;
@@ -119,13 +119,17 @@ module Control
     unique case (current_st_input)
       // IDLE_CONTROL
       default: begin
+        w_end_fin = 1'b0;
         if (p_start)
           next_st_input = WEIGHT;
           // next_st_input = BIAS;
       end
-      BIAS:
-          next_st_input = WEIGHT;
+      BIAS: begin
+        w_end_fin = 1'b0;
+        next_st_input = WEIGHT;
+      end
       WEIGHT: begin
+        w_end_fin = 1'b0;
         if (r_count_wh == (M1_SIZE * M2_SIZE) - 1) begin
           next_st_input = FEAT_INPUT;
         end
