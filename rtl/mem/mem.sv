@@ -3,7 +3,7 @@ module Memory
     import pack_data::*;
     import pack_typedef::*;
  #(
-    parameter int NADDR   = 12,
+    parameter int NADDR   = 16,
     parameter int NBITS   = 20,
     parameter int LATENCY = 1,
     parameter int ROM     = 0
