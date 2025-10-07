@@ -1,11 +1,8 @@
--define NADDR=12
+-define NADDR=16
 -define NBITS=20
 -define LATENCY=1
 -define ROM=1
 -define QUANT=8
--define FEAT_INPUT_SIZE=32
--define FEAT_OUTPUT_SIZE=30
--define N_WINDOW=10
 -define N_CHANNEL_IN=1
 -define N_CHANNEL_OUT=1
 -define LAST_WINDOW=0
