@@ -24,7 +24,7 @@ add wave -noupdate -radix unsigned -childformat {{{/tb/dut/p_read_addr[15]} -rad
 add wave -noupdate /tb/dut/p_write_en
 add wave -noupdate -radix unsigned /tb/dut/w_addr_fin
 add wave -noupdate -radix unsigned /tb/dut/r_addr_fin
-add wave -noupdate /tb/dut/r_count_fin
+add wave -noupdate -radix unsigned /tb/dut/r_count_fin
 add wave -noupdate -radix unsigned /tb/dut/r_addr_wh
 add wave -noupdate -radix unsigned /tb/dut/r_count_fin_horizontal
 add wave -noupdate -radix unsigned /tb/dut/r_count_fout_horizontal
@@ -42,9 +42,6 @@ add wave -noupdate -color Red /tb/dut/p_conv_end
 add wave -noupdate -divider saida
 add wave -noupdate /tb/dut/current_st_output
 add wave -noupdate /tb/dut/w_end_fout
-add wave -noupdate /tb/dut/r_wh_en
-add wave -noupdate /tb/dut/r_fin_en
-add wave -noupdate /tb/dut/r_fout_en
 add wave -noupdate -radix decimal /tb/dut/p_write_data
 add wave -noupdate -radix unsigned /tb/dut/r_count_wh
 add wave -noupdate -radix unsigned /tb/dut/r_count_fin
@@ -72,7 +69,7 @@ add wave -noupdate -radix decimal /tb/conv/r_idx_in
 add wave -noupdate -radix decimal /tb/conv/r_idx_out
 add wave -noupdate -radix decimal /tb/conv/product
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 6} {395 ns} 0}
+WaveRestoreCursors {{Cursor 6} {405 ns} 1}
 quietly wave cursor active 1
 configure wave -namecolwidth 300
 configure wave -valuecolwidth 100
@@ -88,4 +85,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {299 ns} {623 ns}
+WaveRestoreZoom {355 ns} {517 ns}
