@@ -58,9 +58,9 @@ do wave.do
 #run 50000ns
 # run 2000ns
 # 4 blocks
-#run 4000ns
+run 4000ns
 # one line
 # run 7000ns
-run -all
+# run -all
 
 # coverage report -output report.txt -srcfile=* -assert -directive -cvg -codeAll
