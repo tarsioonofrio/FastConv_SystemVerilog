@@ -4,7 +4,7 @@ vmap work work
 
 set GIT_ROOT [exec git rev-parse --show-toplevel]
 
-set DATA_FILE "${GIT_ROOT}/data/ifn9/sim/sim-032/pack_data.sv"
+# set DATA_FILE "${GIT_ROOT}/data/ifn9/sim/sim-032/pack_data.sv"
 
 
 # if {[info exists ::env(DATA)]} {
@@ -33,7 +33,7 @@ if {[file exists $defines_file]} {
 # vlog -work work -svinputport=relaxed ./data-sim.sv
 
 # Read the file_list.txt file and execute vlog commands for each line, passing defines
-vlog -work work $define_flags -svinputport=relaxed $DATA_FILE
+# vlog -work work $define_flags -svinputport=relaxed $DATA_FILE
 
 set file_list "../../list-file.txt"
 set fp [open $file_list r]
