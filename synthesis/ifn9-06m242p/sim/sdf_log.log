@@ -1,0 +1,19 @@
+======================================================================
+
+Annotating SDF timing data:
+  Compiled SDF file:     system_analysis_view_0p90v_25c_captyp_nominal.sdf.X
+  Log file:              ./sdf_log.log
+  Backannotation scope:  tb.dut
+  Configuration file:    
+  MTM control:           
+  Scale factors:         
+  Scale type:            
+
+Time units: 1ps
+
+xmelab: *W,SDFNET: Unable to annotate to non-existent timing check (RECREM (posedge CDN) (COND D_SDFCHK (posedge CP)) (90) (112)) of instance tb.dut.control.\current_st_input_reg[1]  of module DFCNQD1BWP30P140 <../logical/results/gate_level/system_analysis_view_0p90v_25c_captyp_nominal.sdf, line 49687>.
+xmelab: *W,SDFNET: Unable to annotate to non-existent timing check (RECREM (posedge CDN) (COND D_SDFCHK (posedge CP)) (93) (112)) of instance tb.dut.control.\current_st_input_reg[0]  of module DFCND1BWP30P140 <../logical/results/gate_level/system_analysis_view_0p90v_25c_captyp_nominal.sdf, line 54099>.
+xmelab: *W,SDFNET: Unable to annotate to non-existent timing check (RECREM (posedge CDN) (COND D_SDFCHK (posedge CP)) (93) (112)) of instance tb.dut.control.\current_st_input_reg[2]  of module DFCND1BWP30P140 <../logical/results/gate_level/system_analysis_view_0p90v_25c_captyp_nominal.sdf, line 54125>.
+xmelab: *W,SDFNET: Unable to annotate to non-existent timing check (RECREM (posedge CDN) (COND D_SDFCHK (posedge CP)) (93) (112)) of instance tb.dut.control.\current_st_output_reg[0]  of module DFCND1BWP30P140 <../logical/results/gate_level/system_analysis_view_0p90v_25c_captyp_nominal.sdf, line 54151>.
+xmelab: *W,SDFNET: Unable to annotate to non-existent timing check (RECREM (posedge CDN) (COND D_SDFCHK (posedge CP)) (-13) (49)) of instance tb.dut.conv.\current_state_reg[0]  of module DFCNQD1BWP30P140 <../logical/results/gate_level/system_analysis_view_0p90v_25c_captyp_nominal.sdf, line 272625>.
+xmelab: *W,SDFNET: Unable to annotate to non-existent timing check (RECREM (posedge CDN) (COND D_SDFCHK (posedge CP)) (-13) (49)) of instance tb.dut.conv.\current_state_reg[1]  of module DFCND1BWP30P140 <../logical/results/gate_level/system_analysis_view_0p90v_25c_captyp_nominal.sdf, line 344787>.
