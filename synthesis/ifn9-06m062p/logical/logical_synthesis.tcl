@@ -11,7 +11,7 @@ set GIT_ROOT [exec git rev-parse --show-toplevel]
 # Read file_list.txt and concatenate its contents into a variable
 set file_list_path "../list-file.txt"
 
-set HDL_FILES "$ "
+set HDL_FILES " "
 
 if { [file exists $file_list_path] } {
     set fp [open $file_list_path r]
