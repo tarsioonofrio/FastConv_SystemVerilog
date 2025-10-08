@@ -26,7 +26,7 @@ def project_name(path):
 # Define o padrão do caminho para encontrar todos os arquivos rpt
 
 # Area
-path = Path("../rtl/conv/*/sintese/results/reports/*_area.rpt")
+path = Path("../synthesis/*/logical/results/reports/*_area.rpt")
 all_files = glob.glob(path.as_posix())
 report_area = {project_name(f): read_file(f) for f in all_files}
 cell_cout = {k: v[14].split()[1] for k, v in report_area.items()}
@@ -40,15 +40,6 @@ all_files = glob.glob(path.as_posix())
 report_clock = {project_name(f): read_file(f) for f in all_files}
 flop_count = {k: v[-4].split()[1] for k, v in report_clock.items()}
 
-# Power
-path = Path(
-    "../rtl/conv/*/sintese/results/reports/*_power_analysis_view_0p90v_25c_captyp_nominal.rpt"
-)
-# clock_gating
-all_files = glob.glob(path.as_posix())
-report_power = {project_name(f): read_file(f) for f in all_files}
-power = {k: float(v[15].split()[4]) for k, v in report_power.items()}
-power
 # Create a DataFrame from the dictionaries
 df = pd.DataFrame(
     {
@@ -57,7 +48,6 @@ df = pd.DataFrame(
         "net-area-um": net_area,
         "total-area-um": total_area,
         "flop-count": flop_count,
-        "power-mW": power,
     }
 )
 
@@ -77,7 +67,6 @@ df.columns = [
     "Net Area $\mu m^2$",
     "Total Area $\mu m^2$",
     "Flop Count",
-    "Power mW",
 ]
 
 df.to_csv("../data/report_transposed.csv")
