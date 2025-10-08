@@ -55,9 +55,9 @@ module Control
   state_input_type current_st_input, next_st_input;
   state_output_type current_st_output, next_st_output;
 
-  logic r_wh_en;
-  logic r_fin_en;
-  logic r_fout_en;
+  logic r_en_wh;
+  logic r_en_fin;
+  // logic r_fout_en;
 
   logic [$clog2(M1_SIZE*M2_SIZE)-1:0] r_count_wh;
   logic [$clog2(C1_SIZE*C2_SIZE)-1:0] r_count_fin;
@@ -76,6 +76,8 @@ module Control
   logic w_end_fout_horizontal;
   logic w_end_fin;
   logic w_end_fout;
+  logic[NADDR-1:0] w_read_addr;
+  logic[NADDR-1:0] w_addr_fin;
 
   type_input  r_feat_in;
   type_weight r_weight;
@@ -93,39 +95,48 @@ module Control
 
 
   always_comb begin
-    p_input = r_feat_in;
-    p_weight = r_weight;
+    p_input      = r_feat_in;
+    p_weight     = r_weight;
+    p_write_data = r_feat_out[r_count_fout];
+    p_end        = (current_st_input == END_CONTROL) ? 1'b1 : 1'b0;
+    p_conv_start = w_end_fin;
 
+    if (r_count_fin_horizontal < N_WINDOW - 1)
+      w_end_fin_horizontal = 1'b0;
+    else
+      w_end_fin_horizontal = 1'b1;
+
+    if (r_count_fout_horizontal < N_WINDOW - 1)
+      w_end_fout_horizontal = 1'b0;
+    else
+      w_end_fout_horizontal = 1'b1;
+  end
+
+  always_comb begin
     next_st_input  = current_st_input;
     next_st_output = current_st_output;
-    p_conv_start = 1'b0;
-    w_end_fin = 1'b0;
-    w_end_fout = 1'b0;
-    p_end = 1'b0;
-    p_read_en = 1'b0;
-    p_read_addr = 0;
-    p_read_en = 1'b0;
-    p_write_en = 1'b0;
+
     unique case (current_st_input)
-      // IDLE:     if (p_start)      next_st = BIAS;
-      default: begin end
-      IDLE_CONTROL: begin
+      // IDLE_CONTROL
+      default: begin
+        w_end_fin = 1'b0;
         if (p_start)
           next_st_input = WEIGHT;
-          p_end = 1'b0;
+          // next_st_input = BIAS;
       end
-      BIAS:
-          next_st_input = WEIGHT;
+      BIAS: begin
+        w_end_fin = 1'b0;
+        next_st_input = WEIGHT;
+      end
       WEIGHT: begin
-        if (r_count_wh == (M1_SIZE * M2_SIZE)) begin
+        w_end_fin = 1'b0;
+        if (r_count_wh == (M1_SIZE * M2_SIZE) - 1) begin
           next_st_input = FEAT_INPUT;
         end
       end
       FEAT_INPUT: begin
-        p_conv_start = 1'b0;
         if (r_count_fin == (C1_SIZE * C2_SIZE)) begin
           w_end_fin = 1'b1;
-          p_conv_start = 1'b1;
           if (r_count_window == N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN)
             next_st_input = END_CONTROL;
           else
@@ -136,7 +147,8 @@ module Control
             next_st_input = WEIGHT;
           else
             next_st_input = FEAT_INPUT;
-        end
+        end else
+          w_end_fin = 1'b0;
       end
     endcase
 
@@ -148,16 +160,17 @@ module Control
           next_st_output = FEAT_OUTPUT;
       end
       FEAT_OUTPUT: begin
-        w_end_fout = 1'b0;
         p_write_en = 1'b1;
         if (r_count_fout == (A1_SIZE * A2_SIZE) - 1) begin
           next_st_output = IDLE_OUTPUT;
           w_end_fout = 1'b1;
-        end
+        end else
+          w_end_fout = 1'b0;
       end
     endcase
+  end
 
-    p_write_data   = r_feat_out[r_count_fout];
+  always_comb begin
     unique case (r_count_fout)
       default: p_write_addr = r_addr_fout + 0;
       1: p_write_addr = r_addr_fout + 1;
@@ -171,67 +184,62 @@ module Control
       7: p_write_addr = r_addr_fout + FEAT_OUTPUT_SIZE * 2 + 1;
       8: p_write_addr = r_addr_fout + FEAT_OUTPUT_SIZE * 2 + 2;
     endcase
-
-    // Wire control
-    unique case (current_st_input)
-      default: begin end
-      BIAS: begin
-        p_read_addr = r_addr_bias;
-      end
-      WEIGHT: begin
-        p_read_addr  = r_addr_wh;
-        p_read_en  = r_wh_en;
-      end
-      END_CONTROL:
-        p_end = 1'b1;
-      FEAT_INPUT: begin
-        p_read_en  = r_fin_en;
-
-        unique case (r_count_fin)
-          default: p_read_addr = r_addr_fin + 0; // 00
-          01: p_read_addr = r_addr_fin + FEAT_INPUT_SIZE + 0; // 05
-          02: p_read_addr = r_addr_fin + FEAT_INPUT_SIZE * 2 + 0; // 10
-          03: p_read_addr = r_addr_fin + FEAT_INPUT_SIZE * 3 + 0; // 15
-          04: p_read_addr = r_addr_fin + FEAT_INPUT_SIZE * 4 + 0; // 20
-
-          05: p_read_addr = r_addr_fin + 1; // 01
-          06: p_read_addr = r_addr_fin + FEAT_INPUT_SIZE + 1; // 06
-          07: p_read_addr = r_addr_fin + FEAT_INPUT_SIZE * 2 + 1; // 11
-          08: p_read_addr = r_addr_fin + FEAT_INPUT_SIZE * 3 + 1; // 16
-          09: p_read_addr = r_addr_fin + FEAT_INPUT_SIZE * 4 + 1; // 21
-
-          10: p_read_addr = r_addr_fin + 2; // 02
-          11: p_read_addr = r_addr_fin + FEAT_INPUT_SIZE + 2; // 07
-          12: p_read_addr = r_addr_fin + FEAT_INPUT_SIZE * 2 + 2; // 12
-          13: p_read_addr = r_addr_fin + FEAT_INPUT_SIZE * 3 + 2; // 17
-          14: p_read_addr = r_addr_fin + FEAT_INPUT_SIZE * 4 + 2; // 22
-
-          15: p_read_addr = r_addr_fin + 3; // 03
-          16: p_read_addr = r_addr_fin + FEAT_INPUT_SIZE + 3; // 08
-          17: p_read_addr = r_addr_fin + FEAT_INPUT_SIZE * 2 + 3; // 13
-          18: p_read_addr = r_addr_fin + FEAT_INPUT_SIZE * 3 + 3; // 18
-          19: p_read_addr = r_addr_fin + FEAT_INPUT_SIZE * 4 + 3; // 23
-
-          20: p_read_addr = r_addr_fin + 4; // 04
-          21: p_read_addr = r_addr_fin + FEAT_INPUT_SIZE + 4; // 09
-          22: p_read_addr = r_addr_fin + FEAT_INPUT_SIZE * 2 + 4; // 14
-          23: p_read_addr = r_addr_fin + FEAT_INPUT_SIZE * 3 + 4; // 19
-          24: p_read_addr = r_addr_fin + FEAT_INPUT_SIZE * 4 + 4; // 24
-        endcase
-      end
-    endcase
-
-    if (r_count_fin_horizontal < N_WINDOW - 1)
-      w_end_fin_horizontal = 1'b0;
-    else
-      w_end_fin_horizontal = 1'b1;
-
-    if (r_count_fout_horizontal < N_WINDOW - 1)
-      w_end_fout_horizontal = 1'b0;
-    else
-      w_end_fout_horizontal = 1'b1;
   end
 
+  always_comb begin
+    unique case (r_count_fin)
+      default: w_addr_fin = r_addr_fin + 0; // 00
+      01: w_addr_fin = r_addr_fin + FEAT_INPUT_SIZE + 0; // 05
+      02: w_addr_fin = r_addr_fin + FEAT_INPUT_SIZE * 2 + 0; // 10
+      03: w_addr_fin = r_addr_fin + FEAT_INPUT_SIZE * 3 + 0; // 15
+      04: w_addr_fin = r_addr_fin + FEAT_INPUT_SIZE * 4 + 0; // 20
+
+      05: w_addr_fin = r_addr_fin + 1; // 01
+      06: w_addr_fin = r_addr_fin + FEAT_INPUT_SIZE + 1; // 06
+      07: w_addr_fin = r_addr_fin + FEAT_INPUT_SIZE * 2 + 1; // 11
+      08: w_addr_fin = r_addr_fin + FEAT_INPUT_SIZE * 3 + 1; // 16
+      09: w_addr_fin = r_addr_fin + FEAT_INPUT_SIZE * 4 + 1; // 21
+
+      10: w_addr_fin = r_addr_fin + 2; // 02
+      11: w_addr_fin = r_addr_fin + FEAT_INPUT_SIZE + 2; // 07
+      12: w_addr_fin = r_addr_fin + FEAT_INPUT_SIZE * 2 + 2; // 12
+      13: w_addr_fin = r_addr_fin + FEAT_INPUT_SIZE * 3 + 2; // 17
+      14: w_addr_fin = r_addr_fin + FEAT_INPUT_SIZE * 4 + 2; // 22
+
+      15: w_addr_fin = r_addr_fin + 3; // 03
+      16: w_addr_fin = r_addr_fin + FEAT_INPUT_SIZE + 3; // 08
+      17: w_addr_fin = r_addr_fin + FEAT_INPUT_SIZE * 2 + 3; // 13
+      18: w_addr_fin = r_addr_fin + FEAT_INPUT_SIZE * 3 + 3; // 18
+      19: w_addr_fin = r_addr_fin + FEAT_INPUT_SIZE * 4 + 3; // 23
+
+      20: w_addr_fin = r_addr_fin + 4; // 04
+      21: w_addr_fin = r_addr_fin + FEAT_INPUT_SIZE + 4; // 09
+      22: w_addr_fin = r_addr_fin + FEAT_INPUT_SIZE * 2 + 4; // 14
+      23: w_addr_fin = r_addr_fin + FEAT_INPUT_SIZE * 3 + 4; // 19
+      24: w_addr_fin = r_addr_fin + FEAT_INPUT_SIZE * 4 + 4; // 24
+    endcase
+  end
+
+  always_comb begin
+    unique case (current_st_input)
+      BIAS: begin
+        p_read_addr = r_addr_bias;
+        p_read_en = 1'b0;
+      end
+      WEIGHT: begin
+        p_read_addr = r_addr_wh;
+        p_read_en = r_en_wh;
+      end
+      FEAT_INPUT: begin
+        p_read_addr = w_addr_fin;
+        p_read_en = r_en_fin;
+      end
+      default: begin
+        p_read_addr = 0;
+        p_read_en = 1'b0;
+      end
+    endcase
+  end
 
   always_ff @(posedge clk) begin
     if (reset) begin
@@ -245,8 +253,8 @@ module Control
       r_count_window   <= 0;
       r_count_fin_horizontal <= 0;
       r_count_fout_horizontal <= 0;
-      r_wh_en          <= 1'b0;
-      r_fin_en         <= 1'b0;
+      r_en_wh          <= 1'b0;
+      r_en_fin         <= 1'b0;
       r_weight         <= '{default: '0};
       r_feat_in        <= '{default: '0};
       r_feat_out       <= '{default: '0};
@@ -264,8 +272,8 @@ module Control
           r_count_window   <= 0;
           r_count_fin_horizontal <= 0;
           r_count_fout_horizontal <= 0;
-          r_wh_en          <= 1'b0;
-          r_fin_en         <= 1'b0;
+          r_en_wh          <= 1'b0;
+          r_en_fin         <= 1'b0;
           r_weight         <= '{default: '0};
           r_feat_in        <= '{default: '0};
           r_feat_out       <= '{default: '0};
@@ -274,8 +282,8 @@ module Control
           r_addr_bias <= r_addr_bias + 1;
         end
         WEIGHT: begin
-          r_wh_en      <= 1'b1;
-          r_fin_en     <= 1'b0;
+          r_en_wh      <= 1'b1;
+          r_en_fin     <= 1'b0;
           r_count_fin  <= 0;
           if (p_read_valid) begin
             r_addr_wh  <= r_addr_wh + 1;
@@ -283,11 +291,9 @@ module Control
             r_weight[r_count_wh] <= p_read_data;
           end
         end
-        // ADDR_INPUT: begin
-        // end
         FEAT_INPUT: begin
-          r_fin_en     <= 1'b1;
-          r_wh_en      <= 1'b0;
+          r_en_fin     <= 1'b1;
+          r_en_wh      <= 1'b0;
           r_count_wh   <= 0;
           if (p_read_valid) begin
             r_count_fin <= r_count_fin + 1;
@@ -297,8 +303,8 @@ module Control
           if(w_end_fin) begin
             r_count_wh       <= 0;
             r_count_fin      <= 0;
-            r_wh_en          <= 1'b0;
-            r_fin_en         <= 1'b0;
+            r_en_wh          <= 1'b0;
+            r_en_fin         <= 1'b0;
             // r_end_wh         <= 1'b0;
             // r_end_fin        <= 1'b0;
             if (w_end_fin_horizontal) begin

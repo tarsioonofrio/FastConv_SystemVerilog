@@ -14,6 +14,7 @@ package pack_data;
   localparam int FEAT_OUTPUT_SIZE = 30;
   localparam int N_WINDOW = 10;
 
+
   const int const_data[32*32+6*6+1] = {
     0,
 
