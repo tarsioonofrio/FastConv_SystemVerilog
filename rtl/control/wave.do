@@ -52,7 +52,7 @@ add wave -noupdate -radix unsigned /tb/dut/r_addr_bias
 add wave -noupdate -radix unsigned /tb/dut/r_addr_wh
 add wave -noupdate -radix unsigned /tb/dut/r_addr_fin
 add wave -noupdate -radix unsigned /tb/dut/r_addr_fout
-add wave -noupdate -radix unsigned /tb/dut/r_count_window
+add wave -noupdate -radix unsigned /tb/dut/r_count_win
 add wave -noupdate -radix unsigned /tb/dut/r_feat_out
 add wave -noupdate /tb/conv/p_start
 add wave -noupdate /tb/conv/p_end
