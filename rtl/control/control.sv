@@ -55,10 +55,6 @@ module Control
   state_input_type current_st_input, next_st_input;
   state_output_type current_st_output, next_st_output;
 
-  logic r_en_wh;
-  logic r_en_fin;
-  // logic r_fout_en;
-
   logic [$clog2(M1_SIZE*M2_SIZE)-1:0] r_count_wh;
   logic [$clog2(C1_SIZE*C2_SIZE)-1:0] r_count_fin;
   logic [$clog2(A1_SIZE*A2_SIZE)-1:0] r_count_fout;
@@ -78,6 +74,8 @@ module Control
   logic w_end_fout;
   logic[NADDR-1:0] w_read_addr;
   logic[NADDR-1:0] w_addr_fin;
+
+  logic r_read_en;
 
   type_input  r_feat_in;
   type_weight r_weight;
@@ -235,11 +233,11 @@ module Control
       end
       WEIGHT: begin
         p_read_addr = r_addr_wh;
-        p_read_en = r_en_wh;
+        p_read_en = r_read_en;
       end
       FEAT_INPUT: begin
         p_read_addr = w_addr_fin;
-        p_read_en = r_en_fin;
+        p_read_en = r_read_en;
       end
       default: begin
         p_read_addr = 0;
@@ -260,8 +258,7 @@ module Control
       r_count_window   <= 0;
       r_count_window_in <= 0;
       r_count_window_out <= 0;
-      r_en_wh          <= 1'b0;
-      r_en_fin         <= 1'b0;
+      r_read_en         <= 1'b0;
       r_weight         <= '{default: '0};
       r_feat_in        <= '{default: '0};
       r_feat_out       <= '{default: '0};
@@ -279,8 +276,7 @@ module Control
           r_count_window   <= 0;
           r_count_window_in <= 0;
           r_count_window_out <= 0;
-          r_en_wh          <= 1'b0;
-          r_en_fin         <= 1'b0;
+          r_read_en         <= 1'b0;
           r_weight         <= '{default: '0};
           r_feat_in        <= '{default: '0};
           r_feat_out       <= '{default: '0};
@@ -289,8 +285,7 @@ module Control
           r_addr_bias <= r_addr_bias + 1;
         end
         WEIGHT: begin
-          r_en_wh      <= 1'b1;
-          r_en_fin     <= 1'b0;
+          r_read_en      <= 1'b1;
           r_count_fin  <= 0;
           if (p_read_valid) begin
             r_addr_wh  <= r_addr_wh + 1;
@@ -299,8 +294,7 @@ module Control
           end
         end
         FEAT_INPUT: begin
-          r_en_fin     <= 1'b1;
-          r_en_wh      <= 1'b0;
+          r_read_en     <= 1'b1;
           r_count_wh   <= 0;
           if (p_read_valid) begin
             r_count_fin <= r_count_fin + 1;
