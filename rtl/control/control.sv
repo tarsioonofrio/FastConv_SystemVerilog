@@ -93,14 +93,15 @@ module Control
     end
   end
 
-
   always_comb begin
     p_input      = r_feat_in;
     p_weight     = r_weight;
     p_write_data = r_feat_out[r_count_fout];
     p_end        = (current_st_input == END_CONTROL) ? 1'b1 : 1'b0;
     p_conv_start = w_end_fin;
+  end
 
+  always_comb begin
     if (r_count_window_in < N_WINDOW - 1)
       w_end_line_in = 1'b0;
     else
@@ -113,30 +114,32 @@ module Control
   end
 
   always_comb begin
+    if (r_count_fin == (C1_SIZE * C2_SIZE))
+      w_end_fin = 1'b1;
+    else
+      w_end_fin = 1'b0;
+  end
+
+  always_comb begin
     next_st_input  = current_st_input;
-    next_st_output = current_st_output;
 
     unique case (current_st_input)
       // IDLE_CONTROL
       default: begin
-        w_end_fin = 1'b0;
         if (p_start)
           next_st_input = WEIGHT;
           // next_st_input = BIAS;
       end
       BIAS: begin
-        w_end_fin = 1'b0;
         next_st_input = WEIGHT;
       end
       WEIGHT: begin
-        w_end_fin = 1'b0;
         if (r_count_wh == (M1_SIZE * M2_SIZE) - 1) begin
           next_st_input = FEAT_INPUT;
         end
       end
       FEAT_INPUT: begin
-        if (r_count_fin == (C1_SIZE * C2_SIZE)) begin
-          w_end_fin = 1'b1;
+        if (w_end_fin) begin
           if (r_count_window == N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN)
             next_st_input = END_CONTROL;
           else
@@ -147,10 +150,14 @@ module Control
             next_st_input = WEIGHT;
           else
             next_st_input = FEAT_INPUT;
-        end else
-          w_end_fin = 1'b0;
+        end
       end
     endcase
+  end
+
+
+  always_comb begin
+    next_st_output = current_st_output;
 
     unique case (current_st_output)
       IDLE_OUTPUT: begin
@@ -301,12 +308,7 @@ module Control
           end
 
           if(w_end_fin) begin
-            r_count_wh     <= 0;
-            r_en_wh        <= 1'b0;
-            r_en_fin       <= 1'b0;
             r_count_window <= r_count_window + 1;
-            // r_end_wh         <= 1'b0;
-            // r_end_fin        <= 1'b0;
             if (w_end_line_in) begin
               r_count_window_in <= 0;
               r_count_fin <= 0;
