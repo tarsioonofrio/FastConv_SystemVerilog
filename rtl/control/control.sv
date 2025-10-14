@@ -308,12 +308,12 @@ module Control
             // r_end_wh         <= 1'b0;
             // r_end_fin        <= 1'b0;
             if (w_end_fin_horizontal) begin
-              r_count_fin <= 0;
               r_count_fin_horizontal <= 0;
+              r_count_fin <= 0;
               r_addr_fin <= r_addr_fin + C1_SIZE + FEAT_INPUT_SIZE * (A1_SIZE - 1);
             end else begin
-              r_count_window     <= r_count_window + 1;
               r_count_fin_horizontal <= r_count_fin_horizontal + 1;
+              r_count_window <= r_count_window + 1;
               r_addr_fin <= r_addr_fin + A1_SIZE;
 
               r_count_fin <= 10;
