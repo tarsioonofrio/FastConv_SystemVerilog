@@ -37,7 +37,7 @@ module tb;
   );
 
   // Clock generation - 10 ns
-  always #1 clk = ~clk;
+  always #0.5 clk = ~clk;
 
   // Test process to iterate over the input maps
   initial begin
