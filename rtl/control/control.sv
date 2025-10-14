@@ -63,10 +63,10 @@ module Control
   logic [$clog2(M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT)-1:0] r_addr_wh;
   logic [$clog2(N_CHANNEL_IN * FEAT_INPUT_SIZE * FEAT_INPUT_SIZE)-1:0] r_addr_fin;
   logic [$clog2(N_CHANNEL_OUT * FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE)-1:0] r_addr_fout;
-  logic [$clog2(N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN)-1:0] r_count_window;
+  logic [$clog2(N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN)-1:0] r_window;
 
-  logic [$clog2(N_WINDOW):0] r_count_window_in;
-  logic [$clog2(N_WINDOW):0] r_count_window_out;
+  logic [$clog2(N_WINDOW):0] r_window_in;
+  logic [$clog2(N_WINDOW):0] r_window_out;
 
   logic w_end_line_in;
   logic w_end_line_out;
@@ -100,12 +100,12 @@ module Control
   end
 
   always_comb begin
-    if (r_count_window_in < N_WINDOW - 1)
+    if (r_window_in < N_WINDOW - 1)
       w_end_line_in = 1'b0;
     else
       w_end_line_in = 1'b1;
 
-    if (r_count_window_out < N_WINDOW - 1)
+    if (r_window_out < N_WINDOW - 1)
       w_end_line_out = 1'b0;
     else
       w_end_line_out = 1'b1;
@@ -137,13 +137,13 @@ module Control
       end
       FEAT_INPUT: begin
         if (w_end_fin) begin
-          if (r_count_window == N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN)
+          if (r_window == N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN)
             next_st_input = END_CONTROL;
           else
-          // if (r_count_window == N_WINDOW * N_WINDOW * N_CHANNEL_OUT)
+          // if (r_window == N_WINDOW * N_WINDOW * N_CHANNEL_OUT)
           //  next_st_input = BIAS;
           // else
-          if (r_count_window == N_WINDOW * N_WINDOW)
+          if (r_window == N_WINDOW * N_WINDOW)
             next_st_input = WEIGHT;
           else
             next_st_input = FEAT_INPUT;
@@ -246,45 +246,41 @@ module Control
 
   always_ff @(posedge clk) begin
     if (reset) begin
-      r_addr_bias      <= 0;
-      r_addr_wh        <= N_CHANNEL_OUT;
-      r_addr_fin       <= N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT;
-      r_addr_fout      <= 0;
-      r_count_wh       <= 0;
-      r_count_fin      <= 0;
-      r_count_fout     <= 0;
-      r_count_window   <= 0;
-      r_count_window_in <= 0;
-      r_count_window_out <= 0;
-      r_read_en         <= 1'b0;
-      r_weight         <= '{default: '0};
-      r_feat_in        <= '{default: '0};
-      r_feat_out       <= '{default: '0};
+      r_read_en    <= 1'b0;
+      r_addr_bias  <= 0;
+      r_addr_wh    <= N_CHANNEL_OUT;
+      r_addr_fin   <= N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT;
+      r_addr_fout  <= 0;
+      r_count_wh   <= 0;
+      r_count_fin  <= 0;
+      r_count_fout <= 0;
+      r_window     <= 0;
+      r_window_in  <= 0;
+      r_window_out <= 0;
+      r_weight     <= '{default: '0};
+      r_feat_in    <= '{default: '0};
+      r_feat_out   <= '{default: '0};
     end else begin
       unique case (current_st_input)
         default: begin end
         IDLE_CONTROL: begin
-          r_addr_bias      <= 0;
-          r_addr_wh        <= N_CHANNEL_OUT;
-          r_addr_fin       <= N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT;
-          r_addr_fout      <= 0;
-          r_count_wh       <= 0;
-          r_count_fin      <= 0;
-          r_count_fout     <= 0;
-          r_count_window   <= 0;
-          r_count_window_in <= 0;
-          r_count_window_out <= 0;
-          r_read_en         <= 1'b0;
-          r_weight         <= '{default: '0};
-          r_feat_in        <= '{default: '0};
-          r_feat_out       <= '{default: '0};
+          r_read_en   <= 1'b0;
+          r_addr_bias <= 0;
+          r_addr_wh   <= N_CHANNEL_OUT;
+          r_addr_fin  <= N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT;
+          r_count_wh  <= 0;
+          r_count_fin <= 0;
+          r_window    <= 0;
+          r_window_in <= 0;
+          r_weight    <= '{default: '0};
+          r_feat_in   <= '{default: '0};
         end
         BIAS: begin
           r_addr_bias <= r_addr_bias + 1;
         end
         WEIGHT: begin
-          r_read_en      <= 1'b1;
-          r_count_fin  <= 0;
+          r_read_en   <= 1'b1;
+          r_count_fin <= 0;
           if (p_read_valid) begin
             r_addr_wh  <= r_addr_wh + 1;
             r_count_wh <= r_count_wh + 1;
@@ -292,41 +288,50 @@ module Control
           end
         end
         FEAT_INPUT: begin
-          r_read_en     <= 1'b1;
-          r_count_wh   <= 0;
+          r_read_en  <= 1'b1;
+          r_count_wh <= 0;
           if (p_read_valid) begin
             r_count_fin <= r_count_fin + 1;
             r_feat_in[c_index[r_count_fin]] <= p_read_data;
           end
 
-          if(w_end_fin) begin
-            r_count_window <= r_count_window + 1;
-            if (w_end_line_in) begin
-              r_count_window_in <= 0;
-              r_count_fin <= 0;
-              r_addr_fin <= r_addr_fin + C1_SIZE + FEAT_INPUT_SIZE * (A1_SIZE - 1);
-            end else begin
-              r_count_window_in <= r_count_window_in + 1;
-              r_count_fin <= 10;
-              r_addr_fin <= r_addr_fin + A1_SIZE;
+          if(w_end_fin)
+            r_window <= r_window + 1;
 
-              // TODO perform test using an index table
-              r_feat_in[00] <= r_feat_in[03];
-              r_feat_in[01] <= r_feat_in[04];
-              r_feat_in[05] <= r_feat_in[08];
-              r_feat_in[06] <= r_feat_in[09];
-              r_feat_in[10] <= r_feat_in[13];
-              r_feat_in[11] <= r_feat_in[14];
-              r_feat_in[15] <= r_feat_in[18];
-              r_feat_in[16] <= r_feat_in[19];
-              r_feat_in[20] <= r_feat_in[23];
-              r_feat_in[21] <= r_feat_in[24];
-              // r_feat_in[21] <= p_read_data;
-            end
+          if (w_end_fin && w_end_line_in) begin
+            r_window_in <= 0;
+            r_count_fin <= 0;
+            r_addr_fin  <= r_addr_fin + C1_SIZE + FEAT_INPUT_SIZE * (A1_SIZE - 1);
+          end else if (w_end_fin && !w_end_line_in) begin
+            r_window_in <= r_window_in + 1;
+            r_count_fin <= 10;
+            r_addr_fin  <= r_addr_fin + A1_SIZE;
+
+            // TODO perform test using an index table
+            r_feat_in[00] <= r_feat_in[03];
+            r_feat_in[01] <= r_feat_in[04];
+            r_feat_in[05] <= r_feat_in[08];
+            r_feat_in[06] <= r_feat_in[09];
+            r_feat_in[10] <= r_feat_in[13];
+            r_feat_in[11] <= r_feat_in[14];
+            r_feat_in[15] <= r_feat_in[18];
+            r_feat_in[16] <= r_feat_in[19];
+            r_feat_in[20] <= r_feat_in[23];
+            r_feat_in[21] <= r_feat_in[24];
+            // r_feat_in[21] <= p_read_data;
           end
         end
       endcase
+    end
+  end
 
+  always_ff @(posedge clk) begin
+    if (reset) begin
+      r_addr_fout  <= 0;
+      r_count_fout <= 0;
+      r_window_out <= 0;
+      r_feat_out   <= '{default: '0};
+    end else begin
       unique case (current_st_output)
         IDLE_OUTPUT: begin
           r_count_fout <= 0;
@@ -335,14 +340,13 @@ module Control
         end
         FEAT_OUTPUT: begin
           r_count_fout <= r_count_fout + 1;
-          if (w_end_fout)
-            if (w_end_line_out) begin
-              r_count_window_out <= 0;
-              r_addr_fout <= r_addr_fout + A1_SIZE + FEAT_OUTPUT_SIZE * (A1_SIZE - 1);
-            end else begin
-              r_addr_fout <= r_addr_fout + A1_SIZE;
-              r_count_window_out <= r_count_window_out + 1;
-            end
+          if (w_end_fout && w_end_line_out) begin
+            r_window_out <= 0;
+            r_addr_fout  <= r_addr_fout + A1_SIZE + FEAT_OUTPUT_SIZE * (A1_SIZE - 1);
+          end else if (w_end_fout && !w_end_line_out) begin
+            r_window_out <= r_window_out + 1;
+            r_addr_fout  <= r_addr_fout + A1_SIZE;
+          end
         end
       endcase
     end
