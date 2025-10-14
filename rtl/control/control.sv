@@ -69,11 +69,11 @@ module Control
   logic [$clog2(N_CHANNEL_OUT * FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE)-1:0] r_addr_fout;
   logic [$clog2(N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN)-1:0] r_count_window;
 
-  logic [$clog2(N_WINDOW):0] r_count_fin_horizontal;
-  logic [$clog2(N_WINDOW):0] r_count_fout_horizontal;
+  logic [$clog2(N_WINDOW):0] r_count_window_in;
+  logic [$clog2(N_WINDOW):0] r_count_window_out;
 
-  logic w_end_fin_horizontal;
-  logic w_end_fout_horizontal;
+  logic w_end_line_in;
+  logic w_end_line_out;
   logic w_end_fin;
   logic w_end_fout;
   logic[NADDR-1:0] w_read_addr;
@@ -101,15 +101,15 @@ module Control
     p_end        = (current_st_input == END_CONTROL) ? 1'b1 : 1'b0;
     p_conv_start = w_end_fin;
 
-    if (r_count_fin_horizontal < N_WINDOW - 1)
-      w_end_fin_horizontal = 1'b0;
+    if (r_count_window_in < N_WINDOW - 1)
+      w_end_line_in = 1'b0;
     else
-      w_end_fin_horizontal = 1'b1;
+      w_end_line_in = 1'b1;
 
-    if (r_count_fout_horizontal < N_WINDOW - 1)
-      w_end_fout_horizontal = 1'b0;
+    if (r_count_window_out < N_WINDOW - 1)
+      w_end_line_out = 1'b0;
     else
-      w_end_fout_horizontal = 1'b1;
+      w_end_line_out = 1'b1;
   end
 
   always_comb begin
@@ -251,8 +251,8 @@ module Control
       r_count_fin      <= 0;
       r_count_fout     <= 0;
       r_count_window   <= 0;
-      r_count_fin_horizontal <= 0;
-      r_count_fout_horizontal <= 0;
+      r_count_window_in <= 0;
+      r_count_window_out <= 0;
       r_en_wh          <= 1'b0;
       r_en_fin         <= 1'b0;
       r_weight         <= '{default: '0};
@@ -270,8 +270,8 @@ module Control
           r_count_fin      <= 0;
           r_count_fout     <= 0;
           r_count_window   <= 0;
-          r_count_fin_horizontal <= 0;
-          r_count_fout_horizontal <= 0;
+          r_count_window_in <= 0;
+          r_count_window_out <= 0;
           r_en_wh          <= 1'b0;
           r_en_fin         <= 1'b0;
           r_weight         <= '{default: '0};
@@ -301,22 +301,21 @@ module Control
           end
 
           if(w_end_fin) begin
-            r_count_wh       <= 0;
-            r_count_fin      <= 0;
-            r_en_wh          <= 1'b0;
-            r_en_fin         <= 1'b0;
+            r_count_wh     <= 0;
+            r_en_wh        <= 1'b0;
+            r_en_fin       <= 1'b0;
+            r_count_window <= r_count_window + 1;
             // r_end_wh         <= 1'b0;
             // r_end_fin        <= 1'b0;
-            if (w_end_fin_horizontal) begin
-              r_count_fin_horizontal <= 0;
+            if (w_end_line_in) begin
+              r_count_window_in <= 0;
               r_count_fin <= 0;
               r_addr_fin <= r_addr_fin + C1_SIZE + FEAT_INPUT_SIZE * (A1_SIZE - 1);
             end else begin
-              r_count_fin_horizontal <= r_count_fin_horizontal + 1;
-              r_count_window <= r_count_window + 1;
+              r_count_window_in <= r_count_window_in + 1;
+              r_count_fin <= 10;
               r_addr_fin <= r_addr_fin + A1_SIZE;
 
-              r_count_fin <= 10;
               // TODO perform test using an index table
               r_feat_in[00] <= r_feat_in[03];
               r_feat_in[01] <= r_feat_in[04];
@@ -342,12 +341,12 @@ module Control
         FEAT_OUTPUT: begin
           r_count_fout <= r_count_fout + 1;
           if (w_end_fout)
-            if (w_end_fout_horizontal) begin
-              r_count_fout_horizontal <= 0;
+            if (w_end_line_out) begin
+              r_count_window_out <= 0;
               r_addr_fout <= r_addr_fout + A1_SIZE + FEAT_OUTPUT_SIZE * (A1_SIZE - 1);
             end else begin
               r_addr_fout <= r_addr_fout + A1_SIZE;
-              r_count_fout_horizontal <= r_count_fout_horizontal + 1;
+              r_count_window_out <= r_count_window_out + 1;
             end
         end
       endcase
