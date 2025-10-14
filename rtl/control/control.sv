@@ -120,7 +120,6 @@ module Control
 
   always_comb begin
     next_st_input  = current_st_input;
-
     unique case (current_st_input)
       // IDLE_CONTROL
       default: begin
@@ -156,7 +155,6 @@ module Control
 
   always_comb begin
     next_st_output = current_st_output;
-
     unique case (current_st_output)
       IDLE_OUTPUT: begin
         w_end_fout = 1'b0;
@@ -323,6 +321,7 @@ module Control
               r_feat_in[16] <= r_feat_in[19];
               r_feat_in[20] <= r_feat_in[23];
               r_feat_in[21] <= r_feat_in[24];
+              // r_feat_in[21] <= p_read_data;
             end
           end
         end
