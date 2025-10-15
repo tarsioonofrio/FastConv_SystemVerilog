@@ -69,4 +69,4 @@ df.columns = [
     "Flop Count",
 ]
 
-df.to_csv("../data/report_transposed.csv")
+df.to_csv("../report/report_transposed.csv")
