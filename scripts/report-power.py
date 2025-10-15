@@ -48,4 +48,4 @@ for f, df in list_df.items():
     df.to_csv(f"../data/{f}_power_report.csv")
 df_total = pd.DataFrame({f: df["Total"] for f, df in list_df.items()}).T
 df_total.index.name = "file"
-df_total.to_csv("../data/category_power_report.csv")
+df_total.to_csv("../report/category_power_report.csv")
