@@ -55,51 +55,51 @@ module Control
   state_input_type current_st_input, next_st_input;
   state_output_type current_st_output, next_st_output;
 
-  // contador de leitura de pesos
+  // Weight read counter
   logic [$clog2(M1_SIZE*M2_SIZE)-1:0] r_count_wh;
-  // contador de leitura de features de entrada
+  // Input feature read counter
   logic [$clog2(C1_SIZE*C2_SIZE)-1:0] r_count_fin;
-  // contador de leitura de features de saída
+  // Output feature write counter
   logic [$clog2(A1_SIZE*A2_SIZE)-1:0] r_count_fout;
-  // contador de leitura de bias, como o bias é 1 o tamanho de memória zera e por isso ele não será usado por enquanto
+  // Bias read counter; bias depth is one so it is unused for now
   // logic [$clog2(N_CHANNEL_OUT)-1:0] r_addr_bias;
-  //  dummy version of r_addr_bias
+  // Temporary substitute for r_addr_bias
   logic [2:0] r_addr_bias;
-  // registrador de endereço base dos pesos
-  logic [$clog2(M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT)-1:0] r_addr_wh;  
-  // registrador de endereço base das features de entrada
+  // Base address register for weight blocks
+  logic [$clog2(M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT)-1:0] r_addr_wh;
+  // Base address register for input features
   logic [$clog2(N_CHANNEL_IN * FEAT_INPUT_SIZE * FEAT_INPUT_SIZE)-1:0] r_addr_fin;
-  // registrador de endereço base das features de saída
+  // Base address register for output features
   logic [$clog2(N_CHANNEL_OUT * FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE)-1:0] r_addr_fout;
-  // contador total de janelas processadas (na leitura)
+  // Total window counter for the read path
   logic [$clog2(N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN)-1:0] r_window;
 
-  // Contador de janelas lidas na linhas, usado para indicar a mudança na atualização dos endereços de leitura e para o fim do reuso 
+  // Row-aligned window counter for read-side address updates and reuse control
   logic [$clog2(N_WINDOW):0] r_window_in;
-  // Contador de janelas escritas na linhas, usado para indicar a mudança na atualização dos endereços de escrita 
+  // Row-aligned window counter for write-side address updates
   logic [$clog2(N_WINDOW):0] r_window_out;
 
-  // Fio que indica o fim da linha na memória de leitura
+  // Flag indicating end-of-row for read memory
   logic w_end_line_in;
-  // Fio que indica o fim da linha na memória de escrita
+  // Flag indicating end-of-row for write memory
   logic w_end_line_out;
-  // Fio de fim de leitura de pesos
+  // Flag indicating the input window is ready for convolution
   logic w_end_fin;
-  // Fio que indica que o buffer de entrada foi totalmente preenchido 
+  // Flag indicating the output window finished writing
   logic w_end_fout;
-  // Fio com o endereço atual das features de entrada
+  // Current input feature address
   logic[NADDR-1:0] w_addr_fin;
 
   logic r_read_en;
-  
-  // banco de registradores das features de entrada
+
+  // Register bank for input features
   type_input  r_feat_in;
-  // banco de registradores do kernel (pesos)
+  // Register bank for kernel weights
   type_weight r_weight;
-  // banco de registradores das features de saída
+  // Register bank for output features
   type_output r_feat_out;
 
-  // lógica sequencial que atualiza as máquinas de estados
+  // Sequential logic that advances the state machines
   always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
       current_st_input  <= IDLE_CONTROL;
@@ -110,7 +110,7 @@ module Control
     end
   end
 
-  // lógica combinacional que redireciona fios ou registradores para as portas de saída 
+  // Combinational logic driving output ports from internal registers
   always_comb begin
     p_input      = r_feat_in;
     p_weight     = r_weight;
@@ -119,7 +119,7 @@ module Control
     p_conv_start = w_end_fin;
   end
 
-  // lógica combinacional que detecta o fim da linha de leitura (entrada) e escrita (saída)
+  // Combinational logic detecting end-of-row for read and write paths
   always_comb begin
     if (r_window_in < N_WINDOW - 1)
       w_end_line_in = 1'b0;
@@ -132,7 +132,7 @@ module Control
       w_end_line_out = 1'b1;
   end
 
-  // lógica combinacional que detecta que o buffer de entrada foi totalmente preenchido e a convolução pode ser iniciada.
+  // Combinational logic asserting when the input buffer is full and convolution can start
   always_comb begin
     if (r_count_fin == (C1_SIZE * C2_SIZE))
       w_end_fin = 1'b1;
@@ -140,12 +140,12 @@ module Control
       w_end_fin = 1'b0;
   end
 
-  // lógica combinacional que atualiza a máquina de estados de entrada (leitura)
+  // Combinational logic for the input (read) state machine
   always_comb begin
     next_st_input  = current_st_input;
     unique case (current_st_input)
       // IDLE_CONTROL
-      // Fica parado aguardando o start para iniciar a leitura dos dados dos pesos e depois os dados de entrada, nesse momento viés não está sendo usado
+      // Waits for start to begin reading weights and then input data; bias handling is currently disabled
       default: begin
         if (p_start)
           next_st_input = WEIGHT;
@@ -154,46 +154,46 @@ module Control
       BIAS: begin
         next_st_input = WEIGHT;
       end
-      // Aguarda o fim da leitura dos dados do kernel (pesos) referentes ao canal de entrada e saída necessários para fazer a convolução, e depois muda para o estado onde inicia a leitura dos dados de entrada.
+      // Waits for the weight fetch covering the active input/output channel pair before moving on to input data
       WEIGHT: begin
         if (r_count_wh == (M1_SIZE * M2_SIZE) - 1) begin
           next_st_input = FEAT_INPUT;
         end
       end
-      // Aguarda o sinal alertando que o banco de registrados dos dados de entrada está cheio, dependendo de quantas janelas já foram lidas a máquina de estados continua lendo dados de entrada, lê pesos, viés, ou encerra o processamento.
+      // Waits until the input register bank is full; based on processed windows it may keep reading, reload weights/bias, or finish
       FEAT_INPUT: begin
         if (w_end_fin) begin
-          // caso tenha lido todas as janelas dos canais de entrada e saída encerra o processamento
+          // When all windows across input and output channels have been read, finish control
           if (r_window == N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN)
             next_st_input = END_CONTROL;
           else
-          // caso tenha lido as janelas dos canais de saída carrega o bias
+          // When all output-channel windows are complete, load bias (disabled for now)
           // if (r_window == N_WINDOW * N_WINDOW * N_CHANNEL_OUT)
           //  next_st_input = BIAS;
           // else
-          // caso todas as janelas de um canal de entrada então carrega novos pesos
+          // When a full set of windows for an input channel is done, reload weights
           if (r_window == N_WINDOW * N_WINDOW)
             next_st_input = WEIGHT;
           else
-          // caso nenhuma dessas situações tenha se verificado então continua lendo dados de entrada
+          // Otherwise keep reading input data
             next_st_input = FEAT_INPUT;
         end
       end
     endcase
   end
 
-  // lógica combinacional que atualiza a máquina de estados de saída (escrita)
+  // Combinational logic for the output (write) state machine
   always_comb begin
     next_st_output = current_st_output;
     unique case (current_st_output)
-      // Fica parado aguardando o sinal que a convolução terminou.
+      // Waits for the convolution-complete signal
       IDLE_OUTPUT: begin
         w_end_fout = 1'b0;
         p_write_en = 1'b0;
         if (p_conv_end)
           next_st_output = FEAT_OUTPUT;
       end
-      // Avisa que vai iniciar a escrita dos dados de saída, aguarda o fim da escrita, quando chegar na última escrita avisa que terminou a escrita de dados.
+      // Starts writing the output window and raises the completion flag when the window is stored
       FEAT_OUTPUT: begin
         p_write_en = 1'b1;
         if (r_count_fout == (A1_SIZE * A2_SIZE) - 1) begin
@@ -205,7 +205,7 @@ module Control
     endcase
   end
 
-  // lógica combinacional que atualiza os endereços de escrita conforme o contador dos dados de saída 
+  // Combinational logic computing the write address from the output counter
   always_comb begin
     unique case (r_count_fout)
       default: p_write_addr = r_addr_fout + 0;
@@ -222,7 +222,7 @@ module Control
     endcase
   end
 
-  // lógica combinacional que atualiza os endereços de leitura dos dados de entrada conforme seu contador 
+  // Combinational logic computing the input read address from the input counter
   always_comb begin
     unique case (r_count_fin)
       default: w_addr_fin = r_addr_fin + 0; // 00
@@ -257,7 +257,7 @@ module Control
     endcase
   end
 
-  // lógica combinacional que faz um mux para selecionar quais dados devem ser lidos: se kernel, bias, ou feature input, ou nada conforme máquina de estados de entrada
+  // Combinational mux selecting which memory region to read (bias, weights, input features, or idle) based on the input state
   always_comb begin
     unique case (current_st_input)
       BIAS: begin
@@ -279,15 +279,15 @@ module Control
     endcase
   end
 
-  // lógica sequêncial que atualiza os registradores da maquina de estados de entrada (leitura)
+  // Sequential logic updating the registers tied to the input state machine
   always_ff @(posedge clk) begin
     if (reset) begin
       r_read_en    <= 1'b0;
-      // posição inicial do bias na memória é 0
+      // Bias base address starts at zero
       r_addr_bias  <= 0;
-      // posição inicial do kernel na memória é logo após o bias
+      // Weight base address follows the bias region
       r_addr_wh    <= N_CHANNEL_OUT;
-      // posição inicial das features de entrada na memória é logo após o kernel
+      // Input feature base address follows the weight region
       r_addr_fin   <= N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT;
       r_count_wh   <= 0;
       r_count_fin  <= 0;
@@ -310,11 +310,11 @@ module Control
           r_weight    <= '{default: '0};
           r_feat_in   <= '{default: '0};
         end
-        // Cada vez que estiver no bias lê somente um endereço e avança
+        // When fetching bias, read a single address and advance
         BIAS: begin
           r_addr_bias <= r_addr_bias + 1;
         end
-        // A cada ciclo avança um endereço do kernel e do contador, e armazena o valor retornado pela memória na posição correta do vetor conforme o contador
+        // Each cycle advances the weight address and stores the returned value in-order
         WEIGHT: begin
           r_read_en   <= 1'b1;
           r_count_fin <= 0;
@@ -324,7 +324,7 @@ module Control
             r_weight[r_count_wh] <= p_read_data;
           end
         end
-        // A cada ciclo avança um endereço dos dados de entrada e do contador, armazena o valor retornado pela memória na posição correta do vetor conforme o contador
+        // Each cycle advances the input address and stores the returned value in the indexed slot
         FEAT_INPUT: begin
           r_read_en  <= 1'b1;
           r_count_wh <= 0;
@@ -332,29 +332,30 @@ module Control
             r_count_fin                     <= r_count_fin + 1;
             r_feat_in[c_index[r_count_fin]] <= p_read_data;
           end
-          
-          // Caso o buffer dos dados de entrada esteja cheio incrementa o contador de janelas totais
+
+          // When the input buffer is full, increment the total window counter
           if(w_end_fin)
             r_window <= r_window + 1;
 
-          // Caso o buffer dos dados de entrada esteja cheio e tenha chegado até o final da linha dos dados de entrada, então:
-          // - reseta o contador de janelas de entrada, 
-          // - reseta o contador de features de entrada (que serão lidas) para zero, indicando que não haverá reaproveitamento
-          // - Pula verticalmente o endereço base da memória para o primeiro endereço da primeira janela duas ou mais linhas abaixo, há sobreposição de linhas entre essa janela e as anteriores, sem reaproveitamento vertical
+          // If the input buffer is full and the row ended:
+          // - reset the per-row window counter
+          // - reset the input feature counter to zero (no horizontal reuse)
+          // - jump vertically to the first address of the window several rows below, with no vertical reuse
           if (w_end_fin && w_end_line_in) begin
             r_window_in <= 0;
             r_count_fin <= 0;
             r_addr_fin  <= r_addr_fin + C1_SIZE + FEAT_INPUT_SIZE * (A1_SIZE - 1);
-          // Caso o buffer dos dados de entrada esteja cheio e não tenha chegado até o final da linha dos dados de entrada, então:
-          // - incrementa o contador de janelas de entrada, 
-          // -posiciona o contador de features de entrada (que serão lidas) para a coluna correspondente (no mínimo segunda coluna), indicando que haverá reaproveitamento
-          // - posiciona ponteiro de entrada para o início da próxima linha            
+          // If the input buffer is full but the row has not ended:
+          // - increment the per-row window counter
+          // - position the input feature counter at the reuse start column
+          // - move the base pointer to the next window horizontally
           end else if (w_end_fin && !w_end_line_in) begin
             r_window_in <= r_window_in + 1;
             // r_count_fin <= 10;
             r_count_fin <= C1_SIZE * (C1_SIZE - A1_SIZE);
             r_addr_fin  <= r_addr_fin + A1_SIZE;
 
+            // Preserve overlapping columns locally to enable horizontal window reuse
             // TODO perform test using an index table
             r_feat_in[00] <= r_feat_in[03];
             r_feat_in[01] <= r_feat_in[04];
@@ -376,7 +377,7 @@ module Control
     end
   end
 
-  // lógica sequêncial que atualiza os registradores da máquina de estados de saída (escrita)
+  // Sequential logic updating the registers tied to the output state machine
   always_ff @(posedge clk) begin
     if (reset) begin
       r_addr_fout  <= 0;
@@ -385,25 +386,25 @@ module Control
       r_feat_out   <= '{default: '0};
     end else begin
       unique case (current_st_output)
-        // Mantem o contador de dados de saída em zero e aguarda sinal que a convolução acabou, caso positivo direciona dados das features de saída para o banco de registradores correspondentes
+        // Keep the output counter cleared while waiting for convolution to end; capture output data on completion
         IDLE_OUTPUT: begin
           r_count_fout <= 0;
           if (p_conv_end)
             r_feat_out <= p_output;
         end
-        // Escreve dados de saída na memória
+        // Write output data to memory
         FEAT_OUTPUT: begin
-          //  A cada ciclo incrementa o contador de dados de saída que indica qual posição do banco de registradores de saída deve ser escrito na memória
+          // Each cycle increments the output counter to select which register value gets written
           r_count_fout <= r_count_fout + 1;
-          // Se todos os dados de saída foram escritos na memória e a linha chegou ao fim, então: 
-          // - Zera o contador de dados de saída
-          // - Pula verticalmente o endereço base da memória para o primeiro endereço da primeira janela duas ou mais linhas abaixo, sem sobreposição de linhas entre essa janela e as anteriores
+          // When the output window is stored and the row ended:
+          // - reset the window counter
+          // - jump vertically to the first address of the next row group without overlap
           if (w_end_fout && w_end_line_out) begin
             r_window_out <= 0;
             r_addr_fout  <= r_addr_fout + A1_SIZE + FEAT_OUTPUT_SIZE * (A1_SIZE - 1);
-          // Se todos os dados de saída foram escritos na memória e a linha não chegou ao fim, então: 
-          // - incrementa o contador de dados de saída
-          // - Pula horizontalmente o endereço base dos dados de escrita (saída) para o primeiro endereço da próxima janela.
+          // When the output window is stored but the row continues:
+          // - increment the per-row window counter
+          // - move horizontally to the next window
           end else if (w_end_fout && !w_end_line_out) begin
             r_window_out <= r_window_out + 1;
             r_addr_fout  <= r_addr_fout + A1_SIZE;
