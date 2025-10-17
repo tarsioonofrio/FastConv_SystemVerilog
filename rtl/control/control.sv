@@ -1,3 +1,6 @@
+// TODO
+// Avaliar se é melhor remover os contadores de janelas e comparar com os endereços.
+
 module Control
   import pack_def::*;
   import pack_typedef::*;
@@ -87,6 +90,8 @@ module Control
   logic w_end_fin;
   // Flag indicating the output window finished writing
   logic w_end_fout;
+  // Flag indicating the output channel finished writing
+  logic w_end_channel_out;
   // Current input feature address
   logic[NADDR-1:0] w_addr_fin;
 
@@ -372,13 +377,20 @@ module Control
       w_end_fout = 1'b0;
   end
 
-
   // Combinational logic detecting end-of-row for write paths
   always_comb begin
     if (r_window_out < N_WINDOW - 1)
       w_end_line_out = 1'b0;
     else
       w_end_line_out = 1'b1;
+  end
+
+  // Combinational logic asserting when the output buffer is empty and all data is written in memory
+  always_comb begin
+    if (r_addr_fout == (FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE * N_CHANNEL_OUT) - 1)
+      w_end_channel_out = 1'b1;
+    else
+      w_end_channel_out = 1'b0;
   end
 
   // Sequential logic updating the registers tied to the output state machine
@@ -403,15 +415,18 @@ module Control
           // When the output window is stored and the row ended:
           // - reset the window counter
           // - jump vertically to the first address of the next row group without overlap
-          if (w_end_fout && w_end_line_out) begin
+          if (w_end_fout && w_end_line_out && !w_end_channel_out) begin
             r_window_out <= 0;
             r_addr_fout  <= r_addr_fout + A1_SIZE + FEAT_OUTPUT_SIZE * (A1_SIZE - 1);
           // When the output window is full but the row continues:
           // - increment the per-row window counter
           // - move horizontally to the next window
-          end else if (w_end_fout && !w_end_line_out) begin
+          end else if (w_end_fout && !w_end_line_out && !w_end_channel_out) begin
             r_window_out <= r_window_out + 1;
             r_addr_fout  <= r_addr_fout + A1_SIZE;
+          end else if (w_end_fout && w_end_line_out && w_end_channel_out) begin
+            r_window_out <= 0;
+            r_addr_fout  <= 0;
           end
         end
       endcase
