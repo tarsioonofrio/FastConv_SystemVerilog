@@ -114,7 +114,7 @@ module Control
 
   // Combinational logic for the input (read) state machine
   always_comb begin
-    next_st_input  = current_st_input;
+    next_st_input = current_st_input;
     unique case (current_st_input)
       // IDLE_CONTROL
       // Waits for start to begin reading weights and then input data; bias handling is currently disabled
@@ -153,7 +153,7 @@ module Control
       end
     endcase
   end
-  
+
   // Sequential logic updating the registers tied to the input state machine
   always_ff @(posedge clk) begin
     if (reset) begin
@@ -345,22 +345,33 @@ module Control
     unique case (current_st_output)
       // Waits for the convolution-complete signal
       IDLE_OUTPUT: begin
-        w_end_fout = 1'b0;
-        p_write_en = 1'b0;
         if (p_conv_end)
           next_st_output = FEAT_OUTPUT;
       end
-      // Starts writing the output window and raises the completion flag when the window is stored
+      // Waits for the output data write to memory to complete and then returns to idle
       FEAT_OUTPUT: begin
-        p_write_en = 1'b1;
-        if (r_count_fout == (A1_SIZE * A2_SIZE) - 1) begin
+        if (w_end_fout)
           next_st_output = IDLE_OUTPUT;
-          w_end_fout = 1'b1;
-        end else
-          w_end_fout = 1'b0;
       end
     endcase
   end
+
+  // If the current state is FEAT_OUTPUT, enable write
+  always_comb begin
+    if (current_st_output == FEAT_OUTPUT)
+      p_write_en = 1'b1;
+    else
+      p_write_en = 1'b0;
+  end
+
+  // Combinational logic asserting when the output buffer is empty and all data is written in memory
+  always_comb begin
+    if (r_count_fout == (A1_SIZE * A2_SIZE) - 1)
+      w_end_fout = 1'b1;
+    else
+      w_end_fout = 1'b0;
+  end
+
 
   // Combinational logic detecting end-of-row for write paths
   always_comb begin
@@ -395,7 +406,7 @@ module Control
           if (w_end_fout && w_end_line_out) begin
             r_window_out <= 0;
             r_addr_fout  <= r_addr_fout + A1_SIZE + FEAT_OUTPUT_SIZE * (A1_SIZE - 1);
-          // When the output window is stored but the row continues:
+          // When the output window is full but the row continues:
           // - increment the per-row window counter
           // - move horizontally to the next window
           end else if (w_end_fout && !w_end_line_out) begin
@@ -406,7 +417,7 @@ module Control
       endcase
     end
   end
-  
+
 
   // Combinational logic computing the write address from the output counter
   always_comb begin
