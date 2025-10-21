@@ -178,7 +178,8 @@ module ChannelSum
           // r_read_en   <= 1'b0;
           r_count_fout <= 0;
           if (p_start)
-            r_data <= r_data + p_input;
+            for (int i = 0; i < A1_SIZE * A2_SIZE; i++)
+              r_data[i] <= r_data[i] + p_input[i];
           else
             r_data   <= '{default: '0};
         end
