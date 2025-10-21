@@ -11,7 +11,7 @@ endpackage
 module MuxMult
   (
     input  logic[$clog2(4-1):0] idx_in, // current state
-    output logic[$clog2(9*4-1):0] idx_out[0:9-1]  // index array output
+    output logic[$clog2(4*9-1):0] idx_out[0:9-1]  // index array output
   );
 
   timeunit 1ns;
