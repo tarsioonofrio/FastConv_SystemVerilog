@@ -36,7 +36,7 @@ module Conv
   logic r_end;
 
   logic [$clog2(SMULT-1):0] r_idx_in;
-  logic [$clog2(SMULT*SMULT-1):0] r_idx_out[0:NMULT-1];
+  logic [$clog2(SMULT*NMULT-1):0] r_idx_out[0:NMULT-1];
 
   logic signed [NBITS-1+QUANT:0] product [0:NMULT-1];  // QUANT more bits for the multipliers
 
