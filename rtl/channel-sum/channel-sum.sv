@@ -30,10 +30,10 @@ module ChannelSum
     output logic p_read_en, // to memory output
     output logic[NADDR-1:0] p_read_addr,  // to memory output
     input  logic_vector p_read_data,  // to memory output
-    input  logic p_read_valid,  // to memory output
+    input  logic p_read_valid  // to memory output
 
-    input  logic p_write_en, // from control
-    input  logic[NADDR-1:0] p_write_addr // from control
+    // input  logic p_write_en, // from control
+    // input  logic[NADDR-1:0] p_write_addr // from control
     // output logic p_write_en_out, // to memory
     // output logic[NADDR-1:0] p_write_addr_out, // to memory
     // output logic_vector p_write_data // to memory
