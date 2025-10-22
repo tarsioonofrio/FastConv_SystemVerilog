@@ -22,12 +22,12 @@ package pack_def;
   `ifndef QUANT
     `define QUANT 8
   `endif
-  `ifndef N_CHANNEL_IN
-    `define N_CHANNEL_IN 1
-  `endif
-  `ifndef N_CHANNEL_OUT
-    `define N_CHANNEL_OUT 1
-  `endif
+  // `ifndef N_CHANNEL_IN
+  //   `define N_CHANNEL_IN 1
+  // `endif
+  // `ifndef N_CHANNEL_OUT
+  //   `define N_CHANNEL_OUT 1
+  // `endif
   `ifndef LAST_WINDOW
     `define LAST_WINDOW 0
   `endif
@@ -38,8 +38,8 @@ package pack_def;
   parameter int LATENCY = `LATENCY;
   parameter int ROM = `ROM;
   parameter int QUANT = `QUANT;
-  parameter int N_CHANNEL_IN = `N_CHANNEL_IN;
-  parameter int N_CHANNEL_OUT = `N_CHANNEL_OUT;
+  // parameter int N_CHANNEL_IN = `N_CHANNEL_IN;
+  // parameter int N_CHANNEL_OUT = `N_CHANNEL_OUT;
   parameter int LAST_WINDOW = `LAST_WINDOW;
 
 
