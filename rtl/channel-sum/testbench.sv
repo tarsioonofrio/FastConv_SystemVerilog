@@ -14,6 +14,7 @@ module tb;
   logic p_end;
 
   logic p_conv_start;
+  logic p_conv_idle;
   logic p_conv_end;
 
   type_input p_input;
@@ -29,10 +30,16 @@ module tb;
   logic_vector w_read_data;
 
   logic w_write_chip;
-  logic w_write_en;
   logic w_write_valid;
+  logic w_write_en;
+  logic w_write_en_control;
+  logic w_read_en_channel;
   logic[NADDR-1:0] w_write_addr;
+  logic[NADDR-1:0] w_write_addr_control;
+  logic[NADDR-1:0] w_read_addr_channel;
   logic_vector w_write_data;
+  logic_vector w_write_data_control;
+  logic_vector w_read_data_channel;
   logic_vector w_write_out;
 
 
@@ -42,40 +49,6 @@ module tb;
   initial clk = 0;
   always #0.5 clk = ~clk;
 
-  // DUT instantiation
-  Control #(
-    .NADDR(NADDR),
-    .NBITS(NBITS),
-    .LATENCY(LATENCY),
-    .ROM(ROM),
-    .QUANT(QUANT),
-    .FEAT_INPUT_SIZE(FEAT_INPUT_SIZE),
-    .FEAT_OUTPUT_SIZE(FEAT_OUTPUT_SIZE),
-    .N_WINDOW(N_WINDOW),
-    .N_CHANNEL_IN(N_CHANNEL_IN),
-    .N_CHANNEL_OUT(N_CHANNEL_OUT),
-    .LAST_WINDOW(LAST_WINDOW)
-  ) control (
-    .clk(clk),
-    .reset(reset),
-
-    .p_start(p_start),
-    .p_end(p_end),
-    .p_conv_start(p_conv_start),
-    .p_conv_end(p_conv_end),
-    .p_input(p_input),
-    .p_weight(p_weight),
-    .p_output(p_output_sum),
-
-    .p_read_en(w_read_en),
-    .p_read_addr(w_read_addr),
-    .p_read_valid(w_read_valid),
-    .p_read_data(w_read_data),
-
-    .p_write_en(w_write_en),
-    .p_write_addr(w_write_addr),
-    .p_write_data(w_write_data)
-  );
 
   // DUT instantiation
   ChannelSum #(
@@ -99,15 +72,50 @@ module tb;
     .p_input(p_output_conv),
     .p_output(p_output_sum),
 
-    .p_read_en(w_write_en),
-    .p_read_addr(w_write_addr),
-    .p_read_valid(w_write_valid),
-    .p_read_data(w_write_data)
+    .p_read_en(w_read_en_channel),
+    .p_read_addr(w_read_addr_channel),
+    .p_read_data(w_read_data_channel),
+    .p_read_valid(w_write_valid)
 
     // .p_write_en(w_write_en),
     // .p_write_addr(w_write_addr)
-  );  
-  
+  );
+
+  Control #(
+    .NADDR(NADDR),
+    .NBITS(NBITS),
+    .LATENCY(LATENCY),
+    .ROM(ROM),
+    .QUANT(QUANT),
+    .FEAT_INPUT_SIZE(FEAT_INPUT_SIZE),
+    .FEAT_OUTPUT_SIZE(FEAT_OUTPUT_SIZE),
+    .N_WINDOW(N_WINDOW),
+    .N_CHANNEL_IN(N_CHANNEL_IN),
+    .N_CHANNEL_OUT(N_CHANNEL_OUT),
+    .LAST_WINDOW(LAST_WINDOW)
+  ) control (
+    .clk(clk),
+    .reset(reset),
+
+    .p_start(p_start),
+    .p_end(p_end),
+    .p_conv_start(p_conv_start),
+    .p_conv_idle(p_conv_idle),
+    .p_conv_end(p_conv_end),
+    .p_input(p_input),
+    .p_weight(p_weight),
+    .p_output(p_output_sum),
+
+    .p_read_en(w_read_en),
+    .p_read_addr(w_read_addr),
+    .p_read_valid(w_read_valid),
+    .p_read_data(w_read_data),
+
+    .p_write_en(w_write_en_control),
+    .p_write_addr(w_write_addr_control),
+    .p_write_data(w_write_data_control)
+  );
+
   Memory #(
     .NADDR(NADDR),
     .NBITS(NBITS),
@@ -148,11 +156,25 @@ module tb;
     .reset(reset),
 
     .p_start(p_conv_start),
+    .p_idle(p_conv_idle),
     .p_end(p_conv_end),
     .p_input(p_input),
     .p_weight(p_weight),
     .p_output(p_output_conv)
   );
+
+  
+  always_comb begin
+    if (w_write_en_control) begin
+      w_write_en = w_write_en_control;
+      w_write_addr = w_write_addr_control;
+      w_write_data = w_write_data_control;
+    end else begin
+      w_write_en = w_read_en_channel;
+      w_write_addr = w_read_addr_channel;
+      w_write_data = w_read_data_channel;
+    end
+  end
 
   // Inicialização dos sinais e reset
   initial begin
