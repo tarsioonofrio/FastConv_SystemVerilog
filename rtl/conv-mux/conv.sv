@@ -11,6 +11,7 @@ module Conv
 
     input  logic p_start,
     output logic p_end,
+    output logic p_idle,
     input  type_input  p_input,
     input  type_weight p_weight,
     output type_output p_output
@@ -21,9 +22,9 @@ module Conv
 
   typedef enum {
     IDLE_CONV,
-    CONV_C,
-    CONV_H,
-    CONV_A
+    MATRIX_C,
+    HADAMARD,
+    MATRIX_A
   } state_type;
 
   state_type current_state, next_state;
@@ -60,13 +61,13 @@ module Conv
 
     unique case (current_state)
       IDLE_CONV:
-        if (p_start) next_state = CONV_C;
-      CONV_C:
-        next_state = CONV_H;
-      CONV_H:
+        if (p_start) next_state = MATRIX_C;
+        MATRIX_C:
+        next_state = HADAMARD;
+      HADAMARD:
         if (r_idx_in == (SMULT - 1))
-          next_state = CONV_A;
-      CONV_A:
+          next_state = MATRIX_A;
+          MATRIX_A:
         next_state = IDLE_CONV;
     endcase
   end
@@ -82,23 +83,26 @@ module Conv
           r_idx_in <= 1'b0;
           r_feat[C1_SIZE*C1_SIZE-1:0] <= p_input;
         end
-        CONV_C: begin
+        MATRIX_C: begin
           r_end <= 1'b0;
           r_feat <= w_prod_c;
         end
-        CONV_H: begin
+        HADAMARD: begin
           r_idx_in <= r_idx_in + 1;
           for (int i = 0; i < NMULT; i++) begin
             r_feat[r_idx_out[i]] <= product[i];
           end
         end
-        CONV_A: begin
+        MATRIX_A: begin
           r_end <= 1'b1;
         end
       endcase
     end
   end
 
+  always_comb begin
+    p_idle = (current_state == IDLE_CONV) ? 1'b1 : 1'b0;
+  end
 
   // BLOCK: Convolution
   //

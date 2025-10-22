@@ -24,6 +24,7 @@ module Control
     input  logic p_start,
     output logic p_end,
     output logic p_conv_start,
+    input  logic p_conv_idle,
     input  logic p_conv_end,
 
     output type_input  p_input,
@@ -96,7 +97,7 @@ module Control
   logic[NADDR-1:0] w_addr_fin;
 
   logic r_read_en;
-
+  logic r_conv_end;
   // Register bank for input features
   type_input  r_feat_in;
   // Register bank for kernel weights
@@ -277,7 +278,7 @@ module Control
 
   // Combinational logic asserting when the input buffer is full and convolution can start
   always_comb begin
-    if (r_count_fin == (C1_SIZE * C2_SIZE))
+    if ((r_count_fin == (C1_SIZE * C2_SIZE)) && p_conv_idle)
       w_end_fin = 1'b1;
     else
       w_end_fin = 1'b0;
