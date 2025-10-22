@@ -31,4 +31,4 @@ df_pivot = df.pivot(index="side", columns="project", values="time/ns")
 df_pivot.columns = [format_column(n) for n in df_pivot.columns]
 df_pivot.sort_index(axis=1, inplace=True)
 # Salva o resultado
-df_pivot.to_csv("../data/time.csv")
+df_pivot.to_csv("../report/time.csv")
