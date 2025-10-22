@@ -14,6 +14,7 @@ module tb;
   logic p_end;
 
   logic p_conv_start;
+  logic p_conv_idle;
   logic p_conv_end;
 
   type_input p_input;
@@ -61,6 +62,7 @@ module tb;
     .p_start(p_start),
     .p_end(p_end),
     .p_conv_start(p_conv_start),
+    .p_conv_idle(p_conv_idle),
     .p_conv_end(p_conv_end),
     .p_input(p_input),
     .p_weight(p_weight),
@@ -117,6 +119,7 @@ module tb;
 
     .p_start(p_conv_start),
     .p_end(p_conv_end),
+    .p_idle(p_conv_idle),
     .p_input(p_input),
     .p_weight(p_weight),
     .p_output(p_output)
