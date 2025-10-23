@@ -388,7 +388,7 @@ module Control
 
   // Combinational logic asserting when the output buffer is empty and all data is written in memory
   always_comb begin
-    if (r_addr_fout == (FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE * N_CHANNEL_OUT) - 1)
+    if (r_addr_fout > (FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE * N_CHANNEL_OUT - (A1_SIZE + FEAT_OUTPUT_SIZE * (A1_SIZE - 1) + 1)))
       w_end_channel_out = 1'b1;
     else
       w_end_channel_out = 1'b0;
