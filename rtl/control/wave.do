@@ -31,15 +31,15 @@ add wave -noupdate -radix decimal /tb/memory_read/data_out
 add wave -noupdate -radix unsigned /tb/dut/r_count_fin
 add wave -noupdate -radix decimal -childformat {{{/tb/dut/r_feat_in[24]} -radix decimal} {{/tb/dut/r_feat_in[23]} -radix decimal} {{/tb/dut/r_feat_in[22]} -radix decimal} {{/tb/dut/r_feat_in[21]} -radix decimal} {{/tb/dut/r_feat_in[20]} -radix decimal} {{/tb/dut/r_feat_in[19]} -radix decimal} {{/tb/dut/r_feat_in[18]} -radix decimal} {{/tb/dut/r_feat_in[17]} -radix decimal} {{/tb/dut/r_feat_in[16]} -radix decimal} {{/tb/dut/r_feat_in[15]} -radix decimal} {{/tb/dut/r_feat_in[14]} -radix decimal} {{/tb/dut/r_feat_in[13]} -radix decimal} {{/tb/dut/r_feat_in[12]} -radix decimal} {{/tb/dut/r_feat_in[11]} -radix decimal} {{/tb/dut/r_feat_in[10]} -radix decimal} {{/tb/dut/r_feat_in[9]} -radix decimal} {{/tb/dut/r_feat_in[8]} -radix decimal} {{/tb/dut/r_feat_in[7]} -radix decimal} {{/tb/dut/r_feat_in[6]} -radix decimal} {{/tb/dut/r_feat_in[5]} -radix decimal} {{/tb/dut/r_feat_in[4]} -radix decimal} {{/tb/dut/r_feat_in[3]} -radix decimal} {{/tb/dut/r_feat_in[2]} -radix decimal} {{/tb/dut/r_feat_in[1]} -radix decimal} {{/tb/dut/r_feat_in[0]} -radix decimal}} -expand -subitemconfig {{/tb/dut/r_feat_in[24]} {-height 16 -radix decimal} {/tb/dut/r_feat_in[23]} {-height 16 -radix decimal} {/tb/dut/r_feat_in[22]} {-height 16 -radix decimal} {/tb/dut/r_feat_in[21]} {-height 16 -radix decimal} {/tb/dut/r_feat_in[20]} {-height 16 -radix decimal} {/tb/dut/r_feat_in[19]} {-height 16 -radix decimal} {/tb/dut/r_feat_in[18]} {-height 16 -radix decimal} {/tb/dut/r_feat_in[17]} {-height 16 -radix decimal} {/tb/dut/r_feat_in[16]} {-height 16 -radix decimal} {/tb/dut/r_feat_in[15]} {-height 16 -radix decimal} {/tb/dut/r_feat_in[14]} {-height 16 -radix decimal} {/tb/dut/r_feat_in[13]} {-height 16 -radix decimal} {/tb/dut/r_feat_in[12]} {-height 16 -radix decimal} {/tb/dut/r_feat_in[11]} {-height 16 -radix decimal} {/tb/dut/r_feat_in[10]} {-height 16 -radix decimal} {/tb/dut/r_feat_in[9]} {-height 16 -radix decimal} {/tb/dut/r_feat_in[8]} {-height 16 -radix decimal} {/tb/dut/r_feat_in[7]} {-height 16 -radix decimal} {/tb/dut/r_feat_in[6]} {-height 16 -radix decimal} {/tb/dut/r_feat_in[5]} {-height 16 -radix decimal} {/tb/dut/r_feat_in[4]} {-height 16 -radix decimal} {/tb/dut/r_feat_in[3]} {-height 16 -radix decimal} {/tb/dut/r_feat_in[2]} {-height 16 -radix decimal} {/tb/dut/r_feat_in[1]} {-height 16 -radix decimal} {/tb/dut/r_feat_in[0]} {-height 16 -radix decimal}} /tb/dut/r_feat_in
 add wave -noupdate -radix unsigned /tb/dut/r_weight
-add wave -noupdate -radix unsigned /tb/dut/w_read_addr
 add wave -noupdate -divider {controle de leitura}
 add wave -noupdate /tb/dut/w_end_fin
 add wave -noupdate /tb/dut/w_end_line_in
 add wave -noupdate /tb/dut/current_st_input
 add wave -noupdate -divider convolucao
 add wave -noupdate -color Red /tb/dut/p_conv_start
-add wave -noupdate -radix decimal /tb/conv/current_state
+add wave -noupdate /tb/dut/p_conv_idle
 add wave -noupdate -color Red /tb/dut/p_conv_end
+add wave -noupdate -radix decimal /tb/conv/current_state
 add wave -noupdate -divider saida
 add wave -noupdate /tb/dut/current_st_output
 add wave -noupdate /tb/dut/w_end_fout
@@ -82,4 +82,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {58953 ps} {85165 ps}
+WaveRestoreZoom {69180 ps} {95392 ps}
