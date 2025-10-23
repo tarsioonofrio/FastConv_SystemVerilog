@@ -171,13 +171,15 @@ module tb;
 
 
   always_comb begin
-    if (w_write_addr_control < FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE ) begin
+    // Bias + kernel + first feature map
+    if (w_read_addr < N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT + FEAT_INPUT_SIZE * FEAT_INPUT_SIZE ) begin
       w_chip_en = w_write_en;
       w_write_addr = w_write_addr_control;
       p_conv_end_control = p_conv_end;
       p_output_control = p_output_conv;
     end else begin
       w_chip_en = w_read_en_channel;
+      w_write_en = 0;
       w_write_addr = w_read_addr_channel;
 
       p_start_channel = p_conv_end;
