@@ -33,9 +33,9 @@ add wave -noupdate -radix unsigned /tb/control/r_window
 add wave -noupdate -radix unsigned /tb/control/r_window_in
 add wave -noupdate -radix unsigned /tb/control/r_window_out
 add wave -noupdate /tb/control/w_end_line_in
-add wave -noupdate /tb/control/w_end_line_out
 add wave -noupdate /tb/control/w_end_fin
 add wave -noupdate /tb/control/w_end_fout
+add wave -noupdate /tb/control/w_end_line_out
 add wave -noupdate /tb/control/w_end_channel_out
 add wave -noupdate -radix unsigned /tb/control/w_addr_fin
 add wave -noupdate /tb/control/r_read_en
@@ -85,8 +85,8 @@ add wave -noupdate -radix decimal /tb/conv/r_idx_in
 add wave -noupdate -radix decimal /tb/conv/r_idx_out
 add wave -noupdate -radix decimal /tb/conv/product
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 2} {63368 ps} 0}
-quietly wave cursor active 1
+WaveRestoreCursors {{Cursor 2} {1756500 ps} 1} {{Cursor 3} {1748492 ps} 0}
+quietly wave cursor active 2
 configure wave -namecolwidth 300
 configure wave -valuecolwidth 100
 configure wave -justifyvalue left
@@ -101,4 +101,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {0 ps} {14214 ps}
+WaveRestoreZoom {1743705 ps} {1772133 ps}
