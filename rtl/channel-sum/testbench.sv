@@ -37,6 +37,7 @@ module tb;
   logic w_write_chip;
   logic w_write_valid;
   logic w_write_en;
+  logic w_chip_en;
   logic w_write_en_control;
   logic w_read_en_channel;
   logic[NADDR-1:0] w_write_addr;
@@ -116,7 +117,7 @@ module tb;
     .p_read_valid(w_read_valid),
     .p_read_data(w_read_data_out),
 
-    .p_write_en(w_write_en_control),
+    .p_write_en(w_write_en),
     .p_write_addr(w_write_addr_control),
     .p_write_data(w_write_data_in)
   );
@@ -145,7 +146,7 @@ module tb;
   ) memory_write(
     .clk(clk),
     .reset(reset),
-    .chip_en(w_write_en),
+    .chip_en(w_chip_en),
     .wr_en(w_write_en),
     .address(w_write_addr),
     .data_in(w_write_data_in),
@@ -171,17 +172,17 @@ module tb;
 
   always_comb begin
     if (w_write_addr_control < FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE ) begin
-      w_write_en = w_write_en_control;
+      w_chip_en = w_write_en;
       w_write_addr = w_write_addr_control;
       p_conv_end_control = p_conv_end;
       p_output_control = p_output_conv;
     end else begin
-      w_write_en = w_read_en_channel;
+      w_chip_en = w_read_en_channel;
       w_write_addr = w_read_addr_channel;
-      
+
       p_start_channel = p_conv_end;
       p_conv_end_control = p_end_channel;
-   
+
       p_input_channel = p_output_conv;
       p_output_control = p_output_channel;
     end
