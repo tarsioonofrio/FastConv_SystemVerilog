@@ -96,23 +96,23 @@ module ChannelSum
   // Read state machine block
 
   // // Combinational logic for the input (read) state machine
-  // always_comb begin
-  //   next_st_read = current_st_read;
-  //   unique case (current_st_read)
-  //     // IDLE_CONTROL
-  //     // Waits for start to begin reading weights and then input data; bias handling is currently disabled
-  //     IDLE_READ: begin
-  //       if (p_start)
-  //         next_st_read = READ;
-  //     end
-  //     // Waits for the weight fetch covering the active input/output channel pair before moving on to input data
-  //     READ: begin
-  //       if (w_end_fout) begin
-  //         next_st_read = IDLE_READ;
-  //       end
-  //     end
-  //   endcase
-  // end
+  always_comb begin
+    next_st_read = current_st_read;
+    unique case (current_st_read)
+      // IDLE_CONTROL
+      // Waits for start to begin reading weights and then input data; bias handling is currently disabled
+      IDLE_READ: begin
+        if (p_start)
+          next_st_read = READ;
+      end
+      // Waits for the weight fetch covering the active input/output channel pair before moving on to input data
+      READ: begin
+        if (w_end_fout) begin
+          next_st_read = IDLE_READ;
+        end
+      end
+    endcase
+  end
 
   // If the current state is FEAT_OUTPUT, enable write
   // always_comb begin
