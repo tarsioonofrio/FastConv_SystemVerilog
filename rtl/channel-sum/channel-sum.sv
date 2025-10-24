@@ -18,20 +18,20 @@ module ChannelSum
     parameter int FEAT_OUTPUT_SIZE = 30,
     parameter int LAST_WINDOW      = 0
 ) (
-    input  logic clk,
-    input  logic reset,
+    input  logic clk_sum,
+    input  logic reset_sum,
 
-    input  logic p_start, // p_conv_end from conv
-    output logic p_end, // p_start from control
-    input  logic p_sum,
+    input  logic p_start_sum, // p_conv_end from conv
+    output logic p_end_sum, // p_start_sum from control
+    input  logic p_sum_sum,
 
-    input  type_output p_input, // from convolution
-    output type_output p_output, // to control
+    input  type_output p_input_sum, // from convolution
+    output type_output p_output_sum, // to control
 
-    output logic p_read_en, // to memory output
-    output logic[NADDR-1:0] p_read_addr,  // to memory output
-    input  logic_vector p_read_data,  // to memory output
-    input  logic p_read_valid  // to memory output
+    output logic p_read_en_sum, // to memory output
+    output logic[NADDR-1:0] p_read_addr_sum,  // to memory output
+    input  logic_vector p_read_data_sum,  // to memory output
+    input  logic p_read_valid_sum  // to memory output
 
     // input  logic p_write_en, // from control
     // input  logic[NADDR-1:0] p_write_addr // from control
@@ -54,41 +54,41 @@ module ChannelSum
   //   OUTPUT
   // } state_output_type;
 
-  state_type current_st, next_st;
+  state_type current_st_sum, next_st_sum;
 
   // Input feature read counter
-  logic [$clog2(A1_SIZE*A2_SIZE)-1:0] r_count_fout;
+  logic [$clog2(A1_SIZE*A2_SIZE)-1:0] r_count_fout_sum;
   // Base address register for output features
-  logic [$clog2(N_CHANNEL_OUT * FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE)-1:0] r_addr_fout;
+  logic [$clog2(N_CHANNEL_OUT * FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE)-1:0] r_addr_fout_sum;
   // Base address register for channel output features
-  logic [$clog2(N_CHANNEL_OUT * FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE)-1:0] r_addr_ch_out;
+  logic [$clog2(N_CHANNEL_OUT * FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE)-1:0] r_addr_ch_out_sum;
   // Total window counter for the write path
-  logic [$clog2(N_WINDOW * N_WINDOW * N_CHANNEL_OUT)-1:0] r_window_out_total;
+  logic [$clog2(N_WINDOW * N_WINDOW * N_CHANNEL_OUT)-1:0] r_window_out_total_sum;
   // Total window counter for a channel
-  logic [$clog2(N_WINDOW * N_WINDOW)-1:0] r_window_out_channel;
+  logic [$clog2(N_WINDOW * N_WINDOW)-1:0] r_window_out_channel_sum;
   // Row-aligned window counter for write-side address updates
-  logic [$clog2(N_WINDOW):0] r_window_out_horizontal;
+  logic [$clog2(N_WINDOW):0] r_window_out_horizontal_sum;
 
   // Flag indicating end-of-row for write memory
-  logic w_end_line_out;
+  logic w_end_line_out_sum;
   // Flag indicating the input window is ready for convolution
-  logic w_end_fout;
+  logic w_end_fout_sum;
   // Flag indicating the output channel finished writing
-  logic w_end_channel_out;
+  logic w_end_channel_out_sum;
 
-  logic r_end;
+  logic r_end_sum;
   // Register bank for input data from convolution
-  type_output r_data;
+  type_output r_data_sum;
   // Register bank for read data
-  type_output r_input;
+  type_output r_input_sum;
 
   // Sequential logic that advances the state machines
-  always_ff @(posedge clk or posedge reset) begin
-    if (reset) begin
-      current_st <= IDLE_READ;
+  always_ff @(posedge clk_sum or posedge reset_sum) begin
+    if (reset_sum) begin
+      current_st_sum <= IDLE_READ;
       // current_st_output <= IDLE_OUTPUT;
     end else begin
-      current_st <= next_st;
+      current_st_sum <= next_st_sum;
       // current_st_output <= next_st_output;
     end
   end
@@ -97,129 +97,129 @@ module ChannelSum
 
   // // Combinational logic for the input (read) state machine
   always_comb begin
-    next_st = current_st;
-    unique case (current_st)
+    next_st_sum = current_st_sum;
+    unique case (current_st_sum)
       // IDLE_CONTROL
       // Waits for start to begin reading weights and then input data; bias handling is currently disabled
       IDLE_READ:
-        if (p_start)
-          next_st = READ;
+        if (p_start_sum)
+          next_st_sum = READ;
       // Waits for the weight fetch covering the active input/output channel pair before moving on to input data
       READ:
-        if (w_end_fout)
-          next_st = SUM;
+        if (w_end_fout_sum)
+          next_st_sum = SUM;
       SUM:
-        if (p_sum)
-          next_st = READ;
+        if (p_sum_sum)
+          next_st_sum = READ;
     endcase
   end
 
   // If the current state is FEAT_OUTPUT, enable write
   always_comb begin
-    if (current_st == READ)
-      p_read_en = 1'b1;
+    if (current_st_sum == READ)
+      p_read_en_sum = 1'b1;
     else
-      p_read_en = 1'b0;
+      p_read_en_sum = 1'b0;
   end
 
   // Combinational logic asserting when the output buffer is empty and all data is written in memory
   always_comb begin
-    if (r_count_fout == (A1_SIZE * A2_SIZE) - 1)
-      w_end_fout = 1'b1;
+    if (r_count_fout_sum == (A1_SIZE * A2_SIZE) - 1)
+      w_end_fout_sum = 1'b1;
     else
-      w_end_fout = 1'b0;
+      w_end_fout_sum = 1'b0;
   end
 
   // Combinational logic detecting end-of-row for write paths
   always_comb begin
-    if (r_window_out_horizontal < N_WINDOW - 1)
-      w_end_line_out = 1'b0;
+    if (r_window_out_horizontal_sum < N_WINDOW - 1)
+      w_end_line_out_sum = 1'b0;
     else
-      w_end_line_out = 1'b1;
+      w_end_line_out_sum = 1'b1;
   end
 
   // Combinational logic asserting when the output buffer is empty and all data is written in memory
   always_comb begin
-    if (r_window_out_total < N_WINDOW * N_WINDOW)
-      w_end_channel_out = 1'b0;
+    if (r_window_out_total_sum < N_WINDOW * N_WINDOW)
+      w_end_channel_out_sum = 1'b0;
     else
-      w_end_channel_out = 1'b1;
+      w_end_channel_out_sum = 1'b1;
   end
 
 
   // Combinational logic computing the write address from the output counter
   always_comb begin
-    unique case (r_count_fout)
-      default: p_read_addr = r_addr_fout + 0;
-      1: p_read_addr = r_addr_fout + 1;
-      2: p_read_addr = r_addr_fout + 2;
+    unique case (r_count_fout_sum)
+      default: p_read_addr_sum = r_addr_fout_sum + 0;
+      1: p_read_addr_sum = r_addr_fout_sum + 1;
+      2: p_read_addr_sum = r_addr_fout_sum + 2;
 
-      3: p_read_addr = r_addr_fout + FEAT_OUTPUT_SIZE + 0;
-      4: p_read_addr = r_addr_fout + FEAT_OUTPUT_SIZE + 1;
-      5: p_read_addr = r_addr_fout + FEAT_OUTPUT_SIZE + 2;
+      3: p_read_addr_sum = r_addr_fout_sum + FEAT_OUTPUT_SIZE + 0;
+      4: p_read_addr_sum = r_addr_fout_sum + FEAT_OUTPUT_SIZE + 1;
+      5: p_read_addr_sum = r_addr_fout_sum + FEAT_OUTPUT_SIZE + 2;
 
-      6: p_read_addr = r_addr_fout + FEAT_OUTPUT_SIZE * 2 + 0;
-      7: p_read_addr = r_addr_fout + FEAT_OUTPUT_SIZE * 2 + 1;
-      8: p_read_addr = r_addr_fout + FEAT_OUTPUT_SIZE * 2 + 2;
+      6: p_read_addr_sum = r_addr_fout_sum + FEAT_OUTPUT_SIZE * 2 + 0;
+      7: p_read_addr_sum = r_addr_fout_sum + FEAT_OUTPUT_SIZE * 2 + 1;
+      8: p_read_addr_sum = r_addr_fout_sum + FEAT_OUTPUT_SIZE * 2 + 2;
     endcase
   end
 
   // Sequential logic updating the registers tied to the input state machine
-  always_ff @(posedge clk) begin
-    if (reset) begin
-      r_end <= 0;
-      r_addr_fout  <= 0;
-      r_count_fout <= 0;
-      r_window_out_total <= 0;
-      r_window_out_channel <= 0;
-      r_window_out_horizontal <= 0;
-      r_data   <= '{default: '0};
+  always_ff @(posedge clk_sum) begin
+    if (reset_sum) begin
+      r_end_sum <= 0;
+      r_addr_fout_sum  <= 0;
+      r_count_fout_sum <= 0;
+      r_window_out_total_sum <= 0;
+      r_window_out_channel_sum <= 0;
+      r_window_out_horizontal_sum <= 0;
+      r_data_sum   <= '{default: '0};
     end else begin
-      unique case (current_st)
+      unique case (current_st_sum)
         default: begin end
         IDLE_READ: begin
-          r_end <= 0;
-          r_count_fout <= 0;
-          r_data   <= '{default: '0};
+          r_end_sum <= 0;
+          r_count_fout_sum <= 0;
+          r_data_sum   <= '{default: '0};
         end
         // Each cycle advances the weight address and stores the returned value in-order
         READ: begin
-          r_end <= 0;
-          if (p_read_valid) begin
-            r_count_fout         <= r_count_fout + 1;
-            r_data[r_count_fout] <= p_read_data;
+          r_end_sum <= 0;
+          if (p_read_valid_sum) begin
+            r_count_fout_sum         <= r_count_fout_sum + 1;
+            r_data_sum[r_count_fout_sum] <= p_read_data_sum;
           end
           // Each cycle increments the output counter to select which register value gets written
-          r_count_fout <= r_count_fout + 1;
-          if(w_end_fout)
-            r_window_out_total <= r_window_out_total + 1;
+          r_count_fout_sum <= r_count_fout_sum + 1;
+          if(w_end_fout_sum)
+            r_window_out_total_sum <= r_window_out_total_sum + 1;
           // When the output window is full but the row continues:
           // - increment the per-row window counter
           // - move horizontally to the next window
-          if (w_end_fout && !w_end_line_out && !w_end_channel_out) begin
-            r_window_out_channel <= r_window_out_channel + 1;
-            r_window_out_horizontal <= r_window_out_horizontal + 1;
-            r_addr_fout  <= r_addr_fout + A1_SIZE;
+          if (w_end_fout_sum && !w_end_line_out_sum && !w_end_channel_out_sum) begin
+            r_window_out_channel_sum <= r_window_out_channel_sum + 1;
+            r_window_out_horizontal_sum <= r_window_out_horizontal_sum + 1;
+            r_addr_fout_sum  <= r_addr_fout_sum + A1_SIZE;
           end
           // When the output window is stored and the row ended:
           // - reset the window counter
           // - jump vertically to the first address of the next row group without overlap
-          else if (w_end_fout && w_end_line_out && !w_end_channel_out) begin
-            r_window_out_channel <= r_window_out_channel + 1;
-            r_window_out_horizontal <= 0;
-            r_addr_fout  <= r_addr_fout + A1_SIZE + FEAT_OUTPUT_SIZE * (A1_SIZE - 1);
+          else if (w_end_fout_sum && w_end_line_out_sum && !w_end_channel_out_sum) begin
+            r_window_out_channel_sum <= r_window_out_channel_sum + 1;
+            r_window_out_horizontal_sum <= 0;
+            r_addr_fout_sum  <= r_addr_fout_sum + A1_SIZE + FEAT_OUTPUT_SIZE * (A1_SIZE - 1);
           end
-          else if (w_end_fout && w_end_line_out && w_end_channel_out) begin
-            r_window_out_channel <= 0;
-            r_window_out_horizontal <= 0;
-            r_addr_fout  <= r_addr_fout + A1_SIZE - (FEAT_OUTPUT_SIZE + FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
+          else if (w_end_fout_sum && w_end_line_out_sum && w_end_channel_out_sum) begin
+            r_window_out_channel_sum <= 0;
+            r_window_out_horizontal_sum <= 0;
+            r_addr_fout_sum  <= r_addr_fout_sum + A1_SIZE - (FEAT_OUTPUT_SIZE + FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
           end
         end
         SUM: begin
-          if (p_sum) begin
-            r_end <= 1;
+          if (p_sum_sum) begin
+            r_end_sum <= 1;
             for (int i = 0; i < A1_SIZE * A2_SIZE; i++)
-              r_data[i] <= r_data[i] + p_input[i];
+              r_data_sum[i] <= r_data_sum[i] + p_input_sum[i];
           end
         end
       endcase
@@ -235,7 +235,7 @@ module ChannelSum
   //     // IDLE_CONTROL
   //     // Waits for start to begin reading weights and then input data; bias handling is currently disabled
   //     IDLE_READ:
-  //       if (p_start)
+  //       if (p_start_sum)
   //         next_st_output = SUM;
   //     SUM:
   //       next_st_output = OUTPUT;
@@ -248,8 +248,8 @@ module ChannelSum
 
   // // Combinational logic driving output ports from internal registers
   always_comb begin
-    p_output     = r_data;
-    p_end        = r_end;
+    p_output_sum     = r_data_sum;
+    p_end_sum        = r_end_sum;
   end
 
 endmodule
