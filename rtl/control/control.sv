@@ -154,7 +154,7 @@ module Control
       FEAT_INPUT: begin
         if (w_end_fin) begin
           // When all windows across input and output channels have been read, finish control
-          if (r_window_in_total == N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN)
+          if (r_window_in_total == N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN - 1)
             next_st_input = END_CONTROL;
           else
           // When all output-channel windows are complete, load bias (disabled for now)
@@ -162,7 +162,7 @@ module Control
           //  next_st_input = BIAS;
           // else
           // When a full set of windows for an input channel is done, reload weights
-          if (r_window_in_total == N_WINDOW * N_WINDOW)
+          if (r_window_in_channel == N_WINDOW * N_WINDOW - 1)
             next_st_input = WEIGHT;
           else
           // Otherwise keep reading input data
@@ -276,7 +276,7 @@ module Control
             r_window_in_channel <= 0;
             r_window_in_horizontal <= 0;
             r_count_fin <= 0;
-            r_addr_fin  <= r_addr_fin + C1_SIZE;
+            r_addr_fin  <= r_addr_fin + C1_SIZE + FEAT_INPUT_SIZE * (C1_SIZE - 1);
           end
         end
       endcase
