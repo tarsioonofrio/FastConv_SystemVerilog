@@ -34,6 +34,7 @@ module tb;
   logic_vector w_read_data_in;
   logic_vector w_read_data_out;
 
+  logic w_start_channel;
   logic w_write_chip;
   logic w_write_valid;
   logic w_write_en;
@@ -108,6 +109,7 @@ module tb;
     .p_conv_start(p_conv_start),
     .p_conv_idle(p_conv_idle),
     .p_conv_end(p_conv_end_control),
+    .p_start_channel(w_start_channel),
     .p_input(p_input),
     .p_weight(p_weight),
     .p_output(p_output_control),
@@ -172,10 +174,14 @@ module tb;
 
   always_comb begin
     // Bias + kernel + first feature map
-    if (w_read_addr < N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT + FEAT_INPUT_SIZE * FEAT_INPUT_SIZE ) begin
+    if (w_start_channel == 0) begin
       w_chip_en = w_write_en;
       w_write_addr = w_write_addr_control;
+
+      p_start_channel = 0;
       p_conv_end_control = p_conv_end;
+
+      p_input_channel = '{default: '0};
       p_output_control = p_output_conv;
     end else begin
       w_chip_en = w_read_en_channel;

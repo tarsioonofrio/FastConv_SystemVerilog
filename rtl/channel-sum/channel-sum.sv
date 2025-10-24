@@ -43,24 +43,29 @@ module ChannelSum
 
   typedef enum {
     IDLE_READ,
+    SUM,
     READ
   } state_read_type;
 
-  typedef enum {
-    IDLE_OUTPUT,
-    SUM,
-    OUTPUT
-  } state_output_type;
+  // typedef enum {
+  //   IDLE_OUTPUT,
+  //   SUM,
+  //   OUTPUT
+  // } state_output_type;
 
   state_read_type current_st_read, next_st_read;
   // state_output_type current_st_output, next_st_output;
 
   // Input feature read counter
   logic [$clog2(A1_SIZE*A2_SIZE)-1:0] r_count_fout;
-  // Base address register for data
-  logic [$clog2(N_CHANNEL_OUT * FEAT_INPUT_SIZE * FEAT_INPUT_SIZE)-1:0] r_addr_fout;
+  // Base address register for output features
+  logic [$clog2(N_CHANNEL_OUT * FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE)-1:0] r_addr_fout;
+  // Base address register for channel output features
+  logic [$clog2(N_CHANNEL_OUT * FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE)-1:0] r_addr_ch_out;
+  // Total window counter for the write path
+  logic [$clog2(N_WINDOW * N_WINDOW * N_CHANNEL_OUT)-1:0] r_window_out_total;
   // Row-aligned window counter for write-side address updates
-  logic [$clog2(N_WINDOW):0] r_window_out;
+  logic [$clog2(N_WINDOW):0] r_window_out_horizontal;
 
   // Flag indicating end-of-row for read memory
   logic w_end_line_in;
@@ -75,8 +80,6 @@ module ChannelSum
   // Current input feature address
   logic[NADDR-1:0] w_addr;
 
-  logic r_read_en;
-
   // Register bank for input data from convolution
   type_output r_data;
   // Register bank for read data
@@ -85,10 +88,10 @@ module ChannelSum
   // Sequential logic that advances the state machines
   always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
-      current_st_read  <= IDLE_READ;
+      current_st_read <= IDLE_READ;
       // current_st_output <= IDLE_OUTPUT;
     end else begin
-      current_st_read  <= next_st_read;
+      current_st_read <= next_st_read;
       // current_st_output <= next_st_output;
     end
   end
@@ -101,26 +104,25 @@ module ChannelSum
     unique case (current_st_read)
       // IDLE_CONTROL
       // Waits for start to begin reading weights and then input data; bias handling is currently disabled
-      IDLE_READ: begin
+      IDLE_READ:
         if (p_start)
           next_st_read = READ;
-      end
       // Waits for the weight fetch covering the active input/output channel pair before moving on to input data
-      READ: begin
-        if (w_end_fout) begin
-          next_st_read = IDLE_READ;
-        end
-      end
+      READ:
+        if (w_end_fout)
+          next_st_read = SUM;
+      SUM:
+        next_st_read = IDLE_READ;
     endcase
   end
 
   // If the current state is FEAT_OUTPUT, enable write
-  // always_comb begin
-  //   if (current_st_output == FEAT_OUTPUT)
-  //     p_write_en = 1'b1;
-  //   else
-  //     p_write_en = 1'b0;
-  // end
+  always_comb begin
+    if (current_st_read == READ)
+      p_read_en = 1'b1;
+    else
+      p_read_en = 1'b0;
+  end
 
   // Combinational logic asserting when the output buffer is empty and all data is written in memory
   always_comb begin
@@ -132,7 +134,7 @@ module ChannelSum
 
   // Combinational logic detecting end-of-row for write paths
   always_comb begin
-    if (r_window_out < N_WINDOW - 1)
+    if (r_window_out_horizontal < N_WINDOW - 1)
       w_end_line_out = 1'b0;
     else
       w_end_line_out = 1'b1;
@@ -140,10 +142,10 @@ module ChannelSum
 
   // Combinational logic asserting when the output buffer is empty and all data is written in memory
   always_comb begin
-    if (r_addr_fout == (FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE * N_CHANNEL_OUT) - 1)
-      w_end_channel_out = 1'b1;
-    else
+    if (r_window_out_total < N_WINDOW * N_WINDOW)
       w_end_channel_out = 1'b0;
+    else
+      w_end_channel_out = 1'b1;
   end
 
 
@@ -169,25 +171,18 @@ module ChannelSum
     if (reset) begin
       r_addr_fout  <= 0;
       r_count_fout <= 0;
-      r_window_out <= 0;
+      r_window_out_horizontal <= 0;
       r_data   <= '{default: '0};
     end else begin
       unique case (current_st_read)
         default: begin end
         IDLE_READ: begin
-          // r_read_en   <= 1'b0;
           r_count_fout <= 0;
-          if (p_start)
-            for (int i = 0; i < A1_SIZE * A2_SIZE; i++)
-              r_data[i] <= r_data[i] + p_input[i];
-          else
-            r_data   <= '{default: '0};
+          r_data   <= '{default: '0};
         end
         // Each cycle advances the weight address and stores the returned value in-order
         READ: begin
-          // r_read_en    <= 1'b1;
           if (p_read_valid) begin
-            r_addr_fout          <= r_addr_fout + 1;
             r_count_fout         <= r_count_fout + 1;
             r_data[r_count_fout] <= p_read_data;
           end
@@ -197,18 +192,29 @@ module ChannelSum
           // - reset the window counter
           // - jump vertically to the first address of the next row group without overlap
           if (w_end_fout && w_end_line_out && !w_end_channel_out) begin
-            r_window_out <= 0;
+          // if (w_end_fout && w_end_line_out) begin
             r_addr_fout  <= r_addr_fout + A1_SIZE + FEAT_OUTPUT_SIZE * (A1_SIZE - 1);
+            r_window_out_total <= r_window_out_total + 1;
+            r_window_out_horizontal <= 0;
           // When the output window is full but the row continues:
           // - increment the per-row window counter
           // - move horizontally to the next window
           end else if (w_end_fout && !w_end_line_out && !w_end_channel_out) begin
-            r_window_out <= r_window_out + 1;
+          // end else if (w_end_fout && !w_end_line_out) begin
+            r_window_out_horizontal <= r_window_out_horizontal + 1;
+            r_window_out_total <= r_window_out_total + 1;
             r_addr_fout  <= r_addr_fout + A1_SIZE;
           end else if (w_end_fout && w_end_line_out && w_end_channel_out) begin
-            r_window_out <= 0;
+          // end else if (w_end_fout && w_end_line_out) begin
+            r_window_out_total <= r_window_out_total + 1;
+            r_window_out_horizontal <= 0;
+            r_addr_ch_out <= 0;
             r_addr_fout  <= 0;
           end
+        end
+        SUM: begin
+          for (int i = 0; i < A1_SIZE * A2_SIZE; i++)
+            r_data[i] <= r_data[i] + p_input[i];
         end
       endcase
     end
@@ -235,9 +241,9 @@ module ChannelSum
 
 
   // // Combinational logic driving output ports from internal registers
-  // always_comb begin
-  //   p_output     = r_data;
-  //   // p_end        = (current_st_output == OUTPUT) ? 1'b1 : 1'b0;
-  // end
+  always_comb begin
+    p_output     = r_data;
+    p_end        = w_end_fout;
+  end
 
 endmodule
