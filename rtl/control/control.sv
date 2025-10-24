@@ -26,6 +26,7 @@ module Control
     output logic p_conv_start,
     input  logic p_conv_idle,
     input  logic p_conv_end,
+    output logic p_start_channel,
 
     output type_input  p_input,
     output type_weight p_weight,
@@ -65,23 +66,31 @@ module Control
   logic [$clog2(C1_SIZE*C2_SIZE)-1:0] r_count_fin;
   // Output feature write counter
   logic [$clog2(A1_SIZE*A2_SIZE)-1:0] r_count_fout;
+  // Output feature write counter
+  logic [$floor($clog2(N_CHANNEL_OUT) + 0.5)-1:0] r_count_ch_out;
   // Bias read counter; bias depth is one so it is unused for now
-  // logic [$clog2(N_CHANNEL_OUT)-1:0] r_addr_bias;
+  logic [$floor($clog2(N_CHANNEL_OUT) + 0.5)-1:0] r_addr_bias;
   // Temporary substitute for r_addr_bias
-  logic [2:0] r_addr_bias;
+  // logic [2:0] r_addr_bias;
   // Base address register for weight blocks
   logic [$clog2(M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT)-1:0] r_addr_wh;
   // Base address register for input features
   logic [$clog2(N_CHANNEL_IN * FEAT_INPUT_SIZE * FEAT_INPUT_SIZE)-1:0] r_addr_fin;
+  // Row-aligned window counter for read-side address updates and reuse control
+  logic [$clog2(N_WINDOW):0] r_window_in_horizontal;
+  // Total window counter for a channel
+  logic [$clog2(N_WINDOW * N_WINDOW)-1:0] r_window_in_channel;
+  // Total window counter for the read path
+  logic [$clog2(N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN)-1:0] r_window_in_total;
+
   // Base address register for output features
   logic [$clog2(N_CHANNEL_OUT * FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE)-1:0] r_addr_fout;
-  // Total window counter for the read path
-  logic [$clog2(N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN)-1:0] r_window;
-
-  // Row-aligned window counter for read-side address updates and reuse control
-  logic [$clog2(N_WINDOW):0] r_window_in;
+  // Base address register for channel output features
+  logic [$clog2(N_CHANNEL_OUT * FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE)-1:0] r_addr_ch_out;
+  // Total window counter for the write path
+  logic [$clog2(N_WINDOW * N_WINDOW * N_CHANNEL_OUT)-1:0] r_window_out_total;
   // Row-aligned window counter for write-side address updates
-  logic [$clog2(N_WINDOW):0] r_window_out;
+  logic [$clog2(N_WINDOW):0] r_window_out_horizontal;
 
   // Flag indicating end-of-row for read memory
   logic w_end_line_in;
@@ -91,6 +100,8 @@ module Control
   logic w_end_fin;
   // Flag indicating the output window finished writing
   logic w_end_fout;
+  // Flag indicating the input window finished reading
+  logic w_end_channel_in;
   // Flag indicating the output channel finished writing
   logic w_end_channel_out;
   // Current input feature address
@@ -98,6 +109,7 @@ module Control
 
   logic r_read_en;
   logic r_conv_end;
+  logic r_start_channel;
   // Register bank for input features
   type_input  r_feat_in;
   // Register bank for kernel weights
@@ -142,15 +154,15 @@ module Control
       FEAT_INPUT: begin
         if (w_end_fin) begin
           // When all windows across input and output channels have been read, finish control
-          if (r_window == N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN)
+          if (r_window_in_total == N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN)
             next_st_input = END_CONTROL;
           else
           // When all output-channel windows are complete, load bias (disabled for now)
-          // if (r_window == N_WINDOW * N_WINDOW * N_CHANNEL_OUT)
+          // if (r_window_in_total == N_WINDOW * N_WINDOW * N_CHANNEL_OUT)
           //  next_st_input = BIAS;
           // else
           // When a full set of windows for an input channel is done, reload weights
-          if (r_window == N_WINDOW * N_WINDOW)
+          if (r_window_in_total == N_WINDOW * N_WINDOW)
             next_st_input = WEIGHT;
           else
           // Otherwise keep reading input data
@@ -172,8 +184,9 @@ module Control
       r_addr_fin   <= N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT;
       r_count_wh   <= 0;
       r_count_fin  <= 0;
-      r_window     <= 0;
-      r_window_in  <= 0;
+      r_window_in_total     <= 0;
+      r_window_in_channel   <= 0;
+      r_window_in_horizontal  <= 0;
       r_weight     <= '{default: '0};
       r_feat_in    <= '{default: '0};
     end else begin
@@ -186,8 +199,9 @@ module Control
           r_addr_fin  <= N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT;
           r_count_wh  <= 0;
           r_count_fin <= 0;
-          r_window    <= 0;
-          r_window_in <= 0;
+          r_window_in_total    <= 0;
+          r_window_in_channel   <= 0;
+          r_window_in_horizontal  <= 0;
           r_weight    <= '{default: '0};
           r_feat_in   <= '{default: '0};
         end
@@ -216,22 +230,17 @@ module Control
 
           // When the input buffer is full, increment the total window counter
           if(w_end_fin)
-            r_window <= r_window + 1;
+            r_window_in_total <= r_window_in_total + 1;
 
-          // If the input buffer is full and the row ended:
-          // - reset the per-row window counter
-          // - reset the input feature counter to zero (no horizontal reuse)
-          // - jump vertically to the first address of the window several rows below, with no vertical reuse
-          if (w_end_fin && w_end_line_in) begin
-            r_window_in <= 0;
-            r_count_fin <= 0;
-            r_addr_fin  <= r_addr_fin + C1_SIZE + FEAT_INPUT_SIZE * (A1_SIZE - 1);
+          // if (r_window_in_channel)
+
           // If the input buffer is full but the row has not ended:
           // - increment the per-row window counter
           // - position the input feature counter at the reuse start column
           // - move the base pointer to the next window horizontally
-          end else if (w_end_fin && !w_end_line_in) begin
-            r_window_in <= r_window_in + 1;
+          if (w_end_fin && !w_end_line_in && !w_end_channel_in) begin
+            r_window_in_horizontal <= r_window_in_horizontal + 1;
+            r_window_in_channel <= r_window_in_channel + 1;
             // r_count_fin <= 10;
             r_count_fin <= C1_SIZE * (C1_SIZE - A1_SIZE);
             r_addr_fin  <= r_addr_fin + A1_SIZE;
@@ -253,6 +262,22 @@ module Control
             r_feat_in[20] <= r_feat_in[23];
             r_feat_in[21] <= r_feat_in[24];
           end
+          // If the input buffer is full and the row ended:
+          // - reset the per-row window counter
+          // - reset the input feature counter to zero (no horizontal reuse)
+          // - jump vertically to the first address of the window several rows below, with no vertical reuse
+          else if (w_end_fin && w_end_line_in && !w_end_channel_in) begin
+            r_window_in_channel <= r_window_in_channel + 1;
+            r_window_in_horizontal <= 0;
+            r_count_fin <= 0;
+            r_addr_fin  <= r_addr_fin + C1_SIZE + FEAT_INPUT_SIZE * (A1_SIZE - 1);
+          end
+          else if (w_end_fin && w_end_line_in && w_end_channel_in) begin
+            r_window_in_channel <= 0;
+            r_window_in_horizontal <= 0;
+            r_count_fin <= 0;
+            r_addr_fin  <= r_addr_fin + C1_SIZE;
+          end
         end
       endcase
     end
@@ -260,10 +285,18 @@ module Control
 
   // Combinational logic detecting end-of-row for read paths
   always_comb begin
-    if (r_window_in < N_WINDOW - 1)
+    if (r_window_in_horizontal < N_WINDOW - 1)
       w_end_line_in = 1'b0;
     else
       w_end_line_in = 1'b1;
+  end
+
+  // Combinational logic detecting end-of-channel for read paths
+  always_comb begin
+    if (r_window_in_channel < N_WINDOW * N_WINDOW - 1)
+      w_end_channel_in = 1'b0;
+    else
+      w_end_channel_in = 1'b1;
   end
 
 
@@ -380,7 +413,7 @@ module Control
 
   // Combinational logic detecting end-of-row for write paths
   always_comb begin
-    if (r_window_out < N_WINDOW - 1)
+    if (r_window_out_horizontal < N_WINDOW - 1)
       w_end_line_out = 1'b0;
     else
       w_end_line_out = 1'b1;
@@ -388,10 +421,10 @@ module Control
 
   // Combinational logic asserting when the output buffer is empty and all data is written in memory
   always_comb begin
-    if (r_addr_fout > (FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE * N_CHANNEL_OUT - (A1_SIZE + FEAT_OUTPUT_SIZE * (A1_SIZE - 1) + 1)))
-      w_end_channel_out = 1'b1;
-    else
+    if (r_window_out_total < N_WINDOW * N_WINDOW - 1)
       w_end_channel_out = 1'b0;
+    else
+      w_end_channel_out = 1'b1;
   end
 
   // Sequential logic updating the registers tied to the output state machine
@@ -399,7 +432,10 @@ module Control
     if (reset) begin
       r_addr_fout  <= 0;
       r_count_fout <= 0;
-      r_window_out <= 0;
+      r_addr_ch_out <= 0;
+      r_start_channel = 1'b0;
+      r_window_out_total <= 0;
+      r_window_out_horizontal <= 0;
       r_feat_out   <= '{default: '0};
     end else begin
       unique case (current_st_output)
@@ -417,18 +453,29 @@ module Control
           // - reset the window counter
           // - jump vertically to the first address of the next row group without overlap
           if (w_end_fout && w_end_line_out && !w_end_channel_out) begin
-            r_window_out <= 0;
+          // if (w_end_fout && w_end_line_out) begin
+            r_window_out_total <= r_window_out_total + 1;
+            r_window_out_horizontal <= 0;
             r_addr_fout  <= r_addr_fout + A1_SIZE + FEAT_OUTPUT_SIZE * (A1_SIZE - 1);
+            r_start_channel = 1'b0;
           // When the output window is full but the row continues:
           // - increment the per-row window counter
           // - move horizontally to the next window
           end else if (w_end_fout && !w_end_line_out && !w_end_channel_out) begin
-            r_window_out <= r_window_out + 1;
+          // end else if (w_end_fout && !w_end_line_out) begin
+            r_window_out_total <= r_window_out_total + 1;
+            r_window_out_horizontal <= r_window_out_horizontal + 1;
             r_addr_fout  <= r_addr_fout + A1_SIZE;
+            r_start_channel = 1'b0;
           end else if (w_end_fout && w_end_line_out && w_end_channel_out) begin
-            r_window_out <= 0;
-            r_addr_fout  <= 0;
-          end
+          // end else if (w_end_fout && w_end_line_out) begin
+            r_window_out_total <= r_window_out_total + 1;
+            r_window_out_horizontal <= 0;
+            r_addr_fout <= 0;
+            r_addr_ch_out <= 0;
+            r_start_channel = 1'b1;
+          end else
+            r_start_channel = 1'b0;
         end
       endcase
     end
@@ -455,6 +502,7 @@ module Control
   // Combinational logic driving output ports from internal registers
   always_comb begin
     p_write_data = r_feat_out[r_count_fout];
+    p_start_channel = r_start_channel;
   end
 
 endmodule
