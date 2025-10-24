@@ -89,6 +89,8 @@ module Control
   logic [$clog2(N_CHANNEL_OUT * FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE)-1:0] r_addr_ch_out;
   // Total window counter for the write path
   logic [$clog2(N_WINDOW * N_WINDOW * N_CHANNEL_OUT)-1:0] r_window_out_total;
+  // Total window counter for a channel
+  logic [$clog2(N_WINDOW * N_WINDOW)-1:0] r_window_out_channel;
   // Row-aligned window counter for write-side address updates
   logic [$clog2(N_WINDOW):0] r_window_out_horizontal;
 
@@ -421,7 +423,7 @@ module Control
 
   // Combinational logic asserting when the output buffer is empty and all data is written in memory
   always_comb begin
-    if (r_window_out_total < N_WINDOW * N_WINDOW - 1)
+    if (r_window_out_channel < N_WINDOW * N_WINDOW - 1)
       w_end_channel_out = 1'b0;
     else
       w_end_channel_out = 1'b1;
@@ -432,9 +434,9 @@ module Control
     if (reset) begin
       r_addr_fout  <= 0;
       r_count_fout <= 0;
-      r_addr_ch_out <= 0;
       r_start_channel = 1'b0;
       r_window_out_total <= 0;
+      r_window_out_channel <= 0;
       r_window_out_horizontal <= 0;
       r_feat_out   <= '{default: '0};
     end else begin
@@ -447,35 +449,38 @@ module Control
         end
         // Write output data to memory
         FEAT_OUTPUT: begin
-          // Each cycle increments the output counter to select which register value gets written
-          r_count_fout <= r_count_fout + 1;
-          // When the output window is stored and the row ended:
-          // - reset the window counter
-          // - jump vertically to the first address of the next row group without overlap
-          if (w_end_fout && w_end_line_out && !w_end_channel_out) begin
-          // if (w_end_fout && w_end_line_out) begin
-            r_window_out_total <= r_window_out_total + 1;
-            r_window_out_horizontal <= 0;
-            r_addr_fout  <= r_addr_fout + A1_SIZE + FEAT_OUTPUT_SIZE * (A1_SIZE - 1);
+          if (w_end_fout && w_end_line_out && w_end_channel_out)
+            r_start_channel = 1'b1;
+          else
             r_start_channel = 1'b0;
+
+            // Each cycle increments the output counter to select which register value gets written
+          r_count_fout <= r_count_fout + 1;
+          if(w_end_fout)
+            r_window_out_total <= r_window_out_total + 1;
+
           // When the output window is full but the row continues:
           // - increment the per-row window counter
           // - move horizontally to the next window
-          end else if (w_end_fout && !w_end_line_out && !w_end_channel_out) begin
-          // end else if (w_end_fout && !w_end_line_out) begin
-            r_window_out_total <= r_window_out_total + 1;
+          if (w_end_fout && !w_end_line_out && !w_end_channel_out) begin
+            r_window_out_channel <= r_window_out_channel + 1;
             r_window_out_horizontal <= r_window_out_horizontal + 1;
             r_addr_fout  <= r_addr_fout + A1_SIZE;
-            r_start_channel = 1'b0;
-          end else if (w_end_fout && w_end_line_out && w_end_channel_out) begin
-          // end else if (w_end_fout && w_end_line_out) begin
-            r_window_out_total <= r_window_out_total + 1;
+          end
+          // When the output window is stored and the row ended:
+          // - reset the window counter
+          // - jump vertically to the first address of the next row group without overlap
+          else if (w_end_fout && w_end_line_out && !w_end_channel_out) begin
+            r_window_out_channel <= r_window_out_channel + 1;
+            r_window_out_horizontal <= 0;
+            r_addr_fout  <= r_addr_fout + A1_SIZE + FEAT_OUTPUT_SIZE * (A1_SIZE - 1);
+          end
+          else if (w_end_fout && w_end_line_out && w_end_channel_out) begin
+            r_window_out_channel <= 0;
             r_window_out_horizontal <= 0;
             r_addr_fout <= 0;
-            r_addr_ch_out <= 0;
-            r_start_channel = 1'b1;
-          end else
-            r_start_channel = 1'b0;
+            r_addr_fout  <= r_addr_fout + A1_SIZE - (FEAT_OUTPUT_SIZE + FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
+          end
         end
       endcase
     end
