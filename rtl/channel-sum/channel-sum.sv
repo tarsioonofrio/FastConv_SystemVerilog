@@ -44,17 +44,16 @@ module ChannelSum
 
   typedef enum {
     IDLE_READ,
-    SUM,
     READ
-  } state_type;
+  } state_read_type;
 
-  // typedef enum {
-  //   IDLE_OUTPUT,
-  //   SUM,
-  //   OUTPUT
-  // } state_output_type;
+  typedef enum {
+    IDLE_OUTPUT,
+    OUTPUT
+  } state_output_type;
 
-  state_type current_st, next_st;
+  state_read_type current_st_read, next_st_read;
+  state_output_type current_st_output, next_st_output;
 
   // Input feature read counter
   logic [$clog2(A1_SIZE*A2_SIZE)-1:0] r_count_fout;
@@ -84,18 +83,18 @@ module ChannelSum
 
   logic r_end;
   // Register bank for input data from convolution
-  type_output r_data;
+  type_output r_feat_data;
   // Register bank for read data
-  type_output r_input;
+  type_output r_read_data;
 
   // Sequential logic that advances the state machines
   always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
-      current_st <= IDLE_READ;
-      // current_st_output <= IDLE_OUTPUT;
+      current_st_read <= IDLE_READ;
+      current_st_output <= IDLE_OUTPUT;
     end else begin
-      current_st <= next_st;
-      // current_st_output <= next_st_output;
+      current_st_read <= next_st_read;
+      current_st_output <= next_st_output;
     end
   end
 
@@ -103,26 +102,26 @@ module ChannelSum
 
   // // Combinational logic for the input (read) state machine
   always_comb begin
-    next_st = current_st;
-    unique case (current_st)
+    next_st_read = current_st_read;
+    unique case (current_st_read)
       // IDLE_CONTROL
       // Waits for start to begin reading weights and then input data; bias handling is currently disabled
       IDLE_READ:
         if (p_start)
-          next_st = READ;
+          next_st_read = READ;
       // Waits for the weight fetch covering the active input/output channel pair before moving on to input data
       READ:
-        if (w_end_fout)
-          next_st = SUM;
-      SUM:
         if (p_sum)
-          next_st = READ;
+          next_st_read = IDLE_READ;
+      // SUM:
+      //   if (p_sum)
+      //     next_st_read = READ;
     endcase
   end
 
   // If the current state is FEAT_OUTPUT, enable write
   always_comb begin
-    if (current_st == READ)
+    if (current_st_read == READ)
       p_read_en = 1'b1;
     else
       p_read_en = 1'b0;
@@ -179,21 +178,21 @@ module ChannelSum
       r_window_out_total <= 0;
       r_window_out_channel <= 0;
       r_window_out_horizontal <= 0;
-      r_data   <= '{default: '0};
+      r_feat_data   <= '{default: '0};
     end else begin
-      unique case (current_st)
+      unique case (current_st_read)
         default: begin end
         IDLE_READ: begin
           r_end <= 0;
           r_count_fout <= 0;
-          r_data   <= '{default: '0};
+          r_feat_data   <= '{default: '0};
         end
         // Each cycle advances the weight address and stores the returned value in-order
         READ: begin
           r_end <= 0;
           if (p_read_valid) begin
             r_count_fout         <= r_count_fout + 1;
-            r_data[r_count_fout] <= p_read_data;
+            r_read_data[r_count_fout] <= p_read_data;
           end
           // Each cycle increments the output counter to select which register value gets written
           r_count_fout <= r_count_fout + 1;
@@ -221,41 +220,49 @@ module ChannelSum
             r_addr_fout  <= r_addr_fout + A1_SIZE - (FEAT_OUTPUT_SIZE + FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
           end
         end
-        SUM: begin
-          if (p_sum) begin
-            r_end <= 1;
-            for (int i = 0; i < A1_SIZE * A2_SIZE; i++)
-              r_data[i] <= r_data[i] + p_input[i];
-          end
-        end
       endcase
     end
+  end
+
+  // // Combinational logic driving output ports from internal registers
+  always_comb begin
+    p_output     = r_feat_data;
+    p_end        = r_end;
   end
 
   // // Output state machine block
 
   // // Combinational logic for the input (read) state machine
-  // always_comb begin
-  //   next_st_output = current_st_output;
-  //   unique case (current_st_output)
-  //     // IDLE_CONTROL
-  //     // Waits for start to begin reading weights and then input data; bias handling is currently disabled
-  //     IDLE_READ:
-  //       if (p_start)
-  //         next_st_output = SUM;
-  //     SUM:
-  //       next_st_output = OUTPUT;
-  //     // Waits for the weight fetch covering the active input/output channel pair before moving on to input data
-  //     OUTPUT:
-  //       next_st_output = IDLE_READ;
-  //   endcase
-  // end
-
-
-  // // Combinational logic driving output ports from internal registers
   always_comb begin
-    p_output     = r_data;
-    p_end        = r_end;
+    next_st_output = current_st_output;
+    unique case (current_st_output)
+      // IDLE_CONTROL
+      // Waits for start to begin reading weights and then input data; bias handling is currently disabled
+      IDLE_OUTPUT:
+        if (p_sum)
+          next_st_output = OUTPUT;
+      // Waits for the weight fetch covering the active input/output channel pair before moving on to input data
+      OUTPUT:
+        next_st_output = IDLE_OUTPUT;
+    endcase
+  end
+
+  always_ff @(posedge clk) begin
+    if (reset) begin
+      r_feat_data   <= '{default: '0};
+    end else begin
+      unique case (current_st_output)
+      IDLE_OUTPUT: begin
+        if (p_sum)
+          for (int i = 0; i < A1_SIZE * A2_SIZE; i++)
+            r_feat_data[i] <= p_input[i];
+      end
+      OUTPUT: begin
+        for (int i = 0; i < A1_SIZE * A2_SIZE; i++)
+          r_feat_data[i] <= r_feat_data[i] + r_read_data[i];
+        end
+      endcase
+    end
   end
 
 endmodule
