@@ -69,18 +69,12 @@ module ChannelSum
   // Row-aligned window counter for write-side address updates
   logic [$clog2(N_WINDOW):0] r_window_out_horizontal;
 
-  // Flag indicating end-of-row for read memory
-  logic w_end_line_in;
   // Flag indicating end-of-row for write memory
   logic w_end_line_out;
   // Flag indicating the input window is ready for convolution
-  logic w_end_fin;
-  // Flag indicating the output window finished writing
   logic w_end_fout;
   // Flag indicating the output channel finished writing
   logic w_end_channel_out;
-  // Current input feature address
-  logic[NADDR-1:0] w_addr;
 
   logic r_end;
   // Register bank for input data from convolution
