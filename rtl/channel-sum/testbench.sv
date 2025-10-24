@@ -225,7 +225,7 @@ module tb;
       p_output_control = p_output_conv;
     end else if (current_st == START) begin
       w_chip_en = w_read_en_channel;
-      w_write_en = 0;
+      // w_write_en = 0;
       w_write_addr = w_read_addr_channel;
 
       p_start_channel = 1;
@@ -236,7 +236,7 @@ module tb;
       p_output_control = p_output_channel;
     end else begin
       w_chip_en = w_read_en_channel;
-      w_write_en = 0;
+      // w_write_en = 0;
       w_write_addr = w_read_addr_channel;
 
       p_start_channel = 1;
