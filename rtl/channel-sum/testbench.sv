@@ -33,7 +33,7 @@ module tb;
   logic[NADDR-1:0] w_read_addr;
   logic_vector w_read_data_in;
   logic_vector w_read_data_out;
-
+  
   logic p_sum_channel;
   logic w_start_channel;
   logic w_write_chip;
@@ -267,6 +267,7 @@ module tb;
     for (int i = 0; i < FOUT1_SIZE; i++) begin
       @(posedge clk);
       wait(p_end_channel);
+      @(posedge clk);
       for (int j = 0; j < FOUT2_SIZE; j++) begin
         @(posedge clk);
         wait(w_write_en);
