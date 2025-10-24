@@ -478,7 +478,6 @@ module Control
           else if (w_end_fout && w_end_line_out && w_end_channel_out) begin
             r_window_out_channel <= 0;
             r_window_out_horizontal <= 0;
-            r_addr_fout <= 0;
             r_addr_fout  <= r_addr_fout + A1_SIZE - (FEAT_OUTPUT_SIZE + FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
           end
         end
