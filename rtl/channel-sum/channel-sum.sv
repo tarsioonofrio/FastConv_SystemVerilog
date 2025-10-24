@@ -23,6 +23,7 @@ module ChannelSum
 
     input  logic p_start, // p_conv_end from conv
     output logic p_end, // p_start from control
+    input  logic p_sum,
 
     input  type_output p_input, // from convolution
     output type_output p_output, // to control
@@ -114,7 +115,8 @@ module ChannelSum
         if (w_end_fout)
           next_st_read = SUM;
       SUM:
-        next_st_read = IDLE_READ;
+        if (p_sum)
+          next_st_read = READ;
     endcase
   end
 
@@ -217,8 +219,10 @@ module ChannelSum
           end
         end
         SUM: begin
-          for (int i = 0; i < A1_SIZE * A2_SIZE; i++)
-            r_data[i] <= r_data[i] + p_input[i];
+          if (p_sum) begin
+            for (int i = 0; i < A1_SIZE * A2_SIZE; i++)
+              r_data[i] <= r_data[i] + p_input[i];
+          end
         end
       endcase
     end

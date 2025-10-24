@@ -34,6 +34,7 @@ module tb;
   logic_vector w_read_data_in;
   logic_vector w_read_data_out;
 
+  logic p_sum_channel;
   logic w_start_channel;
   logic w_write_chip;
   logic w_write_valid;
@@ -56,6 +57,13 @@ module tb;
   initial clk = 0;
   always #0.5 clk = ~clk;
 
+  typedef enum {
+    IDLE,
+    START,
+    RUN
+  } state_type;
+
+  state_type current_st, next_st;
 
   // DUT instantiation
   ChannelSum #(
@@ -76,6 +84,7 @@ module tb;
 
     .p_start(p_start_channel),
     .p_end(p_end_channel),
+    .p_sum(p_sum_channel),
     .p_input(p_input_channel),
     .p_output(p_output_channel),
 
@@ -172,24 +181,67 @@ module tb;
   );
 
 
+  // Sequential logic that advances the state machines
+  always_ff @(posedge clk or posedge reset) begin
+    if (reset) begin
+      current_st  <= IDLE;
+    end else begin
+      current_st  <= next_st;
+    end
+  end
+
+
+  // Combinational logic for the output (write) state machine
+  always_comb begin
+    next_st = current_st;
+    unique case (current_st)
+      // Waits for the convolution-complete signal
+      IDLE: begin
+        if (w_start_channel)
+          next_st = START;
+      end
+      START:
+        next_st = RUN;
+      // Waits for the output data write to memory to complete and then returns to idle
+      RUN: begin
+        // if (w_end_fout)
+        //   next_st = IDLE;
+      end
+    endcase
+  end
+
+
   always_comb begin
     // Bias + kernel + first feature map
-    if (w_start_channel == 0) begin
+    if (current_st == IDLE) begin
       w_chip_en = w_write_en;
       w_write_addr = w_write_addr_control;
 
       p_start_channel = 0;
       p_conv_end_control = p_conv_end;
+      p_sum_channel = 0;
 
       p_input_channel = '{default: '0};
       p_output_control = p_output_conv;
+    end else if (current_st == START) begin
+      w_chip_en = w_read_en_channel;
+      w_write_en = 0;
+      w_write_addr = w_read_addr_channel;
+
+      p_start_channel = 1;
+      p_conv_end_control = p_end_channel;
+      p_sum_channel = 0;
+
+      p_input_channel = p_output_conv;
+      p_output_control = p_output_channel;
     end else begin
       w_chip_en = w_read_en_channel;
       w_write_en = 0;
       w_write_addr = w_read_addr_channel;
 
-      p_start_channel = p_conv_end;
+      p_start_channel = 1;
       p_conv_end_control = p_end_channel;
+      p_sum_channel = p_conv_end;
 
       p_input_channel = p_output_conv;
       p_output_control = p_output_channel;
@@ -213,12 +265,9 @@ module tb;
     $display("=== Start processing ===");
 
     for (int i = 0; i < FOUT1_SIZE; i++) begin
-      @(posedge clk);
-      wait(p_conv_end);
-      @(posedge clk);
       for (int j = 0; j < FOUT2_SIZE; j++) begin
         @(posedge clk);
-        wait(w_write_en);
+        wait(p_end_channel);
         if ($signed(const_feat_out_batch[i][j]) != $signed(w_write_data_in)) begin
           $display("Time %0t | const_feat_out[%0d][%0d] = %0d | Output = %0d", $time, i, j, const_feat_out_batch[i][j], w_write_data_in);
           $display("=== ERROR - End simulation ====");
@@ -227,6 +276,21 @@ module tb;
     end
 
     wait(p_end);
+
+    // for (int i = 0; i < FOUT1_SIZE ; i++) begin
+    //   for (int j = 0; j < FOUT2_SIZE; j++) begin
+    //     @(posedge clk);
+    //     w_chip_en = 1;
+    //     w_write_en = 1;
+    //     w_write_addr = i * FOUT1_SIZE + j;
+    //     wait(w_write_valid);
+    //     if ($signed(const_feat_out[i][j]) != $signed(w_write_data_out)) begin
+    //       $display("Time %0t | const_feat_out[%0d][%0d] = %0d | Output = %0d", $time, i, j, const_feat_out[i][j], w_write_data_out);
+    //       $display("=== ERROR - End simulation ====");
+    //     end
+    //   end
+    // end
+
     $display("=== No errors - End simulation ===");
     $finish;
   end
