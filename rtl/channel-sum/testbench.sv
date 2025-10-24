@@ -265,9 +265,11 @@ module tb;
     $display("=== Start processing ===");
 
     for (int i = 0; i < FOUT1_SIZE; i++) begin
+      @(posedge clk);
+      wait(p_end_channel);
       for (int j = 0; j < FOUT2_SIZE; j++) begin
         @(posedge clk);
-        wait(p_end_channel);
+        wait(w_write_en);
         if ($signed(const_feat_out_batch[i][j]) != $signed(w_write_data_in)) begin
           $display("Time %0t | const_feat_out[%0d][%0d] = %0d | Output = %0d", $time, i, j, const_feat_out_batch[i][j], w_write_data_in);
           $display("=== ERROR - End simulation ====");
@@ -276,7 +278,7 @@ module tb;
     end
 
     wait(p_end);
-
+    
     // for (int i = 0; i < FOUT1_SIZE ; i++) begin
     //   for (int j = 0; j < FOUT2_SIZE; j++) begin
     //     @(posedge clk);
