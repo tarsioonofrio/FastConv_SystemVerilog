@@ -46,7 +46,7 @@ module ChannelSum
     IDLE_READ,
     SUM,
     READ
-  } state_read_type;
+  } state_type;
 
   // typedef enum {
   //   IDLE_OUTPUT,
@@ -54,8 +54,7 @@ module ChannelSum
   //   OUTPUT
   // } state_output_type;
 
-  state_read_type current_st_read, next_st_read;
-  // state_output_type current_st_output, next_st_output;
+  state_type current_st, next_st;
 
   // Input feature read counter
   logic [$clog2(A1_SIZE*A2_SIZE)-1:0] r_count_fout;
@@ -83,6 +82,7 @@ module ChannelSum
   // Current input feature address
   logic[NADDR-1:0] w_addr;
 
+  logic r_end;
   // Register bank for input data from convolution
   type_output r_data;
   // Register bank for read data
@@ -91,10 +91,10 @@ module ChannelSum
   // Sequential logic that advances the state machines
   always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
-      current_st_read <= IDLE_READ;
+      current_st <= IDLE_READ;
       // current_st_output <= IDLE_OUTPUT;
     end else begin
-      current_st_read <= next_st_read;
+      current_st <= next_st;
       // current_st_output <= next_st_output;
     end
   end
@@ -103,26 +103,26 @@ module ChannelSum
 
   // // Combinational logic for the input (read) state machine
   always_comb begin
-    next_st_read = current_st_read;
-    unique case (current_st_read)
+    next_st = current_st;
+    unique case (current_st)
       // IDLE_CONTROL
       // Waits for start to begin reading weights and then input data; bias handling is currently disabled
       IDLE_READ:
         if (p_start)
-          next_st_read = READ;
+          next_st = READ;
       // Waits for the weight fetch covering the active input/output channel pair before moving on to input data
       READ:
         if (w_end_fout)
-          next_st_read = SUM;
+          next_st = SUM;
       SUM:
         if (p_sum)
-          next_st_read = READ;
+          next_st = READ;
     endcase
   end
 
   // If the current state is FEAT_OUTPUT, enable write
   always_comb begin
-    if (current_st_read == READ)
+    if (current_st == READ)
       p_read_en = 1'b1;
     else
       p_read_en = 1'b0;
@@ -173,6 +173,7 @@ module ChannelSum
   // Sequential logic updating the registers tied to the input state machine
   always_ff @(posedge clk) begin
     if (reset) begin
+      r_end <= 0;
       r_addr_fout  <= 0;
       r_count_fout <= 0;
       r_window_out_total <= 0;
@@ -180,14 +181,16 @@ module ChannelSum
       r_window_out_horizontal <= 0;
       r_data   <= '{default: '0};
     end else begin
-      unique case (current_st_read)
+      unique case (current_st)
         default: begin end
         IDLE_READ: begin
+          r_end <= 0;
           r_count_fout <= 0;
           r_data   <= '{default: '0};
         end
         // Each cycle advances the weight address and stores the returned value in-order
         READ: begin
+          r_end <= 0;
           if (p_read_valid) begin
             r_count_fout         <= r_count_fout + 1;
             r_data[r_count_fout] <= p_read_data;
@@ -220,6 +223,7 @@ module ChannelSum
         end
         SUM: begin
           if (p_sum) begin
+            r_end <= 1;
             for (int i = 0; i < A1_SIZE * A2_SIZE; i++)
               r_data[i] <= r_data[i] + p_input[i];
           end
@@ -251,7 +255,7 @@ module ChannelSum
   // // Combinational logic driving output ports from internal registers
   always_comb begin
     p_output     = r_data;
-    p_end        = w_end_fout;
+    p_end        = r_end;
   end
 
 endmodule
