@@ -10,30 +10,30 @@ module tb;
   logic clk;
   logic reset;
 
-  logic p_start;
-  logic p_end;
+  logic w_start;
+  logic w_end;
 
-  logic p_conv_start;
-  logic p_conv_idle;
-  logic p_conv_end;
+  logic w_conv_start;
+  logic w_conv_idle;
+  logic w_conv_end;
 
-  type_input p_input;
-  type_weight p_weight;
-  type_output p_output;
+  type_input w_conv_input;
+  type_weight w_conv_weight;
+  type_output w_conv_output;
 
-  logic w_read_en;
-  logic w_read_wr;
-  logic w_read_valid;
-  logic[NADDR-1:0] w_read_addr;
-  logic_vector w_read_in;
-  logic_vector w_read_data;
+  logic w_input_en;
+  logic w_input_wr;
+  logic w_input_valid;
+  logic[NADDR-1:0] w_input_addr;
+  logic_vector w_input_in;
+  logic_vector w_input_data;
 
-  logic w_write_chip;
-  logic w_write_en;
-  logic w_write_valid;
-  logic[NADDR-1:0] w_write_addr;
-  logic_vector w_write_data;
-  logic_vector w_write_out;
+  logic w_output_chip;
+  logic w_output_en;
+  logic w_output_valid;
+  logic[NADDR-1:0] w_output_addr;
+  logic_vector w_output_data;
+  logic_vector w_output_out;
 
 
   int count_fout = 0;
@@ -59,23 +59,25 @@ module tb;
     .clk(clk),
     .reset(reset),
 
-    .p_start(p_start),
-    .p_end(p_end),
-    .p_conv_start(p_conv_start),
-    .p_conv_idle(p_conv_idle),
-    .p_conv_end(p_conv_end),
-    .p_input(p_input),
-    .p_weight(p_weight),
-    .p_output(p_output),
+    .p_start(w_start),
+    .p_end(w_end),
+    
+    .p_conv_start(w_conv_start),
+    .p_conv_idle(w_conv_idle),
+    .p_conv_end(w_conv_end),
+    
+    .p_conv_input(w_conv_input),
+    .p_conv_weight(w_conv_weight),
+    .p_conv_output(w_conv_output),
 
-    .p_read_en(w_read_en),
-    .p_read_addr(w_read_addr),
-    .p_read_valid(w_read_valid),
-    .p_read_data(w_read_data),
+    .p_input_en(w_input_en),
+    .p_input_addr(w_input_addr),
+    .p_input_valid(w_input_valid),
+    .p_input_data(w_input_data),
 
-    .p_write_en(w_write_en),
-    .p_write_addr(w_write_addr),
-    .p_write_data(w_write_data)
+    .p_output_en(w_output_en),
+    .p_output_addr(w_output_addr),
+    .p_output_data(w_output_data)
   );
 
   Memory #(
@@ -86,12 +88,12 @@ module tb;
   ) memory_read(
     .clk(clk),
     .reset(reset),
-    .chip_en(w_read_en),
-    .wr_en(w_read_wr),
-    .address(w_read_addr),
-    .data_in(w_read_in),
-    .data_out(w_read_data),
-    .data_valid(w_read_valid)
+    .chip_en(w_input_en),
+    .wr_en(w_input_wr),
+    .address(w_input_addr),
+    .data_in(w_input_in),
+    .data_out(w_input_data),
+    .data_valid(w_input_valid)
   );
 
   Memory #(
@@ -102,12 +104,12 @@ module tb;
   ) memory_write(
     .clk(clk),
     .reset(reset),
-    .chip_en(w_write_en),
-    .wr_en(w_write_en),
-    .address(w_write_addr),
-    .data_in(w_write_data),
-    .data_out(w_write_out),
-    .data_valid(w_write_valid)
+    .chip_en(w_output_en),
+    .wr_en(w_output_en),
+    .address(w_output_addr),
+    .data_in(w_output_data),
+    .data_out(w_output_out),
+    .data_valid(w_output_valid)
   );
 
   Conv #(
@@ -117,12 +119,12 @@ module tb;
     .clk(clk),
     .reset(reset),
 
-    .p_start(p_conv_start),
-    .p_end(p_conv_end),
-    .p_idle(p_conv_idle),
-    .p_input(p_input),
-    .p_weight(p_weight),
-    .p_output(p_output)
+    .p_start(w_conv_start),
+    .p_end(w_conv_end),
+    .p_idle(w_conv_idle),
+    .p_input(w_conv_input),
+    .p_weight(w_conv_weight),
+    .p_output(w_conv_output)
   );
 
   // Inicialização dos sinais e reset
@@ -131,31 +133,31 @@ module tb;
     $dumpvars(0, tb);
 
     reset = 1;
-    p_start = 0;
+    w_start = 0;
     @(posedge clk);
     reset = 0;
-    p_start = 1;
+    w_start = 1;
     @(posedge clk);
-    p_start = 0;
+    w_start = 0;
 
     // Start processamento
     $display("=== Start processing ===");
 
     for (int i = 0; i < FOUT1_SIZE; i++) begin
       @(posedge clk);
-      wait(p_conv_end);
+      wait(w_conv_end);
       @(posedge clk);
       for (int j = 0; j < FOUT2_SIZE; j++) begin
         @(posedge clk);
-        wait(w_write_en);
-        if ($signed(const_feat_out_batch[i][j]) != $signed(w_write_data)) begin
-          $display("Time %0t | const_feat_out[%0d][%0d] = %0d | Output = %0d", $time, i, j, const_feat_out_batch[i][j], w_write_data);
+        wait(w_output_en);
+        if ($signed(const_feat_out_batch[i][j]) != $signed(w_output_data)) begin
+          $display("Time %0t | const_feat_out[%0d][%0d] = %0d | Output = %0d", $time, i, j, const_feat_out_batch[i][j], w_output_data);
           $display("=== ERROR - End simulation ====");
         end
       end
     end
 
-    wait(p_end);
+    wait(w_end);
     $display("=== No errors - End simulation ===");
     $finish;
   end

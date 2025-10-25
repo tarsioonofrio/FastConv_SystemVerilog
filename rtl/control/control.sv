@@ -23,23 +23,25 @@ module Control
 
     input  logic p_start,
     output logic p_end,
+    
     output logic p_conv_start,
     input  logic p_conv_idle,
     input  logic p_conv_end,
+    
     output logic p_start_channel,
 
-    output type_input  p_input,
-    output type_weight p_weight,
-    input  type_output p_output,
+    output type_input  p_conv_input,
+    output type_weight p_conv_weight,
+    input  type_output p_conv_output,
 
-    output logic p_read_en,
-    output logic[NADDR-1:0] p_read_addr,
-    input  logic_vector p_read_data,
-    input  logic p_read_valid,
+    output logic p_input_en,
+    output logic[NADDR-1:0] p_input_addr,
+    input  logic_vector p_input_data,
+    input  logic p_input_valid,
 
-    output logic p_write_en,
-    output logic[NADDR-1:0] p_write_addr,
-    output logic_vector p_write_data
+    output logic p_output_en,
+    output logic[NADDR-1:0] p_output_addr,
+    output logic_vector p_output_data
 );
 
   timeunit 1ns; timeprecision 1ps;
@@ -215,19 +217,19 @@ module Control
         WEIGHT: begin
           r_read_en   <= 1'b1;
           r_count_fin <= 0;
-          if (p_read_valid) begin
+          if (p_input_valid) begin
             r_addr_wh            <= r_addr_wh + 1;
             r_count_wh           <= r_count_wh + 1;
-            r_weight[r_count_wh] <= p_read_data;
+            r_weight[r_count_wh] <= p_input_data;
           end
         end
         // Each cycle advances the input address and stores the returned value in the indexed slot
         FEAT_INPUT: begin
           r_read_en  <= 1'b1;
           r_count_wh <= 0;
-          if (p_read_valid) begin
+          if (p_input_valid) begin
             r_count_fin                     <= r_count_fin + 1;
-            r_feat_in[c_index[r_count_fin]] <= p_read_data;
+            r_feat_in[c_index[r_count_fin]] <= p_input_data;
           end
 
           // When the input buffer is full, increment the total window counter
@@ -304,8 +306,8 @@ module Control
 
   // Combinational logic driving output ports from internal registers
   always_comb begin
-    p_input      = r_feat_in;
-    p_weight     = r_weight;
+    p_conv_input      = r_feat_in;
+    p_conv_weight     = r_weight;
     p_end        = (current_st_input == END_CONTROL) ? 1'b1 : 1'b0;
     p_conv_start = w_end_fin;
   end
@@ -359,20 +361,20 @@ module Control
   always_comb begin
     unique case (current_st_input)
       BIAS: begin
-        p_read_addr = r_addr_bias;
-        p_read_en = 1'b0;
+        p_input_addr = r_addr_bias;
+        p_input_en = 1'b0;
       end
       WEIGHT: begin
-        p_read_addr = r_addr_wh;
-        p_read_en = r_read_en;
+        p_input_addr = r_addr_wh;
+        p_input_en = r_read_en;
       end
       FEAT_INPUT: begin
-        p_read_addr = w_addr_fin;
-        p_read_en = r_read_en;
+        p_input_addr = w_addr_fin;
+        p_input_en = r_read_en;
       end
       default: begin
-        p_read_addr = 0;
-        p_read_en = 1'b0;
+        p_input_addr = 0;
+        p_input_en = 1'b0;
       end
     endcase
   end
@@ -400,9 +402,9 @@ module Control
   // If the current state is FEAT_OUTPUT, enable write
   always_comb begin
     if (current_st_output == FEAT_OUTPUT)
-      p_write_en = 1'b1;
+      p_output_en = 1'b1;
     else
-      p_write_en = 1'b0;
+      p_output_en = 1'b0;
   end
 
   // Combinational logic asserting when the output buffer is empty and all data is written in memory
@@ -445,7 +447,7 @@ module Control
         IDLE_OUTPUT: begin
           r_count_fout <= 0;
           if (p_conv_end)
-            r_feat_out <= p_output;
+            r_feat_out <= p_conv_output;
         end
         // Write output data to memory
         FEAT_OUTPUT: begin
@@ -489,23 +491,23 @@ module Control
   // Combinational logic computing the write address from the output counter
   always_comb begin
     unique case (r_count_fout)
-      default: p_write_addr = r_addr_fout + 0;
-      1: p_write_addr = r_addr_fout + 1;
-      2: p_write_addr = r_addr_fout + 2;
+      default: p_output_addr = r_addr_fout + 0;
+      1: p_output_addr = r_addr_fout + 1;
+      2: p_output_addr = r_addr_fout + 2;
 
-      3: p_write_addr = r_addr_fout + FEAT_OUTPUT_SIZE + 0;
-      4: p_write_addr = r_addr_fout + FEAT_OUTPUT_SIZE + 1;
-      5: p_write_addr = r_addr_fout + FEAT_OUTPUT_SIZE + 2;
+      3: p_output_addr = r_addr_fout + FEAT_OUTPUT_SIZE + 0;
+      4: p_output_addr = r_addr_fout + FEAT_OUTPUT_SIZE + 1;
+      5: p_output_addr = r_addr_fout + FEAT_OUTPUT_SIZE + 2;
 
-      6: p_write_addr = r_addr_fout + FEAT_OUTPUT_SIZE * 2 + 0;
-      7: p_write_addr = r_addr_fout + FEAT_OUTPUT_SIZE * 2 + 1;
-      8: p_write_addr = r_addr_fout + FEAT_OUTPUT_SIZE * 2 + 2;
+      6: p_output_addr = r_addr_fout + FEAT_OUTPUT_SIZE * 2 + 0;
+      7: p_output_addr = r_addr_fout + FEAT_OUTPUT_SIZE * 2 + 1;
+      8: p_output_addr = r_addr_fout + FEAT_OUTPUT_SIZE * 2 + 2;
     endcase
   end
 
   // Combinational logic driving output ports from internal registers
   always_comb begin
-    p_write_data = r_feat_out[r_count_fout];
+    p_output_data = r_feat_out[r_count_fout];
     p_start_channel = r_start_channel;
   end
 
