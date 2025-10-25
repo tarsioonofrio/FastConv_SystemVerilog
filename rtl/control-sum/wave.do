@@ -22,7 +22,6 @@ add wave -noupdate -radix decimal /tb/dut/p_output_data_read
 add wave -noupdate -radix decimal /tb/dut/p_output_data_write
 add wave -noupdate /tb/dut/p_output_valid
 add wave -noupdate /tb/dut/current_st_input
-add wave -noupdate /tb/dut/next_st_input
 add wave -noupdate /tb/dut/current_st_output
 add wave -noupdate /tb/dut/next_st_output
 add wave -noupdate -radix unsigned /tb/dut/r_count_wh
@@ -57,7 +56,6 @@ add wave -noupdate -radix decimal /tb/dut/r_weight
 add wave -noupdate -radix decimal /tb/dut/r_feat_out
 add wave -noupdate -divider control-sum
 add wave -noupdate /tb/dut/current_st_sum
-add wave -noupdate /tb/dut/next_st_sum
 add wave -noupdate -radix unsigned /tb/dut/r_count_fout_sum
 add wave -noupdate -radix unsigned /tb/dut/r_addr_fout_sum
 add wave -noupdate -radix unsigned /tb/dut/r_addr_ch_out_sum
@@ -99,7 +97,7 @@ add wave -noupdate -radix decimal /tb/conv/product
 TreeUpdate [SetDefaultTree]
 WaveRestoreCursors {{Cursor 2} {1756500 ps} 1} {{Cursor 3} {1772500 ps} 1} {{Cursor 3} {1738500 ps} 1} {{Cursor 4} {5112314 ps} 0}
 quietly wave cursor active 4
-configure wave -namecolwidth 300
+configure wave -namecolwidth 256
 configure wave -valuecolwidth 100
 configure wave -justifyvalue left
 configure wave -signalnamewidth 0
@@ -113,4 +111,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {0 ps} {5481 ns}
+WaveRestoreZoom {0 ps} {5746896 ps}
