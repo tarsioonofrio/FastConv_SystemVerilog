@@ -41,8 +41,8 @@ module Control
     output logic p_output_en,
     output logic p_output_wr,
     output logic[NADDR-1:0] p_output_addr,
-    output logic_vector p_output_data_read,
-    input  logic_vector p_output_data_write,
+    output  logic_vector p_output_data_write,
+    input logic_vector p_output_data_read,
     input  logic p_output_valid
 );
 
@@ -124,7 +124,7 @@ module Control
   type_output r_feat_out;
 
   // Sequential logic that advances the state machines
-  always_ff @(posedge clk or posedge reset) begin: FSM
+  always_ff @(posedge clk or posedge reset) begin: FSM_BLOCK
     if (reset) begin
       current_st_input  <= IDLE_CONTROL;
       current_st_output <= IDLE_OUTPUT;
@@ -137,7 +137,7 @@ module Control
   // Input state machine block
 
   // Combinational logic for the input (read) state machine
-  always_comb begin: next_st_input
+  always_comb begin: next_st_input_block
     next_st_input = current_st_input;
     unique case (current_st_input)
       // IDLE_CONTROL
@@ -179,7 +179,7 @@ module Control
   end
 
   // Sequential logic updating the registers tied to the input state machine
-  always_ff @(posedge clk) begin: current_st_input
+  always_ff @(posedge clk) begin: current_st_input_block
     if (reset) begin
       r_read_en    <= 1'b0;
       // Bias base address starts at zero
@@ -290,7 +290,7 @@ module Control
   end
 
   // Combinational logic detecting end-of-row for read paths
-  always_comb begin: w_end_line_in
+  always_comb begin: w_end_line_in_block
     if (r_window_in_horizontal < N_WINDOW - 1)
       w_end_line_in = 1'b0;
     else
@@ -298,7 +298,7 @@ module Control
   end
 
   // Combinational logic detecting end-of-channel for read paths
-  always_comb begin: w_end_channel_in
+  always_comb begin: w_end_channel_in_block
     if (r_window_in_channel < N_WINDOW * N_WINDOW - 1)
       w_end_channel_in = 1'b0;
     else
@@ -316,7 +316,7 @@ module Control
 
 
   // Combinational logic asserting when the input buffer is full and convolution can start
-  always_comb begin: w_end_fin
+  always_comb begin: w_end_fin_block
     if ((r_count_fin == (C1_SIZE * C2_SIZE)) && p_conv_idle)
       w_end_fin = 1'b1;
     else
@@ -325,7 +325,7 @@ module Control
 
 
   // Combinational logic computing the input read address from the input counter
-  always_comb begin: w_addr_fin
+  always_comb begin: w_addr_fin_block
     unique case (r_count_fin)
       default: w_addr_fin = r_addr_fin + 0; // 00
       01: w_addr_fin = r_addr_fin + FEAT_INPUT_SIZE + 0; // 05
@@ -385,7 +385,7 @@ module Control
   // Output state machine block
 
   // Combinational logic for the output (write) state machine
-  always_comb begin: next_st_output
+  always_comb begin: next_st_output_block
     next_st_output = current_st_output;
     unique case (current_st_output)
       // Waits for the convolution-complete signal
@@ -413,7 +413,7 @@ module Control
   end
 
   // Combinational logic asserting when the output buffer is empty and all data is written in memory
-  always_comb begin: w_end_fout
+  always_comb begin: w_end_fout_block
     if (r_count_fout == (A1_SIZE * A2_SIZE) - 1)
       w_end_fout = 1'b1;
     else
@@ -421,7 +421,7 @@ module Control
   end
 
   // Combinational logic detecting end-of-row for write paths
-  always_comb begin: w_end_line_out
+  always_comb begin: w_end_line_out_block
     if (r_window_out_horizontal < N_WINDOW - 1)
       w_end_line_out = 1'b0;
     else
@@ -429,7 +429,7 @@ module Control
   end
 
   // Combinational logic asserting when the output buffer is empty and all data is written in memory
-  always_comb begin: w_end_channel_out
+  always_comb begin: w_end_channel_out_block
     if (r_window_out_channel < N_WINDOW * N_WINDOW - 1)
       w_end_channel_out = 1'b0;
     else
@@ -437,7 +437,7 @@ module Control
   end
 
   // Sequential logic updating the registers tied to the output state machine
-  always_ff @(posedge clk) begin: current_st_output
+  always_ff @(posedge clk) begin: current_st_output_block
     if (reset) begin
       r_addr_fout  <= 0;
       r_count_fout <= 0;
@@ -494,7 +494,7 @@ module Control
 
 
   // Combinational logic computing the write address from the output counter
-  always_comb begin: w_output_addr
+  always_comb begin: w_output_addr_block
     unique case (r_count_fout)
       default: w_output_addr = r_addr_fout + 0;
       1: w_output_addr = r_addr_fout + 1;
@@ -511,8 +511,8 @@ module Control
   end
 
   // Combinational logic driving output ports from internal registers
-  always_comb begin: p_output_data_read
-    p_output_data_read = r_feat_out[r_count_fout];
+  always_comb begin: p_output_data_write_block
+    p_output_data_write = r_feat_out[r_count_fout];
     // p_start_channel = r_start_channel;
   end
 
@@ -563,13 +563,13 @@ module Control
   typedef enum {
     IDLE_READ,
     READ,
-    SUM
+    SUM_READ
   } state_type_read;
 
   typedef enum {
     IDLE_CONV,
     STORE,
-    SUM
+    SUM_CONV
   } state_type_conv;
 
   state_type_read current_st_read, next_st_read;
@@ -602,7 +602,7 @@ module Control
   type_output r_input_sum;
 
   // Sequential logic that advances the state machines
-  always_ff @(posedge clk or posedge reset) begin: FSM_SUM
+  always_ff @(posedge clk or posedge reset) begin: FSM_SUM_BLOCK
     if (reset) begin
       current_st_read <= IDLE_READ;
       // current_st_output <= IDLE_OUTPUT;
@@ -615,7 +615,7 @@ module Control
   // Read state machine block
 
   // // Combinational logic for the input (read) state machine
-  always_comb begin: next_st_read
+  always_comb begin: next_st_read_block
     next_st_read = current_st_read;
     unique case (current_st_read)
       // IDLE_CONTROL
@@ -626,8 +626,8 @@ module Control
       // Waits for the weight fetch covering the active input/output channel pair before moving on to input data
       READ:
         if (w_end_fout_sum)
-          next_st_read = SUM;
-      SUM:
+          next_st_read = SUM_READ;
+        SUM_READ:
         // If the current state of the FSM waiting for the convolution output is SUM,
         // then it can advance to the next state, because the conv FSM will also advance
         // if (current_st_conv == SUM)
@@ -636,7 +636,7 @@ module Control
   end
 
   // If the current state is FEAT_OUTPUT, enable write
-  always_comb begin: w_output_en_sum
+  always_comb begin: w_output_en_sum_block
     if (current_st_read == READ)
       w_output_en_sum = 1'b1;
     else
@@ -644,7 +644,7 @@ module Control
   end
 
   // Combinational logic asserting when the output buffer is empty and all data is written in memory
-  always_comb begin: w_end_fout_sum
+  always_comb begin: w_end_fout_sum_block
     if (r_count_fout_sum == (A1_SIZE * A2_SIZE) - 1)
       w_end_fout_sum = 1'b1;
     else
@@ -652,7 +652,7 @@ module Control
   end
 
   // Combinational logic detecting end-of-row for write paths
-  always_comb begin: w_end_line_out_sum
+  always_comb begin: w_end_line_out_sum_block
     if (r_window_out_horizontal_sum < N_WINDOW - 1)
       w_end_line_out_sum = 1'b0;
     else
@@ -660,7 +660,7 @@ module Control
   end
 
   // Combinational logic asserting when the output buffer is empty and all data is written in memory
-  always_comb begin: w_end_channel_out_sum
+  always_comb begin: w_end_channel_out_sum_block
     if (r_window_out_channel_sum < N_WINDOW * N_WINDOW)
       w_end_channel_out_sum = 1'b0;
     else
@@ -669,7 +669,7 @@ module Control
 
 
   // Combinational logic computing the write address from the output counter
-  always_comb begin: w_output_addr_sum
+  always_comb begin: w_output_addr_sum_block
     unique case (r_count_fout_sum)
       default: w_output_addr_sum = r_addr_fout_sum + 0;
       1: w_output_addr_sum = r_addr_fout_sum + 1;
@@ -686,7 +686,7 @@ module Control
   end
 
   // Sequential logic updating the registers tied to the input state machine
-  always_ff @(posedge clk) begin: current_st_read
+  always_ff @(posedge clk) begin: current_st_read_block
     if (reset) begin
       r_end_sum <= 0;
       r_addr_fout_sum  <= 0;
@@ -736,11 +736,11 @@ module Control
             r_addr_fout_sum  <= r_addr_fout_sum + A1_SIZE - (FEAT_OUTPUT_SIZE + FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
           end
         end
-        SUM: begin
+        SUM_READ: begin
           if (p_conv_end) begin
             r_end_sum <= 1;
-            for (int i = 0; i < A1_SIZE * A2_SIZE; i++)
-              r_data_sum[i] <= r_data_sum[i] + p_conv_input[i];
+            // for (int i = 0; i < A1_SIZE * A2_SIZE; i++)
+            //   r_data_sum[i] <= r_data_sum[i] + p_conv_input[i];
           end
         end
       endcase
