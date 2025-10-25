@@ -40,6 +40,7 @@ module Control
     input  logic p_input_valid,
 
     output logic p_output_en,
+    output logic p_output_wr,
     output logic[NADDR-1:0] p_output_addr,
     output logic_vector p_output_data_read,
     input  logic_vector p_output_data_write,
@@ -403,10 +404,13 @@ module Control
 
   // If the current state is FEAT_OUTPUT, enable write
   always_comb begin
-    if (current_st_output == FEAT_OUTPUT)
+    if (current_st_output == FEAT_OUTPUT) begin
       p_output_en = 1'b1;
-    else
+      p_output_wr = 1'b1;
+    end else begin
       p_output_en = 1'b0;
+      p_output_wr = 1'b0;
+    end
   end
 
   // Combinational logic asserting when the output buffer is empty and all data is written in memory
@@ -512,7 +516,8 @@ module Control
     p_output_data_read = r_feat_out[r_count_fout];
     // p_start_channel = r_start_channel;
   end
-endmodule
+
+// endmodule
 
 
 // module ControlSum
@@ -532,8 +537,8 @@ endmodule
 //     parameter int FEAT_OUTPUT_SIZE = 30,
 //     parameter int LAST_WINDOW      = 0
 // ) (
-//     input  logic clk_sum,
-//     input  logic reset_sum,
+//     input  logic clk,
+//     input  logic reset,
 
 //     input  logic p_start_sum, // p_conv_end from conv
 //     output logic p_end_sum, // p_start_sum from control
@@ -597,8 +602,8 @@ endmodule
   type_output r_input_sum;
 
   // Sequential logic that advances the state machines
-  always_ff @(posedge clk_sum or posedge reset_sum) begin
-    if (reset_sum) begin
+  always_ff @(posedge clk or posedge reset) begin
+    if (reset) begin
       current_st_sum <= IDLE_READ;
       // current_st_output <= IDLE_OUTPUT;
     end else begin
@@ -616,14 +621,14 @@ endmodule
       // IDLE_CONTROL
       // Waits for start to begin reading weights and then input data; bias handling is currently disabled
       IDLE_READ:
-        if (p_start_sum)
+        if (r_start_channel)
           next_st_sum = READ;
       // Waits for the weight fetch covering the active input/output channel pair before moving on to input data
       READ:
         if (w_end_fout_sum)
           next_st_sum = SUM;
       SUM:
-        if (p_sum_sum)
+        if (p_conv_end)
           next_st_sum = READ;
     endcase
   end
@@ -631,9 +636,9 @@ endmodule
   // If the current state is FEAT_OUTPUT, enable write
   always_comb begin
     if (current_st_sum == READ)
-      p_read_en_sum = 1'b1;
+      p_output_en = 1'b1;
     else
-      p_read_en_sum = 1'b0;
+      p_output_en = 1'b0;
   end
 
   // Combinational logic asserting when the output buffer is empty and all data is written in memory
@@ -664,23 +669,23 @@ endmodule
   // Combinational logic computing the write address from the output counter
   always_comb begin
     unique case (r_count_fout_sum)
-      default: p_read_addr_sum = r_addr_fout_sum + 0;
-      1: p_read_addr_sum = r_addr_fout_sum + 1;
-      2: p_read_addr_sum = r_addr_fout_sum + 2;
+      default: p_output_addr = r_addr_fout_sum + 0;
+      1: p_output_addr = r_addr_fout_sum + 1;
+      2: p_output_addr = r_addr_fout_sum + 2;
 
-      3: p_read_addr_sum = r_addr_fout_sum + FEAT_OUTPUT_SIZE + 0;
-      4: p_read_addr_sum = r_addr_fout_sum + FEAT_OUTPUT_SIZE + 1;
-      5: p_read_addr_sum = r_addr_fout_sum + FEAT_OUTPUT_SIZE + 2;
+      3: p_output_addr = r_addr_fout_sum + FEAT_OUTPUT_SIZE + 0;
+      4: p_output_addr = r_addr_fout_sum + FEAT_OUTPUT_SIZE + 1;
+      5: p_output_addr = r_addr_fout_sum + FEAT_OUTPUT_SIZE + 2;
 
-      6: p_read_addr_sum = r_addr_fout_sum + FEAT_OUTPUT_SIZE * 2 + 0;
-      7: p_read_addr_sum = r_addr_fout_sum + FEAT_OUTPUT_SIZE * 2 + 1;
-      8: p_read_addr_sum = r_addr_fout_sum + FEAT_OUTPUT_SIZE * 2 + 2;
+      6: p_output_addr = r_addr_fout_sum + FEAT_OUTPUT_SIZE * 2 + 0;
+      7: p_output_addr = r_addr_fout_sum + FEAT_OUTPUT_SIZE * 2 + 1;
+      8: p_output_addr = r_addr_fout_sum + FEAT_OUTPUT_SIZE * 2 + 2;
     endcase
   end
 
   // Sequential logic updating the registers tied to the input state machine
-  always_ff @(posedge clk_sum) begin
-    if (reset_sum) begin
+  always_ff @(posedge clk) begin
+    if (reset) begin
       r_end_sum <= 0;
       r_addr_fout_sum  <= 0;
       r_count_fout_sum <= 0;
@@ -699,9 +704,9 @@ endmodule
         // Each cycle advances the weight address and stores the returned value in-order
         READ: begin
           r_end_sum <= 0;
-          if (p_read_valid_sum) begin
+          if (p_output_valid) begin
             r_count_fout_sum         <= r_count_fout_sum + 1;
-            r_data_sum[r_count_fout_sum] <= p_read_data_sum;
+            r_data_sum[r_count_fout_sum] <= p_output_data_read;
           end
           // Each cycle increments the output counter to select which register value gets written
           r_count_fout_sum <= r_count_fout_sum + 1;
@@ -730,10 +735,10 @@ endmodule
           end
         end
         SUM: begin
-          if (p_sum_sum) begin
+          if (p_conv_end) begin
             r_end_sum <= 1;
             for (int i = 0; i < A1_SIZE * A2_SIZE; i++)
-              r_data_sum[i] <= r_data_sum[i] + p_input_sum[i];
+              r_data_sum[i] <= r_data_sum[i] + p_conv_input[i];
           end
         end
       endcase

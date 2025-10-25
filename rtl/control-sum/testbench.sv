@@ -28,8 +28,8 @@ module tb;
   logic_vector w_input_in;
   logic_vector w_input_data;
 
-  logic w_output_chip;
   logic w_output_en;
+  logic w_output_wr;
   logic w_output_valid;
   logic[NADDR-1:0] w_output_addr;
   logic_vector w_output_data_read;
@@ -61,11 +61,11 @@ module tb;
 
     .p_start(w_start),
     .p_end(w_end),
-    
+
     .p_conv_start(w_conv_start),
     .p_conv_idle(w_conv_idle),
     .p_conv_end(w_conv_end),
-    
+
     .p_conv_input(w_conv_input),
     .p_conv_weight(w_conv_weight),
     .p_conv_output(w_conv_output),
@@ -76,6 +76,7 @@ module tb;
     .p_input_data(w_input_data),
 
     .p_output_en(w_output_en),
+    .p_output_wr(w_output_wr),
     .p_output_addr(w_output_addr),
     .p_output_data_read(w_output_data_read),
     .p_output_data_write(w_output_out),
@@ -107,7 +108,7 @@ module tb;
     .clk(clk),
     .reset(reset),
     .chip_en(w_output_en),
-    .wr_en(w_output_en),
+    .wr_en(w_output_wr),
     .address(w_output_addr),
     .data_in(w_output_data_read),
     .data_out(w_output_out),
