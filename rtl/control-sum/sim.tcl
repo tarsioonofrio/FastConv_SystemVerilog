@@ -37,7 +37,7 @@ while {[gets $fp line] >= 0} {
 close $fp
 
 
-vlog -work work $define_flags -svinputport=relaxed ./channel-sum.sv
+vlog -work work $define_flags -svinputport=relaxed ./control.sv
 vlog -work work $define_flags -svinputport=relaxed ./testbench.sv
 # to show FSM
 # vsim -voptargs=+acc -t ps -fsmdebug -coverage -debugDB work.tb
