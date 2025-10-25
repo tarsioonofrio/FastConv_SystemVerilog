@@ -114,6 +114,8 @@ module Control
   // Current input feature address
   logic[NADDR-1:0] w_addr_fin;
 
+  logic w_output_en;
+  logic[NADDR-1:0] w_output_addr;
   logic r_read_en;
   logic r_conv_end;
   logic r_start_channel;
@@ -405,10 +407,10 @@ module Control
   // If the current state is FEAT_OUTPUT, enable write
   always_comb begin
     if (current_st_output == FEAT_OUTPUT) begin
-      p_output_en = 1'b1;
+      w_output_en = 1'b1;
       p_output_wr = 1'b1;
     end else begin
-      p_output_en = 1'b0;
+      w_output_en = 1'b0;
       p_output_wr = 1'b0;
     end
   end
@@ -497,17 +499,17 @@ module Control
   // Combinational logic computing the write address from the output counter
   always_comb begin
     unique case (r_count_fout)
-      default: p_output_addr = r_addr_fout + 0;
-      1: p_output_addr = r_addr_fout + 1;
-      2: p_output_addr = r_addr_fout + 2;
+      default: w_output_addr = r_addr_fout + 0;
+      1: w_output_addr = r_addr_fout + 1;
+      2: w_output_addr = r_addr_fout + 2;
 
-      3: p_output_addr = r_addr_fout + FEAT_OUTPUT_SIZE + 0;
-      4: p_output_addr = r_addr_fout + FEAT_OUTPUT_SIZE + 1;
-      5: p_output_addr = r_addr_fout + FEAT_OUTPUT_SIZE + 2;
+      3: w_output_addr = r_addr_fout + FEAT_OUTPUT_SIZE + 0;
+      4: w_output_addr = r_addr_fout + FEAT_OUTPUT_SIZE + 1;
+      5: w_output_addr = r_addr_fout + FEAT_OUTPUT_SIZE + 2;
 
-      6: p_output_addr = r_addr_fout + FEAT_OUTPUT_SIZE * 2 + 0;
-      7: p_output_addr = r_addr_fout + FEAT_OUTPUT_SIZE * 2 + 1;
-      8: p_output_addr = r_addr_fout + FEAT_OUTPUT_SIZE * 2 + 2;
+      6: w_output_addr = r_addr_fout + FEAT_OUTPUT_SIZE * 2 + 0;
+      7: w_output_addr = r_addr_fout + FEAT_OUTPUT_SIZE * 2 + 1;
+      8: w_output_addr = r_addr_fout + FEAT_OUTPUT_SIZE * 2 + 2;
     endcase
   end
 
@@ -587,6 +589,7 @@ module Control
   logic [$clog2(N_WINDOW * N_WINDOW)-1:0] r_window_out_channel_sum;
   // Row-aligned window counter for write-side address updates
   logic [$clog2(N_WINDOW):0] r_window_out_horizontal_sum;
+  logic[NADDR-1:0] w_output_addr_sum;
 
   // Flag indicating end-of-row for write memory
   logic w_end_line_out_sum;
@@ -594,6 +597,7 @@ module Control
   logic w_end_fout_sum;
   // Flag indicating the output channel finished writing
   logic w_end_channel_out_sum;
+  logic w_output_en_sum;
 
   logic r_end_sum;
   // Register bank for input data from convolution
@@ -636,9 +640,9 @@ module Control
   // If the current state is FEAT_OUTPUT, enable write
   always_comb begin
     if (current_st_sum == READ)
-      p_output_en = 1'b1;
+      w_output_en_sum = 1'b1;
     else
-      p_output_en = 1'b0;
+      w_output_en_sum = 1'b0;
   end
 
   // Combinational logic asserting when the output buffer is empty and all data is written in memory
@@ -659,7 +663,7 @@ module Control
 
   // Combinational logic asserting when the output buffer is empty and all data is written in memory
   always_comb begin
-    if (r_window_out_total_sum < N_WINDOW * N_WINDOW)
+    if (r_window_out_channel_sum < N_WINDOW * N_WINDOW)
       w_end_channel_out_sum = 1'b0;
     else
       w_end_channel_out_sum = 1'b1;
@@ -669,17 +673,17 @@ module Control
   // Combinational logic computing the write address from the output counter
   always_comb begin
     unique case (r_count_fout_sum)
-      default: p_output_addr = r_addr_fout_sum + 0;
-      1: p_output_addr = r_addr_fout_sum + 1;
-      2: p_output_addr = r_addr_fout_sum + 2;
+      default: w_output_addr_sum = r_addr_fout_sum + 0;
+      1: w_output_addr_sum = r_addr_fout_sum + 1;
+      2: w_output_addr_sum = r_addr_fout_sum + 2;
 
-      3: p_output_addr = r_addr_fout_sum + FEAT_OUTPUT_SIZE + 0;
-      4: p_output_addr = r_addr_fout_sum + FEAT_OUTPUT_SIZE + 1;
-      5: p_output_addr = r_addr_fout_sum + FEAT_OUTPUT_SIZE + 2;
+      3: w_output_addr_sum = r_addr_fout_sum + FEAT_OUTPUT_SIZE + 0;
+      4: w_output_addr_sum = r_addr_fout_sum + FEAT_OUTPUT_SIZE + 1;
+      5: w_output_addr_sum = r_addr_fout_sum + FEAT_OUTPUT_SIZE + 2;
 
-      6: p_output_addr = r_addr_fout_sum + FEAT_OUTPUT_SIZE * 2 + 0;
-      7: p_output_addr = r_addr_fout_sum + FEAT_OUTPUT_SIZE * 2 + 1;
-      8: p_output_addr = r_addr_fout_sum + FEAT_OUTPUT_SIZE * 2 + 2;
+      6: w_output_addr_sum = r_addr_fout_sum + FEAT_OUTPUT_SIZE * 2 + 0;
+      7: w_output_addr_sum = r_addr_fout_sum + FEAT_OUTPUT_SIZE * 2 + 1;
+      8: w_output_addr_sum = r_addr_fout_sum + FEAT_OUTPUT_SIZE * 2 + 2;
     endcase
   end
 
@@ -742,6 +746,17 @@ module Control
           end
         end
       endcase
+    end
+  end
+
+
+  always_comb begin
+    if (w_end_channel_out_sum) begin
+      p_output_addr = w_output_addr;
+      p_output_en = w_output_en;
+    end else begin
+      p_output_addr = w_output_addr_sum;
+      p_output_en = w_output_en_sum;
     end
   end
 
