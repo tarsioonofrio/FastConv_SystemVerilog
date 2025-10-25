@@ -25,15 +25,15 @@ module tb;
   logic w_input_wr;
   logic w_input_valid;
   logic[NADDR-1:0] w_input_addr;
-  logic_vector w_input_in;
-  logic_vector w_input_data;
+  logic_vector w_input_data_write;
+  logic_vector w_input_data_read;
 
   logic w_output_en;
   logic w_output_wr;
   logic w_output_valid;
   logic[NADDR-1:0] w_output_addr;
   logic_vector w_output_data_read;
-  logic_vector w_output_out;
+  logic_vector w_output_data_write;
 
 
   int count_fout = 0;
@@ -73,13 +73,13 @@ module tb;
     .p_input_en(w_input_en),
     .p_input_addr(w_input_addr),
     .p_input_valid(w_input_valid),
-    .p_input_data(w_input_data),
+    .p_input_data(w_input_data_read),
 
     .p_output_en(w_output_en),
     .p_output_wr(w_output_wr),
     .p_output_addr(w_output_addr),
     .p_output_data_read(w_output_data_read),
-    .p_output_data_write(w_output_out),
+    .p_output_data_write(w_output_data_write),
     .p_output_valid(w_output_valid)
   );
 
@@ -94,8 +94,8 @@ module tb;
     .chip_en(w_input_en),
     .wr_en(w_input_wr),
     .address(w_input_addr),
-    .data_in(w_input_in),
-    .data_out(w_input_data),
+    .data_in(w_input_data_write),
+    .data_out(w_input_data_read),
     .data_valid(w_input_valid)
   );
 
@@ -110,8 +110,8 @@ module tb;
     .chip_en(w_output_en),
     .wr_en(w_output_wr),
     .address(w_output_addr),
-    .data_in(w_output_data_read),
-    .data_out(w_output_out),
+    .data_in(w_output_data_write),
+    .data_out(w_output_data_read),
     .data_valid(w_output_valid)
   );
 
@@ -152,9 +152,9 @@ module tb;
       @(posedge clk);
       for (int j = 0; j < FOUT2_SIZE; j++) begin
         @(posedge clk);
-        wait(w_output_en);
-        if ($signed(const_feat_out_batch[i][j]) != $signed(w_output_data_read)) begin
-          $display("Time %0t | const_feat_out[%0d][%0d] = %0d | Output = %0d", $time, i, j, const_feat_out_batch[i][j], w_output_data_read);
+        wait(w_output_wr);
+        if ($signed(const_feat_out_batch[i][j]) != $signed(w_output_data_write)) begin
+          $display("Time %0f | const_feat_out[%0d][%0d] = %0d | Output = %0d", $realtime, i, j, const_feat_out_batch[i][j], w_output_data_write);
           $display("=== ERROR - End simulation ====");
         end
       end
@@ -162,6 +162,7 @@ module tb;
 
     wait(w_end);
     $display("=== No errors - End simulation ===");
+    $display("Total Time %0f", $realtime);
     $finish;
   end
 endmodule
