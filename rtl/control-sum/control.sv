@@ -751,7 +751,7 @@ module Control
 
 
   always_comb begin
-    if (w_end_channel_out_sum) begin
+    if (w_end_channel_out == 0) begin
       p_output_addr = w_output_addr;
       p_output_en = w_output_en;
     end else begin
