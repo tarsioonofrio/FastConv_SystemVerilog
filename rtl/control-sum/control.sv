@@ -1,23 +1,22 @@
 // TODO
 // Avaliar se é melhor remover os contadores de janelas e comparar com os endereços.
-// TODO
-// Avaliar se é melhor remover os contadores de janelas e comparar com os endereços.
 
 module Control
   import pack_def::*;
-  import pack_typedef::*;
+  import pack_data::*;
   import pack_param::*;
+  import pack_typedef::*;
 #(
     parameter int NADDR            = 16,
     parameter int NBITS            = 20,
     parameter int LATENCY          = 1,
     parameter int ROM              = 0,
-    parameter int QUANT            = 8,
-    parameter int N_WINDOW         = 10,
-    parameter int N_CHANNEL_IN     = 1,
-    parameter int N_CHANNEL_OUT    = 1,
-    parameter int FEAT_INPUT_SIZE  = 32,
-    parameter int FEAT_OUTPUT_SIZE = 30,
+    // parameter int QUANT            = 8,
+    // parameter int N_WINDOW         = 10,
+    // parameter int N_CHANNEL_IN     = 1,
+    // parameter int N_CHANNEL_OUT    = 1,
+    // parameter int FEAT_INPUT_SIZE  = 32,
+    // parameter int FEAT_OUTPUT_SIZE = 30,
     parameter int LAST_WINDOW      = 0
 ) (
     input  logic clk,
@@ -90,8 +89,6 @@ module Control
 
   // Base address register for output features
   logic [$clog2(N_CHANNEL_OUT * FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE)-1:0] r_addr_fout;
-  // Base address register for channel output features
-  logic [$clog2(N_CHANNEL_OUT * FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE)-1:0] r_addr_ch_out;
   // Total window counter for the write path
   logic [$clog2(N_WINDOW * N_WINDOW * N_CHANNEL_OUT)-1:0] r_window_out_total;
   // Total window counter for a channel
@@ -127,7 +124,7 @@ module Control
   type_output r_feat_out;
 
   // Sequential logic that advances the state machines
-  always_ff @(posedge clk or posedge reset) begin
+  always_ff @(posedge clk or posedge reset) begin: FSM
     if (reset) begin
       current_st_input  <= IDLE_CONTROL;
       current_st_output <= IDLE_OUTPUT;
@@ -182,7 +179,7 @@ module Control
   end
 
   // Sequential logic updating the registers tied to the input state machine
-  always_ff @(posedge clk) begin
+  always_ff @(posedge clk) begin: current_st_input
     if (reset) begin
       r_read_en    <= 1'b0;
       // Bias base address starts at zero
@@ -432,7 +429,7 @@ module Control
   end
 
   // Combinational logic asserting when the output buffer is empty and all data is written in memory
-  always_comb begin
+  always_comb begin: w_end_channel_out
     if (r_window_out_channel < N_WINDOW * N_WINDOW - 1)
       w_end_channel_out = 1'b0;
     else
@@ -440,7 +437,7 @@ module Control
   end
 
   // Sequential logic updating the registers tied to the output state machine
-  always_ff @(posedge clk) begin
+  always_ff @(posedge clk) begin: current_st_output
     if (reset) begin
       r_addr_fout  <= 0;
       r_count_fout <= 0;
@@ -565,24 +562,23 @@ module Control
 
   typedef enum {
     IDLE_READ,
-    SUM,
-    READ
-  } state_type;
+    READ,
+    SUM
+  } state_type_read;
 
-  // typedef enum {
-  //   IDLE_OUTPUT,
-  //   SUM,
-  //   OUTPUT
-  // } state_output_type;
+  typedef enum {
+    IDLE_CONV,
+    STORE,
+    SUM
+  } state_type_conv;
 
-  state_type current_st_sum, next_st_sum;
+  state_type_read current_st_read, next_st_read;
+  state_type_conv current_st_conv, next_st_conv;
 
   // Input feature read counter
   logic [$clog2(A1_SIZE*A2_SIZE)-1:0] r_count_fout_sum;
   // Base address register for output features
   logic [$clog2(N_CHANNEL_OUT * FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE)-1:0] r_addr_fout_sum;
-  // Base address register for channel output features
-  logic [$clog2(N_CHANNEL_OUT * FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE)-1:0] r_addr_ch_out_sum;
   // Total window counter for the write path
   logic [$clog2(N_WINDOW * N_WINDOW * N_CHANNEL_OUT)-1:0] r_window_out_total_sum;
   // Total window counter for a channel
@@ -606,12 +602,12 @@ module Control
   type_output r_input_sum;
 
   // Sequential logic that advances the state machines
-  always_ff @(posedge clk or posedge reset) begin
+  always_ff @(posedge clk or posedge reset) begin: FSM_SUM
     if (reset) begin
-      current_st_sum <= IDLE_READ;
+      current_st_read <= IDLE_READ;
       // current_st_output <= IDLE_OUTPUT;
     end else begin
-      current_st_sum <= next_st_sum;
+      current_st_read <= next_st_read;
       // current_st_output <= next_st_output;
     end
   end
@@ -620,26 +616,28 @@ module Control
 
   // // Combinational logic for the input (read) state machine
   always_comb begin
-    next_st_sum = current_st_sum;
-    unique case (current_st_sum)
+    next_st_read = current_st_read;
+    unique case (current_st_read)
       // IDLE_CONTROL
       // Waits for start to begin reading weights and then input data; bias handling is currently disabled
       IDLE_READ:
-        if (r_start_channel)
-          next_st_sum = READ;
+        if (w_end_channel_out)
+          next_st_read = READ;
       // Waits for the weight fetch covering the active input/output channel pair before moving on to input data
       READ:
         if (w_end_fout_sum)
-          next_st_sum = SUM;
+          next_st_read = SUM;
       SUM:
-        if (p_conv_end)
-          next_st_sum = READ;
+        // If the current state of the FSM waiting for the convolution output is SUM,
+        // then it can advance to the next state, because the conv FSM will also advance
+        // if (current_st_conv == SUM)
+          next_st_read = READ;
     endcase
   end
 
   // If the current state is FEAT_OUTPUT, enable write
   always_comb begin
-    if (current_st_sum == READ)
+    if (current_st_read == READ)
       w_output_en_sum = 1'b1;
     else
       w_output_en_sum = 1'b0;
@@ -688,7 +686,7 @@ module Control
   end
 
   // Sequential logic updating the registers tied to the input state machine
-  always_ff @(posedge clk) begin
+  always_ff @(posedge clk) begin: current_st_read
     if (reset) begin
       r_end_sum <= 0;
       r_addr_fout_sum  <= 0;
@@ -698,7 +696,7 @@ module Control
       r_window_out_horizontal_sum <= 0;
       r_data_sum   <= '{default: '0};
     end else begin
-      unique case (current_st_sum)
+      unique case (current_st_read)
         default: begin end
         IDLE_READ: begin
           r_end_sum <= 0;
@@ -751,13 +749,15 @@ module Control
 
 
   always_comb begin
-    if (w_end_channel_out == 0) begin
-      p_output_addr = w_output_addr;
-      p_output_en = w_output_en;
-    end else begin
-      p_output_addr = w_output_addr_sum;
-      p_output_en = w_output_en_sum;
-    end
+    p_output_addr = w_output_addr;
+    p_output_en = w_output_en;
+    // if (w_end_channel_out == 0) begin
+    //   p_output_addr = w_output_addr;
+    //   p_output_en = w_output_en;
+    // end else begin
+    //   p_output_addr = w_output_addr_sum;
+    //   p_output_en = w_output_en_sum;
+    // end
   end
 
   // // Output state machine block
