@@ -137,7 +137,7 @@ module Control
   // Input state machine block
 
   // Combinational logic for the input (read) state machine
-  always_comb begin
+  always_comb begin: next_st_input
     next_st_input = current_st_input;
     unique case (current_st_input)
       // IDLE_CONTROL
@@ -290,7 +290,7 @@ module Control
   end
 
   // Combinational logic detecting end-of-row for read paths
-  always_comb begin
+  always_comb begin: w_end_line_in
     if (r_window_in_horizontal < N_WINDOW - 1)
       w_end_line_in = 1'b0;
     else
@@ -298,7 +298,7 @@ module Control
   end
 
   // Combinational logic detecting end-of-channel for read paths
-  always_comb begin
+  always_comb begin: w_end_channel_in
     if (r_window_in_channel < N_WINDOW * N_WINDOW - 1)
       w_end_channel_in = 1'b0;
     else
@@ -316,7 +316,7 @@ module Control
 
 
   // Combinational logic asserting when the input buffer is full and convolution can start
-  always_comb begin
+  always_comb begin: w_end_fin
     if ((r_count_fin == (C1_SIZE * C2_SIZE)) && p_conv_idle)
       w_end_fin = 1'b1;
     else
@@ -325,7 +325,7 @@ module Control
 
 
   // Combinational logic computing the input read address from the input counter
-  always_comb begin
+  always_comb begin: w_addr_fin
     unique case (r_count_fin)
       default: w_addr_fin = r_addr_fin + 0; // 00
       01: w_addr_fin = r_addr_fin + FEAT_INPUT_SIZE + 0; // 05
@@ -385,7 +385,7 @@ module Control
   // Output state machine block
 
   // Combinational logic for the output (write) state machine
-  always_comb begin
+  always_comb begin: next_st_output
     next_st_output = current_st_output;
     unique case (current_st_output)
       // Waits for the convolution-complete signal
@@ -413,7 +413,7 @@ module Control
   end
 
   // Combinational logic asserting when the output buffer is empty and all data is written in memory
-  always_comb begin
+  always_comb begin: w_end_fout
     if (r_count_fout == (A1_SIZE * A2_SIZE) - 1)
       w_end_fout = 1'b1;
     else
@@ -421,7 +421,7 @@ module Control
   end
 
   // Combinational logic detecting end-of-row for write paths
-  always_comb begin
+  always_comb begin: w_end_line_out
     if (r_window_out_horizontal < N_WINDOW - 1)
       w_end_line_out = 1'b0;
     else
@@ -494,7 +494,7 @@ module Control
 
 
   // Combinational logic computing the write address from the output counter
-  always_comb begin
+  always_comb begin: w_output_addr
     unique case (r_count_fout)
       default: w_output_addr = r_addr_fout + 0;
       1: w_output_addr = r_addr_fout + 1;
@@ -511,7 +511,7 @@ module Control
   end
 
   // Combinational logic driving output ports from internal registers
-  always_comb begin
+  always_comb begin: p_output_data_read
     p_output_data_read = r_feat_out[r_count_fout];
     // p_start_channel = r_start_channel;
   end
@@ -615,7 +615,7 @@ module Control
   // Read state machine block
 
   // // Combinational logic for the input (read) state machine
-  always_comb begin
+  always_comb begin: next_st_read
     next_st_read = current_st_read;
     unique case (current_st_read)
       // IDLE_CONTROL
@@ -636,7 +636,7 @@ module Control
   end
 
   // If the current state is FEAT_OUTPUT, enable write
-  always_comb begin
+  always_comb begin: w_output_en_sum
     if (current_st_read == READ)
       w_output_en_sum = 1'b1;
     else
@@ -644,7 +644,7 @@ module Control
   end
 
   // Combinational logic asserting when the output buffer is empty and all data is written in memory
-  always_comb begin
+  always_comb begin: w_end_fout_sum
     if (r_count_fout_sum == (A1_SIZE * A2_SIZE) - 1)
       w_end_fout_sum = 1'b1;
     else
@@ -652,7 +652,7 @@ module Control
   end
 
   // Combinational logic detecting end-of-row for write paths
-  always_comb begin
+  always_comb begin: w_end_line_out_sum
     if (r_window_out_horizontal_sum < N_WINDOW - 1)
       w_end_line_out_sum = 1'b0;
     else
@@ -660,7 +660,7 @@ module Control
   end
 
   // Combinational logic asserting when the output buffer is empty and all data is written in memory
-  always_comb begin
+  always_comb begin: w_end_channel_out_sum
     if (r_window_out_channel_sum < N_WINDOW * N_WINDOW)
       w_end_channel_out_sum = 1'b0;
     else
@@ -669,7 +669,7 @@ module Control
 
 
   // Combinational logic computing the write address from the output counter
-  always_comb begin
+  always_comb begin: w_output_addr_sum
     unique case (r_count_fout_sum)
       default: w_output_addr_sum = r_addr_fout_sum + 0;
       1: w_output_addr_sum = r_addr_fout_sum + 1;
