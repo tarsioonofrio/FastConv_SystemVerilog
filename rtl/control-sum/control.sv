@@ -119,6 +119,7 @@ module Control
   // Current input feature address
   logic[NADDR-1:0] w_addr_fin;
 
+  logic w_convsum_end;
   logic w_output_en;
   logic[NADDR-1:0] w_output_addr;
   logic r_read_en;
@@ -130,7 +131,7 @@ module Control
   type_weight r_weight;
   // Register bank for output features
   type_output r_feat_out;
-  type_output w_conv_output;
+  type_output w_convsum_output;
 
   // Sequential logic that advances the state machines
   always_ff @(posedge clk or posedge reset) begin: FSM_BLOCK
@@ -398,7 +399,7 @@ module Control
     unique case (current_st_output)
       // Waits for the convolution-complete signal
       IDLE_OUTPUT: begin
-        if (p_conv_end)
+        if (w_convsum_end)
           next_st_output = FEAT_OUTPUT;
       end
       // Waits for the output data write to memory to complete and then returns to idle
@@ -475,8 +476,8 @@ module Control
         // Keep the output counter cleared while waiting for convolution to end; capture output data on completion
         IDLE_OUTPUT: begin
           r_count_fout <= 0;
-          if (p_conv_end)
-            r_feat_out <= w_conv_output;
+          if (w_convsum_end)
+            r_feat_out <= w_convsum_output;
         end
         // Write output data to memory
         FEAT_OUTPUT: begin
@@ -631,8 +632,8 @@ module Control
   logic w_end_out_layer_sum;
   logic w_end_out_channel_sum;
   logic w_output_en_sum;
+  logic w_end_sum;
 
-  logic r_end_sum;
   // Register bank for read data
   type_output r_read_data;
   // Register bank for input data from convolution
@@ -740,7 +741,6 @@ module Control
   // Sequential logic updating the registers tied to the input state machine
   always_ff @(posedge clk) begin: current_st_read_block
     if (reset) begin
-      r_end_sum <= 0;
       r_addr_fout_sum  <= 0;
       r_count_fout_sum <= 0;
       r_window_out_total_sum <= 0;
@@ -751,13 +751,11 @@ module Control
       unique case (current_st_read)
         default: begin end
         IDLE_READ: begin
-          r_end_sum <= 0;
           r_count_fout_sum <= 0;
           r_read_data   <= '{default: '0};
         end
         // Each cycle advances the weight address and stores the returned value in-order
         READ: begin
-          r_end_sum <= 0;
           if (p_output_valid) begin
             r_count_fout_sum         <= r_count_fout_sum + 1;
             r_read_data[r_count_fout_sum] <= p_output_data_read;
@@ -799,11 +797,11 @@ module Control
         end
         SUM_READ: begin
           r_count_fout_sum <= 0;
-          if (p_conv_end) begin
-            r_end_sum <= 1;
-            // for (int i = 0; i < A1_SIZE * A2_SIZE; i++)
-            //   r_read_data[i] <= r_read_data[i] + p_conv_input[i];
-          end
+          // if (p_conv_end) begin
+          //   r_end_sum <= 1;
+          //   // for (int i = 0; i < A1_SIZE * A2_SIZE; i++)
+          //   //   r_read_data[i] <= r_read_data[i] + p_conv_input[i];
+          // end
         end
       endcase
     end
@@ -817,11 +815,14 @@ module Control
       p_output_addr = w_output_addr_sum;
       p_output_en = w_output_en_sum;
       w_conv_output_sum = p_conv_output;
-      w_conv_output = r_convsum_data;
+      // w_end_sum = p_conv_end;
+      w_convsum_end = (current_st_sum == SUM) ? 1'b1 : 1'b0;
+      w_convsum_output = r_convsum_data;
     end else begin
       p_output_addr = w_output_addr;
       p_output_en = w_output_en;
-      w_conv_output = p_conv_output;
+      w_convsum_end = p_conv_end;
+      w_convsum_output = p_conv_output;
     end
   end
 
