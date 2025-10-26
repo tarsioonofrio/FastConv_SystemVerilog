@@ -229,7 +229,7 @@ module Control
         FEAT_INPUT: begin
           r_read_en  <= 1'b1;
           r_count_wh <= 0;
-          if (p_input_valid) begin
+          if (p_input_valid && (r_count_fin < C1_SIZE * C1_SIZE)) begin
             r_count_fin                     <= r_count_fin + 1;
             r_feat_in[c_index[r_count_fin]] <= p_input_data;
           end
