@@ -33,19 +33,23 @@ add wave -noupdate -radix unsigned /tb/dut/r_count_ch_out
 add wave -noupdate -radix unsigned /tb/dut/r_addr_bias
 add wave -noupdate -radix unsigned /tb/dut/r_addr_wh
 add wave -noupdate -radix unsigned /tb/dut/r_addr_fin
-add wave -noupdate -radix unsigned /tb/dut/r_window_in_horizontal
-add wave -noupdate -radix unsigned /tb/dut/r_window_in_channel
 add wave -noupdate -radix unsigned /tb/dut/r_window_in_total
+add wave -noupdate -radix unsigned /tb/dut/r_window_in_channel
+add wave -noupdate -radix unsigned /tb/dut/r_window_in_vertical
+add wave -noupdate -radix unsigned /tb/dut/r_window_in_horizontal
 add wave -noupdate -radix unsigned /tb/dut/r_addr_fout
 add wave -noupdate -radix unsigned /tb/dut/r_window_out_total
 add wave -noupdate -radix unsigned /tb/dut/r_window_out_channel
+add wave -noupdate -radix unsigned /tb/dut/r_window_out_vertical
 add wave -noupdate -radix unsigned /tb/dut/r_window_out_horizontal
 add wave -noupdate /tb/dut/w_end_line_in
 add wave -noupdate /tb/dut/w_end_line_out
 add wave -noupdate /tb/dut/w_end_fin
 add wave -noupdate /tb/dut/w_end_fout
-add wave -noupdate /tb/dut/w_end_channel_in
-add wave -noupdate /tb/dut/w_end_channel_out
+add wave -noupdate /tb/dut/w_end_in_vertical
+add wave -noupdate /tb/dut/w_end_in_channel
+add wave -noupdate /tb/dut/w_end_out_vertical
+add wave -noupdate /tb/dut/w_end_out_layer
 add wave -noupdate -radix unsigned /tb/dut/w_addr_fin
 add wave -noupdate /tb/dut/w_output_en
 add wave -noupdate -radix unsigned /tb/dut/w_output_addr
@@ -57,24 +61,26 @@ add wave -noupdate -radix decimal /tb/dut/r_weight
 add wave -noupdate -radix decimal /tb/dut/r_feat_out
 add wave -noupdate -divider control-sum
 add wave -noupdate /tb/dut/clk
-add wave -noupdate /tb/dut/w_end_channel_in
 add wave -noupdate -radix unsigned /tb/dut/r_window_in_channel
 add wave -noupdate /tb/dut/current_st_output
 add wave -noupdate /tb/dut/current_st_read
 add wave -noupdate /tb/dut/current_st_conv
+add wave -noupdate /tb/dut/w_end_out_layer
 add wave -noupdate /tb/dut/p_output_en
 add wave -noupdate /tb/dut/p_output_wr
 add wave -noupdate -radix unsigned /tb/dut/p_output_addr
 add wave -noupdate -radix decimal /tb/dut/p_output_data_read
+add wave -noupdate -radix unsigned /tb/dut/w_output_addr_sum
 add wave -noupdate -radix unsigned /tb/dut/r_count_fout_sum
 add wave -noupdate -radix unsigned /tb/dut/r_addr_fout_sum
 add wave -noupdate -radix unsigned /tb/dut/r_window_out_total_sum
 add wave -noupdate -radix unsigned /tb/dut/r_window_out_channel_sum
+add wave -noupdate -radix unsigned /tb/dut/r_window_out_vertical_sum
 add wave -noupdate -radix unsigned /tb/dut/r_window_out_horizontal_sum
-add wave -noupdate -radix unsigned /tb/dut/w_output_addr_sum
 add wave -noupdate /tb/dut/w_end_line_out_sum
 add wave -noupdate /tb/dut/w_end_fout_sum
-add wave -noupdate /tb/dut/w_end_channel_out_sum
+add wave -noupdate /tb/dut/w_end_out_vertical_sum
+add wave -noupdate /tb/dut/w_end_out_layer_sum
 add wave -noupdate /tb/dut/w_output_en_sum
 add wave -noupdate /tb/dut/r_end_sum
 add wave -noupdate -radix decimal /tb/dut/r_data_sum
@@ -104,7 +110,7 @@ add wave -noupdate -radix decimal /tb/conv/r_idx_out
 add wave -noupdate -radix decimal /tb/conv/product
 TreeUpdate [SetDefaultTree]
 WaveRestoreCursors {{Cursor 4} {2224500 ps} 1} {{Cursor 6} {63500 ps} 1} {{Cursor 4} {2197500 ps} 1} {{Cursor 5} {2291500 ps} 0}
-quietly wave cursor active 3
+quietly wave cursor active 1
 configure wave -namecolwidth 256
 configure wave -valuecolwidth 100
 configure wave -justifyvalue left
@@ -119,4 +125,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {2187033 ps} {2209843 ps}
+WaveRestoreZoom {2211801 ps} {2234611 ps}
