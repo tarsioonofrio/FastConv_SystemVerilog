@@ -10,9 +10,9 @@ add wave -noupdate /tb/dut/p_conv_idle
 add wave -noupdate /tb/dut/p_conv_end
 add wave -noupdate /tb/dut/current_st_input
 add wave -noupdate /tb/dut/current_st_output
-add wave -noupdate /tb/conv/current_state
 add wave -noupdate /tb/dut/current_st_read
 add wave -noupdate /tb/dut/current_st_conv
+add wave -noupdate /tb/conv/current_state
 add wave -noupdate -radix decimal /tb/dut/p_conv_input
 add wave -noupdate -radix decimal /tb/dut/p_conv_weight
 add wave -noupdate -radix decimal /tb/dut/p_conv_output
@@ -64,6 +64,7 @@ add wave -noupdate /tb/dut/current_st_read
 add wave -noupdate /tb/dut/current_st_conv
 add wave -noupdate /tb/dut/p_output_en
 add wave -noupdate /tb/dut/p_output_wr
+add wave -noupdate -radix unsigned /tb/dut/p_output_addr
 add wave -noupdate -radix decimal /tb/dut/p_output_data_read
 add wave -noupdate -radix unsigned /tb/dut/r_count_fout_sum
 add wave -noupdate -radix unsigned /tb/dut/r_addr_fout_sum
@@ -102,7 +103,7 @@ add wave -noupdate -radix decimal /tb/conv/r_idx_in
 add wave -noupdate -radix decimal /tb/conv/r_idx_out
 add wave -noupdate -radix decimal /tb/conv/product
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 4} {81500 ps} 0} {{Cursor 5} {93464 ps} 0} {{Cursor 6} {63500 ps} 1}
+WaveRestoreCursors {{Cursor 4} {2224500 ps} 1} {{Cursor 6} {63500 ps} 1} {{Cursor 4} {2197500 ps} 1} {{Cursor 5} {2291500 ps} 0}
 quietly wave cursor active 3
 configure wave -namecolwidth 256
 configure wave -valuecolwidth 100
@@ -118,4 +119,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {62083 ps} {84893 ps}
+WaveRestoreZoom {2187033 ps} {2209843 ps}
