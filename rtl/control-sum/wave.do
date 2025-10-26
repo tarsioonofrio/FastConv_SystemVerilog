@@ -110,7 +110,7 @@ add wave -noupdate -radix decimal /tb/conv/r_idx_in
 add wave -noupdate -radix decimal /tb/conv/r_idx_out
 add wave -noupdate -radix decimal /tb/conv/product
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 4} {2224500 ps} 1} {{Cursor 6} {63500 ps} 1} {{Cursor 5} {2271500 ps} 0}
+WaveRestoreCursors {{Cursor 4} {2224500 ps} 1} {{Cursor 6} {63500 ps} 1} {{Cursor 5} {2271500 ps} 1}
 quietly wave cursor active 3
 configure wave -namecolwidth 256
 configure wave -valuecolwidth 100
@@ -126,4 +126,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {2270030 ps} {2281436 ps}
+WaveRestoreZoom {2265797 ps} {2277203 ps}
