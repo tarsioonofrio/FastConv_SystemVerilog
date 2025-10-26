@@ -58,6 +58,7 @@ module Control
 
   typedef enum {
     IDLE_OUTPUT,
+    SUM,
     FEAT_OUTPUT
   } state_output_type;
 
@@ -119,9 +120,9 @@ module Control
   // Current input feature address
   logic[NADDR-1:0] w_addr_fin;
 
-  logic w_convsum_end;
-  logic w_output_en;
-  logic[NADDR-1:0] w_output_addr;
+  // logic p_conv_end;
+  // logic w_output_en;
+  // logic[NADDR-1:0] w_output_addr;
   logic r_read_en;
   logic r_conv_end;
   logic r_start_channel;
@@ -131,7 +132,7 @@ module Control
   type_weight r_weight;
   // Register bank for output features
   type_output r_feat_out;
-  type_output w_convsum_output;
+  // type_output w_convsum_output;
 
   // Sequential logic that advances the state machines
   always_ff @(posedge clk or posedge reset) begin: FSM_BLOCK
@@ -399,7 +400,7 @@ module Control
     unique case (current_st_output)
       // Waits for the convolution-complete signal
       IDLE_OUTPUT: begin
-        if (w_convsum_end)
+        if (p_conv_end)
           next_st_output = FEAT_OUTPUT;
       end
       // Waits for the output data write to memory to complete and then returns to idle
@@ -413,10 +414,10 @@ module Control
   // If the current state is FEAT_OUTPUT, enable write
   always_comb begin
     if (current_st_output == FEAT_OUTPUT) begin
-      w_output_en = 1'b1;
+      p_output_en = 1'b1;
       p_output_wr = 1'b1;
     end else begin
-      w_output_en = 1'b0;
+      p_output_en = 1'b0;
       p_output_wr = 1'b0;
     end
   end
@@ -476,8 +477,8 @@ module Control
         // Keep the output counter cleared while waiting for convolution to end; capture output data on completion
         IDLE_OUTPUT: begin
           r_count_fout <= 0;
-          if (w_convsum_end)
-            r_feat_out <= w_convsum_output;
+          if (p_conv_end)
+            r_feat_out <= p_conv_output;
         end
         // Write output data to memory
         FEAT_OUTPUT: begin
@@ -530,17 +531,17 @@ module Control
   // Combinational logic computing the write address from the output counter
   always_comb begin: w_output_addr_block
     unique case (r_count_fout)
-      default: w_output_addr = r_addr_fout + 0;
-      1: w_output_addr = r_addr_fout + 1;
-      2: w_output_addr = r_addr_fout + 2;
+      default: p_output_addr = r_addr_fout + 0;
+      1: p_output_addr = r_addr_fout + 1;
+      2: p_output_addr = r_addr_fout + 2;
 
-      3: w_output_addr = r_addr_fout + FEAT_OUTPUT_SIZE + 0;
-      4: w_output_addr = r_addr_fout + FEAT_OUTPUT_SIZE + 1;
-      5: w_output_addr = r_addr_fout + FEAT_OUTPUT_SIZE + 2;
+      3: p_output_addr = r_addr_fout + FEAT_OUTPUT_SIZE + 0;
+      4: p_output_addr = r_addr_fout + FEAT_OUTPUT_SIZE + 1;
+      5: p_output_addr = r_addr_fout + FEAT_OUTPUT_SIZE + 2;
 
-      6: w_output_addr = r_addr_fout + FEAT_OUTPUT_SIZE * 2 + 0;
-      7: w_output_addr = r_addr_fout + FEAT_OUTPUT_SIZE * 2 + 1;
-      8: w_output_addr = r_addr_fout + FEAT_OUTPUT_SIZE * 2 + 2;
+      6: p_output_addr = r_addr_fout + FEAT_OUTPUT_SIZE * 2 + 0;
+      7: p_output_addr = r_addr_fout + FEAT_OUTPUT_SIZE * 2 + 1;
+      8: p_output_addr = r_addr_fout + FEAT_OUTPUT_SIZE * 2 + 2;
     endcase
   end
 
@@ -811,19 +812,19 @@ module Control
   always_comb begin
     // p_output_addr = w_output_addr;
     // p_output_en = w_output_en;
-    if (w_end_out_layer) begin
-      p_output_addr = w_output_addr_sum;
-      p_output_en = w_output_en_sum;
-      w_conv_output_sum = p_conv_output;
-      // w_end_sum = p_conv_end;
-      w_convsum_end = (current_st_sum == SUM) ? 1'b1 : 1'b0;
-      w_convsum_output = r_convsum_data;
-    end else begin
-      p_output_addr = w_output_addr;
-      p_output_en = w_output_en;
-      w_convsum_end = p_conv_end;
-      w_convsum_output = p_conv_output;
-    end
+    // if (w_end_out_layer) begin
+    //   p_output_addr = w_output_addr_sum;
+    //   p_output_en = w_output_en_sum;
+    //   w_conv_output_sum = p_conv_output;
+    //   // w_end_sum = p_conv_end;
+    //   p_conv_end = (current_st_sum == SUM) ? 1'b1 : 1'b0;
+    //   w_convsum_output = r_convsum_data;
+    // end else begin
+      // p_output_addr = w_output_addr;
+      // p_output_en = w_output_en;
+      // p_conv_end = p_conv_end;
+      // w_convsum_output = p_conv_output;
+    // end
   end
 
   // // Output state machine block
