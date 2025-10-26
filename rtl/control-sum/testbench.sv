@@ -35,6 +35,22 @@ module tb;
   logic_vector w_output_data_read;
   logic_vector w_output_data_write;
 
+  logic debug;
+
+  logic mem_wr_chip_en;
+  logic mem_wr_wr_en;
+  logic[NADDR-1:0] mem_wr_address;
+  logic_vector mem_wr_data_in;
+  logic_vector mem_wr_data_out;
+  logic mem_wr_data_valid;
+
+  logic tb_chip_en;
+  logic tb_wr_en;
+  logic[NADDR-1:0] tb_address;
+  logic_vector tb_data_in;
+  logic_vector tb_data_out;
+  logic tb_data_valid;
+
 
   int count_fout = 0;
 
@@ -107,12 +123,12 @@ module tb;
   ) memory_write(
     .clk(clk),
     .reset(reset),
-    .chip_en(w_output_en),
-    .wr_en(w_output_wr),
-    .address(w_output_addr),
-    .data_in(w_output_data_write),
-    .data_out(w_output_data_read),
-    .data_valid(w_output_valid)
+    .chip_en(mem_wr_chip_en),
+    .wr_en(mem_wr_wr_en),
+    .address(mem_wr_address),
+    .data_in(mem_wr_data_in),
+    .data_out(mem_wr_data_out),
+    .data_valid(mem_wr_data_valid)
   );
 
   Conv #(
@@ -130,12 +146,35 @@ module tb;
     .p_output(w_conv_output)
   );
 
+  always_comb begin
+    tb_data_out = mem_wr_data_out;
+    tb_data_valid = mem_wr_data_valid;
+
+    if (debug) begin
+      mem_wr_chip_en = w_output_en;
+      mem_wr_wr_en = w_output_wr;
+      mem_wr_address = w_output_addr;
+      mem_wr_data_in = w_output_data_write;
+    end else begin
+      mem_wr_chip_en = tb_chip_en;
+      mem_wr_wr_en = tb_wr_en;
+      mem_wr_address = tb_address;
+      mem_wr_data_in = tb_data_in;
+    end
+  end
+
   // Inicialização dos sinais e reset
   initial begin
     $dumpfile("dump.vcd");
     $dumpvars(0, tb);
 
+
     reset = 1;
+    debug = 1;
+    tb_chip_en = 0;
+    tb_wr_en = 0;
+    tb_address = '0;
+    tb_data_in = '{default: '0};
     w_start = 0;
     @(posedge clk);
     reset = 0;
@@ -145,22 +184,24 @@ module tb;
 
     // Start processamento
     $display("=== Start processing ===");
+    wait(w_end);
 
-    for (int i = 0; i < FOUT1_SIZE; i++) begin
-      @(posedge clk);
-      wait(w_conv_end);
-      @(posedge clk);
-      for (int j = 0; j < FOUT2_SIZE; j++) begin
+    debug = 0;
+
+    for (int i = 0; i < FEAT_OUTPUT_SIZE; i++) begin
+      for (int j = 0; j < FEAT_OUTPUT_SIZE; j++) begin
+        tb_address = i * FEAT_OUTPUT_SIZE + j;
+        tb_chip_en = 1;
+        tb_wr_en = 0;
         @(posedge clk);
-        wait(w_output_wr);
-        if ($signed(const_feat_out_batch[i][j]) != $signed(w_output_data_write)) begin
-          $display("Time %0f | const_feat_out[%0d][%0d] = %0d | Output = %0d", $realtime, i, j, const_feat_out_batch[i][j], w_output_data_write);
+        wait(tb_data_valid);
+        if ($signed(const_feat_out[i][j]) != $signed(tb_data_out)) begin
+          $display("Time %0f | const_feat_out[%0d][%0d] = %0d | Output = %0d", $realtime, i, j, const_feat_out[i][j], tb_data_out);
           $display("=== ERROR - End simulation ====");
         end
       end
     end
 
-    wait(w_end);
     $display("=== No errors - End simulation ===");
     $display("Total Time %0f", $realtime);
     $finish;
