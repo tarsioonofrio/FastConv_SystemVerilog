@@ -476,7 +476,7 @@ module Control
         IDLE_OUTPUT: begin
           r_count_fout <= 0;
           if (p_conv_end)
-            r_feat_out <= p_conv_output;
+            r_feat_out <= w_conv_output;
         end
         // Write output data to memory
         FEAT_OUTPUT: begin
@@ -816,11 +816,12 @@ module Control
     if (w_end_out_layer) begin
       p_output_addr = w_output_addr_sum;
       p_output_en = w_output_en_sum;
-      w_conv_output = p_conv_output;
+      w_conv_output_sum = p_conv_output;
+      w_conv_output = r_convsum_data;
     end else begin
       p_output_addr = w_output_addr;
       p_output_en = w_output_en;
-      w_conv_output_sum = p_conv_output;
+      w_conv_output = p_conv_output;
     end
   end
 
