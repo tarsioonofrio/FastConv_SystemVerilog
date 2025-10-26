@@ -148,7 +148,7 @@ module tb;
 
   always_comb begin
     w_output_data_read = mem_wr_data_out;
-    w_input_valid = mem_wr_data_valid;
+    w_output_valid = mem_wr_data_valid;
 
     tb_data_out = mem_wr_data_out;
     tb_data_valid = mem_wr_data_valid;
