@@ -83,7 +83,7 @@ module Control
   // Row-aligned window counter for read-side address updates and reuse control
   logic [$clog2(N_WINDOW):0] r_window_in_horizontal;
   // Total window counter for a channel
-  logic [$clog2(N_WINDOW * N_WINDOW)-1:0] r_window_in_hv;
+  logic [$clog2(N_WINDOW * N_WINDOW)-1:0] r_window_in_vertical;
   // Total window counter for a channel
   logic [$clog2(N_WINDOW * N_WINDOW * N_CHANNEL_IN)-1:0] r_window_in_channel;
   // Total window counter for the read path
@@ -96,7 +96,7 @@ module Control
   // Total window counter for all in channel for FSM write
   logic [$clog2(N_WINDOW * N_WINDOW * N_CHANNEL_IN)-1:0] r_window_out_channel;
   // Total window counter for a channel
-  logic [$clog2(N_WINDOW * N_WINDOW)-1:0] r_window_out_hv;
+  logic [$clog2(N_WINDOW * N_WINDOW)-1:0] r_window_out_vertical;
   // Row-aligned window counter for write-side address updates
   logic [$clog2(N_WINDOW):0] r_window_out_horizontal;
 
@@ -109,9 +109,9 @@ module Control
   // Flag indicating the output window finished writing
   logic w_end_fout;
   // Flag indicating the input window finished reading
-  logic w_end_channel_in;
+  logic w_end_in_vertical;
   // Flag indicating the output channel finished writing
-  logic w_end_channel_out;
+  logic w_end_out_vertical;
   // Current input feature address
   logic[NADDR-1:0] w_addr_fin;
 
@@ -172,7 +172,7 @@ module Control
           //  next_st_input = BIAS;
           // else
           // When a full set of windows for an input channel is done, reload weights
-          if (r_window_in_hv == N_WINDOW * N_WINDOW - 1)
+          if (r_window_in_vertical == N_WINDOW * N_WINDOW - 1)
             next_st_input = WEIGHT;
           else
           // Otherwise keep reading input data
@@ -195,7 +195,7 @@ module Control
       r_count_wh   <= 0;
       r_count_fin  <= 0;
       r_window_in_total     <= 0;
-      r_window_in_hv   <= 0;
+      r_window_in_vertical   <= 0;
       r_window_in_horizontal  <= 0;
       r_weight     <= '{default: '0};
       r_feat_in    <= '{default: '0};
@@ -210,7 +210,7 @@ module Control
           r_count_wh  <= 0;
           r_count_fin <= 0;
           r_window_in_total    <= 0;
-          r_window_in_hv   <= 0;
+          r_window_in_vertical   <= 0;
           r_window_in_horizontal  <= 0;
           r_weight    <= '{default: '0};
           r_feat_in   <= '{default: '0};
@@ -248,9 +248,9 @@ module Control
           // - increment the per-row window counter
           // - position the input feature counter at the reuse start column
           // - move the base pointer to the next window horizontally
-          if (w_end_fin && !w_end_line_in && !w_end_channel_in) begin
+          if (w_end_fin && !w_end_line_in && !w_end_in_vertical) begin
             r_window_in_horizontal <= r_window_in_horizontal + 1;
-            r_window_in_hv <= r_window_in_hv + 1;
+            r_window_in_vertical <= r_window_in_vertical + 1;
             // r_count_fin <= 10;
             r_count_fin <= C1_SIZE * (C1_SIZE - A1_SIZE);
             r_addr_fin  <= r_addr_fin + A1_SIZE;
@@ -276,14 +276,14 @@ module Control
           // - reset the per-row window counter
           // - reset the input feature counter to zero (no horizontal reuse)
           // - jump vertically to the first address of the window several rows below, with no vertical reuse
-          else if (w_end_fin && w_end_line_in && !w_end_channel_in) begin
-            r_window_in_hv <= r_window_in_hv + 1;
+          else if (w_end_fin && w_end_line_in && !w_end_in_vertical) begin
+            r_window_in_vertical <= r_window_in_vertical + 1;
             r_window_in_horizontal <= 0;
             r_count_fin <= 0;
             r_addr_fin  <= r_addr_fin + C1_SIZE + FEAT_INPUT_SIZE * (A1_SIZE - 1);
           end
-          else if (w_end_fin && w_end_line_in && w_end_channel_in) begin
-            r_window_in_hv <= 0;
+          else if (w_end_fin && w_end_line_in && w_end_in_vertical) begin
+            r_window_in_vertical <= 0;
             r_window_in_horizontal <= 0;
             r_count_fin <= 0;
             r_addr_fin  <= r_addr_fin + C1_SIZE + FEAT_INPUT_SIZE * (C1_SIZE - 1);
@@ -302,11 +302,11 @@ module Control
   end
 
   // Combinational logic detecting end-of-channel for read paths
-  always_comb begin: w_end_channel_in_block
-    if (r_window_in_hv < N_WINDOW * N_WINDOW - 1)
-      w_end_channel_in = 1'b0;
+  always_comb begin: w_end_in_vertical_block
+    if (r_window_in_vertical < N_WINDOW * N_WINDOW - 1)
+      w_end_in_vertical = 1'b0;
     else
-      w_end_channel_in = 1'b1;
+      w_end_in_vertical = 1'b1;
   end
 
 
@@ -433,11 +433,11 @@ module Control
   end
 
   // Combinational logic asserting when the output buffer is empty and all data is written in memory
-  always_comb begin: w_end_channel_out_block
-    if (r_window_out_hv < N_WINDOW * N_WINDOW - 1)
-      w_end_channel_out = 1'b0;
+  always_comb begin: w_end_out_vertical_block
+    if (r_window_out_vertical < N_WINDOW * N_WINDOW - 1)
+      w_end_out_vertical = 1'b0;
     else
-      w_end_channel_out = 1'b1;
+      w_end_out_vertical = 1'b1;
   end
 
   // Sequential logic updating the registers tied to the output state machine
@@ -447,7 +447,8 @@ module Control
       r_count_fout <= 0;
       r_start_channel = 1'b0;
       r_window_out_total <= 0;
-      r_window_out_hv <= 0;
+      r_window_out_channel <= 0;
+      r_window_out_vertical <= 0;
       r_window_out_horizontal <= 0;
       r_feat_out   <= '{default: '0};
     end else begin
@@ -460,7 +461,7 @@ module Control
         end
         // Write output data to memory
         FEAT_OUTPUT: begin
-          if (w_end_fout && w_end_line_out && w_end_channel_out)
+          if (w_end_fout && w_end_line_out && w_end_out_vertical)
             r_start_channel = 1'b1;
           else
             r_start_channel = 1'b0;
@@ -473,22 +474,25 @@ module Control
           // When the output window is full but the row continues:
           // - increment the per-row window counter
           // - move horizontally to the next window
-          if (w_end_fout && !w_end_line_out && !w_end_channel_out) begin
-            r_window_out_hv <= r_window_out_hv + 1;
+          if (w_end_fout && !w_end_line_out && !w_end_out_vertical) begin
             r_window_out_horizontal <= r_window_out_horizontal + 1;
+            r_window_out_vertical <= r_window_out_vertical + 1;
+            r_window_out_channel <= r_window_out_channel + 1;
             r_addr_fout  <= r_addr_fout + A1_SIZE;
           end
           // When the output window is stored and the row ended:
           // - reset the window counter
           // - jump vertically to the first address of the next row group without overlap
-          else if (w_end_fout && w_end_line_out && !w_end_channel_out) begin
-            r_window_out_hv <= r_window_out_hv + 1;
+          else if (w_end_fout && w_end_line_out && !w_end_out_vertical) begin
             r_window_out_horizontal <= 0;
+            r_window_out_vertical <= r_window_out_vertical + 1;
+            r_window_out_channel <= r_window_out_channel + 1;
             r_addr_fout  <= r_addr_fout + A1_SIZE + FEAT_OUTPUT_SIZE * (A1_SIZE - 1);
           end
-          else if (w_end_fout && w_end_line_out && w_end_channel_out) begin
-            r_window_out_hv <= 0;
+          else if (w_end_fout && w_end_line_out && w_end_out_vertical) begin
             r_window_out_horizontal <= 0;
+            r_window_out_vertical <= 0;
+            r_window_out_channel <= r_window_out_channel + 1;
             r_addr_fout  <= r_addr_fout + A1_SIZE - (FEAT_OUTPUT_SIZE + FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
           end
         end
@@ -598,7 +602,7 @@ module Control
   // Flag indicating the input window is ready for convolution
   logic w_end_fout_sum;
   // Flag indicating the output channel finished writing
-  logic w_end_channel_out_sum;
+  logic w_end_out_vertical_sum;
   logic w_output_en_sum;
 
   logic r_end_sum;
@@ -627,7 +631,7 @@ module Control
       // IDLE_CONTROL
       // Waits for start to begin reading weights and then input data; bias handling is currently disabled
       IDLE_READ:
-        if ((w_end_channel_out == 0) && (next_st_output == IDLE_OUTPUT) && (next_st_input == FEAT_INPUT))
+        if ((w_end_out_vertical == 0) && (next_st_output == IDLE_OUTPUT) && (next_st_input == FEAT_INPUT))
           next_st_read = READ;
       // Waits for the weight fetch covering the active input/output channel pair before moving on to input data
       READ:
@@ -666,11 +670,11 @@ module Control
   end
 
   // Combinational logic asserting when the output buffer is empty and all data is written in memory
-  always_comb begin: w_end_channel_out_sum_block
+  always_comb begin: w_end_out_vertical_sum_block
     if (r_window_out_vertical_sum < N_WINDOW * N_WINDOW)
-      w_end_channel_out_sum = 1'b0;
+      w_end_out_vertical_sum = 1'b0;
     else
-      w_end_channel_out_sum = 1'b1;
+      w_end_out_vertical_sum = 1'b1;
   end
 
 
@@ -723,7 +727,7 @@ module Control
           // When the output window is full but the row continues:
           // - increment the per-row window counter
           // - move horizontally to the next window
-          if (w_end_fout_sum && !w_end_line_out_sum && !w_end_channel_out_sum) begin
+          if (w_end_fout_sum && !w_end_line_out_sum && !w_end_out_vertical_sum) begin
             r_window_out_vertical_sum <= r_window_out_vertical_sum + 1;
             r_window_out_horizontal_sum <= r_window_out_horizontal_sum + 1;
             r_addr_fout_sum  <= r_addr_fout_sum + A1_SIZE;
@@ -731,12 +735,12 @@ module Control
           // When the output window is stored and the row ended:
           // - reset the window counter
           // - jump vertically to the first address of the next row group without overlap
-          else if (w_end_fout_sum && w_end_line_out_sum && !w_end_channel_out_sum) begin
+          else if (w_end_fout_sum && w_end_line_out_sum && !w_end_out_vertical_sum) begin
             r_window_out_vertical_sum <= r_window_out_vertical_sum + 1;
             r_window_out_horizontal_sum <= 0;
             r_addr_fout_sum  <= r_addr_fout_sum + A1_SIZE + FEAT_OUTPUT_SIZE * (A1_SIZE - 1);
           end
-          else if (w_end_fout_sum && w_end_line_out_sum && w_end_channel_out_sum) begin
+          else if (w_end_fout_sum && w_end_line_out_sum && w_end_out_vertical_sum) begin
             r_window_out_vertical_sum <= 0;
             r_window_out_horizontal_sum <= 0;
             r_addr_fout_sum  <= r_addr_fout_sum + A1_SIZE - (FEAT_OUTPUT_SIZE + FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
@@ -758,7 +762,7 @@ module Control
   always_comb begin
     // p_output_addr = w_output_addr;
     // p_output_en = w_output_en;
-    if (w_end_channel_out == 0) begin
+    if (w_end_out_vertical == 0) begin
       p_output_addr = w_output_addr;
       p_output_en = w_output_en;
     end else begin
