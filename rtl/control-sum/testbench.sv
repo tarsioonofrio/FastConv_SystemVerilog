@@ -147,19 +147,22 @@ module tb;
   );
 
   always_comb begin
+    w_output_data_read = mem_wr_data_out;
+    w_input_valid = mem_wr_data_valid;
+
     tb_data_out = mem_wr_data_out;
     tb_data_valid = mem_wr_data_valid;
 
     if (debug) begin
+      mem_wr_chip_en = tb_chip_en;
+      mem_wr_wr_en = 0;
+      mem_wr_address = tb_address;
+      mem_wr_data_in = tb_data_in;
+    end else begin
       mem_wr_chip_en = w_output_en;
       mem_wr_wr_en = w_output_wr;
       mem_wr_address = w_output_addr;
       mem_wr_data_in = w_output_data_write;
-    end else begin
-      mem_wr_chip_en = tb_chip_en;
-      mem_wr_wr_en = tb_wr_en;
-      mem_wr_address = tb_address;
-      mem_wr_data_in = tb_data_in;
     end
   end
 
@@ -168,13 +171,13 @@ module tb;
     $dumpfile("dump.vcd");
     $dumpvars(0, tb);
 
-
-    reset = 1;
-    debug = 1;
     tb_chip_en = 0;
     tb_wr_en = 0;
     tb_address = '0;
     tb_data_in = '{default: '0};
+    debug = 0;
+
+    reset = 1;
     w_start = 0;
     @(posedge clk);
     reset = 0;
@@ -186,7 +189,7 @@ module tb;
     $display("=== Start processing ===");
     wait(w_end);
 
-    debug = 0;
+    debug = 1;
 
     for (int i = 0; i < FEAT_OUTPUT_SIZE; i++) begin
       for (int j = 0; j < FEAT_OUTPUT_SIZE; j++) begin
