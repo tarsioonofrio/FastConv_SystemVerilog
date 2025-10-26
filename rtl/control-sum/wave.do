@@ -62,6 +62,7 @@ add wave -noupdate -radix decimal /tb/dut/r_feat_out
 add wave -noupdate -divider control-sum
 add wave -noupdate /tb/dut/clk
 add wave -noupdate -radix unsigned /tb/dut/r_window_in_channel
+add wave -noupdate /tb/dut/current_st_input
 add wave -noupdate /tb/dut/current_st_output
 add wave -noupdate /tb/dut/current_st_read
 add wave -noupdate /tb/dut/current_st_sum
@@ -84,14 +85,14 @@ add wave -noupdate /tb/dut/w_end_out_layer_sum
 add wave -noupdate /tb/dut/w_output_en_sum
 add wave -noupdate /tb/dut/r_end_sum
 add wave -noupdate -radix decimal /tb/dut/r_read_data
-add wave -noupdate -radix decimal /tb/dut/r_convsum_data
+add wave -noupdate -radix decimal -childformat {{{/tb/dut/r_convsum_data[8]} -radix decimal} {{/tb/dut/r_convsum_data[7]} -radix decimal} {{/tb/dut/r_convsum_data[6]} -radix decimal} {{/tb/dut/r_convsum_data[5]} -radix decimal} {{/tb/dut/r_convsum_data[4]} -radix decimal} {{/tb/dut/r_convsum_data[3]} -radix decimal} {{/tb/dut/r_convsum_data[2]} -radix decimal} {{/tb/dut/r_convsum_data[1]} -radix decimal} {{/tb/dut/r_convsum_data[0]} -radix decimal}} -expand -subitemconfig {{/tb/dut/r_convsum_data[8]} {-radix decimal} {/tb/dut/r_convsum_data[7]} {-radix decimal} {/tb/dut/r_convsum_data[6]} {-radix decimal} {/tb/dut/r_convsum_data[5]} {-radix decimal} {/tb/dut/r_convsum_data[4]} {-radix decimal} {/tb/dut/r_convsum_data[3]} {-radix decimal} {/tb/dut/r_convsum_data[2]} {-radix decimal} {/tb/dut/r_convsum_data[1]} {-radix decimal} {/tb/dut/r_convsum_data[0]} {-radix decimal}} /tb/dut/r_convsum_data
 add wave -noupdate -divider mem-write
 add wave -noupdate /tb/memory_write/clk
 add wave -noupdate /tb/memory_write/reset
 add wave -noupdate /tb/memory_write/chip_en
 add wave -noupdate /tb/memory_write/wr_en
 add wave -noupdate -radix unsigned /tb/memory_write/address
-add wave -noupdate -radix decimal /tb/memory_write/data_in
+add wave -noupdate -radix decimal -childformat {{{/tb/memory_write/data_in[19]} -radix decimal} {{/tb/memory_write/data_in[18]} -radix decimal} {{/tb/memory_write/data_in[17]} -radix decimal} {{/tb/memory_write/data_in[16]} -radix decimal} {{/tb/memory_write/data_in[15]} -radix decimal} {{/tb/memory_write/data_in[14]} -radix decimal} {{/tb/memory_write/data_in[13]} -radix decimal} {{/tb/memory_write/data_in[12]} -radix decimal} {{/tb/memory_write/data_in[11]} -radix decimal} {{/tb/memory_write/data_in[10]} -radix decimal} {{/tb/memory_write/data_in[9]} -radix decimal} {{/tb/memory_write/data_in[8]} -radix decimal} {{/tb/memory_write/data_in[7]} -radix decimal} {{/tb/memory_write/data_in[6]} -radix decimal} {{/tb/memory_write/data_in[5]} -radix decimal} {{/tb/memory_write/data_in[4]} -radix decimal} {{/tb/memory_write/data_in[3]} -radix decimal} {{/tb/memory_write/data_in[2]} -radix decimal} {{/tb/memory_write/data_in[1]} -radix decimal} {{/tb/memory_write/data_in[0]} -radix decimal}} -subitemconfig {{/tb/memory_write/data_in[19]} {-radix decimal} {/tb/memory_write/data_in[18]} {-radix decimal} {/tb/memory_write/data_in[17]} {-radix decimal} {/tb/memory_write/data_in[16]} {-radix decimal} {/tb/memory_write/data_in[15]} {-radix decimal} {/tb/memory_write/data_in[14]} {-radix decimal} {/tb/memory_write/data_in[13]} {-radix decimal} {/tb/memory_write/data_in[12]} {-radix decimal} {/tb/memory_write/data_in[11]} {-radix decimal} {/tb/memory_write/data_in[10]} {-radix decimal} {/tb/memory_write/data_in[9]} {-radix decimal} {/tb/memory_write/data_in[8]} {-radix decimal} {/tb/memory_write/data_in[7]} {-radix decimal} {/tb/memory_write/data_in[6]} {-radix decimal} {/tb/memory_write/data_in[5]} {-radix decimal} {/tb/memory_write/data_in[4]} {-radix decimal} {/tb/memory_write/data_in[3]} {-radix decimal} {/tb/memory_write/data_in[2]} {-radix decimal} {/tb/memory_write/data_in[1]} {-radix decimal} {/tb/memory_write/data_in[0]} {-radix decimal}} /tb/memory_write/data_in
 add wave -noupdate -radix decimal /tb/memory_write/data_out
 add wave -noupdate /tb/memory_write/data_valid
 add wave -noupdate /tb/memory_write/r_cycles_latency
@@ -109,8 +110,8 @@ add wave -noupdate -radix decimal /tb/conv/r_idx_in
 add wave -noupdate -radix decimal /tb/conv/r_idx_out
 add wave -noupdate -radix decimal /tb/conv/product
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 4} {2224500 ps} 1} {{Cursor 6} {63500 ps} 1} {{Cursor 4} {2197500 ps} 1} {{Cursor 5} {2291500 ps} 0}
-quietly wave cursor active 1
+WaveRestoreCursors {{Cursor 4} {2224500 ps} 1} {{Cursor 6} {63500 ps} 1} {{Cursor 4} {2197500 ps} 1} {{Cursor 5} {2217866 ps} 0}
+quietly wave cursor active 4
 configure wave -namecolwidth 256
 configure wave -valuecolwidth 100
 configure wave -justifyvalue left
@@ -125,4 +126,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {2211801 ps} {2234611 ps}
+WaveRestoreZoom {2216403 ps} {2239215 ps}
