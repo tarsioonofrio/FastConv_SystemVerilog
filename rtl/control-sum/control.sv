@@ -476,7 +476,7 @@ module Control
         IDLE_OUTPUT: begin
           r_count_fout <= 0;
           if (p_conv_end)
-            r_feat_out <= w_conv_output;
+            r_feat_out <= p_conv_output;
         end
         // Write output data to memory
         FEAT_OUTPUT: begin
