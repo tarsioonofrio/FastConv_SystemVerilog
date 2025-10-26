@@ -112,6 +112,8 @@ module Control
   logic w_end_in_vertical;
   // Flag indicating the output channel finished writing
   logic w_end_out_vertical;
+  logic w_end_in_layer;
+  logic w_end_out_layer;
   logic w_end_in_channel;
   logic w_end_out_channel;
   // Current input feature address
@@ -441,8 +443,15 @@ module Control
       w_end_out_vertical = 1'b1;
   end
 
-  always_comb begin: w_end_out_channel_block
+  always_comb begin: w_end_out_layer_block
     if (r_window_out_channel < (N_WINDOW * N_WINDOW - 1))
+      w_end_out_layer = 1'b0;
+    else
+      w_end_out_layer = 1'b1;
+  end
+
+  always_comb begin: w_end_out_channel_block
+    if (r_window_out_channel < (N_WINDOW * N_WINDOW * N_CHANNEL_IN - 1))
       w_end_out_channel = 1'b0;
     else
       w_end_out_channel = 1'b1;
@@ -470,10 +479,10 @@ module Control
         end
         // Write output data to memory
         FEAT_OUTPUT: begin
-          if (w_end_fout && w_end_line_out && w_end_out_vertical)
-            r_start_channel = 1'b1;
-          else
-            r_start_channel = 1'b0;
+          // if (w_end_fout && w_end_line_out && w_end_out_vertical)
+          //   r_start_channel = 1'b1;
+          // else
+          //   r_start_channel = 1'b0;
 
             // Each cycle increments the output counter to select which register value gets written
           r_count_fout <= r_count_fout + 1;
@@ -618,6 +627,7 @@ module Control
   logic w_end_line_out_sum;
   // Flag indicating the output channel finished writing
   logic w_end_out_vertical_sum;
+  logic w_end_out_layer_sum;
   logic w_end_out_channel_sum;
   logic w_output_en_sum;
 
@@ -647,7 +657,7 @@ module Control
       // IDLE_CONTROL
       // Waits for start to begin reading weights and then input data; bias handling is currently disabled
       IDLE_READ:
-        if ((w_end_out_vertical == 0) && (next_st_output == IDLE_OUTPUT) && (next_st_input == FEAT_INPUT))
+        if ((w_end_out_layer) && (next_st_output == IDLE_OUTPUT) && (next_st_input == FEAT_INPUT))
           next_st_read = READ;
       // Waits for the weight fetch covering the active input/output channel pair before moving on to input data
       READ:
@@ -693,8 +703,15 @@ module Control
       w_end_out_vertical_sum = 1'b1;
   end
 
-  always_comb begin: w_end_out_channel_sum_block
+  always_comb begin: w_end_out_layer_sum_block
     if (r_window_out_channel_sum < (N_WINDOW * N_WINDOW - 1))
+      w_end_out_layer_sum = 1'b0;
+    else
+      w_end_out_layer_sum = 1'b1;
+  end
+
+  always_comb begin: w_end_out_channel_sum_block
+    if (r_window_out_channel_sum < (N_WINDOW * N_WINDOW * N_CHANNEL_IN - 1))
       w_end_out_channel_sum = 1'b0;
     else
       w_end_out_channel_sum = 1'b1;
@@ -794,12 +811,12 @@ module Control
   always_comb begin
     // p_output_addr = w_output_addr;
     // p_output_en = w_output_en;
-    if (w_end_out_vertical == 0) begin
-      p_output_addr = w_output_addr;
-      p_output_en = w_output_en;
-    end else begin
+    if (w_end_out_layer) begin
       p_output_addr = w_output_addr_sum;
       p_output_en = w_output_en_sum;
+    end else begin
+      p_output_addr = w_output_addr;
+      p_output_en = w_output_en;
     end
   end
 
