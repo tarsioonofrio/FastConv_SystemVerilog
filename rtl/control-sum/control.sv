@@ -130,6 +130,7 @@ module Control
   type_weight r_weight;
   // Register bank for output features
   type_output r_feat_out;
+  type_output w_conv_output;
 
   // Sequential logic that advances the state machines
   always_ff @(posedge clk or posedge reset) begin: FSM_BLOCK
@@ -475,7 +476,7 @@ module Control
         IDLE_OUTPUT: begin
           r_count_fout <= 0;
           if (p_conv_end)
-            r_feat_out <= p_conv_output;
+            r_feat_out <= w_conv_output;
         end
         // Write output data to memory
         FEAT_OUTPUT: begin
@@ -599,13 +600,13 @@ module Control
   } state_type_read;
 
   typedef enum {
-    IDLE_CONV,
+    IDLE_SUM,
     STORE,
-    SUM_CONV
-  } state_type_conv;
+    SUM
+  } state_type_sum;
 
   state_type_read current_st_read, next_st_read;
-  state_type_conv current_st_conv, next_st_conv;
+  state_type_sum current_st_sum, next_st_sum;
 
   // Input feature read counter
   logic [$clog2(A1_SIZE*A2_SIZE)-1:0] r_count_fout_sum;
@@ -632,19 +633,20 @@ module Control
   logic w_output_en_sum;
 
   logic r_end_sum;
-  // Register bank for input data from convolution
-  type_output r_data_sum;
   // Register bank for read data
-  type_output r_input_sum;
+  type_output r_read_data;
+  // Register bank for input data from convolution
+  type_output r_convsum_data;
+  type_output w_conv_output_sum;
 
   // Sequential logic that advances the state machines
   always_ff @(posedge clk or posedge reset) begin: FSM_SUM_BLOCK
     if (reset) begin
       current_st_read <= IDLE_READ;
-      // current_st_output <= IDLE_OUTPUT;
+      current_st_sum <= IDLE_SUM;
     end else begin
       current_st_read <= next_st_read;
-      // current_st_output <= next_st_output;
+      current_st_sum <= next_st_sum;
     end
   end
 
@@ -663,11 +665,11 @@ module Control
       READ:
         if (w_end_fout_sum)
           next_st_read = SUM_READ;
-        SUM_READ:
-        // If the current state of the FSM waiting for the convolution output is SUM,
-        // then it can advance to the next state, because the conv FSM will also advance
-        if (next_st_output == IDLE_OUTPUT)
-          next_st_read = READ;
+      SUM_READ:
+      // If the current state of the FSM waiting for the convolution output is SUM,
+      // then it can advance to the next state, because the conv FSM will also advance
+      if (next_st_sum == SUM)
+        next_st_read = READ;
     endcase
   end
 
@@ -744,21 +746,21 @@ module Control
       r_window_out_total_sum <= 0;
       r_window_out_vertical_sum <= 0;
       r_window_out_horizontal_sum <= 0;
-      r_data_sum   <= '{default: '0};
+      r_read_data   <= '{default: '0};
     end else begin
       unique case (current_st_read)
         default: begin end
         IDLE_READ: begin
           r_end_sum <= 0;
           r_count_fout_sum <= 0;
-          r_data_sum   <= '{default: '0};
+          r_read_data   <= '{default: '0};
         end
         // Each cycle advances the weight address and stores the returned value in-order
         READ: begin
           r_end_sum <= 0;
           if (p_output_valid) begin
             r_count_fout_sum         <= r_count_fout_sum + 1;
-            r_data_sum[r_count_fout_sum] <= p_output_data_read;
+            r_read_data[r_count_fout_sum] <= p_output_data_read;
           end
           // Each cycle increments the output counter to select which register value gets written
           r_count_fout_sum <= r_count_fout_sum + 1;
@@ -800,7 +802,7 @@ module Control
           if (p_conv_end) begin
             r_end_sum <= 1;
             // for (int i = 0; i < A1_SIZE * A2_SIZE; i++)
-            //   r_data_sum[i] <= r_data_sum[i] + p_conv_input[i];
+            //   r_read_data[i] <= r_read_data[i] + p_conv_input[i];
           end
         end
       endcase
@@ -814,13 +816,55 @@ module Control
     if (w_end_out_layer) begin
       p_output_addr = w_output_addr_sum;
       p_output_en = w_output_en_sum;
+      w_conv_output = p_conv_output;
     end else begin
       p_output_addr = w_output_addr;
       p_output_en = w_output_en;
+      w_conv_output_sum = p_conv_output;
     end
   end
 
   // // Output state machine block
+
+  // // Combinational logic for the input (read) state machine
+  always_comb begin: next_st_sum_block
+    next_st_sum = current_st_sum;
+    unique case (current_st_sum)
+      // IDLE_CONTROL
+      // Waits for start to begin reading weights and then input data; bias handling is currently disabled
+      IDLE_SUM:
+        if ((w_end_out_layer) && (next_st_output == IDLE_OUTPUT) && (next_st_input == FEAT_INPUT))
+          next_st_sum = STORE;
+      // Waits for the weight fetch covering the active input/output channel pair before moving on to input data
+      STORE:
+        if (p_conv_end)
+          next_st_sum = SUM;
+      SUM:
+      // If the current state of the FSM waiting for the convolution output is SUM,
+      // then it can advance to the next state, because the conv FSM will also advance
+      // if (next_st_output == IDLE_OUTPUT)
+        next_st_sum = STORE;
+    endcase
+  end
+
+  // Sequential logic updating the registers tied to the input state machine
+  always_ff @(posedge clk) begin: current_st_sum_block
+    if (reset) begin
+      r_convsum_data <= '{default: 0};
+    end else begin
+      unique case (current_st_sum)
+        IDLE_SUM:
+          r_convsum_data <= '{default: 0};
+        STORE:
+          if (p_conv_end)
+            r_convsum_data <= w_conv_output_sum;
+        SUM:
+        for (int i = 0; i < A1_SIZE * A2_SIZE; i++)
+          r_convsum_data[i] <= r_convsum_data[i] + r_read_data[i];
+      endcase
+    end
+  end
+
 
   // // Combinational logic for the input (read) state machine
   // always_comb begin
@@ -842,7 +886,7 @@ module Control
 
   // // Combinational logic driving output ports from internal registers
   // always_comb begin
-  //   p_output_sum     = r_data_sum;
+  //   p_output_sum     = r_read_data;
   //   p_end_sum        = r_end_sum;
   // end
 

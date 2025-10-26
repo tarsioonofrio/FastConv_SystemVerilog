@@ -11,7 +11,7 @@ add wave -noupdate /tb/dut/p_conv_end
 add wave -noupdate /tb/dut/current_st_input
 add wave -noupdate /tb/dut/current_st_output
 add wave -noupdate /tb/dut/current_st_read
-add wave -noupdate /tb/dut/current_st_conv
+add wave -noupdate /tb/dut/current_st_sum
 add wave -noupdate /tb/conv/current_state
 add wave -noupdate -radix decimal /tb/dut/p_conv_input
 add wave -noupdate -radix decimal /tb/dut/p_conv_weight
@@ -64,7 +64,7 @@ add wave -noupdate /tb/dut/clk
 add wave -noupdate -radix unsigned /tb/dut/r_window_in_channel
 add wave -noupdate /tb/dut/current_st_output
 add wave -noupdate /tb/dut/current_st_read
-add wave -noupdate /tb/dut/current_st_conv
+add wave -noupdate /tb/dut/current_st_sum
 add wave -noupdate /tb/dut/w_end_out_layer
 add wave -noupdate /tb/dut/p_output_en
 add wave -noupdate /tb/dut/p_output_wr
@@ -83,8 +83,8 @@ add wave -noupdate /tb/dut/w_end_out_vertical_sum
 add wave -noupdate /tb/dut/w_end_out_layer_sum
 add wave -noupdate /tb/dut/w_output_en_sum
 add wave -noupdate /tb/dut/r_end_sum
-add wave -noupdate -radix decimal /tb/dut/r_data_sum
-add wave -noupdate -radix decimal /tb/dut/r_input_sum
+add wave -noupdate -radix decimal /tb/dut/r_read_data
+add wave -noupdate -radix decimal /tb/dut/r_convsum_data
 add wave -noupdate -divider mem-write
 add wave -noupdate /tb/memory_write/clk
 add wave -noupdate /tb/memory_write/reset
