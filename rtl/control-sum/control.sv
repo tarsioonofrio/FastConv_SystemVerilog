@@ -482,12 +482,7 @@ module Control
         end
         // Write output data to memory
         FEAT_OUTPUT: begin
-          // if (w_end_fout && w_end_line_out && w_end_out_vertical)
-          //   r_start_channel = 1'b1;
-          // else
-          //   r_start_channel = 1'b0;
-
-            // Each cycle increments the output counter to select which register value gets written
+          // Each cycle increments the output counter to select which register value gets written
           r_count_fout <= r_count_fout + 1;
           if(w_end_fout)
             r_window_out_total <= r_window_out_total + 1;
@@ -495,35 +490,29 @@ module Control
           // When the output window is full but the row continues:
           // - increment the per-row window counter
           // - move horizontally to the next window
-          if (w_end_fout && !w_end_line_out) begin
+          if (w_end_fout && w_end_line_out)
+            r_window_out_horizontal <= 0;
+          else if (w_end_fout && !w_end_line_out)
             r_window_out_horizontal <= r_window_out_horizontal + 1;
-            r_window_out_vertical <= r_window_out_vertical + 1;
-            r_window_out_channel <= r_window_out_channel + 1;
-            r_addr_fout <= r_addr_fout + A1_SIZE;
-          end
-          // When the output window is stored and the row ended:
-          // - reset the window counter
-          // - jump vertically to the first address of the next row group without overlap
-          else if (w_end_fout && w_end_line_out && !w_end_out_vertical) begin
-            r_window_out_horizontal <= 0;
-            r_window_out_vertical <= r_window_out_vertical + 1;
-            r_window_out_channel <= r_window_out_channel + 1;
-            r_addr_fout <= r_addr_fout + A1_SIZE + FEAT_OUTPUT_SIZE * (A1_SIZE - 1);
-          end
-          // else if (w_end_fout && w_end_line_out && w_end_out_vertical && !w_end_out_layer) begin
-          else if (w_end_fout && w_end_line_out && w_end_out_vertical && !w_end_out_layer) begin
-            r_window_out_horizontal <= 0;
+
+          if (w_end_fout && w_end_out_vertical)
             r_window_out_vertical <= 0;
-            r_window_out_channel <= r_window_out_channel + 1;
-            r_addr_fout <= r_addr_fout + A1_SIZE - (FEAT_OUTPUT_SIZE + FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
-          end
-          else if (w_end_fout && w_end_out_layer) begin
-            r_window_out_horizontal <= 0;
-            r_window_out_vertical <= 0;
+          else if (w_end_fout && !w_end_out_vertical)
+            r_window_out_vertical <= r_window_out_vertical + 1;
+
+          if (w_end_fout && w_end_out_channel)
             r_window_out_channel <= 0;
-            // r_addr_fout <= r_addr_fout + A1_SIZE - (FEAT_OUTPUT_SIZE + FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
+          else if (w_end_fout && !w_end_out_channel)
+            r_window_out_channel <= r_window_out_channel + 1;
+
+          if (w_end_fout && !w_end_line_out)
+            r_addr_fout <= r_addr_fout + A1_SIZE;
+          else if (w_end_fout && w_end_line_out)
+            r_addr_fout <= r_addr_fout + A1_SIZE + FEAT_OUTPUT_SIZE * (A1_SIZE - 1);
+          else if (w_end_fout && w_end_out_vertical)
+            r_addr_fout <= r_addr_fout + A1_SIZE - (FEAT_OUTPUT_SIZE + FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
+          else if (w_end_fout && w_end_out_channel)
             r_addr_fout <= 0;
-          end
         end
       endcase
     end
@@ -557,45 +546,6 @@ module Control
 
 
 // module ControlSum
-//   import pack_def::*;
-//   import pack_typedef::*;
-//   import pack_param::*;
-// #(
-//     parameter int NADDR            = 16,
-//     parameter int NBITS            = 20,
-//     parameter int LATENCY          = 1,
-//     parameter int ROM              = 0,
-//     parameter int QUANT            = 8,
-//     parameter int N_WINDOW         = 10,
-//     parameter int N_CHANNEL_IN     = 1,
-//     parameter int N_CHANNEL_OUT    = 1,
-//     parameter int FEAT_INPUT_SIZE  = 32,
-//     parameter int FEAT_OUTPUT_SIZE = 30,
-//     parameter int LAST_WINDOW      = 0
-// ) (
-//     input  logic clk,
-//     input  logic reset,
-
-//     input  logic p_start_sum, // p_conv_end from conv
-//     output logic p_end_sum, // p_start_sum from control
-//     input  logic p_sum_sum,
-
-//     input  type_output p_input_sum, // from convolution
-//     output type_output p_output_sum, // to control
-
-//     output logic p_read_en_sum, // to memory output
-//     output logic[NADDR-1:0] p_read_addr_sum,  // to memory output
-//     input  logic_vector p_read_data_sum,  // to memory output
-//     input  logic p_read_valid_sum  // to memory output
-
-//     // input  logic p_write_en, // from control
-//     // input  logic[NADDR-1:0] p_write_addr // from control
-//     // output logic p_write_en_out, // to memory
-//     // output logic[NADDR-1:0] p_write_addr_out, // to memory
-//     // output logic_vector p_write_data // to memory
-// );
-
-//   timeunit 1ns; timeprecision 1ps;
 
   typedef enum {
     IDLE_READ,
@@ -764,39 +714,21 @@ module Control
             r_read_data[r_count_fout_sum] <= p_output_data_read;
           end
           // Each cycle increments the output counter to select which register value gets written
-          r_count_fout_sum <= r_count_fout_sum + 1;
           if(w_end_fout_sum)
             r_window_out_total_sum <= r_window_out_total_sum + 1;
-          // When the output window is full but the row continues:
-          // - increment the per-row window counter
-          // - move horizontally to the next window
-          if (w_end_fout_sum && !w_end_line_out_sum) begin
-            r_window_out_horizontal_sum <= r_window_out_horizontal_sum + 1;
-            r_window_out_vertical_sum <= r_window_out_vertical_sum + 1;
-            r_window_out_channel_sum <= r_window_out_channel_sum + 1;
-            r_addr_fout_sum  <= r_addr_fout_sum + A1_SIZE;
-          end
-          // When the output window is stored and the row ended:
-          // - reset the window counter
-          // - jump vertically to the first address of the next row group without overlap
-          else if (w_end_fout_sum && w_end_line_out_sum && !w_end_out_vertical_sum) begin
-            r_window_out_horizontal_sum <= 0;
-            r_window_out_vertical_sum <= r_window_out_vertical_sum + 1;
-            r_window_out_channel_sum <= r_window_out_channel_sum + 1;
-            r_addr_fout_sum  <= r_addr_fout_sum + A1_SIZE + FEAT_OUTPUT_SIZE * (A1_SIZE - 1);
-          end
-          else if (w_end_fout_sum && w_end_line_out_sum && w_end_out_vertical_sum && !w_end_out_layer) begin
-            r_window_out_horizontal_sum <= 0;
-            r_window_out_vertical_sum <= 0;
-            r_window_out_channel_sum <= r_window_out_channel_sum + 1;
-            r_addr_fout_sum  <= r_addr_fout_sum + A1_SIZE - (FEAT_OUTPUT_SIZE + FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
-          end
-          else if (w_end_fout_sum && w_end_line_out_sum && w_end_out_vertical_sum && w_end_out_layer) begin
-            r_window_out_horizontal_sum <= 0;
-            r_window_out_vertical_sum <= 0;
-            r_window_out_channel_sum <= 0;
-            r_addr_fout_sum  <= r_addr_fout_sum + A1_SIZE - (FEAT_OUTPUT_SIZE + FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
-          end
+
+          r_window_out_horizontal_sum <= (w_end_fout_sum && w_end_line_out_sum)    ? 0 : r_window_out_horizontal_sum + 1;
+          r_window_out_vertical_sum   <= (w_end_fout_sum && w_end_out_vertical_sum)? 0 : r_window_out_vertical_sum + 1;
+          r_window_out_channel_sum    <= (w_end_fout_sum && w_end_out_channel_sum) ? 0 : r_window_out_channel_sum + 1;
+
+          if (w_end_fout_sum && !w_end_line_out_sum)
+            r_addr_fout_sum <= r_addr_fout_sum + A1_SIZE;
+          else if (w_end_fout_sum && w_end_line_out_sum)
+            r_addr_fout_sum <= r_addr_fout_sum + A1_SIZE + FEAT_OUTPUT_SIZE * (A1_SIZE - 1);
+          else if (w_end_fout_sum && w_end_out_vertical_sum)
+            r_addr_fout_sum <= r_addr_fout_sum + A1_SIZE - (FEAT_OUTPUT_SIZE + FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
+          else if (w_end_fout_sum && w_end_out_channel_sum)
+            r_addr_fout_sum <= 0;
         end
         SUM_READ: begin
           r_count_fout_sum <= 0;
