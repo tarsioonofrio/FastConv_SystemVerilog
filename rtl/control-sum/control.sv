@@ -119,6 +119,7 @@ module Control
   // Current input feature address
   logic[NADDR-1:0] w_addr_fin;
 
+  logic r_sum;
   logic w_convsum_end;
   logic w_output_en;
   logic[NADDR-1:0] w_output_addr;
@@ -446,7 +447,7 @@ module Control
   end
 
   always_comb begin: w_end_out_layer_block
-    if (r_window_out_channel < (N_WINDOW * N_WINDOW - 1))
+    if (r_window_out_channel < (N_WINDOW * N_WINDOW - 2))
       w_end_out_layer = 1'b0;
     else
       w_end_out_layer = 1'b1;
@@ -463,7 +464,7 @@ module Control
   // Sequential logic updating the registers tied to the output state machine
   always_ff @(posedge clk) begin: current_st_output_block
     if (reset) begin
-      r_addr_fout  <= 0;
+      r_addr_fout <= 0;
       r_count_fout <= 0;
       r_start_channel = 1'b0;
       r_window_out_total <= 0;
@@ -498,7 +499,7 @@ module Control
             r_window_out_horizontal <= r_window_out_horizontal + 1;
             r_window_out_vertical <= r_window_out_vertical + 1;
             r_window_out_channel <= r_window_out_channel + 1;
-            r_addr_fout  <= r_addr_fout + A1_SIZE;
+            r_addr_fout <= r_addr_fout + A1_SIZE;
           end
           // When the output window is stored and the row ended:
           // - reset the window counter
@@ -507,19 +508,22 @@ module Control
             r_window_out_horizontal <= 0;
             r_window_out_vertical <= r_window_out_vertical + 1;
             r_window_out_channel <= r_window_out_channel + 1;
-            r_addr_fout  <= r_addr_fout + A1_SIZE + FEAT_OUTPUT_SIZE * (A1_SIZE - 1);
+            r_addr_fout <= r_addr_fout + A1_SIZE + FEAT_OUTPUT_SIZE * (A1_SIZE - 1);
           end
-          else if (w_end_fout && w_end_line_out && w_end_out_vertical && !w_end_out_channel) begin
+          // else if (w_end_fout && w_end_line_out && w_end_out_vertical && !w_end_out_layer) begin
+          else if (w_end_fout && w_end_line_out && w_end_out_vertical && !w_end_out_layer) begin
             r_window_out_horizontal <= 0;
             r_window_out_vertical <= 0;
             r_window_out_channel <= r_window_out_channel + 1;
-            r_addr_fout  <= r_addr_fout + A1_SIZE - (FEAT_OUTPUT_SIZE + FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
+            r_addr_fout <= r_addr_fout + A1_SIZE - (FEAT_OUTPUT_SIZE + FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
           end
-          else if (w_end_fout && w_end_line_out && w_end_out_vertical && w_end_out_channel) begin
-            r_window_out_horizontal <= 0;
-            r_window_out_vertical <= 0;
-            r_window_out_channel <= 0;
-            r_addr_fout  <= r_addr_fout + A1_SIZE - (FEAT_OUTPUT_SIZE + FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
+          // else if (w_end_fout && w_end_out_layer) begin
+          // if (w_end_fout && w_end_out_layer) begin
+            // r_window_out_horizontal <= 0;
+            // r_window_out_vertical <= 0;
+            // r_window_out_channel <= 0;
+            // r_addr_fout <= r_addr_fout + A1_SIZE - (FEAT_OUTPUT_SIZE + FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
+            // r_addr_fout <= 0;
           end
         end
       endcase
@@ -660,7 +664,7 @@ module Control
       // IDLE_CONTROL
       // Waits for start to begin reading weights and then input data; bias handling is currently disabled
       IDLE_READ:
-        if ((w_end_out_layer) && (next_st_output == IDLE_OUTPUT) && (next_st_input == FEAT_INPUT))
+        if (w_end_fout && w_end_out_layer && w_end_out_vertical)
           next_st_read = READ;
       // Waits for the weight fetch covering the active input/output channel pair before moving on to input data
       READ:
@@ -782,13 +786,13 @@ module Control
             r_window_out_channel_sum <= r_window_out_channel_sum + 1;
             r_addr_fout_sum  <= r_addr_fout_sum + A1_SIZE + FEAT_OUTPUT_SIZE * (A1_SIZE - 1);
           end
-          else if (w_end_fout_sum && w_end_line_out_sum && w_end_out_vertical_sum && !w_end_out_channel_sum) begin
+          else if (w_end_fout_sum && w_end_line_out_sum && w_end_out_vertical_sum && !w_end_out_layer) begin
             r_window_out_horizontal_sum <= 0;
             r_window_out_vertical_sum <= 0;
             r_window_out_channel_sum <= r_window_out_channel_sum + 1;
             r_addr_fout_sum  <= r_addr_fout_sum + A1_SIZE - (FEAT_OUTPUT_SIZE + FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
           end
-          else if (w_end_fout_sum && w_end_line_out_sum && w_end_out_vertical_sum && w_end_out_channel_sum) begin
+          else if (w_end_fout_sum && w_end_line_out_sum && w_end_out_vertical_sum && w_end_out_layer) begin
             r_window_out_horizontal_sum <= 0;
             r_window_out_vertical_sum <= 0;
             r_window_out_channel_sum <= 0;
@@ -816,7 +820,7 @@ module Control
       p_output_en = w_output_en_sum;
       w_conv_output_sum = p_conv_output;
       // w_end_sum = p_conv_end;
-      w_convsum_end = (current_st_sum == SUM) ? 1'b1 : 1'b0;
+      w_convsum_end = r_sum;
       w_convsum_output = r_convsum_data;
     end else begin
       p_output_addr = w_output_addr;
@@ -835,7 +839,7 @@ module Control
       // IDLE_CONTROL
       // Waits for start to begin reading weights and then input data; bias handling is currently disabled
       IDLE_SUM:
-        if ((w_end_out_layer) && (next_st_output == IDLE_OUTPUT) && (next_st_input == FEAT_INPUT))
+      if (w_end_fout && w_end_out_layer && w_end_out_vertical)
           next_st_sum = STORE;
       // Waits for the weight fetch covering the active input/output channel pair before moving on to input data
       STORE:
@@ -853,16 +857,23 @@ module Control
   always_ff @(posedge clk) begin: current_st_sum_block
     if (reset) begin
       r_convsum_data <= '{default: 0};
+      r_sum <= 0;
     end else begin
       unique case (current_st_sum)
-        IDLE_SUM:
+        IDLE_SUM: begin
           r_convsum_data <= '{default: 0};
-        STORE:
+          r_sum <= 0;
+        end
+        STORE: begin
+          r_sum <= 0;
           if (p_conv_end)
             r_convsum_data <= w_conv_output_sum;
-        SUM:
-        for (int i = 0; i < A1_SIZE * A2_SIZE; i++)
-          r_convsum_data[i] <= r_convsum_data[i] + r_read_data[i];
+        end
+        SUM: begin
+          r_sum <= 1;
+          for (int i = 0; i < A1_SIZE * A2_SIZE; i++)
+            r_convsum_data[i] <= r_convsum_data[i] + r_read_data[i];
+        end
       endcase
     end
   end
