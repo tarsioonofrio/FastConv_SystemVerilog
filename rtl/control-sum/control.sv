@@ -517,13 +517,12 @@ module Control
             r_window_out_channel <= r_window_out_channel + 1;
             r_addr_fout <= r_addr_fout + A1_SIZE - (FEAT_OUTPUT_SIZE + FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
           end
-          // else if (w_end_fout && w_end_out_layer) begin
-          // if (w_end_fout && w_end_out_layer) begin
-            // r_window_out_horizontal <= 0;
-            // r_window_out_vertical <= 0;
-            // r_window_out_channel <= 0;
+          else if (w_end_fout && w_end_out_layer) begin
+            r_window_out_horizontal <= 0;
+            r_window_out_vertical <= 0;
+            r_window_out_channel <= 0;
             // r_addr_fout <= r_addr_fout + A1_SIZE - (FEAT_OUTPUT_SIZE + FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
-            // r_addr_fout <= 0;
+            r_addr_fout <= 0;
           end
         end
       endcase
@@ -839,7 +838,7 @@ module Control
       // IDLE_CONTROL
       // Waits for start to begin reading weights and then input data; bias handling is currently disabled
       IDLE_SUM:
-      if (w_end_fout && w_end_out_layer && w_end_out_vertical)
+        if ((w_end_out_layer) && (next_st_output == IDLE_OUTPUT) && (next_st_input == FEAT_INPUT))
           next_st_sum = STORE;
       // Waits for the weight fetch covering the active input/output channel pair before moving on to input data
       STORE:
