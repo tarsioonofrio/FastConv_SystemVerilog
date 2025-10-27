@@ -717,9 +717,20 @@ module Control
           if(w_end_fout_sum)
             r_window_out_total_sum <= r_window_out_total_sum + 1;
 
-          r_window_out_horizontal_sum <= (w_end_fout_sum && w_end_line_out_sum)    ? 0 : r_window_out_horizontal_sum + 1;
-          r_window_out_vertical_sum   <= (w_end_fout_sum && w_end_out_vertical_sum)? 0 : r_window_out_vertical_sum + 1;
-          r_window_out_channel_sum    <= (w_end_fout_sum && w_end_out_channel_sum) ? 0 : r_window_out_channel_sum + 1;
+          if (w_end_fout_sum && w_end_line_out_sum)
+            r_window_out_horizontal_sum <= 0;
+          else if (w_end_fout_sum && !w_end_line_out_sum)
+            r_window_out_horizontal_sum <= r_window_out_horizontal_sum + 1;
+
+          if (w_end_fout_sum && w_end_out_vertical_sum)
+            r_window_out_vertical_sum <= 0;
+          else if (w_end_fout_sum && !w_end_out_vertical_sum)
+            r_window_out_vertical_sum <= r_window_out_vertical_sum + 1;
+
+          if (w_end_fout_sum && w_end_out_channel_sum)
+            r_window_out_channel_sum <= 0;
+          else if (w_end_fout_sum && !w_end_out_channel_sum)
+            r_window_out_channel_sum <= r_window_out_channel_sum + 1;
 
           if (w_end_fout_sum && !w_end_line_out_sum)
             r_addr_fout_sum <= r_addr_fout_sum + A1_SIZE;
@@ -728,6 +739,7 @@ module Control
           else if (w_end_fout_sum && w_end_out_vertical_sum)
             r_addr_fout_sum <= r_addr_fout_sum + A1_SIZE - (FEAT_OUTPUT_SIZE + FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
           else if (w_end_fout_sum && w_end_out_channel_sum)
+          // na verdade ao final de cada canal avança para o próximo canal de saída
             r_addr_fout_sum <= 0;
         end
         SUM_READ: begin
