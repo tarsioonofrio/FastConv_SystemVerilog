@@ -1,0 +1,59 @@
+{
+  "signal": [
+    {
+      "name": "clock",
+      "wave": "P...................................................."
+    },
+    {
+      "name": "end_read_fin",
+      "wave": "lhl..............hl..............hl..............hl..",
+      "period": 1,
+      "node": ".A...............B."
+    },
+    {},
+    {
+      "name": "conv start",
+      "wave": "l.hl..............hl..............hl..............hl.",
+      "node": "..XC........."
+    },
+    {
+      "name": "conv end",
+      "wave": "l..........hl..............hl..............hl........",
+      "node": "...........DE"
+    },
+    {
+      "name": "idle conv",
+      "wave": "l...........x.....l.........x.....l.........x.....l..",
+      "node": "....................."
+    },
+    {},
+    {
+      "name": "read_OFMAP",
+      "wave": "l.h.......l.......h.......l.......h.......l.......h..",
+      "node": "..E.......F."
+    },
+
+    {
+      "name": "write_OFMAP",
+      "wave": "l...........h.......l.......h.......l.......h.......l",
+      "node": "............G.......H."
+    }
+  ],
+  "head": {
+    "text": "WaveDrom example",
+    "tick": 0,
+    "every": 1
+  },
+  "config": { "hscale": 1, "skin": "narrow" },
+  "edge": [
+    "A<~>B 16 cycles to read and transfer data",
+    "C<~>D conv com 9 ciclos",
+    "E<~>F read 9 values",
+    "G<->H write add OFMAP",
+    "A~X START",
+    "D~G write ofmap",
+    "M~>J",
+    "M~>K",
+    "M~>O STEP 6"
+  ]
+}
