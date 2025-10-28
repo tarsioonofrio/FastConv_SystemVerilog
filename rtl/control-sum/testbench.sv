@@ -123,12 +123,12 @@ module tb;
   ) memory_write(
     .clk(clk),
     .reset(reset),
-    .chip_en(mem_wr_chip_en),
-    .wr_en(mem_wr_wr_en),
-    .address(mem_wr_address),
-    .data_in(mem_wr_data_in),
-    .data_out(mem_wr_data_out),
-    .data_valid(mem_wr_data_valid)
+    .chip_en(w_output_en),
+    .wr_en(w_output_wr),
+    .address(w_output_addr),
+    .data_in(w_output_data_write),
+    .data_out(w_output_data_read),
+    .data_valid(w_output_valid)
   );
 
   Conv #(
@@ -146,25 +146,6 @@ module tb;
     .p_output(w_conv_output)
   );
 
-  always_comb begin
-    w_output_data_read = mem_wr_data_out;
-    w_output_valid = mem_wr_data_valid;
-
-    tb_data_out = mem_wr_data_out;
-    tb_data_valid = mem_wr_data_valid;
-
-    if (debug) begin
-      mem_wr_chip_en = tb_chip_en;
-      mem_wr_wr_en = 0;
-      mem_wr_address = tb_address;
-      mem_wr_data_in = tb_data_in;
-    end else begin
-      mem_wr_chip_en = w_output_en;
-      mem_wr_wr_en = w_output_wr;
-      mem_wr_address = w_output_addr;
-      mem_wr_data_in = w_output_data_write;
-    end
-  end
 
   // Inicialização dos sinais e reset
   initial begin
@@ -184,23 +165,38 @@ module tb;
     w_start = 1;
     @(posedge clk);
     w_start = 0;
-    #2260ns
+
 
     for (int i = 0; i < FOUT1_SIZE; i++) begin
-      @(posedge clk);
-      wait(dut.p_conv_end);
-      @(posedge clk);
-      @(posedge clk);
-      @(posedge clk);
-      for (int j = 0; j < FOUT2_SIZE; j++) begin
-        @(posedge clk);
-        // wait(dut.p_output_wr);
-        if ($signed(const_feat_out_batch[i][j]) != $signed(dut.p_output_data_write)) begin
-          $display("Time %0f | const_feat_out[%0d][%0d] = %0d | Output = %0d", $realtime, i, j, const_feat_out_batch[i][j], dut.p_output_data_write);
-          $display("=== ERROR - End simulation ====");
-        end
-      end
-    end
+       @(posedge clk);
+       wait(dut.p_conv_end);
+       @(posedge clk);
+       for (int j = 0; j < FOUT2_SIZE; j++) begin
+         @(posedge clk);
+         wait(dut.p_output_wr);
+         if ($signed(const_feat_out_batch[i][j]) != $signed(dut.p_output_data_write)) begin
+           $display("Time %0f | const_feat_out[%0d][%0d] = %0d | Output = %0d", $realtime, i, j, const_feat_out_batch[i][j], dut.p_output_data_write);
+           $display("=== ERROR - End simulation ====");
+         end
+       end
+     end
+
+    // #2260ns
+    // for (int i = 0; i < FOUT1_SIZE; i++) begin
+    //   @(posedge clk);
+    //   wait(dut.p_conv_end);
+    //   @(posedge clk);
+    //   @(posedge clk);
+    //   @(posedge clk);
+    //   for (int j = 0; j < FOUT2_SIZE; j++) begin
+    //     @(posedge clk);
+    //     // wait(dut.p_output_wr);
+    //     if ($signed(const_feat_out_batch[i][j]) != $signed(dut.p_output_data_write)) begin
+    //       $display("Time %0f | const_feat_out[%0d][%0d] = %0d | Output = %0d", $realtime, i, j, const_feat_out_batch[i][j], dut.p_output_data_write);
+    //       $display("=== ERROR - End simulation ====");
+    //     end
+    //   end
+    // end
 
 
     // Start processamento

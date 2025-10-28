@@ -8,14 +8,17 @@ add wave -noupdate /tb/dut/p_end
 add wave -noupdate /tb/dut/p_conv_start
 add wave -noupdate /tb/dut/p_conv_idle
 add wave -noupdate /tb/dut/p_conv_end
+add wave -noupdate /tb/dut/w_end_read_fin
 add wave -noupdate /tb/dut/current_st_input
 add wave -noupdate /tb/dut/current_st_output
-add wave -noupdate /tb/dut/current_st_read
-add wave -noupdate /tb/dut/current_st_sum
 add wave -noupdate /tb/conv/current_state
+add wave -noupdate -divider control
 add wave -noupdate -radix decimal /tb/dut/p_conv_input
 add wave -noupdate -radix decimal /tb/dut/p_conv_weight
-add wave -noupdate -radix decimal -childformat {{{/tb/dut/p_conv_output[8]} -radix decimal} {{/tb/dut/p_conv_output[7]} -radix decimal} {{/tb/dut/p_conv_output[6]} -radix decimal} {{/tb/dut/p_conv_output[5]} -radix decimal} {{/tb/dut/p_conv_output[4]} -radix decimal} {{/tb/dut/p_conv_output[3]} -radix decimal} {{/tb/dut/p_conv_output[2]} -radix decimal} {{/tb/dut/p_conv_output[1]} -radix decimal} {{/tb/dut/p_conv_output[0]} -radix decimal}} -expand -subitemconfig {{/tb/dut/p_conv_output[8]} {-radix decimal} {/tb/dut/p_conv_output[7]} {-radix decimal} {/tb/dut/p_conv_output[6]} {-radix decimal} {/tb/dut/p_conv_output[5]} {-radix decimal} {/tb/dut/p_conv_output[4]} {-radix decimal} {/tb/dut/p_conv_output[3]} {-radix decimal} {/tb/dut/p_conv_output[2]} {-radix decimal} {/tb/dut/p_conv_output[1]} {-radix decimal} {/tb/dut/p_conv_output[0]} {-radix decimal}} /tb/dut/p_conv_output
+add wave -noupdate -radix decimal -childformat {{{/tb/dut/p_conv_output[8]} -radix decimal} {{/tb/dut/p_conv_output[7]} -radix decimal} {{/tb/dut/p_conv_output[6]} -radix decimal} {{/tb/dut/p_conv_output[5]} -radix decimal} {{/tb/dut/p_conv_output[4]} -radix decimal} {{/tb/dut/p_conv_output[3]} -radix decimal} {{/tb/dut/p_conv_output[2]} -radix decimal} {{/tb/dut/p_conv_output[1]} -radix decimal} {{/tb/dut/p_conv_output[0]} -radix decimal}} -expand -subitemconfig {{/tb/dut/p_conv_output[8]} {-height 16 -radix decimal} {/tb/dut/p_conv_output[7]} {-height 16 -radix decimal} {/tb/dut/p_conv_output[6]} {-height 16 -radix decimal} {/tb/dut/p_conv_output[5]} {-height 16 -radix decimal} {/tb/dut/p_conv_output[4]} {-height 16 -radix decimal} {/tb/dut/p_conv_output[3]} {-height 16 -radix decimal} {/tb/dut/p_conv_output[2]} {-height 16 -radix decimal} {/tb/dut/p_conv_output[1]} {-height 16 -radix decimal} {/tb/dut/p_conv_output[0]} {-height 16 -radix decimal}} /tb/dut/p_conv_output
+add wave -noupdate -radix decimal /tb/dut/r_feat_in
+add wave -noupdate -radix decimal /tb/dut/r_conv_output
+add wave -noupdate -radix decimal /tb/dut/r_feat_output
 add wave -noupdate /tb/dut/p_input_en
 add wave -noupdate -radix unsigned /tb/dut/p_input_addr
 add wave -noupdate -radix decimal /tb/dut/p_input_data
@@ -28,7 +31,8 @@ add wave -noupdate -radix decimal -childformat {{{/tb/dut/p_output_data_write[19
 add wave -noupdate /tb/dut/p_output_valid
 add wave -noupdate -radix unsigned /tb/dut/r_count_wh
 add wave -noupdate -radix unsigned /tb/dut/r_count_fin
-add wave -noupdate -radix unsigned /tb/dut/r_count_fout
+add wave -noupdate -radix unsigned /tb/dut/r_count_read_fout
+add wave -noupdate -radix unsigned /tb/dut/r_count_write_fout
 add wave -noupdate -radix unsigned /tb/dut/r_count_ch_out
 add wave -noupdate -radix unsigned /tb/dut/r_addr_bias
 add wave -noupdate -radix unsigned /tb/dut/r_addr_wh
@@ -44,11 +48,12 @@ add wave -noupdate -radix unsigned /tb/dut/r_window_out_channel
 add wave -noupdate -radix unsigned /tb/dut/r_window_out_vertical
 add wave -noupdate -radix unsigned /tb/dut/r_window_out_horizontal
 add wave -noupdate /tb/dut/w_end_line_in
-add wave -noupdate /tb/dut/w_end_fin
+add wave -noupdate /tb/dut/w_end_read_fin
 add wave -noupdate /tb/dut/w_end_in_vertical
 add wave -noupdate /tb/dut/w_end_in_channel
 add wave -noupdate -radix unsigned /tb/dut/r_addr_fout
-add wave -noupdate /tb/dut/w_end_fout
+add wave -noupdate /tb/dut/w_end_read_fout
+add wave -noupdate /tb/dut/w_end_write_fout
 add wave -noupdate /tb/dut/w_end_line_out
 add wave -noupdate /tb/dut/w_end_out_vertical
 add wave -noupdate /tb/dut/w_end_out_layer
@@ -59,42 +64,9 @@ add wave -noupdate -radix unsigned /tb/dut/w_output_addr
 add wave -noupdate /tb/dut/r_read_en
 add wave -noupdate /tb/dut/r_conv_end
 add wave -noupdate /tb/dut/r_start_channel
-add wave -noupdate -radix decimal /tb/dut/r_feat_in
 add wave -noupdate -radix decimal /tb/dut/r_weight
-add wave -noupdate -radix decimal -childformat {{{/tb/dut/r_feat_out[8]} -radix decimal} {{/tb/dut/r_feat_out[7]} -radix decimal} {{/tb/dut/r_feat_out[6]} -radix decimal} {{/tb/dut/r_feat_out[5]} -radix decimal} {{/tb/dut/r_feat_out[4]} -radix decimal} {{/tb/dut/r_feat_out[3]} -radix decimal} {{/tb/dut/r_feat_out[2]} -radix decimal} {{/tb/dut/r_feat_out[1]} -radix decimal} {{/tb/dut/r_feat_out[0]} -radix decimal}} -expand -subitemconfig {{/tb/dut/r_feat_out[8]} {-height 16 -radix decimal} {/tb/dut/r_feat_out[7]} {-height 16 -radix decimal} {/tb/dut/r_feat_out[6]} {-height 16 -radix decimal} {/tb/dut/r_feat_out[5]} {-height 16 -radix decimal} {/tb/dut/r_feat_out[4]} {-height 16 -radix decimal} {/tb/dut/r_feat_out[3]} {-height 16 -radix decimal} {/tb/dut/r_feat_out[2]} {-height 16 -radix decimal} {/tb/dut/r_feat_out[1]} {-height 16 -radix decimal} {/tb/dut/r_feat_out[0]} {-height 16 -radix decimal}} /tb/dut/r_feat_out
 add wave -noupdate -radix unsigned /tb/dut/w_output_addr
 add wave -noupdate -radix decimal -childformat {{{/tb/dut/p_output_data_write[19]} -radix decimal} {{/tb/dut/p_output_data_write[18]} -radix decimal} {{/tb/dut/p_output_data_write[17]} -radix decimal} {{/tb/dut/p_output_data_write[16]} -radix decimal} {{/tb/dut/p_output_data_write[15]} -radix decimal} {{/tb/dut/p_output_data_write[14]} -radix decimal} {{/tb/dut/p_output_data_write[13]} -radix decimal} {{/tb/dut/p_output_data_write[12]} -radix decimal} {{/tb/dut/p_output_data_write[11]} -radix decimal} {{/tb/dut/p_output_data_write[10]} -radix decimal} {{/tb/dut/p_output_data_write[9]} -radix decimal} {{/tb/dut/p_output_data_write[8]} -radix decimal} {{/tb/dut/p_output_data_write[7]} -radix decimal} {{/tb/dut/p_output_data_write[6]} -radix decimal} {{/tb/dut/p_output_data_write[5]} -radix decimal} {{/tb/dut/p_output_data_write[4]} -radix decimal} {{/tb/dut/p_output_data_write[3]} -radix decimal} {{/tb/dut/p_output_data_write[2]} -radix decimal} {{/tb/dut/p_output_data_write[1]} -radix decimal} {{/tb/dut/p_output_data_write[0]} -radix decimal}} -subitemconfig {{/tb/dut/p_output_data_write[19]} {-height 16 -radix decimal} {/tb/dut/p_output_data_write[18]} {-height 16 -radix decimal} {/tb/dut/p_output_data_write[17]} {-height 16 -radix decimal} {/tb/dut/p_output_data_write[16]} {-height 16 -radix decimal} {/tb/dut/p_output_data_write[15]} {-height 16 -radix decimal} {/tb/dut/p_output_data_write[14]} {-height 16 -radix decimal} {/tb/dut/p_output_data_write[13]} {-height 16 -radix decimal} {/tb/dut/p_output_data_write[12]} {-height 16 -radix decimal} {/tb/dut/p_output_data_write[11]} {-height 16 -radix decimal} {/tb/dut/p_output_data_write[10]} {-height 16 -radix decimal} {/tb/dut/p_output_data_write[9]} {-height 16 -radix decimal} {/tb/dut/p_output_data_write[8]} {-height 16 -radix decimal} {/tb/dut/p_output_data_write[7]} {-height 16 -radix decimal} {/tb/dut/p_output_data_write[6]} {-height 16 -radix decimal} {/tb/dut/p_output_data_write[5]} {-height 16 -radix decimal} {/tb/dut/p_output_data_write[4]} {-height 16 -radix decimal} {/tb/dut/p_output_data_write[3]} {-height 16 -radix decimal} {/tb/dut/p_output_data_write[2]} {-height 16 -radix decimal} {/tb/dut/p_output_data_write[1]} {-height 16 -radix decimal} {/tb/dut/p_output_data_write[0]} {-height 16 -radix decimal}} /tb/dut/p_output_data_write
-add wave -noupdate -divider control-sum
-add wave -noupdate /tb/dut/clk
-add wave -noupdate -radix unsigned /tb/dut/r_window_in_channel
-add wave -noupdate /tb/dut/current_st_input
-add wave -noupdate /tb/dut/current_st_output
-add wave -noupdate /tb/dut/current_st_read
-add wave -noupdate /tb/dut/current_st_sum
-add wave -noupdate /tb/dut/w_end_fout
-add wave -noupdate /tb/dut/w_end_out_layer
-add wave -noupdate /tb/dut/p_output_en
-add wave -noupdate /tb/dut/p_output_wr
-add wave -noupdate -radix unsigned /tb/dut/p_output_addr
-add wave -noupdate -radix decimal /tb/dut/p_output_data_read
-add wave -noupdate -radix unsigned /tb/dut/w_output_addr_sum
-add wave -noupdate -radix unsigned /tb/dut/r_count_fout_sum
-add wave -noupdate -radix unsigned /tb/dut/r_addr_fout_sum
-add wave -noupdate -radix unsigned /tb/dut/r_window_out_total_sum
-add wave -noupdate -radix unsigned /tb/dut/r_window_out_channel_sum
-add wave -noupdate -radix decimal -childformat {{{/tb/dut/r_convsum_data[8]} -radix decimal} {{/tb/dut/r_convsum_data[7]} -radix decimal} {{/tb/dut/r_convsum_data[6]} -radix decimal} {{/tb/dut/r_convsum_data[5]} -radix decimal} {{/tb/dut/r_convsum_data[4]} -radix decimal} {{/tb/dut/r_convsum_data[3]} -radix decimal} {{/tb/dut/r_convsum_data[2]} -radix decimal} {{/tb/dut/r_convsum_data[1]} -radix decimal} {{/tb/dut/r_convsum_data[0]} -radix decimal}} -expand -subitemconfig {{/tb/dut/r_convsum_data[8]} {-height 16 -radix decimal} {/tb/dut/r_convsum_data[7]} {-height 16 -radix decimal} {/tb/dut/r_convsum_data[6]} {-height 16 -radix decimal} {/tb/dut/r_convsum_data[5]} {-height 16 -radix decimal} {/tb/dut/r_convsum_data[4]} {-height 16 -radix decimal} {/tb/dut/r_convsum_data[3]} {-height 16 -radix decimal} {/tb/dut/r_convsum_data[2]} {-height 16 -radix decimal} {/tb/dut/r_convsum_data[1]} {-height 16 -radix decimal} {/tb/dut/r_convsum_data[0]} {-height 16 -radix decimal}} /tb/dut/r_convsum_data
-add wave -noupdate -radix unsigned /tb/dut/r_window_out_vertical_sum
-add wave -noupdate -radix unsigned /tb/dut/r_window_out_horizontal_sum
-add wave -noupdate /tb/dut/w_end_line_out_sum
-add wave -noupdate /tb/dut/w_end_fout_sum
-add wave -noupdate /tb/dut/w_end_out_vertical_sum
-add wave -noupdate /tb/dut/w_end_out_layer_sum
-add wave -noupdate /tb/dut/w_output_en_sum
-add wave -noupdate /tb/dut/w_convsum_end
-add wave -noupdate -radix decimal -childformat {{{/tb/w_conv_output[8]} -radix decimal} {{/tb/w_conv_output[7]} -radix decimal} {{/tb/w_conv_output[6]} -radix decimal} {{/tb/w_conv_output[5]} -radix decimal} {{/tb/w_conv_output[4]} -radix decimal} {{/tb/w_conv_output[3]} -radix decimal} {{/tb/w_conv_output[2]} -radix decimal} {{/tb/w_conv_output[1]} -radix decimal} {{/tb/w_conv_output[0]} -radix decimal}} -subitemconfig {{/tb/w_conv_output[8]} {-height 16 -radix decimal} {/tb/w_conv_output[7]} {-height 16 -radix decimal} {/tb/w_conv_output[6]} {-height 16 -radix decimal} {/tb/w_conv_output[5]} {-height 16 -radix decimal} {/tb/w_conv_output[4]} {-height 16 -radix decimal} {/tb/w_conv_output[3]} {-height 16 -radix decimal} {/tb/w_conv_output[2]} {-height 16 -radix decimal} {/tb/w_conv_output[1]} {-height 16 -radix decimal} {/tb/w_conv_output[0]} {-height 16 -radix decimal}} /tb/w_conv_output
-add wave -noupdate -radix decimal -childformat {{{/tb/dut/r_feat_out[8]} -radix decimal} {{/tb/dut/r_feat_out[7]} -radix decimal} {{/tb/dut/r_feat_out[6]} -radix decimal} {{/tb/dut/r_feat_out[5]} -radix decimal} {{/tb/dut/r_feat_out[4]} -radix decimal} {{/tb/dut/r_feat_out[3]} -radix decimal} {{/tb/dut/r_feat_out[2]} -radix decimal} {{/tb/dut/r_feat_out[1]} -radix decimal} {{/tb/dut/r_feat_out[0]} -radix decimal}} -subitemconfig {{/tb/dut/r_feat_out[8]} {-height 16 -radix decimal} {/tb/dut/r_feat_out[7]} {-height 16 -radix decimal} {/tb/dut/r_feat_out[6]} {-height 16 -radix decimal} {/tb/dut/r_feat_out[5]} {-height 16 -radix decimal} {/tb/dut/r_feat_out[4]} {-height 16 -radix decimal} {/tb/dut/r_feat_out[3]} {-height 16 -radix decimal} {/tb/dut/r_feat_out[2]} {-height 16 -radix decimal} {/tb/dut/r_feat_out[1]} {-height 16 -radix decimal} {/tb/dut/r_feat_out[0]} {-height 16 -radix decimal}} /tb/dut/r_feat_out
-add wave -noupdate -radix decimal -childformat {{{/tb/dut/r_read_data[8]} -radix decimal} {{/tb/dut/r_read_data[7]} -radix decimal} {{/tb/dut/r_read_data[6]} -radix decimal} {{/tb/dut/r_read_data[5]} -radix decimal} {{/tb/dut/r_read_data[4]} -radix decimal} {{/tb/dut/r_read_data[3]} -radix decimal} {{/tb/dut/r_read_data[2]} -radix decimal} {{/tb/dut/r_read_data[1]} -radix decimal} {{/tb/dut/r_read_data[0]} -radix decimal}} -expand -subitemconfig {{/tb/dut/r_read_data[8]} {-height 16 -radix decimal} {/tb/dut/r_read_data[7]} {-height 16 -radix decimal} {/tb/dut/r_read_data[6]} {-height 16 -radix decimal} {/tb/dut/r_read_data[5]} {-height 16 -radix decimal} {/tb/dut/r_read_data[4]} {-height 16 -radix decimal} {/tb/dut/r_read_data[3]} {-height 16 -radix decimal} {/tb/dut/r_read_data[2]} {-height 16 -radix decimal} {/tb/dut/r_read_data[1]} {-height 16 -radix decimal} {/tb/dut/r_read_data[0]} {-height 16 -radix decimal}} /tb/dut/r_read_data
-add wave -noupdate -radix decimal -childformat {{{/tb/dut/w_convsum_output[8]} -radix decimal} {{/tb/dut/w_convsum_output[7]} -radix decimal} {{/tb/dut/w_convsum_output[6]} -radix decimal} {{/tb/dut/w_convsum_output[5]} -radix decimal} {{/tb/dut/w_convsum_output[4]} -radix decimal} {{/tb/dut/w_convsum_output[3]} -radix decimal} {{/tb/dut/w_convsum_output[2]} -radix decimal} {{/tb/dut/w_convsum_output[1]} -radix decimal} {{/tb/dut/w_convsum_output[0]} -radix decimal}} -expand -subitemconfig {{/tb/dut/w_convsum_output[8]} {-height 16 -radix decimal} {/tb/dut/w_convsum_output[7]} {-height 16 -radix decimal} {/tb/dut/w_convsum_output[6]} {-height 16 -radix decimal} {/tb/dut/w_convsum_output[5]} {-height 16 -radix decimal} {/tb/dut/w_convsum_output[4]} {-height 16 -radix decimal} {/tb/dut/w_convsum_output[3]} {-height 16 -radix decimal} {/tb/dut/w_convsum_output[2]} {-height 16 -radix decimal} {/tb/dut/w_convsum_output[1]} {-height 16 -radix decimal} {/tb/dut/w_convsum_output[0]} {-height 16 -radix decimal}} /tb/dut/w_convsum_output
 add wave -noupdate -divider mem-write
 add wave -noupdate /tb/memory_write/clk
 add wave -noupdate /tb/memory_write/reset
@@ -119,8 +91,8 @@ add wave -noupdate -radix decimal /tb/conv/r_idx_in
 add wave -noupdate -radix decimal /tb/conv/r_idx_out
 add wave -noupdate -radix decimal /tb/conv/product
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 4} {2224500 ps} 1} {{Cursor 6} {63500 ps} 1} {{Cursor 5} {2271500 ps} 1} {{Cursor 4} {104500 ps} 0}
-quietly wave cursor active 4
+WaveRestoreCursors {{Cursor 6} {63500 ps} 1} {{Cursor 5} {83500 ps} 0}
+quietly wave cursor active 2
 configure wave -namecolwidth 256
 configure wave -valuecolwidth 100
 configure wave -justifyvalue left
@@ -135,4 +107,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {167143 ps} {192479 ps}
+WaveRestoreZoom {57816 ps} {110376 ps}
