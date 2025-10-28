@@ -184,20 +184,23 @@ module tb;
     w_start = 1;
     @(posedge clk);
     w_start = 0;
+    #2260ns
 
-    // for (int i = 0; i < FOUT1_SIZE; i++) begin
-    //   @(posedge clk);
-    //   wait(w_conv_end);
-    //   @(posedge clk);
-    //   for (int j = 0; j < FOUT2_SIZE; j++) begin
-    //     @(posedge clk);
-    //     wait(w_output_en);
-    //     if ($signed(const_feat_out_batch[i][j]) != $signed(mem_wr_data_out)) begin
-    //       $display("Time %0f | const_feat_out[%0d][%0d] = %0d | Output = %0d", $realtime, i, j, const_feat_out_batch[i][j], mem_wr_data_out);
-    //       $display("=== ERROR - End simulation ====");
-    //     end
-    //   end
-    // end
+    for (int i = 0; i < FOUT1_SIZE; i++) begin
+      @(posedge clk);
+      wait(dut.p_conv_end);
+      @(posedge clk);
+      @(posedge clk);
+      @(posedge clk);
+      for (int j = 0; j < FOUT2_SIZE; j++) begin
+        @(posedge clk);
+        // wait(dut.p_output_wr);
+        if ($signed(const_feat_out_batch[i][j]) != $signed(dut.p_output_data_write)) begin
+          $display("Time %0f | const_feat_out[%0d][%0d] = %0d | Output = %0d", $realtime, i, j, const_feat_out_batch[i][j], dut.p_output_data_write);
+          $display("=== ERROR - End simulation ====");
+        end
+      end
+    end
 
 
     // Start processamento
