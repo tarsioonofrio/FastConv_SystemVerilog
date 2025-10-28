@@ -323,7 +323,6 @@ module Control
     p_conv_input  = r_feat_in;
     p_conv_weight = r_weight;
     p_conv_start  = w_end_read_fin;
-    p_end         = (current_st_input == END_CONTROL) ? 1'b1 : 1'b0;
   end
 
 
@@ -402,10 +401,12 @@ module Control
     unique case (current_st_output)
       // Waits for the convolution-complete signal
       IDLE_OUTPUT: begin
-        if (p_conv_end && !w_end_out_layer)
+        if (p_conv_end)
           next_st_output = WRITE_OUTPUT;
-        else if (w_end_read_fin && w_end_out_layer)
-          next_st_output = READ_OUTPUT;
+        // if (p_conv_end && !w_end_out_layer)
+        //   next_st_output = WRITE_OUTPUT;
+        // else if (w_end_read_fin && w_end_out_layer)
+        //   next_st_output = READ_OUTPUT;
       end
       READ_OUTPUT: begin
         if (w_end_read_fout)
@@ -437,11 +438,15 @@ module Control
         IDLE_OUTPUT: begin
           r_count_write_fout <= 0;
           r_feat_output   <= '{default: '0};
-          if (p_conv_end && !w_end_out_layer)
-            r_conv_output <= p_conv_output;
-          else if (p_conv_end && w_end_out_layer)
+          if (p_conv_end)
             for (int i = 0; i < A1_SIZE * A2_SIZE; i++)
-              r_conv_output[i] <= r_conv_output[i] + p_conv_output[i];
+              r_conv_output[i] <= r_feat_output[i] + p_conv_output[i];
+          // TODO: Implementar lógica que soma apenas após a primeira camada
+          // if (p_conv_end && !w_end_out_layer)
+          //   r_conv_output <= p_conv_output;
+          // else if (p_conv_end && w_end_out_layer)
+          //   for (int i = 0; i < A1_SIZE * A2_SIZE; i++)
+          //     r_conv_output[i] <= r_conv_output[i] + p_conv_output[i];
         end
         // Each cycle advances the weight address and stores the returned value in-order
         READ_OUTPUT: begin
@@ -489,6 +494,9 @@ module Control
     end
   end
 
+  always_comb begin: p_end_block
+    p_end = (r_window_out_total == N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN) ? 1'b1 : 1'b0;
+  end
 
   // If the current state is WRITE_OUTPUT, enable write
   always_comb begin
@@ -526,6 +534,8 @@ module Control
     else
       w_end_write_fout = 1'b0;
   end
+
+
 
   // Combinational logic detecting end-of-row for write paths
   always_comb begin: w_end_line_out_block
