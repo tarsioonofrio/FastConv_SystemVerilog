@@ -623,8 +623,8 @@ module Control
       SUM_READ:
       // If the current state of the FSM waiting for the convolution output is SUM,
       // then it can advance to the next state, because the conv FSM will also advance
-      if (next_st_sum == SUM)
-        next_st_read = READ;
+        if (next_st_sum == SUM)
+          next_st_read = READ;
     endcase
   end
 
