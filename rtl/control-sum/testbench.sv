@@ -166,6 +166,9 @@ module tb;
     @(posedge clk);
     w_start = 0;
 
+    // Start processamento
+    $display("=== Start processing ===");
+
 
     for (int i = 0; i < FOUT1_SIZE; i++) begin
        @(posedge clk);
@@ -199,8 +202,6 @@ module tb;
     // end
 
 
-    // Start processamento
-    $display("=== Start processing ===");
     wait(w_end);
 
     // debug = 1;
@@ -221,6 +222,9 @@ module tb;
 
     $display("=== No errors - End simulation ===");
     $display("Total Time %0f", $realtime);
+
+    #20ns
+
     $finish;
   end
 endmodule
