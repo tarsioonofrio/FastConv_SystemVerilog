@@ -505,14 +505,15 @@ module Control
           else if (w_end_fout && !w_end_out_channel)
             r_window_out_channel <= r_window_out_channel + 1;
 
-          if (w_end_fout && !w_end_line_out)
-            r_addr_fout <= r_addr_fout + A1_SIZE;
+          if (w_end_fout && w_end_out_channel)
+            r_addr_fout <= 0;
+          else if (w_end_fout && w_end_out_vertical)
+            r_addr_fout <= 0;
+            // r_addr_fout <= r_addr_fout + A1_SIZE - (FEAT_OUTPUT_SIZE + FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
           else if (w_end_fout && w_end_line_out)
             r_addr_fout <= r_addr_fout + A1_SIZE + FEAT_OUTPUT_SIZE * (A1_SIZE - 1);
-          else if (w_end_fout && w_end_out_vertical)
-            r_addr_fout <= r_addr_fout + A1_SIZE - (FEAT_OUTPUT_SIZE + FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
-          else if (w_end_fout && w_end_out_channel)
-            r_addr_fout <= 0;
+          else if (w_end_fout && !w_end_line_out)
+            r_addr_fout <= r_addr_fout + A1_SIZE;
         end
       endcase
     end
