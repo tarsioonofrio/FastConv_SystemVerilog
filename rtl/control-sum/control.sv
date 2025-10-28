@@ -774,8 +774,6 @@ module Control
     end
   end
 
-  // // Output state machine block
-
   // // Combinational logic for the input (read) state machine
   always_comb begin: next_st_sum_block
     next_st_sum = current_st_sum;
@@ -821,30 +819,5 @@ module Control
       endcase
     end
   end
-
-
-  // // Combinational logic for the input (read) state machine
-  // always_comb begin
-  //   next_st_output = current_st_output;
-  //   unique case (current_st_output)
-  //     // IDLE_CONTROL
-  //     // Waits for start to begin reading weights and then input data; bias handling is currently disabled
-  //     IDLE_READ:
-  //       if (p_start_sum)
-  //         next_st_output = SUM;
-  //     SUM:
-  //       next_st_output = OUTPUT;
-  //     // Waits for the weight fetch covering the active input/output channel pair before moving on to input data
-  //     OUTPUT:
-  //       next_st_output = IDLE_READ;
-  //   endcase
-  // end
-
-
-  // // Combinational logic driving output ports from internal registers
-  // always_comb begin
-  //   p_output_sum     = r_read_data;
-  //   p_end_sum        = r_end_sum;
-  // end
 
 endmodule
