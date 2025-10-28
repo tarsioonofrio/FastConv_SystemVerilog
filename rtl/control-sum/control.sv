@@ -424,8 +424,8 @@ module Control
   always_ff @(posedge clk) begin: current_st_output_block
     if (reset) begin
       r_addr_fout <= 0;
-      r_count_write_fout <= 0;
       r_count_read_fout <= 0;
+      r_count_write_fout <= 0;
       r_window_out_total <= 0;
       r_window_out_channel <= 0;
       r_window_out_vertical <= 0;
@@ -441,6 +441,8 @@ module Control
           if (p_conv_end)
             for (int i = 0; i < A1_SIZE * A2_SIZE; i++)
               r_conv_output[i] <= r_feat_output[i] + p_conv_output[i];
+          else
+            r_feat_output   <= '{default: '0};
           // TODO: Implementar lógica que soma apenas após a primeira camada
           // if (p_conv_end && !w_end_out_layer)
           //   r_conv_output <= p_conv_output;
