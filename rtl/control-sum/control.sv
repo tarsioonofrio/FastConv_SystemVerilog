@@ -563,10 +563,10 @@ module Control
   end
 
   always_comb begin: w_end_out_layer_block
-    if (r_window_out_channel > (N_WINDOW * N_WINDOW - 1))
-      w_end_out_layer = 1'b1;
-    else
+    if (r_window_out_channel < (N_WINDOW * N_WINDOW - 1))
       w_end_out_layer = 1'b0;
+    else
+      w_end_out_layer = 1'b1;
   end
 
   always_comb begin: w_end_out_channel_block
