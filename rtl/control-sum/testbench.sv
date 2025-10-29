@@ -180,7 +180,7 @@ module tb;
     //    end
     //  end
 
-    #2260ns
+    #4440ns
     for (int i = 0; i < FOUT1_SIZE; i++) begin
       @(posedge clk);
       wait(dut.p_conv_end);
