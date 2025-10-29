@@ -166,36 +166,34 @@ module tb;
     $display("=== Start processing ===");
 
 
-    for (int i = 0; i < FOUT1_SIZE; i++) begin
-       @(posedge clk);
-       wait(dut.p_conv_end);
-       @(posedge clk);
-       for (int j = 0; j < FOUT2_SIZE; j++) begin
-         @(posedge clk);
-         wait(dut.p_output_wr);
-         if ($signed(const_feat_out_batch[i][j]) != $signed(dut.p_output_data_write)) begin
-           $display("Time %0f | const_feat_out[%0d][%0d] = %0d | Output = %0d", $realtime, i, j, const_feat_out_batch[i][j], dut.p_output_data_write);
-           $display("=== ERROR - End simulation ====");
-         end
-       end
-     end
-
-    // #2260ns
     // for (int i = 0; i < FOUT1_SIZE; i++) begin
-    //   @(posedge clk);
-    //   wait(dut.p_conv_end);
-    //   @(posedge clk);
-    //   @(posedge clk);
-    //   @(posedge clk);
-    //   for (int j = 0; j < FOUT2_SIZE; j++) begin
-    //     @(posedge clk);
-    //     // wait(dut.p_output_wr);
-    //     if ($signed(const_feat_out_batch[i][j]) != $signed(dut.p_output_data_write)) begin
-    //       $display("Time %0f | const_feat_out[%0d][%0d] = %0d | Output = %0d", $realtime, i, j, const_feat_out_batch[i][j], dut.p_output_data_write);
-    //       $display("=== ERROR - End simulation ====");
-    //     end
-    //   end
-    // end
+    //    @(posedge clk);
+    //    wait(dut.p_conv_end);
+    //    @(posedge clk);
+    //    for (int j = 0; j < FOUT2_SIZE; j++) begin
+    //      @(posedge clk);
+    //      wait(dut.p_output_wr);
+    //      if ($signed(const_feat_out_batch[i][j]) != $signed(dut.p_output_data_write)) begin
+    //        $display("Time %0f | const_feat_out[%0d][%0d] = %0d | Output = %0d", $realtime, i, j, const_feat_out_batch[i][j], dut.p_output_data_write);
+    //        $display("=== ERROR - End simulation ====");
+    //      end
+    //    end
+    //  end
+
+    #2260ns
+    for (int i = 0; i < FOUT1_SIZE; i++) begin
+      @(posedge clk);
+      wait(dut.p_conv_end);
+      @(posedge clk);
+      for (int j = 0; j < FOUT2_SIZE; j++) begin
+        @(posedge clk);
+        // wait(dut.p_output_wr);
+        if ($signed(const_feat_out_batch[i][j]) != $signed(dut.p_output_data_write)) begin
+          $display("Time %0f | const_feat_out[%0d][%0d] = %0d | Output = %0d", $realtime, i, j, const_feat_out_batch[i][j], dut.p_output_data_write);
+          $display("=== ERROR - End simulation ====");
+        end
+      end
+    end
 
 
     wait(w_end);
