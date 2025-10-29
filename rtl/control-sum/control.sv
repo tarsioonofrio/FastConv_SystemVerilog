@@ -407,7 +407,7 @@ module Control
           next_st_output = SUM;
       end
       READ_OUTPUT: begin
-        if (w_end_read_fin)
+        if (w_end_read_fout)
           next_st_output = SUM;
       end
       // Waits for the convolution-complete signal
@@ -453,6 +453,7 @@ module Control
         end
         // Keep the output counter cleared while waiting for convolution to end; capture output data on completion
         SUM: begin
+          r_count_read_fout <= 0;
           r_count_write_fout <= 0;
           // r_feat_output   <= '{default: '0};
           if (p_conv_end)
