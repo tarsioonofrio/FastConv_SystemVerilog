@@ -399,22 +399,22 @@ module Control
   always_comb begin: next_st_output_block
     next_st_output = current_st_output;
     unique case (current_st_output)
+      READ_OUTPUT: begin
+        if (w_end_read_fin)
+          next_st_output = IDLE_OUTPUT;
+      end
       // Waits for the convolution-complete signal
       IDLE_OUTPUT: begin
-        // if (p_conv_end)
-        //   next_st_output = WRITE_OUTPUT;
-        if (w_end_write_fout && w_end_out_layer)
-          next_st_output = READ_OUTPUT;
-        else if (p_conv_end)
-          next_st_output = WRITE_OUTPUT;
-      end
-      READ_OUTPUT: begin
-        if (w_end_read_fout)
+        if (p_conv_end)
           next_st_output = WRITE_OUTPUT;
       end
       // Waits for the output data write to memory to complete and then returns to idle
       WRITE_OUTPUT: begin
-        if (w_end_write_fout)
+        // if (w_end_write_fout)
+        //   next_st_output = IDLE_OUTPUT;
+        if (w_end_write_fout && w_end_out_layer)
+          next_st_output = READ_OUTPUT;
+        else if (w_end_write_fout && !w_end_out_layer)
           next_st_output = IDLE_OUTPUT;
       end
     endcase
@@ -434,10 +434,17 @@ module Control
       r_feat_output   <= '{default: '0};
     end else begin
       unique case (current_st_output)
+        // Each cycle advances the weight address and stores the returned value in-order
+        READ_OUTPUT: begin
+          if (p_output_valid && (r_count_read_fout < A1_SIZE * A2_SIZE))  begin
+            r_count_read_fout         <= r_count_read_fout + 1;
+            r_feat_output[r_count_read_fout] <= p_output_data_read;
+          end
+        end
         // Keep the output counter cleared while waiting for convolution to end; capture output data on completion
         IDLE_OUTPUT: begin
           r_count_write_fout <= 0;
-          r_feat_output   <= '{default: '0};
+          // r_feat_output   <= '{default: '0};
           if (p_conv_end)
             for (int i = 0; i < A1_SIZE * A2_SIZE; i++)
               r_conv_output[i] <= r_feat_output[i] + p_conv_output[i];
@@ -449,13 +456,6 @@ module Control
           // else if (p_conv_end && w_end_out_layer)
           //   for (int i = 0; i < A1_SIZE * A2_SIZE; i++)
           //     r_conv_output[i] <= r_conv_output[i] + p_conv_output[i];
-        end
-        // Each cycle advances the weight address and stores the returned value in-order
-        READ_OUTPUT: begin
-          if (p_output_valid) begin
-            r_count_read_fout         <= r_count_read_fout + 1;
-            r_feat_output[r_count_read_fout] <= p_output_data_read;
-          end
         end
         // Write output data to memory
         WRITE_OUTPUT: begin
@@ -553,10 +553,10 @@ module Control
   end
 
   always_comb begin: w_end_out_layer_block
-    if (r_window_out_channel < (N_WINDOW * N_WINDOW - 1))
-      w_end_out_layer = 1'b0;
-    else
+    if (r_window_out_channel > (N_WINDOW * N_WINDOW - 1))
       w_end_out_layer = 1'b1;
+    else
+      w_end_out_layer = 1'b0;
   end
 
   always_comb begin: w_end_out_channel_block
