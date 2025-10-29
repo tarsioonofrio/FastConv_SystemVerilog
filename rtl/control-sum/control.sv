@@ -57,8 +57,9 @@ module Control
   } state_input_type;
 
   typedef enum {
-    IDLE_OUTPUT,
+    START,
     READ_OUTPUT,
+    SUM,
     WRITE_OUTPUT
   } state_output_type;
 
@@ -140,7 +141,7 @@ module Control
   always_ff @(posedge clk or posedge reset) begin: FSM_BLOCK
     if (reset) begin
       current_st_input  <= IDLE_CONTROL;
-      current_st_output <= IDLE_OUTPUT;
+      current_st_output <= START;
     end else begin
       current_st_input  <= next_st_input;
       current_st_output <= next_st_output;
@@ -399,23 +400,31 @@ module Control
   always_comb begin: next_st_output_block
     next_st_output = current_st_output;
     unique case (current_st_output)
+      START: begin
+        if (w_end_out_layer)
+          next_st_output = READ_OUTPUT;
+        else if (!w_end_out_layer)
+          next_st_output = SUM;
+      end
       READ_OUTPUT: begin
         if (w_end_read_fin)
-          next_st_output = IDLE_OUTPUT;
+          next_st_output = SUM;
       end
       // Waits for the convolution-complete signal
-      IDLE_OUTPUT: begin
+      SUM: begin
         if (p_conv_end)
           next_st_output = WRITE_OUTPUT;
       end
       // Waits for the output data write to memory to complete and then returns to idle
       WRITE_OUTPUT: begin
         // if (w_end_write_fout)
-        //   next_st_output = IDLE_OUTPUT;
+        //   next_st_output = SUM;
         if (w_end_write_fout && w_end_out_layer)
           next_st_output = READ_OUTPUT;
         else if (w_end_write_fout && !w_end_out_layer)
-          next_st_output = IDLE_OUTPUT;
+          next_st_output = SUM;
+        else if (w_end_write_fout && w_end_out_channel)
+          next_st_output = START;
       end
     endcase
   end
@@ -434,6 +443,7 @@ module Control
       r_feat_output   <= '{default: '0};
     end else begin
       unique case (current_st_output)
+        START: begin end
         // Each cycle advances the weight address and stores the returned value in-order
         READ_OUTPUT: begin
           if (p_output_valid && (r_count_read_fout < A1_SIZE * A2_SIZE))  begin
@@ -442,7 +452,7 @@ module Control
           end
         end
         // Keep the output counter cleared while waiting for convolution to end; capture output data on completion
-        IDLE_OUTPUT: begin
+        SUM: begin
           r_count_write_fout <= 0;
           // r_feat_output   <= '{default: '0};
           if (p_conv_end)
@@ -504,7 +514,7 @@ module Control
   always_comb begin
     unique case (current_st_output)
       // Waits for the convolution-complete signal
-      IDLE_OUTPUT: begin
+      default: begin
         p_output_en = 1'b0;
         p_output_wr = 1'b0;
       end
