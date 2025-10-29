@@ -149,13 +149,9 @@ module tb;
 
   // Inicialização dos sinais e reset
   initial begin
-    $dumpfile("dump.vcd");
-    $dumpvars(0, tb);
+    // $dumpfile("dump.vcd");
+    // $dumpvars(0, tb);
 
-    tb_chip_en = 0;
-    tb_wr_en = 0;
-    tb_address = '0;
-    tb_data_in = '{default: '0};
     debug = 0;
 
     reset = 1;

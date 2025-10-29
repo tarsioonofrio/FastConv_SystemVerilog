@@ -401,12 +401,12 @@ module Control
     unique case (current_st_output)
       // Waits for the convolution-complete signal
       IDLE_OUTPUT: begin
-        if (p_conv_end)
-          next_st_output = WRITE_OUTPUT;
-        // if (p_conv_end && !w_end_out_layer)
+        // if (p_conv_end)
         //   next_st_output = WRITE_OUTPUT;
-        // else if (w_end_read_fin && w_end_out_layer)
-        //   next_st_output = READ_OUTPUT;
+        if (w_end_write_fout && w_end_out_layer)
+          next_st_output = READ_OUTPUT;
+        else if (p_conv_end)
+          next_st_output = WRITE_OUTPUT;
       end
       READ_OUTPUT: begin
         if (w_end_read_fout)
@@ -441,9 +441,9 @@ module Control
           if (p_conv_end)
             for (int i = 0; i < A1_SIZE * A2_SIZE; i++)
               r_conv_output[i] <= r_feat_output[i] + p_conv_output[i];
-          else
-            r_feat_output   <= '{default: '0};
-          // TODO: Implementar lógica que soma apenas após a primeira camada
+          // else
+          //   r_feat_output   <= '{default: '0};
+          // TODO: Implement logic that adds only after the first layer
           // if (p_conv_end && !w_end_out_layer)
           //   r_conv_output <= p_conv_output;
           // else if (p_conv_end && w_end_out_layer)
@@ -520,7 +520,6 @@ module Control
     endcase
   end
 
-
   // Combinational logic asserting when the output buffer is full and all data is read from memory
   always_comb begin: w_end_read_fout_block
     if (r_count_read_fout == (A1_SIZE * A2_SIZE - 1))
@@ -536,8 +535,6 @@ module Control
     else
       w_end_write_fout = 1'b0;
   end
-
-
 
   // Combinational logic detecting end-of-row for write paths
   always_comb begin: w_end_line_out_block
@@ -568,7 +565,6 @@ module Control
     else
       w_end_out_channel = 1'b1;
   end
-
 
   always_comb begin: w_count_fout_block
     if (current_st_output == WRITE_OUTPUT)
