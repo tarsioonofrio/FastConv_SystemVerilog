@@ -57,7 +57,7 @@ module Control
   } state_input_type;
 
   typedef enum {
-    START,
+    IDLE_OUTPUT,
     READ_OUTPUT,
     SUM,
     WRITE_OUTPUT
@@ -124,6 +124,7 @@ module Control
   logic w_end_out_layer;
   logic w_end_in_channel;
   logic w_end_out_channel;
+  logic w_end;
   // Current input feature address
   logic[NADDR-1:0] w_addr_fin;
 
@@ -141,7 +142,7 @@ module Control
   always_ff @(posedge clk or posedge reset) begin: FSM_BLOCK
     if (reset) begin
       current_st_input  <= IDLE_CONTROL;
-      current_st_output <= START;
+      current_st_output <= IDLE_OUTPUT;
     end else begin
       current_st_input  <= next_st_input;
       current_st_output <= next_st_output;
@@ -400,10 +401,10 @@ module Control
   always_comb begin: next_st_output_block
     next_st_output = current_st_output;
     unique case (current_st_output)
-      START: begin
-        if (w_end_out_layer)
+      IDLE_OUTPUT: begin
+        if (p_start && w_end_out_layer)
           next_st_output = READ_OUTPUT;
-        else if (!w_end_out_layer)
+        else if (p_start && !w_end_out_layer)
           next_st_output = SUM;
       end
       READ_OUTPUT: begin
@@ -419,12 +420,14 @@ module Control
       WRITE_OUTPUT: begin
         // if (w_end_write_fout)
         //   next_st_output = SUM;
-        if (w_end_write_fout && w_end_out_layer)
+        if (w_end_write_fout && w_end_out_layer && !w_end_out_channel)
           next_st_output = READ_OUTPUT;
-        else if (w_end_write_fout && !w_end_out_layer)
+        else if (w_end_write_fout && !w_end_out_layer && !w_end_out_channel)
           next_st_output = SUM;
         else if (w_end_write_fout && w_end_out_channel)
-          next_st_output = START;
+          next_st_output = IDLE_OUTPUT;
+        // else if (w_end_write_fout && r_window_out_total == (N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN - 1))
+        //   next_st_output = IDLE_OUTPUT;
       end
     endcase
   end
@@ -443,19 +446,18 @@ module Control
       r_feat_output   <= '{default: '0};
     end else begin
       unique case (current_st_output)
-        START: begin end
+        IDLE_OUTPUT: begin end
         // Each cycle advances the weight address and stores the returned value in-order
         READ_OUTPUT: begin
           if (p_output_valid && (r_count_read_fout < A1_SIZE * A2_SIZE))  begin
-            r_count_read_fout         <= r_count_read_fout + 1;
+            r_count_read_fout                <= r_count_read_fout + 1;
             r_feat_output[r_count_read_fout] <= p_output_data_read;
           end
         end
         // Keep the output counter cleared while waiting for convolution to end; capture output data on completion
         SUM: begin
-          r_count_read_fout <= 0;
+          r_count_read_fout  <= 0;
           r_count_write_fout <= 0;
-          // r_feat_output   <= '{default: '0};
           if (p_conv_end)
             for (int i = 0; i < A1_SIZE * A2_SIZE; i++)
               r_conv_output[i] <= r_feat_output[i] + p_conv_output[i];
