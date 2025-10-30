@@ -37,20 +37,6 @@ module tb;
 
   logic debug;
 
-  logic mem_wr_chip_en;
-  logic mem_wr_wr_en;
-  logic[NADDR-1:0] mem_wr_address;
-  logic_vector mem_wr_data_in;
-  logic_vector mem_wr_data_out;
-  logic mem_wr_data_valid;
-
-  logic tb_chip_en;
-  logic tb_wr_en;
-  logic[NADDR-1:0] tb_address;
-  logic_vector tb_data_in;
-  logic_vector tb_data_out;
-  logic tb_data_valid;
-
 
   int count_fout = 0;
 
