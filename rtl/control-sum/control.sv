@@ -85,7 +85,7 @@ module Control
   // Base address register for weight blocks
   logic [$clog2(M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT)-1:0] r_addr_wh;
   // Base address register for input features
-  logic [$clog2(N_CHANNEL_IN * FEAT_INPUT_SIZE * FEAT_INPUT_SIZE)-1:0] r_addr_fin;
+  logic [$clog2(M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT + N_CHANNEL_IN * FEAT_INPUT_SIZE * FEAT_INPUT_SIZE)-1:0] r_addr_fin;
   // Row-aligned window counter for read-side address updates and reuse control
   logic [$clog2(N_WINDOW):0] r_window_in_horizontal;
   // Total window counter for a channel
@@ -223,6 +223,7 @@ module Control
           r_window_in_total    <= 0;
           r_window_in_vertical   <= 0;
           r_window_in_horizontal  <= 0;
+          r_window_in_channel  <= 0;
           r_weight    <= '{default: '0};
           r_feat_in   <= '{default: '0};
         end
@@ -289,7 +290,14 @@ module Control
           else if (w_end_read_fin && !w_end_in_vertical)
             r_window_in_vertical <= r_window_in_vertical + 1;
 
-          if (w_end_read_fin && !w_end_line_in)
+          if (w_end_read_fin && w_end_in_channel)
+            r_window_in_channel <= 0;
+          else if (w_end_read_fin && !w_end_in_channel)
+            r_window_in_channel <= r_window_in_channel + 1;
+
+          if (w_end_read_fin && w_end_line_in && w_end_in_channel)
+              r_addr_fin <= N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT;
+          else if (w_end_read_fin && !w_end_line_in)
             r_addr_fin  <= r_addr_fin + A1_SIZE;
           else if (w_end_read_fin && w_end_line_in && !w_end_in_vertical)
             r_addr_fin  <= r_addr_fin + C1_SIZE + FEAT_INPUT_SIZE * (A1_SIZE - 1);
@@ -314,6 +322,13 @@ module Control
       w_end_in_vertical = 1'b0;
     else
       w_end_in_vertical = 1'b1;
+  end
+
+  always_comb begin: w_end_in_channel_block
+    if (r_window_in_channel < (N_WINDOW * N_WINDOW * N_CHANNEL_IN - 1))
+      w_end_in_channel = 1'b0;
+    else
+      w_end_in_channel = 1'b1;
   end
 
 
