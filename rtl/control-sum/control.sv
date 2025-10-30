@@ -117,12 +117,12 @@ module Control
   // Flag indicating the output window finished writing
   logic w_end_write_fout;
   // Flag indicating the input window finished reading (renamed)
-  logic w_end_vertical_in;
+  logic w_end_channel_in;
   // Flag indicating the output channel finished writing (renamed)
   logic w_end_channel_out;
   logic w_end_first_channel_in;
   logic w_end_first_channel_out;
-  logic w_end_channel_in;
+  logic w_end_all_channel_in;
   logic w_end_all_channel_out;
   logic w_end_last_channel_out;
   // Current input feature address
@@ -285,23 +285,23 @@ module Control
           else if (w_end_read_fin && !w_end_horizontal_in)
             r_window_horizontal_in <= r_window_horizontal_in + 1;
 
-          if (w_end_read_fin && w_end_vertical_in)
+          if (w_end_read_fin && w_end_channel_in)
             r_window_channel_in <= 0;
-          else if (w_end_read_fin && !w_end_vertical_in)
+          else if (w_end_read_fin && !w_end_channel_in)
             r_window_channel_in <= r_window_channel_in + 1;
 
-          if (w_end_read_fin && w_end_channel_in)
+          if (w_end_read_fin && w_end_all_channel_in)
             r_window_all_channel_in <= 0;
-          else if (w_end_read_fin && !w_end_channel_in)
+          else if (w_end_read_fin && !w_end_all_channel_in)
             r_window_all_channel_in <= r_window_all_channel_in + 1;
 
-          if (w_end_read_fin && w_end_horizontal_in && w_end_channel_in)
+          if (w_end_read_fin && w_end_horizontal_in && w_end_all_channel_in)
               r_addr_fin <= N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT;
           else if (w_end_read_fin && !w_end_horizontal_in)
             r_addr_fin  <= r_addr_fin + A1_SIZE;
-          else if (w_end_read_fin && w_end_horizontal_in && !w_end_vertical_in)
+          else if (w_end_read_fin && w_end_horizontal_in && !w_end_channel_in)
             r_addr_fin  <= r_addr_fin + C1_SIZE + FEAT_INPUT_SIZE * (A1_SIZE - 1);
-          else if (w_end_read_fin && w_end_horizontal_in && w_end_vertical_in)
+          else if (w_end_read_fin && w_end_horizontal_in && w_end_channel_in)
             r_addr_fin  <= r_addr_fin + C1_SIZE + FEAT_INPUT_SIZE * (C1_SIZE - 1);
         end
       endcase
@@ -317,18 +317,18 @@ module Control
   end
 
   // Combinational logic detecting end-of-channel for read paths
-  always_comb begin: w_end_vertical_in_block
-    if (r_window_channel_in < N_WINDOW * N_WINDOW - 1)
-      w_end_vertical_in = 1'b0;
-    else
-      w_end_vertical_in = 1'b1;
-  end
-
   always_comb begin: w_end_channel_in_block
-    if (r_window_all_channel_in < (N_WINDOW * N_WINDOW * N_CHANNEL_IN - 1))
+    if (r_window_channel_in < N_WINDOW * N_WINDOW - 1)
       w_end_channel_in = 1'b0;
     else
       w_end_channel_in = 1'b1;
+  end
+
+  always_comb begin: w_end_all_channel_in_block
+    if (r_window_all_channel_in < (N_WINDOW * N_WINDOW * N_CHANNEL_IN - 1))
+      w_end_all_channel_in = 1'b0;
+    else
+      w_end_all_channel_in = 1'b1;
   end
 
 

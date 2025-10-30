@@ -48,8 +48,8 @@ add wave -noupdate -radix unsigned /tb/dut/r_window_channel_out
 add wave -noupdate -radix unsigned /tb/dut/r_window_horizontal_out
 add wave -noupdate /tb/dut/w_end_horizontal_in
 add wave -noupdate /tb/dut/w_end_read_fin
-add wave -noupdate /tb/dut/w_end_vertical_in
 add wave -noupdate /tb/dut/w_end_channel_in
+add wave -noupdate /tb/dut/w_end_all_channel_in
 add wave -noupdate -radix unsigned /tb/dut/r_addr_fout
 add wave -noupdate /tb/dut/w_end_read_fout
 add wave -noupdate /tb/dut/w_end_write_fout
