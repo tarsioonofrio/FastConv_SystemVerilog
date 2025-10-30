@@ -87,24 +87,24 @@ module Control
   // Base address register for input features
   logic [$clog2(M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT + N_CHANNEL_IN * FEAT_INPUT_SIZE * FEAT_INPUT_SIZE)-1:0] r_addr_fin;
   // Row-aligned window counter for read-side address updates and reuse control
-  logic [$clog2(N_WINDOW):0] r_window_in_horizontal;
+  logic [$clog2(N_WINDOW):0] r_window_horizontal_in;
   // Total window counter for a channel
-  logic [$clog2(N_WINDOW * N_WINDOW)-1:0] r_window_in_vertical;
+  logic [$clog2(N_WINDOW * N_WINDOW)-1:0] r_window_vertical_in;
   // Total window counter for a channel
-  logic [$clog2(N_WINDOW * N_WINDOW * N_CHANNEL_IN)-1:0] r_window_in_channel;
+  logic [$clog2(N_WINDOW * N_WINDOW * N_CHANNEL_IN)-1:0] r_window_channel_in;
   // Total window counter for the read path
-  logic [$clog2(N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN)-1:0] r_window_in_total;
+  logic [$clog2(N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN)-1:0] r_window_total_in;
 
   // Base address register for output features
   logic [$clog2(N_CHANNEL_OUT * FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE)-1:0] r_addr_fout;
   // Total window counter for the write path
-  logic [$clog2(N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN)-1:0] r_window_out_total;
+  logic [$clog2(N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN)-1:0] r_window_total_out;
   // Total window counter for all in channel for FSM write
-  logic [$clog2(N_WINDOW * N_WINDOW * N_CHANNEL_IN)-1:0] r_window_out_channel;
+  logic [$clog2(N_WINDOW * N_WINDOW * N_CHANNEL_IN)-1:0] r_window_channel_out;
   // Total window counter for a channel
-  logic [$clog2(N_WINDOW * N_WINDOW)-1:0] r_window_out_vertical;
+  logic [$clog2(N_WINDOW * N_WINDOW)-1:0] r_window_vertical_out;
   // Row-aligned window counter for write-side address updates
-  logic [$clog2(N_WINDOW):0] r_window_out_horizontal;
+  logic [$clog2(N_WINDOW):0] r_window_horizontal_out;
 
   // Flag indicating end-of-row for read memory
   logic w_end_line_in;
@@ -175,15 +175,15 @@ module Control
       READ_INPUT: begin
         if (w_end_read_fin) begin
           // When all windows across input and output channels have been read, finish control
-          if (r_window_in_total == N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN - 1)
+          if (r_window_total_in == N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN - 1)
             next_st_input = END_CONTROL;
           else
           // When all output-channel windows are complete, load bias (disabled for now)
-          // if (r_window_in_total == N_WINDOW * N_WINDOW * N_CHANNEL_OUT)
+          // if (r_window_total_in == N_WINDOW * N_WINDOW * N_CHANNEL_OUT)
           //  next_st_input = BIAS;
           // else
           // When a full set of windows for an input channel is done, reload weights
-          if (r_window_in_vertical == N_WINDOW * N_WINDOW - 1)
+          if (r_window_vertical_in == N_WINDOW * N_WINDOW - 1)
             next_st_input = WEIGHT;
           else
           // Otherwise keep reading input data
@@ -205,9 +205,9 @@ module Control
       r_addr_fin   <= N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT;
       r_count_wh   <= 0;
       r_count_fin  <= 0;
-      r_window_in_total     <= 0;
-      r_window_in_vertical   <= 0;
-      r_window_in_horizontal  <= 0;
+      r_window_total_in     <= 0;
+      r_window_vertical_in   <= 0;
+      r_window_horizontal_in  <= 0;
       r_weight     <= '{default: '0};
       r_feat_in    <= '{default: '0};
     end else begin
@@ -220,10 +220,10 @@ module Control
           r_addr_fin  <= N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT;
           r_count_wh  <= 0;
           r_count_fin <= 0;
-          r_window_in_total    <= 0;
-          r_window_in_vertical   <= 0;
-          r_window_in_horizontal  <= 0;
-          r_window_in_channel  <= 0;
+          r_window_total_in    <= 0;
+          r_window_vertical_in   <= 0;
+          r_window_horizontal_in  <= 0;
+          r_window_channel_in  <= 0;
           r_weight    <= '{default: '0};
           r_feat_in   <= '{default: '0};
         end
@@ -252,7 +252,7 @@ module Control
 
           // When the input buffer is full, increment the total window counter
           if(w_end_read_fin)
-            r_window_in_total <= r_window_in_total + 1;
+            r_window_total_in <= r_window_total_in + 1;
 
           // If the input buffer is full but the row has not ended:
           // - increment the per-row window counter
@@ -281,19 +281,19 @@ module Control
             r_count_fin <= 0;
 
           if (w_end_read_fin && w_end_line_in)
-            r_window_in_horizontal <= 0;
+            r_window_horizontal_in <= 0;
           else if (w_end_read_fin && !w_end_line_in)
-            r_window_in_horizontal <= r_window_in_horizontal + 1;
+            r_window_horizontal_in <= r_window_horizontal_in + 1;
 
           if (w_end_read_fin && w_end_vertical_in)
-            r_window_in_vertical <= 0;
+            r_window_vertical_in <= 0;
           else if (w_end_read_fin && !w_end_vertical_in)
-            r_window_in_vertical <= r_window_in_vertical + 1;
+            r_window_vertical_in <= r_window_vertical_in + 1;
 
           if (w_end_read_fin && w_end_channel_in)
-            r_window_in_channel <= 0;
+            r_window_channel_in <= 0;
           else if (w_end_read_fin && !w_end_channel_in)
-            r_window_in_channel <= r_window_in_channel + 1;
+            r_window_channel_in <= r_window_channel_in + 1;
 
           if (w_end_read_fin && w_end_line_in && w_end_channel_in)
               r_addr_fin <= N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT;
@@ -310,7 +310,7 @@ module Control
 
   // Combinational logic detecting end-of-row for read paths
   always_comb begin: w_end_line_in_block
-    if (r_window_in_horizontal < N_WINDOW - 1)
+    if (r_window_horizontal_in < N_WINDOW - 1)
       w_end_line_in = 1'b0;
     else
       w_end_line_in = 1'b1;
@@ -318,14 +318,14 @@ module Control
 
   // Combinational logic detecting end-of-channel for read paths
   always_comb begin: w_end_vertical_in_block
-    if (r_window_in_vertical < N_WINDOW * N_WINDOW - 1)
+    if (r_window_vertical_in < N_WINDOW * N_WINDOW - 1)
       w_end_vertical_in = 1'b0;
     else
       w_end_vertical_in = 1'b1;
   end
 
   always_comb begin: w_end_channel_in_block
-    if (r_window_in_channel < (N_WINDOW * N_WINDOW * N_CHANNEL_IN - 1))
+    if (r_window_channel_in < (N_WINDOW * N_WINDOW * N_CHANNEL_IN - 1))
       w_end_channel_in = 1'b0;
     else
       w_end_channel_in = 1'b1;
@@ -438,9 +438,9 @@ module Control
           next_st_output = SUM;
         else if (w_end_write_fout && w_end_vertical_out)
           next_st_output = IDLE_OUTPUT;
-        // else if (w_end_write_fout && r_window_out_total == (N_WINDOW * N_WINDOW * N_CHANNEL_IN) - 1)
+        // else if (w_end_write_fout && r_window_total_out == (N_WINDOW * N_WINDOW * N_CHANNEL_IN) - 1)
           // next_st_output = IDLE_OUTPUT;
-        else if (w_end_write_fout && r_window_out_total == (N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN - 1))
+        else if (w_end_write_fout && r_window_total_out == (N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN - 1))
           next_st_output = IDLE_OUTPUT;
       end
     endcase
@@ -452,10 +452,10 @@ module Control
       r_addr_fout <= 0;
       r_count_read_fout <= 0;
       r_count_write_fout <= 0;
-      r_window_out_total <= 0;
-      r_window_out_channel <= 0;
-      r_window_out_vertical <= 0;
-      r_window_out_horizontal <= 0;
+      r_window_total_out <= 0;
+      r_window_channel_out <= 0;
+      r_window_vertical_out <= 0;
+      r_window_horizontal_out <= 0;
       r_conv_output   <= '{default: '0};
       r_feat_output   <= '{default: '0};
     end else begin
@@ -489,25 +489,25 @@ module Control
           // Each cycle increments the output counter to select which register value gets written
           r_count_write_fout <= r_count_write_fout + 1;
           if(w_end_write_fout)
-            r_window_out_total <= r_window_out_total + 1;
+            r_window_total_out <= r_window_total_out + 1;
 
           // When the output window is full but the row continues:
           // - increment the per-row window counter
           // - move horizontally to the next window
           if (w_end_write_fout && w_end_line_out)
-            r_window_out_horizontal <= 0;
+            r_window_horizontal_out <= 0;
           else if (w_end_write_fout && !w_end_line_out)
-            r_window_out_horizontal <= r_window_out_horizontal + 1;
+            r_window_horizontal_out <= r_window_horizontal_out + 1;
 
           if (w_end_write_fout && w_end_vertical_out)
-            r_window_out_vertical <= 0;
+            r_window_vertical_out <= 0;
           else if (w_end_write_fout && !w_end_vertical_out)
-            r_window_out_vertical <= r_window_out_vertical + 1;
+            r_window_vertical_out <= r_window_vertical_out + 1;
 
           if (w_end_write_fout && w_end_channel_out)
-            r_window_out_channel <= 0;
+            r_window_channel_out <= 0;
           else if (w_end_write_fout && !w_end_channel_out)
-            r_window_out_channel <= r_window_out_channel + 1;
+            r_window_channel_out <= r_window_channel_out + 1;
 
           // if (w_end_write_fout && w_end_channel_out && w_end_vertical_out)
           //   r_addr_fout <= 0;
@@ -525,7 +525,7 @@ module Control
   end
 
   always_comb begin: p_end_block
-    p_end = (r_window_out_total == N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN) ? 1'b1 : 1'b0;
+    p_end = (r_window_total_out == N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN) ? 1'b1 : 1'b0;
   end
 
   // If the current state is WRITE_OUTPUT, enable write
@@ -566,7 +566,7 @@ module Control
 
   // Combinational logic detecting end-of-row for write paths
   always_comb begin: w_end_line_out_block
-    if (r_window_out_horizontal < (N_WINDOW - 1))
+    if (r_window_horizontal_out < (N_WINDOW - 1))
       w_end_line_out = 1'b0;
     else
       w_end_line_out = 1'b1;
@@ -574,28 +574,28 @@ module Control
 
   // Combinational logic asserting when the output buffer is empty and all data is written in memory
   always_comb begin: w_end_vertical_out_block
-    if (r_window_out_vertical < (N_WINDOW * N_WINDOW - 1))
+    if (r_window_vertical_out < (N_WINDOW * N_WINDOW - 1))
       w_end_vertical_out = 1'b0;
     else
       w_end_vertical_out = 1'b1;
   end
 
   always_comb begin: w_end_layer_out_block
-    if (r_window_out_channel < (N_WINDOW * N_WINDOW - 1))
+    if (r_window_channel_out < (N_WINDOW * N_WINDOW - 1))
       w_end_layer_out = 1'b0;
     else
       w_end_layer_out = 1'b1;
   end
 
   always_comb begin: w_end_last_channel_block
-    if (r_window_out_channel < (N_WINDOW * N_WINDOW * (N_CHANNEL_IN - 1)))
+    if (r_window_channel_out < (N_WINDOW * N_WINDOW * (N_CHANNEL_IN - 1)))
       w_end_last_channel = 1'b0;
     else
       w_end_last_channel = 1'b1;
   end
 
   always_comb begin: w_end_channel_out_block
-    if (r_window_out_channel < (N_WINDOW * N_WINDOW * N_CHANNEL_IN - 1))
+    if (r_window_channel_out < (N_WINDOW * N_WINDOW * N_CHANNEL_IN - 1))
       w_end_channel_out = 1'b0;
     else
       w_end_channel_out = 1'b1;
