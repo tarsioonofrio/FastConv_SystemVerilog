@@ -119,11 +119,11 @@ module Control
   // Flag indicating the input window finished reading (renamed)
   logic w_end_vertical_in;
   // Flag indicating the output channel finished writing (renamed)
-  logic w_end_vertical_out;
+  logic w_end_channel_out;
   logic w_end_first_channel_in;
   logic w_end_first_channel_out;
   logic w_end_channel_in;
-  logic w_end_channel_out;
+  logic w_end_all_channel_out;
   logic w_end_last_channel_out;
   // Current input feature address
   logic[NADDR-1:0] w_addr_fin;
@@ -432,11 +432,11 @@ module Control
       WRITE_OUTPUT: begin
         // if (w_end_write_fout)
         //   next_st_output = SUM;
-        if (w_end_write_fout && w_end_first_channel_out && !w_end_vertical_out)
+        if (w_end_write_fout && w_end_first_channel_out && !w_end_channel_out)
           next_st_output = READ_OUTPUT;
-        else if (w_end_write_fout && !w_end_first_channel_out && !w_end_vertical_out)
+        else if (w_end_write_fout && !w_end_first_channel_out && !w_end_channel_out)
           next_st_output = SUM;
-        else if (w_end_write_fout && w_end_vertical_out)
+        else if (w_end_write_fout && w_end_channel_out)
           next_st_output = IDLE_OUTPUT;
         // else if (w_end_write_fout && r_window_total_out == (N_WINDOW * N_WINDOW * N_CHANNEL_IN) - 1)
           // next_st_output = IDLE_OUTPUT;
@@ -499,19 +499,19 @@ module Control
           else if (w_end_write_fout && !w_end_horizontal_out)
             r_window_horizontal_out <= r_window_horizontal_out + 1;
 
-          if (w_end_write_fout && w_end_vertical_out)
+          if (w_end_write_fout && w_end_channel_out)
             r_window_channel_out <= 0;
-          else if (w_end_write_fout && !w_end_vertical_out)
+          else if (w_end_write_fout && !w_end_channel_out)
             r_window_channel_out <= r_window_channel_out + 1;
 
-          if (w_end_write_fout && w_end_channel_out)
+          if (w_end_write_fout && w_end_all_channel_out)
             r_window_all_channel_out <= 0;
-          else if (w_end_write_fout && !w_end_channel_out)
+          else if (w_end_write_fout && !w_end_all_channel_out)
             r_window_all_channel_out <= r_window_all_channel_out + 1;
 
-          // if (w_end_write_fout && w_end_channel_out && w_end_vertical_out)
+          // if (w_end_write_fout && w_end_all_channel_out && w_end_channel_out)
           //   r_addr_fout <= 0;
-          if (w_end_write_fout && !w_end_channel_out && w_end_vertical_out)
+          if (w_end_write_fout && !w_end_all_channel_out && w_end_channel_out)
             // r_addr_fout <= 0;
             // r_addr_fout <= r_addr_fout + A1_SIZE - (FEAT_OUTPUT_SIZE + FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
             r_addr_fout <= r_addr_fout + A1_SIZE + FEAT_OUTPUT_SIZE * (A1_SIZE - 1) - (FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
@@ -573,11 +573,11 @@ module Control
   end
 
   // Combinational logic asserting when the output buffer is empty and all data is written in memory
-  always_comb begin: w_end_vertical_out_block
+  always_comb begin: w_end_channel_out_block
     if (r_window_channel_out < (N_WINDOW * N_WINDOW - 1))
-      w_end_vertical_out = 1'b0;
+      w_end_channel_out = 1'b0;
     else
-      w_end_vertical_out = 1'b1;
+      w_end_channel_out = 1'b1;
   end
 
   always_comb begin: w_end_first_channel_out_block
@@ -594,11 +594,11 @@ module Control
       w_end_last_channel_out = 1'b1;
   end
 
-  always_comb begin: w_end_channel_out_block
+  always_comb begin: w_end_all_channel_out_block
     if (r_window_all_channel_out < (N_WINDOW * N_WINDOW * N_CHANNEL_IN - 1))
-      w_end_channel_out = 1'b0;
+      w_end_all_channel_out = 1'b0;
     else
-      w_end_channel_out = 1'b1;
+      w_end_all_channel_out = 1'b1;
   end
 
   always_comb begin: w_count_fout_block
