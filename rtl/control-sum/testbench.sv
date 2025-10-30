@@ -154,7 +154,7 @@ module tb;
 
     for (int i = 0; i < FOUT1_SIZE; i++) begin
        @(posedge clk);
-       wait(dut.w_end_last_channel);
+       wait(dut.w_end_last_channel_out);
        wait(dut.p_conv_end);
        @(posedge clk);
        for (int j = 0; j < FOUT2_SIZE; j++) begin
