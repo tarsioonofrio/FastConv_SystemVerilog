@@ -124,7 +124,7 @@ module Control
   logic w_end_out_layer;
   logic w_end_in_channel;
   logic w_end_out_channel;
-  logic w_end;
+  logic w_end_last_channel;
   // Current input feature address
   logic[NADDR-1:0] w_addr_fin;
 
@@ -253,8 +253,6 @@ module Control
           if(w_end_read_fin)
             r_window_in_total <= r_window_in_total + 1;
 
-          // if (r_window_in_channel)
-
           // If the input buffer is full but the row has not ended:
           // - increment the per-row window counter
           // - position the input feature counter at the reuse start column
@@ -277,27 +275,26 @@ module Control
             r_feat_in[20] <= r_feat_in[23];
             r_feat_in[21] <= r_feat_in[24];
 
-            r_window_in_vertical <= r_window_in_vertical + 1;
-            r_window_in_horizontal <= r_window_in_horizontal + 1;
             r_count_fin <= C1_SIZE * (C1_SIZE - A1_SIZE);
-            r_addr_fin  <= r_addr_fin + A1_SIZE;
-          end
-          // If the input buffer is full and the row ended:
-          // - reset the per-row window counter
-          // - reset the input feature counter to zero (no horizontal reuse)
-          // - jump vertically to the first address of the window several rows below, with no vertical reuse
-          else if (w_end_read_fin && w_end_line_in && !w_end_in_vertical) begin
-            r_window_in_vertical <= r_window_in_vertical + 1;
-            r_window_in_horizontal <= 0;
+          end else if (w_end_read_fin && w_end_line_in)
             r_count_fin <= 0;
-            r_addr_fin  <= r_addr_fin + C1_SIZE + FEAT_INPUT_SIZE * (A1_SIZE - 1);
-          end
-          else if (w_end_read_fin && w_end_line_in && w_end_in_vertical) begin
+
+          if (w_end_read_fin && w_end_line_in)
             r_window_in_horizontal <= 0;
+          else if (w_end_read_fin && !w_end_line_in)
+            r_window_in_horizontal <= r_window_in_horizontal + 1;
+
+          if (w_end_read_fin && w_end_in_vertical)
             r_window_in_vertical <= 0;
-            r_count_fin <= 0;
+          else if (w_end_read_fin && !w_end_in_vertical)
+            r_window_in_vertical <= r_window_in_vertical + 1;
+
+          if (w_end_read_fin && !w_end_line_in)
+            r_addr_fin  <= r_addr_fin + A1_SIZE;
+          else if (w_end_read_fin && w_end_line_in && !w_end_in_vertical)
+            r_addr_fin  <= r_addr_fin + C1_SIZE + FEAT_INPUT_SIZE * (A1_SIZE - 1);
+          else if (w_end_read_fin && w_end_line_in && w_end_in_vertical)
             r_addr_fin  <= r_addr_fin + C1_SIZE + FEAT_INPUT_SIZE * (C1_SIZE - 1);
-          end
         end
       endcase
     end
@@ -425,9 +422,9 @@ module Control
         else if (w_end_write_fout && !w_end_out_layer && !w_end_out_channel)
           next_st_output = SUM;
         else if (w_end_write_fout && w_end_out_channel)
+          next_st_output = SUM;
+        else if (w_end_write_fout && r_window_out_total == (N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN - 1))
           next_st_output = IDLE_OUTPUT;
-        // else if (w_end_write_fout && r_window_out_total == (N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN - 1))
-        //   next_st_output = IDLE_OUTPUT;
       end
     endcase
   end
@@ -495,11 +492,12 @@ module Control
           else if (w_end_write_fout && !w_end_out_channel)
             r_window_out_channel <= r_window_out_channel + 1;
 
-          if (w_end_write_fout && w_end_out_channel)
-            r_addr_fout <= 0;
-          else if (w_end_write_fout && w_end_out_vertical)
-            r_addr_fout <= 0;
+          // if (w_end_write_fout && w_end_out_channel && w_end_out_vertical)
+          //   r_addr_fout <= 0;
+          if (w_end_write_fout && !w_end_out_channel && w_end_out_vertical)
+            // r_addr_fout <= 0;
             // r_addr_fout <= r_addr_fout + A1_SIZE - (FEAT_OUTPUT_SIZE + FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
+            r_addr_fout <= r_addr_fout + A1_SIZE + FEAT_OUTPUT_SIZE * (A1_SIZE - 1) - (FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
           else if (w_end_write_fout && w_end_line_out)
             r_addr_fout <= r_addr_fout + A1_SIZE + FEAT_OUTPUT_SIZE * (A1_SIZE - 1);
           else if (w_end_write_fout && !w_end_line_out)
@@ -570,6 +568,13 @@ module Control
       w_end_out_layer = 1'b0;
     else
       w_end_out_layer = 1'b1;
+  end
+
+  always_comb begin: w_end_last_channel_block
+    if (r_window_out_channel < (N_WINDOW * N_WINDOW * (N_CHANNEL_IN - 1)))
+      w_end_last_channel = 1'b0;
+    else
+      w_end_last_channel = 1'b1;
   end
 
   always_comb begin: w_end_out_channel_block
