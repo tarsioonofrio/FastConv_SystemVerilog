@@ -41,8 +41,8 @@ module Control
     output logic p_output_en,
     output logic p_output_wr,
     output logic[NADDR-1:0] p_output_addr,
-    output  logic_vector p_output_data_write,
-    input logic_vector p_output_data_read,
+    output logic_vector p_output_data_write,
+    input  logic_vector p_output_data_read,
     input  logic p_output_valid
 );
 
@@ -116,14 +116,14 @@ module Control
   logic w_end_read_fout;
   // Flag indicating the output window finished writing
   logic w_end_write_fout;
-  // Flag indicating the input window finished reading
-  logic w_end_in_vertical;
-  // Flag indicating the output channel finished writing
-  logic w_end_out_vertical;
-  logic w_end_in_layer;
-  logic w_end_out_layer;
-  logic w_end_in_channel;
-  logic w_end_out_channel;
+  // Flag indicating the input window finished reading (renamed)
+  logic w_end_vertical_in;
+  // Flag indicating the output channel finished writing (renamed)
+  logic w_end_vertical_out;
+  logic w_end_layer_in;
+  logic w_end_layer_out;
+  logic w_end_channel_in;
+  logic w_end_channel_out;
   logic w_end_last_channel;
   // Current input feature address
   logic[NADDR-1:0] w_addr_fin;
@@ -285,23 +285,23 @@ module Control
           else if (w_end_read_fin && !w_end_line_in)
             r_window_in_horizontal <= r_window_in_horizontal + 1;
 
-          if (w_end_read_fin && w_end_in_vertical)
+          if (w_end_read_fin && w_end_vertical_in)
             r_window_in_vertical <= 0;
-          else if (w_end_read_fin && !w_end_in_vertical)
+          else if (w_end_read_fin && !w_end_vertical_in)
             r_window_in_vertical <= r_window_in_vertical + 1;
 
-          if (w_end_read_fin && w_end_in_channel)
+          if (w_end_read_fin && w_end_channel_in)
             r_window_in_channel <= 0;
-          else if (w_end_read_fin && !w_end_in_channel)
+          else if (w_end_read_fin && !w_end_channel_in)
             r_window_in_channel <= r_window_in_channel + 1;
 
-          if (w_end_read_fin && w_end_line_in && w_end_in_channel)
+          if (w_end_read_fin && w_end_line_in && w_end_channel_in)
               r_addr_fin <= N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT;
           else if (w_end_read_fin && !w_end_line_in)
             r_addr_fin  <= r_addr_fin + A1_SIZE;
-          else if (w_end_read_fin && w_end_line_in && !w_end_in_vertical)
+          else if (w_end_read_fin && w_end_line_in && !w_end_vertical_in)
             r_addr_fin  <= r_addr_fin + C1_SIZE + FEAT_INPUT_SIZE * (A1_SIZE - 1);
-          else if (w_end_read_fin && w_end_line_in && w_end_in_vertical)
+          else if (w_end_read_fin && w_end_line_in && w_end_vertical_in)
             r_addr_fin  <= r_addr_fin + C1_SIZE + FEAT_INPUT_SIZE * (C1_SIZE - 1);
         end
       endcase
@@ -317,18 +317,18 @@ module Control
   end
 
   // Combinational logic detecting end-of-channel for read paths
-  always_comb begin: w_end_in_vertical_block
+  always_comb begin: w_end_vertical_in_block
     if (r_window_in_vertical < N_WINDOW * N_WINDOW - 1)
-      w_end_in_vertical = 1'b0;
+      w_end_vertical_in = 1'b0;
     else
-      w_end_in_vertical = 1'b1;
+      w_end_vertical_in = 1'b1;
   end
 
-  always_comb begin: w_end_in_channel_block
+  always_comb begin: w_end_channel_in_block
     if (r_window_in_channel < (N_WINDOW * N_WINDOW * N_CHANNEL_IN - 1))
-      w_end_in_channel = 1'b0;
+      w_end_channel_in = 1'b0;
     else
-      w_end_in_channel = 1'b1;
+      w_end_channel_in = 1'b1;
   end
 
 
@@ -414,9 +414,9 @@ module Control
     next_st_output = current_st_output;
     unique case (current_st_output)
       IDLE_OUTPUT: begin
-        if (p_start && w_end_out_layer)
+        if ((p_start && w_end_layer_out) || w_end_read_fin)
           next_st_output = READ_OUTPUT;
-        else if (p_start && !w_end_out_layer)
+        else if ((p_start && !w_end_layer_out) || w_end_read_fin)
           next_st_output = SUM;
       end
       READ_OUTPUT: begin
@@ -432,12 +432,14 @@ module Control
       WRITE_OUTPUT: begin
         // if (w_end_write_fout)
         //   next_st_output = SUM;
-        if (w_end_write_fout && w_end_out_layer && !w_end_out_channel)
+        if (w_end_write_fout && w_end_layer_out && !w_end_vertical_out)
           next_st_output = READ_OUTPUT;
-        else if (w_end_write_fout && !w_end_out_layer && !w_end_out_channel)
+        else if (w_end_write_fout && !w_end_layer_out && !w_end_vertical_out)
           next_st_output = SUM;
-        else if (w_end_write_fout && w_end_out_channel)
-          next_st_output = SUM;
+        else if (w_end_write_fout && w_end_vertical_out)
+          next_st_output = IDLE_OUTPUT;
+        // else if (w_end_write_fout && r_window_out_total == (N_WINDOW * N_WINDOW * N_CHANNEL_IN) - 1)
+          // next_st_output = IDLE_OUTPUT;
         else if (w_end_write_fout && r_window_out_total == (N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN - 1))
           next_st_output = IDLE_OUTPUT;
       end
@@ -476,9 +478,9 @@ module Control
           // else
           //   r_feat_output   <= '{default: '0};
           // TODO: Implement logic that adds only after the first layer
-          // if (p_conv_end && !w_end_out_layer)
+          // if (p_conv_end && !w_end_layer_out)
           //   r_conv_output <= p_conv_output;
-          // else if (p_conv_end && w_end_out_layer)
+          // else if (p_conv_end && w_end_layer_out)
           //   for (int i = 0; i < A1_SIZE * A2_SIZE; i++)
           //     r_conv_output[i] <= r_conv_output[i] + p_conv_output[i];
         end
@@ -497,19 +499,19 @@ module Control
           else if (w_end_write_fout && !w_end_line_out)
             r_window_out_horizontal <= r_window_out_horizontal + 1;
 
-          if (w_end_write_fout && w_end_out_vertical)
+          if (w_end_write_fout && w_end_vertical_out)
             r_window_out_vertical <= 0;
-          else if (w_end_write_fout && !w_end_out_vertical)
+          else if (w_end_write_fout && !w_end_vertical_out)
             r_window_out_vertical <= r_window_out_vertical + 1;
 
-          if (w_end_write_fout && w_end_out_channel)
+          if (w_end_write_fout && w_end_channel_out)
             r_window_out_channel <= 0;
-          else if (w_end_write_fout && !w_end_out_channel)
+          else if (w_end_write_fout && !w_end_channel_out)
             r_window_out_channel <= r_window_out_channel + 1;
 
-          // if (w_end_write_fout && w_end_out_channel && w_end_out_vertical)
+          // if (w_end_write_fout && w_end_channel_out && w_end_vertical_out)
           //   r_addr_fout <= 0;
-          if (w_end_write_fout && !w_end_out_channel && w_end_out_vertical)
+          if (w_end_write_fout && !w_end_channel_out && w_end_vertical_out)
             // r_addr_fout <= 0;
             // r_addr_fout <= r_addr_fout + A1_SIZE - (FEAT_OUTPUT_SIZE + FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
             r_addr_fout <= r_addr_fout + A1_SIZE + FEAT_OUTPUT_SIZE * (A1_SIZE - 1) - (FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
@@ -571,18 +573,18 @@ module Control
   end
 
   // Combinational logic asserting when the output buffer is empty and all data is written in memory
-  always_comb begin: w_end_out_vertical_block
+  always_comb begin: w_end_vertical_out_block
     if (r_window_out_vertical < (N_WINDOW * N_WINDOW - 1))
-      w_end_out_vertical = 1'b0;
+      w_end_vertical_out = 1'b0;
     else
-      w_end_out_vertical = 1'b1;
+      w_end_vertical_out = 1'b1;
   end
 
-  always_comb begin: w_end_out_layer_block
+  always_comb begin: w_end_layer_out_block
     if (r_window_out_channel < (N_WINDOW * N_WINDOW - 1))
-      w_end_out_layer = 1'b0;
+      w_end_layer_out = 1'b0;
     else
-      w_end_out_layer = 1'b1;
+      w_end_layer_out = 1'b1;
   end
 
   always_comb begin: w_end_last_channel_block
@@ -592,11 +594,11 @@ module Control
       w_end_last_channel = 1'b1;
   end
 
-  always_comb begin: w_end_out_channel_block
+  always_comb begin: w_end_channel_out_block
     if (r_window_out_channel < (N_WINDOW * N_WINDOW * N_CHANNEL_IN - 1))
-      w_end_out_channel = 1'b0;
+      w_end_channel_out = 1'b0;
     else
-      w_end_out_channel = 1'b1;
+      w_end_channel_out = 1'b1;
   end
 
   always_comb begin: w_count_fout_block
