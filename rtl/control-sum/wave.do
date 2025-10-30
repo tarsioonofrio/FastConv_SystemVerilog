@@ -37,15 +37,15 @@ add wave -noupdate -radix unsigned /tb/dut/r_addr_bias
 add wave -noupdate -radix unsigned /tb/dut/r_addr_wh
 add wave -noupdate -radix unsigned /tb/dut/r_addr_fin
 add wave -noupdate -radix unsigned /tb/dut/r_addr_fout
-add wave -noupdate -radix unsigned /tb/dut/r_window_in_total
-add wave -noupdate -radix unsigned /tb/dut/r_window_in_channel
-add wave -noupdate -radix unsigned /tb/dut/r_window_in_vertical
-add wave -noupdate -radix unsigned /tb/dut/r_window_in_horizontal
+add wave -noupdate -radix unsigned /tb/dut/r_window_total_in
+add wave -noupdate -radix unsigned /tb/dut/r_window_channel_in
+add wave -noupdate -radix unsigned /tb/dut/r_window_vertical_in
+add wave -noupdate -radix unsigned /tb/dut/r_window_horizontal_in
 add wave -noupdate -radix unsigned /tb/dut/r_addr_fout
-add wave -noupdate -radix unsigned /tb/dut/r_window_out_total
-add wave -noupdate -radix unsigned /tb/dut/r_window_out_channel
-add wave -noupdate -radix unsigned /tb/dut/r_window_out_vertical
-add wave -noupdate -radix unsigned /tb/dut/r_window_out_horizontal
+add wave -noupdate -radix unsigned /tb/dut/r_window_total_out
+add wave -noupdate -radix unsigned /tb/dut/r_window_channel_out
+add wave -noupdate -radix unsigned /tb/dut/r_window_vertical_out
+add wave -noupdate -radix unsigned /tb/dut/r_window_horizontal_out
 add wave -noupdate /tb/dut/w_end_line_in
 add wave -noupdate /tb/dut/w_end_read_fin
 add wave -noupdate /tb/dut/w_end_vertical_in
