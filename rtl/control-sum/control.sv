@@ -53,6 +53,7 @@ module Control
     BIAS,
     WEIGHT,
     READ_INPUT,
+    TRANSFER,
     END_CONTROL
   } state_input_type;
 
@@ -175,7 +176,7 @@ module Control
       end
       // Waits until the input register bank is full; based on processed windows it may keep reading, reload weights/bias, or finish
       READ_INPUT: begin
-        if (w_end_read_fin) begin
+        if (w_end_read_fin && !w_end_horizontal_in) begin
           // When all windows across input and output channels have been read, finish control
           if (r_window_total_in == N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN - 1)
             next_st_input = END_CONTROL;
@@ -191,6 +192,11 @@ module Control
           // Otherwise keep reading input data
             next_st_input = READ_INPUT;
         end
+        if (w_end_read_fin && !w_end_horizontal_in)
+          next_st_input = TRANSFER;
+      end
+      TRANSFER: begin
+        next_st_input = READ_INPUT;
       end
     endcase
   end
@@ -263,21 +269,6 @@ module Control
           if (w_end_read_fin && !w_end_horizontal_in) begin
             // Preserve overlapping columns locally to enable horizontal window reuse
             // TODO perform test using an index table
-            r_feat_in[00] <= r_feat_in[03];
-            r_feat_in[01] <= r_feat_in[04];
-
-            r_feat_in[05] <= r_feat_in[08];
-            r_feat_in[06] <= r_feat_in[09];
-
-            r_feat_in[10] <= r_feat_in[13];
-            r_feat_in[11] <= r_feat_in[14];
-
-            r_feat_in[15] <= r_feat_in[18];
-            r_feat_in[16] <= r_feat_in[19];
-
-            r_feat_in[20] <= r_feat_in[23];
-            r_feat_in[21] <= r_feat_in[24];
-
             r_count_fin <= C1_SIZE * (C1_SIZE - A1_SIZE);
           end else if (w_end_read_fin && w_end_horizontal_in)
             r_count_fin <= 0;
@@ -305,6 +296,22 @@ module Control
             r_addr_fin  <= r_addr_fin + C1_SIZE + FEAT_INPUT_SIZE * (A1_SIZE - 1);
           else if (w_end_read_fin && w_end_horizontal_in && w_end_channel_in)
             r_addr_fin  <= r_addr_fin + C1_SIZE + FEAT_INPUT_SIZE * (C1_SIZE - 1);
+        end
+        TRANSFER: begin
+          r_feat_in[00] <= r_feat_in[03];
+          r_feat_in[01] <= r_feat_in[04];
+
+          r_feat_in[05] <= r_feat_in[08];
+          r_feat_in[06] <= r_feat_in[09];
+
+          r_feat_in[10] <= r_feat_in[13];
+          r_feat_in[11] <= r_feat_in[14];
+
+          r_feat_in[15] <= r_feat_in[18];
+          r_feat_in[16] <= r_feat_in[19];
+
+          r_feat_in[20] <= r_feat_in[23];
+          r_feat_in[21] <= r_feat_in[24];
         end
       endcase
     end
