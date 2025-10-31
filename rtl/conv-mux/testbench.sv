@@ -8,7 +8,7 @@ module tb;
   timeprecision 1ps;
 
   // import packConv::*;
-  import data::*;
+  import pack_data::*;
   import pack_def::*;
   import pack_typedef::*;
   import pack_param::*;
@@ -24,7 +24,7 @@ module tb;
 
   // Instantiate conv_rapida entity
   Conv #(
-    .QUANT(QUANT)
+    .QUANT(QUANT),
     .NBITS(NBITS)
   ) dut (
     .clk(clk),
@@ -37,29 +37,18 @@ module tb;
   );
 
   // Clock generation - 10 ns
-  always #1 clk = ~clk;
+  always #0.5 clk = ~clk;
 
   // Test process to iterate over the input maps
   initial begin
-    $display("NBITS = %0d", NBITS);
-
-    // Configurações iniciais
-    // $dumpfile("dump.vcd");  // Arquivo VCD para waveform
-    // $dumpvars(0, tb);
-
-    // Monitor para debug
-    // $monitor("** Time: %0t | p_start: %b | p_end: %b", $time, p_start, p_end);
-
-
-    //clk = 0;
     p_start = 0;
     reset = 1;
     #5
     reset = 0;  // Liberar o reset após 5 ns
 
     // Convert const_weight
-    for (int wi = 0; wi < W1_SIZE; wi++) begin
-      for (int wj = 0; wj < W2_SIZE; wj++) begin
+    for (int wi = 0; wi < M1_SIZE; wi++) begin
+      for (int wj = 0; wj < M2_SIZE; wj++) begin
         p_weight[wj] = (NBITS)'($signed(const_weight[wi][wj]));
       end
 
@@ -106,17 +95,7 @@ module tb;
             fi, fj, $signed(const_feat_out[fi][fj]), $signed(p_output[fj])
           );
         end
-
       end
     end
   end
-
-  final begin
-    integer log_f;
-    log_f = $fopen("sim_summary.txt", "w");
-    $fdisplay(log_f, "time");
-    $fdisplay(log_f, "%0t", $time);
-    $fclose(log_f);
-  end
-
 endmodule
