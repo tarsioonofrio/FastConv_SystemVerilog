@@ -10,8 +10,8 @@ endpackage
 
 module MuxMult
   (
-    input  logic[$clog2(8-1):0] idx_in, // current state
-    output logic[$clog2(8*8-1):0] idx_out[0:8-1]  // index array output
+    input  logic[$clog2(2-1):0] idx_in, // current state
+    output logic[$clog2(2*8-1):0] idx_out[0:8-1]  // index array output
   );
 
   timeunit 1ns;

@@ -39,9 +39,9 @@ close $fp
 vlog -work work -svinputport=relaxed ./conv.sv
 vlog -work work -svinputport=relaxed ./testbench.sv
 
-vsim -voptargs=+acc -t ns work.tb
+vsim -voptargs=+acc -t ps work.tb
 set StdArithNoWarnings 1
 set StdVitalGlitchNoWarnings 1
 do wave.do
-run 1900ns
-#run -all
+# run 1900ns
+run -all

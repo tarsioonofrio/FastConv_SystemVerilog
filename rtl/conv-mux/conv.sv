@@ -11,6 +11,7 @@ module Conv
 
     input  logic p_start,
     output logic p_end,
+    output logic p_idle,
     input  type_input  p_input,
     input  type_weight p_weight,
     output type_output p_output
@@ -21,9 +22,9 @@ module Conv
 
   typedef enum {
     IDLE_CONV,
-    CONV_C,
-    CONV_H,
-    CONV_A
+    MATRIX_C,
+    HADAMARD,
+    MATRIX_A
   } state_type;
 
   state_type current_state, next_state;
@@ -33,13 +34,8 @@ module Conv
   type_weight w_prod_c;
   type_output w_prod_a;
 
-  logic r_end;
-
-  logic w_end;
-  // logic w_end[0];
-
   logic [$clog2(SMULT-1):0] r_idx_in;
-  logic [$clog2(SMULT*SMULT-1):0] r_idx_out[0:NMULT-1];
+  logic [$clog2(SMULT*NMULT-1):0] r_idx_out[0:NMULT-1];
 
   logic signed [NBITS-1+QUANT:0] product [0:NMULT-1];  // QUANT more bits for the multipliers
 
@@ -57,56 +53,50 @@ module Conv
   end
 
   always_comb begin
-    p_end = r_end;
-    w_end = 1'b0;
     p_output = w_prod_a;
     next_state  = current_state;
 
     unique case (current_state)
-      IDLE_CONV: begin
-        w_end = 1'b0;
-        if (p_start) next_state = CONV_C;
-      end
-      CONV_C:
-        next_state = CONV_H;
-      CONV_H:
+      IDLE_CONV:
+        if (p_start) next_state = MATRIX_C;
+      MATRIX_C:
+        next_state = HADAMARD;
+      HADAMARD:
         if (r_idx_in == (SMULT - 1))
-          next_state = CONV_A;
-      CONV_A: begin
-        w_end = 1'b1;
+          next_state = MATRIX_A;
+      MATRIX_A:
         next_state = IDLE_CONV;
-      end
     endcase
   end
 
   always_ff @(posedge clk) begin
     if (reset) begin
       r_idx_in <= 1'b0;
-      r_end <= 1'b0;
+      // r_end <= 1'b0;
     end else begin
       unique case (current_state)
         IDLE_CONV: begin
-          r_end <= 1'b0;
           r_idx_in <= 1'b0;
           r_feat[C1_SIZE*C1_SIZE-1:0] <= p_input;
         end
-        CONV_C: begin
-          r_end <= 1'b0;
+        MATRIX_C: begin
           r_feat <= w_prod_c;
         end
-        CONV_H: begin
+        HADAMARD: begin
           r_idx_in <= r_idx_in + 1;
           for (int i = 0; i < NMULT; i++) begin
             r_feat[r_idx_out[i]] <= product[i];
           end
         end
-        CONV_A: begin
-          r_end <= 1'b1;
-        end
+        MATRIX_A: begin end
       endcase
     end
   end
 
+  always_comb begin
+    p_idle = (current_state == IDLE_CONV) ? 1'b1 : 1'b0;
+    p_end = (current_state == MATRIX_A) ? 1'b1 : 1'b0;
+  end
 
   // BLOCK: Convolution
   //
