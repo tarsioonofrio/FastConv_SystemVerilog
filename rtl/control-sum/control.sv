@@ -149,6 +149,8 @@ module Control
     end
   end
 
+
+  // # Control Block
   // Input state machine block
 
   // Combinational logic for the input (read) state machine
