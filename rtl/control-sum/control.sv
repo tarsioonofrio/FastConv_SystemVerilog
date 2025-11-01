@@ -54,6 +54,7 @@ module Control
     WEIGHT,
     READ_INPUT,
     TRANSFER,
+    READ_WAIT,
     END_CONTROL
   } state_input_type;
 
@@ -139,6 +140,10 @@ module Control
   type_output r_conv_output;
   type_output r_feat_output;
 
+  logic latch_input;
+  logic latch_conv;
+  logic latch_output;
+
   // Sequential logic that advances the state machines
   always_ff @(posedge clk or posedge reset) begin: FSM_BLOCK
     if (reset) begin
@@ -148,6 +153,33 @@ module Control
       current_st_input  <= next_st_input;
       current_st_output <= next_st_output;
     end
+  end
+
+  always_latch begin: LATCH_INPUT_BLOCK
+    if (reset)
+      latch_input <= '0;
+   else if (next_st_input == TRANSFER)
+      latch_input <= '1;
+   else if(w_end_read_fin)
+      latch_input <= '0;
+  end
+
+  always_latch begin: LATCH_CONV_BLOCK
+    if (reset)
+      latch_conv <= '0;
+     else if (p_conv_end)
+      latch_conv <= '1;
+     else if (w_end_write_fout)
+      latch_conv <= '0;
+  end
+
+  always_latch begin: LATCH_OUTPUT_BLOCK
+    if (reset)
+      latch_output <= '0;
+    else if (w_end_write_fout)
+      latch_output <= '1;
+    else if (w_end_read_fin)
+      latch_output <= '0;
   end
 
 
@@ -196,7 +228,14 @@ module Control
           next_st_input = TRANSFER;
       end
       TRANSFER: begin
-        next_st_input = READ_INPUT;
+        if (latch_output)
+          next_st_input = READ_INPUT;
+        else
+          next_st_input = READ_WAIT;
+      end
+      READ_WAIT: begin
+        if (latch_output)
+          next_st_input = READ_INPUT;
       end
     endcase
   end
@@ -345,7 +384,7 @@ module Control
   always_comb begin
     p_conv_input  = r_feat_in;
     p_conv_weight = r_weight;
-    p_conv_start  = w_end_read_fin;
+    p_conv_start  = latch_input;
   end
 
 
@@ -423,33 +462,33 @@ module Control
     next_st_output = current_st_output;
     unique case (current_st_output)
       IDLE_OUTPUT: begin
-        if ((p_start && w_end_first_channel_out) || w_end_read_fin)
+        if ((p_start && w_end_first_channel_out) || latch_input)
           next_st_output = READ_OUTPUT;
-        else if ((p_start && !w_end_first_channel_out) || w_end_read_fin)
+        else if ((p_start && !w_end_first_channel_out) || latch_input)
           next_st_output = SUM;
       end
       READ_OUTPUT: begin
-        if (w_end_read_fout)
+        if (latch_conv)
           next_st_output = SUM;
       end
       // Waits for the convolution-complete signal
       SUM: begin
-        if (p_conv_end)
+        // if (p_conv_end)
           next_st_output = WRITE_OUTPUT;
       end
       // Waits for the output data write to memory to complete and then returns to idle
       WRITE_OUTPUT: begin
         // if (w_end_write_fout)
         //   next_st_output = SUM;
-        if (w_end_write_fout && w_end_first_channel_out && !w_end_channel_out)
+        if (latch_output && w_end_first_channel_out && !w_end_channel_out)
           next_st_output = READ_OUTPUT;
-        else if (w_end_write_fout && !w_end_first_channel_out && !w_end_channel_out)
+        else if (latch_output && !w_end_first_channel_out && !w_end_channel_out)
           next_st_output = SUM;
-        else if (w_end_write_fout && w_end_channel_out)
+        else if (latch_output && w_end_channel_out)
           next_st_output = IDLE_OUTPUT;
         // else if (w_end_write_fout && r_window_total_out == (N_WINDOW * N_WINDOW * N_CHANNEL_IN) - 1)
           // next_st_output = IDLE_OUTPUT;
-        else if (w_end_write_fout && r_window_total_out == (N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN - 1))
+        else if (latch_output && r_window_total_out == (N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN - 1))
           next_st_output = IDLE_OUTPUT;
       end
     endcase

@@ -52,6 +52,7 @@ module Conv
     end
   end
 
+
   always_comb begin
     p_output = w_prod_a;
     next_state  = current_state;
@@ -95,7 +96,7 @@ module Conv
 
   always_comb begin
     p_idle = (current_state == IDLE_CONV) ? 1'b1 : 1'b0;
-    p_end = (current_state == MATRIX_A) ? 1'b1 : 1'b0;
+    p_end = (next_state == IDLE_CONV) ? 1'b1 : 1'b0;
   end
 
   // BLOCK: Convolution
