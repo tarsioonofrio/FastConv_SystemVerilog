@@ -49,11 +49,12 @@ module Control
   timeunit 1ns; timeprecision 1ps;
 
   typedef enum {
-    IDLE_CONTROL,
+    IDLE_INPUT,
     BIAS,
     WEIGHT,
     READ_INPUT,
-    END_CONTROL
+    TRANSFER,
+    END_INPUT
   } state_input_type;
 
   typedef enum {
@@ -138,10 +139,14 @@ module Control
   type_output r_conv_output;
   type_output r_feat_output;
 
+  logic latch_input;
+  logic latch_conv;
+  logic latch_output;
+
   // Sequential logic that advances the state machines
   always_ff @(posedge clk or posedge reset) begin: FSM_BLOCK
     if (reset) begin
-      current_st_input  <= IDLE_CONTROL;
+      current_st_input  <= IDLE_INPUT;
       current_st_output <= IDLE_OUTPUT;
     end else begin
       current_st_input  <= next_st_input;
@@ -149,6 +154,38 @@ module Control
     end
   end
 
+  always_latch begin: LATCH_INPUT_BLOCK
+    if (reset)
+      latch_input <= '0;
+   else
+   if (next_st_input == TRANSFER)
+      latch_input <= '1;
+   else
+   // if(w_end_read_fin)
+      latch_input <= '0;
+  end
+
+  always_latch begin: LATCH_CONV_BLOCK
+    if (reset)
+      latch_conv <= '0;
+     else
+     if (p_conv_end)
+      latch_conv <= '1;
+     else
+     // if (w_end_write_fout)
+      latch_conv <= '0;
+  end
+
+  always_latch begin: LATCH_OUTPUT_BLOCK
+    if (reset)
+      latch_output <= '0;
+    else
+    if (w_end_write_fout)
+      latch_output <= '1;
+    else
+    // if (w_end_read_fin)
+      latch_output <= '0;
+  end
 
   // # Control Block
   // Input state machine block
@@ -157,9 +194,9 @@ module Control
   always_comb begin: next_st_input_block
     next_st_input = current_st_input;
     unique case (current_st_input)
-      // IDLE_CONTROL
+      // IDLE_INPUT
       // Waits for start to begin reading weights and then input data; bias handling is currently disabled
-      default: begin
+      IDLE_INPUT: begin
         if (p_start)
           next_st_input = WEIGHT;
           // next_st_input = BIAS;
@@ -175,10 +212,10 @@ module Control
       end
       // Waits until the input register bank is full; based on processed windows it may keep reading, reload weights/bias, or finish
       READ_INPUT: begin
-        if (w_end_read_fin) begin
+        if (w_end_read_fin && !w_end_horizontal_in) begin
           // When all windows across input and output channels have been read, finish control
           if (r_window_total_in == N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN - 1)
-            next_st_input = END_CONTROL;
+            next_st_input = END_INPUT;
           else
           // When all output-channel windows are complete, load bias (disabled for now)
           // if (r_window_total_in == N_WINDOW * N_WINDOW * N_CHANNEL_OUT)
@@ -191,6 +228,11 @@ module Control
           // Otherwise keep reading input data
             next_st_input = READ_INPUT;
         end
+        if (w_end_read_fin && !w_end_horizontal_in)
+          next_st_input = TRANSFER;
+      end
+      TRANSFER: begin
+        next_st_input = READ_INPUT;
       end
     endcase
   end
@@ -215,7 +257,7 @@ module Control
     end else begin
       unique case (current_st_input)
         default: begin end
-        IDLE_CONTROL: begin
+        IDLE_INPUT: begin
           r_read_en   <= 1'b0;
           r_addr_bias <= 0;
           r_addr_wh   <= N_CHANNEL_OUT;
@@ -263,21 +305,6 @@ module Control
           if (w_end_read_fin && !w_end_horizontal_in) begin
             // Preserve overlapping columns locally to enable horizontal window reuse
             // TODO perform test using an index table
-            r_feat_in[00] <= r_feat_in[03];
-            r_feat_in[01] <= r_feat_in[04];
-
-            r_feat_in[05] <= r_feat_in[08];
-            r_feat_in[06] <= r_feat_in[09];
-
-            r_feat_in[10] <= r_feat_in[13];
-            r_feat_in[11] <= r_feat_in[14];
-
-            r_feat_in[15] <= r_feat_in[18];
-            r_feat_in[16] <= r_feat_in[19];
-
-            r_feat_in[20] <= r_feat_in[23];
-            r_feat_in[21] <= r_feat_in[24];
-
             r_count_fin <= C1_SIZE * (C1_SIZE - A1_SIZE);
           end else if (w_end_read_fin && w_end_horizontal_in)
             r_count_fin <= 0;
@@ -305,6 +332,22 @@ module Control
             r_addr_fin  <= r_addr_fin + C1_SIZE + FEAT_INPUT_SIZE * (A1_SIZE - 1);
           else if (w_end_read_fin && w_end_horizontal_in && w_end_channel_in)
             r_addr_fin  <= r_addr_fin + C1_SIZE + FEAT_INPUT_SIZE * (C1_SIZE - 1);
+        end
+        TRANSFER: begin
+          r_feat_in[00] <= r_feat_in[03];
+          r_feat_in[01] <= r_feat_in[04];
+
+          r_feat_in[05] <= r_feat_in[08];
+          r_feat_in[06] <= r_feat_in[09];
+
+          r_feat_in[10] <= r_feat_in[13];
+          r_feat_in[11] <= r_feat_in[14];
+
+          r_feat_in[15] <= r_feat_in[18];
+          r_feat_in[16] <= r_feat_in[19];
+
+          r_feat_in[20] <= r_feat_in[23];
+          r_feat_in[21] <= r_feat_in[24];
         end
       endcase
     end
@@ -427,7 +470,7 @@ module Control
       end
       // Waits for the convolution-complete signal
       SUM: begin
-        if (p_conv_end)
+        if (latch_conv)
           next_st_output = WRITE_OUTPUT;
       end
       // Waits for the output data write to memory to complete and then returns to idle
@@ -474,7 +517,7 @@ module Control
         SUM: begin
           r_count_read_fout  <= 0;
           r_count_write_fout <= 0;
-          if (p_conv_end)
+          if (latch_conv)
             for (int i = 0; i < A1_SIZE * A2_SIZE; i++)
               r_conv_output[i] <= r_feat_output[i] + p_conv_output[i];
           // else
