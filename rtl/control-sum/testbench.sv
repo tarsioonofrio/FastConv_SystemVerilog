@@ -35,6 +35,8 @@ module tb;
   logic_vector w_output_data_read;
   logic_vector w_output_data_write;
 
+  logic debug;
+
 
   int count_fout = 0;
 
@@ -130,10 +132,13 @@ module tb;
     .p_output(w_conv_output)
   );
 
+
   // Inicialização dos sinais e reset
   initial begin
-    $dumpfile("dump.vcd");
-    $dumpvars(0, tb);
+    // $dumpfile("dump.vcd");
+    // $dumpvars(0, tb);
+
+    debug = 0;
 
     reset = 1;
     w_start = 0;
@@ -146,23 +151,61 @@ module tb;
     // Start processamento
     $display("=== Start processing ===");
 
+
     for (int i = 0; i < FOUT1_SIZE; i++) begin
-      @(posedge clk);
-      wait(w_conv_end);
-      @(posedge clk);
-      for (int j = 0; j < FOUT2_SIZE; j++) begin
-        @(posedge clk);
-        wait(w_output_wr);
-        if ($signed(const_feat_out_batch[i][j]) != $signed(w_output_data_write)) begin
-          $display("Time %0f | const_feat_out[%0d][%0d] = %0d | Output = %0d", $realtime, i, j, const_feat_out_batch[i][j], w_output_data_write);
-          $display("=== ERROR - End simulation ====");
-        end
-      end
-    end
+       @(posedge clk);
+       wait(dut.w_end_last_channel_out);
+       wait(dut.p_conv_end);
+       @(posedge clk);
+       for (int j = 0; j < FOUT2_SIZE; j++) begin
+         @(posedge clk);
+         wait(dut.p_output_wr);
+         if ($signed(const_feat_out_batch[i][j]) != $signed(dut.p_output_data_write)) begin
+           $display("Time %0f | const_feat_out[%0d][%0d] = %0d | Output = %0d", $realtime, i, j, const_feat_out_batch[i][j], dut.p_output_data_write);
+           $display("=== ERROR - End simulation ====");
+         end
+       end
+     end
+
+    // #4440ns
+    // for (int i = 0; i < FOUT1_SIZE; i++) begin
+    //   @(posedge clk);
+    //   wait(dut.p_conv_end);
+    //   @(posedge clk);
+    //   for (int j = 0; j < FOUT2_SIZE; j++) begin
+    //     @(posedge clk);
+    //     // wait(dut.p_output_wr);
+    //     if ($signed(const_feat_out_batch[i][j]) != $signed(dut.p_output_data_write)) begin
+    //       $display("Time %0f | const_feat_out[%0d][%0d] = %0d | Output = %0d", $realtime, i, j, const_feat_out_batch[i][j], dut.p_output_data_write);
+    //       $display("=== ERROR - End simulation ====");
+    //     end
+    //   end
+    // end
+
 
     wait(w_end);
+
+    // debug = 1;
+
+    // memory_write.wr_en = 0;
+    // memory_write.chip_en = 1;
+    // for (int i = 0; i < FEAT_OUTPUT_SIZE; i++) begin
+    //   for (int j = 0; j < FEAT_OUTPUT_SIZE; j++) begin
+    //     memory_write.address = i * FEAT_OUTPUT_SIZE + j;
+    //     @(posedge clk);
+    //     wait(memory_write.data_valid);
+    //     if ($signed(const_feat_out[i][j]) != $signed(memory_write.data_out)) begin
+    //       $display("Time %0f | const_feat_out[%0d][%0d] = %0d | Output = %0d", $realtime, i, j, const_feat_out[i][j], memory_write.data_out);
+    //       $display("=== ERROR - End simulation ====");
+    //     end
+    //   end
+    // end
+
     $display("=== No errors - End simulation ===");
     $display("Total Time %0f", $realtime);
+
+    #20ns
+
     $finish;
   end
 endmodule

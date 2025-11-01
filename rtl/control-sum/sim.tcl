@@ -55,8 +55,9 @@ do mem.do
 # run 4000ns
 # one line
 # run 7000ns
-# run 70000ns
-run 4200ns
+run 70000ns
+# run 5300ns
+# run 2400ns
 # run -all
 
 # coverage report -output report.txt -srcfile=* -assert -directive -cvg -codeAll
