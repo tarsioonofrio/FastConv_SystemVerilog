@@ -130,6 +130,10 @@ module Control
     END_INPUT
    } state_input_type;
 
+   logic w_handshake_input;
+   logic w_handshake_conv;
+   logic w_handshake_output;
+   logic w_handshake_control;
 
   typedef enum {
     IDLE_OUTPUT,
@@ -162,7 +166,7 @@ module Control
     unique case (current_st_input)
       // IDLE_CONTROL
       // Waits for start to begin reading weights and then input data; bias handling is currently disabled
-      default: begin
+      IDLE_INPUT: begin
         if (p_start)
           next_st_input = WEIGHT;
           // next_st_input = BIAS;
@@ -227,7 +231,7 @@ module Control
       end
       // Waits for the convolution-complete signal
       SUM: begin
-        if (p_conv_end)
+        if (w_handshake_conv)
           next_st_output = WRITE_OUTPUT;
       end
       // Waits for the output data write to memory to complete and then returns to idle
@@ -253,6 +257,60 @@ module Control
       end
     endcase
   end
+
+
+  // Handshake signals
+
+  always_comb begin: LATCH_INPUT_BLOCK
+    if (reset)
+      w_handshake_input <= '0;
+   else
+   if ((current_st_input == TRANSFER) || (current_st_input == WEIGHT))
+      w_handshake_input <= '1;
+   else
+   // if(w_end_read_fin)
+      w_handshake_input <= '0;
+  end
+
+  always_comb begin: LATCH_CONV_BLOCK
+    if (reset)
+      w_handshake_conv <= '0;
+     else
+     if (p_conv_end)
+      w_handshake_conv <= '1;
+     else
+     // if (w_end_write_fout)
+      w_handshake_conv <= '0;
+  end
+
+  // always_comb begin: LATCH_OUTPUT_BLOCK
+  //   if (reset)
+  //     w_handshake_output <= '0;
+  //   else
+  //   if (w_end_write_fout)
+  //     w_handshake_output <= '1;
+  //   else
+  //   // if (w_end_read_fin)
+  //     w_handshake_output <= '0;
+  // end
+
+  // always_comb begin: LATCH_CONTROL_BLOCK
+  //   if (reset)
+  //     w_handshake_control <= '0;
+  //   else
+  //   // if (w_end_read_fin && (next_st_output == WRITE_OUTPUT))
+  //   if (next_st_input == READ_INPUT)
+  //   // if ((next_st_input == READ_INPUT) && (next_st_output == WRITE_OUTPUT))
+  //   // ((next_st_input == TRANSFER) || (next_st_input == HOLD_INPUT))
+  //   // &&
+  //   // ((next_st_output == SUM) || (next_st_output == READ_OUTPUT))
+  //   // )
+  //     w_handshake_control <= '1;
+  //   else
+  //   // if (w_end_read_fin)
+  //     w_handshake_control <= '0;
+  // end
+
 
   // Data path: input
 
@@ -535,7 +593,7 @@ module Control
         SUM: begin
           r_count_read_out  <= 0;
           r_count_write_out <= 0;
-          if (p_conv_end)
+          if (w_handshake_conv)
             for (int i = 0; i < A1_SIZE * A2_SIZE; i++)
               r_conv_output[i] <= r_feat_output[i] + p_conv_output[i];
           // else
