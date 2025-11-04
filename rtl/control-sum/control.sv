@@ -121,12 +121,14 @@ module Control
   type_output r_feat_output;
 
   typedef enum {
-    IDLE_CONTROL,
+    IDLE_INPUT,
     BIAS,
     WEIGHT,
     READ_INPUT,
-    END_CONTROL
-  } state_input_type;
+    TRANSFER,
+    END_INPUT
+   } state_input_type;
+
 
   typedef enum {
     IDLE_OUTPUT,
@@ -137,11 +139,11 @@ module Control
 
   state_input_type current_st_input, next_st_input;
   state_output_type current_st_output, next_st_output;
-  
+
   // Sequential logic that advances the state machines
   always_ff @(posedge clk or posedge reset) begin: FSM_BLOCK
     if (reset) begin
-      current_st_input  <= IDLE_CONTROL;
+      current_st_input  <= IDLE_INPUT;
       current_st_output <= IDLE_OUTPUT;
     end else begin
       current_st_input  <= next_st_input;
@@ -174,10 +176,10 @@ module Control
       end
       // Waits until the input register bank is full; based on processed windows it may keep reading, reload weights/bias, or finish
       READ_INPUT: begin
-        if (w_end_read_fin) begin
+        if (w_end_read_fin && !w_end_horizontal_in) begin
           // When all windows across input and output channels have been read, finish control
           if (r_window_total_in == N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN - 1)
-            next_st_input = END_CONTROL;
+            next_st_input = END_INPUT;
           else
           // When all output-channel windows are complete, load bias (disabled for now)
           // if (r_window_total_in == N_WINDOW * N_WINDOW * N_CHANNEL_OUT)
@@ -187,9 +189,15 @@ module Control
           if (r_window_channel_in == N_WINDOW * N_WINDOW - 1)
             next_st_input = WEIGHT;
           else
+          if (w_end_read_fin && !w_end_horizontal_in)
+            next_st_input = TRANSFER;
+          else
           // Otherwise keep reading input data
             next_st_input = READ_INPUT;
         end
+      end
+      TRANSFER: begin
+        next_st_input = READ_INPUT;
       end
     endcase
   end
@@ -256,7 +264,7 @@ module Control
     end else begin
       unique case (current_st_input)
         default: begin end
-        IDLE_CONTROL: begin
+        IDLE_INPUT: begin
           r_read_en   <= 1'b0;
           r_addr_bias <= 0;
           r_addr_wh   <= N_CHANNEL_OUT;
@@ -304,21 +312,6 @@ module Control
           if (w_end_read_fin && !w_end_horizontal_in) begin
             // Preserve overlapping columns locally to enable horizontal window reuse
             // TODO perform test using an index table
-            r_feat_in[00] <= r_feat_in[03];
-            r_feat_in[01] <= r_feat_in[04];
-
-            r_feat_in[05] <= r_feat_in[08];
-            r_feat_in[06] <= r_feat_in[09];
-
-            r_feat_in[10] <= r_feat_in[13];
-            r_feat_in[11] <= r_feat_in[14];
-
-            r_feat_in[15] <= r_feat_in[18];
-            r_feat_in[16] <= r_feat_in[19];
-
-            r_feat_in[20] <= r_feat_in[23];
-            r_feat_in[21] <= r_feat_in[24];
-
             r_count_fin <= C1_SIZE * (C1_SIZE - A1_SIZE);
           end else if (w_end_read_fin && w_end_horizontal_in)
             r_count_fin <= 0;
@@ -347,8 +340,32 @@ module Control
           else if (w_end_read_fin && w_end_horizontal_in && w_end_channel_in)
             r_addr_fin  <= r_addr_fin + C1_SIZE + FEAT_INPUT_SIZE * (C1_SIZE - 1);
         end
+        TRANSFER: begin
+          r_feat_in[00] <= r_feat_in[03];
+          r_feat_in[01] <= r_feat_in[04];
+
+          r_feat_in[05] <= r_feat_in[08];
+          r_feat_in[06] <= r_feat_in[09];
+
+          r_feat_in[10] <= r_feat_in[13];
+          r_feat_in[11] <= r_feat_in[14];
+
+          r_feat_in[15] <= r_feat_in[18];
+          r_feat_in[16] <= r_feat_in[19];
+
+          r_feat_in[20] <= r_feat_in[23];
+          r_feat_in[21] <= r_feat_in[24];
+        end
       endcase
     end
+  end
+  
+  // Combinational logic asserting when the input buffer is full and convolution can start
+  always_comb begin: w_end_read_fin_block
+    if ((r_count_fin == (C1_SIZE * C2_SIZE)) && p_conv_idle)
+      w_end_read_fin = 1'b1;
+    else
+      w_end_read_fin = 1'b0;
   end
 
   // Combinational logic detecting end-of-row for read paths
@@ -359,14 +376,15 @@ module Control
       w_end_horizontal_in = 1'b1;
   end
 
-  // Combinational logic detecting end-of-channel for read paths
+  // Combinational logic detecting end of this image channel for read paths
   always_comb begin: w_end_channel_in_block
     if (r_window_channel_in < N_WINDOW * N_WINDOW - 1)
       w_end_channel_in = 1'b0;
     else
       w_end_channel_in = 1'b1;
   end
-
+  
+  // Combinational logic detecting end of all image channel for read paths
   always_comb begin: w_end_all_channel_in_block
     if (r_window_all_channel_in < (N_WINDOW * N_WINDOW * N_CHANNEL_IN - 1))
       w_end_all_channel_in = 1'b0;
@@ -374,13 +392,6 @@ module Control
       w_end_all_channel_in = 1'b1;
   end
 
-  // Combinational logic asserting when the input buffer is full and convolution can start
-  always_comb begin: w_end_read_fin_block
-    if ((r_count_fin == (C1_SIZE * C2_SIZE)) && p_conv_idle)
-      w_end_read_fin = 1'b1;
-    else
-      w_end_read_fin = 1'b0;
-  end
 
   // Combinational logic computing the input read address from the input counter
   always_comb begin: w_addr_fin_block
@@ -551,7 +562,7 @@ module Control
       w_end_horizontal_out = 1'b1;
   end
 
-  // Combinational logic asserting when the output buffer is empty and all data is written in memory
+  // Combinational logic detecting end of this image channel for write paths
   always_comb begin: w_end_channel_out_block
     if (r_window_channel_out < (N_WINDOW * N_WINDOW - 1))
       w_end_channel_out = 1'b0;
@@ -559,6 +570,7 @@ module Control
       w_end_channel_out = 1'b1;
   end
 
+  // Combinational logic detecting if this is the first channel in the image
   always_comb begin: w_end_first_channel_out_block
     if (r_window_all_channel_out < (N_WINDOW * N_WINDOW - 1))
       w_end_first_channel_out = 1'b0;
@@ -566,6 +578,7 @@ module Control
       w_end_first_channel_out = 1'b1;
   end
 
+  // Combinational logic detecting if this is the last channel in the image
   always_comb begin: w_end_last_channel_block
     if (r_window_all_channel_out < (N_WINDOW * N_WINDOW * (N_CHANNEL_IN - 1)))
       w_end_last_channel_out = 1'b0;
@@ -573,6 +586,7 @@ module Control
       w_end_last_channel_out = 1'b1;
   end
 
+  // Combinational logic detecting end of all image channel for write paths
   always_comb begin: w_end_all_channel_out_block
     if (r_window_all_channel_out < (N_WINDOW * N_WINDOW * N_CHANNEL_IN - 1))
       w_end_all_channel_out = 1'b0;
@@ -580,6 +594,7 @@ module Control
       w_end_all_channel_out = 1'b1;
   end
 
+  // Address counter for write paths
   always_comb begin: w_count_fout_block
     if (current_st_output == WRITE_OUTPUT)
       w_count_fout <= r_count_write_fout;
@@ -633,5 +648,5 @@ module Control
   always_comb begin: p_end_block
     p_end = (r_window_total_out == N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN) ? 1'b1 : 1'b0;
   end
- 
+
 endmodule
