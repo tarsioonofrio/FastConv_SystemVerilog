@@ -34,6 +34,8 @@ module Conv
   type_weight w_prod_c;
   type_output w_prod_a;
 
+  logic r_end;
+
   logic [$clog2(SMULT-1):0] r_idx_in;
   logic [$clog2(SMULT*NMULT-1):0] r_idx_out[0:NMULT-1];
 
@@ -72,12 +74,15 @@ module Conv
   always_ff @(posedge clk) begin
     if (reset) begin
       r_idx_in <= 1'b0;
-      // r_end <= 1'b0;
+      r_end <= 1'b0;
     end else begin
       unique case (current_state)
         IDLE_CONV: begin
           r_idx_in <= 1'b0;
-          r_feat[C1_SIZE*C1_SIZE-1:0] <= p_input;
+          if (p_start) begin
+            r_feat[C1_SIZE*C1_SIZE-1:0] <= p_input;
+            r_end <= 1'b0;
+          end
         end
         MATRIX_C: begin
           r_feat <= w_prod_c;
@@ -88,7 +93,9 @@ module Conv
             r_feat[r_idx_out[i]] <= product[i];
           end
         end
-        MATRIX_A: begin end
+        MATRIX_A: begin
+          r_end <= 1'b1;
+        end
       endcase
     end
   end
@@ -96,6 +103,7 @@ module Conv
   always_comb begin
     p_idle = (current_state == IDLE_CONV) ? 1'b1 : 1'b0;
     p_end = (current_state == MATRIX_A) ? 1'b1 : 1'b0;
+    // p_end = ((current_state == MATRIX_A) || r_end) ? 1'b1 : 1'b0;
   end
 
   // BLOCK: Convolution
