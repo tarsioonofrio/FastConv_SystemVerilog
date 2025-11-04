@@ -150,8 +150,7 @@ module Control
   end
 
 
-  // # Control Block
-  // Input state machine block
+  // control path: input
 
   // Combinational logic for the input (read) state machine
   always_comb begin: next_st_input_block
@@ -194,6 +193,48 @@ module Control
       end
     endcase
   end
+
+
+  // control path: output
+
+  // Combinational logic for the output (write) state machine
+  always_comb begin: next_st_output_block
+    next_st_output = current_st_output;
+    unique case (current_st_output)
+      IDLE_OUTPUT: begin
+        if ((p_start && w_end_first_channel_out) || w_end_read_fin)
+          next_st_output = READ_OUTPUT;
+        else if ((p_start && !w_end_first_channel_out) || w_end_read_fin)
+          next_st_output = SUM;
+      end
+      READ_OUTPUT: begin
+        if (w_end_read_fout)
+          next_st_output = SUM;
+      end
+      // Waits for the convolution-complete signal
+      SUM: begin
+        if (p_conv_end)
+          next_st_output = WRITE_OUTPUT;
+      end
+      // Waits for the output data write to memory to complete and then returns to idle
+      WRITE_OUTPUT: begin
+        // if (w_end_write_fout)
+        //   next_st_output = SUM;
+        if (w_end_write_fout && w_end_first_channel_out && !w_end_channel_out)
+          next_st_output = READ_OUTPUT;
+        else if (w_end_write_fout && !w_end_first_channel_out && !w_end_channel_out)
+          next_st_output = SUM;
+        else if (w_end_write_fout && w_end_channel_out)
+          next_st_output = IDLE_OUTPUT;
+        // else if (w_end_write_fout && r_window_total_out == (N_WINDOW * N_WINDOW * N_CHANNEL_IN) - 1)
+          // next_st_output = IDLE_OUTPUT;
+        else if (w_end_write_fout && r_window_total_out == (N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN - 1))
+          next_st_output = IDLE_OUTPUT;
+      end
+    endcase
+  end
+
+  // Data path: input
 
   // Sequential logic updating the registers tied to the input state machine
   always_ff @(posedge clk) begin: current_st_input_block
@@ -333,15 +374,6 @@ module Control
       w_end_all_channel_in = 1'b1;
   end
 
-
-  // Combinational logic driving output ports from internal registers
-  always_comb begin
-    p_conv_input  = r_feat_in;
-    p_conv_weight = r_weight;
-    p_conv_start  = w_end_read_fin;
-  end
-
-
   // Combinational logic asserting when the input buffer is full and convolution can start
   always_comb begin: w_end_read_fin_block
     if ((r_count_fin == (C1_SIZE * C2_SIZE)) && p_conv_idle)
@@ -349,7 +381,6 @@ module Control
     else
       w_end_read_fin = 1'b0;
   end
-
 
   // Combinational logic computing the input read address from the input counter
   always_comb begin: w_addr_fin_block
@@ -408,45 +439,15 @@ module Control
     endcase
   end
 
-
-  // Output state machine block
-
-  // Combinational logic for the output (write) state machine
-  always_comb begin: next_st_output_block
-    next_st_output = current_st_output;
-    unique case (current_st_output)
-      IDLE_OUTPUT: begin
-        if ((p_start && w_end_first_channel_out) || w_end_read_fin)
-          next_st_output = READ_OUTPUT;
-        else if ((p_start && !w_end_first_channel_out) || w_end_read_fin)
-          next_st_output = SUM;
-      end
-      READ_OUTPUT: begin
-        if (w_end_read_fout)
-          next_st_output = SUM;
-      end
-      // Waits for the convolution-complete signal
-      SUM: begin
-        if (p_conv_end)
-          next_st_output = WRITE_OUTPUT;
-      end
-      // Waits for the output data write to memory to complete and then returns to idle
-      WRITE_OUTPUT: begin
-        // if (w_end_write_fout)
-        //   next_st_output = SUM;
-        if (w_end_write_fout && w_end_first_channel_out && !w_end_channel_out)
-          next_st_output = READ_OUTPUT;
-        else if (w_end_write_fout && !w_end_first_channel_out && !w_end_channel_out)
-          next_st_output = SUM;
-        else if (w_end_write_fout && w_end_channel_out)
-          next_st_output = IDLE_OUTPUT;
-        // else if (w_end_write_fout && r_window_total_out == (N_WINDOW * N_WINDOW * N_CHANNEL_IN) - 1)
-          // next_st_output = IDLE_OUTPUT;
-        else if (w_end_write_fout && r_window_total_out == (N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN - 1))
-          next_st_output = IDLE_OUTPUT;
-      end
-    endcase
+  // Combinational logic driving output ports from internal registers
+  always_comb begin
+    p_conv_input  = r_feat_in;
+    p_conv_weight = r_weight;
+    p_conv_start  = w_end_read_fin;
   end
+
+
+  // Data path: output
 
   // Sequential logic updating the registers tied to the output state machine
   always_ff @(posedge clk) begin: current_st_output_block
@@ -524,30 +525,6 @@ module Control
         end
       endcase
     end
-  end
-
-  always_comb begin: p_end_block
-    p_end = (r_window_total_out == N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN) ? 1'b1 : 1'b0;
-  end
-
-  // If the current state is WRITE_OUTPUT, enable write
-  always_comb begin
-    unique case (current_st_output)
-      // Waits for the convolution-complete signal
-      default: begin
-        p_output_en = 1'b0;
-        p_output_wr = 1'b0;
-      end
-      READ_OUTPUT: begin
-        p_output_en = 1'b1;
-        p_output_wr = 1'b0;
-      end
-      // Waits for the output data write to memory to complete and then returns to idle
-      WRITE_OUTPUT: begin
-        p_output_en = 1'b1;
-        p_output_wr = 1'b1;
-      end
-    endcase
   end
 
   // Combinational logic asserting when the output buffer is full and all data is read from memory
@@ -633,4 +610,28 @@ module Control
     // p_start_channel = r_start_channel;
   end
 
+  // If the current state is WRITE_OUTPUT, enable write
+  always_comb begin
+    unique case (current_st_output)
+      // Waits for the convolution-complete signal
+      default: begin
+        p_output_en = 1'b0;
+        p_output_wr = 1'b0;
+      end
+      READ_OUTPUT: begin
+        p_output_en = 1'b1;
+        p_output_wr = 1'b0;
+      end
+      // Waits for the output data write to memory to complete and then returns to idle
+      WRITE_OUTPUT: begin
+        p_output_en = 1'b1;
+        p_output_wr = 1'b1;
+      end
+    endcase
+  end
+
+  always_comb begin: p_end_block
+    p_end = (r_window_total_out == N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN) ? 1'b1 : 1'b0;
+  end
+ 
 endmodule
