@@ -692,6 +692,14 @@ module Control
             r_addr_out <= r_addr_out + A1_SIZE;
         end
           END_CHANNEL: begin
+            if (!w_end_all_channel_out && w_end_channel_out)
+              // r_addr_out <= 0;
+              // r_addr_out <= r_addr_out + A1_SIZE - (FEAT_OUTPUT_SIZE + FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
+              r_addr_out <= r_addr_out + A1_SIZE + FEAT_OUTPUT_SIZE * (A1_SIZE - 1) - (FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
+            else if (w_end_horizontal_out)
+              r_addr_out <= r_addr_out + A1_SIZE + FEAT_OUTPUT_SIZE * (A1_SIZE - 1);
+            else if (!w_end_horizontal_out)
+              r_addr_out <= r_addr_out + A1_SIZE;
         end
       endcase
     end
