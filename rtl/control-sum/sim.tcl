@@ -54,10 +54,12 @@ do mem.do
 # 4 blocks
 # run 4000ns
 # one line
-run 7000ns
+
 # run 70000ns
 # run 5300ns
 # run 2400ns
 # run -all
 # run 150ns
+# run 7000ns
+run 14000ns
 # coverage report -output report.txt -srcfile=* -assert -directive -cvg -codeAll

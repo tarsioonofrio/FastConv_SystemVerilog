@@ -127,13 +127,13 @@ module Control
     FIRST_READ_INPUT,
     TRANSFER,
     READ_INPUT,
+    WAIT_OUTPUT,
     END_INPUT
    } state_input_type;
 
    logic w_handshake_input;
    logic w_handshake_conv;
    logic w_handshake_output;
-   logic w_handshake_control;
 
   typedef enum {
     IDLE_OUTPUT,
@@ -183,10 +183,14 @@ module Control
       end
       FIRST_READ_INPUT: begin
         if (w_end_read_in)
+        // if (w_end_read_in && w_handshake_output)
           next_st_input = TRANSFER;
       end
       TRANSFER: begin
-        next_st_input = READ_INPUT;
+        if (w_handshake_output)
+          next_st_input = READ_INPUT;
+        else 
+          next_st_input = WAIT_OUTPUT;
       end
       // Waits until the input register bank is full; based on processed windows it may keep reading, reload weights/bias, or inish
       READ_INPUT: begin
@@ -205,8 +209,13 @@ module Control
           if (r_window_channel_in == N_WINDOW * N_WINDOW - 1)
             next_st_input = WEIGHT;
           else
+          // else if (w_handshake_output)
             next_st_input = FIRST_READ_INPUT;
         end
+      end
+      WAIT_OUTPUT: begin
+        if (w_handshake_output)
+          next_st_input = READ_INPUT;
       end
       END_INPUT: begin
         next_st_input = IDLE_INPUT;
@@ -278,6 +287,7 @@ module Control
       w_handshake_input <= '0;
    else
    if ((next_st_input == TRANSFER) || ((next_st_input == FIRST_READ_INPUT) && (current_st_input != FIRST_READ_INPUT) && (current_st_input != WEIGHT)))
+   // if ((next_st_input == TRANSFER))
       w_handshake_input <= '1;
    else
    // if(w_end_read_fin)
@@ -291,20 +301,20 @@ module Control
      if (p_conv_end)
       w_handshake_conv <= '1;
      else
-     // if (w_end_write_fout)
+     // if (w_end_write_out)
       w_handshake_conv <= '0;
   end
 
-  // always_comb begin: LATCH_OUTPUT_BLOCK
-  //   if (reset)
-  //     w_handshake_output <= '0;
-  //   else
-  //   if (w_end_write_fout)
-  //     w_handshake_output <= '1;
-  //   else
-  //   // if (w_end_read_fin)
-  //     w_handshake_output <= '0;
-  // end
+  always_comb begin: LATCH_OUTPUT_BLOCK
+    if (reset)
+      w_handshake_output <= '0;
+    else
+    if (w_end_write_out || (r_window_channel_in < 1))
+      w_handshake_output <= '1;
+    else
+    // if (w_end_read_fin)
+      w_handshake_output <= '0;
+  end
 
   // always_comb begin: LATCH_CONTROL_BLOCK
   //   if (reset)
