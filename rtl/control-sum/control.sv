@@ -670,29 +670,38 @@ module Control
           else if (w_end_write_out && !w_end_horizontal_out)
             r_window_horizontal_out <= r_window_horizontal_out + 1;
 
-          if (w_end_write_out && w_end_channel_out)
-            r_window_channel_out <= 0;
-          else if (w_end_write_out && !w_end_channel_out)
+          // if (w_end_write_out && w_end_channel_out)
+          //   r_window_channel_out <= 0;
+          // else
+          if (w_end_write_out && !w_end_channel_out)
             r_window_channel_out <= r_window_channel_out + 1;
 
-          if (w_end_write_out && w_end_all_channel_out)
-            r_window_all_channel_out <= 0;
-          else if (w_end_write_out && !w_end_all_channel_out)
+          // if (w_end_write_out && w_end_all_channel_out)
+          //   r_window_all_channel_out <= 0;
+          // else
+          if (w_end_write_out && !w_end_all_channel_out)
             r_window_all_channel_out <= r_window_all_channel_out + 1;
 
           // if (w_end_write_out && w_end_all_channel_out && w_end_channel_out)
           //   r_addr_out <= 0;
-          if (w_end_write_out && !w_end_all_channel_out && w_end_channel_out)
-            // r_addr_out <= 0;
-            // r_addr_out <= r_addr_out + A1_SIZE - (FEAT_OUTPUT_SIZE + FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
-            r_addr_out <= r_addr_out + A1_SIZE + FEAT_OUTPUT_SIZE * (A1_SIZE - 1) - (FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
-          else if (w_end_write_out && w_end_horizontal_out)
+          // if (w_end_write_out && !w_end_all_channel_out && w_end_channel_out)
+          //   // r_addr_out <= 0;
+          //   // r_addr_out <= r_addr_out + A1_SIZE - (FEAT_OUTPUT_SIZE + FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
+          //   r_addr_out <= r_addr_out + A1_SIZE + FEAT_OUTPUT_SIZE * (A1_SIZE - 1) - (FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
+          // else
+          if (w_end_write_out && w_end_horizontal_out)
             r_addr_out <= r_addr_out + A1_SIZE + FEAT_OUTPUT_SIZE * (A1_SIZE - 1);
           else if (w_end_write_out && !w_end_horizontal_out)
             r_addr_out <= r_addr_out + A1_SIZE;
         end
           END_CHANNEL: begin
-            if (!w_end_all_channel_out && w_end_channel_out)
+            r_window_horizontal_out <= 0;
+            r_window_channel_out <= 0;
+
+            if (w_end_all_channel_out)
+              r_window_all_channel_out <= 0;
+
+            if (!w_end_all_channel_out)
               // r_addr_out <= 0;
               // r_addr_out <= r_addr_out + A1_SIZE - (FEAT_OUTPUT_SIZE + FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
               r_addr_out <= r_addr_out + A1_SIZE + FEAT_OUTPUT_SIZE * (A1_SIZE - 1) - (FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
@@ -722,7 +731,7 @@ module Control
   end
 
   // Combinational logic detecting end-of-row for write paths
-  always_comb begin: w_end_horizontal_out_block
+  always_latch begin: w_end_horizontal_out_block
     if (r_window_horizontal_out < (N_WINDOW - 1))
       w_end_horizontal_out = 1'b0;
     else
