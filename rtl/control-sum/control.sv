@@ -124,8 +124,9 @@ module Control
     IDLE_INPUT,
     BIAS,
     WEIGHT,
-    READ_INPUT,
+    FIRST_READ_INPUT,
     TRANSFER,
+    READ_INPUT,
     END_INPUT
    } state_input_type;
 
@@ -170,9 +171,15 @@ module Control
       end
       // Waits for the weight fetch covering the active input/output channel pair before moving on to input data
       WEIGHT: begin
-        if (r_count_wh == (M1_SIZE * M2_SIZE) - 1) begin
-          next_st_input = READ_INPUT;
-        end
+        if (r_count_wh == (M1_SIZE * M2_SIZE) - 1)
+          next_st_input = FIRST_READ_INPUT;
+      end
+      FIRST_READ_INPUT: begin
+        if (w_end_read_fin)
+          next_st_input = TRANSFER;
+      end
+      TRANSFER: begin
+        next_st_input = READ_INPUT;
       end
       // Waits until the input register bank is full; based on processed windows it may keep reading, reload weights/bias, or finish
       READ_INPUT: begin
@@ -191,13 +198,13 @@ module Control
           else
           if (w_end_read_fin && !w_end_horizontal_in)
             next_st_input = TRANSFER;
-          else
-          // Otherwise keep reading input data
-            next_st_input = READ_INPUT;
-        end
-      end
-      TRANSFER: begin
-        next_st_input = READ_INPUT;
+        end else if (w_end_read_fin && w_end_horizontal_in)
+          next_st_input = FIRST_READ_INPUT;
+
+          // else
+          // // Otherwise keep reading input data
+          //   next_st_input = READ_INPUT;
+        // end
       end
     endcase
   end
@@ -292,6 +299,55 @@ module Control
             r_weight[r_count_wh] <= p_input_data;
           end
         end
+        FIRST_READ_INPUT: begin
+          r_read_en  <= 1'b1;
+          r_count_wh <= 0;
+          if (p_input_valid && (r_count_fin < C1_SIZE * C1_SIZE)) begin
+            r_count_fin                     <= r_count_fin + 1;
+            r_feat_in[c_index[r_count_fin]] <= p_input_data;
+          end
+
+          // When the input buffer is full, increment the total window counter
+          if(w_end_read_fin)
+            r_window_total_in <= r_window_total_in + 1;
+
+          // If the input buffer is full but the row has not ended:
+          // - increment the per-row window counter
+          // - position the input feature counter at the reuse start column
+          // - move the base pointer to the next window horizontally
+          if (w_end_read_fin)
+            // Preserve overlapping columns locally to enable horizontal window reuse
+            // TODO perform test using an index table
+            r_count_fin <= C1_SIZE * (C1_SIZE - A1_SIZE);
+
+          if (w_end_read_fin)
+            r_window_horizontal_in <= r_window_horizontal_in + 1;
+
+          if (w_end_read_fin)
+            r_window_channel_in <= r_window_channel_in + 1;
+
+          if (w_end_read_fin)
+            r_window_all_channel_in <= r_window_all_channel_in + 1;
+
+          if (w_end_read_fin && !w_end_horizontal_in)
+            r_addr_fin  <= r_addr_fin + A1_SIZE;
+        end
+        TRANSFER: begin
+          r_feat_in[00] <= r_feat_in[03];
+          r_feat_in[01] <= r_feat_in[04];
+
+          r_feat_in[05] <= r_feat_in[08];
+          r_feat_in[06] <= r_feat_in[09];
+
+          r_feat_in[10] <= r_feat_in[13];
+          r_feat_in[11] <= r_feat_in[14];
+
+          r_feat_in[15] <= r_feat_in[18];
+          r_feat_in[16] <= r_feat_in[19];
+
+          r_feat_in[20] <= r_feat_in[23];
+          r_feat_in[21] <= r_feat_in[24];
+        end
         // Each cycle advances the input address and stores the returned value in the indexed slot
         READ_INPUT: begin
           r_read_en  <= 1'b1;
@@ -340,26 +396,10 @@ module Control
           else if (w_end_read_fin && w_end_horizontal_in && w_end_channel_in)
             r_addr_fin  <= r_addr_fin + C1_SIZE + FEAT_INPUT_SIZE * (C1_SIZE - 1);
         end
-        TRANSFER: begin
-          r_feat_in[00] <= r_feat_in[03];
-          r_feat_in[01] <= r_feat_in[04];
-
-          r_feat_in[05] <= r_feat_in[08];
-          r_feat_in[06] <= r_feat_in[09];
-
-          r_feat_in[10] <= r_feat_in[13];
-          r_feat_in[11] <= r_feat_in[14];
-
-          r_feat_in[15] <= r_feat_in[18];
-          r_feat_in[16] <= r_feat_in[19];
-
-          r_feat_in[20] <= r_feat_in[23];
-          r_feat_in[21] <= r_feat_in[24];
-        end
       endcase
     end
   end
-  
+
   // Combinational logic asserting when the input buffer is full and convolution can start
   always_comb begin: w_end_read_fin_block
     if ((r_count_fin == (C1_SIZE * C2_SIZE)) && p_conv_idle)
@@ -383,7 +423,7 @@ module Control
     else
       w_end_channel_in = 1'b1;
   end
-  
+
   // Combinational logic detecting end of all image channel for read paths
   always_comb begin: w_end_all_channel_in_block
     if (r_window_all_channel_in < (N_WINDOW * N_WINDOW * N_CHANNEL_IN - 1))
@@ -440,6 +480,10 @@ module Control
         p_input_en = r_read_en;
       end
       READ_INPUT: begin
+        p_input_addr = w_addr_fin;
+        p_input_en = r_read_en;
+      end
+      FIRST_READ_INPUT: begin
         p_input_addr = w_addr_fin;
         p_input_en = r_read_en;
       end
