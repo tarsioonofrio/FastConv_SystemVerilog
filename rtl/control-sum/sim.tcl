@@ -49,7 +49,7 @@ set StdVitalGlitchNoWarnings 1
 do wave.do
 do mem.do
 
-run 1000ns
+# run 1000ns
 # run 2000ns
 # 4 blocks
 # run 4000ns
@@ -59,5 +59,5 @@ run 1000ns
 # run 5300ns
 # run 2400ns
 # run -all
-# run 100ns
+run 100ns
 # coverage report -output report.txt -srcfile=* -assert -directive -cvg -codeAll

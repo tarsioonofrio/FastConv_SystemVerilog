@@ -190,7 +190,9 @@ module Control
     if (reset)
       latch_control <= '0;
     else
-    if ((next_st_input == READ_INPUT) && (next_st_output == WRITE_OUTPUT))
+    // if (w_end_read_fin && (next_st_output == WRITE_OUTPUT))
+    if (next_st_input == READ_INPUT)
+    // if ((next_st_input == READ_INPUT) && (next_st_output == WRITE_OUTPUT))
     // ((next_st_input == TRANSFER) || (next_st_input == HOLD_INPUT))
     // &&
     // ((next_st_output == SUM) || (next_st_output == READ_OUTPUT))
