@@ -135,7 +135,8 @@ module Control
     IDLE_OUTPUT,
     READ_OUTPUT,
     SUM,
-    WRITE_OUTPUT
+    WRITE_OUTPUT,
+    END_CHANNEL
   } state_output_type;
 
   state_input_type current_st_input, next_st_input;
@@ -217,9 +218,7 @@ module Control
     next_st_output = current_st_output;
     unique case (current_st_output)
       IDLE_OUTPUT: begin
-        if ((p_start && w_end_first_channel_out) || w_end_read_in)
-          next_st_output = READ_OUTPUT;
-        else if ((p_start && !w_end_first_channel_out) || w_end_read_in)
+        if (p_start)
           next_st_output = SUM;
       end
       READ_OUTPUT: begin
@@ -240,11 +239,17 @@ module Control
         else if (w_end_write_out && !w_end_first_channel_out && !w_end_channel_out)
           next_st_output = SUM;
         else if (w_end_write_out && w_end_channel_out)
-          next_st_output = IDLE_OUTPUT;
+          next_st_output = END_CHANNEL;
         // else if (w_end_write_out && r_window_total_out == (N_WINDOW * N_WINDOW * N_CHANNEL_IN) - 1)
           // next_st_output = IDLE_OUTPUT;
         else if (w_end_write_out && r_window_total_out == (N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN - 1))
           next_st_output = IDLE_OUTPUT;
+      end
+      END_CHANNEL: begin
+        if (w_end_first_channel_out)
+          next_st_output = READ_OUTPUT;
+        else
+          next_st_output = SUM;
       end
     endcase
   end
@@ -577,6 +582,8 @@ module Control
             r_addr_out <= r_addr_out + A1_SIZE + FEAT_OUTPUT_SIZE * (A1_SIZE - 1);
           else if (w_end_write_out && !w_end_horizontal_out)
             r_addr_out <= r_addr_out + A1_SIZE;
+        end
+        END_CHANNEL: begin
         end
       endcase
     end
