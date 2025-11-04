@@ -764,7 +764,7 @@ module Control
 
   // Combinational logic detecting end of all image channel for write paths
   always_comb begin: w_end_all_channel_out_block
-    if (r_window_all_channel_out < (N_WINDOW * N_WINDOW * N_CHANNEL_IN - 1))
+    if (r_window_all_channel_out < (N_WINDOW * N_WINDOW * N_CHANNEL_IN - 2))
       w_end_all_channel_out = 1'b0;
     else
       w_end_all_channel_out = 1'b1;
