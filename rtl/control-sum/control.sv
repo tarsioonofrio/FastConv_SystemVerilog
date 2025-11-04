@@ -265,7 +265,7 @@ module Control
     if (reset)
       w_handshake_input <= '0;
    else
-   if ((current_st_input == TRANSFER) || (current_st_input == WEIGHT))
+   if ((next_st_input == TRANSFER) || ((next_st_input == FIRST_READ_INPUT) && (current_st_input != FIRST_READ_INPUT) && (current_st_input != WEIGHT)))
       w_handshake_input <= '1;
    else
    // if(w_end_read_fin)
@@ -561,7 +561,7 @@ module Control
   always_comb begin
     p_conv_input  = r_feat_in;
     p_conv_weight = r_weight;
-    p_conv_start  = w_end_read_in;
+    p_conv_start  = w_handshake_input;
   end
 
 
