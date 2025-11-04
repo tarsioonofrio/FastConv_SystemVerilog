@@ -25,6 +25,7 @@ module Conv
     MATRIX_C,
     HADAMARD,
     MATRIX_A
+    // END_CONV
   } state_type;
 
   state_type current_state, next_state;
@@ -38,6 +39,8 @@ module Conv
   logic [$clog2(SMULT*NMULT-1):0] r_idx_out[0:NMULT-1];
 
   logic signed [NBITS-1+QUANT:0] product [0:NMULT-1];  // QUANT more bits for the multipliers
+
+  logic latch_conv;
 
   //
   // BLOCK: Control FSM
@@ -66,6 +69,8 @@ module Conv
           next_state = MATRIX_A;
       MATRIX_A:
         next_state = IDLE_CONV;
+      // END_CONV:
+      // if (p_start) next_state = MATRIX_C;
     endcase
   end
 
@@ -88,17 +93,18 @@ module Conv
             r_feat[r_idx_out[i]] <= product[i];
           end
         end
-        MATRIX_A: begin end
+        default: begin end
       endcase
     end
   end
 
   always_comb begin
     p_idle = (current_state == IDLE_CONV) ? 1'b1 : 1'b0;
+    p_end = (next_state == IDLE_CONV) ? 1'b1 : 1'b0;
   end
 
-  always_comb begin
-    p_end = ((next_state == IDLE_CONV) && (current_state != IDLE_CONV)) ? 1'b1 : 1'b0;
+  always_latch begin
+    latch_conv = (next_state == IDLE_CONV) ? 1'b1 : 1'b0;
   end
 
   // BLOCK: Convolution

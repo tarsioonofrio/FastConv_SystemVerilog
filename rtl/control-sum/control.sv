@@ -54,6 +54,7 @@ module Control
     WEIGHT,
     READ_INPUT,
     TRANSFER,
+    HOLD_INPUT,
     END_INPUT
   } state_input_type;
 
@@ -142,6 +143,7 @@ module Control
   logic latch_input;
   logic latch_conv;
   logic latch_output;
+  logic latch_control;
 
   // Sequential logic that advances the state machines
   always_ff @(posedge clk or posedge reset) begin: FSM_BLOCK
@@ -165,6 +167,14 @@ module Control
       latch_input <= '0;
   end
 
+  // Combinational logic asserting when the input buffer is full and convolution can start
+  always_comb begin: w_end_read_fin_block
+    if (r_count_fin == (C1_SIZE * C2_SIZE))
+      w_end_read_fin = 1'b1;
+    else
+      w_end_read_fin = 1'b0;
+  end
+
   always_latch begin: LATCH_CONV_BLOCK
     if (reset)
       latch_conv <= '0;
@@ -174,6 +184,21 @@ module Control
      else
      // if (w_end_write_fout)
       latch_conv <= '0;
+  end
+
+  always_latch begin: LATCH_CONTROL_BLOCK
+    if (reset)
+      latch_control <= '0;
+    else
+    if ((next_st_input == READ_INPUT) && (next_st_output == WRITE_OUTPUT))
+    // ((next_st_input == TRANSFER) || (next_st_input == HOLD_INPUT))
+    // &&
+    // ((next_st_output == SUM) || (next_st_output == READ_OUTPUT))
+    // )
+      latch_control <= '1;
+    else
+    // if (w_end_read_fin)
+      latch_control <= '0;
   end
 
   always_latch begin: LATCH_OUTPUT_BLOCK
@@ -186,6 +211,15 @@ module Control
     // if (w_end_read_fin)
       latch_output <= '0;
   end
+
+  // Combinational logic asserting when the output buffer is full and all data is read from memory
+  always_comb begin: w_end_read_fout_block
+    if (r_count_read_fout == (A1_SIZE * A2_SIZE - 1))
+      w_end_read_fout = 1'b1;
+    else
+      w_end_read_fout = 1'b0;
+  end
+
 
   // # Control Block
   // Input state machine block
@@ -206,14 +240,13 @@ module Control
       end
       // Waits for the weight fetch covering the active input/output channel pair before moving on to input data
       WEIGHT: begin
-        if (r_count_wh == (M1_SIZE * M2_SIZE) - 1) begin
+        if (r_count_wh == (M1_SIZE * M2_SIZE) - 1)
           next_st_input = READ_INPUT;
-        end
+        // When all windows across input and output channels have been read, finish control
       end
       // Waits until the input register bank is full; based on processed windows it may keep reading, reload weights/bias, or finish
       READ_INPUT: begin
         if (w_end_read_fin && !w_end_horizontal_in) begin
-          // When all windows across input and output channels have been read, finish control
           if (r_window_total_in == N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN - 1)
             next_st_input = END_INPUT;
           else
@@ -232,8 +265,14 @@ module Control
           next_st_input = TRANSFER;
       end
       TRANSFER: begin
-        next_st_input = READ_INPUT;
+        if (latch_conv || (r_window_channel_in < 2))
+          next_st_input = READ_INPUT;
+        else
+          next_st_input = HOLD_INPUT;
       end
+      HOLD_INPUT:
+      if (latch_conv || (r_window_channel_in < 2))
+        next_st_input = READ_INPUT;
     endcase
   end
 
@@ -381,16 +420,7 @@ module Control
   always_comb begin
     p_conv_input  = r_feat_in;
     p_conv_weight = r_weight;
-    p_conv_start  = w_end_read_fin;
-  end
-
-
-  // Combinational logic asserting when the input buffer is full and convolution can start
-  always_comb begin: w_end_read_fin_block
-    if ((r_count_fin == (C1_SIZE * C2_SIZE)) && p_conv_idle)
-      w_end_read_fin = 1'b1;
-    else
-      w_end_read_fin = 1'b0;
+    p_conv_start  = latch_control || ((r_window_channel_in == 0) && w_end_read_fin);
   end
 
 
@@ -459,8 +489,12 @@ module Control
     next_st_output = current_st_output;
     unique case (current_st_output)
       IDLE_OUTPUT: begin
-        if ((p_start && w_end_first_channel_out) || w_end_read_fin)
-          next_st_output = READ_OUTPUT;
+        // if ((p_start && w_end_first_channel_out) || w_end_read_fin)
+        //   next_st_output = READ_OUTPUT;
+        // else if ((p_start && !w_end_first_channel_out) || w_end_read_fin)
+        //   next_st_output = SUM;
+        if (p_start)
+          next_st_output = SUM;
         else if ((p_start && !w_end_first_channel_out) || w_end_read_fin)
           next_st_output = SUM;
       end
@@ -470,7 +504,7 @@ module Control
       end
       // Waits for the convolution-complete signal
       SUM: begin
-        if (latch_conv)
+        if (latch_conv && (r_window_channel_in > 0))
           next_st_output = WRITE_OUTPUT;
       end
       // Waits for the output data write to memory to complete and then returns to idle
@@ -485,8 +519,8 @@ module Control
           next_st_output = IDLE_OUTPUT;
         // else if (w_end_write_fout && r_window_total_out == (N_WINDOW * N_WINDOW * N_CHANNEL_IN) - 1)
           // next_st_output = IDLE_OUTPUT;
-        else if (w_end_write_fout && r_window_total_out == (N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN - 1))
-          next_st_output = IDLE_OUTPUT;
+        // else if (w_end_write_fout && r_window_total_out == (N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN - 1))
+        //   next_st_output = IDLE_OUTPUT;
       end
     endcase
   end
@@ -517,7 +551,7 @@ module Control
         SUM: begin
           r_count_read_fout  <= 0;
           r_count_write_fout <= 0;
-          if (latch_conv)
+          if (latch_conv && (r_window_channel_in > 0))
             for (int i = 0; i < A1_SIZE * A2_SIZE; i++)
               r_conv_output[i] <= r_feat_output[i] + p_conv_output[i];
           // else
@@ -593,13 +627,6 @@ module Control
     endcase
   end
 
-  // Combinational logic asserting when the output buffer is full and all data is read from memory
-  always_comb begin: w_end_read_fout_block
-    if (r_count_read_fout == (A1_SIZE * A2_SIZE - 1))
-      w_end_read_fout = 1'b1;
-    else
-      w_end_read_fout = 1'b0;
-  end
 
   // Combinational logic asserting when the output buffer is empty and all data is written in memory
   always_comb begin: w_end_write_fout_block

@@ -16,6 +16,7 @@ module tb;
   logic w_conv_start;
   logic w_conv_idle;
   logic w_conv_end;
+  logic tb_conv_end;
 
   type_input w_conv_input;
   type_weight w_conv_weight;
@@ -155,7 +156,8 @@ module tb;
     for (int i = 0; i < FOUT1_SIZE; i++) begin
        @(posedge clk);
        wait(dut.w_end_last_channel_out);
-       wait(dut.p_conv_end);
+       tb_conv_end = w_conv_end && (dut.r_window_channel_in > 0);
+       wait(tb_conv_end);
        @(posedge clk);
        for (int j = 0; j < FOUT2_SIZE; j++) begin
          @(posedge clk);
