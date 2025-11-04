@@ -48,24 +48,6 @@ module Control
 
   timeunit 1ns; timeprecision 1ps;
 
-  typedef enum {
-    IDLE_CONTROL,
-    BIAS,
-    WEIGHT,
-    READ_INPUT,
-    END_CONTROL
-  } state_input_type;
-
-  typedef enum {
-    IDLE_OUTPUT,
-    READ_OUTPUT,
-    SUM,
-    WRITE_OUTPUT
-  } state_output_type;
-
-  state_input_type current_st_input, next_st_input;
-  state_output_type current_st_output, next_st_output;
-
   // Weight read counter
   logic [$clog2(M1_SIZE*M2_SIZE)-1:0] r_count_wh;
   // Input feature register read counter
@@ -138,6 +120,24 @@ module Control
   type_output r_conv_output;
   type_output r_feat_output;
 
+  typedef enum {
+    IDLE_CONTROL,
+    BIAS,
+    WEIGHT,
+    READ_INPUT,
+    END_CONTROL
+  } state_input_type;
+
+  typedef enum {
+    IDLE_OUTPUT,
+    READ_OUTPUT,
+    SUM,
+    WRITE_OUTPUT
+  } state_output_type;
+
+  state_input_type current_st_input, next_st_input;
+  state_output_type current_st_output, next_st_output;
+  
   // Sequential logic that advances the state machines
   always_ff @(posedge clk or posedge reset) begin: FSM_BLOCK
     if (reset) begin
