@@ -8,7 +8,7 @@ add wave -noupdate /tb/dut/p_end
 add wave -noupdate /tb/dut/p_conv_start
 add wave -noupdate /tb/dut/p_conv_idle
 add wave -noupdate /tb/dut/p_conv_end
-add wave -noupdate /tb/dut/w_end_read_fin
+add wave -noupdate /tb/dut/w_end_read_in
 add wave -noupdate /tb/dut/current_st_input
 add wave -noupdate /tb/dut/current_st_output
 add wave -noupdate /tb/conv/current_state
@@ -30,35 +30,35 @@ add wave -noupdate -radix unsigned /tb/dut/p_output_addr
 add wave -noupdate -radix decimal /tb/dut/p_output_data_read
 add wave -noupdate /tb/dut/p_output_valid
 add wave -noupdate -radix unsigned /tb/dut/r_count_wh
-add wave -noupdate -radix unsigned /tb/dut/r_count_fin
-add wave -noupdate -radix unsigned /tb/dut/r_count_read_fout
-add wave -noupdate -radix unsigned /tb/dut/r_count_write_fout
+add wave -noupdate -radix unsigned /tb/dut/r_count_in
+add wave -noupdate -radix unsigned /tb/dut/r_count_read_out
+add wave -noupdate -radix unsigned /tb/dut/r_count_write_out
 add wave -noupdate -radix unsigned /tb/dut/r_addr_bias
 add wave -noupdate -radix unsigned /tb/dut/r_addr_wh
-add wave -noupdate -radix unsigned /tb/dut/r_addr_fin
-add wave -noupdate -radix unsigned /tb/dut/r_addr_fout
+add wave -noupdate -radix unsigned /tb/dut/r_addr_in
+add wave -noupdate -radix unsigned /tb/dut/r_addr_out
 add wave -noupdate -radix unsigned /tb/dut/r_window_total_in
 add wave -noupdate -radix unsigned /tb/dut/r_window_all_channel_in
 add wave -noupdate -radix unsigned /tb/dut/r_window_channel_in
 add wave -noupdate -radix unsigned /tb/dut/r_window_horizontal_in
-add wave -noupdate -radix unsigned /tb/dut/r_addr_fout
+add wave -noupdate -radix unsigned /tb/dut/r_addr_out
 add wave -noupdate -radix unsigned /tb/dut/r_window_total_out
 add wave -noupdate -radix unsigned /tb/dut/r_window_all_channel_out
 add wave -noupdate -radix unsigned /tb/dut/r_window_channel_out
 add wave -noupdate -radix unsigned /tb/dut/r_window_horizontal_out
 add wave -noupdate /tb/dut/w_end_horizontal_in
-add wave -noupdate /tb/dut/w_end_read_fin
+add wave -noupdate /tb/dut/w_end_read_in
 add wave -noupdate /tb/dut/w_end_channel_in
 add wave -noupdate /tb/dut/w_end_all_channel_in
-add wave -noupdate -radix unsigned /tb/dut/r_addr_fout
-add wave -noupdate /tb/dut/w_end_read_fout
-add wave -noupdate /tb/dut/w_end_write_fout
+add wave -noupdate -radix unsigned /tb/dut/r_addr_out
+add wave -noupdate /tb/dut/w_end_read_out
+add wave -noupdate /tb/dut/w_end_write_out
 add wave -noupdate /tb/dut/w_end_horizontal_out
 add wave -noupdate /tb/dut/w_end_channel_out
 add wave -noupdate /tb/dut/w_end_first_channel_out
 add wave -noupdate /tb/dut/w_end_last_channel_out
 add wave -noupdate /tb/dut/w_end_all_channel_out
-add wave -noupdate -radix unsigned /tb/dut/w_addr_fin
+add wave -noupdate -radix unsigned /tb/dut/w_addr_in
 add wave -noupdate /tb/dut/w_output_en
 add wave -noupdate /tb/dut/r_read_en
 add wave -noupdate -radix decimal /tb/dut/r_weight
