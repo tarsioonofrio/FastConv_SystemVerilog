@@ -259,8 +259,6 @@ module Control
         // if (w_end_write_out)
         //   next_st_output = CONV_SUM;
         if (w_end_write_out && !w_end_channel_out)
-          next_st_output = CONV_SUM;
-        else if (w_end_write_out && w_end_channel_out)
           next_st_output = READ_OUTPUT;
         else if (w_end_write_out && w_end_channel_out)
           next_st_output = END_CHANNEL;
@@ -597,7 +595,6 @@ module Control
       unique case (current_st_output)
         IDLE_OUTPUT: begin end
         CONV: begin
-          r_count_read_out  <= 0;
           r_count_write_out <= 0;
           if (w_handshake_conv)
             for (int i = 0; i < A1_SIZE * A2_SIZE; i++)
@@ -620,7 +617,7 @@ module Control
           if (w_end_write_out)
             r_window_channel_out <= r_window_channel_out + 1;
 
-          else if (w_end_write_out)
+          if (w_end_write_out)
             r_window_all_channel_out <= r_window_all_channel_out + 1;
 
           // if (w_end_write_out && w_end_all_channel_out && w_end_channel_out)
@@ -694,7 +691,7 @@ module Control
           else if (w_end_write_out && !w_end_horizontal_out)
             r_addr_out <= r_addr_out + A1_SIZE;
         end
-        END_CHANNEL: begin
+          END_CHANNEL: begin
         end
       endcase
     end
@@ -726,7 +723,7 @@ module Control
 
   // Combinational logic detecting end of this image channel for write paths
   always_comb begin: w_end_channel_out_block
-    if (r_window_channel_out < (N_WINDOW * N_WINDOW - 1))
+    if (r_window_channel_out < (N_WINDOW * N_WINDOW - 2))
       w_end_channel_out = 1'b0;
     else
       w_end_channel_out = 1'b1;
@@ -742,7 +739,7 @@ module Control
 
   // Combinational logic detecting if this is the last channel in the image
   always_comb begin: w_end_last_channel_block
-    if (r_window_all_channel_out < (N_WINDOW * N_WINDOW * (N_CHANNEL_IN - 1)))
+    if (r_window_all_channel_out < (N_WINDOW * N_WINDOW * (N_CHANNEL_IN - 1) - 1))
       w_end_last_channel_out = 1'b0;
     else
       w_end_last_channel_out = 1'b1;
@@ -758,7 +755,7 @@ module Control
 
   // Address counter for write paths
   always_comb begin: w_count_out_block
-    if (current_st_output == WRITE_OUTPUT)
+    if ((current_st_output == WRITE_OUTPUT) || (current_st_output == FIRST_WRITE_OUTPUT))
       w_count_out <= r_count_write_out;
     else
       w_count_out <= r_count_read_out;
@@ -800,6 +797,10 @@ module Control
         p_output_wr = 1'b0;
       end
       // Waits for the output data write to memory to complete and then returns to idle
+      FIRST_WRITE_OUTPUT: begin
+        p_output_en = 1'b1;
+        p_output_wr = 1'b1;
+      end
       WRITE_OUTPUT: begin
         p_output_en = 1'b1;
         p_output_wr = 1'b1;
