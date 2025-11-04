@@ -138,7 +138,9 @@ module Control
   typedef enum {
     IDLE_OUTPUT,
     READ_OUTPUT,
-    SUM,
+    CONV,
+    FIRST_WRITE_OUTPUT,
+    CONV_SUM,
     WRITE_OUTPUT,
     END_CHANNEL
   } state_output_type;
@@ -188,7 +190,9 @@ module Control
       end
       // Waits until the input register bank is full; based on processed windows it may keep reading, reload weights/bias, or inish
       READ_INPUT: begin
-        if (w_end_read_in && !w_end_horizontal_in) begin
+          if (w_end_read_in && !w_end_horizontal_in)
+            next_st_input = TRANSFER;
+         else if (w_end_read_in && w_end_horizontal_in) begin
           // When all windows across input and output channels have been read, inish control
           if (r_window_total_in == N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN - 1)
             next_st_input = END_INPUT;
@@ -201,15 +205,11 @@ module Control
           if (r_window_channel_in == N_WINDOW * N_WINDOW - 1)
             next_st_input = WEIGHT;
           else
-          if (w_end_read_in && !w_end_horizontal_in)
-            next_st_input = TRANSFER;
-        end else if (w_end_read_in && w_end_horizontal_in)
-          next_st_input = FIRST_READ_INPUT;
-
-          // else
-          // // Otherwise keep reading input data
-          //   next_st_input = READ_INPUT;
-        // end
+            next_st_input = FIRST_READ_INPUT;
+        end
+      end
+      END_INPUT: begin
+        next_st_input = IDLE_INPUT;
       end
     endcase
   end
@@ -223,25 +223,18 @@ module Control
     unique case (current_st_output)
       IDLE_OUTPUT: begin
         if (p_start)
-          next_st_output = SUM;
+          next_st_output = CONV;
       end
-      READ_OUTPUT: begin
-        if (w_end_read_out)
-          next_st_output = SUM;
-      end
-      // Waits for the convolution-complete signal
-      SUM: begin
+      CONV: begin
         if (w_handshake_conv)
-          next_st_output = WRITE_OUTPUT;
+          next_st_output = FIRST_WRITE_OUTPUT;
       end
       // Waits for the output data write to memory to complete and then returns to idle
-      WRITE_OUTPUT: begin
+      FIRST_WRITE_OUTPUT: begin
         // if (w_end_write_out)
-        //   next_st_output = SUM;
-        if (w_end_write_out && w_end_first_channel_out && !w_end_channel_out)
-          next_st_output = READ_OUTPUT;
-        else if (w_end_write_out && !w_end_first_channel_out && !w_end_channel_out)
-          next_st_output = SUM;
+        //   next_st_output = CONV_SUM;
+        if (w_end_write_out && !w_end_channel_out)
+          next_st_output = CONV;
         else if (w_end_write_out && w_end_channel_out)
           next_st_output = END_CHANNEL;
         // else if (w_end_write_out && r_window_total_out == (N_WINDOW * N_WINDOW * N_CHANNEL_IN) - 1)
@@ -250,10 +243,31 @@ module Control
           next_st_output = IDLE_OUTPUT;
       end
       END_CHANNEL: begin
-        if (w_end_first_channel_out)
+        next_st_output = READ_OUTPUT;
+      end
+      READ_OUTPUT: begin
+        if (w_end_read_out)
+          next_st_output = CONV_SUM;
+      end
+      // Waits for the convolution-complete signal
+      CONV_SUM: begin
+        if (w_handshake_conv)
+          next_st_output = WRITE_OUTPUT;
+      end
+      // Waits for the output data write to memory to complete and then returns to idle
+      WRITE_OUTPUT: begin
+        // if (w_end_write_out)
+        //   next_st_output = CONV_SUM;
+        if (w_end_write_out && !w_end_channel_out)
+          next_st_output = CONV_SUM;
+        else if (w_end_write_out && w_end_channel_out)
           next_st_output = READ_OUTPUT;
-        else
-          next_st_output = SUM;
+        else if (w_end_write_out && w_end_channel_out)
+          next_st_output = END_CHANNEL;
+        // else if (w_end_write_out && r_window_total_out == (N_WINDOW * N_WINDOW * N_CHANNEL_IN) - 1)
+          // next_st_output = IDLE_OUTPUT;
+        else if (w_end_write_out && r_window_total_out == (N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN - 1))
+          next_st_output = IDLE_OUTPUT;
       end
     endcase
   end
@@ -303,7 +317,7 @@ module Control
   //   // if ((next_st_input == READ_INPUT) && (next_st_output == WRITE_OUTPUT))
   //   // ((next_st_input == TRANSFER) || (next_st_input == HOLD_INPUT))
   //   // &&
-  //   // ((next_st_output == SUM) || (next_st_output == READ_OUTPUT))
+  //   // ((next_st_output == CONV_SUM) || (next_st_output == READ_OUTPUT))
   //   // )
   //     w_handshake_control <= '1;
   //   else
@@ -582,6 +596,45 @@ module Control
     end else begin
       unique case (current_st_output)
         IDLE_OUTPUT: begin end
+        CONV: begin
+          r_count_read_out  <= 0;
+          r_count_write_out <= 0;
+          if (w_handshake_conv)
+            for (int i = 0; i < A1_SIZE * A2_SIZE; i++)
+              r_conv_output[i] <= p_conv_output[i];
+        end
+        FIRST_WRITE_OUTPUT: begin
+          // Each cycle increments the output counter to select which register value gets written
+          r_count_write_out <= r_count_write_out + 1;
+          if(w_end_write_out)
+            r_window_total_out <= r_window_total_out + 1;
+
+          // When the output window is full but the row continues:
+          // - increment the per-row window counter
+          // - move horizontally to the next window
+          if (w_end_write_out && w_end_horizontal_out)
+            r_window_horizontal_out <= 0;
+          else if (w_end_write_out && !w_end_horizontal_out)
+            r_window_horizontal_out <= r_window_horizontal_out + 1;
+
+          if (w_end_write_out)
+            r_window_channel_out <= r_window_channel_out + 1;
+
+          else if (w_end_write_out)
+            r_window_all_channel_out <= r_window_all_channel_out + 1;
+
+          // if (w_end_write_out && w_end_all_channel_out && w_end_channel_out)
+          //   r_addr_out <= 0;
+          // if (w_end_write_out && !w_end_all_channel_out && w_end_channel_out)
+          //   // r_addr_out <= 0;
+          //   // r_addr_out <= r_addr_out + A1_SIZE - (FEAT_OUTPUT_SIZE + FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
+          //   r_addr_out <= r_addr_out + A1_SIZE + FEAT_OUTPUT_SIZE * (A1_SIZE - 1) - (FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
+          // else
+          if (w_end_write_out && w_end_horizontal_out)
+            r_addr_out <= r_addr_out + A1_SIZE + FEAT_OUTPUT_SIZE * (A1_SIZE - 1);
+          else if (w_end_write_out && !w_end_horizontal_out)
+            r_addr_out <= r_addr_out + A1_SIZE;
+        end
         // Each cycle advances the weight address and stores the returned value in-order
         READ_OUTPUT: begin
           if (p_output_valid && (r_count_read_out < A1_SIZE * A2_SIZE))  begin
@@ -590,7 +643,7 @@ module Control
           end
         end
         // Keep the output counter cleared while waiting for convolution to end; capture output data on completion
-        SUM: begin
+        CONV_SUM: begin
           r_count_read_out  <= 0;
           r_count_write_out <= 0;
           if (w_handshake_conv)
