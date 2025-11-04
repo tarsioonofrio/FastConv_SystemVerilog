@@ -40,6 +40,7 @@ add wave -noupdate -radix unsigned /tb/dut/r_window_all_channel_out
 add wave -noupdate -radix unsigned /tb/dut/r_window_channel_out
 add wave -noupdate -radix unsigned /tb/dut/r_window_horizontal_out
 add wave -noupdate /tb/dut/r_read_en
+add wave -noupdate -radix decimal /tb/dut/r_weight
 add wave -noupdate /tb/dut/w_end_horizontal_in
 add wave -noupdate /tb/dut/w_end_read_in
 add wave -noupdate /tb/dut/w_end_channel_in
@@ -53,7 +54,6 @@ add wave -noupdate /tb/dut/w_end_last_channel_out
 add wave -noupdate /tb/dut/w_end_all_channel_out
 add wave -noupdate -radix unsigned /tb/dut/w_addr_in
 add wave -noupdate /tb/dut/w_output_en
-add wave -noupdate -radix decimal /tb/dut/r_weight
 add wave -noupdate /tb/dut/p_input_en
 add wave -noupdate -radix unsigned /tb/dut/p_input_addr
 add wave -noupdate -radix decimal /tb/dut/p_input_data
@@ -76,7 +76,7 @@ add wave -noupdate /tb/memory_write/data_valid
 add wave -noupdate /tb/memory_write/r_cycles_latency
 add wave -noupdate -radix decimal /tb/memory_write/data
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 6} {63500 ps} 1} {{Cursor 5} {2217367 ps} 1} {{Cursor 4} {4311500 ps} 1} {{Cursor 6} {1815500 ps} 1} {{Cursor 7} {1831500 ps} 1} {{Cursor 6} {2279500 ps} 0}
+WaveRestoreCursors {{Cursor 6} {63500 ps} 1} {{Cursor 5} {2217367 ps} 1} {{Cursor 4} {4311500 ps} 1} {{Cursor 6} {1815500 ps} 1} {{Cursor 7} {1831500 ps} 1} {{Cursor 6} {4383500 ps} 0}
 quietly wave cursor active 6
 configure wave -namecolwidth 256
 configure wave -valuecolwidth 100
@@ -92,4 +92,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {2165491 ps} {2313609 ps}
+WaveRestoreZoom {4226992 ps} {4748680 ps}
