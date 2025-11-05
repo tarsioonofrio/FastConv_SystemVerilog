@@ -48,10 +48,10 @@ States:
 
 ```mermaid
 flowchart TB
-    I(["IDLE_INPUT"]) --> W(["WEIGHT"]) --> FR(["FIRST_READ_INPUT"]) --> T(["TRANSFER"]) --> R(["READ_INPUT"])
+    I(["IDLE_INPUT"]) --> |"start"| W(["WEIGHT"]) --> FR(["FIRST_READ_INPUT"]) --> |"primeira coluna"| T(["TRANSFER"]) --> R(["READ_INPUT"])
     R --> T
-    R --> FR
-    R --> W
+    R --> |"end line"| FR
+    R --> |"end channel"| W
 ```
 
 ### Output FSM

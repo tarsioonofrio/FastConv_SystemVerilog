@@ -1,7 +1,0 @@
-flowchart BT
-    I(["IDLE_OUTPUT"]) --> C(["CONV"]) --> FW(["FIRST_WRITE_OUTPUT"]) --> E(["END_CHANNEL"]) --> R(["READ_OUTPUT"]) --> CS(["CONV_SUM"]) --> W(["WRITE_OUTPUT"])
-    FW --> C
-    FW --> I
-    W --> R
-    W --> E
-    W --> I
