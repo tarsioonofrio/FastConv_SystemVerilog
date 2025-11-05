@@ -46,9 +46,13 @@ States:
 - `T` (`TRANSFER`): prepare hand-off to the convolution core; may fall through immediately.
 - `R` (`READ_INPUT`): refill the sliding window and manage horizontal reuse.
 
-Sources: `docs/input-fsm.mmd`, `docs/input-fsm.svg`
-
-![Input FSM](docs/input-fsm.mmd.svg)
+```mermaid
+flowchart TB
+    I(["IDLE_INPUT"]) --> W(["WEIGHT"]) --> FR(["FIRST_READ_INPUT"]) --> T(["TRANSFER"]) --> R(["READ_INPUT"])
+    R --> T
+    R --> FR
+    R --> W
+```
 
 ### Output FSM
 
@@ -64,6 +68,12 @@ States:
 - `CS` (`CONV_SUM`): wait for the accumulator handshake to finish.
 - `W` (`WRITE_OUTPUT`): write updated windows back to memory and assess termination.
 
-Sources: `docs/output-fsm.mmd`, `docs/output-fsm.svg`
-
-![Output FSM](docs/output-fsm.mmd.svg)
+```mermaid
+flowchart TB
+    I(["IDLE_OUTPUT"]) --> C(["CONV"]) --> FW(["FIRST_WRITE_OUTPUT"]) --> E(["END_CHANNEL"]) --> R(["READ_OUTPUT"]) --> CS(["CONV_SUM"]) --> W(["WRITE_OUTPUT"])
+    FW --> C
+    FW --> I
+    W --> R
+    W --> E
+    W --> I
+```
