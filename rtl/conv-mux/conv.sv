@@ -100,28 +100,13 @@ module Conv
     end
   end
 
-  always_comb begin
-    p_idle = (current_state == IDLE_CONV) ? 1'b1 : 1'b0;
-    p_end = (current_state == MATRIX_A) ? 1'b1 : 1'b0;
-    // p_end = ((current_state == MATRIX_A) || r_end) ? 1'b1 : 1'b0;
-  end
-
-  // BLOCK: Convolution
-  //
-  // Data path
-  //
+  // Block Data path
 
   // Instance of matrix multiplier "C"
   Transform trf (
       .pin (r_feat[C1_SIZE*C1_SIZE-1:0]),
       .pout(w_prod_c)
   );
-
-  // Multip multip0 (
-  //     .register(r_feat[r_idx_in]),
-  //     .weight  (p_weight[r_idx_in]),
-  //     .product (product)
-  // );
 
   MuxMult mux_mult(
     .idx_in(r_idx_in),
@@ -142,12 +127,17 @@ module Conv
     end
   endgenerate
 
-
   // Instance of matrix multiplier "A"
   Inverse inv (
       .pin (r_feat),
       .pout(w_prod_a)
   );
+
+  always_comb begin
+    p_idle = (current_state == IDLE_CONV) ? 1'b1 : 1'b0;
+    p_end = (current_state == MATRIX_A) ? 1'b1 : 1'b0;
+    // p_end = ((current_state == MATRIX_A) || r_end) ? 1'b1 : 1'b0;
+  end
 endmodule
 
 
