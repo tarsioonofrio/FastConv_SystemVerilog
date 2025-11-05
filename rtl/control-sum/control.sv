@@ -163,7 +163,7 @@ module Control
   // control path: input
 
   // Combinational logic for the input (read) state machine
-  always_comb begin: next_st_input_block
+  always_comb begin: NEXT_ST_INPUT_BLOCK
     next_st_input = current_st_input;
     unique case (current_st_input)
       // IDLE_CONTROL
@@ -227,7 +227,7 @@ module Control
   // control path: output
 
   // Combinational logic for the output (write) state machine
-  always_comb begin: next_st_output_block
+  always_comb begin: NEXT_ST_OUTPUT_BLOCK
     next_st_output = current_st_output;
     unique case (current_st_output)
       IDLE_OUTPUT: begin
@@ -337,7 +337,7 @@ module Control
   // Data path: input
 
   // Sequential logic updating the registers tied to the input state machine
-  always_ff @(posedge clk) begin: current_st_input_block
+  always_ff @(posedge clk) begin: CURRENT_ST_INPUT_BLOCK
     if (reset) begin
       r_read_en    <= 1'b0;
       // Bias base address starts at zero
@@ -486,7 +486,7 @@ module Control
   end
 
   // Combinational logic asserting when the input buffer is full and convolution can start
-  always_comb begin: w_end_read_in_block
+  always_comb begin: W_END_READ_IN_BLOCK
     if ((r_count_in == (C1_SIZE * C2_SIZE)) && p_conv_idle)
       w_end_read_in = 1'b1;
     else
@@ -494,7 +494,7 @@ module Control
   end
 
   // Combinational logic detecting end-of-row for read paths
-  always_comb begin: w_end_horizontal_in_block
+  always_comb begin: W_END_HORIZONTAL_IN_BLOCK
     if (r_window_horizontal_in < N_WINDOW - 1)
       w_end_horizontal_in = 1'b0;
     else
@@ -502,7 +502,7 @@ module Control
   end
 
   // Combinational logic detecting end of this image channel for read paths
-  always_comb begin: w_end_channel_in_block
+  always_comb begin: W_END_CHANNEL_IN_BLOCK
     if (r_window_channel_in < N_WINDOW * N_WINDOW - 1)
       w_end_channel_in = 1'b0;
     else
@@ -510,7 +510,7 @@ module Control
   end
 
   // Combinational logic detecting end of all image channel for read paths
-  always_comb begin: w_end_all_channel_in_block
+  always_comb begin: W_END_ALL_CHANNEL_IN_BLOCK
     if (r_window_all_channel_in < (N_WINDOW * N_WINDOW * N_CHANNEL_IN - 1))
       w_end_all_channel_in = 1'b0;
     else
@@ -519,7 +519,7 @@ module Control
 
 
   // Combinational logic computing the input read address from the input counter
-  always_comb begin: w_addr_in_block
+  always_comb begin: W_ADDR_IN_BLOCK
     unique case (r_count_in)
       default: w_addr_in = r_addr_in + 0; // 00
       01: w_addr_in = r_addr_in + FEAT_INPUT_SIZE + 0; // 05
@@ -590,7 +590,7 @@ module Control
   // Data path: output
 
   // Sequential logic updating the registers tied to the output state machine
-  always_ff @(posedge clk) begin: current_st_output_block
+  always_ff @(posedge clk) begin: CURRENT_ST_OUTPUT_BLOCK
     if (reset) begin
       r_addr_out <= 0;
       r_count_read_out <= 0;
@@ -725,7 +725,7 @@ module Control
   end
 
   // Combinational logic asserting when the output buffer is full and all data is read from memory
-  always_comb begin: w_end_read_out_block
+  always_comb begin: W_END_READ_OUT_BLOCK
     if (r_count_read_out == (A1_SIZE * A2_SIZE - 1))
       w_end_read_out = 1'b1;
     else
@@ -733,7 +733,7 @@ module Control
   end
 
   // Combinational logic asserting when the output buffer is empty and all data is written in memory
-  always_comb begin: w_end_write_out_block
+  always_comb begin: W_END_WRITE_OUT_BLOCK
     if (r_count_write_out == (A1_SIZE * A2_SIZE - 1))
       w_end_write_out = 1'b1;
     else
@@ -741,7 +741,7 @@ module Control
   end
 
   // Combinational logic detecting end-of-row for write paths
-  always_latch begin: w_end_horizontal_out_block
+  always_latch begin: W_END_HORIZONTAL_OUT_BLOCK
     if (r_window_horizontal_out < (N_WINDOW - 1))
       w_end_horizontal_out = 1'b0;
     else
@@ -749,7 +749,7 @@ module Control
   end
 
   // Combinational logic detecting end of this image channel for write paths
-  always_comb begin: w_end_channel_out_block
+  always_comb begin: W_END_CHANNEL_OUT_BLOCK
     if (r_window_channel_out < (N_WINDOW * N_WINDOW - 2))
       w_end_channel_out = 1'b0;
     else
@@ -757,7 +757,7 @@ module Control
   end
 
   // Combinational logic detecting if this is the first channel in the image
-  always_comb begin: w_end_first_channel_out_block
+  always_comb begin: W_END_FIRST_CHANNEL_OUT_BLOCK
     if (r_window_all_channel_out < (N_WINDOW * N_WINDOW - 1))
       w_end_first_channel_out = 1'b0;
     else
@@ -765,7 +765,7 @@ module Control
   end
 
   // Combinational logic detecting if this is the last channel in the image
-  always_comb begin: w_end_last_channel_block
+  always_comb begin: W_END_LAST_CHANNEL_BLOCK
     if (r_window_all_channel_out < (N_WINDOW * N_WINDOW * (N_CHANNEL_IN - 1) - 1))
       w_end_last_channel_out = 1'b0;
     else
@@ -773,7 +773,7 @@ module Control
   end
 
   // Combinational logic detecting end of all image channel for write paths
-  always_comb begin: w_end_all_channel_out_block
+  always_comb begin: W_END_ALL_CHANNEL_OUT_BLOCK
     if (r_window_all_channel_out < (N_WINDOW * N_WINDOW * N_CHANNEL_IN - 2))
       w_end_all_channel_out = 1'b0;
     else
@@ -781,7 +781,7 @@ module Control
   end
 
   // Address counter for write paths
-  always_comb begin: w_count_out_block
+  always_comb begin: W_COUNT_OUT_BLOCK
     if ((current_st_output == WRITE_OUTPUT) || (current_st_output == FIRST_WRITE_OUTPUT))
       w_count_out <= r_count_write_out;
     else
@@ -789,7 +789,7 @@ module Control
   end
 
   // Combinational logic computing the write address from the output counter
-  always_comb begin: p_output_addr_block
+  always_comb begin: P_OUTPUT_ADDR_BLOCK
     unique case (w_count_out)
       default: p_output_addr = r_addr_out + 0;
       1: p_output_addr = r_addr_out + 1;
@@ -806,7 +806,7 @@ module Control
   end
 
   // Combinational logic driving output ports from internal registers
-  always_comb begin: p_output_data_write_block
+  always_comb begin: P_OUTPUT_DATA_WRITE_BLOCK
     p_output_data_write = r_conv_output[r_count_write_out];
     // p_start_channel = r_start_channel;
   end
@@ -835,7 +835,7 @@ module Control
     endcase
   end
 
-  always_comb begin: p_end_block
+  always_comb begin: P_END_BLOCK
     p_end = (r_window_total_out == N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN) ? 1'b1 : 1'b0;
   end
 
