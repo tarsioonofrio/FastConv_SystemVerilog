@@ -61,13 +61,13 @@ module Control
   // Output feature write counter
   // logic [$floor($clog2(N_CHANNEL_OUT) + 0.5)-1:0] r_count_ch_out;
   // Bias read counter; bias depth is one so it is unused for now
-  logic [$floor($clog2(N_CHANNEL_OUT) + 0.5)-1:0] r_addr_bias;
+  logic [$floor($clog2(N_CHANNEL_IN * N_CHANNEL_OUT) + 0.5)-1:0] r_addr_bias;
   // Temporary substitute for r_addr_bias
   // logic [2:0] r_addr_bias;
   // Base address register for weight blocks
-  logic [$clog2(M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT)-1:0] r_addr_wh;
+  logic [$clog2(N_CHANNEL_IN * N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT)-1:0] r_addr_wh;
   // Base address register for input features
-  logic [$clog2(M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT + N_CHANNEL_IN * FEAT_INPUT_SIZE * FEAT_INPUT_SIZE)-1:0] r_addr_in;
+  logic [$clog2(N_CHANNEL_IN * N_CHANNEL_OUT +M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT + N_CHANNEL_IN * FEAT_INPUT_SIZE * FEAT_INPUT_SIZE)-1:0] r_addr_in;
   // Row-aligned window counter for read-side address updates and reuse control
   logic [$clog2(N_WINDOW):0] r_window_horizontal_in;
   // Total window counter for a channel
@@ -189,7 +189,7 @@ module Control
       TRANSFER: begin
         if (w_handshake_output)
           next_st_input = READ_INPUT;
-        else 
+        else
           next_st_input = WAIT_OUTPUT;
       end
       // Waits until the input register bank is full; based on processed windows it may keep reading, reload weights/bias, or inish
@@ -345,7 +345,7 @@ module Control
       // Weight base address follows the bias region
       r_addr_wh    <= N_CHANNEL_OUT;
       // Input feature base address follows the weight region
-      r_addr_in   <= N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT;
+      r_addr_in   <= N_CHANNEL_IN * N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT;
       r_count_wh   <= 0;
       r_count_in  <= 0;
       r_window_total_in     <= 0;
@@ -359,8 +359,8 @@ module Control
         IDLE_INPUT: begin
           r_read_en   <= 1'b0;
           r_addr_bias <= 0;
-          r_addr_wh   <= N_CHANNEL_OUT;
-          r_addr_in  <= N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT;
+          r_addr_wh   <= N_CHANNEL_IN * N_CHANNEL_OUT;
+          r_addr_in  <= N_CHANNEL_IN * N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT;
           r_count_wh  <= 0;
           r_count_in <= 0;
           r_window_total_in    <= 0;
@@ -473,7 +473,7 @@ module Control
             r_window_all_channel_in <= r_window_all_channel_in + 1;
 
           if (w_end_read_in && w_end_horizontal_in && w_end_all_channel_in)
-              r_addr_in <= N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT;
+          r_addr_in <= N_CHANNEL_IN * N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT;
           else if (w_end_read_in && !w_end_horizontal_in)
             r_addr_in  <= r_addr_in + A1_SIZE;
           else if (w_end_read_in && w_end_horizontal_in && !w_end_channel_in)
