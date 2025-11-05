@@ -130,7 +130,11 @@ module Conv
 
   generate
     for (genvar i = 0; i < NMULT; i++) begin
-      Multip multip(
+      Multip #(
+        .QUANT(QUANT),
+        .NBITS(NBITS)
+      )
+      multip(
         .register(r_feat[r_idx_out[i]]),
         .weight(p_weight[r_idx_out[i]]),
         .product(product[i])
