@@ -766,7 +766,7 @@ module Control
 
   // Combinational logic detecting if this is the last channel in the image
   always_comb begin: W_END_LAST_CHANNEL_BLOCK
-    if (r_window_all_channel_out < (N_WINDOW * N_WINDOW * (N_CHANNEL_IN - 1) - 1))
+    if (r_window_all_channel_out < (N_WINDOW * N_WINDOW * (N_CHANNEL_IN - 1) - 2))
       w_end_last_channel_out = 1'b0;
     else
       w_end_last_channel_out = 1'b1;
