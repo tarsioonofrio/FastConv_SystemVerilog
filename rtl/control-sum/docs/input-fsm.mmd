@@ -1,0 +1,5 @@
+flowchart BT
+    I(["IDLE_INPUT"]) --> W(["WEIGHT"]) --> FR(["FIRST_READ_INPUT"]) --> T(["TRANSFER"]) --> R(["READ_INPUT"])
+    R --> T
+    R --> FR
+    R --> W
