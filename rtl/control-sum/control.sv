@@ -125,6 +125,7 @@ module Control
   type_output r_conv_output;
   type_output r_feat_output;
 
+
   typedef enum {
     IDLE_INPUT,
     BIAS,
@@ -133,6 +134,8 @@ module Control
     TRANSFER,
     READ_INPUT,
     WAIT_OUTPUT,
+    WAIT_OUTPUT2,
+    WAIT_OUTPUT3,
     WAIT_LAST_CONV,
     END_INPUT
    } state_input_type;
@@ -203,7 +206,8 @@ module Control
       READ_INPUT: begin
           if (w_end_read_in && !w_end_horizontal_in)
             next_st_input = TRANSFER;
-         else if (w_end_read_in && w_end_horizontal_in) begin
+         else 
+         if (w_end_read_in && w_end_horizontal_in) begin
           // When all windows across input and output channels have been read, finish input
           if (r_window_total_in >= N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN - 1)
             next_st_input = END_INPUT;
@@ -222,9 +226,12 @@ module Control
       end
       WAIT_OUTPUT: begin
         // if ((r_channel_in == 0)  || (w_handshake_output && r_channel_in > 0))
-        if (w_handshake_output)
-          next_st_input = READ_INPUT;
+        // if (w_handshake_output)
+        //   next_st_input = READ_INPUT;
+        next_st_input = WAIT_OUTPUT2;
       end
+      WAIT_OUTPUT2: next_st_input = WAIT_OUTPUT3;
+      WAIT_OUTPUT3: next_st_input = READ_INPUT;
       WAIT_LAST_CONV: begin
         if (p_conv_idle)
           next_st_input = WEIGHT;
@@ -610,7 +617,8 @@ module Control
   always_comb begin
     p_conv_input  = r_feat_in;
     p_conv_weight = r_weight;
-    p_conv_start  = w_handshake_input;
+    // p_conv_start  = w_handshake_input;
+    p_conv_start = (current_st_input == TRANSFER) ? 1'b1 : 1'b0;;
   end
 
 
@@ -681,7 +689,7 @@ module Control
         CONV_SUM: begin
           r_count_read_out  <= 0;
           r_count_write_out <= 0;
-          if (w_handshake_conv || (r_conv_end && r_window_channel_out > 0))
+          if (w_handshake_conv || (r_conv_end))
             for (int i = 0; i < A1_SIZE * A2_SIZE; i++)
               r_conv_output[i] <= r_feat_output[i] + p_conv_output[i];
           // else
