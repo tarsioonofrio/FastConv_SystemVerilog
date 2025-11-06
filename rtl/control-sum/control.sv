@@ -112,8 +112,8 @@ module Control
 
   logic w_output_en;
 
-  logic [$clog2(N_CHANNEL_OUT * N_CHANNEL_IN)-1:0] r_channel_in;
-  logic [$clog2(N_CHANNEL_OUT * N_CHANNEL_IN)-1:0] r_channel_out;
+  logic [$floor($clog2(N_CHANNEL_IN * N_CHANNEL_OUT) + 0.5):0] r_channel_in;
+  logic [$floor($clog2(N_CHANNEL_IN * N_CHANNEL_OUT) + 0.5):0] r_channel_out;
 
   logic r_read_en;
   // Register bank for input features
@@ -487,7 +487,7 @@ module Control
         end
         WAIT_LAST_CONV: begin
           if (p_conv_idle)
-            if (r_channel_in == N_CHANNEL_IN - 1)
+            if (r_channel_in >= N_CHANNEL_IN - 1)
               r_channel_in <= 0;
             else
               r_channel_in <= r_channel_in + 1;
@@ -511,6 +511,7 @@ module Control
     else
       w_end_horizontal_in = 1'b1;
   end
+
 
   // Combinational logic detecting end of this image channel for read paths
   always_comb begin: W_END_CHANNEL_IN_BLOCK
@@ -603,6 +604,7 @@ module Control
   // Sequential logic updating the registers tied to the output state machine
   always_ff @(posedge clk) begin: CURRENT_ST_OUTPUT_BLOCK
     if (reset) begin
+      r_channel_out <= 0;
       r_addr_out <= 0;
       r_count_read_out <= 0;
       r_count_write_out <= 0;
@@ -691,40 +693,30 @@ module Control
           else if (w_end_write_out && !w_end_horizontal_out)
             r_window_horizontal_out <= r_window_horizontal_out + 1;
 
-          // if (w_end_write_out && w_end_channel_out)
-          //   r_window_channel_out <= 0;
-          // else
           if (w_end_write_out && !w_end_channel_out)
             r_window_channel_out <= r_window_channel_out + 1;
 
-          // if (w_end_write_out && w_end_all_channel_out)
-          //   r_window_all_channel_out <= 0;
-          // else
           if (w_end_write_out && !w_end_all_channel_out)
             r_window_all_channel_out <= r_window_all_channel_out + 1;
 
-          // if (w_end_write_out && w_end_all_channel_out && w_end_channel_out)
-          //   r_addr_out <= 0;
-          // if (w_end_write_out && !w_end_all_channel_out && w_end_channel_out)
-          //   // r_addr_out <= 0;
-          //   // r_addr_out <= r_addr_out + A1_SIZE - (FEAT_OUTPUT_SIZE + FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
-          //   r_addr_out <= r_addr_out + A1_SIZE + FEAT_OUTPUT_SIZE * (A1_SIZE - 1) - (FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
-          // else
           if (w_end_write_out && w_end_horizontal_out)
             r_addr_out <= r_addr_out + A1_SIZE + FEAT_OUTPUT_SIZE * (A1_SIZE - 1);
           else if (w_end_write_out && !w_end_horizontal_out)
             r_addr_out <= r_addr_out + A1_SIZE;
         end
-          END_CHANNEL: begin
-            r_window_horizontal_out <= 0;
-            r_window_channel_out <= 0;
+        END_CHANNEL: begin
+          r_window_horizontal_out <= 0;
+          r_window_channel_out <= 0;
+          if (w_end_all_channel_out)
+            r_window_all_channel_out <= 0;
+          // if (r_channel_out >= N_CHANNEL_IN - 1)
+          //    r_addr_out <= r_addr_out - (FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
+          if (r_channel_out >= N_CHANNEL_IN - 1)
+            r_channel_out <= 0;
+          else begin
+            r_channel_out <= r_channel_out + 1;
             r_addr_out <= r_addr_out - (FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
-            if (w_end_all_channel_out)
-              r_window_all_channel_out <= 0;
-            if (r_channel_out == N_CHANNEL_OUT - 1)
-              r_channel_out <= 0;
-            else
-              r_channel_out <= r_channel_out + 1;
+          end
         end
       endcase
     end
@@ -764,7 +756,7 @@ module Control
 
   // Combinational logic detecting if this is the first channel in the image
   always_comb begin: W_END_FIRST_CHANNEL_OUT_BLOCK
-    if (r_channel_in > 0)
+    if (r_channel_out > 0)
       w_end_first_channel_out = 1'b1;
     else
       w_end_first_channel_out = 1'b0;
@@ -773,7 +765,7 @@ module Control
   // Combinational logic detecting if this is the last channel in the image
   always_comb begin: W_END_LAST_CHANNEL_BLOCK
     // if (r_window_all_channel_out < (N_WINDOW * N_WINDOW * (N_CHANNEL_IN - 1) - 1))
-    if (r_channel_in >= (N_CHANNEL_IN - 1))
+    if (r_channel_out >= (N_CHANNEL_IN - 1))
       w_end_last_channel_out = 1'b1;
     else
       w_end_last_channel_out = 1'b0;
