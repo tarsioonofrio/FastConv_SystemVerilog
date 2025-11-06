@@ -37,6 +37,7 @@ module tb;
 
   logic debug;
 
+  time exec_time;
 
   int count_fout = 0;
 
@@ -169,6 +170,7 @@ module tb;
 
 
     wait(w_end);
+    exec_time = $realtime;
 
     // debug = 1;
 
@@ -189,6 +191,7 @@ module tb;
 
     $display("=== No errors - End simulation ===");
     $display("Total Time %0f", $realtime);
+    $display("Execution time after wait(end) %0f", exec_time);
 
     #20ns
 
