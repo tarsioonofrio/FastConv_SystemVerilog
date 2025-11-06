@@ -131,6 +131,7 @@ module Control
     BIAS,
     WEIGHT,
     FIRST_READ_INPUT,
+    FIRST_CONV_START,
     TRANSFER,
     READ_INPUT,
     WAIT_OUTPUT,
@@ -194,19 +195,20 @@ module Control
       FIRST_READ_INPUT: begin
         if (w_end_read_in)
         // if (w_end_read_in && w_handshake_output)
-          next_st_input = TRANSFER;
+          next_st_input = FIRST_CONV_START;
       end
+      FIRST_CONV_START: next_st_input = WAIT_OUTPUT;
       TRANSFER: begin
-        if ((r_channel_in == 0) || w_handshake_output)
-          next_st_input = READ_INPUT;
-        else
+        // if ((r_channel_in == 0) || w_handshake_output)
+        //   next_st_input = READ_INPUT;
+        // else
           next_st_input = WAIT_OUTPUT;
       end
       // Waits until the input register bank is full; based on processed windows it may keep reading, reload weights/bias, or inish
       READ_INPUT: begin
           if (w_end_read_in && !w_end_horizontal_in)
             next_st_input = TRANSFER;
-         else 
+         else
          if (w_end_read_in && w_end_horizontal_in) begin
           // When all windows across input and output channels have been read, finish input
           if (r_window_total_in >= N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN - 1)
@@ -618,7 +620,7 @@ module Control
     p_conv_input  = r_feat_in;
     p_conv_weight = r_weight;
     // p_conv_start  = w_handshake_input;
-    p_conv_start = (current_st_input == TRANSFER) ? 1'b1 : 1'b0;;
+    p_conv_start = ((current_st_input == FIRST_CONV_START) || (current_st_input == TRANSFER)) ? 1'b1 : 1'b0;;
   end
 
 
