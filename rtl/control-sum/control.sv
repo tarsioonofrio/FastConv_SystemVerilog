@@ -115,6 +115,7 @@ module Control
   logic [$floor($clog2(N_CHANNEL_IN * N_CHANNEL_OUT) + 0.5):0] r_channel_in;
   logic [$floor($clog2(N_CHANNEL_IN * N_CHANNEL_OUT) + 0.5):0] r_channel_out;
 
+  logic r_conv_end;
   logic r_read_en;
   // Register bank for input features
   type_input  r_feat_in;
@@ -193,7 +194,7 @@ module Control
           next_st_input = TRANSFER;
       end
       TRANSFER: begin
-        if (w_handshake_output)
+        if ((r_channel_in == 0) || w_handshake_output)
           next_st_input = READ_INPUT;
         else
           next_st_input = WAIT_OUTPUT;
@@ -220,6 +221,7 @@ module Control
         end
       end
       WAIT_OUTPUT: begin
+        // if ((r_channel_in == 0)  || (w_handshake_output && r_channel_in > 0))
         if (w_handshake_output)
           next_st_input = READ_INPUT;
       end
@@ -242,8 +244,8 @@ module Control
     unique case (current_st_output)
       IDLE_OUTPUT: begin
         if (p_start)
-          // next_st_output = CONV;
-          next_st_output = READ_OUTPUT;
+          next_st_output = CONV;
+          // next_st_output = READ_OUTPUT;
 
       end
       CONV: begin
@@ -269,7 +271,7 @@ module Control
       end
       // Waits for the convolution-complete signal
       CONV_SUM: begin
-        if (w_handshake_conv)
+        if (w_handshake_conv || (r_conv_end))
           next_st_output = WRITE_OUTPUT;
       end
       // Waits for the output data write to memory to complete and then returns to idle
@@ -286,7 +288,7 @@ module Control
           next_st_output = IDLE_OUTPUT;
       end
       END_CHANNEL: begin
-        if (next_st_input == WEIGHT)
+        if (next_st_input == TRANSFER)
           next_st_output = READ_OUTPUT;
         else
         next_st_output = WAIT_WEIGHT;
@@ -294,7 +296,7 @@ module Control
       WAIT_WEIGHT: begin
         // TODO
         // Add handshake between input and output FSMs for channel completion
-        if (next_st_input == WEIGHT)
+        if (next_st_input == TRANSFER)
           next_st_output = READ_OUTPUT;
       end
     endcase
@@ -337,6 +339,17 @@ module Control
       w_handshake_output <= '0;
   end
 
+
+  always_ff @(posedge clk) begin
+      if (reset) begin
+        r_conv_end   <= 1'b0;
+      end else begin
+        if (w_handshake_conv)
+          r_conv_end   <= 1'b1;
+        else if (w_handshake_input)
+          r_conv_end   <= 1'b0;
+      end
+  end
 
   // Data path: input
 
@@ -500,7 +513,7 @@ module Control
 
   // Combinational logic asserting when the input buffer is full and convolution can start
   always_comb begin: W_END_READ_IN_BLOCK
-    if (r_count_in == (C1_SIZE * C2_SIZE))
+    if (r_count_in == (C1_SIZE * C2_SIZE - 1))
       w_end_read_in = 1'b1;
     else
       w_end_read_in = 1'b0;
@@ -668,7 +681,7 @@ module Control
         CONV_SUM: begin
           r_count_read_out  <= 0;
           r_count_write_out <= 0;
-          if (w_handshake_conv)
+          if (w_handshake_conv || (r_conv_end && r_window_channel_out > 0))
             for (int i = 0; i < A1_SIZE * A2_SIZE; i++)
               r_conv_output[i] <= r_feat_output[i] + p_conv_output[i];
           // else
