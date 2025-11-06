@@ -135,8 +135,8 @@ module Conv
 
   always_comb begin
     p_idle = (current_state == IDLE_CONV) ? 1'b1 : 1'b0;
-    // p_end = (current_state == MATRIX_A) ? 1'b1 : 1'b0;
-    p_end = ((current_state == MATRIX_A) || r_end) ? 1'b1 : 1'b0;
+    p_end = (current_state == MATRIX_A) ? 1'b1 : 1'b0;
+    // p_end = ((current_state == MATRIX_A) || r_end) ? 1'b1 : 1'b0;
   end
 endmodule
 
