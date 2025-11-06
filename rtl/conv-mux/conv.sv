@@ -81,11 +81,11 @@ module Conv
           r_idx_in <= 1'b0;
           if (p_start) begin
             r_feat[C1_SIZE*C1_SIZE-1:0] <= p_input;
-            r_end <= 1'b0;
           end
         end
         MATRIX_C: begin
           r_feat <= w_prod_c;
+          r_end <= 1'b0;
         end
         HADAMARD: begin
           r_idx_in <= r_idx_in + 1;
@@ -135,8 +135,8 @@ module Conv
 
   always_comb begin
     p_idle = (current_state == IDLE_CONV) ? 1'b1 : 1'b0;
-    p_end = (current_state == MATRIX_A) ? 1'b1 : 1'b0;
-    // p_end = ((current_state == MATRIX_A) || r_end) ? 1'b1 : 1'b0;
+    // p_end = (current_state == MATRIX_A) ? 1'b1 : 1'b0;
+    p_end = ((current_state == MATRIX_A) || r_end) ? 1'b1 : 1'b0;
   end
 endmodule
 

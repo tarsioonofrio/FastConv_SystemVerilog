@@ -242,7 +242,9 @@ module Control
     unique case (current_st_output)
       IDLE_OUTPUT: begin
         if (p_start)
-          next_st_output = CONV;
+          // next_st_output = CONV;
+          next_st_output = READ_OUTPUT;
+
       end
       CONV: begin
         if (w_handshake_conv)
