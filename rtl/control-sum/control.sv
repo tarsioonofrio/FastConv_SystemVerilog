@@ -197,8 +197,8 @@ module Control
           if (w_end_read_in && !w_end_horizontal_in)
             next_st_input = TRANSFER;
          else if (w_end_read_in && w_end_horizontal_in) begin
-          // When all windows across input and output channels have been read, inish control
-          if (r_window_total_in == N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN - 1)
+          // When all windows across input and output channels have been read, finish input
+          if (r_window_total_in >= N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN - 1)
             next_st_input = END_INPUT;
           else
           // When all output-channel windows are complete, load bias (disabled for now)
@@ -206,7 +206,7 @@ module Control
           //  next_st_input = BIAS;
           // else
           // When a full set of windows for an input channel is done, reload weights
-          if (r_window_channel_in == N_WINDOW * N_WINDOW - 1)
+          if (w_end_channel_in)
             next_st_input = WEIGHT;
           else
           // else if (w_handshake_output)
@@ -218,7 +218,7 @@ module Control
           next_st_input = READ_INPUT;
       end
       END_INPUT: begin
-        next_st_input = IDLE_INPUT;
+        // next_st_input = IDLE_INPUT;
       end
     endcase
   end
@@ -286,8 +286,8 @@ module Control
     if (reset)
       w_handshake_input <= '0;
    else
-   if ((next_st_input == TRANSFER) || ((next_st_input == FIRST_READ_INPUT) && (current_st_input != FIRST_READ_INPUT) && (current_st_input != WEIGHT)))
-   // if ((next_st_input == TRANSFER))
+   // if ((next_st_input == TRANSFER) || ((next_st_input == FIRST_READ_INPUT) && (current_st_input != FIRST_READ_INPUT) && (current_st_input != WEIGHT)))
+   if (w_end_read_in)
       w_handshake_input <= '1;
    else
    // if(w_end_read_fin)
@@ -487,7 +487,7 @@ module Control
 
   // Combinational logic asserting when the input buffer is full and convolution can start
   always_comb begin: W_END_READ_IN_BLOCK
-    if ((r_count_in == (C1_SIZE * C2_SIZE)) && p_conv_idle)
+    if (r_count_in == (C1_SIZE * C2_SIZE))
       w_end_read_in = 1'b1;
     else
       w_end_read_in = 1'b0;
@@ -766,7 +766,7 @@ module Control
 
   // Combinational logic detecting if this is the last channel in the image
   always_comb begin: W_END_LAST_CHANNEL_BLOCK
-    if (r_window_all_channel_out < (N_WINDOW * N_WINDOW * (N_CHANNEL_IN - 1) - 2))
+    if (r_window_all_channel_out >= (N_WINDOW * N_WINDOW * (N_CHANNEL_IN - 1) - 2))
       w_end_last_channel_out = 1'b0;
     else
       w_end_last_channel_out = 1'b1;
