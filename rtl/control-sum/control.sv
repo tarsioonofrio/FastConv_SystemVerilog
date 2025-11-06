@@ -111,6 +111,10 @@ module Control
   logic[NADDR-1:0] w_addr_in;
 
   logic w_output_en;
+
+  logic [$clog2(N_CHANNEL_OUT * N_CHANNEL_IN)-1:0] r_channel_in;
+  logic [$clog2(N_CHANNEL_OUT * N_CHANNEL_IN)-1:0] r_channel_out;
+
   logic r_read_en;
   // Register bank for input features
   type_input  r_feat_in;
@@ -128,6 +132,7 @@ module Control
     TRANSFER,
     READ_INPUT,
     WAIT_OUTPUT,
+    WAIT_LAST_CONV,
     END_INPUT
    } state_input_type;
 
@@ -142,7 +147,8 @@ module Control
     FIRST_WRITE_OUTPUT,
     CONV_SUM,
     WRITE_OUTPUT,
-    END_CHANNEL
+    END_CHANNEL,
+    WAIT_WEIGHT
   } state_output_type;
 
   state_input_type current_st_input, next_st_input;
@@ -207,7 +213,7 @@ module Control
           // else
           // When a full set of windows for an input channel is done, reload weights
           if (w_end_channel_in)
-            next_st_input = WEIGHT;
+            next_st_input = WAIT_LAST_CONV;
           else
           // else if (w_handshake_output)
             next_st_input = FIRST_READ_INPUT;
@@ -216,6 +222,10 @@ module Control
       WAIT_OUTPUT: begin
         if (w_handshake_output)
           next_st_input = READ_INPUT;
+      end
+      WAIT_LAST_CONV: begin
+        if (p_conv_idle)
+          next_st_input = WEIGHT;
       end
       END_INPUT: begin
         // next_st_input = IDLE_INPUT;
@@ -251,9 +261,6 @@ module Control
         else if (w_end_write_out && r_window_total_out == (N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN - 1))
           next_st_output = IDLE_OUTPUT;
       end
-      END_CHANNEL: begin
-        next_st_output = READ_OUTPUT;
-      end
       READ_OUTPUT: begin
         if (w_end_read_out)
           next_st_output = CONV_SUM;
@@ -273,8 +280,20 @@ module Control
           next_st_output = END_CHANNEL;
         // else if (w_end_write_out && r_window_total_out == (N_WINDOW * N_WINDOW * N_CHANNEL_IN) - 1)
           // next_st_output = IDLE_OUTPUT;
-        else if (w_end_write_out && r_window_total_out == (N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN - 1))
+        else if (w_end_write_out && (r_window_total_out == (N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN - 1)))
           next_st_output = IDLE_OUTPUT;
+      end
+      END_CHANNEL: begin
+        if (next_st_input == WEIGHT)
+          next_st_output = READ_OUTPUT;
+        else
+        next_st_output = WAIT_WEIGHT;
+      end
+      WAIT_WEIGHT: begin
+        // TODO
+        // Add handshake between input and output FSMs for channel completion
+        if (next_st_input == WEIGHT)
+          next_st_output = READ_OUTPUT;
       end
     endcase
   end
@@ -316,23 +335,6 @@ module Control
       w_handshake_output <= '0;
   end
 
-  // always_comb begin: LATCH_CONTROL_BLOCK
-  //   if (reset)
-  //     w_handshake_control <= '0;
-  //   else
-  //   // if (w_end_read_fin && (next_st_output == WRITE_OUTPUT))
-  //   if (next_st_input == READ_INPUT)
-  //   // if ((next_st_input == READ_INPUT) && (next_st_output == WRITE_OUTPUT))
-  //   // ((next_st_input == TRANSFER) || (next_st_input == HOLD_INPUT))
-  //   // &&
-  //   // ((next_st_output == CONV_SUM) || (next_st_output == READ_OUTPUT))
-  //   // )
-  //     w_handshake_control <= '1;
-  //   else
-  //   // if (w_end_read_fin)
-  //     w_handshake_control <= '0;
-  // end
-
 
   // Data path: input
 
@@ -348,6 +350,7 @@ module Control
       r_addr_in   <= N_CHANNEL_IN * N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT;
       r_count_wh   <= 0;
       r_count_in  <= 0;
+      r_channel_in <= 0;
       r_window_total_in     <= 0;
       r_window_channel_in   <= 0;
       r_window_horizontal_in  <= 0;
@@ -363,6 +366,7 @@ module Control
           r_addr_in  <= N_CHANNEL_IN * N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT;
           r_count_wh  <= 0;
           r_count_in <= 0;
+          r_channel_in <= 0;
           r_window_total_in    <= 0;
           r_window_channel_in   <= 0;
           r_window_horizontal_in  <= 0;
@@ -480,6 +484,13 @@ module Control
             r_addr_in  <= r_addr_in + C1_SIZE + FEAT_INPUT_SIZE * (A1_SIZE - 1);
           else if (w_end_read_in && w_end_horizontal_in && w_end_channel_in)
             r_addr_in  <= r_addr_in + C1_SIZE + FEAT_INPUT_SIZE * (C1_SIZE - 1);
+        end
+        WAIT_LAST_CONV: begin
+          if (p_conv_idle)
+            if (r_channel_in == N_CHANNEL_IN - 1)
+              r_channel_in <= 0;
+            else
+              r_channel_in <= r_channel_in + 1;
         end
       endcase
     end
@@ -603,7 +614,7 @@ module Control
       r_feat_output   <= '{default: '0};
     end else begin
       unique case (current_st_output)
-        IDLE_OUTPUT: begin end
+        default: begin end
         CONV: begin
           r_count_write_out <= 0;
           if (w_handshake_conv)
@@ -707,18 +718,13 @@ module Control
           END_CHANNEL: begin
             r_window_horizontal_out <= 0;
             r_window_channel_out <= 0;
-
+            r_addr_out <= r_addr_out - (FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
             if (w_end_all_channel_out)
               r_window_all_channel_out <= 0;
-
-            if (!w_end_all_channel_out)
-              // r_addr_out <= 0;
-              // r_addr_out <= r_addr_out + A1_SIZE - (FEAT_OUTPUT_SIZE + FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
-              r_addr_out <= r_addr_out + A1_SIZE + FEAT_OUTPUT_SIZE * (A1_SIZE - 1) - (FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
-            else if (w_end_horizontal_out)
-              r_addr_out <= r_addr_out + A1_SIZE + FEAT_OUTPUT_SIZE * (A1_SIZE - 1);
-            else if (!w_end_horizontal_out)
-              r_addr_out <= r_addr_out + A1_SIZE;
+            if (r_channel_out == N_CHANNEL_OUT - 1)
+              r_channel_out <= 0;
+            else
+              r_channel_out <= r_channel_out + 1;
         end
       endcase
     end
@@ -750,7 +756,7 @@ module Control
 
   // Combinational logic detecting end of this image channel for write paths
   always_comb begin: W_END_CHANNEL_OUT_BLOCK
-    if (r_window_channel_out < (N_WINDOW * N_WINDOW - 2))
+    if (r_window_channel_out < (N_WINDOW * N_WINDOW - 1))
       w_end_channel_out = 1'b0;
     else
       w_end_channel_out = 1'b1;
@@ -758,18 +764,19 @@ module Control
 
   // Combinational logic detecting if this is the first channel in the image
   always_comb begin: W_END_FIRST_CHANNEL_OUT_BLOCK
-    if (r_window_all_channel_out < (N_WINDOW * N_WINDOW - 1))
-      w_end_first_channel_out = 1'b0;
-    else
+    if (r_channel_in > 0)
       w_end_first_channel_out = 1'b1;
+    else
+      w_end_first_channel_out = 1'b0;
   end
 
   // Combinational logic detecting if this is the last channel in the image
   always_comb begin: W_END_LAST_CHANNEL_BLOCK
-    if (r_window_all_channel_out >= (N_WINDOW * N_WINDOW * (N_CHANNEL_IN - 1) - 2))
-      w_end_last_channel_out = 1'b0;
-    else
+    // if (r_window_all_channel_out < (N_WINDOW * N_WINDOW * (N_CHANNEL_IN - 1) - 1))
+    if (r_channel_in >= (N_CHANNEL_IN - 1))
       w_end_last_channel_out = 1'b1;
+    else
+      w_end_last_channel_out = 1'b0;
   end
 
   // Combinational logic detecting end of all image channel for write paths
@@ -836,7 +843,7 @@ module Control
   end
 
   always_comb begin: P_END_BLOCK
-    p_end = (r_window_total_out == N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN) ? 1'b1 : 1'b0;
+    p_end = (r_window_total_out >= N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN) ? 1'b1 : 1'b0;
   end
 
 endmodule
