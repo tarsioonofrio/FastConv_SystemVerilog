@@ -234,23 +234,6 @@ module Control
         if (p_start)
           next_st_output = CONV_SUM;
       end
-      CONV: begin
-        if (w_handshake_conv)
-          next_st_output = WRITE_OUTPUT;
-      end
-      // Waits for the output data write to memory to complete and then returns to idle
-      FIRST_WRITE_OUTPUT: begin
-        // if (w_end_write_out)
-        //   next_st_output = CONV_SUM;
-        if (w_end_write_out && !w_end_channel_out)
-          next_st_output = CONV;
-        else if (w_end_write_out && w_end_channel_out)
-          next_st_output = END_CHANNEL;
-        // else if (w_end_write_out && r_window_total_out == (N_WINDOW * N_WINDOW * N_CHANNEL_IN) - 1)
-          // next_st_output = IDLE_OUTPUT;
-        else if (w_end_write_out && r_window_total_out == (N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN - 1))
-          next_st_output = IDLE_OUTPUT;
-      end
       READ_OUTPUT: begin
         if (w_end_read_out)
           next_st_output = CONV_SUM;
@@ -258,8 +241,8 @@ module Control
       // Waits for the convolution-complete signal
       CONV_SUM: begin
         if (w_handshake_conv && (r_channel_out == 0))
-          next_st_output = IDLE_OUTPUT;
-        else if (w_handshake_conv || (r_conv_end))
+          next_st_output = WRITE_OUTPUT;
+        else if ((w_handshake_conv || (r_conv_end)) && (r_channel_out > 0))
           next_st_output = WRITE_OUTPUT;
       end
       // Waits for the output data write to memory to complete and then returns to idle
@@ -593,44 +576,6 @@ module Control
     end else begin
       unique case (current_st_output)
         default: begin end
-        CONV: begin
-          r_count_write_out <= 0;
-          if (w_handshake_conv)
-            for (int i = 0; i < A1_SIZE * A2_SIZE; i++)
-              r_conv_output[i] <= p_conv_output[i];
-        end
-        FIRST_WRITE_OUTPUT: begin
-          // Each cycle increments the output counter to select which register value gets written
-          r_count_write_out <= r_count_write_out + 1;
-          if(w_end_write_out)
-            r_window_total_out <= r_window_total_out + 1;
-
-          // When the output window is full but the row continues:
-          // - increment the per-row window counter
-          // - move horizontally to the next window
-          if (w_end_write_out && w_end_horizontal_out)
-            r_window_horizontal_out <= 0;
-          else if (w_end_write_out && !w_end_horizontal_out)
-            r_window_horizontal_out <= r_window_horizontal_out + 1;
-
-          if (w_end_write_out)
-            r_window_channel_out <= r_window_channel_out + 1;
-
-          if (w_end_write_out)
-            r_window_all_channel_out <= r_window_all_channel_out + 1;
-
-          // if (w_end_write_out && w_end_all_channel_out && w_end_channel_out)
-          //   r_addr_out <= 0;
-          // if (w_end_write_out && !w_end_all_channel_out && w_end_channel_out)
-          //   // r_addr_out <= 0;
-          //   // r_addr_out <= r_addr_out + A1_SIZE - (FEAT_OUTPUT_SIZE + FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
-          //   r_addr_out <= r_addr_out + A1_SIZE + FEAT_OUTPUT_SIZE * (A1_SIZE - 1) - (FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
-          // else
-          if (w_end_write_out && w_end_horizontal_out)
-            r_addr_out <= r_addr_out + A1_SIZE + FEAT_OUTPUT_SIZE * (A1_SIZE - 1);
-          else if (w_end_write_out && !w_end_horizontal_out)
-            r_addr_out <= r_addr_out + A1_SIZE;
-        end
         // Each cycle advances the weight address and stores the returned value in-order
         READ_OUTPUT: begin
           if (p_output_valid && (r_count_read_out < A1_SIZE * A2_SIZE))  begin
