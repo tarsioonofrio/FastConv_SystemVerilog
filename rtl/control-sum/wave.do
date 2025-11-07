@@ -8,6 +8,7 @@ add wave -noupdate /tb/dut/p_end
 add wave -noupdate -color Red /tb/dut/p_conv_start
 add wave -noupdate -color Red /tb/dut/p_conv_end
 add wave -noupdate /tb/dut/r_conv_end
+add wave -noupdate /tb/dut/w_handshake_conv
 add wave -noupdate /tb/dut/w_end_horizontal_in
 add wave -noupdate /tb/dut/w_end_channel_in
 add wave -noupdate -radix unsigned /tb/dut/r_hold_output

@@ -258,7 +258,7 @@ module Control
       // Waits for the convolution-complete signal
       CONV_SUM: begin
         if (w_handshake_conv && (r_channel_out == 0))
-          next_st_output = WRITE_OUTPUT;
+          next_st_output = IDLE_OUTPUT;
         else if (w_handshake_conv || (r_conv_end))
           next_st_output = WRITE_OUTPUT;
       end
@@ -266,7 +266,9 @@ module Control
       WRITE_OUTPUT: begin
         // if (w_end_write_out)
         //   next_st_output = CONV_SUM;
-        if (w_end_write_out && !w_end_channel_out)
+        if (w_end_write_out && !w_end_channel_out && (r_channel_out == 0))
+          next_st_output = CONV_SUM;
+        else if (w_end_write_out && !w_end_channel_out  && (r_channel_out > 0))
           next_st_output = READ_OUTPUT;
         else if (w_end_write_out && w_end_channel_out)
           next_st_output = END_CHANNEL;
