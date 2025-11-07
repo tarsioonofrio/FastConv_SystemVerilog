@@ -128,23 +128,17 @@ module Control
     IDLE_INPUT,
     BIAS,
     WEIGHT,
-    REUSE,
+    CONV_INPUT,
     READ_INPUT,
     HOLD_OUTPUT,
     HOLD_LAST_CONV,
     END_INPUT
    } state_input_type;
 
-   logic w_handshake_input;
-   logic w_handshake_conv;
-   logic w_handshake_output;
-
   typedef enum {
     IDLE_OUTPUT,
     READ_OUTPUT,
-    CONV,
-    FIRST_WRITE_OUTPUT,
-    CONV_SUM,
+    CONV_OUT_PUT,
     WRITE_OUTPUT,
     END_CHANNEL,
     HOLD_WEIGHT
@@ -152,6 +146,11 @@ module Control
 
   state_input_type current_st_input, next_st_input;
   state_output_type current_st_output, next_st_output;
+
+  logic w_handshake_input;
+  logic w_handshake_conv;
+  logic w_handshake_output;
+
 
   // Sequential logic that advances the state machines
   always_ff @(posedge clk or posedge reset) begin: FSM_BLOCK
@@ -188,9 +187,9 @@ module Control
       end
       READ_INPUT: begin
         if (w_end_read_in)
-          next_st_input = REUSE;
+          next_st_input = CONV_INPUT;
       end
-      REUSE: begin
+      CONV_INPUT: begin
           // When all windows across input and output channels have been read, finish input
         if (w_end_horizontal_in && (r_window_total_in >= N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN - 1))
           next_st_input = END_INPUT;
@@ -232,14 +231,14 @@ module Control
     unique case (current_st_output)
       IDLE_OUTPUT: begin
         if (p_start)
-          next_st_output = CONV_SUM;
+          next_st_output = CONV_OUT_PUT;
       end
       READ_OUTPUT: begin
         if (w_end_read_out)
-          next_st_output = CONV_SUM;
+          next_st_output = CONV_OUT_PUT;
       end
       // Waits for the convolution-complete signal
-      CONV_SUM: begin
+      CONV_OUT_PUT: begin
         if (w_handshake_conv && (r_channel_out == 0))
           next_st_output = WRITE_OUTPUT;
         else if ((w_handshake_conv || (r_conv_end)) && (r_channel_out > 0))
@@ -248,9 +247,9 @@ module Control
       // Waits for the output data write to memory to complete and then returns to idle
       WRITE_OUTPUT: begin
         // if (w_end_write_out)
-        //   next_st_output = CONV_SUM;
+        //   next_st_output = CONV_OUT_PUT;
         if (w_end_write_out && !w_end_channel_out && (r_channel_out == 0))
-          next_st_output = CONV_SUM;
+          next_st_output = CONV_OUT_PUT;
         else if (w_end_write_out && !w_end_channel_out  && (r_channel_out > 0))
           next_st_output = READ_OUTPUT;
         else if (w_end_write_out && w_end_channel_out)
@@ -261,7 +260,7 @@ module Control
           next_st_output = IDLE_OUTPUT;
       end
       END_CHANNEL: begin
-        if (next_st_input == REUSE)
+        if (next_st_input == CONV_INPUT)
           next_st_output = READ_OUTPUT;
         else
         next_st_output = HOLD_WEIGHT;
@@ -269,7 +268,7 @@ module Control
       HOLD_WEIGHT: begin
         // TODO
         // Add handshake between input and output FSMs for channel completion
-        if (next_st_input == REUSE)
+        if (next_st_input == CONV_INPUT)
           next_st_output = READ_OUTPUT;
       end
     endcase
@@ -282,7 +281,7 @@ module Control
     if (reset)
       w_handshake_input <= '0;
    else
-   // if ((next_st_input == REUSE) || ((next_st_input == FIRST_READ_INPUT) && (current_st_input != FIRST_READ_INPUT) && (current_st_input != WEIGHT)))
+   // if ((next_st_input == CONV_INPUT) || ((next_st_input == FIRST_READ_INPUT) && (current_st_input != FIRST_READ_INPUT) && (current_st_input != WEIGHT)))
    if (w_end_read_in)
       w_handshake_input <= '1;
    else
@@ -378,7 +377,7 @@ module Control
             r_weight[r_count_wh] <= p_input_data;
           end
         end
-        REUSE: begin
+        CONV_INPUT: begin
           // When the input buffer is full, increment the total window counter
           r_window_total_in <= r_window_total_in + 1;
 
@@ -424,7 +423,7 @@ module Control
             r_window_all_channel_in <= r_window_all_channel_in + 1;
 
           if (w_end_horizontal_in && w_end_all_channel_in)
-          r_addr_in <= N_CHANNEL_IN * N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT;
+            r_addr_in <= N_CHANNEL_IN * N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT;
           else if (w_end_horizontal_in && !w_end_channel_in)
             r_addr_in  <= r_addr_in + C1_SIZE + FEAT_INPUT_SIZE * (A1_SIZE - 1);
           else if (w_end_horizontal_in && w_end_channel_in)
@@ -554,7 +553,7 @@ module Control
     p_conv_input  = r_feat_in;
     p_conv_weight = r_weight;
     // p_conv_start  = w_handshake_input;
-    p_conv_start = (current_st_input == REUSE) ? 1'b1 : 1'b0;;
+    p_conv_start = (current_st_input == CONV_INPUT) ? 1'b1 : 1'b0;;
   end
 
 
@@ -584,20 +583,17 @@ module Control
           end
         end
         // Keep the output counter cleared while waiting for convolution to end; capture output data on completion
-        CONV_SUM: begin
+        CONV_OUT_PUT: begin
           r_count_read_out  <= 0;
           r_count_write_out <= 0;
-          if (w_handshake_conv || (r_conv_end))
+          // In first channel only get output data from convolutional module
+          if (w_handshake_conv && (r_channel_out == 0))
+             for (int i = 0; i < A1_SIZE * A2_SIZE; i++)
+               r_conv_output[i] <= p_conv_output[i];
+          // After first channel, add output data from convolutional module to feature map output
+          else if ((w_handshake_conv || (r_conv_end)) && (r_channel_out > 0))
             for (int i = 0; i < A1_SIZE * A2_SIZE; i++)
               r_conv_output[i] <= r_feat_output[i] + p_conv_output[i];
-          // else
-          //   r_feat_output   <= '{default: '0};
-          // TODO: Implement logic that adds only after the first layer
-          // if (p_conv_end && !w_end_first_channel_out)
-          //   r_conv_output <= p_conv_output;
-          // else if (p_conv_end && w_end_first_channel_out)
-          //   for (int i = 0; i < A1_SIZE * A2_SIZE; i++)
-          //     r_conv_output[i] <= r_conv_output[i] + p_conv_output[i];
         end
         // Write output data to memory
         WRITE_OUTPUT: begin
@@ -702,7 +698,7 @@ module Control
 
   // Address counter for write paths
   always_comb begin: W_COUNT_OUT_BLOCK
-    if ((current_st_output == WRITE_OUTPUT) || (current_st_output == FIRST_WRITE_OUTPUT))
+    if (current_st_output == WRITE_OUTPUT)
       w_count_out <= r_count_write_out;
     else
       w_count_out <= r_count_read_out;
@@ -744,10 +740,6 @@ module Control
         p_output_wr = 1'b0;
       end
       // Waits for the output data write to memory to complete and then returns to idle
-      FIRST_WRITE_OUTPUT: begin
-        p_output_en = 1'b1;
-        p_output_wr = 1'b1;
-      end
       WRITE_OUTPUT: begin
         p_output_en = 1'b1;
         p_output_wr = 1'b1;
