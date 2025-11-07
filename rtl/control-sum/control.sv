@@ -205,12 +205,6 @@ module Control
           next_st_input = REUSE;
       end
       REUSE: begin
-        // if ((r_channel_in == 0) || w_handshake_output)
-        //   next_st_input = READ_INPUT;
-        // else
-        // if (w_end_read_in && !w_end_horizontal_in)
-        //   next_st_input = HOLD_OUTPUT;
-        // else
           // When all windows across input and output channels have been read, finish input
         if (w_end_horizontal_in && (r_window_total_in >= N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN - 1))
           next_st_input = END_INPUT;
@@ -222,8 +216,8 @@ module Control
         // When a full set of windows for an input channel is done, reload weights
         if (w_end_horizontal_in && w_end_channel_in)
           next_st_input = WAIT_LAST_CONV;
-        // // else if (w_handshake_output)
-        //   next_st_input = FIRST_READ_INPUT;
+        else if (w_end_horizontal_in)
+          next_st_input = READ_INPUT;
         else
           next_st_input = HOLD_OUTPUT;
       end
