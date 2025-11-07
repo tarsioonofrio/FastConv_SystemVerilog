@@ -204,8 +204,10 @@ module Control
           next_st_input = HOLD_LAST_CONV;
         else if (w_end_horizontal_in)
           next_st_input = READ_INPUT;
-        else
+        else if (r_channel_out > 0)
           next_st_input = HOLD_OUTPUT;
+        else
+          next_st_input = READ_INPUT;
       end
       HOLD_OUTPUT: begin
         if (r_hold_output == 2)
@@ -234,7 +236,7 @@ module Control
       end
       CONV: begin
         if (w_handshake_conv)
-          next_st_output = FIRST_WRITE_OUTPUT;
+          next_st_output = WRITE_OUTPUT;
       end
       // Waits for the output data write to memory to complete and then returns to idle
       FIRST_WRITE_OUTPUT: begin
@@ -255,7 +257,9 @@ module Control
       end
       // Waits for the convolution-complete signal
       CONV_SUM: begin
-        if (w_handshake_conv || (r_conv_end))
+        if (w_handshake_conv && (r_channel_out == 0))
+          next_st_output = WRITE_OUTPUT;
+        else if (w_handshake_conv || (r_conv_end))
           next_st_output = WRITE_OUTPUT;
       end
       // Waits for the output data write to memory to complete and then returns to idle
