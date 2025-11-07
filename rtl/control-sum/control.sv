@@ -132,11 +132,11 @@ module Control
     WEIGHT,
     FIRST_READ_INPUT,
     FIRST_CONV_START,
-    TRANSFER,
+    REUSE,
     READ_INPUT,
-    WAIT_OUTPUT,
-    WAIT_OUTPUT2,
-    WAIT_OUTPUT3,
+    HOLD_OUTPUT,
+    HOLD_OUTPUT2,
+    HOLD_OUTPUT3,
     WAIT_LAST_CONV,
     END_INPUT
    } state_input_type;
@@ -190,26 +190,28 @@ module Control
       // Waits for the weight fetch covering the active input/output channel pair before moving on to input data
       WEIGHT: begin
         if (r_count_wh == (M1_SIZE * M2_SIZE) - 1)
-          next_st_input = FIRST_READ_INPUT;
+          next_st_input = READ_INPUT;
       end
-      FIRST_READ_INPUT: begin
+      // FIRST_READ_INPUT: begin
+      //   if (w_end_read_in)
+      //   // if (w_end_read_in && w_handshake_output)
+      //     // next_st_input = FIRST_CONV_START;
+      //     next_st_input = REUSE;
+      // end
+      // FIRST_CONV_START: next_st_input = HOLD_OUTPUT;
+      // Waits until the input register bank is full; based on processed windows it may keep reading, reload weights/bias, or inish
+      READ_INPUT: begin
         if (w_end_read_in)
-        // if (w_end_read_in && w_handshake_output)
-          next_st_input = FIRST_CONV_START;
+          next_st_input = REUSE;
       end
-      FIRST_CONV_START: next_st_input = WAIT_OUTPUT;
-      TRANSFER: begin
+      REUSE: begin
         // if ((r_channel_in == 0) || w_handshake_output)
         //   next_st_input = READ_INPUT;
         // else
-          next_st_input = WAIT_OUTPUT;
-      end
-      // Waits until the input register bank is full; based on processed windows it may keep reading, reload weights/bias, or inish
-      READ_INPUT: begin
-          if (w_end_read_in && !w_end_horizontal_in)
-            next_st_input = TRANSFER;
-         else
-         if (w_end_read_in && w_end_horizontal_in) begin
+        // if (w_end_read_in && !w_end_horizontal_in)
+        //   next_st_input = HOLD_OUTPUT;
+        // else
+        if (w_end_horizontal_in) begin
           // When all windows across input and output channels have been read, finish input
           if (r_window_total_in >= N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN - 1)
             next_st_input = END_INPUT;
@@ -221,19 +223,21 @@ module Control
           // When a full set of windows for an input channel is done, reload weights
           if (w_end_channel_in)
             next_st_input = WAIT_LAST_CONV;
-          else
-          // else if (w_handshake_output)
-            next_st_input = FIRST_READ_INPUT;
+          // // else if (w_handshake_output)
+          //   next_st_input = FIRST_READ_INPUT;
         end
+        else
+          next_st_input = HOLD_OUTPUT;
+
       end
-      WAIT_OUTPUT: begin
+      HOLD_OUTPUT: begin
         // if ((r_channel_in == 0)  || (w_handshake_output && r_channel_in > 0))
         // if (w_handshake_output)
         //   next_st_input = READ_INPUT;
-        next_st_input = WAIT_OUTPUT2;
+        next_st_input = HOLD_OUTPUT2;
       end
-      WAIT_OUTPUT2: next_st_input = WAIT_OUTPUT3;
-      WAIT_OUTPUT3: next_st_input = READ_INPUT;
+      HOLD_OUTPUT2: next_st_input = HOLD_OUTPUT3;
+      HOLD_OUTPUT3: next_st_input = READ_INPUT;
       WAIT_LAST_CONV: begin
         if (p_conv_idle)
           next_st_input = WEIGHT;
@@ -297,7 +301,7 @@ module Control
           next_st_output = IDLE_OUTPUT;
       end
       END_CHANNEL: begin
-        if (next_st_input == TRANSFER)
+        if (next_st_input == REUSE)
           next_st_output = READ_OUTPUT;
         else
         next_st_output = WAIT_WEIGHT;
@@ -305,7 +309,7 @@ module Control
       WAIT_WEIGHT: begin
         // TODO
         // Add handshake between input and output FSMs for channel completion
-        if (next_st_input == TRANSFER)
+        if (next_st_input == REUSE)
           next_st_output = READ_OUTPUT;
       end
     endcase
@@ -318,7 +322,7 @@ module Control
     if (reset)
       w_handshake_input <= '0;
    else
-   // if ((next_st_input == TRANSFER) || ((next_st_input == FIRST_READ_INPUT) && (current_st_input != FIRST_READ_INPUT) && (current_st_input != WEIGHT)))
+   // if ((next_st_input == REUSE) || ((next_st_input == FIRST_READ_INPUT) && (current_st_input != FIRST_READ_INPUT) && (current_st_input != WEIGHT)))
    if (w_end_read_in)
       w_handshake_input <= '1;
    else
@@ -445,21 +449,60 @@ module Control
           if (w_end_read_in && !w_end_horizontal_in)
             r_addr_in  <= r_addr_in + A1_SIZE;
         end
-        TRANSFER: begin
-          r_feat_in[00] <= r_feat_in[03];
-          r_feat_in[01] <= r_feat_in[04];
+        REUSE: begin
+          // When the input buffer is full, increment the total window counter
+          r_window_total_in <= r_window_total_in + 1;
 
-          r_feat_in[05] <= r_feat_in[08];
-          r_feat_in[06] <= r_feat_in[09];
+          if (w_end_horizontal_in)
+            r_count_in <= 0;
+          else begin 
+            // If the input buffer is full but the row has not ended:
+            // - increment the per-row window counter
+            // - position the input feature counter at the reuse start column
+            // - move the base pointer to the next window horizontally
+            // Preserve overlapping columns locally to enable horizontal window reuse
+            // TODO perform test using an index table
+            r_feat_in[00] <= r_feat_in[03];
+            r_feat_in[01] <= r_feat_in[04];
 
-          r_feat_in[10] <= r_feat_in[13];
-          r_feat_in[11] <= r_feat_in[14];
+            r_feat_in[05] <= r_feat_in[08];
+            r_feat_in[06] <= r_feat_in[09];
 
-          r_feat_in[15] <= r_feat_in[18];
-          r_feat_in[16] <= r_feat_in[19];
+            r_feat_in[10] <= r_feat_in[13];
+            r_feat_in[11] <= r_feat_in[14];
 
-          r_feat_in[20] <= r_feat_in[23];
-          r_feat_in[21] <= r_feat_in[24];
+            r_feat_in[15] <= r_feat_in[18];
+            r_feat_in[16] <= r_feat_in[19];
+
+            r_feat_in[20] <= r_feat_in[23];
+            r_feat_in[21] <= r_feat_in[24];
+            r_count_in <= C1_SIZE * (C1_SIZE - A1_SIZE);
+          end
+          
+          
+          if (w_end_horizontal_in)
+            r_window_horizontal_in <= 0;
+          else
+            r_window_horizontal_in <= r_window_horizontal_in + 1;
+
+          if (w_end_channel_in)
+            r_window_channel_in <= 0;
+          else
+            r_window_channel_in <= r_window_channel_in + 1;
+
+          if (w_end_all_channel_in)
+            r_window_all_channel_in <= 0;
+          else
+            r_window_all_channel_in <= r_window_all_channel_in + 1;
+
+          if (w_end_horizontal_in && w_end_all_channel_in)
+          r_addr_in <= N_CHANNEL_IN * N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT;
+          else if (w_end_horizontal_in && !w_end_channel_in)
+            r_addr_in  <= r_addr_in + C1_SIZE + FEAT_INPUT_SIZE * (A1_SIZE - 1);
+          else if (w_end_horizontal_in && w_end_channel_in)
+            r_addr_in  <= r_addr_in + C1_SIZE + FEAT_INPUT_SIZE * (C1_SIZE - 1);
+          else
+            r_addr_in  <= r_addr_in + A1_SIZE;
         end
         // Each cycle advances the input address and stores the returned value in the indexed slot
         READ_INPUT: begin
@@ -470,44 +513,44 @@ module Control
             r_feat_in[c_index[r_count_in]] <= p_input_data;
           end
 
-          // When the input buffer is full, increment the total window counter
-          if(w_end_read_in)
-            r_window_total_in <= r_window_total_in + 1;
+          // // When the input buffer is full, increment the total window counter
+          // if(w_end_read_in)
+          //   r_window_total_in <= r_window_total_in + 1;
 
-          // If the input buffer is full but the row has not ended:
-          // - increment the per-row window counter
-          // - position the input feature counter at the reuse start column
-          // - move the base pointer to the next window horizontally
-          if (w_end_read_in && !w_end_horizontal_in) begin
-            // Preserve overlapping columns locally to enable horizontal window reuse
-            // TODO perform test using an index table
-            r_count_in <= C1_SIZE * (C1_SIZE - A1_SIZE);
-          end else if (w_end_read_in && w_end_horizontal_in)
-            r_count_in <= 0;
+          // // If the input buffer is full but the row has not ended:
+          // // - increment the per-row window counter
+          // // - position the input feature counter at the reuse start column
+          // // - move the base pointer to the next window horizontally
+          // if (w_end_read_in && !w_end_horizontal_in) begin
+          //   // Preserve overlapping columns locally to enable horizontal window reuse
+          //   // TODO perform test using an index table
+          //   r_count_in <= C1_SIZE * (C1_SIZE - A1_SIZE);
+          // end else if (w_end_read_in && w_end_horizontal_in)
+          //   r_count_in <= 0;
 
-          if (w_end_read_in && w_end_horizontal_in)
-            r_window_horizontal_in <= 0;
-          else if (w_end_read_in && !w_end_horizontal_in)
-            r_window_horizontal_in <= r_window_horizontal_in + 1;
+          // if (w_end_read_in && w_end_horizontal_in)
+          //   r_window_horizontal_in <= 0;
+          // else if (w_end_read_in && !w_end_horizontal_in)
+          //   r_window_horizontal_in <= r_window_horizontal_in + 1;
 
-          if (w_end_read_in && w_end_channel_in)
-            r_window_channel_in <= 0;
-          else if (w_end_read_in && !w_end_channel_in)
-            r_window_channel_in <= r_window_channel_in + 1;
+          // if (w_end_read_in && w_end_channel_in)
+          //   r_window_channel_in <= 0;
+          // else if (w_end_read_in && !w_end_channel_in)
+          //   r_window_channel_in <= r_window_channel_in + 1;
 
-          if (w_end_read_in && w_end_all_channel_in)
-            r_window_all_channel_in <= 0;
-          else if (w_end_read_in && !w_end_all_channel_in)
-            r_window_all_channel_in <= r_window_all_channel_in + 1;
+          // if (w_end_read_in && w_end_all_channel_in)
+          //   r_window_all_channel_in <= 0;
+          // else if (w_end_read_in && !w_end_all_channel_in)
+          //   r_window_all_channel_in <= r_window_all_channel_in + 1;
 
-          if (w_end_read_in && w_end_horizontal_in && w_end_all_channel_in)
-          r_addr_in <= N_CHANNEL_IN * N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT;
-          else if (w_end_read_in && !w_end_horizontal_in)
-            r_addr_in  <= r_addr_in + A1_SIZE;
-          else if (w_end_read_in && w_end_horizontal_in && !w_end_channel_in)
-            r_addr_in  <= r_addr_in + C1_SIZE + FEAT_INPUT_SIZE * (A1_SIZE - 1);
-          else if (w_end_read_in && w_end_horizontal_in && w_end_channel_in)
-            r_addr_in  <= r_addr_in + C1_SIZE + FEAT_INPUT_SIZE * (C1_SIZE - 1);
+          // if (w_end_read_in && w_end_horizontal_in && w_end_all_channel_in)
+          // r_addr_in <= N_CHANNEL_IN * N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT;
+          // else if (w_end_read_in && !w_end_horizontal_in)
+          //   r_addr_in  <= r_addr_in + A1_SIZE;
+          // else if (w_end_read_in && w_end_horizontal_in && !w_end_channel_in)
+          //   r_addr_in  <= r_addr_in + C1_SIZE + FEAT_INPUT_SIZE * (A1_SIZE - 1);
+          // else if (w_end_read_in && w_end_horizontal_in && w_end_channel_in)
+          //   r_addr_in  <= r_addr_in + C1_SIZE + FEAT_INPUT_SIZE * (C1_SIZE - 1);
         end
         WAIT_LAST_CONV: begin
           if (p_conv_idle)
@@ -620,7 +663,7 @@ module Control
     p_conv_input  = r_feat_in;
     p_conv_weight = r_weight;
     // p_conv_start  = w_handshake_input;
-    p_conv_start = ((current_st_input == FIRST_CONV_START) || (current_st_input == TRANSFER)) ? 1'b1 : 1'b0;;
+    p_conv_start = ((current_st_input == FIRST_CONV_START) || (current_st_input == REUSE)) ? 1'b1 : 1'b0;;
   end
 
 
