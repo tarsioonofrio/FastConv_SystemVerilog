@@ -211,24 +211,21 @@ module Control
         // if (w_end_read_in && !w_end_horizontal_in)
         //   next_st_input = HOLD_OUTPUT;
         // else
-        if (w_end_horizontal_in) begin
           // When all windows across input and output channels have been read, finish input
-          if (r_window_total_in >= N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN - 1)
-            next_st_input = END_INPUT;
-          else
-          // When all output-channel windows are complete, load bias (disabled for now)
-          // if (r_window_total_in == N_WINDOW * N_WINDOW * N_CHANNEL_OUT)
-          //  next_st_input = BIAS;
-          // else
-          // When a full set of windows for an input channel is done, reload weights
-          if (w_end_channel_in)
-            next_st_input = WAIT_LAST_CONV;
-          // // else if (w_handshake_output)
-          //   next_st_input = FIRST_READ_INPUT;
-        end
+        if (w_end_horizontal_in && (r_window_total_in >= N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN - 1))
+          next_st_input = END_INPUT;
+        else
+        // When all output-channel windows are complete, load bias (disabled for now)
+        // if (r_window_total_in == N_WINDOW * N_WINDOW * N_CHANNEL_OUT)
+        //  next_st_input = BIAS;
+        // else
+        // When a full set of windows for an input channel is done, reload weights
+        if (w_end_horizontal_in && w_end_channel_in)
+          next_st_input = WAIT_LAST_CONV;
+        // // else if (w_handshake_output)
+        //   next_st_input = FIRST_READ_INPUT;
         else
           next_st_input = HOLD_OUTPUT;
-
       end
       HOLD_OUTPUT: begin
         // if ((r_channel_in == 0)  || (w_handshake_output && r_channel_in > 0))
@@ -455,7 +452,8 @@ module Control
 
           if (w_end_horizontal_in)
             r_count_in <= 0;
-          else begin 
+          else begin
+            r_count_in <= C1_SIZE * (C1_SIZE - A1_SIZE);
             // If the input buffer is full but the row has not ended:
             // - increment the per-row window counter
             // - position the input feature counter at the reuse start column
@@ -476,10 +474,8 @@ module Control
 
             r_feat_in[20] <= r_feat_in[23];
             r_feat_in[21] <= r_feat_in[24];
-            r_count_in <= C1_SIZE * (C1_SIZE - A1_SIZE);
           end
-          
-          
+
           if (w_end_horizontal_in)
             r_window_horizontal_in <= 0;
           else
