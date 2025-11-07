@@ -8,6 +8,9 @@ add wave -noupdate /tb/dut/p_end
 add wave -noupdate -color Red /tb/dut/p_conv_start
 add wave -noupdate -color Red /tb/dut/p_conv_end
 add wave -noupdate /tb/dut/r_conv_end
+add wave -noupdate /tb/dut/w_end_horizontal_in
+add wave -noupdate /tb/dut/w_end_channel_in
+add wave -noupdate -radix unsigned /tb/dut/r_hold_output
 add wave -noupdate /tb/dut/current_st_input
 add wave -noupdate /tb/conv/current_state
 add wave -noupdate /tb/dut/current_st_output
@@ -52,8 +55,8 @@ add wave -noupdate -radix unsigned /tb/dut/r_channel_in
 add wave -noupdate -radix unsigned /tb/dut/r_channel_out
 add wave -noupdate /tb/dut/r_read_en
 add wave -noupdate -radix decimal -childformat {{{/tb/dut/r_weight[35]} -radix decimal} {{/tb/dut/r_weight[34]} -radix decimal} {{/tb/dut/r_weight[33]} -radix decimal} {{/tb/dut/r_weight[32]} -radix decimal} {{/tb/dut/r_weight[31]} -radix decimal} {{/tb/dut/r_weight[30]} -radix decimal} {{/tb/dut/r_weight[29]} -radix decimal} {{/tb/dut/r_weight[28]} -radix decimal} {{/tb/dut/r_weight[27]} -radix decimal} {{/tb/dut/r_weight[26]} -radix decimal} {{/tb/dut/r_weight[25]} -radix decimal} {{/tb/dut/r_weight[24]} -radix decimal} {{/tb/dut/r_weight[23]} -radix decimal} {{/tb/dut/r_weight[22]} -radix decimal} {{/tb/dut/r_weight[21]} -radix decimal} {{/tb/dut/r_weight[20]} -radix decimal} {{/tb/dut/r_weight[19]} -radix decimal} {{/tb/dut/r_weight[18]} -radix decimal} {{/tb/dut/r_weight[17]} -radix decimal} {{/tb/dut/r_weight[16]} -radix decimal} {{/tb/dut/r_weight[15]} -radix decimal} {{/tb/dut/r_weight[14]} -radix decimal} {{/tb/dut/r_weight[13]} -radix decimal} {{/tb/dut/r_weight[12]} -radix decimal} {{/tb/dut/r_weight[11]} -radix decimal} {{/tb/dut/r_weight[10]} -radix decimal} {{/tb/dut/r_weight[9]} -radix decimal} {{/tb/dut/r_weight[8]} -radix decimal} {{/tb/dut/r_weight[7]} -radix decimal} {{/tb/dut/r_weight[6]} -radix decimal} {{/tb/dut/r_weight[5]} -radix decimal} {{/tb/dut/r_weight[4]} -radix decimal} {{/tb/dut/r_weight[3]} -radix decimal} {{/tb/dut/r_weight[2]} -radix decimal} {{/tb/dut/r_weight[1]} -radix decimal} {{/tb/dut/r_weight[0]} -radix decimal}} -subitemconfig {{/tb/dut/r_weight[35]} {-height 16 -radix decimal} {/tb/dut/r_weight[34]} {-height 16 -radix decimal} {/tb/dut/r_weight[33]} {-height 16 -radix decimal} {/tb/dut/r_weight[32]} {-height 16 -radix decimal} {/tb/dut/r_weight[31]} {-height 16 -radix decimal} {/tb/dut/r_weight[30]} {-height 16 -radix decimal} {/tb/dut/r_weight[29]} {-height 16 -radix decimal} {/tb/dut/r_weight[28]} {-height 16 -radix decimal} {/tb/dut/r_weight[27]} {-height 16 -radix decimal} {/tb/dut/r_weight[26]} {-height 16 -radix decimal} {/tb/dut/r_weight[25]} {-height 16 -radix decimal} {/tb/dut/r_weight[24]} {-height 16 -radix decimal} {/tb/dut/r_weight[23]} {-height 16 -radix decimal} {/tb/dut/r_weight[22]} {-height 16 -radix decimal} {/tb/dut/r_weight[21]} {-height 16 -radix decimal} {/tb/dut/r_weight[20]} {-height 16 -radix decimal} {/tb/dut/r_weight[19]} {-height 16 -radix decimal} {/tb/dut/r_weight[18]} {-height 16 -radix decimal} {/tb/dut/r_weight[17]} {-height 16 -radix decimal} {/tb/dut/r_weight[16]} {-height 16 -radix decimal} {/tb/dut/r_weight[15]} {-height 16 -radix decimal} {/tb/dut/r_weight[14]} {-height 16 -radix decimal} {/tb/dut/r_weight[13]} {-height 16 -radix decimal} {/tb/dut/r_weight[12]} {-height 16 -radix decimal} {/tb/dut/r_weight[11]} {-height 16 -radix decimal} {/tb/dut/r_weight[10]} {-height 16 -radix decimal} {/tb/dut/r_weight[9]} {-height 16 -radix decimal} {/tb/dut/r_weight[8]} {-height 16 -radix decimal} {/tb/dut/r_weight[7]} {-height 16 -radix decimal} {/tb/dut/r_weight[6]} {-height 16 -radix decimal} {/tb/dut/r_weight[5]} {-height 16 -radix decimal} {/tb/dut/r_weight[4]} {-height 16 -radix decimal} {/tb/dut/r_weight[3]} {-height 16 -radix decimal} {/tb/dut/r_weight[2]} {-height 16 -radix decimal} {/tb/dut/r_weight[1]} {-height 16 -radix decimal} {/tb/dut/r_weight[0]} {-height 16 -radix decimal}} /tb/dut/r_weight
-add wave -noupdate /tb/dut/w_end_horizontal_in
 add wave -noupdate /tb/dut/w_end_read_in
+add wave -noupdate /tb/dut/w_end_horizontal_in
 add wave -noupdate /tb/dut/w_end_channel_in
 add wave -noupdate /tb/dut/w_end_all_channel_in
 add wave -noupdate /tb/dut/w_end_read_out
@@ -78,8 +81,8 @@ add wave -noupdate /tb/memory_write/data_valid
 add wave -noupdate /tb/memory_write/r_cycles_latency
 add wave -noupdate -radix decimal /tb/memory_write/data
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 6} {63500 ps} 1} {{Cursor 7} {3268403 ps} 1} {{Cursor 9} {6534869 ps} 1} {{Cursor 7} {63500 ps} 0} {{Cursor 8} {1808632 ps} 0} {{Cursor 6} {1817392 ps} 0} {{Cursor 7} {1836437 ps} 0} {{Cursor 8} {3181500 ps} 0}
-quietly wave cursor active 8
+WaveRestoreCursors {{Cursor 11} {63500 ps} 1} {{Cursor 12} {2007233 ps} 0}
+quietly wave cursor active 2
 configure wave -namecolwidth 256
 configure wave -valuecolwidth 100
 configure wave -justifyvalue left
@@ -94,4 +97,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {0 ps} {5175975 ps}
+WaveRestoreZoom {0 ps} {5209575 ps}
