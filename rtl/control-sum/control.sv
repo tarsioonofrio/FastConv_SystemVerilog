@@ -68,25 +68,27 @@ timeunit 1ns; timeprecision 1ps;
    -------------------------------------------------------------
    */
 
-  // Totais de janelas e combinações
-  localparam int WINDOWS_PER_PLANE            = N_WINDOW * N_WINDOW;
-  localparam int WINDOWS_PER_OUTCHANNEL       = WINDOWS_PER_PLANE;
-  localparam int TOTAL_OUTPUT_WINDOWS         = WINDOWS_PER_PLANE * N_CHANNEL_OUT;
-  localparam int TOTAL_INPUT_WINDOWS          = WINDOWS_PER_PLANE * N_CHANNEL_OUT * N_CHANNEL_IN;
-
   // Elementos por estrutura (contagem 2D)
+  localparam int INPUT_NUM_ELEMS              = FEAT_INPUT_SIZE * FEAT_INPUT_SIZE;
+  localparam int OUTPUT_NUM_ELEMS             = FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE;
   localparam int KERNEL_NUM_ELEMS             = C1_SIZE * C2_SIZE;
   localparam int FEATURE_NUM_ELEMS            = A1_SIZE * A2_SIZE;
-  localparam int OUTPUT_NUM_ELEMS             = FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE;
+  localparam int MULTIPLIER_NUM_ELEMS         = M1_SIZE * M2_SIZE;
+
+  // Totais de janelas e combinações
+  localparam int WINDOWS_PER_PLANE            = N_WINDOW * N_WINDOW;
+  localparam int TOTAL_OUTPUT_WINDOWS         = WINDOWS_PER_PLANE * N_CHANNEL_OUT;
+  localparam int TOTAL_INPUT_WINDOWS          = WINDOWS_PER_PLANE * N_CHANNEL_OUT * N_CHANNEL_IN;
+  localparam int TOTAL_NUM_CHANNEL            = N_CHANNEL_IN * N_CHANNEL_OUT;
 
   // Endereços máximos (último índice válido)
-  localparam int ADDR_MAX_FEATURE_INPUT       = FEAT_INPUT_SIZE  * FEAT_INPUT_SIZE  - 1;
+  localparam int ADDR_MAX_FEATURE_INPUT       = INPUT_NUM_ELEMS - 1;
   localparam int ADDR_MAX_FEATURE_OUTPUT      = FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE - 1;
   localparam int ADDR_MAX_WEIGHT              = C1_SIZE * C2_SIZE - 1;
 
   // Limiares "last" usados em comparações (-1 já aplicado)
   localparam int LAST_KERNEL_INDEX            = (C1_SIZE * C2_SIZE) - 1;
-  localparam int LAST_FEATURE_INPUT_ADDR      = (FEAT_INPUT_SIZE  * FEAT_INPUT_SIZE)  - 1;
+  localparam int LAST_FEATURE_INPUT_ADDR      = INPUT_NUM_ELEMS - 1;
   localparam int LAST_FEATURE_OUTPUT_ADDR     = (FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE) - 1;
   localparam int LAST_WINDOW_INDEX_PER_PLANE  = (N_WINDOW * N_WINDOW) - 1;
   localparam int LAST_OUTPUT_WINDOW_INDEX     = (N_WINDOW * N_WINDOW * N_CHANNEL_OUT) - 1;
@@ -108,7 +110,7 @@ timeunit 1ns; timeprecision 1ps;
    ---------------------
   */
   // Base address register for input features
-  logic [$clog2(N_CHANNEL_IN * N_CHANNEL_OUT +M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT + N_CHANNEL_IN * FEAT_INPUT_SIZE * FEAT_INPUT_SIZE)-1:0] r_addr_pointer_input;
+  logic [$clog2(TOTAL_NUM_CHANNEL + MULTIPLIER_NUM_ELEMS * TOTAL_NUM_CHANNEL + N_CHANNEL_IN * INPUT_NUM_ELEMS)-1:0] r_addr_pointer_input;
   // Input feature register read counter
   logic [$clog2(KERNEL_NUM_ELEMS)-1:0] r_addr_count_input;
   // Row-aligned window counter for read-side address updates and reuse control
@@ -126,11 +128,11 @@ timeunit 1ns; timeprecision 1ps;
    ---------------------
   */
   // Base address register for weight blocks
-  logic [$clog2(N_CHANNEL_IN * N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT)-1:0] r_addr_pointer_kernel;
+  logic [$clog2(TOTAL_NUM_CHANNEL + MULTIPLIER_NUM_ELEMS * TOTAL_NUM_CHANNEL)-1:0] r_addr_pointer_kernel;
   // Weight read counter
-  logic [$clog2(M1_SIZE*M2_SIZE)-1:0] r_addr_count_kernel;
+  logic [$clog2(MULTIPLIER_NUM_ELEMS)-1:0] r_addr_count_kernel;
   // Bias read counter; bias depth is one so it is unused for now
-  logic [$floor($clog2(N_CHANNEL_IN * N_CHANNEL_OUT) + 0.5)-1:0] r_addr_pointer_bias;
+  logic [$floor($clog2(TOTAL_NUM_CHANNEL) + 0.5)-1:0] r_addr_pointer_bias;
   // Temporary substitute for r_addr_pointer_bias
   // logic [2:0] r_addr_pointer_bias;
 
@@ -175,8 +177,8 @@ timeunit 1ns; timeprecision 1ps;
 
   logic w_output_en;
 
-  logic [$floor($clog2(N_CHANNEL_IN * N_CHANNEL_OUT) + 0.5):0] r_channel_counter_input;
-  logic [$floor($clog2(N_CHANNEL_IN * N_CHANNEL_OUT) + 0.5):0] r_channel_counter_out;
+  logic [$floor($clog2(TOTAL_NUM_CHANNEL) + 0.5):0] r_channel_counter_input;
+  logic [$floor($clog2(TOTAL_NUM_CHANNEL) + 0.5):0] r_channel_counter_out;
 
   logic r_conv_end;
   logic r_read_en;
@@ -255,7 +257,7 @@ timeunit 1ns; timeprecision 1ps;
       end
       // Waits for the weight fetch covering the active input/output channel pair before moving on to input data
       WEIGHT: begin
-        if (r_addr_count_kernel == (M1_SIZE * M2_SIZE) - 1)
+        if (r_addr_count_kernel == (MULTIPLIER_NUM_ELEMS - 1))
           next_st_input = READ_INPUT;
       end
       READ_INPUT: begin
@@ -414,7 +416,7 @@ timeunit 1ns; timeprecision 1ps;
       // Weight base address follows the bias region
       r_addr_pointer_kernel    <= N_CHANNEL_OUT;
       // Input feature base address follows the weight region
-      r_addr_pointer_input   <= N_CHANNEL_IN * N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT;
+      r_addr_pointer_input   <= TOTAL_NUM_CHANNEL + MULTIPLIER_NUM_ELEMS * TOTAL_NUM_CHANNEL;
       r_addr_count_kernel   <= 0;
       r_addr_count_input  <= 0;
       r_channel_counter_input <= 0;
@@ -430,8 +432,8 @@ timeunit 1ns; timeprecision 1ps;
         IDLE_INPUT: begin
           r_read_en   <= 1'b0;
           r_addr_pointer_bias <= 0;
-          r_addr_pointer_kernel   <= N_CHANNEL_IN * N_CHANNEL_OUT;
-          r_addr_pointer_input  <= N_CHANNEL_IN * N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT;
+          r_addr_pointer_kernel   <= TOTAL_NUM_CHANNEL;
+          r_addr_pointer_input  <= TOTAL_NUM_CHANNEL + MULTIPLIER_NUM_ELEMS * TOTAL_NUM_CHANNEL;
           r_addr_count_kernel  <= 0;
           r_addr_count_input <= 0;
           r_channel_counter_input <= 0;
@@ -503,7 +505,7 @@ timeunit 1ns; timeprecision 1ps;
             r_window_counter_all_channel_input <= r_window_counter_all_channel_input + 1;
 
           if (f_end_horizontal_input() && f_end_all_channel_input())
-            r_addr_pointer_input <= N_CHANNEL_IN * N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT;
+            r_addr_pointer_input <= TOTAL_NUM_CHANNEL + MULTIPLIER_NUM_ELEMS * TOTAL_NUM_CHANNEL;
           else if (f_end_horizontal_input() && !f_end_channel_input())
             r_addr_pointer_input  <= r_addr_pointer_input + C1_SIZE + FEAT_INPUT_SIZE * (A1_SIZE - 1);
           else if (f_end_horizontal_input() && f_end_channel_input())
