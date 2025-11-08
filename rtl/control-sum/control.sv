@@ -60,7 +60,47 @@ module Control
     input  logic p_output_valid
 );
 
-  timeunit 1ns; timeprecision 1ps;
+timeunit 1ns; timeprecision 1ps;
+
+  /*
+   -------------------------------------------------------------
+   3. Local parameters and derived constants
+   -------------------------------------------------------------
+   */
+
+  // Totais de janelas e combinações
+  localparam int WINDOWS_PER_PLANE            = N_WINDOW * N_WINDOW;
+  localparam int WINDOWS_PER_OUTCHANNEL       = WINDOWS_PER_PLANE;
+  localparam int TOTAL_OUTPUT_WINDOWS         = WINDOWS_PER_PLANE * N_CHANNEL_OUT;
+  localparam int TOTAL_INPUT_WINDOWS          = WINDOWS_PER_PLANE * N_CHANNEL_OUT * N_CHANNEL_IN;
+
+  // Elementos por estrutura (contagem 2D)
+  localparam int KERNEL_NUM_ELEMS             = C1_SIZE * C2_SIZE;
+  localparam int FEATURE_NUM_ELEMS            = A1_SIZE * A2_SIZE;
+  localparam int OUTPUT_NUM_ELEMS             = FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE;
+
+  // Endereços máximos (último índice válido)
+  localparam int ADDR_MAX_FEATURE_INPUT       = FEAT_INPUT_SIZE  * FEAT_INPUT_SIZE  - 1;
+  localparam int ADDR_MAX_FEATURE_OUTPUT      = FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE - 1;
+  localparam int ADDR_MAX_WEIGHT              = C1_SIZE * C2_SIZE - 1;
+
+  // Limiares "last" usados em comparações (-1 já aplicado)
+  localparam int LAST_KERNEL_INDEX            = (C1_SIZE * C2_SIZE) - 1;
+  localparam int LAST_FEATURE_INPUT_ADDR      = (FEAT_INPUT_SIZE  * FEAT_INPUT_SIZE)  - 1;
+  localparam int LAST_FEATURE_OUTPUT_ADDR     = (FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE) - 1;
+  localparam int LAST_WINDOW_INDEX_PER_PLANE  = (N_WINDOW * N_WINDOW) - 1;
+  localparam int LAST_OUTPUT_WINDOW_INDEX     = (N_WINDOW * N_WINDOW * N_CHANNEL_OUT) - 1;
+  localparam int LAST_INPUT_WINDOW_INDEX      = (N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN) - 1;
+
+  // Contagens úteis por canal
+  localparam int WINDOWS_PER_INPUT_CHANNEL    = N_WINDOW * N_WINDOW * N_CHANNEL_OUT;
+  localparam int WINDOWS_PER_OUTPUT_CHANNEL   = N_WINDOW * N_WINDOW * N_CHANNEL_IN;
+
+  // (Opcional) Auxiliares para varredura 2D
+  localparam int LAST_COL_INPUT               = FEAT_INPUT_SIZE  - C1_SIZE;
+  localparam int LAST_ROW_INPUT               = FEAT_INPUT_SIZE  - C2_SIZE;
+  localparam int LAST_COL_OUTPUT              = FEAT_OUTPUT_SIZE - 1;
+  localparam int LAST_ROW_OUTPUT              = FEAT_OUTPUT_SIZE - 1;
 
   /*
    ---------------------
@@ -68,17 +108,17 @@ module Control
    ---------------------
   */
   // Base address register for input features
-  logic [$clog2(N_CHANNEL_IN * N_CHANNEL_OUT +M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT + N_CHANNEL_IN * FEAT_INPUT_SIZE * FEAT_INPUT_SIZE)-1:0] r_addr_pointer_in;
+  logic [$clog2(N_CHANNEL_IN * N_CHANNEL_OUT +M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT + N_CHANNEL_IN * FEAT_INPUT_SIZE * FEAT_INPUT_SIZE)-1:0] r_addr_pointer_input;
   // Input feature register read counter
-  logic [$clog2(C1_SIZE*C2_SIZE)-1:0] r_addr_count_in;
+  logic [$clog2(KERNEL_NUM_ELEMS)-1:0] r_addr_count_input;
   // Row-aligned window counter for read-side address updates and reuse control
-  logic [$clog2(N_WINDOW):0] r_window_counter_horizontal_in;
+  logic [$clog2(N_WINDOW):0] r_window_counter_horizontal_input;
   // Total window counter for a channel
-  logic [$clog2(N_WINDOW * N_WINDOW)-1:0] r_window_counter_channel_in;
+  logic [$clog2(WINDOWS_PER_PLANE)-1:0] r_window_counter_channel_input;
   // Total window counter for a channel (per-channel accumulation)
-  logic [$clog2(N_WINDOW * N_WINDOW * N_CHANNEL_IN)-1:0] r_window_counter_all_channel_in;
+  logic [$clog2(WINDOWS_PER_OUTPUT_CHANNEL)-1:0] r_window_counter_all_channel_input;
   // Total window counter for the read path
-  logic [$clog2(N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN)-1:0] r_window_counter_total_in;
+  logic [$clog2(TOTAL_INPUT_WINDOWS)-1:0] r_window_counter_total_input;
 
   /*
    ---------------------
@@ -100,27 +140,27 @@ module Control
    ---------------------
   */
   // Output feature register write counter
-  logic [$clog2(A1_SIZE*A2_SIZE)-1:0] r_addr_count_write_out;
+  logic [$clog2(FEATURE_NUM_ELEMS)-1:0] r_addr_count_write_out;
   // Output feature register read counter
-  logic [$clog2(A1_SIZE*A2_SIZE)-1:0] r_addr_count_read_out;
+  logic [$clog2(FEATURE_NUM_ELEMS)-1:0] r_addr_count_read_out;
   // Output counter
-  logic [$clog2(A1_SIZE*A2_SIZE)-1:0] w_addr_count_out;
+  logic [$clog2(FEATURE_NUM_ELEMS)-1:0] w_addr_count_out;
   // Output feature write counter (unused/commented)
   // logic [$floor($clog2(N_CHANNEL_OUT) + 0.5)-1:0] r_addr_count_ch_out;
   // Debug monitors for end-of-window predicates (still functions for reuse)
-  // logic w_end_read_in;
-  // logic w_end_horizontal_in;
-  // logic w_end_channel_in;
-  // logic w_end_all_channel_in;
+  // logic w_end_read_input;
+  // logic w_end_horizontal_input;
+  // logic w_end_channel_input;
+  // logic w_end_all_channel_input;
 
   // Base address register for output features
-  logic [$clog2(N_CHANNEL_OUT * FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE)-1:0] r_addr_pointer_out;
+  logic [$clog2(N_CHANNEL_OUT * OUTPUT_NUM_ELEMS)-1:0] r_addr_pointer_out;
   // Total window counter for the write path
-  logic [$clog2(N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN)-1:0] r_window_counter_total_out;
+  logic [$clog2(TOTAL_INPUT_WINDOWS)-1:0] r_window_counter_total_out;
   // Total window counter for all in channel for FSM write
-  logic [$clog2(N_WINDOW * N_WINDOW * N_CHANNEL_IN)-1:0] r_window_counter_all_channel_out;
+  logic [$clog2(WINDOWS_PER_OUTPUT_CHANNEL)-1:0] r_window_counter_all_channel_out;
   // Total window counter for a channel
-  logic [$clog2(N_WINDOW * N_WINDOW)-1:0] r_window_counter_channel_out;
+  logic [$clog2(WINDOWS_PER_PLANE)-1:0] r_window_counter_channel_out;
   // Row-aligned window counter for write-side address updates
   logic [$clog2(N_WINDOW):0] r_window_counter_horizontal_out;
   // Debug monitors for output-path predicates
@@ -135,7 +175,7 @@ module Control
 
   logic w_output_en;
 
-  logic [$floor($clog2(N_CHANNEL_IN * N_CHANNEL_OUT) + 0.5):0] r_channel_counter_in;
+  logic [$floor($clog2(N_CHANNEL_IN * N_CHANNEL_OUT) + 0.5):0] r_channel_counter_input;
   logic [$floor($clog2(N_CHANNEL_IN * N_CHANNEL_OUT) + 0.5):0] r_channel_counter_out;
 
   logic r_conv_end;
@@ -152,12 +192,6 @@ module Control
   // diferença entre soma, escrita e leitura do output
   // subtraído tempo de leitura do input
   logic [$clog2(4):0] r_hold_output;
-
-  /*
-   -------------------------------------------------------------
-   3. Local parameters and derived constants
-   -------------------------------------------------------------
-   */
 
   typedef enum {
     IDLE_INPUT,
@@ -225,22 +259,22 @@ module Control
           next_st_input = READ_INPUT;
       end
       READ_INPUT: begin
-        if (f_end_read_in())
+        if (f_end_read_input())
           next_st_input = CONV_INPUT;
       end
       CONV_INPUT: begin
           // When all windows across input and output channels have been read, finish input
-        if (f_end_horizontal_in() && (r_window_counter_total_in >= N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN - 1))
+        if (f_end_horizontal_input() && (r_window_counter_total_input >= LAST_INPUT_WINDOW_INDEX))
           next_st_input = END_INPUT;
         else
         // When all output-channel windows are complete, load bias (disabled for now)
-        // if (r_window_counter_total_in == N_WINDOW * N_WINDOW * N_CHANNEL_OUT)
+        // if (r_window_counter_total_input == WINDOWS_PER_INPUT_CHANNEL)
         //  next_st_input = BIAS;
         // else
         // When a full set of windows for an input channel is done, reload weights
-        if (f_end_horizontal_in() && f_end_channel_in())
+        if (f_end_horizontal_input() && f_end_channel_input())
           next_st_input = HOLD_LAST_CONV;
-        else if (f_end_horizontal_in())
+        else if (f_end_horizontal_input())
           next_st_input = READ_INPUT;
         else if (r_channel_counter_out > 0)
           next_st_input = HOLD_OUTPUT;
@@ -289,7 +323,7 @@ module Control
       end
       // Waits for the output data write to memory to complete and then returns to idle
       WRITE_OUTPUT: begin
-        // if (r_addr_count_write_out == (A1_SIZE * A2_SIZE - 1))
+        // if (r_addr_count_write_out == (FEATURE_NUM_ELEMS - 1))
         //   next_st_output = CONV_OUTPUT;
         if (f_end_write_out() && !f_end_channel_out() && (r_channel_counter_out == 0))
           next_st_output = CONV_OUTPUT;
@@ -297,9 +331,9 @@ module Control
           next_st_output = READ_OUTPUT;
         else if (f_end_write_out() && f_end_channel_out())
           next_st_output = END_CHANNEL;
-        // else if ((r_addr_count_write_out == (A1_SIZE * A2_SIZE - 1)) && (r_window_counter_total_out == (N_WINDOW * N_WINDOW * N_CHANNEL_IN) - 1))
+        // else if ((r_addr_count_write_out == (FEATURE_NUM_ELEMS - 1)) && (r_window_counter_total_out == LAST_INPUT_WINDOW_INDEX))
           // next_st_output = IDLE_OUTPUT;
-        else if (f_end_write_out() && (r_window_counter_total_out == (N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN - 1)))
+        else if (f_end_write_out() && (r_window_counter_total_out == LAST_INPUT_WINDOW_INDEX))
           next_st_output = IDLE_OUTPUT;
       end
       END_CHANNEL: begin
@@ -325,7 +359,7 @@ module Control
       w_handshake_input <= '0;
    else
    // if ((next_st_input == CONV_INPUT) || ((next_st_input == FIRST_READ_INPUT) && (current_st_input != FIRST_READ_INPUT) && (current_st_input != WEIGHT)))
-   if (f_end_read_in())
+   if (f_end_read_input())
       w_handshake_input <= '1;
    else
       w_handshake_input <= '0;
@@ -338,7 +372,7 @@ module Control
      if (p_conv_end)
       w_handshake_conv <= '1;
      else
-     // if (r_addr_count_write_out == (A1_SIZE * A2_SIZE - 1))
+     // if (r_addr_count_write_out == (FEATURE_NUM_ELEMS - 1))
       w_handshake_conv <= '0;
   end
 
@@ -346,7 +380,7 @@ module Control
     if (reset)
       w_handshake_output <= '0;
     else
-    if (f_end_write_out() || (r_window_counter_channel_in < 1))
+    if (f_end_write_out() || (r_window_counter_channel_input < 1))
       w_handshake_output <= '1;
     else
       w_handshake_output <= '0;
@@ -380,14 +414,14 @@ module Control
       // Weight base address follows the bias region
       r_addr_pointer_kernel    <= N_CHANNEL_OUT;
       // Input feature base address follows the weight region
-      r_addr_pointer_in   <= N_CHANNEL_IN * N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT;
+      r_addr_pointer_input   <= N_CHANNEL_IN * N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT;
       r_addr_count_kernel   <= 0;
-      r_addr_count_in  <= 0;
-      r_channel_counter_in <= 0;
+      r_addr_count_input  <= 0;
+      r_channel_counter_input <= 0;
       r_hold_output <= 0;
-      r_window_counter_total_in     <= 0;
-      r_window_counter_channel_in   <= 0;
-      r_window_counter_horizontal_in  <= 0;
+      r_window_counter_total_input     <= 0;
+      r_window_counter_channel_input   <= 0;
+      r_window_counter_horizontal_input  <= 0;
       r_kernel     <= '{default: '0};
       r_feat_input    <= '{default: '0};
     end else begin
@@ -397,15 +431,15 @@ module Control
           r_read_en   <= 1'b0;
           r_addr_pointer_bias <= 0;
           r_addr_pointer_kernel   <= N_CHANNEL_IN * N_CHANNEL_OUT;
-          r_addr_pointer_in  <= N_CHANNEL_IN * N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT;
+          r_addr_pointer_input  <= N_CHANNEL_IN * N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT;
           r_addr_count_kernel  <= 0;
-          r_addr_count_in <= 0;
-          r_channel_counter_in <= 0;
+          r_addr_count_input <= 0;
+          r_channel_counter_input <= 0;
           r_hold_output <= 0;
-          r_window_counter_total_in    <= 0;
-          r_window_counter_channel_in   <= 0;
-          r_window_counter_horizontal_in  <= 0;
-          r_window_counter_all_channel_in  <= 0;
+          r_window_counter_total_input    <= 0;
+          r_window_counter_channel_input   <= 0;
+          r_window_counter_horizontal_input  <= 0;
+          r_window_counter_all_channel_input  <= 0;
           r_kernel    <= '{default: '0};
           r_feat_input   <= '{default: '0};
         end
@@ -416,7 +450,7 @@ module Control
         // Each cycle advances the weight address and stores the returned value in-order
         WEIGHT: begin
           r_read_en   <= 1'b1;
-          r_addr_count_in <= 0;
+          r_addr_count_input <= 0;
           if (p_input_valid) begin
             r_addr_pointer_kernel            <= r_addr_pointer_kernel + 1;
             r_addr_count_kernel           <= r_addr_count_kernel + 1;
@@ -425,12 +459,12 @@ module Control
         end
         CONV_INPUT: begin
           // When the input buffer is full, increment the total window counter
-          r_window_counter_total_in <= r_window_counter_total_in + 1;
+          r_window_counter_total_input <= r_window_counter_total_input + 1;
 
-          if (f_end_horizontal_in())
-            r_addr_count_in <= 0;
+          if (f_end_horizontal_input())
+            r_addr_count_input <= 0;
           else begin
-            r_addr_count_in <= C1_SIZE * (C1_SIZE - A1_SIZE);
+            r_addr_count_input <= C1_SIZE * (C1_SIZE - A1_SIZE);
             // If the input buffer is full but the row has not ended:
             // - increment the per-row window counter
             // - position the input feature counter at the reuse start column
@@ -453,37 +487,37 @@ module Control
             r_feat_input[21] <= r_feat_input[24];
           end
 
-          if (f_end_horizontal_in())
-            r_window_counter_horizontal_in <= 0;
+          if (f_end_horizontal_input())
+            r_window_counter_horizontal_input <= 0;
           else
-            r_window_counter_horizontal_in <= r_window_counter_horizontal_in + 1;
+            r_window_counter_horizontal_input <= r_window_counter_horizontal_input + 1;
 
-          if (f_end_channel_in())
-            r_window_counter_channel_in <= 0;
+          if (f_end_channel_input())
+            r_window_counter_channel_input <= 0;
           else
-            r_window_counter_channel_in <= r_window_counter_channel_in + 1;
+            r_window_counter_channel_input <= r_window_counter_channel_input + 1;
 
-          if (f_end_all_channel_in())
-            r_window_counter_all_channel_in <= 0;
+          if (f_end_all_channel_input())
+            r_window_counter_all_channel_input <= 0;
           else
-            r_window_counter_all_channel_in <= r_window_counter_all_channel_in + 1;
+            r_window_counter_all_channel_input <= r_window_counter_all_channel_input + 1;
 
-          if (f_end_horizontal_in() && f_end_all_channel_in())
-            r_addr_pointer_in <= N_CHANNEL_IN * N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT;
-          else if (f_end_horizontal_in() && !f_end_channel_in())
-            r_addr_pointer_in  <= r_addr_pointer_in + C1_SIZE + FEAT_INPUT_SIZE * (A1_SIZE - 1);
-          else if (f_end_horizontal_in() && f_end_channel_in())
-            r_addr_pointer_in  <= r_addr_pointer_in + C1_SIZE + FEAT_INPUT_SIZE * (C1_SIZE - 1);
+          if (f_end_horizontal_input() && f_end_all_channel_input())
+            r_addr_pointer_input <= N_CHANNEL_IN * N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT;
+          else if (f_end_horizontal_input() && !f_end_channel_input())
+            r_addr_pointer_input  <= r_addr_pointer_input + C1_SIZE + FEAT_INPUT_SIZE * (A1_SIZE - 1);
+          else if (f_end_horizontal_input() && f_end_channel_input())
+            r_addr_pointer_input  <= r_addr_pointer_input + C1_SIZE + FEAT_INPUT_SIZE * (C1_SIZE - 1);
           else
-            r_addr_pointer_in  <= r_addr_pointer_in + A1_SIZE;
+            r_addr_pointer_input  <= r_addr_pointer_input + A1_SIZE;
         end
         // Each cycle advances the input address and stores the returned value in the indexed slot
         READ_INPUT: begin
           r_read_en  <= 1'b1;
           r_addr_count_kernel <= 0;
-          if (p_input_valid && (r_addr_count_in < C1_SIZE * C1_SIZE)) begin
-            r_addr_count_in                     <= r_addr_count_in + 1;
-            r_feat_input[c_index[r_addr_count_in]] <= p_input_data;
+          if (p_input_valid && (r_addr_count_input < C1_SIZE * C1_SIZE)) begin
+            r_addr_count_input                     <= r_addr_count_input + 1;
+            r_feat_input[c_index[r_addr_count_input]] <= p_input_data;
           end
         end
         HOLD_OUTPUT: begin
@@ -494,10 +528,10 @@ module Control
         end
         HOLD_LAST_CONV: begin
           if (p_conv_idle)
-            if (r_channel_counter_in >= N_CHANNEL_IN - 1)
-              r_channel_counter_in <= 0;
+            if (r_channel_counter_input >= N_CHANNEL_IN - 1)
+              r_channel_counter_input <= 0;
             else
-              r_channel_counter_in <= r_channel_counter_in + 1;
+              r_channel_counter_input <= r_channel_counter_input + 1;
         end
       endcase
     end
@@ -505,36 +539,36 @@ module Control
 
   // Combinational logic computing the input read address from the input counter
   always_comb begin: W_ADDR_IN_BLOCK
-    unique case (r_addr_count_in)
-      default: w_addr_ptr_pin = r_addr_pointer_in + 0; // 00
-      01: w_addr_ptr_pin = r_addr_pointer_in + FEAT_INPUT_SIZE + 0; // 05
-      02: w_addr_ptr_pin = r_addr_pointer_in + FEAT_INPUT_SIZE * 2 + 0; // 10
-      03: w_addr_ptr_pin = r_addr_pointer_in + FEAT_INPUT_SIZE * 3 + 0; // 15
-      04: w_addr_ptr_pin = r_addr_pointer_in + FEAT_INPUT_SIZE * 4 + 0; // 20
+    unique case (r_addr_count_input)
+      default: w_addr_ptr_pin = r_addr_pointer_input + 0; // 00
+      01: w_addr_ptr_pin = r_addr_pointer_input + FEAT_INPUT_SIZE + 0; // 05
+      02: w_addr_ptr_pin = r_addr_pointer_input + FEAT_INPUT_SIZE * 2 + 0; // 10
+      03: w_addr_ptr_pin = r_addr_pointer_input + FEAT_INPUT_SIZE * 3 + 0; // 15
+      04: w_addr_ptr_pin = r_addr_pointer_input + FEAT_INPUT_SIZE * 4 + 0; // 20
 
-      05: w_addr_ptr_pin = r_addr_pointer_in + 1; // 01
-      06: w_addr_ptr_pin = r_addr_pointer_in + FEAT_INPUT_SIZE + 1; // 06
-      07: w_addr_ptr_pin = r_addr_pointer_in + FEAT_INPUT_SIZE * 2 + 1; // 11
-      08: w_addr_ptr_pin = r_addr_pointer_in + FEAT_INPUT_SIZE * 3 + 1; // 16
-      09: w_addr_ptr_pin = r_addr_pointer_in + FEAT_INPUT_SIZE * 4 + 1; // 21
+      05: w_addr_ptr_pin = r_addr_pointer_input + 1; // 01
+      06: w_addr_ptr_pin = r_addr_pointer_input + FEAT_INPUT_SIZE + 1; // 06
+      07: w_addr_ptr_pin = r_addr_pointer_input + FEAT_INPUT_SIZE * 2 + 1; // 11
+      08: w_addr_ptr_pin = r_addr_pointer_input + FEAT_INPUT_SIZE * 3 + 1; // 16
+      09: w_addr_ptr_pin = r_addr_pointer_input + FEAT_INPUT_SIZE * 4 + 1; // 21
 
-      10: w_addr_ptr_pin = r_addr_pointer_in + 2; // 02
-      11: w_addr_ptr_pin = r_addr_pointer_in + FEAT_INPUT_SIZE + 2; // 07
-      12: w_addr_ptr_pin = r_addr_pointer_in + FEAT_INPUT_SIZE * 2 + 2; // 12
-      13: w_addr_ptr_pin = r_addr_pointer_in + FEAT_INPUT_SIZE * 3 + 2; // 17
-      14: w_addr_ptr_pin = r_addr_pointer_in + FEAT_INPUT_SIZE * 4 + 2; // 22
+      10: w_addr_ptr_pin = r_addr_pointer_input + 2; // 02
+      11: w_addr_ptr_pin = r_addr_pointer_input + FEAT_INPUT_SIZE + 2; // 07
+      12: w_addr_ptr_pin = r_addr_pointer_input + FEAT_INPUT_SIZE * 2 + 2; // 12
+      13: w_addr_ptr_pin = r_addr_pointer_input + FEAT_INPUT_SIZE * 3 + 2; // 17
+      14: w_addr_ptr_pin = r_addr_pointer_input + FEAT_INPUT_SIZE * 4 + 2; // 22
 
-      15: w_addr_ptr_pin = r_addr_pointer_in + 3; // 03
-      16: w_addr_ptr_pin = r_addr_pointer_in + FEAT_INPUT_SIZE + 3; // 08
-      17: w_addr_ptr_pin = r_addr_pointer_in + FEAT_INPUT_SIZE * 2 + 3; // 13
-      18: w_addr_ptr_pin = r_addr_pointer_in + FEAT_INPUT_SIZE * 3 + 3; // 18
-      19: w_addr_ptr_pin = r_addr_pointer_in + FEAT_INPUT_SIZE * 4 + 3; // 23
+      15: w_addr_ptr_pin = r_addr_pointer_input + 3; // 03
+      16: w_addr_ptr_pin = r_addr_pointer_input + FEAT_INPUT_SIZE + 3; // 08
+      17: w_addr_ptr_pin = r_addr_pointer_input + FEAT_INPUT_SIZE * 2 + 3; // 13
+      18: w_addr_ptr_pin = r_addr_pointer_input + FEAT_INPUT_SIZE * 3 + 3; // 18
+      19: w_addr_ptr_pin = r_addr_pointer_input + FEAT_INPUT_SIZE * 4 + 3; // 23
 
-      20: w_addr_ptr_pin = r_addr_pointer_in + 4; // 04
-      21: w_addr_ptr_pin = r_addr_pointer_in + FEAT_INPUT_SIZE + 4; // 09
-      22: w_addr_ptr_pin = r_addr_pointer_in + FEAT_INPUT_SIZE * 2 + 4; // 14
-      23: w_addr_ptr_pin = r_addr_pointer_in + FEAT_INPUT_SIZE * 3 + 4; // 19
-      24: w_addr_ptr_pin = r_addr_pointer_in + FEAT_INPUT_SIZE * 4 + 4; // 24
+      20: w_addr_ptr_pin = r_addr_pointer_input + 4; // 04
+      21: w_addr_ptr_pin = r_addr_pointer_input + FEAT_INPUT_SIZE + 4; // 09
+      22: w_addr_ptr_pin = r_addr_pointer_input + FEAT_INPUT_SIZE * 2 + 4; // 14
+      23: w_addr_ptr_pin = r_addr_pointer_input + FEAT_INPUT_SIZE * 3 + 4; // 19
+      24: w_addr_ptr_pin = r_addr_pointer_input + FEAT_INPUT_SIZE * 4 + 4; // 24
     endcase
   end
 
@@ -594,7 +628,7 @@ module Control
         default: begin end
         // Each cycle advances the weight address and stores the returned value in-order
         READ_OUTPUT: begin
-          if (p_output_valid && (r_addr_count_read_out < A1_SIZE * A2_SIZE))  begin
+          if (p_output_valid && (r_addr_count_read_out < FEATURE_NUM_ELEMS))  begin
             r_addr_count_read_out                <= r_addr_count_read_out + 1;
             r_feat_output[r_addr_count_read_out] <= p_output_data_read;
           end
@@ -605,11 +639,11 @@ module Control
           r_addr_count_write_out <= 0;
           // In first channel only get output data from convolutional module
           if (w_handshake_conv && (r_channel_counter_out == 0))
-             for (int i = 0; i < A1_SIZE * A2_SIZE; i++)
+             for (int i = 0; i < FEATURE_NUM_ELEMS; i++)
                r_conv_output[i] <= p_conv_output[i];
           // After first channel, add output data from convolutional module to feature map output
           else if ((w_handshake_conv || (r_conv_end)) && (r_channel_counter_out > 0))
-            for (int i = 0; i < A1_SIZE * A2_SIZE; i++)
+            for (int i = 0; i < FEATURE_NUM_ELEMS; i++)
               r_conv_output[i] <= r_feat_output[i] + p_conv_output[i];
         end
         // Write output data to memory
@@ -644,12 +678,12 @@ module Control
           if (f_end_all_channel_out())
             r_window_counter_all_channel_out <= 0;
           // if (r_channel_counter_out >= N_CHANNEL_IN - 1)
-          //    r_addr_pointer_out <= r_addr_pointer_out - (FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
+          //    r_addr_pointer_out <= r_addr_pointer_out - OUTPUT_NUM_ELEMS;
           if (r_channel_counter_out >= N_CHANNEL_IN - 1)
             r_channel_counter_out <= 0;
           else begin
             r_channel_counter_out <= r_channel_counter_out + 1;
-            r_addr_pointer_out <= r_addr_pointer_out - (FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
+            r_addr_pointer_out <= r_addr_pointer_out - OUTPUT_NUM_ELEMS;
           end
         end
       endcase
@@ -708,15 +742,15 @@ module Control
   end
 
   always_comb begin: P_END_BLOCK
-    p_end = (r_window_counter_total_out >= N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN) ? 1'b1 : 1'b0;
+    p_end = (r_window_counter_total_out >= TOTAL_INPUT_WINDOWS) ? 1'b1 : 1'b0;
   end
 
   // Debug monitor wires so the f_end_* predicates remain visible in simulation
   // always_comb begin: F_END_MONITOR_BLOCK
-  //   w_end_read_in         = f_end_read_in();
-  //   w_end_horizontal_in   = f_end_horizontal_in();
-  //   w_end_channel_in      = f_end_channel_in();
-  //   w_end_all_channel_in  = f_end_all_channel_in();
+  //   w_end_read_input         = f_end_read_input();
+  //   w_end_horizontal_input   = f_end_horizontal_input();
+  //   w_end_channel_input      = f_end_channel_input();
+  //   w_end_all_channel_input  = f_end_all_channel_input();
   //   w_end_read_out        = f_end_read_out();
   //   w_end_write_out       = f_end_write_out();
   //   w_end_horizontal_out  = f_end_horizontal_out();
@@ -730,45 +764,45 @@ module Control
    -------------------------------------------------------------
    */
   // Helper predicates replacing the former w_end_* wires
-  function automatic logic f_end_read_in();
+  function automatic logic f_end_read_input();
     // variável estática para guardar o último resultado
-    static logic w_end_read_in;
-    w_end_read_in = (r_addr_count_in == (C1_SIZE * C2_SIZE - 1));
-    f_end_read_in = w_end_read_in;
+    static logic w_end_read_input;
+    w_end_read_input = (r_addr_count_input == LAST_KERNEL_INDEX);
+    f_end_read_input = w_end_read_input;
   endfunction
 
-  function automatic logic f_end_horizontal_in();
+  function automatic logic f_end_horizontal_input();
     // variável estática para guardar o último resultado
-    static logic w_end_horizontal_in;
-    w_end_horizontal_in = (r_window_counter_horizontal_in >= N_WINDOW - 1);
-    f_end_horizontal_in = w_end_horizontal_in;
+    static logic w_end_horizontal_input;
+    w_end_horizontal_input = (r_window_counter_horizontal_input >= N_WINDOW - 1);
+    f_end_horizontal_input = w_end_horizontal_input;
   endfunction
 
-  function automatic logic f_end_channel_in();
+  function automatic logic f_end_channel_input();
     // variável estática para guardar o último resultado
-    static logic w_end_channel_in;
-    w_end_channel_in = (r_window_counter_channel_in >= N_WINDOW * N_WINDOW - 1);
-    f_end_channel_in = w_end_channel_in;
+    static logic w_end_channel_input;
+    w_end_channel_input = (r_window_counter_channel_input >= LAST_WINDOW_INDEX_PER_PLANE);
+    f_end_channel_input = w_end_channel_input;
   endfunction
 
-  function automatic logic f_end_all_channel_in();
+  function automatic logic f_end_all_channel_input();
     // variável estática para guardar o último resultado
-    static logic w_end_all_channel_in;
-    w_end_all_channel_in = (r_window_counter_all_channel_in >= (N_WINDOW * N_WINDOW * N_CHANNEL_IN - 1));
-    f_end_all_channel_in = w_end_all_channel_in;
+    static logic w_end_all_channel_input;
+    w_end_all_channel_input = (r_window_counter_all_channel_input >= (WINDOWS_PER_OUTPUT_CHANNEL - 1));
+    f_end_all_channel_input = w_end_all_channel_input;
   endfunction
 
   function automatic logic f_end_read_out();
     // variável estática para guardar o último resultado
     static logic w_end_read_out;
-    w_end_read_out = (r_addr_count_read_out == (A1_SIZE * A2_SIZE - 1));
+    w_end_read_out = (r_addr_count_read_out == (FEATURE_NUM_ELEMS - 1));
     f_end_read_out = w_end_read_out;
   endfunction
 
   function automatic logic f_end_write_out();
     // variável estática para guardar o último resultado
     static logic w_end_write_out;
-    w_end_write_out = (r_addr_count_write_out == (A1_SIZE * A2_SIZE - 1));
+    w_end_write_out = (r_addr_count_write_out == (FEATURE_NUM_ELEMS - 1));
     f_end_write_out = w_end_write_out;
   endfunction
 
@@ -782,14 +816,14 @@ module Control
   function automatic logic f_end_channel_out();
     // variável estática para guardar o último resultado
     static logic w_end_channel_out;
-    w_end_channel_out = (r_window_counter_channel_out >= N_WINDOW * N_WINDOW - 1);
+    w_end_channel_out = (r_window_counter_channel_out >= LAST_WINDOW_INDEX_PER_PLANE);
     f_end_channel_out = w_end_channel_out;
   endfunction
 
   function automatic logic f_end_all_channel_out();
     // variável estática para guardar o último resultado
     static logic w_end_all_channel_out;
-    w_end_all_channel_out = (r_window_counter_all_channel_out >= (N_WINDOW * N_WINDOW * N_CHANNEL_IN - 2));
+    w_end_all_channel_out = (r_window_counter_all_channel_out >= (WINDOWS_PER_OUTPUT_CHANNEL - 2));
     f_end_all_channel_out = w_end_all_channel_out;
   endfunction
 
