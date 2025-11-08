@@ -1,6 +1,14 @@
-// TODO
-// Avaliar se é melhor remover os contadores de janelas e comparar com os endereços.
+/*
+TODO
+Avaliar se é melhor remover os contadores de janelas e comparar com os endereços.
+*/
 
+/*
+=============================================================
+MODULE: Control
+DESCRIPTION: Orquestra a leitura de janelas, pesos e escrita de resultados
+=============================================================
+*/
 module Control
   import pack_def::*;
   import pack_data::*;
@@ -13,6 +21,11 @@ module Control
     parameter int ROM              = 0,
     parameter int LAST_WINDOW      = 0
 ) (
+    /*
+     -------------------------------------------------------------
+     1. Port declarations
+     -------------------------------------------------------------
+     */
     input  logic clk,
     input  logic reset,
 
@@ -42,34 +55,51 @@ module Control
 
   timeunit 1ns; timeprecision 1ps;
 
-  // Weight read counter
-  logic [$clog2(M1_SIZE*M2_SIZE)-1:0] r_count_wh;
+  /*
+   ---------------------
+   Input path control
+   ---------------------
+  */
+  // Base address register for input features
+  logic [$clog2(N_CHANNEL_IN * N_CHANNEL_OUT +M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT + N_CHANNEL_IN * FEAT_INPUT_SIZE * FEAT_INPUT_SIZE)-1:0] r_addr_in;
   // Input feature register read counter
   logic [$clog2(C1_SIZE*C2_SIZE)-1:0] r_count_in;
+  // Row-aligned window counter for read-side address updates and reuse control
+  logic [$clog2(N_WINDOW):0] r_window_horizontal_in;
+  // Total window counter for a channel
+  logic [$clog2(N_WINDOW * N_WINDOW)-1:0] r_window_channel_in;
+  // Total window counter for a channel (per-channel accumulation)
+  logic [$clog2(N_WINDOW * N_WINDOW * N_CHANNEL_IN)-1:0] r_window_all_channel_in;
+  // Total window counter for the read path
+  logic [$clog2(N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN)-1:0] r_window_total_in;
+
+  /*
+   ---------------------
+   Weight path
+   ---------------------
+  */
+  // Base address register for weight blocks
+  logic [$clog2(N_CHANNEL_IN * N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT)-1:0] r_addr_wh;
+  // Weight read counter
+  logic [$clog2(M1_SIZE*M2_SIZE)-1:0] r_count_wh;
+  // Bias read counter; bias depth is one so it is unused for now
+  logic [$floor($clog2(N_CHANNEL_IN * N_CHANNEL_OUT) + 0.5)-1:0] r_addr_bias;
+  // Temporary substitute for r_addr_bias
+  // logic [2:0] r_addr_bias;
+
+  /*
+   ---------------------
+   Output path control (counters)
+   ---------------------
+  */
   // Output feature register write counter
   logic [$clog2(A1_SIZE*A2_SIZE)-1:0] r_count_write_out;
   // Output feature register read counter
   logic [$clog2(A1_SIZE*A2_SIZE)-1:0] r_count_read_out;
   // Output counter
   logic [$clog2(A1_SIZE*A2_SIZE)-1:0] w_count_out;
-  // Output feature write counter
+  // Output feature write counter (unused/commented)
   // logic [$floor($clog2(N_CHANNEL_OUT) + 0.5)-1:0] r_count_ch_out;
-  // Bias read counter; bias depth is one so it is unused for now
-  logic [$floor($clog2(N_CHANNEL_IN * N_CHANNEL_OUT) + 0.5)-1:0] r_addr_bias;
-  // Temporary substitute for r_addr_bias
-  // logic [2:0] r_addr_bias;
-  // Base address register for weight blocks
-  logic [$clog2(N_CHANNEL_IN * N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT)-1:0] r_addr_wh;
-  // Base address register for input features
-  logic [$clog2(N_CHANNEL_IN * N_CHANNEL_OUT +M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT + N_CHANNEL_IN * FEAT_INPUT_SIZE * FEAT_INPUT_SIZE)-1:0] r_addr_in;
-  // Row-aligned window counter for read-side address updates and reuse control
-  logic [$clog2(N_WINDOW):0] r_window_horizontal_in;
-  // Total window counter for a channel
-  logic [$clog2(N_WINDOW * N_WINDOW)-1:0] r_window_channel_in;
-  // Total window counter for a channel
-  logic [$clog2(N_WINDOW * N_WINDOW * N_CHANNEL_IN)-1:0] r_window_all_channel_in;
-  // Total window counter for the read path
-  logic [$clog2(N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN)-1:0] r_window_total_in;
   // Debug monitors for end-of-window predicates (still functions for reuse)
   // logic w_end_read_in;
   // logic w_end_horizontal_in;
@@ -116,6 +146,12 @@ module Control
   // subtraído tempo de leitura do input
   logic [$clog2(4):0] r_hold_output;
 
+  /*
+   -------------------------------------------------------------
+   3. Local parameters and derived constants
+   -------------------------------------------------------------
+   */
+
   typedef enum {
     IDLE_INPUT,
     BIAS,
@@ -130,7 +166,7 @@ module Control
   typedef enum {
     IDLE_OUTPUT,
     READ_OUTPUT,
-    CONV_OUT_PUT,
+    CONV_OUTPUT,
     WRITE_OUTPUT,
     END_CHANNEL,
     HOLD_WEIGHT
@@ -156,7 +192,11 @@ module Control
   end
 
 
-  // control path: input
+  /*
+   -------------------------------------------------------------
+   4. FSM: Input path
+   -------------------------------------------------------------
+   */
 
   // Combinational logic for the input (read) state machine
   always_comb begin: NEXT_ST_INPUT_BLOCK
@@ -215,7 +255,11 @@ module Control
   end
 
 
-  // control path: output
+  /*
+   -------------------------------------------------------------
+   5. FSM: Output path
+   -------------------------------------------------------------
+   */
 
   // Combinational logic for the output (write) state machine
   always_comb begin: NEXT_ST_OUTPUT_BLOCK
@@ -223,14 +267,14 @@ module Control
     unique case (current_st_output)
       IDLE_OUTPUT: begin
         if (p_start)
-          next_st_output = CONV_OUT_PUT;
+          next_st_output = CONV_OUTPUT;
       end
       READ_OUTPUT: begin
         if (f_end_read_out())
-          next_st_output = CONV_OUT_PUT;
+          next_st_output = CONV_OUTPUT;
       end
       // Waits for the convolution-complete signal
-      CONV_OUT_PUT: begin
+      CONV_OUTPUT: begin
         if (w_handshake_conv && (r_channel_out == 0))
           next_st_output = WRITE_OUTPUT;
         else if ((w_handshake_conv || (r_conv_end)) && (r_channel_out > 0))
@@ -239,9 +283,9 @@ module Control
       // Waits for the output data write to memory to complete and then returns to idle
       WRITE_OUTPUT: begin
         // if (r_count_write_out == (A1_SIZE * A2_SIZE - 1))
-        //   next_st_output = CONV_OUT_PUT;
+        //   next_st_output = CONV_OUTPUT;
         if (f_end_write_out() && !f_end_channel_out() && (r_channel_out == 0))
-          next_st_output = CONV_OUT_PUT;
+          next_st_output = CONV_OUTPUT;
         else if (f_end_write_out() && !f_end_channel_out() && (r_channel_out > 0))
           next_st_output = READ_OUTPUT;
         else if (f_end_write_out() && f_end_channel_out())
@@ -303,17 +347,22 @@ module Control
 
 
   always_ff @(posedge clk) begin
-      if (reset) begin
+    if (reset) begin
+      r_conv_end   <= 1'b0;
+    end else begin
+      if (w_handshake_conv)
+        r_conv_end   <= 1'b1;
+      else if (w_handshake_input)
         r_conv_end   <= 1'b0;
-      end else begin
-        if (w_handshake_conv)
-          r_conv_end   <= 1'b1;
-        else if (w_handshake_input)
-          r_conv_end   <= 1'b0;
-      end
+    end
   end
 
-  // Data path: input
+
+  /*
+   -------------------------------------------------------------
+   6. Data Input path
+   -------------------------------------------------------------
+   */
 
   // Sequential logic updating the registers tied to the input state machine
   always_ff @(posedge clk) begin: CURRENT_ST_INPUT_BLOCK
@@ -513,7 +562,12 @@ module Control
   end
 
 
-  // Data path: output
+  /*
+   -------------------------------------------------------------
+   7. Data Output path
+   -------------------------------------------------------------
+   */
+
 
   // Sequential logic updating the registers tied to the output state machine
   always_ff @(posedge clk) begin: CURRENT_ST_OUTPUT_BLOCK
@@ -539,7 +593,7 @@ module Control
           end
         end
         // Keep the output counter cleared while waiting for convolution to end; capture output data on completion
-        CONV_OUT_PUT: begin
+        CONV_OUTPUT: begin
           r_count_read_out  <= 0;
           r_count_write_out <= 0;
           // In first channel only get output data from convolutional module
@@ -663,6 +717,11 @@ module Control
   //   w_end_all_channel_out = f_end_all_channel_out();
   // end
 
+  /*
+   -------------------------------------------------------------
+   8. Utility functions
+   -------------------------------------------------------------
+   */
   // Helper predicates replacing the former w_end_* wires
   function automatic logic f_end_read_in();
     // variável estática para guardar o último resultado
