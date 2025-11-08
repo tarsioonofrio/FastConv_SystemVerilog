@@ -182,6 +182,9 @@ timeunit 1ns; timeprecision 1ps;
   logic [$clog2(4):0] r_hold_output;
   logic w_conv_ready_for_input;
   logic w_conv_input_fire;
+  logic r_conv_result_pending;
+  logic w_conv_result_ready;
+  logic w_conv_result_accept;
 
   typedef enum {
     IDLE_INPUT,
@@ -363,7 +366,7 @@ timeunit 1ns; timeprecision 1ps;
     if (reset)
       w_handshake_conv <= '0;
      else
-     if (p_conv_end)
+     if (w_conv_result_accept)
       w_handshake_conv <= '1;
      else
      // if (r_addr_count_write_out == (FEATURE_NUM_ELEMS - 1))
@@ -382,6 +385,8 @@ timeunit 1ns; timeprecision 1ps;
 
   assign w_conv_ready_for_input = p_conv_idle && (!r_conv_busy || p_conv_end);
   assign w_conv_input_fire      = (current_st_input == CONV_INPUT) && w_conv_ready_for_input;
+  assign w_conv_result_ready    = p_conv_end && p_conv_idle;
+  assign w_conv_result_accept   = (current_st_output == CONV_OUTPUT) && r_conv_result_pending;
 
 
   always_ff @(posedge clk) begin
@@ -403,6 +408,17 @@ timeunit 1ns; timeprecision 1ps;
         r_conv_busy <= 1'b0;
       if (w_conv_input_fire)
         r_conv_busy <= 1'b1;
+    end
+  end
+
+  always_ff @(posedge clk) begin
+    if (reset) begin
+      r_conv_result_pending <= 1'b0;
+    end else begin
+      if (w_conv_result_ready)
+        r_conv_result_pending <= 1'b1;
+      else if (w_conv_result_accept)
+        r_conv_result_pending <= 1'b0;
     end
   end
 
