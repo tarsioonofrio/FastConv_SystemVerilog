@@ -69,25 +69,25 @@ timeunit 1ns; timeprecision 1ps;
    */
 
   // Elementos por estrutura (contagem 2D)
-  localparam int INPUT_NUM_ELEMS              = FEAT_INPUT_SIZE * FEAT_INPUT_SIZE;
-  localparam int OUTPUT_NUM_ELEMS             = FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE;
-  localparam int KERNEL_NUM_ELEMS             = C1_SIZE * C2_SIZE;
-  localparam int FEATURE_NUM_ELEMS            = A1_SIZE * A2_SIZE;
-  localparam int MULTIPLIER_NUM_ELEMS         = M1_SIZE * M2_SIZE;
+  localparam int INPUT_NUM_ELEMS                       = FEAT_INPUT_SIZE * FEAT_INPUT_SIZE;
+  localparam int OUTPUT_NUM_ELEMS                      = FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE;
+  localparam int KERNEL_NUM_ELEMS                      = C1_SIZE * C2_SIZE;
+  localparam int FEATURE_NUM_ELEMS                     = A1_SIZE * A2_SIZE;
+  localparam int MULTIPLIER_NUM_ELEMS                  = M1_SIZE * M2_SIZE;
+  localparam int TOTAL_NUM_CHANNELS                    = N_CHANNEL_IN * N_CHANNEL_OUT;
 
-  // Totais de janelas e combinações
-  localparam int WINDOWS_PER_PLANE            = N_WINDOW * N_WINDOW;
-  localparam int TOTAL_INPUT_WINDOWS          = WINDOWS_PER_PLANE * N_CHANNEL_OUT * N_CHANNEL_IN;
-  localparam int TOTAL_NUM_CHANNEL            = N_CHANNEL_IN * N_CHANNEL_OUT;
+  // Contagens de janelas e combinações
+  localparam int WINDOWS_PER_PLANE                     = N_WINDOW * N_WINDOW;
+  localparam int WINDOWS_PER_INPUT_CHANNEL             = WINDOWS_PER_PLANE * N_CHANNEL_OUT;
+  localparam int WINDOWS_PER_OUTPUT_CHANNEL            = WINDOWS_PER_PLANE * N_CHANNEL_IN;
+  localparam int TOTAL_INPUT_WINDOWS                   = WINDOWS_PER_PLANE * TOTAL_NUM_CHANNELS;
 
   // Limiares "last" usados em comparações (-1 já aplicado)
-  localparam int LAST_KERNEL_INDEX            = (C1_SIZE * C2_SIZE) - 1;
-  localparam int LAST_WINDOW_INDEX_PER_PLANE  = (N_WINDOW * N_WINDOW) - 1;
-  localparam int LAST_INPUT_WINDOW_INDEX      = (N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN) - 1;
-
-  // Contagens úteis por canal
-  localparam int WINDOWS_PER_INPUT_CHANNEL    = N_WINDOW * N_WINDOW * N_CHANNEL_OUT;
-  localparam int WINDOWS_PER_OUTPUT_CHANNEL   = N_WINDOW * N_WINDOW * N_CHANNEL_IN;
+  localparam int LAST_KERNEL_INDEX                     = KERNEL_NUM_ELEMS - 1;
+  localparam int LAST_WINDOW_INDEX_PER_PLANE           = WINDOWS_PER_PLANE - 1;
+  localparam int LAST_INPUT_WINDOW_INDEX               = WINDOWS_PER_PLANE * TOTAL_NUM_CHANNELS - 1;
+  localparam int LAST_WINDOW_ROW_INDEX                 = N_WINDOW - 1;
+  localparam int LAST_OUTPUT_CHANNEL_WINDOW_INDEX      = WINDOWS_PER_OUTPUT_CHANNEL - 1;
 
   /*
    ---------------------
@@ -95,7 +95,7 @@ timeunit 1ns; timeprecision 1ps;
    ---------------------
   */
   // Base address register for input features
-  logic [$clog2(TOTAL_NUM_CHANNEL + MULTIPLIER_NUM_ELEMS * TOTAL_NUM_CHANNEL + N_CHANNEL_IN * INPUT_NUM_ELEMS)-1:0] r_addr_pointer_input;
+  logic [$clog2(TOTAL_NUM_CHANNELS + MULTIPLIER_NUM_ELEMS * TOTAL_NUM_CHANNELS + N_CHANNEL_IN * INPUT_NUM_ELEMS)-1:0] r_addr_pointer_input;
   // Input feature register read counter
   logic [$clog2(KERNEL_NUM_ELEMS)-1:0] r_addr_count_input;
   // Row-aligned window counter for read-side address updates and reuse control
@@ -113,11 +113,11 @@ timeunit 1ns; timeprecision 1ps;
    ---------------------
   */
   // Base address register for weight blocks
-  logic [$clog2(TOTAL_NUM_CHANNEL + MULTIPLIER_NUM_ELEMS * TOTAL_NUM_CHANNEL)-1:0] r_addr_pointer_kernel;
+  logic [$clog2(TOTAL_NUM_CHANNELS + MULTIPLIER_NUM_ELEMS * TOTAL_NUM_CHANNELS)-1:0] r_addr_pointer_kernel;
   // Weight read counter
   logic [$clog2(MULTIPLIER_NUM_ELEMS)-1:0] r_addr_count_kernel;
   // Bias read counter; bias depth is one so it is unused for now
-  logic [$floor($clog2(TOTAL_NUM_CHANNEL) + 0.5)-1:0] r_addr_pointer_bias;
+  logic [$floor($clog2(TOTAL_NUM_CHANNELS) + 0.5)-1:0] r_addr_pointer_bias;
   // Temporary substitute for r_addr_pointer_bias
   // logic [2:0] r_addr_pointer_bias;
 
@@ -162,8 +162,8 @@ timeunit 1ns; timeprecision 1ps;
 
   logic w_output_en;
 
-  logic [$floor($clog2(TOTAL_NUM_CHANNEL) + 0.5):0] r_channel_counter_input;
-  logic [$floor($clog2(TOTAL_NUM_CHANNEL) + 0.5):0] r_channel_counter_out;
+  logic [$floor($clog2(TOTAL_NUM_CHANNELS) + 0.5):0] r_channel_counter_input;
+  logic [$floor($clog2(TOTAL_NUM_CHANNELS) + 0.5):0] r_channel_counter_out;
 
   logic r_conv_end;
   logic r_read_en;
@@ -401,7 +401,7 @@ timeunit 1ns; timeprecision 1ps;
       // Weight base address follows the bias region
       r_addr_pointer_kernel    <= N_CHANNEL_OUT;
       // Input feature base address follows the weight region
-      r_addr_pointer_input   <= TOTAL_NUM_CHANNEL + MULTIPLIER_NUM_ELEMS * TOTAL_NUM_CHANNEL;
+      r_addr_pointer_input   <= TOTAL_NUM_CHANNELS + MULTIPLIER_NUM_ELEMS * TOTAL_NUM_CHANNELS;
       r_addr_count_kernel   <= 0;
       r_addr_count_input  <= 0;
       r_channel_counter_input <= 0;
@@ -417,8 +417,8 @@ timeunit 1ns; timeprecision 1ps;
         IDLE_INPUT: begin
           r_read_en   <= 1'b0;
           r_addr_pointer_bias <= 0;
-          r_addr_pointer_kernel   <= TOTAL_NUM_CHANNEL;
-          r_addr_pointer_input  <= TOTAL_NUM_CHANNEL + MULTIPLIER_NUM_ELEMS * TOTAL_NUM_CHANNEL;
+          r_addr_pointer_kernel   <= TOTAL_NUM_CHANNELS;
+          r_addr_pointer_input  <= TOTAL_NUM_CHANNELS + MULTIPLIER_NUM_ELEMS * TOTAL_NUM_CHANNELS;
           r_addr_count_kernel  <= 0;
           r_addr_count_input <= 0;
           r_channel_counter_input <= 0;
@@ -490,7 +490,7 @@ timeunit 1ns; timeprecision 1ps;
             r_window_counter_all_channel_input <= r_window_counter_all_channel_input + 1;
 
           if (f_is_last_row_input() && f_is_last_all_channel_input())
-            r_addr_pointer_input <= TOTAL_NUM_CHANNEL + MULTIPLIER_NUM_ELEMS * TOTAL_NUM_CHANNEL;
+            r_addr_pointer_input <= TOTAL_NUM_CHANNELS + MULTIPLIER_NUM_ELEMS * TOTAL_NUM_CHANNELS;
           else if (f_is_last_row_input() && !f_is_last_channel_input())
             r_addr_pointer_input  <= r_addr_pointer_input + C1_SIZE + FEAT_INPUT_SIZE * (A1_SIZE - 1);
           else if (f_is_last_row_input() && f_is_last_channel_input())
@@ -761,7 +761,7 @@ timeunit 1ns; timeprecision 1ps;
   function automatic logic f_is_last_row_input();
     // variável estática para guardar o último resultado
     static logic w_is_last_row_input;
-    w_is_last_row_input = (r_window_counter_row_input >= N_WINDOW - 1);
+    w_is_last_row_input = (r_window_counter_row_input >= LAST_WINDOW_ROW_INDEX);
     f_is_last_row_input = w_is_last_row_input;
   endfunction
 
@@ -775,7 +775,7 @@ timeunit 1ns; timeprecision 1ps;
   function automatic logic f_is_last_all_channel_input();
     // variável estática para guardar o último resultado
     static logic w_is_last_all_channel_input;
-    w_is_last_all_channel_input = (r_window_counter_all_channel_input >= (WINDOWS_PER_OUTPUT_CHANNEL - 1));
+    w_is_last_all_channel_input = (r_window_counter_all_channel_input >= LAST_OUTPUT_CHANNEL_WINDOW_INDEX);
     f_is_last_all_channel_input = w_is_last_all_channel_input;
   endfunction
 
@@ -796,7 +796,7 @@ timeunit 1ns; timeprecision 1ps;
   function automatic logic f_is_last_row_out();
     // variável estática para guardar o último resultado
     static logic w_is_last_row_out;
-    w_is_last_row_out = (r_window_counter_row_out >= N_WINDOW - 1);
+    w_is_last_row_out = (r_window_counter_row_out >= LAST_WINDOW_ROW_INDEX);
     f_is_last_row_out = w_is_last_row_out;
   endfunction
 
@@ -810,7 +810,7 @@ timeunit 1ns; timeprecision 1ps;
   function automatic logic f_is_last_all_channel_out();
     // variável estática para guardar o último resultado
     static logic w_is_last_all_channel_out;
-    w_is_last_all_channel_out = (r_window_counter_all_channel_out >= (WINDOWS_PER_OUTPUT_CHANNEL - 2));
+    w_is_last_all_channel_out = (r_window_counter_all_channel_out >= LAST_OUTPUT_CHANNEL_WINDOW_INDEX - 1);
     f_is_last_all_channel_out = w_is_last_all_channel_out;
   endfunction
 
