@@ -134,9 +134,9 @@ module Control
   logic r_conv_end;
   logic r_read_en;
   // Register bank for input features
-  type_input  r_feat_in;
+  type_input  r_feat_input;
   // Register bank for kernel weights
-  type_weight r_weight;
+  type_weight r_kernel;
   // Register bank for output features
   type_output r_conv_output;
   type_output r_feat_output;
@@ -381,8 +381,8 @@ module Control
       r_window_counter_total_in     <= 0;
       r_window_counter_channel_in   <= 0;
       r_window_counter_horizontal_in  <= 0;
-      r_weight     <= '{default: '0};
-      r_feat_in    <= '{default: '0};
+      r_kernel     <= '{default: '0};
+      r_feat_input    <= '{default: '0};
     end else begin
       unique case (current_st_input)
         default: begin end
@@ -399,8 +399,8 @@ module Control
           r_window_counter_channel_in   <= 0;
           r_window_counter_horizontal_in  <= 0;
           r_window_counter_all_channel_in  <= 0;
-          r_weight    <= '{default: '0};
-          r_feat_in   <= '{default: '0};
+          r_kernel    <= '{default: '0};
+          r_feat_input   <= '{default: '0};
         end
         // When fetching bias, read a single address and advance
         BIAS: begin
@@ -413,7 +413,7 @@ module Control
           if (p_input_valid) begin
             r_addr_pointer_kernel            <= r_addr_pointer_kernel + 1;
             r_addr_count_kernel           <= r_addr_count_kernel + 1;
-            r_weight[r_addr_count_kernel] <= p_input_data;
+            r_kernel[r_addr_count_kernel] <= p_input_data;
           end
         end
         CONV_INPUT: begin
@@ -430,20 +430,20 @@ module Control
             // - move the base pointer to the next window horizontally
             // Preserve overlapping columns locally to enable horizontal window reuse
             // TODO perform test using an index table
-            r_feat_in[00] <= r_feat_in[03];
-            r_feat_in[01] <= r_feat_in[04];
+            r_feat_input[00] <= r_feat_input[03];
+            r_feat_input[01] <= r_feat_input[04];
 
-            r_feat_in[05] <= r_feat_in[08];
-            r_feat_in[06] <= r_feat_in[09];
+            r_feat_input[05] <= r_feat_input[08];
+            r_feat_input[06] <= r_feat_input[09];
 
-            r_feat_in[10] <= r_feat_in[13];
-            r_feat_in[11] <= r_feat_in[14];
+            r_feat_input[10] <= r_feat_input[13];
+            r_feat_input[11] <= r_feat_input[14];
 
-            r_feat_in[15] <= r_feat_in[18];
-            r_feat_in[16] <= r_feat_in[19];
+            r_feat_input[15] <= r_feat_input[18];
+            r_feat_input[16] <= r_feat_input[19];
 
-            r_feat_in[20] <= r_feat_in[23];
-            r_feat_in[21] <= r_feat_in[24];
+            r_feat_input[20] <= r_feat_input[23];
+            r_feat_input[21] <= r_feat_input[24];
           end
 
           if (f_end_horizontal_in())
@@ -476,7 +476,7 @@ module Control
           r_addr_count_kernel <= 0;
           if (p_input_valid && (r_addr_count_in < C1_SIZE * C1_SIZE)) begin
             r_addr_count_in                     <= r_addr_count_in + 1;
-            r_feat_in[c_index[r_addr_count_in]] <= p_input_data;
+            r_feat_input[c_index[r_addr_count_in]] <= p_input_data;
           end
         end
         HOLD_OUTPUT: begin
@@ -555,8 +555,8 @@ module Control
 
   // Combinational logic driving output ports from internal registers
   always_comb begin
-    p_conv_input  = r_feat_in;
-    p_conv_weight = r_weight;
+    p_conv_input  = r_feat_input;
+    p_conv_weight = r_kernel;
     // p_conv_start  = w_handshake_input;
     p_conv_start = (current_st_input == CONV_INPUT) ? 1'b1 : 1'b0;;
   end
