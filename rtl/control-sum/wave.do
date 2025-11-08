@@ -9,13 +9,13 @@ add wave -noupdate -color Red /tb/dut/p_conv_start
 add wave -noupdate -color Red /tb/dut/p_conv_end
 add wave -noupdate /tb/dut/r_conv_end
 add wave -noupdate /tb/dut/w_handshake_conv
-add wave -noupdate /tb/dut/f_end_horizontal_in/w_end_horizontal_in
-add wave -noupdate /tb/dut/f_end_channel_in/w_end_channel_in
+add wave -noupdate /tb/dut/f_end_horizontal_input/w_end_horizontal_input
+add wave -noupdate /tb/dut/f_end_channel_input/w_end_channel_input
 add wave -noupdate -radix unsigned /tb/dut/r_hold_output
 add wave -noupdate /tb/dut/current_st_input
 add wave -noupdate /tb/conv/current_state
 add wave -noupdate /tb/dut/current_st_output
-add wave -noupdate /tb/dut/f_end_read_in/w_end_read_in
+add wave -noupdate /tb/dut/f_end_read_input/w_end_read_input
 add wave -noupdate /tb/dut/w_handshake_input
 add wave -noupdate /tb/dut/w_handshake_output
 add wave -noupdate -color Red /tb/dut/f_end_horizontal_out/w_end_horizontal_out
@@ -39,27 +39,27 @@ add wave -noupdate -radix decimal -childformat {{{/tb/dut/r_conv_output[8]} -rad
 add wave -noupdate -radix unsigned /tb/dut/r_addr_pointer_bias
 add wave -noupdate -radix unsigned /tb/dut/r_addr_pointer_out
 add wave -noupdate -radix unsigned /tb/dut/r_addr_pointer_kernel
-add wave -noupdate -radix unsigned /tb/dut/r_addr_pointer_in
+add wave -noupdate -radix unsigned /tb/dut/r_addr_pointer_input
 add wave -noupdate -radix unsigned /tb/dut/r_addr_count_kernel
-add wave -noupdate -radix unsigned /tb/dut/r_addr_count_in
+add wave -noupdate -radix unsigned /tb/dut/r_addr_count_input
 add wave -noupdate -radix unsigned /tb/dut/r_addr_count_read_out
 add wave -noupdate -radix unsigned /tb/dut/r_addr_count_write_out
-add wave -noupdate -radix unsigned /tb/dut/r_window_counter_total_in
-add wave -noupdate -radix unsigned /tb/dut/r_window_counter_all_channel_in
-add wave -noupdate -radix unsigned /tb/dut/r_window_counter_channel_in
-add wave -noupdate -radix unsigned /tb/dut/r_window_counter_horizontal_in
+add wave -noupdate -radix unsigned /tb/dut/r_window_counter_total_input
+add wave -noupdate -radix unsigned /tb/dut/r_window_counter_all_channel_input
+add wave -noupdate -radix unsigned /tb/dut/r_window_counter_channel_input
+add wave -noupdate -radix unsigned /tb/dut/r_window_counter_horizontal_input
 add wave -noupdate -radix unsigned /tb/dut/r_window_counter_total_out
 add wave -noupdate -radix unsigned /tb/dut/r_window_counter_all_channel_out
 add wave -noupdate -radix unsigned /tb/dut/r_window_counter_channel_out
 add wave -noupdate -radix unsigned /tb/dut/r_window_counter_horizontal_out
-add wave -noupdate -radix unsigned /tb/dut/r_channel_counter_in
+add wave -noupdate -radix unsigned /tb/dut/r_channel_counter_input
 add wave -noupdate -radix unsigned /tb/dut/r_channel_counter_out
 add wave -noupdate /tb/dut/r_read_en
 add wave -noupdate -radix decimal -childformat {{{/tb/dut/r_kernel[35]} -radix decimal} {{/tb/dut/r_kernel[34]} -radix decimal} {{/tb/dut/r_kernel[33]} -radix decimal} {{/tb/dut/r_kernel[32]} -radix decimal} {{/tb/dut/r_kernel[31]} -radix decimal} {{/tb/dut/r_kernel[30]} -radix decimal} {{/tb/dut/r_kernel[29]} -radix decimal} {{/tb/dut/r_kernel[28]} -radix decimal} {{/tb/dut/r_kernel[27]} -radix decimal} {{/tb/dut/r_kernel[26]} -radix decimal} {{/tb/dut/r_kernel[25]} -radix decimal} {{/tb/dut/r_kernel[24]} -radix decimal} {{/tb/dut/r_kernel[23]} -radix decimal} {{/tb/dut/r_kernel[22]} -radix decimal} {{/tb/dut/r_kernel[21]} -radix decimal} {{/tb/dut/r_kernel[20]} -radix decimal} {{/tb/dut/r_kernel[19]} -radix decimal} {{/tb/dut/r_kernel[18]} -radix decimal} {{/tb/dut/r_kernel[17]} -radix decimal} {{/tb/dut/r_kernel[16]} -radix decimal} {{/tb/dut/r_kernel[15]} -radix decimal} {{/tb/dut/r_kernel[14]} -radix decimal} {{/tb/dut/r_kernel[13]} -radix decimal} {{/tb/dut/r_kernel[12]} -radix decimal} {{/tb/dut/r_kernel[11]} -radix decimal} {{/tb/dut/r_kernel[10]} -radix decimal} {{/tb/dut/r_kernel[9]} -radix decimal} {{/tb/dut/r_kernel[8]} -radix decimal} {{/tb/dut/r_kernel[7]} -radix decimal} {{/tb/dut/r_kernel[6]} -radix decimal} {{/tb/dut/r_kernel[5]} -radix decimal} {{/tb/dut/r_kernel[4]} -radix decimal} {{/tb/dut/r_kernel[3]} -radix decimal} {{/tb/dut/r_kernel[2]} -radix decimal} {{/tb/dut/r_kernel[1]} -radix decimal} {{/tb/dut/r_kernel[0]} -radix decimal}} -subitemconfig {{/tb/dut/r_kernel[35]} {-height 16 -radix decimal} {/tb/dut/r_kernel[34]} {-height 16 -radix decimal} {/tb/dut/r_kernel[33]} {-height 16 -radix decimal} {/tb/dut/r_kernel[32]} {-height 16 -radix decimal} {/tb/dut/r_kernel[31]} {-height 16 -radix decimal} {/tb/dut/r_kernel[30]} {-height 16 -radix decimal} {/tb/dut/r_kernel[29]} {-height 16 -radix decimal} {/tb/dut/r_kernel[28]} {-height 16 -radix decimal} {/tb/dut/r_kernel[27]} {-height 16 -radix decimal} {/tb/dut/r_kernel[26]} {-height 16 -radix decimal} {/tb/dut/r_kernel[25]} {-height 16 -radix decimal} {/tb/dut/r_kernel[24]} {-height 16 -radix decimal} {/tb/dut/r_kernel[23]} {-height 16 -radix decimal} {/tb/dut/r_kernel[22]} {-height 16 -radix decimal} {/tb/dut/r_kernel[21]} {-height 16 -radix decimal} {/tb/dut/r_kernel[20]} {-height 16 -radix decimal} {/tb/dut/r_kernel[19]} {-height 16 -radix decimal} {/tb/dut/r_kernel[18]} {-height 16 -radix decimal} {/tb/dut/r_kernel[17]} {-height 16 -radix decimal} {/tb/dut/r_kernel[16]} {-height 16 -radix decimal} {/tb/dut/r_kernel[15]} {-height 16 -radix decimal} {/tb/dut/r_kernel[14]} {-height 16 -radix decimal} {/tb/dut/r_kernel[13]} {-height 16 -radix decimal} {/tb/dut/r_kernel[12]} {-height 16 -radix decimal} {/tb/dut/r_kernel[11]} {-height 16 -radix decimal} {/tb/dut/r_kernel[10]} {-height 16 -radix decimal} {/tb/dut/r_kernel[9]} {-height 16 -radix decimal} {/tb/dut/r_kernel[8]} {-height 16 -radix decimal} {/tb/dut/r_kernel[7]} {-height 16 -radix decimal} {/tb/dut/r_kernel[6]} {-height 16 -radix decimal} {/tb/dut/r_kernel[5]} {-height 16 -radix decimal} {/tb/dut/r_kernel[4]} {-height 16 -radix decimal} {/tb/dut/r_kernel[3]} {-height 16 -radix decimal} {/tb/dut/r_kernel[2]} {-height 16 -radix decimal} {/tb/dut/r_kernel[1]} {-height 16 -radix decimal} {/tb/dut/r_kernel[0]} {-height 16 -radix decimal}} /tb/dut/r_kernel
-add wave -noupdate /tb/dut/f_end_read_in/w_end_read_in
-add wave -noupdate /tb/dut/f_end_horizontal_in/w_end_horizontal_in
-add wave -noupdate /tb/dut/f_end_channel_in/w_end_channel_in
-add wave -noupdate /tb/dut/f_end_all_channel_in/w_end_all_channel_in
+add wave -noupdate /tb/dut/f_end_read_input/w_end_read_input
+add wave -noupdate /tb/dut/f_end_horizontal_input/w_end_horizontal_input
+add wave -noupdate /tb/dut/f_end_channel_input/w_end_channel_input
+add wave -noupdate /tb/dut/f_end_all_channel_input/w_end_all_channel_input
 add wave -noupdate /tb/dut/f_end_read_out/w_end_read_out
 add wave -noupdate /tb/dut/f_end_write_out/w_end_write_out
 add wave -noupdate /tb/dut/f_end_horizontal_out/w_end_horizontal_out
