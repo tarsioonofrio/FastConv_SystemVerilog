@@ -166,6 +166,7 @@ timeunit 1ns; timeprecision 1ps;
   logic [$floor($clog2(TOTAL_NUM_CHANNELS) + 0.5):0] r_channel_counter_out;
 
   logic r_conv_end;
+  logic r_conv_busy;
   logic r_read_en;
   // Register bank for input features
   type_input  r_feat_input;
@@ -179,6 +180,8 @@ timeunit 1ns; timeprecision 1ps;
   // diferença entre soma, escrita e leitura do output
   // subtraído tempo de leitura do input
   logic [$clog2(4):0] r_hold_output;
+  logic w_conv_ready_for_input;
+  logic w_conv_input_fire;
 
   typedef enum {
     IDLE_INPUT,
@@ -250,23 +253,27 @@ timeunit 1ns; timeprecision 1ps;
           next_st_input = CONV_INPUT;
       end
       CONV_INPUT: begin
-          // When all windows across input and output channels have been read, finish input
-        if (f_is_last_row_input() && (r_window_counter_total_input >= LAST_INPUT_WINDOW_INDEX))
-          next_st_input = END_INPUT;
-        else
-        // When all output-channel windows are complete, load bias (disabled for now)
-        // if (r_window_counter_total_input == WINDOWS_PER_INPUT_CHANNEL)
-        //  next_st_input = BIAS;
-        // else
-        // When a full set of windows for an input channel is done, reload weights
-        if (f_is_last_row_input() && f_is_last_channel_input())
-          next_st_input = HOLD_LAST_CONV;
-        else if (f_is_last_row_input())
-          next_st_input = READ_INPUT;
-        else if (r_channel_counter_out > 0)
-          next_st_input = HOLD_OUTPUT;
-        else
-          next_st_input = READ_INPUT;
+        if (!w_conv_ready_for_input) begin
+          next_st_input = CONV_INPUT;
+        end else begin
+            // When all windows across input and output channels have been read, finish input
+          if (f_is_last_row_input() && (r_window_counter_total_input >= LAST_INPUT_WINDOW_INDEX))
+            next_st_input = END_INPUT;
+          else
+          // When all output-channel windows are complete, load bias (disabled for now)
+          // if (r_window_counter_total_input == WINDOWS_PER_INPUT_CHANNEL)
+          //  next_st_input = BIAS;
+          // else
+          // When a full set of windows for an input channel is done, reload weights
+          if (f_is_last_row_input() && f_is_last_channel_input())
+            next_st_input = HOLD_LAST_CONV;
+          else if (f_is_last_row_input())
+            next_st_input = READ_INPUT;
+          else if (r_channel_counter_out > 0)
+            next_st_input = HOLD_OUTPUT;
+          else
+            next_st_input = READ_INPUT;
+        end
       end
       HOLD_OUTPUT: begin
         if (r_hold_output == 2)
@@ -373,6 +380,9 @@ timeunit 1ns; timeprecision 1ps;
       w_handshake_output <= '0;
   end
 
+  assign w_conv_ready_for_input = p_conv_idle && (!r_conv_busy || p_conv_end);
+  assign w_conv_input_fire      = (current_st_input == CONV_INPUT) && w_conv_ready_for_input;
+
 
   always_ff @(posedge clk) begin
     if (reset) begin
@@ -382,6 +392,17 @@ timeunit 1ns; timeprecision 1ps;
         r_conv_end   <= 1'b1;
       else if (w_handshake_input)
         r_conv_end   <= 1'b0;
+    end
+  end
+
+  always_ff @(posedge clk) begin
+    if (reset) begin
+      r_conv_busy <= 1'b0;
+    end else begin
+      if (p_conv_end)
+        r_conv_busy <= 1'b0;
+      if (w_conv_input_fire)
+        r_conv_busy <= 1'b1;
     end
   end
 
@@ -445,58 +466,60 @@ timeunit 1ns; timeprecision 1ps;
           end
         end
         CONV_INPUT: begin
-          // When the input buffer is full, increment the total window counter
-          r_window_counter_total_input <= r_window_counter_total_input + 1;
+          if (w_conv_input_fire) begin
+            // When the input buffer is full, increment the total window counter
+            r_window_counter_total_input <= r_window_counter_total_input + 1;
 
-          if (f_is_last_row_input())
-            r_addr_count_input <= 0;
-          else begin
-            r_addr_count_input <= C1_SIZE * (C1_SIZE - A1_SIZE);
-            // If the input buffer is full but the row has not ended:
-            // - increment the per-row window counter
-            // - position the input feature counter at the reuse start column
-            // - move the base pointer to the next window horizontally
-            // Preserve overlapping columns locally to enable horizontal window reuse
-            // TODO perform test using an index table
-            r_feat_input[00] <= r_feat_input[03];
-            r_feat_input[01] <= r_feat_input[04];
+            if (f_is_last_row_input())
+              r_addr_count_input <= 0;
+            else begin
+              r_addr_count_input <= C1_SIZE * (C1_SIZE - A1_SIZE);
+              // If the input buffer is full but the row has not ended:
+              // - increment the per-row window counter
+              // - position the input feature counter at the reuse start column
+              // - move the base pointer to the next window horizontally
+              // Preserve overlapping columns locally to enable horizontal window reuse
+              // TODO perform test using an index table
+              r_feat_input[00] <= r_feat_input[03];
+              r_feat_input[01] <= r_feat_input[04];
 
-            r_feat_input[05] <= r_feat_input[08];
-            r_feat_input[06] <= r_feat_input[09];
+              r_feat_input[05] <= r_feat_input[08];
+              r_feat_input[06] <= r_feat_input[09];
 
-            r_feat_input[10] <= r_feat_input[13];
-            r_feat_input[11] <= r_feat_input[14];
+              r_feat_input[10] <= r_feat_input[13];
+              r_feat_input[11] <= r_feat_input[14];
 
-            r_feat_input[15] <= r_feat_input[18];
-            r_feat_input[16] <= r_feat_input[19];
+              r_feat_input[15] <= r_feat_input[18];
+              r_feat_input[16] <= r_feat_input[19];
 
-            r_feat_input[20] <= r_feat_input[23];
-            r_feat_input[21] <= r_feat_input[24];
+              r_feat_input[20] <= r_feat_input[23];
+              r_feat_input[21] <= r_feat_input[24];
+            end
+
+            if (f_is_last_row_input())
+              r_window_counter_row_input <= 0;
+            else
+              r_window_counter_row_input <= r_window_counter_row_input + 1;
+
+            if (f_is_last_channel_input())
+              r_window_counter_channel_input <= 0;
+            else
+              r_window_counter_channel_input <= r_window_counter_channel_input + 1;
+
+            if (f_is_last_all_channel_input())
+              r_window_counter_all_channel_input <= 0;
+            else
+              r_window_counter_all_channel_input <= r_window_counter_all_channel_input + 1;
+
+            if (f_is_last_row_input() && f_is_last_all_channel_input())
+              r_addr_pointer_input <= TOTAL_NUM_CHANNELS + MULTIPLIER_NUM_ELEMS * TOTAL_NUM_CHANNELS;
+            else if (f_is_last_row_input() && !f_is_last_channel_input())
+              r_addr_pointer_input  <= r_addr_pointer_input + C1_SIZE + FEAT_INPUT_SIZE * (A1_SIZE - 1);
+            else if (f_is_last_row_input() && f_is_last_channel_input())
+              r_addr_pointer_input  <= r_addr_pointer_input + C1_SIZE + FEAT_INPUT_SIZE * (C1_SIZE - 1);
+            else
+              r_addr_pointer_input  <= r_addr_pointer_input + A1_SIZE;
           end
-
-          if (f_is_last_row_input())
-            r_window_counter_row_input <= 0;
-          else
-            r_window_counter_row_input <= r_window_counter_row_input + 1;
-
-          if (f_is_last_channel_input())
-            r_window_counter_channel_input <= 0;
-          else
-            r_window_counter_channel_input <= r_window_counter_channel_input + 1;
-
-          if (f_is_last_all_channel_input())
-            r_window_counter_all_channel_input <= 0;
-          else
-            r_window_counter_all_channel_input <= r_window_counter_all_channel_input + 1;
-
-          if (f_is_last_row_input() && f_is_last_all_channel_input())
-            r_addr_pointer_input <= TOTAL_NUM_CHANNELS + MULTIPLIER_NUM_ELEMS * TOTAL_NUM_CHANNELS;
-          else if (f_is_last_row_input() && !f_is_last_channel_input())
-            r_addr_pointer_input  <= r_addr_pointer_input + C1_SIZE + FEAT_INPUT_SIZE * (A1_SIZE - 1);
-          else if (f_is_last_row_input() && f_is_last_channel_input())
-            r_addr_pointer_input  <= r_addr_pointer_input + C1_SIZE + FEAT_INPUT_SIZE * (C1_SIZE - 1);
-          else
-            r_addr_pointer_input  <= r_addr_pointer_input + A1_SIZE;
         end
         // Each cycle advances the input address and stores the returned value in the indexed slot
         READ_INPUT: begin
@@ -586,7 +609,7 @@ timeunit 1ns; timeprecision 1ps;
     p_conv_input  = r_feat_input;
     p_conv_weight = r_kernel;
     // p_conv_start  = w_handshake_input;
-    p_conv_start = (current_st_input == CONV_INPUT) ? 1'b1 : 1'b0;;
+    p_conv_start = w_conv_input_fire;
   end
 
 
