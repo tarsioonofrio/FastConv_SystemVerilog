@@ -3,6 +3,9 @@ quietly WaveActivateNextPane {} 0
 add wave -noupdate /tb/dut/r_conv_busy
 add wave -noupdate /tb/dut/w_conv_ready_for_input
 add wave -noupdate /tb/dut/w_conv_input_fire
+add wave -noupdate /tb/dut/r_conv_result_pending
+add wave -noupdate /tb/dut/w_conv_result_ready
+add wave -noupdate /tb/dut/w_conv_result_accept
 add wave -noupdate -divider base
 add wave -noupdate /tb/dut/clk
 add wave -noupdate /tb/dut/reset
