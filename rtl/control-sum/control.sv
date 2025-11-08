@@ -70,6 +70,11 @@ module Control
   logic [$clog2(N_WINDOW * N_WINDOW * N_CHANNEL_IN)-1:0] r_window_all_channel_in;
   // Total window counter for the read path
   logic [$clog2(N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN)-1:0] r_window_total_in;
+  // Debug monitors for end-of-window predicates (still functions for reuse)
+  // logic w_end_read_in;
+  // logic w_end_horizontal_in;
+  // logic w_end_channel_in;
+  // logic w_end_all_channel_in;
 
   // Base address register for output features
   logic [$clog2(N_CHANNEL_OUT * FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE)-1:0] r_addr_out;
@@ -81,6 +86,12 @@ module Control
   logic [$clog2(N_WINDOW * N_WINDOW)-1:0] r_window_channel_out;
   // Row-aligned window counter for write-side address updates
   logic [$clog2(N_WINDOW):0] r_window_horizontal_out;
+  // Debug monitors for output-path predicates
+  // logic w_end_read_out;
+  // logic w_end_write_out;
+  // logic w_end_horizontal_out;
+  // logic w_end_channel_out;
+  // logic w_end_all_channel_out;
 
   // Current input feature address
   logic[NADDR-1:0] w_addr_in;
@@ -639,41 +650,81 @@ module Control
     p_end = (r_window_total_out >= N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN) ? 1'b1 : 1'b0;
   end
 
+  // Debug monitor wires so the f_end_* predicates remain visible in simulation
+  // always_comb begin: F_END_MONITOR_BLOCK
+  //   w_end_read_in        = f_end_read_in();
+  //   w_end_horizontal_in  = f_end_horizontal_in();
+  //   w_end_channel_in     = f_end_channel_in();
+  //   w_end_all_channel_in = f_end_all_channel_in();
+  //   w_end_read_out       = f_end_read_out();
+  //   w_end_write_out      = f_end_write_out();
+  //   w_end_horizontal_out = f_end_horizontal_out();
+  //   w_end_channel_out    = f_end_channel_out();
+  //   w_end_all_channel_out = f_end_all_channel_out();
+  // end
+
   // Helper predicates replacing the former w_end_* wires
   function automatic logic f_end_read_in();
-    f_end_read_in = (r_count_in == (C1_SIZE * C2_SIZE - 1));
+    // variável estática para guardar o último resultado
+    static logic w_end_read_in;
+    w_end_read_in = (r_count_in == (C1_SIZE * C2_SIZE - 1));
+    f_end_read_in = w_end_read_in;
   endfunction
 
   function automatic logic f_end_horizontal_in();
-    f_end_horizontal_in = (r_window_horizontal_in >= N_WINDOW - 1);
+    // variável estática para guardar o último resultado
+    static logic w_end_horizontal_in;
+    w_end_horizontal_in = (r_window_horizontal_in >= N_WINDOW - 1);
+    f_end_horizontal_in = w_end_horizontal_in;
   endfunction
 
   function automatic logic f_end_channel_in();
-    f_end_channel_in = (r_window_channel_in >= N_WINDOW * N_WINDOW - 1);
+    // variável estática para guardar o último resultado
+    static logic w_end_channel_in;
+    w_end_channel_in = (r_window_channel_in >= N_WINDOW * N_WINDOW - 1);
+    f_end_channel_in = w_end_channel_in;
   endfunction
 
   function automatic logic f_end_all_channel_in();
-    f_end_all_channel_in = (r_window_all_channel_in >= (N_WINDOW * N_WINDOW * N_CHANNEL_IN - 1));
+    // variável estática para guardar o último resultado
+    static logic w_end_all_channel_in;
+    w_end_all_channel_in = (r_window_all_channel_in >= (N_WINDOW * N_WINDOW * N_CHANNEL_IN - 1));
+    f_end_all_channel_in = w_end_all_channel_in;
   endfunction
 
   function automatic logic f_end_read_out();
-    f_end_read_out = (r_count_read_out == (A1_SIZE * A2_SIZE - 1));
+    // variável estática para guardar o último resultado
+    static logic w_end_read_out;
+    w_end_read_out = (r_count_read_out == (A1_SIZE * A2_SIZE - 1));
+    f_end_read_out = w_end_read_out;
   endfunction
 
   function automatic logic f_end_write_out();
-    f_end_write_out = (r_count_write_out == (A1_SIZE * A2_SIZE - 1));
+    // variável estática para guardar o último resultado
+    static logic w_end_write_out;
+    w_end_write_out = (r_count_write_out == (A1_SIZE * A2_SIZE - 1));
+    f_end_write_out = w_end_write_out;
   endfunction
 
   function automatic logic f_end_horizontal_out();
-    f_end_horizontal_out = (r_window_horizontal_out >= N_WINDOW - 1);
+    // variável estática para guardar o último resultado
+    static logic w_end_horizontal_out;
+    w_end_horizontal_out = (r_window_horizontal_out >= N_WINDOW - 1);
+    f_end_horizontal_out = w_end_horizontal_out;
   endfunction
 
   function automatic logic f_end_channel_out();
-    f_end_channel_out = (r_window_channel_out >= N_WINDOW * N_WINDOW - 1);
+    // variável estática para guardar o último resultado
+    static logic w_end_channel_out;
+    w_end_channel_out = (r_window_channel_out >= N_WINDOW * N_WINDOW - 1);
+    f_end_channel_out = w_end_channel_out;
   endfunction
 
   function automatic logic f_end_all_channel_out();
-    f_end_all_channel_out = (r_window_all_channel_out >= (N_WINDOW * N_WINDOW * N_CHANNEL_IN - 2));
+    // variável estática para guardar o último resultado
+    static logic w_end_all_channel_out;
+    w_end_all_channel_out = (r_window_all_channel_out >= (N_WINDOW * N_WINDOW * N_CHANNEL_IN - 2));
+    f_end_all_channel_out = w_end_all_channel_out;
   endfunction
 
 endmodule
