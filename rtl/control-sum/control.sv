@@ -167,12 +167,12 @@ module Control
           next_st_input = READ_INPUT;
       end
       READ_INPUT: begin
-        if (r_count_in == (C1_SIZE * C2_SIZE - 1))
+        if (f_end_read_in())
           next_st_input = CONV_INPUT;
       end
       CONV_INPUT: begin
           // When all windows across input and output channels have been read, finish input
-        if ((r_window_horizontal_in >= N_WINDOW - 1) && (r_window_total_in >= N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN - 1))
+        if (f_end_horizontal_in() && (r_window_total_in >= N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN - 1))
           next_st_input = END_INPUT;
         else
         // When all output-channel windows are complete, load bias (disabled for now)
@@ -180,9 +180,9 @@ module Control
         //  next_st_input = BIAS;
         // else
         // When a full set of windows for an input channel is done, reload weights
-        if ((r_window_horizontal_in >= N_WINDOW - 1) && (r_window_channel_in >= N_WINDOW * N_WINDOW - 1))
+        if (f_end_horizontal_in() && f_end_channel_in())
           next_st_input = HOLD_LAST_CONV;
-        else if (r_window_horizontal_in >= N_WINDOW - 1)
+        else if (f_end_horizontal_in())
           next_st_input = READ_INPUT;
         else if (r_channel_out > 0)
           next_st_input = HOLD_OUTPUT;
@@ -215,7 +215,7 @@ module Control
           next_st_output = CONV_OUT_PUT;
       end
       READ_OUTPUT: begin
-        if (r_count_read_out == (A1_SIZE * A2_SIZE - 1))
+        if (f_end_read_out())
           next_st_output = CONV_OUT_PUT;
       end
       // Waits for the convolution-complete signal
@@ -229,15 +229,15 @@ module Control
       WRITE_OUTPUT: begin
         // if (r_count_write_out == (A1_SIZE * A2_SIZE - 1))
         //   next_st_output = CONV_OUT_PUT;
-        if ((r_count_write_out == (A1_SIZE * A2_SIZE - 1)) && (r_window_channel_out < (N_WINDOW * N_WINDOW - 1)) && (r_channel_out == 0))
+        if (f_end_write_out() && !f_end_channel_out() && (r_channel_out == 0))
           next_st_output = CONV_OUT_PUT;
-        else if ((r_count_write_out == (A1_SIZE * A2_SIZE - 1)) && (r_window_channel_out < (N_WINDOW * N_WINDOW - 1)) && (r_channel_out > 0))
+        else if (f_end_write_out() && !f_end_channel_out() && (r_channel_out > 0))
           next_st_output = READ_OUTPUT;
-        else if ((r_count_write_out == (A1_SIZE * A2_SIZE - 1)) && (r_window_channel_out >= N_WINDOW * N_WINDOW - 1))
+        else if (f_end_write_out() && f_end_channel_out())
           next_st_output = END_CHANNEL;
         // else if ((r_count_write_out == (A1_SIZE * A2_SIZE - 1)) && (r_window_total_out == (N_WINDOW * N_WINDOW * N_CHANNEL_IN) - 1))
           // next_st_output = IDLE_OUTPUT;
-        else if ((r_count_write_out == (A1_SIZE * A2_SIZE - 1)) && (r_window_total_out == (N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN - 1)))
+        else if (f_end_write_out() && (r_window_total_out == (N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN - 1)))
           next_st_output = IDLE_OUTPUT;
       end
       END_CHANNEL: begin
@@ -263,7 +263,7 @@ module Control
       w_handshake_input <= '0;
    else
    // if ((next_st_input == CONV_INPUT) || ((next_st_input == FIRST_READ_INPUT) && (current_st_input != FIRST_READ_INPUT) && (current_st_input != WEIGHT)))
-   if (r_count_in == (C1_SIZE * C2_SIZE - 1))
+   if (f_end_read_in())
       w_handshake_input <= '1;
    else
       w_handshake_input <= '0;
@@ -284,7 +284,7 @@ module Control
     if (reset)
       w_handshake_output <= '0;
     else
-    if ((r_count_write_out == (A1_SIZE * A2_SIZE - 1)) || (r_window_channel_in < 1))
+    if (f_end_write_out() || (r_window_channel_in < 1))
       w_handshake_output <= '1;
     else
       w_handshake_output <= '0;
@@ -360,7 +360,7 @@ module Control
           // When the input buffer is full, increment the total window counter
           r_window_total_in <= r_window_total_in + 1;
 
-          if (r_window_horizontal_in >= N_WINDOW - 1)
+          if (f_end_horizontal_in())
             r_count_in <= 0;
           else begin
             r_count_in <= C1_SIZE * (C1_SIZE - A1_SIZE);
@@ -386,26 +386,26 @@ module Control
             r_feat_in[21] <= r_feat_in[24];
           end
 
-          if (r_window_horizontal_in >= N_WINDOW - 1)
+          if (f_end_horizontal_in())
             r_window_horizontal_in <= 0;
           else
             r_window_horizontal_in <= r_window_horizontal_in + 1;
 
-          if (r_window_channel_in >= N_WINDOW * N_WINDOW - 1)
+          if (f_end_channel_in())
             r_window_channel_in <= 0;
           else
             r_window_channel_in <= r_window_channel_in + 1;
 
-          if (r_window_all_channel_in >= (N_WINDOW * N_WINDOW * N_CHANNEL_IN - 1))
+          if (f_end_all_channel_in())
             r_window_all_channel_in <= 0;
           else
             r_window_all_channel_in <= r_window_all_channel_in + 1;
 
-          if ((r_window_horizontal_in >= N_WINDOW - 1) && (r_window_all_channel_in >= (N_WINDOW * N_WINDOW * N_CHANNEL_IN - 1)))
+          if (f_end_horizontal_in() && f_end_all_channel_in())
             r_addr_in <= N_CHANNEL_IN * N_CHANNEL_OUT + M1_SIZE * M2_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT;
-          else if ((r_window_horizontal_in >= N_WINDOW - 1) && (r_window_channel_in < N_WINDOW * N_WINDOW - 1))
+          else if (f_end_horizontal_in() && !f_end_channel_in())
             r_addr_in  <= r_addr_in + C1_SIZE + FEAT_INPUT_SIZE * (A1_SIZE - 1);
-          else if ((r_window_horizontal_in >= N_WINDOW - 1) && (r_window_channel_in >= N_WINDOW * N_WINDOW - 1))
+          else if (f_end_horizontal_in() && f_end_channel_in())
             r_addr_in  <= r_addr_in + C1_SIZE + FEAT_INPUT_SIZE * (C1_SIZE - 1);
           else
             r_addr_in  <= r_addr_in + A1_SIZE;
@@ -544,32 +544,32 @@ module Control
         WRITE_OUTPUT: begin
           // Each cycle increments the output counter to select which register value gets written
           r_count_write_out <= r_count_write_out + 1;
-          if (r_count_write_out == (A1_SIZE * A2_SIZE - 1))
+          if (f_end_write_out())
             r_window_total_out <= r_window_total_out + 1;
 
           // When the output window is full but the row continues:
           // - increment the per-row window counter
           // - move horizontally to the next window
-          if ((r_count_write_out == (A1_SIZE * A2_SIZE - 1)) && (r_window_horizontal_out >= N_WINDOW - 1))
+          if (f_end_write_out() && f_end_horizontal_out())
             r_window_horizontal_out <= 0;
-          else if ((r_count_write_out == (A1_SIZE * A2_SIZE - 1)) && (r_window_horizontal_out < N_WINDOW - 1))
+          else if (f_end_write_out() && !f_end_horizontal_out())
             r_window_horizontal_out <= r_window_horizontal_out + 1;
 
-          if ((r_count_write_out == (A1_SIZE * A2_SIZE - 1)) && (r_window_channel_out < N_WINDOW * N_WINDOW - 1))
+          if (f_end_write_out() && !f_end_channel_out())
             r_window_channel_out <= r_window_channel_out + 1;
 
-          if ((r_count_write_out == (A1_SIZE * A2_SIZE - 1)) && (r_window_all_channel_out < (N_WINDOW * N_WINDOW * N_CHANNEL_IN - 2)))
+          if (f_end_write_out() && !f_end_all_channel_out())
             r_window_all_channel_out <= r_window_all_channel_out + 1;
 
-          if ((r_count_write_out == (A1_SIZE * A2_SIZE - 1)) && (r_window_horizontal_out >= N_WINDOW - 1))
+          if (f_end_write_out() && f_end_horizontal_out())
             r_addr_out <= r_addr_out + A1_SIZE + FEAT_OUTPUT_SIZE * (A1_SIZE - 1);
-          else if ((r_count_write_out == (A1_SIZE * A2_SIZE - 1)) && (r_window_horizontal_out < N_WINDOW - 1))
+          else if (f_end_write_out() && !f_end_horizontal_out())
             r_addr_out <= r_addr_out + A1_SIZE;
         end
         END_CHANNEL: begin
           r_window_horizontal_out <= 0;
           r_window_channel_out <= 0;
-          if (r_window_all_channel_out >= (N_WINDOW * N_WINDOW * N_CHANNEL_IN - 2))
+          if (f_end_all_channel_out())
             r_window_all_channel_out <= 0;
           // if (r_channel_out >= N_CHANNEL_IN - 1)
           //    r_addr_out <= r_addr_out - (FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
@@ -638,5 +638,42 @@ module Control
   always_comb begin: P_END_BLOCK
     p_end = (r_window_total_out >= N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN) ? 1'b1 : 1'b0;
   end
+
+  // Helper predicates replacing the former w_end_* wires
+  function automatic logic f_end_read_in();
+    f_end_read_in = (r_count_in == (C1_SIZE * C2_SIZE - 1));
+  endfunction
+
+  function automatic logic f_end_horizontal_in();
+    f_end_horizontal_in = (r_window_horizontal_in >= N_WINDOW - 1);
+  endfunction
+
+  function automatic logic f_end_channel_in();
+    f_end_channel_in = (r_window_channel_in >= N_WINDOW * N_WINDOW - 1);
+  endfunction
+
+  function automatic logic f_end_all_channel_in();
+    f_end_all_channel_in = (r_window_all_channel_in >= (N_WINDOW * N_WINDOW * N_CHANNEL_IN - 1));
+  endfunction
+
+  function automatic logic f_end_read_out();
+    f_end_read_out = (r_count_read_out == (A1_SIZE * A2_SIZE - 1));
+  endfunction
+
+  function automatic logic f_end_write_out();
+    f_end_write_out = (r_count_write_out == (A1_SIZE * A2_SIZE - 1));
+  endfunction
+
+  function automatic logic f_end_horizontal_out();
+    f_end_horizontal_out = (r_window_horizontal_out >= N_WINDOW - 1);
+  endfunction
+
+  function automatic logic f_end_channel_out();
+    f_end_channel_out = (r_window_channel_out >= N_WINDOW * N_WINDOW - 1);
+  endfunction
+
+  function automatic logic f_end_all_channel_out();
+    f_end_all_channel_out = (r_window_all_channel_out >= (N_WINDOW * N_WINDOW * N_CHANNEL_IN - 2));
+  endfunction
 
 endmodule
