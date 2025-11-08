@@ -1,14 +1,21 @@
 /*
+=============================================================
+Module: Control
+Description: Controls the input/output dataflow for convolution
+             - Reads input/weight RAMs
+             - Triggers convolution core
+             - Handles output writing
+Author: Társio Onofrio
+Date: 2025-11-07
+=============================================================
+*/
+
+
+/*
 TODO
 Avaliar se é melhor remover os contadores de janelas e comparar com os endereços.
 */
 
-/*
-=============================================================
-MODULE: Control
-DESCRIPTION: Orquestra a leitura de janelas, pesos e escrita de resultados
-=============================================================
-*/
 module Control
   import pack_def::*;
   import pack_data::*;
@@ -706,14 +713,14 @@ module Control
 
   // Debug monitor wires so the f_end_* predicates remain visible in simulation
   // always_comb begin: F_END_MONITOR_BLOCK
-  //   w_end_read_in        = f_end_read_in();
-  //   w_end_horizontal_in  = f_end_horizontal_in();
-  //   w_end_channel_in     = f_end_channel_in();
-  //   w_end_all_channel_in = f_end_all_channel_in();
-  //   w_end_read_out       = f_end_read_out();
-  //   w_end_write_out      = f_end_write_out();
-  //   w_end_horizontal_out = f_end_horizontal_out();
-  //   w_end_channel_out    = f_end_channel_out();
+  //   w_end_read_in         = f_end_read_in();
+  //   w_end_horizontal_in   = f_end_horizontal_in();
+  //   w_end_channel_in      = f_end_channel_in();
+  //   w_end_all_channel_in  = f_end_all_channel_in();
+  //   w_end_read_out        = f_end_read_out();
+  //   w_end_write_out       = f_end_write_out();
+  //   w_end_horizontal_out  = f_end_horizontal_out();
+  //   w_end_channel_out     = f_end_channel_out();
   //   w_end_all_channel_out = f_end_all_channel_out();
   // end
 
