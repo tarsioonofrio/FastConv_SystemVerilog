@@ -97,7 +97,7 @@ module Control
   // Output feature register read counter
   logic [$clog2(A1_SIZE*A2_SIZE)-1:0] r_addr_count_read_out;
   // Output counter
-  logic [$clog2(A1_SIZE*A2_SIZE)-1:0] w_count_out;
+  logic [$clog2(A1_SIZE*A2_SIZE)-1:0] w_addr_count_out;
   // Output feature write counter (unused/commented)
   // logic [$floor($clog2(N_CHANNEL_OUT) + 0.5)-1:0] r_addr_count_ch_out;
   // Debug monitors for end-of-window predicates (still functions for reuse)
@@ -124,7 +124,7 @@ module Control
   // logic w_end_all_channel_out;
 
   // Current input feature address
-  logic[NADDR-1:0] w_addr_in;
+  logic[NADDR-1:0] w_addr_ptr_pin;
 
   logic w_output_en;
 
@@ -499,35 +499,35 @@ module Control
   // Combinational logic computing the input read address from the input counter
   always_comb begin: W_ADDR_IN_BLOCK
     unique case (r_addr_count_in)
-      default: w_addr_in = r_addr_pointer_in + 0; // 00
-      01: w_addr_in = r_addr_pointer_in + FEAT_INPUT_SIZE + 0; // 05
-      02: w_addr_in = r_addr_pointer_in + FEAT_INPUT_SIZE * 2 + 0; // 10
-      03: w_addr_in = r_addr_pointer_in + FEAT_INPUT_SIZE * 3 + 0; // 15
-      04: w_addr_in = r_addr_pointer_in + FEAT_INPUT_SIZE * 4 + 0; // 20
+      default: w_addr_ptr_pin = r_addr_pointer_in + 0; // 00
+      01: w_addr_ptr_pin = r_addr_pointer_in + FEAT_INPUT_SIZE + 0; // 05
+      02: w_addr_ptr_pin = r_addr_pointer_in + FEAT_INPUT_SIZE * 2 + 0; // 10
+      03: w_addr_ptr_pin = r_addr_pointer_in + FEAT_INPUT_SIZE * 3 + 0; // 15
+      04: w_addr_ptr_pin = r_addr_pointer_in + FEAT_INPUT_SIZE * 4 + 0; // 20
 
-      05: w_addr_in = r_addr_pointer_in + 1; // 01
-      06: w_addr_in = r_addr_pointer_in + FEAT_INPUT_SIZE + 1; // 06
-      07: w_addr_in = r_addr_pointer_in + FEAT_INPUT_SIZE * 2 + 1; // 11
-      08: w_addr_in = r_addr_pointer_in + FEAT_INPUT_SIZE * 3 + 1; // 16
-      09: w_addr_in = r_addr_pointer_in + FEAT_INPUT_SIZE * 4 + 1; // 21
+      05: w_addr_ptr_pin = r_addr_pointer_in + 1; // 01
+      06: w_addr_ptr_pin = r_addr_pointer_in + FEAT_INPUT_SIZE + 1; // 06
+      07: w_addr_ptr_pin = r_addr_pointer_in + FEAT_INPUT_SIZE * 2 + 1; // 11
+      08: w_addr_ptr_pin = r_addr_pointer_in + FEAT_INPUT_SIZE * 3 + 1; // 16
+      09: w_addr_ptr_pin = r_addr_pointer_in + FEAT_INPUT_SIZE * 4 + 1; // 21
 
-      10: w_addr_in = r_addr_pointer_in + 2; // 02
-      11: w_addr_in = r_addr_pointer_in + FEAT_INPUT_SIZE + 2; // 07
-      12: w_addr_in = r_addr_pointer_in + FEAT_INPUT_SIZE * 2 + 2; // 12
-      13: w_addr_in = r_addr_pointer_in + FEAT_INPUT_SIZE * 3 + 2; // 17
-      14: w_addr_in = r_addr_pointer_in + FEAT_INPUT_SIZE * 4 + 2; // 22
+      10: w_addr_ptr_pin = r_addr_pointer_in + 2; // 02
+      11: w_addr_ptr_pin = r_addr_pointer_in + FEAT_INPUT_SIZE + 2; // 07
+      12: w_addr_ptr_pin = r_addr_pointer_in + FEAT_INPUT_SIZE * 2 + 2; // 12
+      13: w_addr_ptr_pin = r_addr_pointer_in + FEAT_INPUT_SIZE * 3 + 2; // 17
+      14: w_addr_ptr_pin = r_addr_pointer_in + FEAT_INPUT_SIZE * 4 + 2; // 22
 
-      15: w_addr_in = r_addr_pointer_in + 3; // 03
-      16: w_addr_in = r_addr_pointer_in + FEAT_INPUT_SIZE + 3; // 08
-      17: w_addr_in = r_addr_pointer_in + FEAT_INPUT_SIZE * 2 + 3; // 13
-      18: w_addr_in = r_addr_pointer_in + FEAT_INPUT_SIZE * 3 + 3; // 18
-      19: w_addr_in = r_addr_pointer_in + FEAT_INPUT_SIZE * 4 + 3; // 23
+      15: w_addr_ptr_pin = r_addr_pointer_in + 3; // 03
+      16: w_addr_ptr_pin = r_addr_pointer_in + FEAT_INPUT_SIZE + 3; // 08
+      17: w_addr_ptr_pin = r_addr_pointer_in + FEAT_INPUT_SIZE * 2 + 3; // 13
+      18: w_addr_ptr_pin = r_addr_pointer_in + FEAT_INPUT_SIZE * 3 + 3; // 18
+      19: w_addr_ptr_pin = r_addr_pointer_in + FEAT_INPUT_SIZE * 4 + 3; // 23
 
-      20: w_addr_in = r_addr_pointer_in + 4; // 04
-      21: w_addr_in = r_addr_pointer_in + FEAT_INPUT_SIZE + 4; // 09
-      22: w_addr_in = r_addr_pointer_in + FEAT_INPUT_SIZE * 2 + 4; // 14
-      23: w_addr_in = r_addr_pointer_in + FEAT_INPUT_SIZE * 3 + 4; // 19
-      24: w_addr_in = r_addr_pointer_in + FEAT_INPUT_SIZE * 4 + 4; // 24
+      20: w_addr_ptr_pin = r_addr_pointer_in + 4; // 04
+      21: w_addr_ptr_pin = r_addr_pointer_in + FEAT_INPUT_SIZE + 4; // 09
+      22: w_addr_ptr_pin = r_addr_pointer_in + FEAT_INPUT_SIZE * 2 + 4; // 14
+      23: w_addr_ptr_pin = r_addr_pointer_in + FEAT_INPUT_SIZE * 3 + 4; // 19
+      24: w_addr_ptr_pin = r_addr_pointer_in + FEAT_INPUT_SIZE * 4 + 4; // 24
     endcase
   end
 
@@ -543,7 +543,7 @@ module Control
         p_input_en = r_read_en;
       end
       READ_INPUT: begin
-        p_input_addr = w_addr_in;
+        p_input_addr = w_addr_ptr_pin;
         p_input_en = r_read_en;
       end
       default: begin
@@ -652,14 +652,14 @@ module Control
   // Address counter for write paths
   always_comb begin: W_COUNT_OUT_BLOCK
     if (current_st_output == WRITE_OUTPUT)
-      w_count_out <= r_addr_count_write_out;
+      w_addr_count_out <= r_addr_count_write_out;
     else
-      w_count_out <= r_addr_count_read_out;
+      w_addr_count_out <= r_addr_count_read_out;
   end
 
   // Combinational logic computing the write address from the output counter
   always_comb begin: P_OUTPUT_ADDR_BLOCK
-    unique case (w_count_out)
+    unique case (w_addr_count_out)
       default: p_output_addr = r_addr_pointer_out + 0;
       1: p_output_addr = r_addr_pointer_out + 1;
       2: p_output_addr = r_addr_pointer_out + 2;
