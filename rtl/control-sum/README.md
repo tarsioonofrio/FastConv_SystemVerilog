@@ -32,9 +32,9 @@ The control module typically drives multiple finite state machines (FSMs) to man
 
 Two explicit handshakes keep the FSMs aligned with the convolution core:
 
-- **Input → Convolution (`w_conv_ready_for_input`, `w_conv_input_fire`)**: The input FSM only transitions out of `CONV_INPUT` when the core reports it is idle (`w_conv_ready_for_input`). Once idle, the FSM asserts `w_conv_input_fire` for one cycle to transfer the prepared tile, guaranteeing each window is submitted exactly once.
-- **Convolution → Output (`w_conv_result_ready`, `r_conv_result_pending`, `w_conv_result_accept`)**: The control logic latches every completed feature map in `r_conv_result_pending` when `w_conv_result_ready = p_conv_end && p_conv_idle`. The output FSM may consume the buffered result only while it sits in `CONV_OUTPUT`, which raises `w_conv_result_accept` and clears the pending flag so no result is written twice.
-- **Debug mirrors (`w_handshake_input`, `w_handshake_conv`, `w_handshake_output`)**: These wires mimic the start/ready strobes for waveform visibility and are exposed in `wave.do` for quick inspection when running ModelSim.
+- **Input → Convolution (`w_conv_ready_for_input`, `w_conv_input_fire`)**: advance out of `CONV_INPUT` only when the core is idle, then emit a single-cycle fire pulse so each window is submitted exactly once.
+- **Convolution → Output (`w_conv_result_ready`, `r_conv_result_pending`, `w_conv_result_accept`)**: latch every completed feature map until the output FSM sits in `CONV_OUTPUT`, then assert accept to consume the result once and clear the pending flag.
+- **Debug mirrors (`w_handshake_input`, `w_handshake_conv`, `w_handshake_output`)**: duplicate the handshake strobes purely for waveform visibility and are already listed near the top of `wave.do`.
 
 Use this module as a reference guide to understand the control flow governing the convolution pipeline in the FastConv SystemVerilog project.
 
