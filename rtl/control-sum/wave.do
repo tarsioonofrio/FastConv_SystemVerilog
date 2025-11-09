@@ -1,11 +1,5 @@
 onerror {resume}
 quietly WaveActivateNextPane {} 0
-add wave -noupdate /tb/dut/r_conv_busy
-add wave -noupdate /tb/dut/w_conv_ready_for_input
-add wave -noupdate /tb/dut/w_conv_input_fire
-add wave -noupdate /tb/dut/r_conv_result_pending
-add wave -noupdate /tb/dut/w_conv_result_ready
-add wave -noupdate /tb/dut/w_conv_result_accept
 add wave -noupdate -divider base
 add wave -noupdate /tb/dut/clk
 add wave -noupdate /tb/dut/reset
@@ -14,17 +8,21 @@ add wave -noupdate /tb/dut/p_end
 add wave -noupdate -color Red /tb/dut/p_conv_start
 add wave -noupdate -color Red /tb/dut/p_conv_end
 add wave -noupdate /tb/dut/r_conv_end
-add wave -noupdate /tb/dut/w_handshake_conv
 add wave -noupdate /tb/dut/f_is_last_row_input/w_is_last_row_input
 add wave -noupdate /tb/dut/f_is_last_channel_input/w_is_last_channel_input
 add wave -noupdate -radix unsigned /tb/dut/r_hold_output
 add wave -noupdate /tb/dut/current_st_input
 add wave -noupdate /tb/conv/current_state
 add wave -noupdate /tb/dut/current_st_output
-add wave -noupdate /tb/dut/f_is_last_read_input/w_is_last_read_input
-add wave -noupdate /tb/dut/w_handshake_input
-add wave -noupdate /tb/dut/w_handshake_output
 add wave -noupdate -color Red /tb/dut/f_is_last_row_out/w_is_last_row_out
+add wave -noupdate /tb/dut/f_is_last_read_input/w_is_last_read_input
+add wave -noupdate -divider handshake
+add wave -noupdate /tb/dut/r_conv_busy
+add wave -noupdate /tb/dut/w_conv_ready_for_input
+add wave -noupdate /tb/dut/w_conv_input_fire
+add wave -noupdate /tb/dut/r_conv_result_pending
+add wave -noupdate /tb/dut/w_conv_result_ready
+add wave -noupdate /tb/dut/w_conv_result_accept
 add wave -noupdate -divider control
 add wave -noupdate -radix decimal -childformat {{{/tb/dut/p_conv_output[8]} -radix decimal} {{/tb/dut/p_conv_output[7]} -radix decimal} {{/tb/dut/p_conv_output[6]} -radix decimal} {{/tb/dut/p_conv_output[5]} -radix decimal} {{/tb/dut/p_conv_output[4]} -radix decimal} {{/tb/dut/p_conv_output[3]} -radix decimal} {{/tb/dut/p_conv_output[2]} -radix decimal} {{/tb/dut/p_conv_output[1]} -radix decimal} {{/tb/dut/p_conv_output[0]} -radix decimal}} -expand -subitemconfig {{/tb/dut/p_conv_output[8]} {-height 16 -radix decimal} {/tb/dut/p_conv_output[7]} {-height 16 -radix decimal} {/tb/dut/p_conv_output[6]} {-height 16 -radix decimal} {/tb/dut/p_conv_output[5]} {-height 16 -radix decimal} {/tb/dut/p_conv_output[4]} {-height 16 -radix decimal} {/tb/dut/p_conv_output[3]} {-height 16 -radix decimal} {/tb/dut/p_conv_output[2]} {-height 16 -radix decimal} {/tb/dut/p_conv_output[1]} {-height 16 -radix decimal} {/tb/dut/p_conv_output[0]} {-height 16 -radix decimal}} /tb/dut/p_conv_output
 add wave -noupdate -radix decimal -childformat {{{/tb/dut/p_conv_input[24]} -radix decimal} {{/tb/dut/p_conv_input[23]} -radix decimal} {{/tb/dut/p_conv_input[22]} -radix decimal} {{/tb/dut/p_conv_input[21]} -radix decimal} {{/tb/dut/p_conv_input[20]} -radix decimal} {{/tb/dut/p_conv_input[19]} -radix decimal} {{/tb/dut/p_conv_input[18]} -radix decimal} {{/tb/dut/p_conv_input[17]} -radix decimal} {{/tb/dut/p_conv_input[16]} -radix decimal} {{/tb/dut/p_conv_input[15]} -radix decimal} {{/tb/dut/p_conv_input[14]} -radix decimal} {{/tb/dut/p_conv_input[13]} -radix decimal} {{/tb/dut/p_conv_input[12]} -radix decimal} {{/tb/dut/p_conv_input[11]} -radix decimal} {{/tb/dut/p_conv_input[10]} -radix decimal} {{/tb/dut/p_conv_input[9]} -radix decimal} {{/tb/dut/p_conv_input[8]} -radix decimal} {{/tb/dut/p_conv_input[7]} -radix decimal} {{/tb/dut/p_conv_input[6]} -radix decimal} {{/tb/dut/p_conv_input[5]} -radix decimal} {{/tb/dut/p_conv_input[4]} -radix decimal} {{/tb/dut/p_conv_input[3]} -radix decimal} {{/tb/dut/p_conv_input[2]} -radix decimal} {{/tb/dut/p_conv_input[1]} -radix decimal} {{/tb/dut/p_conv_input[0]} -radix decimal}} -subitemconfig {{/tb/dut/p_conv_input[24]} {-height 16 -radix decimal} {/tb/dut/p_conv_input[23]} {-height 16 -radix decimal} {/tb/dut/p_conv_input[22]} {-height 16 -radix decimal} {/tb/dut/p_conv_input[21]} {-height 16 -radix decimal} {/tb/dut/p_conv_input[20]} {-height 16 -radix decimal} {/tb/dut/p_conv_input[19]} {-height 16 -radix decimal} {/tb/dut/p_conv_input[18]} {-height 16 -radix decimal} {/tb/dut/p_conv_input[17]} {-height 16 -radix decimal} {/tb/dut/p_conv_input[16]} {-height 16 -radix decimal} {/tb/dut/p_conv_input[15]} {-height 16 -radix decimal} {/tb/dut/p_conv_input[14]} {-height 16 -radix decimal} {/tb/dut/p_conv_input[13]} {-height 16 -radix decimal} {/tb/dut/p_conv_input[12]} {-height 16 -radix decimal} {/tb/dut/p_conv_input[11]} {-height 16 -radix decimal} {/tb/dut/p_conv_input[10]} {-height 16 -radix decimal} {/tb/dut/p_conv_input[9]} {-height 16 -radix decimal} {/tb/dut/p_conv_input[8]} {-height 16 -radix decimal} {/tb/dut/p_conv_input[7]} {-height 16 -radix decimal} {/tb/dut/p_conv_input[6]} {-height 16 -radix decimal} {/tb/dut/p_conv_input[5]} {-height 16 -radix decimal} {/tb/dut/p_conv_input[4]} {-height 16 -radix decimal} {/tb/dut/p_conv_input[3]} {-height 16 -radix decimal} {/tb/dut/p_conv_input[2]} {-height 16 -radix decimal} {/tb/dut/p_conv_input[1]} {-height 16 -radix decimal} {/tb/dut/p_conv_input[0]} {-height 16 -radix decimal}} /tb/dut/p_conv_input
