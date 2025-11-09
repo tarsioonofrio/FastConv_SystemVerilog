@@ -52,7 +52,7 @@ do mem.do
 # run 1000ns
 # run 2000ns
 # 4 blocks
-run 5000ns
+# run 5000ns
 # one line
 
 # run 70000ns
