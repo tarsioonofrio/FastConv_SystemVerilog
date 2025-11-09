@@ -84,8 +84,8 @@ add wave -noupdate /tb/memory_write/data_valid
 add wave -noupdate /tb/memory_write/r_cycles_latency
 add wave -noupdate -radix decimal /tb/memory_write/data
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 11} {63500 ps} 1} {{Cursor 12} {2007233 ps} 0}
-quietly wave cursor active 2
+WaveRestoreCursors {{Cursor 11} {63500 ps} 1} {{Cursor 12} {64500 ps} 0}
+quietly wave cursor active 1
 configure wave -namecolwidth 256
 configure wave -valuecolwidth 100
 configure wave -justifyvalue left
@@ -100,4 +100,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {0 ps} {5209575 ps}
+WaveRestoreZoom {18246833 ps} {18257009 ps}
