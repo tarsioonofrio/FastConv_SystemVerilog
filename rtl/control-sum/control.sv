@@ -315,21 +315,19 @@ timeunit 1ns; timeprecision 1ps;
       CONV_OUTPUT: begin
         if (w_conv_result_ready && (r_channel_counter_out == 0))
           next_st_output = WRITE_OUTPUT;
-          else if (w_conv_result_ready && (r_channel_counter_out > 0))
+        else if (w_conv_result_ready && (r_channel_counter_out > 0))
           next_st_output = WRITE_OUTPUT;
       end
       // Waits for the output data write to memory to complete and then returns to idle
       WRITE_OUTPUT: begin
-        // if (r_addr_count_write_out == (FEATURE_NUM_ELEMS - 1))
-        //   next_st_output = CONV_OUTPUT;
+        // TODO
+        // Evaluate whether this if/else structure should be changed to an if-else tree
         if (f_is_last_write_out() && !f_is_last_channel_out() && (r_channel_counter_out == 0))
           next_st_output = CONV_OUTPUT;
         else if (f_is_last_write_out() && !f_is_last_channel_out() && (r_channel_counter_out > 0))
           next_st_output = READ_OUTPUT;
         else if (f_is_last_write_out() && f_is_last_channel_out())
           next_st_output = END_CHANNEL;
-        // else if ((r_addr_count_write_out == (FEATURE_NUM_ELEMS - 1)) && (r_window_counter_total_out == LAST_INPUT_WINDOW_INDEX))
-          // next_st_output = IDLE_OUTPUT;
         else if (f_is_last_write_out() && (r_window_counter_total_out == LAST_INPUT_WINDOW_INDEX))
           next_st_output = IDLE_OUTPUT;
       end
@@ -340,15 +338,24 @@ timeunit 1ns; timeprecision 1ps;
         next_st_output = HOLD_WEIGHT;
       end
       HOLD_WEIGHT: begin
-        // TODO
-        // Add handshake between input and output FSMs for channel completion
         if (next_st_input == READ_INPUT)
           next_st_output = READ_OUTPUT;
       end
     endcase
   end
 
-  
+  /*
+   -------------------------------------------------------------
+   6. Handshake coordination
+   -------------------------------------------------------------
+   */
+
+   /*
+   Sequencers below keep track of which side currently owns the convolution
+   core: `r_conv_busy` blocks new requests until the core reports idle, while
+   `r_conv_result_pending` guarantees each produced feature map is accepted
+   exactly once by the output FSM.
+   */
   always_ff @(posedge clk) begin
     if (reset) begin
       r_conv_busy <= 1'b0;
@@ -360,9 +367,16 @@ timeunit 1ns; timeprecision 1ps;
     end
   end
 
+  // Handshake #1: input FSM -> convolution core
   assign w_conv_ready_for_input = p_conv_idle && (!r_conv_busy || p_conv_end);
   assign w_conv_input_fire      = (current_st_input == CONV_INPUT) && w_conv_ready_for_input;
 
+  /*
+   Result handshake mirrors the input-side sequencer: the moment the convolution
+   core asserts `p_conv_end`, the result stays marked as pending until the output
+   FSM consumes it inside CONV_OUTPUT, preventing the same feature map from being
+   accumulated twice.
+   */
   always_ff @(posedge clk) begin
     if (reset) begin
       r_conv_result_pending <= 1'b0;
@@ -374,13 +388,14 @@ timeunit 1ns; timeprecision 1ps;
     end
   end
 
+  // Handshake #2: convolution core -> output FSM
   assign w_conv_result_ready    = p_conv_end;
   assign w_conv_result_accept   = (current_st_output == CONV_OUTPUT) && r_conv_result_pending;
 
 
   /*
    -------------------------------------------------------------
-   6. Data Input path
+   7. Data Input path
    -------------------------------------------------------------
    */
 
@@ -726,7 +741,7 @@ timeunit 1ns; timeprecision 1ps;
       8: p_output_addr = r_addr_pointer_out + FEAT_OUTPUT_SIZE * 2 + 2;
     endcase
   end
-  
+
   // Combinational logic driving output ports from internal registers
   always_comb begin: P_OUTPUT_DATA_WRITE_BLOCK
     p_output_data_write = r_conv_output[r_addr_count_write_out];
