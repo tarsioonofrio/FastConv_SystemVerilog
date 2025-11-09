@@ -632,6 +632,9 @@ timeunit 1ns; timeprecision 1ps;
       r_window_counter_row_out <= 0;
       r_conv_output   <= '{default: '0};
       r_feat_output   <= '{default: '0};
+      r_col_index_output <= '0;
+      r_row_index_output <= '0;
+      r_row_stride_output <= '0;
     end else begin
       unique case (current_st_output)
         default: begin end
@@ -646,6 +649,10 @@ timeunit 1ns; timeprecision 1ps;
         CONV_OUTPUT: begin
           r_addr_count_read_out  <= 0;
           r_addr_count_write_out <= 0;
+          r_col_index_output <= '0;
+          r_row_index_output <= '0;
+          r_row_stride_output <= '0;
+
           // In first channel only get output data from convolutional module
           if (w_conv_result_ready && (r_channel_counter_out == 0))
              for (int i = 0; i < OUTPUT_FEATURE_NUM_ELEMS; i++)
@@ -662,18 +669,18 @@ timeunit 1ns; timeprecision 1ps;
           if (f_is_last_write_out())
             r_window_counter_total_out <= r_window_counter_total_out + 1;
 
-            if (r_col_index_output == (A1_SIZE - 1)) begin
-              r_col_index_output <= '0;
-              if (r_row_index_output == (A1_SIZE - 1)) begin
-                r_row_index_output <= '0;
-                r_row_stride_output <= '0;
-              end else begin
-                r_row_index_output <= r_row_index_output + 1;
-                r_row_stride_output <= r_row_stride_output + NADDR'(FEAT_INPUT_SIZE);
-              end
+          if (r_col_index_output == (A1_SIZE - 1)) begin
+            r_col_index_output <= '0;
+            if (r_row_index_output == (A1_SIZE - 1)) begin
+              r_row_index_output <= '0;
+              r_row_stride_output <= '0;
             end else begin
-              r_col_index_output <= r_col_index_output + 1;
+              r_row_index_output <= r_row_index_output + 1;
+              r_row_stride_output <= r_row_stride_output + FEAT_OUTPUT_SIZE;
             end
+          end else begin
+            r_col_index_output <= r_col_index_output + 1;
+          end
 
           // When the output window is full but the row continues:
           // - increment the per-row window counter
@@ -784,12 +791,12 @@ timeunit 1ns; timeprecision 1ps;
 
   assign w_col_offset_output   = r_col_index_output;
   assign w_offset_total_output = r_row_stride_output + w_col_offset_output;
-  assign p_output_addr         = r_addr_pointer_output + w_offset_total_output;
+  assign p_output_addr         = r_addr_pointer_out + w_offset_total_output;
 
   // Combinational logic computing the write address from the output counter
   always_comb begin: P_OUTPUT_ADDR_BLOCK
     unique case (w_addr_count_out)
-      default: p_output_addr = r_addr_pointer_out + 0;
+      default: w_addr_ptr_pout = r_addr_pointer_out + 0;
       1: w_addr_ptr_pout = r_addr_pointer_out + 1;
       2: w_addr_ptr_pout = r_addr_pointer_out + 2;
 
