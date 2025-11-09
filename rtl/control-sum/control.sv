@@ -8,12 +8,24 @@ Description: Controls the input/output dataflow for convolution
 Author: Társio Onofrio
 Date: 2025-11-07
 =============================================================
-*/
 
+=============================================================
+Contents
 
-/*
+1) Módulo, parâmetros e localparams
+2) Tipos (typedef/enum/struct/interface)
+3) Portas internas: regs/wires (agrupados por tema)
+4) Constantes derivadas (localparams) e funções utilit.
+5) FSM INPUT (curr/next + transições)
+6) FSM OUTPUT (curr/next + transições)
+7) Contadores e geradores de endereço
+8) Handshakes / eventos registrados (pulsos)
+9) Assertions e monitores de simulação (ifdef SIM)
+=============================================================
+
 TODO
 Evaluate whether window counters can be removed in favor of direct address comparisons.
+
 */
 
 module Control
