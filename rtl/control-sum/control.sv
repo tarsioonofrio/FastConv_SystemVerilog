@@ -86,6 +86,7 @@ timeunit 1ns; timeprecision 1ps;
    -------------------------------------------------------------
    */
 
+  // Structure element counts (2D footprints)
   // Total elements that compose a full input feature map
   localparam int INPUT_NUM_ELEMS                       = FEAT_INPUT_SIZE * FEAT_INPUT_SIZE;
   // Total elements stored per output feature map
@@ -99,6 +100,7 @@ timeunit 1ns; timeprecision 1ps;
   // All (input, output) channel combinations processed per frame
   localparam int TOTAL_NUM_CHANNELS                    = N_CHANNEL_IN * N_CHANNEL_OUT;
 
+  // Window accounting and channel combinations
   // Windows required to cover one spatial plane
   localparam int WINDOWS_PER_PLANE                     = N_WINDOW * N_WINDOW;
   // Windows processed per input channel (across all outputs)
@@ -108,6 +110,7 @@ timeunit 1ns; timeprecision 1ps;
   // Total number of sliding windows for the entire execution
   localparam int TOTAL_INPUT_WINDOWS                   = WINDOWS_PER_PLANE * TOTAL_NUM_CHANNELS;
 
+  // Precomputed "last" thresholds used throughout comparisons (-1 already absorbed)
   // Final valid index inside a kernel window
   localparam int LAST_KERNEL_INDEX                     = INPUT_FEATURE_NUM_ELEMS - 1;
   // Final valid window index within a plane
@@ -121,11 +124,7 @@ timeunit 1ns; timeprecision 1ps;
 
   // Latency slack used to time HOLD_OUTPUT
   localparam int CYCLES_HOLD_OUTPUT                    = (OUTPUT_FEATURE_NUM_ELEMS*2 + 1) - (C1_SIZE * A1_SIZE + 1);
-  /*
-   ---------------------
-   Input path control
-   ---------------------
-  */
+  // -- Input path control registers --
   // Base address register for input features
   logic [$clog2(TOTAL_NUM_CHANNELS + KERNEL_NUM_ELEMS * TOTAL_NUM_CHANNELS + N_CHANNEL_IN * INPUT_NUM_ELEMS)-1:0] r_addr_pointer_input;
   // Input feature register read counter
@@ -139,11 +138,7 @@ timeunit 1ns; timeprecision 1ps;
   // Total window counter for the read path
   logic [$clog2(TOTAL_INPUT_WINDOWS)-1:0] r_window_counter_total_input;
 
-  /*
-   ---------------------
-   Weight path
-   ---------------------
-  */
+  // -- Weight path bookkeeping --
   // Base address register for weight blocks
   logic [$clog2(TOTAL_NUM_CHANNELS + KERNEL_NUM_ELEMS * TOTAL_NUM_CHANNELS)-1:0] r_addr_pointer_kernel;
   // Weight read counter
@@ -153,11 +148,7 @@ timeunit 1ns; timeprecision 1ps;
   // Temporary substitute for r_addr_pointer_bias
   // logic [2:0] r_addr_pointer_bias;
 
-  /*
-   ---------------------
-   Output path control (counters)
-   ---------------------
-  */
+  // -- Output path control counters --
   // Output feature register write counter
   logic [$clog2(OUTPUT_FEATURE_NUM_ELEMS)-1:0] r_addr_count_write_out;
   // Output feature register read counter
