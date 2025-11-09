@@ -719,6 +719,34 @@ timeunit 1ns; timeprecision 1ps;
     end
   end
 
+  always_ff @(posedge clk) begin
+      if (reset) begin
+        r_col_index_output <= '0;
+        r_row_index_output <= '0;
+        r_row_stride_output <= '0;
+
+      end else begin
+        if ((current_st_output == WRITE_OUTPUT) || ((current_st_output == READ_OUTPUT)) && (p_output_valid && (r_addr_count_read_out < OUTPUT_FEATURE_NUM_ELEMS))) begin
+          if (r_col_index_output == (A1_SIZE - 1)) begin
+            r_col_index_output <= '0;
+            if (r_row_index_output == (A1_SIZE - 1)) begin
+              r_row_index_output <= '0;
+              r_row_stride_output <= '0;
+            end else begin
+              r_row_index_output <= r_row_index_output + 1;
+              r_row_stride_output <= r_row_stride_output + FEAT_OUTPUT_SIZE;
+            end
+          end else begin
+            r_col_index_output <= r_col_index_output + 1;
+          end
+        end
+      end
+  end
+
+  assign w_col_offset_output   = r_col_index_output;
+  assign w_offset_total_output = r_row_stride_output + w_col_offset_output;
+  assign w_addr_ptr_pout       = r_addr_pointer_out + w_offset_total_output;
+
 
   /*
    -------------------------------------------------------------
@@ -781,58 +809,7 @@ timeunit 1ns; timeprecision 1ps;
     endcase
   end
 
-  // // Address counter for write paths
-  // always_comb begin: W_COUNT_OUT_BLOCK
-  //   if (current_st_output == WRITE_OUTPUT)
-  //     w_addr_count_out <= r_addr_count_write_out;
-  //   else
-  //     w_addr_count_out <= r_addr_count_read_out;
-  // end
-
-  always_ff @(posedge clk) begin
-      if (reset) begin
-        r_col_index_output <= '0;
-        r_row_index_output <= '0;
-        r_row_stride_output <= '0;
-
-      end else begin
-        if ((current_st_output == WRITE_OUTPUT) || ((current_st_output == READ_OUTPUT)) && (p_output_valid && (r_addr_count_read_out < OUTPUT_FEATURE_NUM_ELEMS))) begin
-          if (r_col_index_output == (A1_SIZE - 1)) begin
-            r_col_index_output <= '0;
-            if (r_row_index_output == (A1_SIZE - 1)) begin
-              r_row_index_output <= '0;
-              r_row_stride_output <= '0;
-            end else begin
-              r_row_index_output <= r_row_index_output + 1;
-              r_row_stride_output <= r_row_stride_output + FEAT_OUTPUT_SIZE;
-            end
-          end else begin
-            r_col_index_output <= r_col_index_output + 1;
-          end
-        end
-      end
-  end
-
-  assign w_col_offset_output   = r_col_index_output;
-  assign w_offset_total_output = r_row_stride_output + w_col_offset_output;
-  assign p_output_addr         = r_addr_pointer_out + w_offset_total_output;
-
-  // // Combinational logic computing the write address from the output counter
-  // always_comb begin: P_OUTPUT_ADDR_BLOCK
-  //   unique case (w_addr_count_out)
-  //     default: w_addr_ptr_pout = r_addr_pointer_out + 0;
-  //     1: w_addr_ptr_pout = r_addr_pointer_out + 1;
-  //     2: w_addr_ptr_pout = r_addr_pointer_out + 2;
-
-  //     3: w_addr_ptr_pout = r_addr_pointer_out + FEAT_OUTPUT_SIZE + 0;
-  //     4: w_addr_ptr_pout = r_addr_pointer_out + FEAT_OUTPUT_SIZE + 1;
-  //     5: w_addr_ptr_pout = r_addr_pointer_out + FEAT_OUTPUT_SIZE + 2;
-
-  //     6: w_addr_ptr_pout = r_addr_pointer_out + FEAT_OUTPUT_SIZE * 2 + 0;
-  //     7: w_addr_ptr_pout = r_addr_pointer_out + FEAT_OUTPUT_SIZE * 2 + 1;
-  //     8: w_addr_ptr_pout = r_addr_pointer_out + FEAT_OUTPUT_SIZE * 2 + 2;
-  //   endcase
-  // end
+  assign p_output_addr = w_addr_ptr_pout;
 
   // Combinational logic driving output ports from internal registers
   always_comb begin: P_OUTPUT_DATA_WRITE_BLOCK
