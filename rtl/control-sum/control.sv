@@ -348,58 +348,7 @@ timeunit 1ns; timeprecision 1ps;
     endcase
   end
 
-
-  // Handshake signals
-
-  always_comb begin: LATCH_INPUT_BLOCK
-    if (reset)
-      w_handshake_input <= '0;
-   else
-   // if ((next_st_input == CONV_INPUT) || ((next_st_input == FIRST_READ_INPUT) && (current_st_input != FIRST_READ_INPUT) && (current_st_input != WEIGHT)))
-   if (f_is_last_read_input())
-      w_handshake_input <= '1;
-   else
-      w_handshake_input <= '0;
-  end
-
-  always_comb begin: LATCH_CONV_BLOCK
-    if (reset)
-      w_handshake_conv <= '0;
-     else
-     if (w_conv_result_accept)
-      w_handshake_conv <= '1;
-     else
-     // if (r_addr_count_write_out == (FEATURE_NUM_ELEMS - 1))
-      w_handshake_conv <= '0;
-  end
-
-  always_comb begin: LATCH_OUTPUT_BLOCK
-    if (reset)
-      w_handshake_output <= '0;
-    else
-    if (f_is_last_write_out() || (r_window_counter_channel_input < 1))
-      w_handshake_output <= '1;
-    else
-      w_handshake_output <= '0;
-  end
-
-  assign w_conv_ready_for_input = p_conv_idle && (!r_conv_busy || p_conv_end);
-  assign w_conv_input_fire      = (current_st_input == CONV_INPUT) && w_conv_ready_for_input;
-  assign w_conv_result_ready    = p_conv_end;
-  assign w_conv_result_accept   = (current_st_output == CONV_OUTPUT) && r_conv_result_pending;
-
-
-  always_ff @(posedge clk) begin
-    if (reset) begin
-      r_conv_end   <= 1'b0;
-    end else begin
-      if (w_handshake_conv)
-        r_conv_end   <= 1'b1;
-      else if (w_handshake_input)
-        r_conv_end   <= 1'b0;
-    end
-  end
-
+  
   always_ff @(posedge clk) begin
     if (reset) begin
       r_conv_busy <= 1'b0;
@@ -411,6 +360,9 @@ timeunit 1ns; timeprecision 1ps;
     end
   end
 
+  assign w_conv_ready_for_input = p_conv_idle && (!r_conv_busy || p_conv_end);
+  assign w_conv_input_fire      = (current_st_input == CONV_INPUT) && w_conv_ready_for_input;
+
   always_ff @(posedge clk) begin
     if (reset) begin
       r_conv_result_pending <= 1'b0;
@@ -421,6 +373,9 @@ timeunit 1ns; timeprecision 1ps;
         r_conv_result_pending <= 1'b0;
     end
   end
+
+  assign w_conv_result_ready    = p_conv_end;
+  assign w_conv_result_accept   = (current_st_output == CONV_OUTPUT) && r_conv_result_pending;
 
 
   /*
