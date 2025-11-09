@@ -182,7 +182,7 @@ timeunit 1ns; timeprecision 1ps;
 
   // Current input feature address
   logic[NADDR-1:0] w_addr_ptr_pin;
-  logic[NADDR-1:0] w_addr_ptr_pin2;
+  logic[NADDR-1:0] w_addr_ptr_pout;
   // Column offset inside the current sliding window tile
   logic [$clog2(C1_SIZE):0] r_col_index_input;
   // Row offset inside the current sliding window tile
@@ -193,6 +193,17 @@ timeunit 1ns; timeprecision 1ps;
   logic [NADDR-1:0] w_col_offset_input;
   // Combined row/column offset added to the window base pointer
   logic [NADDR-1:0] w_offset_total_input;
+
+  // Column offset inside the current sliding window tile
+  logic [$clog2(A1_SIZE):0] r_col_index_output;
+  // Row offset inside the current sliding window tile
+  logic [$clog2(A1_SIZE):0] r_row_index_output;
+  // Accumulated row stride (row_index * FEAT_OUTPUT_SIZE built with adders)
+  logic [NADDR-1:0] r_row_stride_output;
+  // Zero-extended column offset used for address math
+  logic [NADDR-1:0] w_col_offset_output;
+  // Combined row/column offset added to the window base pointer
+  logic [NADDR-1:0] w_offset_total_output;
 
   // Write-enable mirror for the output RAM port (helps gate strobes during HOLD states)
   logic w_output_en;
@@ -651,6 +662,19 @@ timeunit 1ns; timeprecision 1ps;
           if (f_is_last_write_out())
             r_window_counter_total_out <= r_window_counter_total_out + 1;
 
+            if (r_col_index_output == (A1_SIZE - 1)) begin
+              r_col_index_output <= '0;
+              if (r_row_index_output == (A1_SIZE - 1)) begin
+                r_row_index_output <= '0;
+                r_row_stride_output <= '0;
+              end else begin
+                r_row_index_output <= r_row_index_output + 1;
+                r_row_stride_output <= r_row_stride_output + NADDR'(FEAT_INPUT_SIZE);
+              end
+            end else begin
+              r_col_index_output <= r_col_index_output + 1;
+            end
+
           // When the output window is full but the row continues:
           // - increment the per-row window counter
           // - move horizontally to the next window
@@ -687,6 +711,7 @@ timeunit 1ns; timeprecision 1ps;
       endcase
     end
   end
+
 
   // Address counter for write paths
   always_comb begin: W_COUNT_OUT_BLOCK
@@ -757,20 +782,24 @@ timeunit 1ns; timeprecision 1ps;
     endcase
   end
 
+  assign w_col_offset_output   = r_col_index_output;
+  assign w_offset_total_output = r_row_stride_output + w_col_offset_output;
+  assign p_output_addr         = r_addr_pointer_output + w_offset_total_output;
+
   // Combinational logic computing the write address from the output counter
   always_comb begin: P_OUTPUT_ADDR_BLOCK
     unique case (w_addr_count_out)
       default: p_output_addr = r_addr_pointer_out + 0;
-      1: p_output_addr = r_addr_pointer_out + 1;
-      2: p_output_addr = r_addr_pointer_out + 2;
+      1: w_addr_ptr_pout = r_addr_pointer_out + 1;
+      2: w_addr_ptr_pout = r_addr_pointer_out + 2;
 
-      3: p_output_addr = r_addr_pointer_out + FEAT_OUTPUT_SIZE + 0;
-      4: p_output_addr = r_addr_pointer_out + FEAT_OUTPUT_SIZE + 1;
-      5: p_output_addr = r_addr_pointer_out + FEAT_OUTPUT_SIZE + 2;
+      3: w_addr_ptr_pout = r_addr_pointer_out + FEAT_OUTPUT_SIZE + 0;
+      4: w_addr_ptr_pout = r_addr_pointer_out + FEAT_OUTPUT_SIZE + 1;
+      5: w_addr_ptr_pout = r_addr_pointer_out + FEAT_OUTPUT_SIZE + 2;
 
-      6: p_output_addr = r_addr_pointer_out + FEAT_OUTPUT_SIZE * 2 + 0;
-      7: p_output_addr = r_addr_pointer_out + FEAT_OUTPUT_SIZE * 2 + 1;
-      8: p_output_addr = r_addr_pointer_out + FEAT_OUTPUT_SIZE * 2 + 2;
+      6: w_addr_ptr_pout = r_addr_pointer_out + FEAT_OUTPUT_SIZE * 2 + 0;
+      7: w_addr_ptr_pout = r_addr_pointer_out + FEAT_OUTPUT_SIZE * 2 + 1;
+      8: w_addr_ptr_pout = r_addr_pointer_out + FEAT_OUTPUT_SIZE * 2 + 2;
     endcase
   end
 
