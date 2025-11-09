@@ -553,36 +553,6 @@ timeunit 1ns; timeprecision 1ps;
     endcase
   end
 
-  // Combinational mux selecting which memory region to read (bias, weights, input features, or idle) based on the input state
-  always_comb begin
-    unique case (current_st_input)
-      BIAS: begin
-        p_input_addr = r_addr_pointer_bias;
-        p_input_en = 1'b0;
-      end
-      WEIGHT: begin
-        p_input_addr = r_addr_pointer_kernel;
-        p_input_en = r_read_en;
-      end
-      READ_INPUT: begin
-        p_input_addr = w_addr_ptr_pin;
-        p_input_en = r_read_en;
-      end
-      default: begin
-        p_input_addr = 0;
-        p_input_en = 1'b0;
-      end
-    endcase
-  end
-
-  // Combinational logic driving output ports from internal registers
-  always_comb begin
-    p_conv_input  = r_feat_input;
-    p_conv_weight = r_kernel;
-    // p_conv_start  = w_handshake_input;
-    p_conv_start = w_conv_input_fire;
-  end
-
 
   /*
    -------------------------------------------------------------
@@ -679,27 +649,45 @@ timeunit 1ns; timeprecision 1ps;
       w_addr_count_out <= r_addr_count_read_out;
   end
 
-  // Combinational logic computing the write address from the output counter
-  always_comb begin: P_OUTPUT_ADDR_BLOCK
-    unique case (w_addr_count_out)
-      default: p_output_addr = r_addr_pointer_out + 0;
-      1: p_output_addr = r_addr_pointer_out + 1;
-      2: p_output_addr = r_addr_pointer_out + 2;
+  /*
+   -------------------------------------------------------------
+   8. Output port path
+   -------------------------------------------------------------
+   */
 
-      3: p_output_addr = r_addr_pointer_out + FEAT_OUTPUT_SIZE + 0;
-      4: p_output_addr = r_addr_pointer_out + FEAT_OUTPUT_SIZE + 1;
-      5: p_output_addr = r_addr_pointer_out + FEAT_OUTPUT_SIZE + 2;
 
-      6: p_output_addr = r_addr_pointer_out + FEAT_OUTPUT_SIZE * 2 + 0;
-      7: p_output_addr = r_addr_pointer_out + FEAT_OUTPUT_SIZE * 2 + 1;
-      8: p_output_addr = r_addr_pointer_out + FEAT_OUTPUT_SIZE * 2 + 2;
-    endcase
+  always_comb begin: P_END_BLOCK
+    p_end = (r_window_counter_total_out >= TOTAL_INPUT_WINDOWS) ? 1'b1 : 1'b0;
   end
 
   // Combinational logic driving output ports from internal registers
-  always_comb begin: P_OUTPUT_DATA_WRITE_BLOCK
-    p_output_data_write = r_conv_output[r_addr_count_write_out];
-    // p_start_channel = r_start_channel;
+  always_comb begin
+    p_conv_input  = r_feat_input;
+    p_conv_weight = r_kernel;
+    // p_conv_start  = w_handshake_input;
+    p_conv_start = w_conv_input_fire;
+  end
+
+  // Combinational mux selecting which memory region to read (bias, weights, input features, or idle) based on the input state
+  always_comb begin
+    unique case (current_st_input)
+      BIAS: begin
+        p_input_addr = r_addr_pointer_bias;
+        p_input_en = 1'b0;
+      end
+      WEIGHT: begin
+        p_input_addr = r_addr_pointer_kernel;
+        p_input_en = r_read_en;
+      end
+      READ_INPUT: begin
+        p_input_addr = w_addr_ptr_pin;
+        p_input_en = r_read_en;
+      end
+      default: begin
+        p_input_addr = 0;
+        p_input_en = 1'b0;
+      end
+    endcase
   end
 
   // If the current state is WRITE_OUTPUT, enable write
@@ -722,9 +710,29 @@ timeunit 1ns; timeprecision 1ps;
     endcase
   end
 
-  always_comb begin: P_END_BLOCK
-    p_end = (r_window_counter_total_out >= TOTAL_INPUT_WINDOWS) ? 1'b1 : 1'b0;
+  // Combinational logic computing the write address from the output counter
+  always_comb begin: P_OUTPUT_ADDR_BLOCK
+    unique case (w_addr_count_out)
+      default: p_output_addr = r_addr_pointer_out + 0;
+      1: p_output_addr = r_addr_pointer_out + 1;
+      2: p_output_addr = r_addr_pointer_out + 2;
+
+      3: p_output_addr = r_addr_pointer_out + FEAT_OUTPUT_SIZE + 0;
+      4: p_output_addr = r_addr_pointer_out + FEAT_OUTPUT_SIZE + 1;
+      5: p_output_addr = r_addr_pointer_out + FEAT_OUTPUT_SIZE + 2;
+
+      6: p_output_addr = r_addr_pointer_out + FEAT_OUTPUT_SIZE * 2 + 0;
+      7: p_output_addr = r_addr_pointer_out + FEAT_OUTPUT_SIZE * 2 + 1;
+      8: p_output_addr = r_addr_pointer_out + FEAT_OUTPUT_SIZE * 2 + 2;
+    endcase
   end
+  
+  // Combinational logic driving output ports from internal registers
+  always_comb begin: P_OUTPUT_DATA_WRITE_BLOCK
+    p_output_data_write = r_conv_output[r_addr_count_write_out];
+    // p_start_channel = r_start_channel;
+  end
+
 
   // Debug monitor wires so the f_is_last_* predicates remain visible in simulation
   // always_comb begin: F_END_MONITOR_BLOCK
@@ -741,7 +749,7 @@ timeunit 1ns; timeprecision 1ps;
 
   /*
    -------------------------------------------------------------
-   8. Utility functions
+   9. Utility functions
    -------------------------------------------------------------
    */
   // Helper predicates replacing the former w_is_last_* wires
