@@ -13,7 +13,7 @@ Date: 2025-11-07
 
 /*
 TODO
-Avaliar se é melhor remover os contadores de janelas e comparar com os endereços.
+Evaluate whether window counters can be removed in favor of direct address comparisons.
 */
 
 module Control
@@ -22,42 +22,48 @@ module Control
   import pack_param::*;
   import pack_typedef::*;
 #(
-    parameter int NADDR            = 16,
-    parameter int NBITS            = 20,
-    parameter int LATENCY          = 1,
-    parameter int ROM              = 0,
-    parameter int LAST_WINDOW      = 0
+    parameter int NADDR            = 16,  // Address width for the external RAM interfaces
+    parameter int NBITS            = 20,  // Bit width for data-path arithmetic
+    parameter int LATENCY          = 1,   // Convolution core latency (cycles between request/result)
+    parameter int ROM              = 0,   // Enables ROM-backed inputs instead of RAM when set
+    parameter int LAST_WINDOW      = 0    // Compile-time override for the last window index
 ) (
     /*
      -------------------------------------------------------------
      1. Port declarations
      -------------------------------------------------------------
      */
-    input  logic clk,
-    input  logic reset,
+    // Global clock/reset domain
+    input  logic clk,                              // System clock driving all sequential logic
+    input  logic reset,                            // Asynchronous-active-high reset
 
-    input  logic p_start,
-    output logic p_end,
+    // Top-level sequencing interface
+    input  logic p_start,                          // Top-level start pulse for the entire control flow
+    output logic p_end,                            // Asserted once every pipeline completes all work
 
-    output logic p_conv_start,
-    input  logic p_conv_idle,
-    input  logic p_conv_end,
+    // Convolution core control handshake
+    output logic p_conv_start,                     // Kicks the convolution core with a new tile
+    input  logic p_conv_idle,                      // High when the convolution core is idle/ready
+    input  logic p_conv_end,                       // High when the convolution core finished processing
 
-    output type_input  p_conv_input,
-    output type_weight p_conv_weight,
-    input  type_output p_conv_output,
+    // Convolution core data buses
+    output type_input  p_conv_input,               // Input feature vector forwarded to the convolution core
+    output type_weight p_conv_weight,              // Weight vector forwarded to the convolution core
+    input  type_output p_conv_output,              // Feature map returned by the convolution core
 
-    output logic p_input_en,
-    output logic[NADDR-1:0] p_input_addr,
-    input  logic_vector p_input_data,
-    input  logic p_input_valid,
+    // Input RAM interface
+    output logic p_input_en,                       // Enables a read operation on the input RAM
+    output logic[NADDR-1:0] p_input_addr,          // Address issued to the input RAM
+    input  logic_vector p_input_data,              // Data returned from the input RAM
+    input  logic p_input_valid,                    // Read-valid flag from the input RAM
 
-    output logic p_output_en,
-    output logic p_output_wr,
-    output logic[NADDR-1:0] p_output_addr,
-    output logic_vector p_output_data_write,
-    input  logic_vector p_output_data_read,
-    input  logic p_output_valid
+    // Output RAM interface
+    output logic p_output_en,                      // Enables access to the output RAM port
+    output logic p_output_wr,                      // Write strobe for the output RAM port
+    output logic[NADDR-1:0] p_output_addr,         // Address issued to the output RAM
+    output logic_vector p_output_data_write,       // Data driven into the output RAM on writes
+    input  logic_vector p_output_data_read,        // Data captured from the output RAM on reads
+    input  logic p_output_valid                    // Read-valid flag from the output RAM
 );
 
 timeunit 1ns; timeprecision 1ps;
@@ -68,27 +74,40 @@ timeunit 1ns; timeprecision 1ps;
    -------------------------------------------------------------
    */
 
-  // Elementos por estrutura (contagem 2D)
+  // Total elements that compose a full input feature map
   localparam int INPUT_NUM_ELEMS                       = FEAT_INPUT_SIZE * FEAT_INPUT_SIZE;
+  // Total elements stored per output feature map
   localparam int OUTPUT_NUM_ELEMS                      = FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE;
+  // Elements present in one convolution window on the input path
   localparam int INPUT_FEATURE_NUM_ELEMS               = C1_SIZE * C2_SIZE;
+  // Elements produced per convolution window on the output path
   localparam int OUTPUT_FEATURE_NUM_ELEMS              = A1_SIZE * A2_SIZE;
+  // Elements contained in a single kernel tile
   localparam int KERNEL_NUM_ELEMS                      = M1_SIZE * M2_SIZE;
+  // All (input, output) channel combinations processed per frame
   localparam int TOTAL_NUM_CHANNELS                    = N_CHANNEL_IN * N_CHANNEL_OUT;
 
-  // Contagens de janelas e combinações
+  // Windows required to cover one spatial plane
   localparam int WINDOWS_PER_PLANE                     = N_WINDOW * N_WINDOW;
+  // Windows processed per input channel (across all outputs)
   localparam int WINDOWS_PER_INPUT_CHANNEL             = WINDOWS_PER_PLANE * N_CHANNEL_OUT;
+  // Windows processed per output channel (across all inputs)
   localparam int WINDOWS_PER_OUTPUT_CHANNEL            = WINDOWS_PER_PLANE * N_CHANNEL_IN;
+  // Total number of sliding windows for the entire execution
   localparam int TOTAL_INPUT_WINDOWS                   = WINDOWS_PER_PLANE * TOTAL_NUM_CHANNELS;
 
-  // Limiares "last" usados em comparações (-1 já aplicado)
+  // Final valid index inside a kernel window
   localparam int LAST_KERNEL_INDEX                     = INPUT_FEATURE_NUM_ELEMS - 1;
+  // Final valid window index within a plane
   localparam int LAST_WINDOW_INDEX_PER_PLANE           = WINDOWS_PER_PLANE - 1;
+  // Final valid index across every input-window combination
   localparam int LAST_INPUT_WINDOW_INDEX               = WINDOWS_PER_PLANE * TOTAL_NUM_CHANNELS - 1;
+  // Final row index for the 2D window grid
   localparam int LAST_WINDOW_ROW_INDEX                 = N_WINDOW - 1;
+  // Final window index per output channel
   localparam int LAST_OUTPUT_CHANNEL_WINDOW_INDEX      = WINDOWS_PER_OUTPUT_CHANNEL - 1;
 
+  // Latency slack used to time HOLD_OUTPUT
   localparam int CYCLES_HOLD_OUTPUT                    = (OUTPUT_FEATURE_NUM_ELEMS*2 + 1) - (C1_SIZE * A1_SIZE + 1);
   /*
    ---------------------
@@ -161,11 +180,14 @@ timeunit 1ns; timeprecision 1ps;
   // Current input feature address
   logic[NADDR-1:0] w_addr_ptr_pin;
 
+  // Write-enable mirror for the output RAM port (helps gate strobes during HOLD states)
   logic w_output_en;
 
+  // Counters that keep track of which input/output channel pair is currently active
   logic [$floor($clog2(TOTAL_NUM_CHANNELS) + 0.5):0] r_channel_counter_input;
   logic [$floor($clog2(TOTAL_NUM_CHANNELS) + 0.5):0] r_channel_counter_out;
 
+  // Legacy bookkeeping hooks for convolution activity (kept for waveform compatibility)
   logic r_conv_end;
   logic r_conv_busy;
   logic r_read_en;
@@ -173,19 +195,24 @@ timeunit 1ns; timeprecision 1ps;
   type_input  r_feat_input;
   // Register bank for kernel weights
   type_weight r_kernel;
-  // Register bank for output features
-  type_output r_conv_output;
+  // Register bank for read output features
   type_output r_feat_output;
+  // Register bank for output features from convolution module
+  type_output r_conv_output;
 
 
-  // diferença entre soma, escrita e leitura do output
-  // subtraído tempo de leitura do input
-  //
+  // Difference between accumulation, write, and read phases on the output path
+  // (adjusted by the time spent reading inputs)
   logic [$clog2(CYCLES_HOLD_OUTPUT) - 1:0] r_hold_output;
+  // High when the convolution core can accept a new input tile
   logic w_conv_ready_for_input;
+  // Single-cycle pulse emitted when the input FSM hands data to the convolution core
   logic w_conv_input_fire;
+  // Sticky flag capturing an available convolution result until the output FSM consumes it
   logic r_conv_result_pending;
+  // Indicates that the convolution core finished and is idle, so results are stable for transfer
   logic w_conv_result_ready;
+  // Accept strobe asserted only when the output FSM is in CONV_OUTPUT and a pending result exists
   logic w_conv_result_accept;
 
   typedef enum {
@@ -211,9 +238,7 @@ timeunit 1ns; timeprecision 1ps;
   state_input_type current_st_input, next_st_input;
   state_output_type current_st_output, next_st_output;
 
-  logic w_handshake_input;
-  logic w_handshake_conv;
-  logic w_handshake_output;
+
 
 
   // Sequential logic that advances the state machines
@@ -771,63 +796,63 @@ timeunit 1ns; timeprecision 1ps;
    */
   // Helper predicates replacing the former w_is_last_* wires
   function automatic logic f_is_last_read_input();
-    // variável estática para guardar o último resultado
+    // Static variable preserves the last computed result for waveform visibility
     static logic w_is_last_read_input;
     w_is_last_read_input = (r_addr_count_input == LAST_KERNEL_INDEX);
     f_is_last_read_input = w_is_last_read_input;
   endfunction
 
   function automatic logic f_is_last_row_input();
-    // variável estática para guardar o último resultado
+    // Static variable preserves the last computed result for waveform visibility
     static logic w_is_last_row_input;
     w_is_last_row_input = (r_window_counter_row_input >= LAST_WINDOW_ROW_INDEX);
     f_is_last_row_input = w_is_last_row_input;
   endfunction
 
   function automatic logic f_is_last_channel_input();
-    // variável estática para guardar o último resultado
+    // Static variable preserves the last computed result for waveform visibility
     static logic w_is_last_channel_input;
     w_is_last_channel_input = (r_window_counter_channel_input >= LAST_WINDOW_INDEX_PER_PLANE);
     f_is_last_channel_input = w_is_last_channel_input;
   endfunction
 
   function automatic logic f_is_last_all_channel_input();
-    // variável estática para guardar o último resultado
+    // Static variable preserves the last computed result for waveform visibility
     static logic w_is_last_all_channel_input;
     w_is_last_all_channel_input = (r_window_counter_all_channel_input >= LAST_OUTPUT_CHANNEL_WINDOW_INDEX);
     f_is_last_all_channel_input = w_is_last_all_channel_input;
   endfunction
 
   function automatic logic f_is_last_read_out();
-    // variável estática para guardar o último resultado
+    // Static variable preserves the last computed result for waveform visibility
     static logic w_is_last_read_out;
     w_is_last_read_out = (r_addr_count_read_out == (OUTPUT_FEATURE_NUM_ELEMS - 1));
     f_is_last_read_out = w_is_last_read_out;
   endfunction
 
   function automatic logic f_is_last_write_out();
-    // variável estática para guardar o último resultado
+    // Static variable preserves the last computed result for waveform visibility
     static logic w_is_last_write_out;
     w_is_last_write_out = (r_addr_count_write_out == (OUTPUT_FEATURE_NUM_ELEMS - 1));
     f_is_last_write_out = w_is_last_write_out;
   endfunction
 
   function automatic logic f_is_last_row_out();
-    // variável estática para guardar o último resultado
+    // Static variable preserves the last computed result for waveform visibility
     static logic w_is_last_row_out;
     w_is_last_row_out = (r_window_counter_row_out >= LAST_WINDOW_ROW_INDEX);
     f_is_last_row_out = w_is_last_row_out;
   endfunction
 
   function automatic logic f_is_last_channel_out();
-    // variável estática para guardar o último resultado
+    // Static variable preserves the last computed result for waveform visibility
     static logic w_is_last_channel_out;
     w_is_last_channel_out = (r_window_counter_channel_out >= LAST_WINDOW_INDEX_PER_PLANE);
     f_is_last_channel_out = w_is_last_channel_out;
   endfunction
 
   function automatic logic f_is_last_all_channel_out();
-    // variável estática para guardar o último resultado
+    // Static variable preserves the last computed result for waveform visibility
     static logic w_is_last_all_channel_out;
     w_is_last_all_channel_out = (r_window_counter_all_channel_out >= LAST_OUTPUT_CHANNEL_WINDOW_INDEX - 1);
     f_is_last_all_channel_out = w_is_last_all_channel_out;
