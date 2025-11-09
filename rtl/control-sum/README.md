@@ -28,6 +28,14 @@ The control module typically drives multiple finite state machines (FSMs) to man
 - The design emphasizes modularity to enable reuse of the control subsystem across different FastConv configurations with varying window sizes and channel counts.
 - Testbenches located in this folder simulate the control logic with representative stimuli and validate correct operation through assertion checks and waveform inspection.
 
+### Handshake Signals
+
+Two explicit handshakes keep the FSMs aligned with the convolution core:
+
+- **Input → Convolution (`w_conv_ready_for_input`, `w_conv_input_fire`)**: The input FSM only transitions out of `CONV_INPUT` when the core reports it is idle (`w_conv_ready_for_input`). Once idle, the FSM asserts `w_conv_input_fire` for one cycle to transfer the prepared tile, guaranteeing each window is submitted exactly once.
+- **Convolution → Output (`w_conv_result_ready`, `r_conv_result_pending`, `w_conv_result_accept`)**: The control logic latches every completed feature map in `r_conv_result_pending` when `w_conv_result_ready = p_conv_end && p_conv_idle`. The output FSM may consume the buffered result only while it sits in `CONV_OUTPUT`, which raises `w_conv_result_accept` and clears the pending flag so no result is written twice.
+- **Debug mirrors (`w_handshake_input`, `w_handshake_conv`, `w_handshake_output`)**: These wires mimic the start/ready strobes for waveform visibility and are exposed in `wave.do` for quick inspection when running ModelSim.
+
 Use this module as a reference guide to understand the control flow governing the convolution pipeline in the FastConv SystemVerilog project.
 
 ## FSM Overview
@@ -42,15 +50,13 @@ States:
 
 - `I` (`IDLE_INPUT`): wait for `p_start`; counters and base addresses remain cleared.
 - `W` (`WEIGHT`): stream kernel weights until the current tile finishes.
-- `FR` (`FIRST_READ_INPUT`): fill the window buffer directly after loading weights.
-- `T` (`TRANSFER`): prepare hand-off to the convolution core; may fall through immediately.
+- `T` (`CONV_INPUT`): prepare hand-off to the convolution core; may fall through immediately.
 - `R` (`READ_INPUT`): refill the sliding window and manage horizontal reuse.
 
 ```mermaid
 flowchart TB
-    I(["IDLE_INPUT"]) --> |"start"| W(["WEIGHT"]) --> FR(["FIRST_READ_INPUT"]) --> |"primeira coluna"| T(["TRANSFER"]) --> R(["READ_INPUT"])
-    R --> T
-    R --> |"end line"| FR
+    I(["IDLE_INPUT"]) --> |"start"| W(["WEIGHT"]) --> R(["READ_INPUT"]) --> C(["CONV_INPUT"]) --> H(["HOLD"])
+    H --> R
     R --> |"end channel"| W
 ```
 
@@ -62,18 +68,14 @@ States:
 
 - `I` (`IDLE_OUTPUT`): await `p_start` before engaging downstream stages.
 - `C` (`CONV`): wait for the convolution block to report completion.
-- `FW` (`FIRST_WRITE_OUTPUT`): first write phase for a channel; decides whether to loop or advance.
-- `E` (`END_CHANNEL`): bridge between write and readback phases when more accumulation is needed.
 - `R` (`READ_OUTPUT`): pull existing output data to seed the accumulator.
-- `CS` (`CONV_SUM`): wait for the accumulator handshake to finish.
 - `W` (`WRITE_OUTPUT`): write updated windows back to memory and assess termination.
+- `E` (`END_CHANNEL`): bridge between write and readback phases when more accumulation is needed.
 
 ```mermaid
 flowchart TB
-    I(["IDLE_OUTPUT"]) --> C(["CONV"]) --> FW(["FIRST_WRITE_OUTPUT"]) --> E(["END_CHANNEL"]) --> R(["READ_OUTPUT"]) --> CS(["CONV_SUM"]) --> W(["WRITE_OUTPUT"])
-    FW --> C
-    FW --> I
+    I(["IDLE_OUTPUT"]) --> C(["CONV"]) --> W(["WRITE_OUTPUT"]) --> E(["END_CHANNEL"]) --> R(["READ_OUTPUT"]) --> C(["CONV"]) --> W(["WRITE_OUTPUT"]) --> E(["END_CHANNEL"])
+    W --> C
     W --> R
     W --> E
-    W --> I
 ```
