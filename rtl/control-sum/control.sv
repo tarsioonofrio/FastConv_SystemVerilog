@@ -87,31 +87,31 @@ timeunit 1ns; timeprecision 1ps;
    */
 
   // Structure element counts (2D footprints)
-  // Total elements that compose a full input feature map
+  // Input feature-map elements
   localparam int INPUT_NUM_ELEMS                       = FEAT_INPUT_SIZE * FEAT_INPUT_SIZE;
-  // Total elements stored per output feature map
+  // Output feature-map elements
   localparam int OUTPUT_NUM_ELEMS                      = FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE;
-  // Elements present in one convolution window on the input path
+  // Elements per sliding window on the input path
   localparam int INPUT_FEATURE_NUM_ELEMS               = C1_SIZE * C2_SIZE;
-  // Elements produced per convolution window on the output path
+  // Elements produced per sliding window on the output path
   localparam int OUTPUT_FEATURE_NUM_ELEMS              = A1_SIZE * A2_SIZE;
-  // Elements contained in a single kernel tile
+  // Elements per kernel tile
   localparam int KERNEL_NUM_ELEMS                      = M1_SIZE * M2_SIZE;
-  // All (input, output) channel combinations processed per frame
+  // Number of (input, output) channel combinations
   localparam int TOTAL_NUM_CHANNELS                    = N_CHANNEL_IN * N_CHANNEL_OUT;
 
   // Window accounting and channel combinations
-  // Windows required to cover one spatial plane
+  // Windows per spatial plane
   localparam int WINDOWS_PER_PLANE                     = N_WINDOW * N_WINDOW;
-  // Windows processed per input channel (across all outputs)
+  // Windows per input channel (across all outputs)
   localparam int WINDOWS_PER_INPUT_CHANNEL             = WINDOWS_PER_PLANE * N_CHANNEL_OUT;
-  // Windows processed per output channel (across all inputs)
+  // Windows per output channel (across all inputs)
   localparam int WINDOWS_PER_OUTPUT_CHANNEL            = WINDOWS_PER_PLANE * N_CHANNEL_IN;
-  // Total number of sliding windows for the entire execution
+  // Sliding windows processed per full execution
   localparam int TOTAL_INPUT_WINDOWS                   = WINDOWS_PER_PLANE * TOTAL_NUM_CHANNELS;
 
   // Precomputed "last" thresholds used throughout comparisons (-1 already absorbed)
-  // Final valid index inside a kernel window
+  // Final valid kernel index inside a window
   localparam int LAST_KERNEL_INDEX                     = INPUT_FEATURE_NUM_ELEMS - 1;
   // Final valid window index within a plane
   localparam int LAST_WINDOW_INDEX_PER_PLANE           = WINDOWS_PER_PLANE - 1;
