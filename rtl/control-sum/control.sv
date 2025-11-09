@@ -182,6 +182,17 @@ timeunit 1ns; timeprecision 1ps;
 
   // Current input feature address
   logic[NADDR-1:0] w_addr_ptr_pin;
+  logic[NADDR-1:0] w_addr_ptr_pin2;
+  // Column offset inside the current sliding window tile
+  logic [$clog2(C1_SIZE):0] r_col_index_input;
+  // Row offset inside the current sliding window tile
+  logic [$clog2(C1_SIZE):0] r_row_index_input;
+  // Accumulated row stride (row_index * FEAT_INPUT_SIZE built with adders)
+  logic [NADDR-1:0] r_row_stride_input;
+  // Zero-extended column offset used for address math
+  logic [NADDR-1:0] w_col_offset_input;
+  // Combined row/column offset added to the window base pointer
+  logic [NADDR-1:0] w_offset_total_input;
 
   // Write-enable mirror for the output RAM port (helps gate strobes during HOLD states)
   logic w_output_en;
@@ -448,6 +459,9 @@ timeunit 1ns; timeprecision 1ps;
       r_window_counter_row_input  <= 0;
       r_kernel     <= '{default: '0};
       r_feat_input    <= '{default: '0};
+      r_col_index_input <= '0;
+      r_row_index_input <= '0;
+      r_row_stride_input <= '0;
     end else begin
       unique case (current_st_input)
         default: begin end
@@ -466,6 +480,9 @@ timeunit 1ns; timeprecision 1ps;
           r_window_counter_all_channel_input  <= 0;
           r_kernel    <= '{default: '0};
           r_feat_input   <= '{default: '0};
+          r_col_index_input <= '0;
+          r_row_index_input <= '0;
+          r_row_stride_input <= '0;
         end
         // When fetching bias, read a single address and advance
         BIAS: begin
@@ -486,10 +503,14 @@ timeunit 1ns; timeprecision 1ps;
             // When the input buffer is full, increment the total window counter
             r_window_counter_total_input <= r_window_counter_total_input + 1;
 
-            if (f_is_last_row_input())
+            r_row_index_input <= '0;
+            r_row_stride_input <= '0;
+            if (f_is_last_row_input()) begin
               r_addr_count_input <= 0;
-            else begin
+              r_col_index_input <= 0;
+            end else begin
               r_addr_count_input <= C1_SIZE * (C1_SIZE - A1_SIZE);
+              r_col_index_input <= C1_SIZE - A1_SIZE;
               // If the input buffer is full but the row has not ended:
               // - increment the per-row window counter
               // - position the input feature counter at the reuse start column
@@ -544,6 +565,19 @@ timeunit 1ns; timeprecision 1ps;
           if (p_input_valid && (r_addr_count_input < C1_SIZE * C1_SIZE)) begin
             r_addr_count_input                     <= r_addr_count_input + 1;
             r_feat_input[c_index[r_addr_count_input]] <= p_input_data;
+            // Compute address of the next input data
+            if (r_row_index_input == (C1_SIZE - 1)) begin
+              r_row_index_input <= '0;
+              r_row_stride_input <= '0;
+              if (r_col_index_input == (C1_SIZE - 1)) begin
+                r_col_index_input <= '0;
+              end else begin
+                r_col_index_input <= r_col_index_input + 1;
+              end
+            end else begin
+              r_row_index_input <= r_row_index_input + 1;
+              r_row_stride_input <= r_row_stride_input + FEAT_INPUT_SIZE;
+            end
           end
         end
         HOLD_OUTPUT: begin
@@ -563,41 +597,9 @@ timeunit 1ns; timeprecision 1ps;
     end
   end
 
-  // Combinational logic computing the input read address from the input counter
-  always_comb begin: W_ADDR_IN_BLOCK
-    unique case (r_addr_count_input)
-      default: w_addr_ptr_pin = r_addr_pointer_input + 0; // 00
-      01: w_addr_ptr_pin = r_addr_pointer_input + FEAT_INPUT_SIZE + 0; // 05
-      02: w_addr_ptr_pin = r_addr_pointer_input + FEAT_INPUT_SIZE * 2 + 0; // 10
-      03: w_addr_ptr_pin = r_addr_pointer_input + FEAT_INPUT_SIZE * 3 + 0; // 15
-      04: w_addr_ptr_pin = r_addr_pointer_input + FEAT_INPUT_SIZE * 4 + 0; // 20
-
-      05: w_addr_ptr_pin = r_addr_pointer_input + 1; // 01
-      06: w_addr_ptr_pin = r_addr_pointer_input + FEAT_INPUT_SIZE + 1; // 06
-      07: w_addr_ptr_pin = r_addr_pointer_input + FEAT_INPUT_SIZE * 2 + 1; // 11
-      08: w_addr_ptr_pin = r_addr_pointer_input + FEAT_INPUT_SIZE * 3 + 1; // 16
-      09: w_addr_ptr_pin = r_addr_pointer_input + FEAT_INPUT_SIZE * 4 + 1; // 21
-
-      10: w_addr_ptr_pin = r_addr_pointer_input + 2; // 02
-      11: w_addr_ptr_pin = r_addr_pointer_input + FEAT_INPUT_SIZE + 2; // 07
-      12: w_addr_ptr_pin = r_addr_pointer_input + FEAT_INPUT_SIZE * 2 + 2; // 12
-      13: w_addr_ptr_pin = r_addr_pointer_input + FEAT_INPUT_SIZE * 3 + 2; // 17
-      14: w_addr_ptr_pin = r_addr_pointer_input + FEAT_INPUT_SIZE * 4 + 2; // 22
-
-      15: w_addr_ptr_pin = r_addr_pointer_input + 3; // 03
-      16: w_addr_ptr_pin = r_addr_pointer_input + FEAT_INPUT_SIZE + 3; // 08
-      17: w_addr_ptr_pin = r_addr_pointer_input + FEAT_INPUT_SIZE * 2 + 3; // 13
-      18: w_addr_ptr_pin = r_addr_pointer_input + FEAT_INPUT_SIZE * 3 + 3; // 18
-      19: w_addr_ptr_pin = r_addr_pointer_input + FEAT_INPUT_SIZE * 4 + 3; // 23
-
-      20: w_addr_ptr_pin = r_addr_pointer_input + 4; // 04
-      21: w_addr_ptr_pin = r_addr_pointer_input + FEAT_INPUT_SIZE + 4; // 09
-      22: w_addr_ptr_pin = r_addr_pointer_input + FEAT_INPUT_SIZE * 2 + 4; // 14
-      23: w_addr_ptr_pin = r_addr_pointer_input + FEAT_INPUT_SIZE * 3 + 4; // 19
-      24: w_addr_ptr_pin = r_addr_pointer_input + FEAT_INPUT_SIZE * 4 + 4; // 24
-    endcase
-  end
-
+  assign w_col_offset_input   = r_col_index_input;
+  assign w_offset_total_input = r_row_stride_input + w_col_offset_input;
+  assign w_addr_ptr_pin       = r_addr_pointer_input + w_offset_total_input;
 
   /*
    -------------------------------------------------------------
