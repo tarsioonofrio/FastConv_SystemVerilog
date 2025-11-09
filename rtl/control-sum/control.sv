@@ -313,9 +313,9 @@ timeunit 1ns; timeprecision 1ps;
       end
       // Waits for the convolution-complete signal
       CONV_OUTPUT: begin
-        if (w_handshake_conv && (r_channel_counter_out == 0))
+        if (w_conv_result_ready && (r_channel_counter_out == 0))
           next_st_output = WRITE_OUTPUT;
-        else if ((w_handshake_conv || (r_conv_end)) && (r_channel_counter_out > 0))
+          else if (w_conv_result_ready && (r_channel_counter_out > 0))
           next_st_output = WRITE_OUTPUT;
       end
       // Waits for the output data write to memory to complete and then returns to idle
@@ -342,7 +342,7 @@ timeunit 1ns; timeprecision 1ps;
       HOLD_WEIGHT: begin
         // TODO
         // Add handshake between input and output FSMs for channel completion
-        if (next_st_input == CONV_INPUT)
+        if (next_st_input == READ_INPUT)
           next_st_output = READ_OUTPUT;
       end
     endcase
@@ -385,7 +385,7 @@ timeunit 1ns; timeprecision 1ps;
 
   assign w_conv_ready_for_input = p_conv_idle && (!r_conv_busy || p_conv_end);
   assign w_conv_input_fire      = (current_st_input == CONV_INPUT) && w_conv_ready_for_input;
-  assign w_conv_result_ready    = p_conv_end && p_conv_idle;
+  assign w_conv_result_ready    = p_conv_end;
   assign w_conv_result_accept   = (current_st_output == CONV_OUTPUT) && r_conv_result_pending;
 
 
@@ -664,11 +664,11 @@ timeunit 1ns; timeprecision 1ps;
           r_addr_count_read_out  <= 0;
           r_addr_count_write_out <= 0;
           // In first channel only get output data from convolutional module
-          if (w_handshake_conv && (r_channel_counter_out == 0))
+          if (w_conv_result_ready && (r_channel_counter_out == 0))
              for (int i = 0; i < FEATURE_NUM_ELEMS; i++)
                r_conv_output[i] <= p_conv_output[i];
           // After first channel, add output data from convolutional module to feature map output
-          else if ((w_handshake_conv || (r_conv_end)) && (r_channel_counter_out > 0))
+          else if (w_conv_result_ready && (r_channel_counter_out > 0))
             for (int i = 0; i < FEATURE_NUM_ELEMS; i++)
               r_conv_output[i] <= r_feat_output[i] + p_conv_output[i];
         end
