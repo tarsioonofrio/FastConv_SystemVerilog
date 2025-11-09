@@ -71,9 +71,9 @@ timeunit 1ns; timeprecision 1ps;
   // Elementos por estrutura (contagem 2D)
   localparam int INPUT_NUM_ELEMS                       = FEAT_INPUT_SIZE * FEAT_INPUT_SIZE;
   localparam int OUTPUT_NUM_ELEMS                      = FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE;
-  localparam int KERNEL_NUM_ELEMS                      = C1_SIZE * C2_SIZE;
-  localparam int FEATURE_NUM_ELEMS                     = A1_SIZE * A2_SIZE;
-  localparam int MULTIPLIER_NUM_ELEMS                  = M1_SIZE * M2_SIZE;
+  localparam int INPUT_FEATURE_NUM_ELEMS               = C1_SIZE * C2_SIZE;
+  localparam int OUTPUT_FEATURE_NUM_ELEMS              = A1_SIZE * A2_SIZE;
+  localparam int KERNEL_NUM_ELEMS                      = M1_SIZE * M2_SIZE;
   localparam int TOTAL_NUM_CHANNELS                    = N_CHANNEL_IN * N_CHANNEL_OUT;
 
   // Contagens de janelas e combinações
@@ -83,21 +83,22 @@ timeunit 1ns; timeprecision 1ps;
   localparam int TOTAL_INPUT_WINDOWS                   = WINDOWS_PER_PLANE * TOTAL_NUM_CHANNELS;
 
   // Limiares "last" usados em comparações (-1 já aplicado)
-  localparam int LAST_KERNEL_INDEX                     = KERNEL_NUM_ELEMS - 1;
+  localparam int LAST_KERNEL_INDEX                     = INPUT_FEATURE_NUM_ELEMS - 1;
   localparam int LAST_WINDOW_INDEX_PER_PLANE           = WINDOWS_PER_PLANE - 1;
   localparam int LAST_INPUT_WINDOW_INDEX               = WINDOWS_PER_PLANE * TOTAL_NUM_CHANNELS - 1;
   localparam int LAST_WINDOW_ROW_INDEX                 = N_WINDOW - 1;
   localparam int LAST_OUTPUT_CHANNEL_WINDOW_INDEX      = WINDOWS_PER_OUTPUT_CHANNEL - 1;
 
+  localparam int CYCLES_HOLD_OUTPUT                    = (OUTPUT_FEATURE_NUM_ELEMS*2 + 1) - (C1_SIZE * A1_SIZE + 1);
   /*
    ---------------------
    Input path control
    ---------------------
   */
   // Base address register for input features
-  logic [$clog2(TOTAL_NUM_CHANNELS + MULTIPLIER_NUM_ELEMS * TOTAL_NUM_CHANNELS + N_CHANNEL_IN * INPUT_NUM_ELEMS)-1:0] r_addr_pointer_input;
+  logic [$clog2(TOTAL_NUM_CHANNELS + KERNEL_NUM_ELEMS * TOTAL_NUM_CHANNELS + N_CHANNEL_IN * INPUT_NUM_ELEMS)-1:0] r_addr_pointer_input;
   // Input feature register read counter
-  logic [$clog2(KERNEL_NUM_ELEMS)-1:0] r_addr_count_input;
+  logic [$clog2(INPUT_FEATURE_NUM_ELEMS)-1:0] r_addr_count_input;
   // Row-aligned window counter for read-side address updates and reuse control
   logic [$clog2(N_WINDOW):0] r_window_counter_row_input;
   // Total window counter for a channel
@@ -113,9 +114,9 @@ timeunit 1ns; timeprecision 1ps;
    ---------------------
   */
   // Base address register for weight blocks
-  logic [$clog2(TOTAL_NUM_CHANNELS + MULTIPLIER_NUM_ELEMS * TOTAL_NUM_CHANNELS)-1:0] r_addr_pointer_kernel;
+  logic [$clog2(TOTAL_NUM_CHANNELS + KERNEL_NUM_ELEMS * TOTAL_NUM_CHANNELS)-1:0] r_addr_pointer_kernel;
   // Weight read counter
-  logic [$clog2(MULTIPLIER_NUM_ELEMS)-1:0] r_addr_count_kernel;
+  logic [$clog2(KERNEL_NUM_ELEMS)-1:0] r_addr_count_kernel;
   // Bias read counter; bias depth is one so it is unused for now
   logic [$floor($clog2(TOTAL_NUM_CHANNELS) + 0.5)-1:0] r_addr_pointer_bias;
   // Temporary substitute for r_addr_pointer_bias
@@ -127,11 +128,11 @@ timeunit 1ns; timeprecision 1ps;
    ---------------------
   */
   // Output feature register write counter
-  logic [$clog2(FEATURE_NUM_ELEMS)-1:0] r_addr_count_write_out;
+  logic [$clog2(OUTPUT_FEATURE_NUM_ELEMS)-1:0] r_addr_count_write_out;
   // Output feature register read counter
-  logic [$clog2(FEATURE_NUM_ELEMS)-1:0] r_addr_count_read_out;
+  logic [$clog2(OUTPUT_FEATURE_NUM_ELEMS)-1:0] r_addr_count_read_out;
   // Output counter
-  logic [$clog2(FEATURE_NUM_ELEMS)-1:0] w_addr_count_out;
+  logic [$clog2(OUTPUT_FEATURE_NUM_ELEMS)-1:0] w_addr_count_out;
   // Output feature write counter (unused/commented)
   // logic [$floor($clog2(N_CHANNEL_OUT) + 0.5)-1:0] r_addr_count_ch_out;
   // Debug monitors for end-of-window predicates (still functions for reuse)
@@ -179,7 +180,8 @@ timeunit 1ns; timeprecision 1ps;
 
   // diferença entre soma, escrita e leitura do output
   // subtraído tempo de leitura do input
-  logic [$clog2(4):0] r_hold_output;
+  //
+  logic [$clog2(CYCLES_HOLD_OUTPUT) - 1:0] r_hold_output;
   logic w_conv_ready_for_input;
   logic w_conv_input_fire;
   logic r_conv_result_pending;
@@ -248,7 +250,7 @@ timeunit 1ns; timeprecision 1ps;
       end
       // Waits for the weight fetch covering the active input/output channel pair before moving on to input data
       WEIGHT: begin
-        if (r_addr_count_kernel == (MULTIPLIER_NUM_ELEMS - 1))
+        if (r_addr_count_kernel == (KERNEL_NUM_ELEMS - 1))
           next_st_input = READ_INPUT;
       end
       READ_INPUT: begin
@@ -279,7 +281,7 @@ timeunit 1ns; timeprecision 1ps;
         end
       end
       HOLD_OUTPUT: begin
-        if (r_hold_output == 2)
+        if (r_hold_output == (CYCLES_HOLD_OUTPUT - 1))
           next_st_input = READ_INPUT;
       end
       HOLD_LAST_CONV: begin
@@ -408,7 +410,7 @@ timeunit 1ns; timeprecision 1ps;
       // Weight base address follows the bias region
       r_addr_pointer_kernel    <= N_CHANNEL_OUT;
       // Input feature base address follows the weight region
-      r_addr_pointer_input   <= TOTAL_NUM_CHANNELS + MULTIPLIER_NUM_ELEMS * TOTAL_NUM_CHANNELS;
+      r_addr_pointer_input   <= TOTAL_NUM_CHANNELS + KERNEL_NUM_ELEMS * TOTAL_NUM_CHANNELS;
       r_addr_count_kernel   <= 0;
       r_addr_count_input  <= 0;
       r_channel_counter_input <= 0;
@@ -425,7 +427,7 @@ timeunit 1ns; timeprecision 1ps;
           r_read_en   <= 1'b0;
           r_addr_pointer_bias <= 0;
           r_addr_pointer_kernel   <= TOTAL_NUM_CHANNELS;
-          r_addr_pointer_input  <= TOTAL_NUM_CHANNELS + MULTIPLIER_NUM_ELEMS * TOTAL_NUM_CHANNELS;
+          r_addr_pointer_input  <= TOTAL_NUM_CHANNELS + KERNEL_NUM_ELEMS * TOTAL_NUM_CHANNELS;
           r_addr_count_kernel  <= 0;
           r_addr_count_input <= 0;
           r_channel_counter_input <= 0;
@@ -446,7 +448,7 @@ timeunit 1ns; timeprecision 1ps;
           r_read_en   <= 1'b1;
           r_addr_count_input <= 0;
           if (p_input_valid) begin
-            r_addr_pointer_kernel            <= r_addr_pointer_kernel + 1;
+            r_addr_pointer_kernel         <= r_addr_pointer_kernel + 1;
             r_addr_count_kernel           <= r_addr_count_kernel + 1;
             r_kernel[r_addr_count_kernel] <= p_input_data;
           end
@@ -498,7 +500,7 @@ timeunit 1ns; timeprecision 1ps;
               r_window_counter_all_channel_input <= r_window_counter_all_channel_input + 1;
 
             if (f_is_last_row_input() && f_is_last_all_channel_input())
-              r_addr_pointer_input <= TOTAL_NUM_CHANNELS + MULTIPLIER_NUM_ELEMS * TOTAL_NUM_CHANNELS;
+              r_addr_pointer_input <= TOTAL_NUM_CHANNELS + KERNEL_NUM_ELEMS * TOTAL_NUM_CHANNELS;
             else if (f_is_last_row_input() && !f_is_last_channel_input())
               r_addr_pointer_input  <= r_addr_pointer_input + C1_SIZE + FEAT_INPUT_SIZE * (A1_SIZE - 1);
             else if (f_is_last_row_input() && f_is_last_channel_input())
@@ -517,7 +519,7 @@ timeunit 1ns; timeprecision 1ps;
           end
         end
         HOLD_OUTPUT: begin
-          if (r_hold_output == 2)
+          if (r_hold_output == (CYCLES_HOLD_OUTPUT - 1))
             r_hold_output <= 0;
           else
             r_hold_output <= r_hold_output + 1;
@@ -594,7 +596,7 @@ timeunit 1ns; timeprecision 1ps;
         default: begin end
         // Each cycle advances the weight address and stores the returned value in-order
         READ_OUTPUT: begin
-          if (p_output_valid && (r_addr_count_read_out < FEATURE_NUM_ELEMS))  begin
+          if (p_output_valid && (r_addr_count_read_out < OUTPUT_FEATURE_NUM_ELEMS))  begin
             r_addr_count_read_out                <= r_addr_count_read_out + 1;
             r_feat_output[r_addr_count_read_out] <= p_output_data_read;
           end
@@ -605,11 +607,11 @@ timeunit 1ns; timeprecision 1ps;
           r_addr_count_write_out <= 0;
           // In first channel only get output data from convolutional module
           if (w_conv_result_ready && (r_channel_counter_out == 0))
-             for (int i = 0; i < FEATURE_NUM_ELEMS; i++)
+             for (int i = 0; i < OUTPUT_FEATURE_NUM_ELEMS; i++)
                r_conv_output[i] <= p_conv_output[i];
           // After first channel, add output data from convolutional module to feature map output
           else if (w_conv_result_ready && (r_channel_counter_out > 0))
-            for (int i = 0; i < FEATURE_NUM_ELEMS; i++)
+            for (int i = 0; i < OUTPUT_FEATURE_NUM_ELEMS; i++)
               r_conv_output[i] <= r_feat_output[i] + p_conv_output[i];
         end
         // Write output data to memory
@@ -799,14 +801,14 @@ timeunit 1ns; timeprecision 1ps;
   function automatic logic f_is_last_read_out();
     // variável estática para guardar o último resultado
     static logic w_is_last_read_out;
-    w_is_last_read_out = (r_addr_count_read_out == (FEATURE_NUM_ELEMS - 1));
+    w_is_last_read_out = (r_addr_count_read_out == (OUTPUT_FEATURE_NUM_ELEMS - 1));
     f_is_last_read_out = w_is_last_read_out;
   endfunction
 
   function automatic logic f_is_last_write_out();
     // variável estática para guardar o último resultado
     static logic w_is_last_write_out;
-    w_is_last_write_out = (r_addr_count_write_out == (FEATURE_NUM_ELEMS - 1));
+    w_is_last_write_out = (r_addr_count_write_out == (OUTPUT_FEATURE_NUM_ELEMS - 1));
     f_is_last_write_out = w_is_last_write_out;
   endfunction
 
