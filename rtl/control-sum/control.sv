@@ -788,7 +788,6 @@ timeunit 1ns; timeprecision 1ps;
   // Combinational logic driving output ports from internal registers
   always_comb begin: P_OUTPUT_DATA_WRITE_BLOCK
     p_output_data_write = r_conv_output[r_addr_count_write_out] + r_feat_output[r_addr_count_write_out];
-    // p_start_channel = r_start_channel;
   end
 
 
