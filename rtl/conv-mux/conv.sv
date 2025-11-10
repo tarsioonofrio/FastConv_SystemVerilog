@@ -55,7 +55,6 @@ module Conv
   end
 
   always_comb begin
-    p_output = w_prod_a;
     next_state  = current_state;
 
     unique case (current_state)
@@ -74,7 +73,6 @@ module Conv
   always_ff @(posedge clk) begin
     if (reset) begin
       r_idx_in <= 1'b0;
-      r_end <= 1'b0;
     end else begin
       unique case (current_state)
         IDLE_CONV: begin
@@ -85,7 +83,6 @@ module Conv
         end
         MATRIX_C: begin
           r_feat <= w_prod_c;
-          r_end <= 1'b0;
         end
         HADAMARD: begin
           r_idx_in <= r_idx_in + 1;
@@ -94,7 +91,6 @@ module Conv
           end
         end
         MATRIX_A: begin
-          r_end <= 1'b1;
         end
       endcase
     end
@@ -136,7 +132,7 @@ module Conv
   always_comb begin
     p_idle = (current_state == IDLE_CONV) ? 1'b1 : 1'b0;
     p_end = (current_state == MATRIX_A) ? 1'b1 : 1'b0;
-    // p_end = ((current_state == MATRIX_A) || r_end) ? 1'b1 : 1'b0;
+    p_output = w_prod_a;
   end
 endmodule
 

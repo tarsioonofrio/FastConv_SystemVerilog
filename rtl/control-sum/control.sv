@@ -646,13 +646,8 @@ timeunit 1ns; timeprecision 1ps;
           // r_row_stride_output <= '0;
 
           // In first channel only get output data from convolutional module
-          if (w_conv_result_ready && (r_channel_counter_out == 0))
-             for (int i = 0; i < OUTPUT_FEATURE_NUM_ELEMS; i++)
-               r_conv_output[i] <= p_conv_output[i];
-          // After first channel, add output data from convolutional module to feature map output
-          else if (w_conv_result_ready && (r_channel_counter_out > 0))
-            for (int i = 0; i < OUTPUT_FEATURE_NUM_ELEMS; i++)
-              r_conv_output[i] <= r_feat_output[i] + p_conv_output[i];
+          if (w_conv_result_ready)
+            r_conv_output <= p_conv_output;
         end
         // Write output data to memory
         WRITE_OUTPUT: begin
@@ -792,7 +787,7 @@ timeunit 1ns; timeprecision 1ps;
 
   // Combinational logic driving output ports from internal registers
   always_comb begin: P_OUTPUT_DATA_WRITE_BLOCK
-    p_output_data_write = r_conv_output[r_addr_count_write_out];
+    p_output_data_write = r_conv_output[r_addr_count_write_out] + r_feat_output[r_addr_count_write_out];
     // p_start_channel = r_start_channel;
   end
 
