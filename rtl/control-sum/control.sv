@@ -669,19 +669,6 @@ timeunit 1ns; timeprecision 1ps;
           if (f_is_last_write_out())
             r_window_counter_total_out <= r_window_counter_total_out + 1;
 
-          // if (r_col_index_output == (A1_SIZE - 1)) begin
-          //   r_col_index_output <= '0;
-          //   if (r_row_index_output == (A1_SIZE - 1)) begin
-          //     r_row_index_output <= '0;
-          //     r_row_stride_output <= '0;
-          //   end else begin
-          //     r_row_index_output <= r_row_index_output + 1;
-          //     r_row_stride_output <= r_row_stride_output + FEAT_OUTPUT_SIZE;
-          //   end
-          // end else begin
-          //   r_col_index_output <= r_col_index_output + 1;
-          // end
-
           // When the output window is full but the row continues:
           // - increment the per-row window counter
           // - move horizontally to the next window
