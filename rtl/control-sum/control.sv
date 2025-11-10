@@ -528,20 +528,12 @@ timeunit 1ns; timeprecision 1ps;
               // - move the base pointer to the next window horizontally
               // Preserve overlapping columns locally to enable horizontal window reuse
               // TODO perform test using an index table
-              r_feat_input[00] <= r_feat_input[03];
-              r_feat_input[01] <= r_feat_input[04];
 
-              r_feat_input[05] <= r_feat_input[08];
-              r_feat_input[06] <= r_feat_input[09];
-
-              r_feat_input[10] <= r_feat_input[13];
-              r_feat_input[11] <= r_feat_input[14];
-
-              r_feat_input[15] <= r_feat_input[18];
-              r_feat_input[16] <= r_feat_input[19];
-
-              r_feat_input[20] <= r_feat_input[23];
-              r_feat_input[21] <= r_feat_input[24];
+              for (int row = 0; row < C1_SIZE; row++) begin
+                for (int col = 0; col < (C1_SIZE - A1_SIZE); col++) begin
+                  r_feat_input[row * C1_SIZE + col] <= r_feat_input[row * C1_SIZE + col + A1_SIZE];
+                end
+              end
             end
 
             if (f_is_last_row_input())
