@@ -462,7 +462,6 @@ timeunit 1ns; timeprecision 1ps;
       // Input feature base address follows the weight region
       r_addr_pointer_input   <= TOTAL_NUM_CHANNELS + KERNEL_NUM_ELEMS * TOTAL_NUM_CHANNELS;
       r_addr_count_kernel   <= 0;
-      r_addr_count_input  <= 0;
       r_channel_counter_input <= 0;
       r_hold_output <= 0;
       r_window_counter_total_input     <= 0;
@@ -470,9 +469,6 @@ timeunit 1ns; timeprecision 1ps;
       r_window_counter_row_input  <= 0;
       r_kernel     <= '{default: '0};
       r_feat_input    <= '{default: '0};
-      r_col_index_input <= '0;
-      r_row_index_input <= '0;
-      r_row_stride_input <= '0;
     end else begin
       unique case (current_st_input)
         default: begin end
@@ -482,7 +478,6 @@ timeunit 1ns; timeprecision 1ps;
           r_addr_pointer_kernel   <= TOTAL_NUM_CHANNELS;
           r_addr_pointer_input  <= TOTAL_NUM_CHANNELS + KERNEL_NUM_ELEMS * TOTAL_NUM_CHANNELS;
           r_addr_count_kernel  <= 0;
-          r_addr_count_input <= 0;
           r_channel_counter_input <= 0;
           r_hold_output <= 0;
           r_window_counter_total_input    <= 0;
@@ -491,9 +486,6 @@ timeunit 1ns; timeprecision 1ps;
           r_window_counter_all_channel_input  <= 0;
           r_kernel    <= '{default: '0};
           r_feat_input   <= '{default: '0};
-          r_col_index_input <= '0;
-          r_row_index_input <= '0;
-          r_row_stride_input <= '0;
         end
         // When fetching bias, read a single address and advance
         BIAS: begin
@@ -502,7 +494,6 @@ timeunit 1ns; timeprecision 1ps;
         // Each cycle advances the weight address and stores the returned value in-order
         WEIGHT: begin
           r_read_en   <= 1'b1;
-          r_addr_count_input <= 0;
           if (p_input_valid) begin
             r_addr_pointer_kernel         <= r_addr_pointer_kernel + 1;
             r_addr_count_kernel           <= r_addr_count_kernel + 1;
@@ -514,14 +505,7 @@ timeunit 1ns; timeprecision 1ps;
             // When the input buffer is full, increment the total window counter
             r_window_counter_total_input <= r_window_counter_total_input + 1;
 
-            r_row_index_input <= '0;
-            r_row_stride_input <= '0;
-            if (f_is_last_row_input()) begin
-              r_addr_count_input <= 0;
-              r_col_index_input <= 0;
-            end else begin
-              r_addr_count_input <= C1_SIZE * (C1_SIZE - A1_SIZE);
-              r_col_index_input <= C1_SIZE - A1_SIZE;
+            if (!f_is_last_row_input()) begin
               // If the input buffer is full but the row has not ended:
               // - increment the per-row window counter
               // - position the input feature counter at the reuse start column
@@ -573,23 +557,8 @@ timeunit 1ns; timeprecision 1ps;
         READ_INPUT: begin
           r_read_en  <= 1'b1;
           r_addr_count_kernel <= 0;
-          if (p_input_valid && (r_addr_count_input < C1_SIZE * C1_SIZE)) begin
-            r_addr_count_input                     <= r_addr_count_input + 1;
+          if (p_input_valid && (r_addr_count_input < C1_SIZE * C1_SIZE))
             r_feat_input[c_index[r_addr_count_input]] <= p_input_data;
-            // Compute address of the next input data
-            if (r_row_index_input == (C1_SIZE - 1)) begin
-              r_row_index_input <= '0;
-              r_row_stride_input <= '0;
-              if (r_col_index_input == (C1_SIZE - 1)) begin
-                r_col_index_input <= '0;
-              end else begin
-                r_col_index_input <= r_col_index_input + 1;
-              end
-            end else begin
-              r_row_index_input <= r_row_index_input + 1;
-              r_row_stride_input <= r_row_stride_input + FEAT_INPUT_SIZE;
-            end
-          end
         end
         HOLD_OUTPUT: begin
           if (r_hold_output == (CYCLES_HOLD_OUTPUT - 1))
@@ -605,6 +574,48 @@ timeunit 1ns; timeprecision 1ps;
               r_channel_counter_input <= r_channel_counter_input + 1;
         end
       endcase
+    end
+  end
+
+  logic w_read_input_clk_en;
+  assign w_read_input_clk_en = (current_st_input == READ_INPUT) &&
+                               p_input_valid &&
+                               (r_addr_count_input < (C1_SIZE * C1_SIZE));
+
+  always_ff @(posedge clk) begin: READ_INPUT_COUNTER_BLOCK
+    if (reset || (current_st_input == IDLE_INPUT)) begin
+      r_addr_count_input <= 0;
+      r_col_index_input  <= '0;
+      r_row_index_input  <= '0;
+      r_row_stride_input <= '0;
+    end else if (current_st_input == WEIGHT) begin
+      r_addr_count_input <= 0;
+      r_col_index_input  <= '0;
+      r_row_index_input  <= '0;
+      r_row_stride_input <= '0;
+    end else if ((current_st_input == CONV_INPUT) && w_conv_input_fire) begin
+      r_row_index_input <= '0;
+      r_row_stride_input <= '0;
+      if (f_is_last_row_input()) begin
+        r_addr_count_input <= 0;
+        r_col_index_input  <= 0;
+      end else begin
+        r_addr_count_input <= C1_SIZE * (C1_SIZE - A1_SIZE);
+        r_col_index_input  <= C1_SIZE - A1_SIZE;
+      end
+    end else if (w_read_input_clk_en) begin
+      r_addr_count_input <= r_addr_count_input + 1;
+      if (r_row_index_input == (C1_SIZE - 1)) begin
+        r_row_index_input <= '0;
+        r_row_stride_input <= '0;
+        if (r_col_index_input == (C1_SIZE - 1))
+          r_col_index_input <= '0;
+        else
+          r_col_index_input <= r_col_index_input + 1;
+      end else begin
+        r_row_index_input <= r_row_index_input + 1;
+        r_row_stride_input <= r_row_stride_input + FEAT_INPUT_SIZE;
+      end
     end
   end
 
@@ -625,7 +636,6 @@ timeunit 1ns; timeprecision 1ps;
       r_channel_counter_out <= 0;
       r_addr_pointer_out <= 0;
       r_addr_count_read_out <= 0;
-      r_addr_count_write_out <= 0;
       r_window_counter_total_out <= 0;
       r_window_counter_all_channel_out <= 0;
       r_window_counter_channel_out <= 0;
@@ -648,7 +658,6 @@ timeunit 1ns; timeprecision 1ps;
         // Keep the output counter cleared while waiting for convolution to end; capture output data on completion
         CONV_OUTPUT: begin
           r_addr_count_read_out  <= 0;
-          r_addr_count_write_out <= 0;
           // r_col_index_output <= '0;
           // r_row_index_output <= '0;
           // r_row_stride_output <= '0;
@@ -665,7 +674,6 @@ timeunit 1ns; timeprecision 1ps;
         // Write output data to memory
         WRITE_OUTPUT: begin
           // Each cycle increments the output counter to select which register value gets written
-          r_addr_count_write_out <= r_addr_count_write_out + 1;
           if (f_is_last_write_out())
             r_window_counter_total_out <= r_window_counter_total_out + 1;
 
@@ -717,6 +725,16 @@ timeunit 1ns; timeprecision 1ps;
         end
       endcase
     end
+  end
+
+  logic w_write_output_clk_en;
+  assign w_write_output_clk_en = (current_st_output == WRITE_OUTPUT);
+
+  always_ff @(posedge clk) begin: WRITE_OUTPUT_COUNTER_BLOCK
+    if (reset || (current_st_output == CONV_OUTPUT))
+      r_addr_count_write_out <= 0;
+    else if (w_write_output_clk_en)
+      r_addr_count_write_out <= r_addr_count_write_out + 1;
   end
 
   always_ff @(posedge clk) begin
