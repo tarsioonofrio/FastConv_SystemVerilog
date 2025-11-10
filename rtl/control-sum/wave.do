@@ -1,5 +1,12 @@
 onerror {resume}
 quietly WaveActivateNextPane {} 0
+add wave -noupdate -radix unsigned /tb/dut/w_addr_ptr_pout
+add wave -noupdate -radix unsigned /tb/dut/p_output_addr
+add wave -noupdate -radix unsigned /tb/dut/r_col_index_output
+add wave -noupdate -radix unsigned /tb/dut/r_row_index_output
+add wave -noupdate -radix unsigned /tb/dut/r_row_stride_output
+add wave -noupdate -radix unsigned /tb/dut/w_col_offset_output
+add wave -noupdate -radix unsigned /tb/dut/w_offset_total_output
 add wave -noupdate -divider base
 add wave -noupdate /tb/dut/clk
 add wave -noupdate /tb/dut/reset
@@ -84,8 +91,8 @@ add wave -noupdate /tb/memory_write/data_valid
 add wave -noupdate /tb/memory_write/r_cycles_latency
 add wave -noupdate -radix decimal /tb/memory_write/data
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 11} {63500 ps} 1} {{Cursor 12} {2007233 ps} 0}
-quietly wave cursor active 2
+WaveRestoreCursors {{Cursor 11} {63500 ps} 1} {{Cursor 12} {64500 ps} 0}
+quietly wave cursor active 1
 configure wave -namecolwidth 256
 configure wave -valuecolwidth 100
 configure wave -justifyvalue left
@@ -100,4 +107,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {0 ps} {5209575 ps}
+WaveRestoreZoom {21666833 ps} {21677009 ps}
