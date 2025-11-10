@@ -56,13 +56,7 @@ add wave -noupdate -radix unsigned /tb/dut/r_addr_count_input
 add wave -noupdate -radix unsigned /tb/dut/r_addr_count_read_out
 add wave -noupdate -radix unsigned /tb/dut/r_addr_count_write_out
 add wave -noupdate -radix unsigned /tb/dut/r_window_counter_total_input
-add wave -noupdate -radix unsigned /tb/dut/r_window_counter_all_channel_input
-add wave -noupdate -radix unsigned /tb/dut/r_window_counter_channel_input
-add wave -noupdate -radix unsigned /tb/dut/r_window_counter_row_input
 add wave -noupdate -radix unsigned /tb/dut/r_window_counter_total_out
-add wave -noupdate -radix unsigned /tb/dut/r_window_counter_all_channel_out
-add wave -noupdate -radix unsigned /tb/dut/r_window_counter_channel_out
-add wave -noupdate -radix unsigned /tb/dut/r_window_counter_row_out
 add wave -noupdate -radix unsigned /tb/dut/r_channel_counter_input
 add wave -noupdate -radix unsigned /tb/dut/r_channel_counter_out
 add wave -noupdate /tb/dut/r_read_en

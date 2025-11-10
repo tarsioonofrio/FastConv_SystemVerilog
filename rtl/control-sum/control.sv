@@ -129,14 +129,12 @@ timeunit 1ns; timeprecision 1ps;
   logic [$clog2(TOTAL_NUM_CHANNELS + KERNEL_NUM_ELEMS * TOTAL_NUM_CHANNELS + N_CHANNEL_IN * INPUT_NUM_ELEMS)-1:0] r_addr_pointer_input;
   // Input feature register read counter
   logic [$clog2(INPUT_FEATURE_NUM_ELEMS)-1:0] r_addr_count_input;
-  // Row-aligned window counter for read-side address updates and reuse control
-  logic [$clog2(N_WINDOW):0] r_window_counter_row_input;
-  // Total window counter for a channel
-  logic [$clog2(WINDOWS_PER_PLANE)-1:0] r_window_counter_channel_input;
-  // Total window counter for a channel (per-channel accumulation)
-  logic [$clog2(WINDOWS_PER_OUTPUT_CHANNEL)-1:0] r_window_counter_all_channel_input;
-  // Total window counter for the read path
+  // Linear window index for the entire input traversal (row, column, channel)
   logic [$clog2(TOTAL_INPUT_WINDOWS)-1:0] r_window_counter_total_input;
+  // Combinational last-position flags decoded from the linear input index
+  logic w_last_row_input_flag;
+  logic w_last_channel_input_flag;
+  logic w_last_all_channel_input_flag;
 
   // -- Weight path bookkeeping --
   // Base address register for weight blocks
@@ -165,14 +163,12 @@ timeunit 1ns; timeprecision 1ps;
 
   // Base address register for output features
   logic [$clog2(N_CHANNEL_OUT * OUTPUT_NUM_ELEMS)-1:0] r_addr_pointer_out;
-  // Total window counter for the write path
+  // Linear window index for the entire output traversal
   logic [$clog2(TOTAL_INPUT_WINDOWS)-1:0] r_window_counter_total_out;
-  // Total window counter for all in channel for FSM write
-  logic [$clog2(WINDOWS_PER_OUTPUT_CHANNEL)-1:0] r_window_counter_all_channel_out;
-  // Total window counter for a channel
-  logic [$clog2(WINDOWS_PER_PLANE)-1:0] r_window_counter_channel_out;
-  // Row-aligned window counter for write-side address updates
-  logic [$clog2(N_WINDOW):0] r_window_counter_row_out;
+  // Combinational last-position flags decoded from the linear output index
+  logic w_last_row_output_flag;
+  logic w_last_channel_output_flag;
+  logic w_last_all_channel_output_flag;
   // Debug monitors for output-path predicates
   // logic w_is_last_read_out;
   // logic w_is_last_write_out;
@@ -466,8 +462,6 @@ timeunit 1ns; timeprecision 1ps;
       r_channel_counter_input <= 0;
       r_hold_output <= 0;
       r_window_counter_total_input     <= 0;
-      r_window_counter_channel_input   <= 0;
-      r_window_counter_row_input  <= 0;
       r_kernel     <= '{default: '0};
       r_feat_input    <= '{default: '0};
       r_col_index_input <= '0;
@@ -486,9 +480,6 @@ timeunit 1ns; timeprecision 1ps;
           r_channel_counter_input <= 0;
           r_hold_output <= 0;
           r_window_counter_total_input    <= 0;
-          r_window_counter_channel_input   <= 0;
-          r_window_counter_row_input  <= 0;
-          r_window_counter_all_channel_input  <= 0;
           r_kernel    <= '{default: '0};
           r_feat_input   <= '{default: '0};
           r_col_index_input <= '0;
@@ -544,21 +535,6 @@ timeunit 1ns; timeprecision 1ps;
               r_feat_input[21] <= r_feat_input[24];
             end
 
-            if (f_is_last_row_input())
-              r_window_counter_row_input <= 0;
-            else
-              r_window_counter_row_input <= r_window_counter_row_input + 1;
-
-            if (f_is_last_channel_input())
-              r_window_counter_channel_input <= 0;
-            else
-              r_window_counter_channel_input <= r_window_counter_channel_input + 1;
-
-            if (f_is_last_all_channel_input())
-              r_window_counter_all_channel_input <= 0;
-            else
-              r_window_counter_all_channel_input <= r_window_counter_all_channel_input + 1;
-
             if (f_is_last_row_input() && f_is_last_all_channel_input())
               r_addr_pointer_input <= TOTAL_NUM_CHANNELS + KERNEL_NUM_ELEMS * TOTAL_NUM_CHANNELS;
             else if (f_is_last_row_input() && !f_is_last_channel_input())
@@ -612,6 +588,15 @@ timeunit 1ns; timeprecision 1ps;
   assign w_offset_total_input = r_row_stride_input + w_col_offset_input;
   assign w_addr_ptr_pin       = r_addr_pointer_input + w_offset_total_input;
 
+  // Decoded window-position flags from the linear counters
+  assign w_last_row_input_flag         = ((r_window_counter_total_input % N_WINDOW) == LAST_WINDOW_ROW_INDEX);
+  assign w_last_channel_input_flag     = ((r_window_counter_total_input % WINDOWS_PER_PLANE) == LAST_WINDOW_INDEX_PER_PLANE);
+  assign w_last_all_channel_input_flag = ((r_window_counter_total_input % WINDOWS_PER_OUTPUT_CHANNEL) == LAST_OUTPUT_CHANNEL_WINDOW_INDEX);
+
+  assign w_last_row_output_flag         = ((r_window_counter_total_out % N_WINDOW) == LAST_WINDOW_ROW_INDEX);
+  assign w_last_channel_output_flag     = ((r_window_counter_total_out % WINDOWS_PER_PLANE) == LAST_WINDOW_INDEX_PER_PLANE);
+  assign w_last_all_channel_output_flag = ((r_window_counter_total_out % WINDOWS_PER_OUTPUT_CHANNEL) == LAST_OUTPUT_CHANNEL_WINDOW_INDEX);
+
   /*
    -------------------------------------------------------------
    7. Data Output path
@@ -627,9 +612,6 @@ timeunit 1ns; timeprecision 1ps;
       r_addr_count_read_out <= 0;
       r_addr_count_write_out <= 0;
       r_window_counter_total_out <= 0;
-      r_window_counter_all_channel_out <= 0;
-      r_window_counter_channel_out <= 0;
-      r_window_counter_row_out <= 0;
       r_conv_output   <= '{default: '0};
       r_feat_output   <= '{default: '0};
       r_col_index_output <= '0;
@@ -686,26 +668,11 @@ timeunit 1ns; timeprecision 1ps;
           // - increment the per-row window counter
           // - move horizontally to the next window
           if (f_is_last_write_out() && f_is_last_row_out())
-            r_window_counter_row_out <= 0;
-          else if (f_is_last_write_out() && !f_is_last_row_out())
-            r_window_counter_row_out <= r_window_counter_row_out + 1;
-
-          if (f_is_last_write_out() && !f_is_last_channel_out())
-            r_window_counter_channel_out <= r_window_counter_channel_out + 1;
-
-          if (f_is_last_write_out() && !f_is_last_all_channel_out())
-            r_window_counter_all_channel_out <= r_window_counter_all_channel_out + 1;
-
-          if (f_is_last_write_out() && f_is_last_row_out())
             r_addr_pointer_out <= r_addr_pointer_out + A1_SIZE + FEAT_OUTPUT_SIZE * (A1_SIZE - 1);
           else if (f_is_last_write_out() && !f_is_last_row_out())
             r_addr_pointer_out <= r_addr_pointer_out + A1_SIZE;
         end
         END_CHANNEL: begin
-          r_window_counter_row_out <= 0;
-          r_window_counter_channel_out <= 0;
-          if (f_is_last_all_channel_out())
-            r_window_counter_all_channel_out <= 0;
           // if (r_channel_counter_out >= N_CHANNEL_IN - 1)
           //    r_addr_pointer_out <= r_addr_pointer_out - OUTPUT_NUM_ELEMS;
           if (r_channel_counter_out >= N_CHANNEL_IN - 1)
@@ -847,21 +814,21 @@ timeunit 1ns; timeprecision 1ps;
   function automatic logic f_is_last_row_input();
     // Static variable preserves the last computed result for waveform visibility
     static logic w_is_last_row_input;
-    w_is_last_row_input = (r_window_counter_row_input >= LAST_WINDOW_ROW_INDEX);
+    w_is_last_row_input = w_last_row_input_flag;
     f_is_last_row_input = w_is_last_row_input;
   endfunction
 
   function automatic logic f_is_last_channel_input();
     // Static variable preserves the last computed result for waveform visibility
     static logic w_is_last_channel_input;
-    w_is_last_channel_input = (r_window_counter_channel_input >= LAST_WINDOW_INDEX_PER_PLANE);
+    w_is_last_channel_input = w_last_channel_input_flag;
     f_is_last_channel_input = w_is_last_channel_input;
   endfunction
 
   function automatic logic f_is_last_all_channel_input();
     // Static variable preserves the last computed result for waveform visibility
     static logic w_is_last_all_channel_input;
-    w_is_last_all_channel_input = (r_window_counter_all_channel_input >= LAST_OUTPUT_CHANNEL_WINDOW_INDEX);
+    w_is_last_all_channel_input = w_last_all_channel_input_flag;
     f_is_last_all_channel_input = w_is_last_all_channel_input;
   endfunction
 
@@ -882,21 +849,21 @@ timeunit 1ns; timeprecision 1ps;
   function automatic logic f_is_last_row_out();
     // Static variable preserves the last computed result for waveform visibility
     static logic w_is_last_row_out;
-    w_is_last_row_out = (r_window_counter_row_out >= LAST_WINDOW_ROW_INDEX);
+    w_is_last_row_out = w_last_row_output_flag;
     f_is_last_row_out = w_is_last_row_out;
   endfunction
 
   function automatic logic f_is_last_channel_out();
     // Static variable preserves the last computed result for waveform visibility
     static logic w_is_last_channel_out;
-    w_is_last_channel_out = (r_window_counter_channel_out >= LAST_WINDOW_INDEX_PER_PLANE);
+    w_is_last_channel_out = w_last_channel_output_flag;
     f_is_last_channel_out = w_is_last_channel_out;
   endfunction
 
   function automatic logic f_is_last_all_channel_out();
     // Static variable preserves the last computed result for waveform visibility
     static logic w_is_last_all_channel_out;
-    w_is_last_all_channel_out = (r_window_counter_all_channel_out >= LAST_OUTPUT_CHANNEL_WINDOW_INDEX - 1);
+    w_is_last_all_channel_out = w_last_all_channel_output_flag;
     f_is_last_all_channel_out = w_is_last_all_channel_out;
   endfunction
 
