@@ -8,12 +8,24 @@ Description: Controls the input/output dataflow for convolution
 Author: Társio Onofrio
 Date: 2025-11-07
 =============================================================
-*/
 
+=============================================================
+Contents
 
-/*
+1) Módulo, parâmetros e localparams
+2) Tipos (typedef/enum/struct/interface)
+3) Portas internas: regs/wires (agrupados por tema)
+4) Constantes derivadas (localparams) e funções utilit.
+5) FSM INPUT (curr/next + transições)
+6) FSM OUTPUT (curr/next + transições)
+7) Contadores e geradores de endereço
+8) Handshakes / eventos registrados (pulsos)
+9) Assertions e monitores de simulação (ifdef SIM)
+=============================================================
+
 TODO
 Evaluate whether window counters can be removed in favor of direct address comparisons.
+
 */
 
 module Control
@@ -74,29 +86,32 @@ timeunit 1ns; timeprecision 1ps;
    -------------------------------------------------------------
    */
 
-  // Total elements that compose a full input feature map
+  // Structure element counts (2D footprints)
+  // Input feature-map elements
   localparam int INPUT_NUM_ELEMS                       = FEAT_INPUT_SIZE * FEAT_INPUT_SIZE;
-  // Total elements stored per output feature map
+  // Output feature-map elements
   localparam int OUTPUT_NUM_ELEMS                      = FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE;
-  // Elements present in one convolution window on the input path
+  // Elements per sliding window on the input path
   localparam int INPUT_FEATURE_NUM_ELEMS               = C1_SIZE * C2_SIZE;
-  // Elements produced per convolution window on the output path
+  // Elements produced per sliding window on the output path
   localparam int OUTPUT_FEATURE_NUM_ELEMS              = A1_SIZE * A2_SIZE;
-  // Elements contained in a single kernel tile
+  // Elements per kernel tile
   localparam int KERNEL_NUM_ELEMS                      = M1_SIZE * M2_SIZE;
-  // All (input, output) channel combinations processed per frame
+  // Number of (input, output) channel combinations
   localparam int TOTAL_NUM_CHANNELS                    = N_CHANNEL_IN * N_CHANNEL_OUT;
 
-  // Windows required to cover one spatial plane
+  // Window accounting and channel combinations
+  // Windows per spatial plane
   localparam int WINDOWS_PER_PLANE                     = N_WINDOW * N_WINDOW;
-  // Windows processed per input channel (across all outputs)
+  // Windows per input channel (across all outputs)
   localparam int WINDOWS_PER_INPUT_CHANNEL             = WINDOWS_PER_PLANE * N_CHANNEL_OUT;
-  // Windows processed per output channel (across all inputs)
+  // Windows per output channel (across all inputs)
   localparam int WINDOWS_PER_OUTPUT_CHANNEL            = WINDOWS_PER_PLANE * N_CHANNEL_IN;
-  // Total number of sliding windows for the entire execution
+  // Sliding windows processed per full execution
   localparam int TOTAL_INPUT_WINDOWS                   = WINDOWS_PER_PLANE * TOTAL_NUM_CHANNELS;
 
-  // Final valid index inside a kernel window
+  // Precomputed "last" thresholds used throughout comparisons (-1 already absorbed)
+  // Final valid kernel index inside a window
   localparam int LAST_KERNEL_INDEX                     = INPUT_FEATURE_NUM_ELEMS - 1;
   // Final valid window index within a plane
   localparam int LAST_WINDOW_INDEX_PER_PLANE           = WINDOWS_PER_PLANE - 1;
@@ -109,11 +124,7 @@ timeunit 1ns; timeprecision 1ps;
 
   // Latency slack used to time HOLD_OUTPUT
   localparam int CYCLES_HOLD_OUTPUT                    = (OUTPUT_FEATURE_NUM_ELEMS*2 + 1) - (C1_SIZE * A1_SIZE + 1);
-  /*
-   ---------------------
-   Input path control
-   ---------------------
-  */
+  // -- Input path control registers --
   // Base address register for input features
   logic [$clog2(TOTAL_NUM_CHANNELS + KERNEL_NUM_ELEMS * TOTAL_NUM_CHANNELS + N_CHANNEL_IN * INPUT_NUM_ELEMS)-1:0] r_addr_pointer_input;
   // Input feature register read counter
@@ -127,11 +138,7 @@ timeunit 1ns; timeprecision 1ps;
   // Total window counter for the read path
   logic [$clog2(TOTAL_INPUT_WINDOWS)-1:0] r_window_counter_total_input;
 
-  /*
-   ---------------------
-   Weight path
-   ---------------------
-  */
+  // -- Weight path bookkeeping --
   // Base address register for weight blocks
   logic [$clog2(TOTAL_NUM_CHANNELS + KERNEL_NUM_ELEMS * TOTAL_NUM_CHANNELS)-1:0] r_addr_pointer_kernel;
   // Weight read counter
@@ -141,11 +148,7 @@ timeunit 1ns; timeprecision 1ps;
   // Temporary substitute for r_addr_pointer_bias
   // logic [2:0] r_addr_pointer_bias;
 
-  /*
-   ---------------------
-   Output path control (counters)
-   ---------------------
-  */
+  // -- Output path control counters --
   // Output feature register write counter
   logic [$clog2(OUTPUT_FEATURE_NUM_ELEMS)-1:0] r_addr_count_write_out;
   // Output feature register read counter
@@ -179,6 +182,28 @@ timeunit 1ns; timeprecision 1ps;
 
   // Current input feature address
   logic[NADDR-1:0] w_addr_ptr_pin;
+  logic[NADDR-1:0] w_addr_ptr_pout;
+  // Column offset inside the current sliding window tile
+  logic [$clog2(C1_SIZE):0] r_col_index_input;
+  // Row offset inside the current sliding window tile
+  logic [$clog2(C1_SIZE):0] r_row_index_input;
+  // Accumulated row stride (row_index * FEAT_INPUT_SIZE built with adders)
+  logic [NADDR-1:0] r_row_stride_input;
+  // Zero-extended column offset used for address math
+  logic [NADDR-1:0] w_col_offset_input;
+  // Combined row/column offset added to the window base pointer
+  logic [NADDR-1:0] w_offset_total_input;
+
+  // Column offset inside the current sliding window tile
+  logic [$clog2(A1_SIZE):0] r_col_index_output;
+  // Row offset inside the current sliding window tile
+  logic [$clog2(A1_SIZE):0] r_row_index_output;
+  // Accumulated row stride (row_index * FEAT_OUTPUT_SIZE built with adders)
+  logic [NADDR-1:0] r_row_stride_output;
+  // Zero-extended column offset used for address math
+  logic [NADDR-1:0] w_col_offset_output;
+  // Combined row/column offset added to the window base pointer
+  logic [NADDR-1:0] w_offset_total_output;
 
   // Write-enable mirror for the output RAM port (helps gate strobes during HOLD states)
   logic w_output_en;
@@ -445,6 +470,9 @@ timeunit 1ns; timeprecision 1ps;
       r_window_counter_row_input  <= 0;
       r_kernel     <= '{default: '0};
       r_feat_input    <= '{default: '0};
+      r_col_index_input <= '0;
+      r_row_index_input <= '0;
+      r_row_stride_input <= '0;
     end else begin
       unique case (current_st_input)
         default: begin end
@@ -463,6 +491,9 @@ timeunit 1ns; timeprecision 1ps;
           r_window_counter_all_channel_input  <= 0;
           r_kernel    <= '{default: '0};
           r_feat_input   <= '{default: '0};
+          r_col_index_input <= '0;
+          r_row_index_input <= '0;
+          r_row_stride_input <= '0;
         end
         // When fetching bias, read a single address and advance
         BIAS: begin
@@ -483,10 +514,14 @@ timeunit 1ns; timeprecision 1ps;
             // When the input buffer is full, increment the total window counter
             r_window_counter_total_input <= r_window_counter_total_input + 1;
 
-            if (f_is_last_row_input())
+            r_row_index_input <= '0;
+            r_row_stride_input <= '0;
+            if (f_is_last_row_input()) begin
               r_addr_count_input <= 0;
-            else begin
+              r_col_index_input <= 0;
+            end else begin
               r_addr_count_input <= C1_SIZE * (C1_SIZE - A1_SIZE);
+              r_col_index_input <= C1_SIZE - A1_SIZE;
               // If the input buffer is full but the row has not ended:
               // - increment the per-row window counter
               // - position the input feature counter at the reuse start column
@@ -541,6 +576,19 @@ timeunit 1ns; timeprecision 1ps;
           if (p_input_valid && (r_addr_count_input < C1_SIZE * C1_SIZE)) begin
             r_addr_count_input                     <= r_addr_count_input + 1;
             r_feat_input[c_index[r_addr_count_input]] <= p_input_data;
+            // Compute address of the next input data
+            if (r_row_index_input == (C1_SIZE - 1)) begin
+              r_row_index_input <= '0;
+              r_row_stride_input <= '0;
+              if (r_col_index_input == (C1_SIZE - 1)) begin
+                r_col_index_input <= '0;
+              end else begin
+                r_col_index_input <= r_col_index_input + 1;
+              end
+            end else begin
+              r_row_index_input <= r_row_index_input + 1;
+              r_row_stride_input <= r_row_stride_input + FEAT_INPUT_SIZE;
+            end
           end
         end
         HOLD_OUTPUT: begin
@@ -560,41 +608,9 @@ timeunit 1ns; timeprecision 1ps;
     end
   end
 
-  // Combinational logic computing the input read address from the input counter
-  always_comb begin: W_ADDR_IN_BLOCK
-    unique case (r_addr_count_input)
-      default: w_addr_ptr_pin = r_addr_pointer_input + 0; // 00
-      01: w_addr_ptr_pin = r_addr_pointer_input + FEAT_INPUT_SIZE + 0; // 05
-      02: w_addr_ptr_pin = r_addr_pointer_input + FEAT_INPUT_SIZE * 2 + 0; // 10
-      03: w_addr_ptr_pin = r_addr_pointer_input + FEAT_INPUT_SIZE * 3 + 0; // 15
-      04: w_addr_ptr_pin = r_addr_pointer_input + FEAT_INPUT_SIZE * 4 + 0; // 20
-
-      05: w_addr_ptr_pin = r_addr_pointer_input + 1; // 01
-      06: w_addr_ptr_pin = r_addr_pointer_input + FEAT_INPUT_SIZE + 1; // 06
-      07: w_addr_ptr_pin = r_addr_pointer_input + FEAT_INPUT_SIZE * 2 + 1; // 11
-      08: w_addr_ptr_pin = r_addr_pointer_input + FEAT_INPUT_SIZE * 3 + 1; // 16
-      09: w_addr_ptr_pin = r_addr_pointer_input + FEAT_INPUT_SIZE * 4 + 1; // 21
-
-      10: w_addr_ptr_pin = r_addr_pointer_input + 2; // 02
-      11: w_addr_ptr_pin = r_addr_pointer_input + FEAT_INPUT_SIZE + 2; // 07
-      12: w_addr_ptr_pin = r_addr_pointer_input + FEAT_INPUT_SIZE * 2 + 2; // 12
-      13: w_addr_ptr_pin = r_addr_pointer_input + FEAT_INPUT_SIZE * 3 + 2; // 17
-      14: w_addr_ptr_pin = r_addr_pointer_input + FEAT_INPUT_SIZE * 4 + 2; // 22
-
-      15: w_addr_ptr_pin = r_addr_pointer_input + 3; // 03
-      16: w_addr_ptr_pin = r_addr_pointer_input + FEAT_INPUT_SIZE + 3; // 08
-      17: w_addr_ptr_pin = r_addr_pointer_input + FEAT_INPUT_SIZE * 2 + 3; // 13
-      18: w_addr_ptr_pin = r_addr_pointer_input + FEAT_INPUT_SIZE * 3 + 3; // 18
-      19: w_addr_ptr_pin = r_addr_pointer_input + FEAT_INPUT_SIZE * 4 + 3; // 23
-
-      20: w_addr_ptr_pin = r_addr_pointer_input + 4; // 04
-      21: w_addr_ptr_pin = r_addr_pointer_input + FEAT_INPUT_SIZE + 4; // 09
-      22: w_addr_ptr_pin = r_addr_pointer_input + FEAT_INPUT_SIZE * 2 + 4; // 14
-      23: w_addr_ptr_pin = r_addr_pointer_input + FEAT_INPUT_SIZE * 3 + 4; // 19
-      24: w_addr_ptr_pin = r_addr_pointer_input + FEAT_INPUT_SIZE * 4 + 4; // 24
-    endcase
-  end
-
+  assign w_col_offset_input   = r_col_index_input;
+  assign w_offset_total_input = r_row_stride_input + w_col_offset_input;
+  assign w_addr_ptr_pin       = r_addr_pointer_input + w_offset_total_input;
 
   /*
    -------------------------------------------------------------
@@ -616,6 +632,9 @@ timeunit 1ns; timeprecision 1ps;
       r_window_counter_row_out <= 0;
       r_conv_output   <= '{default: '0};
       r_feat_output   <= '{default: '0};
+      r_col_index_output <= '0;
+      r_row_index_output <= '0;
+      r_row_stride_output <= '0;
     end else begin
       unique case (current_st_output)
         default: begin end
@@ -630,6 +649,10 @@ timeunit 1ns; timeprecision 1ps;
         CONV_OUTPUT: begin
           r_addr_count_read_out  <= 0;
           r_addr_count_write_out <= 0;
+          // r_col_index_output <= '0;
+          // r_row_index_output <= '0;
+          // r_row_stride_output <= '0;
+
           // In first channel only get output data from convolutional module
           if (w_conv_result_ready && (r_channel_counter_out == 0))
              for (int i = 0; i < OUTPUT_FEATURE_NUM_ELEMS; i++)
@@ -683,13 +706,34 @@ timeunit 1ns; timeprecision 1ps;
     end
   end
 
-  // Address counter for write paths
-  always_comb begin: W_COUNT_OUT_BLOCK
-    if (current_st_output == WRITE_OUTPUT)
-      w_addr_count_out <= r_addr_count_write_out;
-    else
-      w_addr_count_out <= r_addr_count_read_out;
+  always_ff @(posedge clk) begin
+      if (reset) begin
+        r_col_index_output <= '0;
+        r_row_index_output <= '0;
+        r_row_stride_output <= '0;
+
+      end else begin
+        if ((current_st_output == WRITE_OUTPUT) || ((current_st_output == READ_OUTPUT)) && (p_output_valid && (r_addr_count_read_out < OUTPUT_FEATURE_NUM_ELEMS))) begin
+          if (r_col_index_output == (A1_SIZE - 1)) begin
+            r_col_index_output <= '0;
+            if (r_row_index_output == (A1_SIZE - 1)) begin
+              r_row_index_output <= '0;
+              r_row_stride_output <= '0;
+            end else begin
+              r_row_index_output <= r_row_index_output + 1;
+              r_row_stride_output <= r_row_stride_output + FEAT_OUTPUT_SIZE;
+            end
+          end else begin
+            r_col_index_output <= r_col_index_output + 1;
+          end
+        end
+      end
   end
+
+  assign w_col_offset_output   = r_col_index_output;
+  assign w_offset_total_output = r_row_stride_output + w_col_offset_output;
+  assign w_addr_ptr_pout       = r_addr_pointer_out + w_offset_total_output;
+
 
   /*
    -------------------------------------------------------------
@@ -752,22 +796,7 @@ timeunit 1ns; timeprecision 1ps;
     endcase
   end
 
-  // Combinational logic computing the write address from the output counter
-  always_comb begin: P_OUTPUT_ADDR_BLOCK
-    unique case (w_addr_count_out)
-      default: p_output_addr = r_addr_pointer_out + 0;
-      1: p_output_addr = r_addr_pointer_out + 1;
-      2: p_output_addr = r_addr_pointer_out + 2;
-
-      3: p_output_addr = r_addr_pointer_out + FEAT_OUTPUT_SIZE + 0;
-      4: p_output_addr = r_addr_pointer_out + FEAT_OUTPUT_SIZE + 1;
-      5: p_output_addr = r_addr_pointer_out + FEAT_OUTPUT_SIZE + 2;
-
-      6: p_output_addr = r_addr_pointer_out + FEAT_OUTPUT_SIZE * 2 + 0;
-      7: p_output_addr = r_addr_pointer_out + FEAT_OUTPUT_SIZE * 2 + 1;
-      8: p_output_addr = r_addr_pointer_out + FEAT_OUTPUT_SIZE * 2 + 2;
-    endcase
-  end
+  assign p_output_addr = w_addr_ptr_pout;
 
   // Combinational logic driving output ports from internal registers
   always_comb begin: P_OUTPUT_DATA_WRITE_BLOCK
