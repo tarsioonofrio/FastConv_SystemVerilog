@@ -126,6 +126,10 @@ timeunit 1ns; timeprecision 1ps;
 
   // Latency slack used to time HOLD_OUTPUT
   localparam int CYCLES_HOLD_OUTPUT                    = (OUTPUT_FEATURE_NUM_ELEMS*2 + 1) - (C1_SIZE * A1_SIZE + 1);
+  // Horizontal-to-vertical wrap deltas that keep pointers in-bounds even with padded tiles
+  localparam int INPUT_ROW_WRAP_DELTA                  = A1_SIZE * (FEAT_INPUT_SIZE - WINDOW_COUNT_PER_AXIS + 1);
+  localparam int INPUT_CHANNEL_WRAP_DELTA              = INPUT_NUM_ELEMS - (WINDOW_COUNT_PER_AXIS - 1) * A1_SIZE * (FEAT_INPUT_SIZE + 1);
+  localparam int OUTPUT_ROW_WRAP_DELTA                 = A1_SIZE * (FEAT_OUTPUT_SIZE - WINDOW_COUNT_PER_AXIS + 1);
   // -- Input path control registers --
   // Base address register for input features
   logic [$clog2(TOTAL_NUM_CHANNELS + KERNEL_NUM_ELEMS * TOTAL_NUM_CHANNELS + N_CHANNEL_IN * INPUT_NUM_ELEMS)-1:0] r_addr_pointer_input;
@@ -581,9 +585,9 @@ timeunit 1ns; timeprecision 1ps;
             if (f_is_last_row_input() && f_is_last_all_channel_input())
               r_addr_pointer_input <= TOTAL_NUM_CHANNELS + KERNEL_NUM_ELEMS * TOTAL_NUM_CHANNELS;
             else if (f_is_last_row_input() && !f_is_last_channel_input())
-              r_addr_pointer_input  <= r_addr_pointer_input + C1_SIZE + FEAT_INPUT_SIZE * (A1_SIZE - 1);
+              r_addr_pointer_input  <= r_addr_pointer_input + INPUT_ROW_WRAP_DELTA;
             else if (f_is_last_row_input() && f_is_last_channel_input())
-              r_addr_pointer_input  <= r_addr_pointer_input + C1_SIZE + FEAT_INPUT_SIZE * (C1_SIZE - 1);
+              r_addr_pointer_input  <= r_addr_pointer_input + INPUT_CHANNEL_WRAP_DELTA;
             else
               r_addr_pointer_input  <= r_addr_pointer_input + A1_SIZE;
           end
@@ -717,7 +721,7 @@ timeunit 1ns; timeprecision 1ps;
             r_window_counter_all_channel_out <= r_window_counter_all_channel_out + 1;
 
           if (f_is_last_write_out() && f_is_last_row_out())
-            r_addr_pointer_out <= r_addr_pointer_out + A1_SIZE + FEAT_OUTPUT_SIZE * (A1_SIZE - 1);
+            r_addr_pointer_out <= r_addr_pointer_out + OUTPUT_ROW_WRAP_DELTA;
           else if (f_is_last_write_out() && !f_is_last_row_out())
             r_addr_pointer_out <= r_addr_pointer_out + A1_SIZE;
         end
