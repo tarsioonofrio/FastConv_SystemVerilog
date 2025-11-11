@@ -101,8 +101,10 @@ timeunit 1ns; timeprecision 1ps;
   localparam int TOTAL_NUM_CHANNELS                    = N_CHANNEL_IN * N_CHANNEL_OUT;
 
   // Window accounting and channel combinations
-  // Windows per spatial plane
-  localparam int WINDOWS_PER_PLANE                     = N_WINDOW * N_WINDOW;
+  // Number of 3x3 output tiles required per axis (ceil to allow padding)
+  localparam int WINDOW_COUNT_PER_AXIS                 = (FEAT_OUTPUT_SIZE + A1_SIZE - 1) / A1_SIZE;
+  // Windows per spatial plane (row_count * col_count)
+  localparam int WINDOWS_PER_PLANE                     = WINDOW_COUNT_PER_AXIS * WINDOW_COUNT_PER_AXIS;
   // Windows per input channel (across all outputs)
   localparam int WINDOWS_PER_INPUT_CHANNEL             = WINDOWS_PER_PLANE * N_CHANNEL_OUT;
   // Windows per output channel (across all inputs)
@@ -118,19 +120,26 @@ timeunit 1ns; timeprecision 1ps;
   // Final valid index across every input-window combination
   localparam int LAST_INPUT_WINDOW_INDEX               = WINDOWS_PER_PLANE * TOTAL_NUM_CHANNELS - 1;
   // Final row index for the 2D window grid
-  localparam int LAST_WINDOW_ROW_INDEX                 = N_WINDOW - 1;
+  localparam int LAST_WINDOW_ROW_INDEX                 = WINDOW_COUNT_PER_AXIS - 1;
   // Final window index per output channel
   localparam int LAST_OUTPUT_CHANNEL_WINDOW_INDEX      = WINDOWS_PER_OUTPUT_CHANNEL - 1;
 
   // Latency slack used to time HOLD_OUTPUT
   localparam int CYCLES_HOLD_OUTPUT                    = (OUTPUT_FEATURE_NUM_ELEMS*2 + 1) - (C1_SIZE * A1_SIZE + 1);
+  // Horizontal-to-vertical wrap deltas that keep pointers in-bounds even with padded tiles
+  localparam int INPUT_ROW_WRAP_DELTA                  = A1_SIZE * (FEAT_INPUT_SIZE - WINDOW_COUNT_PER_AXIS + 1);
+  localparam int INPUT_CHANNEL_WRAP_DELTA              = INPUT_NUM_ELEMS - (WINDOW_COUNT_PER_AXIS - 1) * A1_SIZE * (FEAT_INPUT_SIZE + 1);
+  localparam int OUTPUT_ROW_WRAP_DELTA                 = A1_SIZE * (FEAT_OUTPUT_SIZE - WINDOW_COUNT_PER_AXIS + 1);
+  localparam int OUTPUT_CHANNEL_STRIDE                 = FEAT_OUTPUT_SIZE * A1_SIZE * WINDOW_COUNT_PER_AXIS;
   // -- Input path control registers --
   // Base address register for input features
   logic [$clog2(TOTAL_NUM_CHANNELS + KERNEL_NUM_ELEMS * TOTAL_NUM_CHANNELS + N_CHANNEL_IN * INPUT_NUM_ELEMS)-1:0] r_addr_pointer_input;
   // Input feature register read counter
   logic [$clog2(INPUT_FEATURE_NUM_ELEMS)-1:0] r_addr_count_input;
   // Row-aligned window counter for read-side address updates and reuse control
-  logic [$clog2(N_WINDOW):0] r_window_counter_row_input;
+  localparam int WINDOW_AXIS_COUNTER_WIDTH             = $clog2(WINDOW_COUNT_PER_AXIS);
+  logic [WINDOW_AXIS_COUNTER_WIDTH:0] r_window_counter_row_input;
+  logic [WINDOW_AXIS_COUNTER_WIDTH:0] r_window_counter_col_input;
   // Total window counter for a channel
   logic [$clog2(WINDOWS_PER_PLANE)-1:0] r_window_counter_channel_input;
   // Total window counter for a channel (per-channel accumulation)
@@ -172,7 +181,8 @@ timeunit 1ns; timeprecision 1ps;
   // Total window counter for a channel
   logic [$clog2(WINDOWS_PER_PLANE)-1:0] r_window_counter_channel_out;
   // Row-aligned window counter for write-side address updates
-  logic [$clog2(N_WINDOW):0] r_window_counter_row_out;
+  logic [WINDOW_AXIS_COUNTER_WIDTH:0] r_window_counter_row_out;
+  logic [WINDOW_AXIS_COUNTER_WIDTH:0] r_window_counter_col_out;
   // Debug monitors for output-path predicates
   // logic w_is_last_read_out;
   // logic w_is_last_write_out;
@@ -182,7 +192,9 @@ timeunit 1ns; timeprecision 1ps;
 
   // Current input feature address
   logic[NADDR-1:0] w_addr_ptr_pin;
+  logic[NADDR-1:0] w_addr_ptr_pin_raw;
   logic[NADDR-1:0] w_addr_ptr_pout;
+  logic[NADDR-1:0] w_addr_ptr_pout_raw;
   // Column offset inside the current sliding window tile
   logic [$clog2(C1_SIZE):0] r_col_index_input;
   // Row offset inside the current sliding window tile
@@ -193,6 +205,14 @@ timeunit 1ns; timeprecision 1ps;
   logic [NADDR-1:0] w_col_offset_input;
   // Combined row/column offset added to the window base pointer
   logic [NADDR-1:0] w_offset_total_input;
+  // Row/column coordinates for padding-aware input fetches
+  logic [$clog2(FEAT_INPUT_SIZE + C1_SIZE):0] w_window_base_col_input;
+  logic [$clog2(FEAT_INPUT_SIZE + C1_SIZE):0] w_window_base_row_input;
+  logic [$clog2(FEAT_INPUT_SIZE + C1_SIZE):0] w_global_col_input;
+  logic [$clog2(FEAT_INPUT_SIZE + C1_SIZE):0] w_global_row_input;
+  logic w_input_sample_in_bounds;
+  logic_vector w_input_data_clamped;
+  logic_vector w_output_data_clamped;
 
   // Column offset inside the current sliding window tile
   logic [$clog2(A1_SIZE):0] r_col_index_output;
@@ -204,6 +224,12 @@ timeunit 1ns; timeprecision 1ps;
   logic [NADDR-1:0] w_col_offset_output;
   // Combined row/column offset added to the window base pointer
   logic [NADDR-1:0] w_offset_total_output;
+  // Row/column coordinates for padding-aware output writes
+  logic [$clog2(FEAT_OUTPUT_SIZE + A1_SIZE):0] w_window_base_col_out;
+  logic [$clog2(FEAT_OUTPUT_SIZE + A1_SIZE):0] w_window_base_row_out;
+  logic [$clog2(FEAT_OUTPUT_SIZE + A1_SIZE):0] w_global_col_out;
+  logic [$clog2(FEAT_OUTPUT_SIZE + A1_SIZE):0] w_global_row_out;
+  logic w_output_pixel_in_bounds;
 
   // Write-enable mirror for the output RAM port (helps gate strobes during HOLD states)
   logic w_output_en;
@@ -467,6 +493,7 @@ timeunit 1ns; timeprecision 1ps;
       r_hold_output <= 0;
       r_window_counter_total_input     <= 0;
       r_window_counter_channel_input   <= 0;
+      r_window_counter_col_input  <= 0;
       r_window_counter_row_input  <= 0;
       r_kernel     <= '{default: '0};
       r_feat_input    <= '{default: '0};
@@ -487,6 +514,7 @@ timeunit 1ns; timeprecision 1ps;
           r_hold_output <= 0;
           r_window_counter_total_input    <= 0;
           r_window_counter_channel_input   <= 0;
+          r_window_counter_col_input  <= 0;
           r_window_counter_row_input  <= 0;
           r_window_counter_all_channel_input  <= 0;
           r_kernel    <= '{default: '0};
@@ -536,10 +564,17 @@ timeunit 1ns; timeprecision 1ps;
               end
             end
 
-            if (f_is_last_row_input())
+            if (f_is_last_row_input()) begin
               r_window_counter_row_input <= 0;
-            else
+              if (f_is_last_channel_input())
+                r_window_counter_col_input <= 0;
+              else if (r_window_counter_col_input >= LAST_WINDOW_ROW_INDEX)
+                r_window_counter_col_input <= 0;
+              else
+                r_window_counter_col_input <= r_window_counter_col_input + 1;
+            end else begin
               r_window_counter_row_input <= r_window_counter_row_input + 1;
+            end
 
             if (f_is_last_channel_input())
               r_window_counter_channel_input <= 0;
@@ -554,9 +589,9 @@ timeunit 1ns; timeprecision 1ps;
             if (f_is_last_row_input() && f_is_last_all_channel_input())
               r_addr_pointer_input <= TOTAL_NUM_CHANNELS + KERNEL_NUM_ELEMS * TOTAL_NUM_CHANNELS;
             else if (f_is_last_row_input() && !f_is_last_channel_input())
-              r_addr_pointer_input  <= r_addr_pointer_input + C1_SIZE + FEAT_INPUT_SIZE * (A1_SIZE - 1);
+              r_addr_pointer_input  <= r_addr_pointer_input + INPUT_ROW_WRAP_DELTA;
             else if (f_is_last_row_input() && f_is_last_channel_input())
-              r_addr_pointer_input  <= r_addr_pointer_input + C1_SIZE + FEAT_INPUT_SIZE * (C1_SIZE - 1);
+              r_addr_pointer_input  <= r_addr_pointer_input + INPUT_CHANNEL_WRAP_DELTA;
             else
               r_addr_pointer_input  <= r_addr_pointer_input + A1_SIZE;
           end
@@ -567,7 +602,7 @@ timeunit 1ns; timeprecision 1ps;
           r_addr_count_kernel <= 0;
           if (p_input_valid && (r_addr_count_input < C1_SIZE * C1_SIZE)) begin
             r_addr_count_input                     <= r_addr_count_input + 1;
-            r_feat_input[c_index[r_addr_count_input]] <= p_input_data;
+            r_feat_input[c_index[r_addr_count_input]] <= w_input_data_clamped;
             // Compute address of the next input data
             // - Scan columns fastest, resetting to column zero once the tile width is reached
             // - Accumulate FEAT_INPUT_SIZE per row to build the row stride term reused later
@@ -606,7 +641,15 @@ timeunit 1ns; timeprecision 1ps;
   // via the cached stride and offset terms to keep the adder tree shallow.
   assign w_col_offset_input   = r_col_index_input;
   assign w_offset_total_input = r_row_stride_input + w_col_offset_input;
-  assign w_addr_ptr_pin       = r_addr_pointer_input + w_offset_total_input;
+  assign w_addr_ptr_pin_raw   = r_addr_pointer_input + w_offset_total_input;
+  assign w_addr_ptr_pin       = w_input_sample_in_bounds ? w_addr_ptr_pin_raw : r_addr_pointer_input;
+  assign w_window_base_col_input = r_window_counter_row_input * A1_SIZE;
+  assign w_window_base_row_input = r_window_counter_col_input * A1_SIZE;
+  assign w_global_col_input      = w_window_base_col_input + r_col_index_input;
+  assign w_global_row_input      = w_window_base_row_input + r_row_index_input;
+  assign w_input_sample_in_bounds =
+      (w_global_col_input < FEAT_INPUT_SIZE) && (w_global_row_input < FEAT_INPUT_SIZE);
+  assign w_input_data_clamped    = w_input_sample_in_bounds ? p_input_data : '0;
 
   /*
    -------------------------------------------------------------
@@ -626,6 +669,7 @@ timeunit 1ns; timeprecision 1ps;
       r_window_counter_all_channel_out <= 0;
       r_window_counter_channel_out <= 0;
       r_window_counter_row_out <= 0;
+      r_window_counter_col_out <= 0;
       r_conv_output   <= '{default: '0};
       r_feat_output   <= '{default: '0};
       r_col_index_output <= '0;
@@ -638,7 +682,7 @@ timeunit 1ns; timeprecision 1ps;
         READ_OUTPUT: begin
           if (p_output_valid && (r_addr_count_read_out < OUTPUT_FEATURE_NUM_ELEMS))  begin
             r_addr_count_read_out                <= r_addr_count_read_out + 1;
-            r_feat_output[r_addr_count_read_out] <= p_output_data_read;
+            r_feat_output[r_addr_count_read_out] <= w_output_data_clamped;
           end
         end
         // Keep the output counter cleared while waiting for convolution to end; capture output data on completion
@@ -663,10 +707,17 @@ timeunit 1ns; timeprecision 1ps;
           // When the output window is full but the row continues:
           // - increment the per-row window counter
           // - move horizontally to the next window
-          if (f_is_last_write_out() && f_is_last_row_out())
+          if (f_is_last_write_out() && f_is_last_row_out()) begin
             r_window_counter_row_out <= 0;
-          else if (f_is_last_write_out() && !f_is_last_row_out())
+            if (f_is_last_channel_out())
+              r_window_counter_col_out <= 0;
+            else if (r_window_counter_col_out >= LAST_WINDOW_ROW_INDEX)
+              r_window_counter_col_out <= 0;
+            else
+              r_window_counter_col_out <= r_window_counter_col_out + 1;
+          end else if (f_is_last_write_out() && !f_is_last_row_out()) begin
             r_window_counter_row_out <= r_window_counter_row_out + 1;
+          end
 
           if (f_is_last_write_out() && !f_is_last_channel_out())
             r_window_counter_channel_out <= r_window_counter_channel_out + 1;
@@ -675,12 +726,13 @@ timeunit 1ns; timeprecision 1ps;
             r_window_counter_all_channel_out <= r_window_counter_all_channel_out + 1;
 
           if (f_is_last_write_out() && f_is_last_row_out())
-            r_addr_pointer_out <= r_addr_pointer_out + A1_SIZE + FEAT_OUTPUT_SIZE * (A1_SIZE - 1);
+            r_addr_pointer_out <= r_addr_pointer_out + OUTPUT_ROW_WRAP_DELTA;
           else if (f_is_last_write_out() && !f_is_last_row_out())
             r_addr_pointer_out <= r_addr_pointer_out + A1_SIZE;
         end
         END_CHANNEL: begin
           r_window_counter_row_out <= 0;
+          r_window_counter_col_out <= 0;
           r_window_counter_channel_out <= 0;
           if (f_is_last_all_channel_out())
             r_window_counter_all_channel_out <= 0;
@@ -690,7 +742,7 @@ timeunit 1ns; timeprecision 1ps;
             r_channel_counter_out <= 0;
           else begin
             r_channel_counter_out <= r_channel_counter_out + 1;
-            r_addr_pointer_out <= r_addr_pointer_out - OUTPUT_NUM_ELEMS;
+            r_addr_pointer_out <= r_addr_pointer_out - OUTPUT_CHANNEL_STRIDE;
           end
         end
       endcase
@@ -728,7 +780,15 @@ timeunit 1ns; timeprecision 1ps;
   // `base + row*FEAT_OUTPUT_SIZE + col` for RAM writes.
   assign w_col_offset_output   = r_col_index_output;
   assign w_offset_total_output = r_row_stride_output + w_col_offset_output;
-  assign w_addr_ptr_pout       = r_addr_pointer_out + w_offset_total_output;
+  assign w_addr_ptr_pout_raw   = r_addr_pointer_out + w_offset_total_output;
+  assign w_addr_ptr_pout       = w_output_pixel_in_bounds ? w_addr_ptr_pout_raw : r_addr_pointer_out;
+  assign w_window_base_col_out = r_window_counter_row_out * A1_SIZE;
+  assign w_window_base_row_out = r_window_counter_col_out * A1_SIZE;
+  assign w_global_col_out      = w_window_base_col_out + r_col_index_output;
+  assign w_global_row_out      = w_window_base_row_out + r_row_index_output;
+  assign w_output_pixel_in_bounds =
+      (w_global_col_out < FEAT_OUTPUT_SIZE) && (w_global_row_out < FEAT_OUTPUT_SIZE);
+  assign w_output_data_clamped = w_output_pixel_in_bounds ? p_output_data_read : '0;
 
 
   /*
@@ -787,7 +847,7 @@ timeunit 1ns; timeprecision 1ps;
       // Waits for the output data write to memory to complete and then returns to idle
       WRITE_OUTPUT: begin
         p_output_en = 1'b1;
-        p_output_wr = 1'b1;
+        p_output_wr = w_output_pixel_in_bounds;
       end
     endcase
   end
