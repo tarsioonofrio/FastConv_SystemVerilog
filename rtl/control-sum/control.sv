@@ -408,7 +408,7 @@ timeunit 1ns; timeprecision 1ps;
    `r_conv_result_pending` guarantees each produced feature map is accepted
    exactly once by the output FSM.
    */
-  always_ff @(posedge clk) begin
+  always_ff @(posedge clk) begin: CONV_BUSY_BLOCK
     if (reset) begin
       r_conv_busy <= 1'b0;
     end else begin
@@ -429,7 +429,7 @@ timeunit 1ns; timeprecision 1ps;
    FSM consumes it inside CONV_OUTPUT, preventing the same feature map from being
    accumulated twice.
    */
-  always_ff @(posedge clk) begin
+  always_ff @(posedge clk) begin: CONV_RESULT_PENDING_BLOCK
     if (reset) begin
       r_conv_result_pending <= 1'b0;
     end else begin
@@ -569,6 +569,8 @@ timeunit 1ns; timeprecision 1ps;
             r_addr_count_input                     <= r_addr_count_input + 1;
             r_feat_input[c_index[r_addr_count_input]] <= p_input_data;
             // Compute address of the next input data
+            // - Scan columns fastest, resetting to column zero once the tile width is reached
+            // - Accumulate FEAT_INPUT_SIZE per row to build the row stride term reused later
             if (r_row_index_input == (C1_SIZE - 1)) begin
               r_row_index_input <= '0;
               r_row_stride_input <= '0;
@@ -600,6 +602,8 @@ timeunit 1ns; timeprecision 1ps;
     end
   end
 
+  // Input address generation: compute `base + row*FEAT_INPUT_SIZE + col`
+  // via the cached stride and offset terms to keep the adder tree shallow.
   assign w_col_offset_input   = r_col_index_input;
   assign w_offset_total_input = r_row_stride_input + w_col_offset_input;
   assign w_addr_ptr_pin       = r_addr_pointer_input + w_offset_total_input;
@@ -693,7 +697,7 @@ timeunit 1ns; timeprecision 1ps;
     end
   end
 
-  always_ff @(posedge clk) begin
+  always_ff @(posedge clk) begin: OUTPUT_TILE_INDEX_BLOCK
       if (reset) begin
         r_col_index_output <= '0;
         r_row_index_output <= '0;
@@ -701,6 +705,9 @@ timeunit 1ns; timeprecision 1ps;
 
       end else begin
         if ((current_st_output == WRITE_OUTPUT) || ((current_st_output == READ_OUTPUT)) && (p_output_valid && (r_addr_count_read_out < OUTPUT_FEATURE_NUM_ELEMS))) begin
+          // Row-major traversal for the output feature tile mirrors the input logic:
+          // column increments happen every cycle, while row/stride updates only occur
+          // when the column reaches the end of the kernel footprint.
           if (r_col_index_output == (A1_SIZE - 1)) begin
             r_col_index_output <= '0;
             if (r_row_index_output == (A1_SIZE - 1)) begin
@@ -717,6 +724,8 @@ timeunit 1ns; timeprecision 1ps;
       end
   end
 
+  // Output address generation mirrors the input path using
+  // `base + row*FEAT_OUTPUT_SIZE + col` for RAM writes.
   assign w_col_offset_output   = r_col_index_output;
   assign w_offset_total_output = r_row_stride_output + w_col_offset_output;
   assign w_addr_ptr_pout       = r_addr_pointer_out + w_offset_total_output;
@@ -734,7 +743,7 @@ timeunit 1ns; timeprecision 1ps;
   end
 
   // Combinational logic driving output ports from internal registers
-  always_comb begin
+  always_comb begin: P_CONV_BUS_BLOCK
     p_conv_input  = r_feat_input;
     p_conv_weight = r_kernel;
     // p_conv_start  = w_handshake_input;
@@ -742,7 +751,7 @@ timeunit 1ns; timeprecision 1ps;
   end
 
   // Combinational mux selecting which memory region to read (bias, weights, input features, or idle) based on the input state
-  always_comb begin
+  always_comb begin: P_INPUT_MUX_BLOCK
     unique case (current_st_input)
       BIAS: begin
         p_input_addr = r_addr_pointer_bias;
@@ -764,7 +773,7 @@ timeunit 1ns; timeprecision 1ps;
   end
 
   // If the current state is WRITE_OUTPUT, enable write
-  always_comb begin
+  always_comb begin: P_OUTPUT_CTRL_BLOCK
     unique case (current_st_output)
       // Waits for the convolution-complete signal
       default: begin
