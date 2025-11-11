@@ -130,6 +130,7 @@ timeunit 1ns; timeprecision 1ps;
   localparam int INPUT_ROW_WRAP_DELTA                  = A1_SIZE * (FEAT_INPUT_SIZE - WINDOW_COUNT_PER_AXIS + 1);
   localparam int INPUT_CHANNEL_WRAP_DELTA              = INPUT_NUM_ELEMS - (WINDOW_COUNT_PER_AXIS - 1) * A1_SIZE * (FEAT_INPUT_SIZE + 1);
   localparam int OUTPUT_ROW_WRAP_DELTA                 = A1_SIZE * (FEAT_OUTPUT_SIZE - WINDOW_COUNT_PER_AXIS + 1);
+  localparam int OUTPUT_CHANNEL_STRIDE                 = FEAT_OUTPUT_SIZE * A1_SIZE * WINDOW_COUNT_PER_AXIS;
   // -- Input path control registers --
   // Base address register for input features
   logic [$clog2(TOTAL_NUM_CHANNELS + KERNEL_NUM_ELEMS * TOTAL_NUM_CHANNELS + N_CHANNEL_IN * INPUT_NUM_ELEMS)-1:0] r_addr_pointer_input;
@@ -191,7 +192,9 @@ timeunit 1ns; timeprecision 1ps;
 
   // Current input feature address
   logic[NADDR-1:0] w_addr_ptr_pin;
+  logic[NADDR-1:0] w_addr_ptr_pin_raw;
   logic[NADDR-1:0] w_addr_ptr_pout;
+  logic[NADDR-1:0] w_addr_ptr_pout_raw;
   // Column offset inside the current sliding window tile
   logic [$clog2(C1_SIZE):0] r_col_index_input;
   // Row offset inside the current sliding window tile
@@ -209,6 +212,7 @@ timeunit 1ns; timeprecision 1ps;
   logic [$clog2(FEAT_INPUT_SIZE + C1_SIZE):0] w_global_row_input;
   logic w_input_sample_in_bounds;
   logic_vector w_input_data_clamped;
+  logic_vector w_output_data_clamped;
 
   // Column offset inside the current sliding window tile
   logic [$clog2(A1_SIZE):0] r_col_index_output;
@@ -637,7 +641,8 @@ timeunit 1ns; timeprecision 1ps;
   // via the cached stride and offset terms to keep the adder tree shallow.
   assign w_col_offset_input   = r_col_index_input;
   assign w_offset_total_input = r_row_stride_input + w_col_offset_input;
-  assign w_addr_ptr_pin       = r_addr_pointer_input + w_offset_total_input;
+  assign w_addr_ptr_pin_raw   = r_addr_pointer_input + w_offset_total_input;
+  assign w_addr_ptr_pin       = w_input_sample_in_bounds ? w_addr_ptr_pin_raw : r_addr_pointer_input;
   assign w_window_base_col_input = r_window_counter_row_input * A1_SIZE;
   assign w_window_base_row_input = r_window_counter_col_input * A1_SIZE;
   assign w_global_col_input      = w_window_base_col_input + r_col_index_input;
@@ -677,7 +682,7 @@ timeunit 1ns; timeprecision 1ps;
         READ_OUTPUT: begin
           if (p_output_valid && (r_addr_count_read_out < OUTPUT_FEATURE_NUM_ELEMS))  begin
             r_addr_count_read_out                <= r_addr_count_read_out + 1;
-            r_feat_output[r_addr_count_read_out] <= p_output_data_read;
+            r_feat_output[r_addr_count_read_out] <= w_output_data_clamped;
           end
         end
         // Keep the output counter cleared while waiting for convolution to end; capture output data on completion
@@ -737,7 +742,7 @@ timeunit 1ns; timeprecision 1ps;
             r_channel_counter_out <= 0;
           else begin
             r_channel_counter_out <= r_channel_counter_out + 1;
-            r_addr_pointer_out <= r_addr_pointer_out - OUTPUT_NUM_ELEMS;
+            r_addr_pointer_out <= r_addr_pointer_out - OUTPUT_CHANNEL_STRIDE;
           end
         end
       endcase
@@ -775,13 +780,15 @@ timeunit 1ns; timeprecision 1ps;
   // `base + row*FEAT_OUTPUT_SIZE + col` for RAM writes.
   assign w_col_offset_output   = r_col_index_output;
   assign w_offset_total_output = r_row_stride_output + w_col_offset_output;
-  assign w_addr_ptr_pout       = r_addr_pointer_out + w_offset_total_output;
+  assign w_addr_ptr_pout_raw   = r_addr_pointer_out + w_offset_total_output;
+  assign w_addr_ptr_pout       = w_output_pixel_in_bounds ? w_addr_ptr_pout_raw : r_addr_pointer_out;
   assign w_window_base_col_out = r_window_counter_row_out * A1_SIZE;
   assign w_window_base_row_out = r_window_counter_col_out * A1_SIZE;
   assign w_global_col_out      = w_window_base_col_out + r_col_index_output;
   assign w_global_row_out      = w_window_base_row_out + r_row_index_output;
   assign w_output_pixel_in_bounds =
       (w_global_col_out < FEAT_OUTPUT_SIZE) && (w_global_row_out < FEAT_OUTPUT_SIZE);
+  assign w_output_data_clamped = w_output_pixel_in_bounds ? p_output_data_read : '0;
 
 
   /*
