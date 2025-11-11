@@ -136,7 +136,7 @@ module tb;
 
   // Inicialização dos sinais e reset
   initial begin
-    // $dumpfile("dump.vcd");
+    $dumpfile("dump.vcd");
     // $dumpvars(0, tb);
 
     debug = 0;

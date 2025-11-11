@@ -1,0 +1,14 @@
+Feature: None
+Weights: None
+Image side: 64
+Quantization bits: 8
+R2: 0.9998924880629552
+
+Totals
+Naive
+Convolutions: 11532
+Multiplications: 103788
+Additions: 92256
+Fast
+Convolutions: 1323
+Multiplications: 47628
