@@ -242,6 +242,7 @@ timeunit 1ns; timeprecision 1ps;
   logic r_conv_end;
   logic r_conv_busy;
   logic r_read_en;
+  logic_vector r_bias;
   // Register bank for input features
   type_input  r_feat_input;
   // Register bank for kernel weights
@@ -320,11 +321,12 @@ timeunit 1ns; timeprecision 1ps;
       // Waits for start to begin reading weights and then input data; bias handling is currently disabled
       IDLE_INPUT: begin
         if (p_start)
-          next_st_input = WEIGHT;
-          // next_st_input = BIAS;
+          // next_st_input = WEIGHT;
+          next_st_input = BIAS;
       end
       BIAS: begin
-        next_st_input = WEIGHT;
+        if (p_input_valid)
+          next_st_input = WEIGHT;
       end
       // Waits for the weight fetch covering the active input/output channel pair before moving on to input data
       WEIGHT: begin
@@ -543,8 +545,10 @@ timeunit 1ns; timeprecision 1ps;
           load_input_idle_state();
         end
         BIAS: begin
+          r_read_en        <= 1'b1;
           // Sequentially advances through the bias region before weights/inputs are fetched.
-          r_addr_pointer_bias <= r_addr_pointer_bias + 1;
+          if (p_input_valid)
+            r_addr_pointer_bias <= r_addr_pointer_bias + 1;
         end
         WEIGHT: begin
           // Streams kernel coefficients into r_kernel while priming the input counter.
@@ -569,29 +573,29 @@ timeunit 1ns; timeprecision 1ps;
               r_addr_count_input <= C1_SIZE * (C1_SIZE - A1_SIZE);
               r_col_index_input  <= C1_SIZE - A1_SIZE;
             end
-            // r_window_counter_row_input
+            // update: r_window_counter_row_input
             if (f_is_last_row_input()) begin
               r_window_counter_row_input <= 0;
             end else
               r_window_counter_row_input <= r_window_counter_row_input + 1;
-            // r_window_counter_col_input
+            // update: r_window_counter_col_input
             if (f_is_last_row_input() && f_is_last_channel_input())
               r_window_counter_col_input <= 0;
             else if (f_is_last_row_input() && (r_window_counter_col_input >= LAST_WINDOW_ROW_INDEX))
               r_window_counter_col_input <= 0;
             else if (f_is_last_row_input())
               r_window_counter_col_input <= r_window_counter_col_input + 1;
-            // r_window_counter_channel_input
+            // update: r_window_counter_channel_input
             if (f_is_last_channel_input())
               r_window_counter_channel_input <= 0;
             else
               r_window_counter_channel_input <= r_window_counter_channel_input + 1;
-            // r_window_counter_all_channel_input
+            // update: r_window_counter_all_channel_input
             if (f_is_last_all_channel_input())
               r_window_counter_all_channel_input <= 0;
             else
               r_window_counter_all_channel_input <= r_window_counter_all_channel_input + 1;
-            // r_addr_pointer_input
+            // update: r_addr_pointer_input
             if (f_is_last_row_input() && f_is_last_all_channel_input())
               r_addr_pointer_input <= TOTAL_NUM_CHANNELS + KERNEL_NUM_ELEMS * TOTAL_NUM_CHANNELS;
             else if (f_is_last_row_input() && !f_is_last_channel_input())
@@ -652,6 +656,11 @@ timeunit 1ns; timeprecision 1ps;
         IDLE_INPUT: begin
           // Flush buffer content during idle to avoid leaking stale data into the next run.
           reset_input_buffers();
+        end
+        BIAS: begin
+          // Capture bias word as it returns from the RAM interface.
+          if (p_input_valid)
+            r_bias <= p_input_data;
         end
         WEIGHT: begin
           // Capture each weight word as it returns from the RAM interface.
@@ -738,28 +747,28 @@ timeunit 1ns; timeprecision 1ps;
         WRITE_OUTPUT: begin
           // Emits accumulated results to RAM and updates window/channel counters accordingly.
           r_addr_count_write_out <= r_addr_count_write_out + 1;
-          // r_window_counter_total_out
+          // update: r_window_counter_total_out
           if (f_is_last_write_out())
             r_window_counter_total_out <= r_window_counter_total_out + 1;
-          // r_window_counter_row_out
+          // update: r_window_counter_row_out
           if (f_is_last_write_out() && f_is_last_row_out()) begin
             r_window_counter_row_out <= 0;
           end else if (f_is_last_write_out() && !f_is_last_row_out())
             r_window_counter_row_out <= r_window_counter_row_out + 1;
-          // r_window_counter_col_out
+          // update: r_window_counter_col_out
           if (f_is_last_write_out() && f_is_last_row_out() && f_is_last_channel_out())
             r_window_counter_col_out <= 0;
           else if (f_is_last_write_out() && f_is_last_row_out() && (r_window_counter_col_out >= LAST_WINDOW_ROW_INDEX))
             r_window_counter_col_out <= 0;
           else if (f_is_last_write_out() && f_is_last_row_out())
             r_window_counter_col_out <= r_window_counter_col_out + 1;
-          // r_window_counter_channel_out
+          // update: r_window_counter_channel_out
           if (f_is_last_write_out() && !f_is_last_channel_out())
             r_window_counter_channel_out <= r_window_counter_channel_out + 1;
-          // r_window_counter_all_channel_out
+          // update: r_window_counter_all_channel_out
           if (f_is_last_write_out() && !f_is_last_all_channel_out())
             r_window_counter_all_channel_out <= r_window_counter_all_channel_out + 1;
-          // r_addr_pointer_out
+          // update: r_addr_pointer_out
           if (f_is_last_write_out() && f_is_last_row_out())
             r_addr_pointer_out <= r_addr_pointer_out + OUTPUT_ROW_WRAP_DELTA;
           else if (f_is_last_write_out() && !f_is_last_row_out())
@@ -876,7 +885,7 @@ timeunit 1ns; timeprecision 1ps;
     unique case (current_st_input)
       BIAS: begin
         p_input_addr = r_addr_pointer_bias;
-        p_input_en = 1'b0;
+        p_input_en = r_read_en;
       end
       WEIGHT: begin
         p_input_addr = r_addr_pointer_kernel;
@@ -919,6 +928,9 @@ timeunit 1ns; timeprecision 1ps;
   // P_OUTPUT_DATA_WRITE_BLOCK: feeds the output RAM with the accumulated sum of the captured
   // convolution result plus any existing feature data, aligned with OUTPUT_CTRL_BLOCK counters.
   always_comb begin: P_OUTPUT_DATA_WRITE_BLOCK
+    if (r_channel_counter_out == 0)
+      p_output_data_write = r_conv_output[r_addr_count_write_out] + r_bias;
+    else
     p_output_data_write = r_conv_output[r_addr_count_write_out] + r_feat_output[r_addr_count_write_out];
   end
 

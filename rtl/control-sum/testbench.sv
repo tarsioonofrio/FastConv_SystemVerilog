@@ -136,8 +136,8 @@ module tb;
 
   // Inicialização dos sinais e reset
   initial begin
-    $dumpfile("dump.vcd");
-    $dumpvars(0, tb);
+    // $dumpfile("dump.vcd");
+    // $dumpvars(0, tb);
 
     debug = 0;
 
@@ -189,11 +189,11 @@ module tb;
       end
     end
 
-    $display("=== No errors - End simulation ===");
-    $display("Total Time %0f", $realtime);
-    $display("Execution time after wait(end) %0f", exec_time);
-
     #20ns
+
+    $display("=== No errors - End simulation ===");
+    $display("Execution time: %d ns", exec_time);
+    $display("Total Time (execution + memory read): %d ns", $realtime);
 
     $finish;
   end
