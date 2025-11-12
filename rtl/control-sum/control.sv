@@ -561,6 +561,7 @@ timeunit 1ns; timeprecision 1ps;
             r_window_counter_total_input <= r_window_counter_total_input + 1;
             r_row_index_input            <= '0;
             r_row_stride_input           <= '0;
+
             if (f_is_last_row_input()) begin
               r_addr_count_input <= 0;
               r_col_index_input  <= 0;
@@ -568,25 +569,29 @@ timeunit 1ns; timeprecision 1ps;
               r_addr_count_input <= C1_SIZE * (C1_SIZE - A1_SIZE);
               r_col_index_input  <= C1_SIZE - A1_SIZE;
             end
+            // r_window_counter_row_input
             if (f_is_last_row_input()) begin
               r_window_counter_row_input <= 0;
-              if (f_is_last_channel_input())
-                r_window_counter_col_input <= 0;
-              else if (r_window_counter_col_input >= LAST_WINDOW_ROW_INDEX)
-                r_window_counter_col_input <= 0;
-              else
-                r_window_counter_col_input <= r_window_counter_col_input + 1;
-            end else begin
+            end else
               r_window_counter_row_input <= r_window_counter_row_input + 1;
-            end
+            // r_window_counter_col_input
+            if (f_is_last_row_input() && f_is_last_channel_input())
+              r_window_counter_col_input <= 0;
+            else if (f_is_last_row_input() && (r_window_counter_col_input >= LAST_WINDOW_ROW_INDEX))
+              r_window_counter_col_input <= 0;
+            else if (f_is_last_row_input())
+              r_window_counter_col_input <= r_window_counter_col_input + 1;
+            // r_window_counter_channel_input
             if (f_is_last_channel_input())
               r_window_counter_channel_input <= 0;
             else
               r_window_counter_channel_input <= r_window_counter_channel_input + 1;
+            // r_window_counter_all_channel_input
             if (f_is_last_all_channel_input())
               r_window_counter_all_channel_input <= 0;
             else
               r_window_counter_all_channel_input <= r_window_counter_all_channel_input + 1;
+            // r_addr_pointer_input
             if (f_is_last_row_input() && f_is_last_all_channel_input())
               r_addr_pointer_input <= TOTAL_NUM_CHANNELS + KERNEL_NUM_ELEMS * TOTAL_NUM_CHANNELS;
             else if (f_is_last_row_input() && !f_is_last_channel_input())
@@ -682,8 +687,7 @@ timeunit 1ns; timeprecision 1ps;
   assign w_window_base_row_input = r_window_counter_col_input * A1_SIZE;
   assign w_global_col_input      = w_window_base_col_input + r_col_index_input;
   assign w_global_row_input      = w_window_base_row_input + r_row_index_input;
-  assign w_input_sample_in_bounds =
-      (w_global_col_input < FEAT_INPUT_SIZE) && (w_global_row_input < FEAT_INPUT_SIZE);
+  assign w_input_sample_in_bounds = (w_global_col_input < FEAT_INPUT_SIZE) && (w_global_row_input < FEAT_INPUT_SIZE);
   assign w_input_data_clamped    = w_input_sample_in_bounds ? p_input_data : '0;
 
   /*
@@ -734,23 +738,28 @@ timeunit 1ns; timeprecision 1ps;
         WRITE_OUTPUT: begin
           // Emits accumulated results to RAM and updates window/channel counters accordingly.
           r_addr_count_write_out <= r_addr_count_write_out + 1;
+          // r_window_counter_total_out
           if (f_is_last_write_out())
             r_window_counter_total_out <= r_window_counter_total_out + 1;
+          // r_window_counter_row_out
           if (f_is_last_write_out() && f_is_last_row_out()) begin
             r_window_counter_row_out <= 0;
-            if (f_is_last_channel_out())
-              r_window_counter_col_out <= 0;
-            else if (r_window_counter_col_out >= LAST_WINDOW_ROW_INDEX)
-              r_window_counter_col_out <= 0;
-            else
-              r_window_counter_col_out <= r_window_counter_col_out + 1;
-          end else if (f_is_last_write_out() && !f_is_last_row_out()) begin
+          end else if (f_is_last_write_out() && !f_is_last_row_out())
             r_window_counter_row_out <= r_window_counter_row_out + 1;
-          end
+          // r_window_counter_col_out
+          if (f_is_last_write_out() && f_is_last_row_out() && f_is_last_channel_out())
+            r_window_counter_col_out <= 0;
+          else if (f_is_last_write_out() && f_is_last_row_out() && (r_window_counter_col_out >= LAST_WINDOW_ROW_INDEX))
+            r_window_counter_col_out <= 0;
+          else if (f_is_last_write_out() && f_is_last_row_out())
+            r_window_counter_col_out <= r_window_counter_col_out + 1;
+          // r_window_counter_channel_out
           if (f_is_last_write_out() && !f_is_last_channel_out())
             r_window_counter_channel_out <= r_window_counter_channel_out + 1;
+          // r_window_counter_all_channel_out
           if (f_is_last_write_out() && !f_is_last_all_channel_out())
             r_window_counter_all_channel_out <= r_window_counter_all_channel_out + 1;
+          // r_addr_pointer_out
           if (f_is_last_write_out() && f_is_last_row_out())
             r_addr_pointer_out <= r_addr_pointer_out + OUTPUT_ROW_WRAP_DELTA;
           else if (f_is_last_write_out() && !f_is_last_row_out())
@@ -804,7 +813,6 @@ timeunit 1ns; timeprecision 1ps;
         r_col_index_output <= '0;
         r_row_index_output <= '0;
         r_row_stride_output <= '0;
-
       end else begin
         if ((current_st_output == WRITE_OUTPUT) || ((current_st_output == READ_OUTPUT)) && (p_output_valid && (r_addr_count_read_out < OUTPUT_FEATURE_NUM_ELEMS))) begin
           // Row-major traversal for the output feature tile mirrors the input logic:
@@ -836,8 +844,7 @@ timeunit 1ns; timeprecision 1ps;
   assign w_window_base_row_out = r_window_counter_col_out * A1_SIZE;
   assign w_global_col_out      = w_window_base_col_out + r_col_index_output;
   assign w_global_row_out      = w_window_base_row_out + r_row_index_output;
-  assign w_output_pixel_in_bounds =
-      (w_global_col_out < FEAT_OUTPUT_SIZE) && (w_global_row_out < FEAT_OUTPUT_SIZE);
+  assign w_output_pixel_in_bounds = (w_global_col_out < FEAT_OUTPUT_SIZE) && (w_global_row_out < FEAT_OUTPUT_SIZE);
   assign w_output_data_clamped = w_output_pixel_in_bounds ? p_output_data_read : '0;
 
 
