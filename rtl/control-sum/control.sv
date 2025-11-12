@@ -488,27 +488,6 @@ timeunit 1ns; timeprecision 1ps;
   task automatic reset_input_ctrl_regs();
     r_read_en                      <= 1'b0;
     r_addr_pointer_bias            <= '0;
-    r_addr_pointer_kernel          <= N_CHANNEL_OUT;
-    r_addr_pointer_input           <= TOTAL_NUM_CHANNELS + KERNEL_NUM_ELEMS * TOTAL_NUM_CHANNELS;
-    r_addr_count_kernel            <= '0;
-    r_addr_count_input             <= '0;
-    r_channel_counter_input        <= '0;
-    r_hold_output                  <= '0;
-    r_window_counter_total_input   <= '0;
-    r_window_counter_channel_input <= '0;
-    r_window_counter_col_input     <= '0;
-    r_window_counter_row_input     <= '0;
-    r_window_counter_all_channel_input <= '0;
-    r_col_index_input              <= '0;
-    r_row_index_input              <= '0;
-    r_row_stride_input             <= '0;
-  endtask
-
-  // load_input_idle_state: reapplies the canonical IDLE initialization so the input FSM realigns
-  // with OUTPUT_CTRL_BLOCK when the pipeline drains and waits for new work.
-  task automatic load_input_idle_state();
-    r_read_en                      <= 1'b0;
-    r_addr_pointer_bias            <= '0;
     r_addr_pointer_kernel          <= TOTAL_NUM_CHANNELS;
     r_addr_pointer_input           <= TOTAL_NUM_CHANNELS + KERNEL_NUM_ELEMS * TOTAL_NUM_CHANNELS;
     r_addr_count_kernel            <= '0;
@@ -542,11 +521,11 @@ timeunit 1ns; timeprecision 1ps;
         default: begin end
         IDLE_INPUT: begin
           // Reset control counters/pointers so the next activation starts from the canonical base.
-          load_input_idle_state();
+          reset_input_ctrl_regs();
         end
         BIAS: begin
-          r_read_en        <= 1'b1;
           // Sequentially advances through the bias region before weights/inputs are fetched.
+          r_read_en <= 1'b1;
           if (p_input_valid)
             r_addr_pointer_bias <= r_addr_pointer_bias + 1;
         end
