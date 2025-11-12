@@ -539,12 +539,15 @@ timeunit 1ns; timeprecision 1ps;
       unique case (current_st_input)
         default: begin end
         IDLE_INPUT: begin
+          // Reset control counters/pointers so the next activation starts from the canonical base.
           load_input_idle_state();
         end
         BIAS: begin
+          // Sequentially advances through the bias region before weights/inputs are fetched.
           r_addr_pointer_bias <= r_addr_pointer_bias + 1;
         end
         WEIGHT: begin
+          // Streams kernel coefficients into r_kernel while priming the input counter.
           r_read_en        <= 1'b1;
           r_addr_count_input <= 0;
           if (p_input_valid) begin
@@ -553,6 +556,7 @@ timeunit 1ns; timeprecision 1ps;
           end
         end
         CONV_INPUT: begin
+          // On each tile handoff, bump window counters and reposition pointers for the next window.
           if (w_conv_input_fire) begin
             r_window_counter_total_input <= r_window_counter_total_input + 1;
             r_row_index_input            <= '0;
@@ -594,6 +598,7 @@ timeunit 1ns; timeprecision 1ps;
           end
         end
         READ_INPUT: begin
+          // Issues RAM reads and walks the row/column indices while filling r_feat_input.
           r_read_en          <= 1'b1;
           r_addr_count_kernel <= 0;
           if (p_input_valid && (r_addr_count_input < C1_SIZE * C1_SIZE)) begin
@@ -612,12 +617,14 @@ timeunit 1ns; timeprecision 1ps;
           end
         end
         HOLD_OUTPUT: begin
+          // Inserts a small delay to let OUTPUT_CTRL_BLOCK consume pending windows.
           if (r_hold_output == (CYCLES_HOLD_OUTPUT - 1))
             r_hold_output <= 0;
           else
             r_hold_output <= r_hold_output + 1;
         end
         HOLD_LAST_CONV: begin
+          // Waits for the convolution core to go idle before rotating to the next input channel.
           if (p_conv_idle) begin
             if (r_channel_counter_input >= N_CHANNEL_IN - 1)
               r_channel_counter_input <= 0;
@@ -638,17 +645,21 @@ timeunit 1ns; timeprecision 1ps;
       unique case (current_st_input)
         default: begin end
         IDLE_INPUT: begin
+          // Flush buffer content during idle to avoid leaking stale data into the next run.
           reset_input_buffers();
         end
         WEIGHT: begin
+          // Capture each weight word as it returns from the RAM interface.
           if (p_input_valid)
             r_kernel[r_addr_count_kernel] <= p_input_data;
         end
         READ_INPUT: begin
+          // Store incoming feature samples using the c_index indirection for stride ordering.
           if (p_input_valid && (r_addr_count_input < C1_SIZE * C1_SIZE))
             r_feat_input[c_index[r_addr_count_input]] <= w_input_data_clamped;
         end
         CONV_INPUT: begin
+          // When reusing overlap columns, shift the buffer contents left to free room for new data.
           if (w_conv_input_fire && !f_is_last_row_input()) begin
             for (int row = 0; row < C1_SIZE; row++) begin
               for (int col = 0; col < (C1_SIZE - A1_SIZE); col++) begin
@@ -711,14 +722,17 @@ timeunit 1ns; timeprecision 1ps;
       unique case (current_st_output)
         default: begin end
         READ_OUTPUT: begin
+          // Latch partial sums read from the output RAM while tracking how many samples arrived.
           if (p_output_valid && (r_addr_count_read_out < OUTPUT_FEATURE_NUM_ELEMS))
             r_addr_count_read_out <= r_addr_count_read_out + 1;
         end
         CONV_OUTPUT: begin
+          // Waits for the convolution result to arrive and clears counters ahead of WRITE_OUTPUT.
           r_addr_count_read_out  <= 0;
           r_addr_count_write_out <= 0;
         end
         WRITE_OUTPUT: begin
+          // Emits accumulated results to RAM and updates window/channel counters accordingly.
           r_addr_count_write_out <= r_addr_count_write_out + 1;
           if (f_is_last_write_out())
             r_window_counter_total_out <= r_window_counter_total_out + 1;
@@ -743,6 +757,7 @@ timeunit 1ns; timeprecision 1ps;
             r_addr_pointer_out <= r_addr_pointer_out + A1_SIZE;
         end
         END_CHANNEL: begin
+          // Handles inter-channel bookkeeping, rewinding pointers or advancing to the next channel.
           r_window_counter_row_out     <= 0;
           r_window_counter_col_out     <= 0;
           r_window_counter_channel_out <= 0;
@@ -769,10 +784,12 @@ timeunit 1ns; timeprecision 1ps;
         default: begin end
         IDLE_OUTPUT: begin end
         READ_OUTPUT: begin
+          // Capture data from the output RAM into r_feat_output for later accumulation.
           if (p_output_valid && (r_addr_count_read_out < OUTPUT_FEATURE_NUM_ELEMS))
             r_feat_output[r_addr_count_read_out] <= w_output_data_clamped;
         end
         CONV_OUTPUT: begin
+          // Store the freshly computed convolution result so WRITE_OUTPUT can sum with RAM data.
           if (w_conv_result_ready)
             r_conv_output <= p_conv_output;
         end
