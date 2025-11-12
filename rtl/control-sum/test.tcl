@@ -44,8 +44,13 @@ vlog -work work $define_flags -svinputport=relaxed ./testbench.sv
 # to show FSM
 # vsim -voptargs=+acc -t ps -fsmdebug -coverage -debugDB work.tb
 vsim -voptargs=+acc -t ps work.tb
+vcd file dump.vcd
+vcd add -r /tb/*
+vcd on
 set StdArithNoWarnings 1
 set StdVitalGlitchNoWarnings 1
-run 100000ns
+run -all
+vcd off
+vcd dumpfile close
 # run 140ns
 # coverage report -output report.txt -srcfile=* -assert -directive -cvg -codeAll
