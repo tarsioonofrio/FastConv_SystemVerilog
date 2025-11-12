@@ -311,6 +311,8 @@ timeunit 1ns; timeprecision 1ps;
    */
 
   // Combinational logic for the input (read) state machine
+  // NEXT_ST_INPUT_BLOCK: derives the next input FSM state using the f_is_last_* flags so the read
+  // side stays coherent with OUTPUT_CTRL_BLOCK and the convolution handshakes.
   always_comb begin: NEXT_ST_INPUT_BLOCK
     next_st_input = current_st_input;
     unique case (current_st_input)
@@ -378,6 +380,8 @@ timeunit 1ns; timeprecision 1ps;
    */
 
   // Combinational logic for the output (write) state machine
+  // NEXT_ST_OUTPUT_BLOCK: coordinates the write FSM with the status coming from both the input FSM
+  // and the convolution result handshakes.
   always_comb begin: NEXT_ST_OUTPUT_BLOCK
     next_st_output = current_st_output;
     unique case (current_st_output)
@@ -477,93 +481,89 @@ timeunit 1ns; timeprecision 1ps;
    -------------------------------------------------------------
    */
 
-  // Sequential logic updating the registers tied to the input state machine
-  always_ff @(posedge clk) begin: CURRENT_ST_INPUT_BLOCK
+  // reset_input_ctrl_regs: clears all control-side registers so INPUT_CTRL_BLOCK starts in sync with
+  // the FSM state transitions and handshake logic shared with the convolution core.
+  task automatic reset_input_ctrl_regs();
+    r_read_en                      <= 1'b0;
+    r_addr_pointer_bias            <= '0;
+    r_addr_pointer_kernel          <= N_CHANNEL_OUT;
+    r_addr_pointer_input           <= TOTAL_NUM_CHANNELS + KERNEL_NUM_ELEMS * TOTAL_NUM_CHANNELS;
+    r_addr_count_kernel            <= '0;
+    r_addr_count_input             <= '0;
+    r_channel_counter_input        <= '0;
+    r_hold_output                  <= '0;
+    r_window_counter_total_input   <= '0;
+    r_window_counter_channel_input <= '0;
+    r_window_counter_col_input     <= '0;
+    r_window_counter_row_input     <= '0;
+    r_window_counter_all_channel_input <= '0;
+    r_col_index_input              <= '0;
+    r_row_index_input              <= '0;
+    r_row_stride_input             <= '0;
+  endtask
+
+  // load_input_idle_state: reapplies the canonical IDLE initialization so the input FSM realigns
+  // with OUTPUT_CTRL_BLOCK when the pipeline drains and waits for new work.
+  task automatic load_input_idle_state();
+    r_read_en                      <= 1'b0;
+    r_addr_pointer_bias            <= '0;
+    r_addr_pointer_kernel          <= TOTAL_NUM_CHANNELS;
+    r_addr_pointer_input           <= TOTAL_NUM_CHANNELS + KERNEL_NUM_ELEMS * TOTAL_NUM_CHANNELS;
+    r_addr_count_kernel            <= '0;
+    r_addr_count_input             <= '0;
+    r_channel_counter_input        <= '0;
+    r_hold_output                  <= '0;
+    r_window_counter_total_input   <= '0;
+    r_window_counter_channel_input <= '0;
+    r_window_counter_col_input     <= '0;
+    r_window_counter_row_input     <= '0;
+    r_window_counter_all_channel_input <= '0;
+    r_col_index_input              <= '0;
+    r_row_index_input              <= '0;
+    r_row_stride_input             <= '0;
+  endtask
+
+  // reset_input_buffers: wipes the local kernel/input tiles to prevent stale data from being handed
+  // to P_CONV_BUS_BLOCK after resets or between sequences.
+  task automatic reset_input_buffers();
+    r_kernel     <= '{default: '0};
+    r_feat_input <= '{default: '0};
+  endtask
+
+  // INPUT_CTRL_BLOCK: updates counters and pointers for the input FSM and drives the handshakes the
+  // OUTPUT_CTRL_BLOCK depends on when scheduling writes.
+  always_ff @(posedge clk) begin: INPUT_CTRL_BLOCK
     if (reset) begin
-      r_read_en    <= 1'b0;
-      // Bias base address starts at zero
-      r_addr_pointer_bias  <= 0;
-      // Weight base address follows the bias region
-      r_addr_pointer_kernel    <= N_CHANNEL_OUT;
-      // Input feature base address follows the weight region
-      r_addr_pointer_input   <= TOTAL_NUM_CHANNELS + KERNEL_NUM_ELEMS * TOTAL_NUM_CHANNELS;
-      r_addr_count_kernel   <= 0;
-      r_addr_count_input  <= 0;
-      r_channel_counter_input <= 0;
-      r_hold_output <= 0;
-      r_window_counter_total_input     <= 0;
-      r_window_counter_channel_input   <= 0;
-      r_window_counter_col_input  <= 0;
-      r_window_counter_row_input  <= 0;
-      r_kernel     <= '{default: '0};
-      r_feat_input    <= '{default: '0};
-      r_col_index_input <= '0;
-      r_row_index_input <= '0;
-      r_row_stride_input <= '0;
+      reset_input_ctrl_regs();
     end else begin
       unique case (current_st_input)
         default: begin end
         IDLE_INPUT: begin
-          r_read_en   <= 1'b0;
-          r_addr_pointer_bias <= 0;
-          r_addr_pointer_kernel   <= TOTAL_NUM_CHANNELS;
-          r_addr_pointer_input  <= TOTAL_NUM_CHANNELS + KERNEL_NUM_ELEMS * TOTAL_NUM_CHANNELS;
-          r_addr_count_kernel  <= 0;
-          r_addr_count_input <= 0;
-          r_channel_counter_input <= 0;
-          r_hold_output <= 0;
-          r_window_counter_total_input    <= 0;
-          r_window_counter_channel_input   <= 0;
-          r_window_counter_col_input  <= 0;
-          r_window_counter_row_input  <= 0;
-          r_window_counter_all_channel_input  <= 0;
-          r_kernel    <= '{default: '0};
-          r_feat_input   <= '{default: '0};
-          r_col_index_input <= '0;
-          r_row_index_input <= '0;
-          r_row_stride_input <= '0;
+          load_input_idle_state();
         end
-        // When fetching bias, read a single address and advance
         BIAS: begin
           r_addr_pointer_bias <= r_addr_pointer_bias + 1;
         end
-        // Each cycle advances the weight address and stores the returned value in-order
         WEIGHT: begin
-          r_read_en   <= 1'b1;
+          r_read_en        <= 1'b1;
           r_addr_count_input <= 0;
           if (p_input_valid) begin
-            r_addr_pointer_kernel         <= r_addr_pointer_kernel + 1;
-            r_addr_count_kernel           <= r_addr_count_kernel + 1;
-            r_kernel[r_addr_count_kernel] <= p_input_data;
+            r_addr_pointer_kernel <= r_addr_pointer_kernel + 1;
+            r_addr_count_kernel   <= r_addr_count_kernel + 1;
           end
         end
         CONV_INPUT: begin
           if (w_conv_input_fire) begin
-            // When the input buffer is full, increment the total window counter
             r_window_counter_total_input <= r_window_counter_total_input + 1;
-
-            r_row_index_input <= '0;
-            r_row_stride_input <= '0;
+            r_row_index_input            <= '0;
+            r_row_stride_input           <= '0;
             if (f_is_last_row_input()) begin
               r_addr_count_input <= 0;
-              r_col_index_input <= 0;
+              r_col_index_input  <= 0;
             end else begin
               r_addr_count_input <= C1_SIZE * (C1_SIZE - A1_SIZE);
-              r_col_index_input <= C1_SIZE - A1_SIZE;
-              // If the input buffer is full but the row has not ended:
-              // - increment the per-row window counter
-              // - position the input feature counter at the reuse start column
-              // - move the base pointer to the next window horizontally
-              // Preserve overlapping columns locally to enable horizontal window reuse
-              // TODO perform test using an index table
-
-              for (int row = 0; row < C1_SIZE; row++) begin
-                for (int col = 0; col < (C1_SIZE - A1_SIZE); col++) begin
-                  r_feat_input[row * C1_SIZE + col] <= r_feat_input[row * C1_SIZE + col + A1_SIZE];
-                end
-              end
+              r_col_index_input  <= C1_SIZE - A1_SIZE;
             end
-
             if (f_is_last_row_input()) begin
               r_window_counter_row_input <= 0;
               if (f_is_last_channel_input())
@@ -575,47 +575,38 @@ timeunit 1ns; timeprecision 1ps;
             end else begin
               r_window_counter_row_input <= r_window_counter_row_input + 1;
             end
-
             if (f_is_last_channel_input())
               r_window_counter_channel_input <= 0;
             else
               r_window_counter_channel_input <= r_window_counter_channel_input + 1;
-
             if (f_is_last_all_channel_input())
               r_window_counter_all_channel_input <= 0;
             else
               r_window_counter_all_channel_input <= r_window_counter_all_channel_input + 1;
-
             if (f_is_last_row_input() && f_is_last_all_channel_input())
               r_addr_pointer_input <= TOTAL_NUM_CHANNELS + KERNEL_NUM_ELEMS * TOTAL_NUM_CHANNELS;
             else if (f_is_last_row_input() && !f_is_last_channel_input())
-              r_addr_pointer_input  <= r_addr_pointer_input + INPUT_ROW_WRAP_DELTA;
+              r_addr_pointer_input <= r_addr_pointer_input + INPUT_ROW_WRAP_DELTA;
             else if (f_is_last_row_input() && f_is_last_channel_input())
-              r_addr_pointer_input  <= r_addr_pointer_input + INPUT_CHANNEL_WRAP_DELTA;
+              r_addr_pointer_input <= r_addr_pointer_input + INPUT_CHANNEL_WRAP_DELTA;
             else
-              r_addr_pointer_input  <= r_addr_pointer_input + A1_SIZE;
+              r_addr_pointer_input <= r_addr_pointer_input + A1_SIZE;
           end
         end
-        // Each cycle advances the input address and stores the returned value in the indexed slot
         READ_INPUT: begin
-          r_read_en  <= 1'b1;
+          r_read_en          <= 1'b1;
           r_addr_count_kernel <= 0;
           if (p_input_valid && (r_addr_count_input < C1_SIZE * C1_SIZE)) begin
-            r_addr_count_input                     <= r_addr_count_input + 1;
-            r_feat_input[c_index[r_addr_count_input]] <= w_input_data_clamped;
-            // Compute address of the next input data
-            // - Scan columns fastest, resetting to column zero once the tile width is reached
-            // - Accumulate FEAT_INPUT_SIZE per row to build the row stride term reused later
+            r_addr_count_input <= r_addr_count_input + 1;
             if (r_row_index_input == (C1_SIZE - 1)) begin
-              r_row_index_input <= '0;
+              r_row_index_input  <= '0;
               r_row_stride_input <= '0;
-              if (r_col_index_input == (C1_SIZE - 1)) begin
+              if (r_col_index_input == (C1_SIZE - 1))
                 r_col_index_input <= '0;
-              end else begin
+              else
                 r_col_index_input <= r_col_index_input + 1;
-              end
             end else begin
-              r_row_index_input <= r_row_index_input + 1;
+              r_row_index_input  <= r_row_index_input + 1;
               r_row_stride_input <= r_row_stride_input + FEAT_INPUT_SIZE;
             end
           end
@@ -627,11 +618,44 @@ timeunit 1ns; timeprecision 1ps;
             r_hold_output <= r_hold_output + 1;
         end
         HOLD_LAST_CONV: begin
-          if (p_conv_idle)
+          if (p_conv_idle) begin
             if (r_channel_counter_input >= N_CHANNEL_IN - 1)
               r_channel_counter_input <= 0;
             else
               r_channel_counter_input <= r_channel_counter_input + 1;
+          end
+        end
+      endcase
+    end
+  end
+
+  // INPUT_BUFFER_BLOCK: owns the actual feature/weight memories, working in tandem with
+  // INPUT_CTRL_BLOCK so the data presented on p_conv_input/p_conv_weight matches the counters.
+  always_ff @(posedge clk) begin: INPUT_BUFFER_BLOCK
+    if (reset) begin
+      reset_input_buffers();
+    end else begin
+      unique case (current_st_input)
+        default: begin end
+        IDLE_INPUT: begin
+          reset_input_buffers();
+        end
+        WEIGHT: begin
+          if (p_input_valid)
+            r_kernel[r_addr_count_kernel] <= p_input_data;
+        end
+        READ_INPUT: begin
+          if (p_input_valid && (r_addr_count_input < C1_SIZE * C1_SIZE))
+            r_feat_input[c_index[r_addr_count_input]] <= w_input_data_clamped;
+        end
+        CONV_INPUT: begin
+          if (w_conv_input_fire && !f_is_last_row_input()) begin
+            for (int row = 0; row < C1_SIZE; row++) begin
+              for (int col = 0; col < (C1_SIZE - A1_SIZE); col++) begin
+                r_feat_input[row * C1_SIZE + col] <= r_feat_input[row * C1_SIZE + col + A1_SIZE];
+              end
+            end
+          end
         end
       endcase
     end
@@ -657,56 +681,47 @@ timeunit 1ns; timeprecision 1ps;
    -------------------------------------------------------------
    */
 
+  // reset_output_ctrl_regs: clears write-side counters/pointers so OUTPUT_CTRL_BLOCK can
+  // re-synchronize with the input FSM after reset or channel rollovers.
+  task automatic reset_output_ctrl_regs();
+    r_channel_counter_out         <= '0;
+    r_addr_pointer_out            <= '0;
+    r_addr_count_read_out         <= '0;
+    r_addr_count_write_out        <= '0;
+    r_window_counter_total_out    <= '0;
+    r_window_counter_all_channel_out <= '0;
+    r_window_counter_channel_out  <= '0;
+    r_window_counter_row_out      <= '0;
+    r_window_counter_col_out      <= '0;
+  endtask
 
-  // Sequential logic updating the registers tied to the output state machine
-  always_ff @(posedge clk) begin: CURRENT_ST_OUTPUT_BLOCK
+  // reset_output_data_regs: flushes accumulation buffers that feed p_output_data_write to ensure
+  // OUTPUT_DATA_BLOCK never reuses old sums once the FSM restarts.
+  task automatic reset_output_data_regs();
+    r_conv_output <= '{default: '0};
+    r_feat_output <= '{default: '0};
+  endtask
+
+  // OUTPUT_CTRL_BLOCK: sequences the write-side counters/pointers and mirrors INPUT_CTRL_BLOCK to
+  // guarantee window indices remain aligned when p_end is asserted.
+  always_ff @(posedge clk) begin: OUTPUT_CTRL_BLOCK
     if (reset) begin
-      r_channel_counter_out <= 0;
-      r_addr_pointer_out <= 0;
-      r_addr_count_read_out <= 0;
-      r_addr_count_write_out <= 0;
-      r_window_counter_total_out <= 0;
-      r_window_counter_all_channel_out <= 0;
-      r_window_counter_channel_out <= 0;
-      r_window_counter_row_out <= 0;
-      r_window_counter_col_out <= 0;
-      r_conv_output   <= '{default: '0};
-      r_feat_output   <= '{default: '0};
-      r_col_index_output <= '0;
-      r_row_index_output <= '0;
-      r_row_stride_output <= '0;
+      reset_output_ctrl_regs();
     end else begin
       unique case (current_st_output)
         default: begin end
-        // Each cycle advances the weight address and stores the returned value in-order
         READ_OUTPUT: begin
-          if (p_output_valid && (r_addr_count_read_out < OUTPUT_FEATURE_NUM_ELEMS))  begin
-            r_addr_count_read_out                <= r_addr_count_read_out + 1;
-            r_feat_output[r_addr_count_read_out] <= w_output_data_clamped;
-          end
+          if (p_output_valid && (r_addr_count_read_out < OUTPUT_FEATURE_NUM_ELEMS))
+            r_addr_count_read_out <= r_addr_count_read_out + 1;
         end
-        // Keep the output counter cleared while waiting for convolution to end; capture output data on completion
         CONV_OUTPUT: begin
           r_addr_count_read_out  <= 0;
           r_addr_count_write_out <= 0;
-          // r_col_index_output <= '0;
-          // r_row_index_output <= '0;
-          // r_row_stride_output <= '0;
-
-          // In first channel only get output data from convolutional module
-          if (w_conv_result_ready)
-            r_conv_output <= p_conv_output;
         end
-        // Write output data to memory
         WRITE_OUTPUT: begin
-          // Each cycle increments the output counter to select which register value gets written
           r_addr_count_write_out <= r_addr_count_write_out + 1;
           if (f_is_last_write_out())
             r_window_counter_total_out <= r_window_counter_total_out + 1;
-
-          // When the output window is full but the row continues:
-          // - increment the per-row window counter
-          // - move horizontally to the next window
           if (f_is_last_write_out() && f_is_last_row_out()) begin
             r_window_counter_row_out <= 0;
             if (f_is_last_channel_out())
@@ -718,37 +733,55 @@ timeunit 1ns; timeprecision 1ps;
           end else if (f_is_last_write_out() && !f_is_last_row_out()) begin
             r_window_counter_row_out <= r_window_counter_row_out + 1;
           end
-
           if (f_is_last_write_out() && !f_is_last_channel_out())
             r_window_counter_channel_out <= r_window_counter_channel_out + 1;
-
           if (f_is_last_write_out() && !f_is_last_all_channel_out())
             r_window_counter_all_channel_out <= r_window_counter_all_channel_out + 1;
-
           if (f_is_last_write_out() && f_is_last_row_out())
             r_addr_pointer_out <= r_addr_pointer_out + OUTPUT_ROW_WRAP_DELTA;
           else if (f_is_last_write_out() && !f_is_last_row_out())
             r_addr_pointer_out <= r_addr_pointer_out + A1_SIZE;
         end
         END_CHANNEL: begin
-          r_window_counter_row_out <= 0;
-          r_window_counter_col_out <= 0;
+          r_window_counter_row_out     <= 0;
+          r_window_counter_col_out     <= 0;
           r_window_counter_channel_out <= 0;
           if (f_is_last_all_channel_out())
             r_window_counter_all_channel_out <= 0;
-          // if (r_channel_counter_out >= N_CHANNEL_IN - 1)
-          //    r_addr_pointer_out <= r_addr_pointer_out - OUTPUT_NUM_ELEMS;
-          if (r_channel_counter_out >= N_CHANNEL_IN - 1)
+          if (r_channel_counter_out >= N_CHANNEL_IN - 1) begin
             r_channel_counter_out <= 0;
-          else begin
+          end else begin
             r_channel_counter_out <= r_channel_counter_out + 1;
-            r_addr_pointer_out <= r_addr_pointer_out - OUTPUT_CHANNEL_STRIDE;
+            r_addr_pointer_out    <= r_addr_pointer_out - OUTPUT_CHANNEL_STRIDE;
           end
         end
       endcase
     end
   end
 
+  // OUTPUT_DATA_BLOCK: captures convolution results and RAM readbacks so OUTPUT_CTRL_BLOCK can emit
+  // writes without re-reading memories.
+  always_ff @(posedge clk) begin: OUTPUT_DATA_BLOCK
+    if (reset) begin
+      reset_output_data_regs();
+    end else begin
+      unique case (current_st_output)
+        default: begin end
+        IDLE_OUTPUT: begin end
+        READ_OUTPUT: begin
+          if (p_output_valid && (r_addr_count_read_out < OUTPUT_FEATURE_NUM_ELEMS))
+            r_feat_output[r_addr_count_read_out] <= w_output_data_clamped;
+        end
+        CONV_OUTPUT: begin
+          if (w_conv_result_ready)
+            r_conv_output <= p_conv_output;
+        end
+      endcase
+    end
+  end
+
+  // OUTPUT_TILE_INDEX_BLOCK: derives the per-pixel row/column offsets that both OUTPUT_CTRL_BLOCK
+  // and P_OUTPUT_CTRL_BLOCK use to decide when writes fall inside the valid feature map.
   always_ff @(posedge clk) begin: OUTPUT_TILE_INDEX_BLOCK
       if (reset) begin
         r_col_index_output <= '0;
@@ -798,11 +831,14 @@ timeunit 1ns; timeprecision 1ps;
    */
 
 
+  // P_END_BLOCK: raises p_end once OUTPUT_CTRL_BLOCK reports every window emitted, signaling back to
+  // upstream sequencing logic that INPUT_CTRL_BLOCK can idle.
   always_comb begin: P_END_BLOCK
     p_end = (r_window_counter_total_out >= TOTAL_INPUT_WINDOWS) ? 1'b1 : 1'b0;
   end
 
-  // Combinational logic driving output ports from internal registers
+  // P_CONV_BUS_BLOCK: ties INPUT_BUFFER_BLOCK contents to the convolution core, relying on the
+  // handshake logic declared earlier to fire requests safely.
   always_comb begin: P_CONV_BUS_BLOCK
     p_conv_input  = r_feat_input;
     p_conv_weight = r_kernel;
@@ -810,7 +846,8 @@ timeunit 1ns; timeprecision 1ps;
     p_conv_start = w_conv_input_fire;
   end
 
-  // Combinational mux selecting which memory region to read (bias, weights, input features, or idle) based on the input state
+  // P_INPUT_MUX_BLOCK: selects the RAM address/enables according to the input FSM, keeping the RAM
+  // view consistent with what INPUT_CTRL_BLOCK is expecting to capture.
   always_comb begin: P_INPUT_MUX_BLOCK
     unique case (current_st_input)
       BIAS: begin
@@ -832,7 +869,8 @@ timeunit 1ns; timeprecision 1ps;
     endcase
   end
 
-  // If the current state is WRITE_OUTPUT, enable write
+  // P_OUTPUT_CTRL_BLOCK: exposes OUTPUT_CTRL_BLOCK decisions to the RAM port, toggling enables and
+  // write strobes in lockstep with the internal window counters.
   always_comb begin: P_OUTPUT_CTRL_BLOCK
     unique case (current_st_output)
       // Waits for the convolution-complete signal
@@ -854,7 +892,8 @@ timeunit 1ns; timeprecision 1ps;
 
   assign p_output_addr = w_addr_ptr_pout;
 
-  // Combinational logic driving output ports from internal registers
+  // P_OUTPUT_DATA_WRITE_BLOCK: feeds the output RAM with the accumulated sum of the captured
+  // convolution result plus any existing feature data, aligned with OUTPUT_CTRL_BLOCK counters.
   always_comb begin: P_OUTPUT_DATA_WRITE_BLOCK
     p_output_data_write = r_conv_output[r_addr_count_write_out] + r_feat_output[r_addr_count_write_out];
   end
@@ -879,6 +918,8 @@ timeunit 1ns; timeprecision 1ps;
    -------------------------------------------------------------
    */
   // Helper predicates replacing the former w_is_last_* wires
+  // f_is_last_read_input: signals when READ_INPUT captured the final sample of the current kernel so
+  // INPUT_CTRL_BLOCK can transition to CONV_INPUT in sync with the convolution core.
   function automatic logic f_is_last_read_input();
     // Static variable preserves the last computed result for waveform visibility
     static logic w_is_last_read_input;
@@ -886,6 +927,8 @@ timeunit 1ns; timeprecision 1ps;
     f_is_last_read_input = w_is_last_read_input;
   endfunction
 
+  // f_is_last_row_input: asserts at the last horizontal window for an input row, informing both
+  // INPUT_CTRL_BLOCK and the address generator when to wrap columns.
   function automatic logic f_is_last_row_input();
     // Static variable preserves the last computed result for waveform visibility
     static logic w_is_last_row_input;
@@ -893,6 +936,8 @@ timeunit 1ns; timeprecision 1ps;
     f_is_last_row_input = w_is_last_row_input;
   endfunction
 
+  // f_is_last_channel_input: indicates the final window inside the current output channel so
+  // INPUT_CTRL_BLOCK knows when to reload weights.
   function automatic logic f_is_last_channel_input();
     // Static variable preserves the last computed result for waveform visibility
     static logic w_is_last_channel_input;
@@ -900,6 +945,8 @@ timeunit 1ns; timeprecision 1ps;
     f_is_last_channel_input = w_is_last_channel_input;
   endfunction
 
+  // f_is_last_all_channel_input: pulses when every input/output channel pairing is done, allowing
+  // the input FSM to reset base pointers before OUTPUT_CTRL_BLOCK starts writing.
   function automatic logic f_is_last_all_channel_input();
     // Static variable preserves the last computed result for waveform visibility
     static logic w_is_last_all_channel_input;
@@ -907,6 +954,8 @@ timeunit 1ns; timeprecision 1ps;
     f_is_last_all_channel_input = w_is_last_all_channel_input;
   endfunction
 
+  // f_is_last_read_out: true once READ_OUTPUT fetched the last value from RAM, letting
+  // OUTPUT_CTRL_BLOCK switch to CONV_OUTPUT safely.
   function automatic logic f_is_last_read_out();
     // Static variable preserves the last computed result for waveform visibility
     static logic w_is_last_read_out;
@@ -914,6 +963,8 @@ timeunit 1ns; timeprecision 1ps;
     f_is_last_read_out = w_is_last_read_out;
   endfunction
 
+  // f_is_last_write_out: flags the final store inside a window so OUTPUT_CTRL_BLOCK can advance its
+  // counters and eventually raise p_end.
   function automatic logic f_is_last_write_out();
     // Static variable preserves the last computed result for waveform visibility
     static logic w_is_last_write_out;
@@ -921,6 +972,8 @@ timeunit 1ns; timeprecision 1ps;
     f_is_last_write_out = w_is_last_write_out;
   endfunction
 
+  // f_is_last_row_out: raises on the last horizontal stride of the current row, coordinating the
+  // row/column wrap logic shared with OUTPUT_TILE_INDEX_BLOCK.
   function automatic logic f_is_last_row_out();
     // Static variable preserves the last computed result for waveform visibility
     static logic w_is_last_row_out;
@@ -928,6 +981,8 @@ timeunit 1ns; timeprecision 1ps;
     f_is_last_row_out = w_is_last_row_out;
   endfunction
 
+  // f_is_last_channel_out: high when the present output channel is complete, allowing
+  // OUTPUT_CTRL_BLOCK to either loop channels or enter END_CHANNEL.
   function automatic logic f_is_last_channel_out();
     // Static variable preserves the last computed result for waveform visibility
     static logic w_is_last_channel_out;
@@ -935,6 +990,8 @@ timeunit 1ns; timeprecision 1ps;
     f_is_last_channel_out = w_is_last_channel_out;
   endfunction
 
+  // f_is_last_all_channel_out: final completion flag for all channels/windows, consumed by both the
+  // output FSM and P_END_BLOCK to hold p_end high.
   function automatic logic f_is_last_all_channel_out();
     // Static variable preserves the last computed result for waveform visibility
     static logic w_is_last_all_channel_out;
