@@ -265,6 +265,9 @@ timeunit 1ns; timeprecision 1ps;
   logic w_conv_result_ready;
   // Accept strobe asserted only when the output FSM is in CONV_OUTPUT and a pending result exists
   logic w_conv_result_accept;
+  // Track whether IDLE maintenance already ran to avoid rewriting registers unnecessarily
+  logic r_input_idle_ctrl_seeded;
+  logic r_input_idle_buffer_flushed;
 
   typedef enum {
     IDLE_INPUT,
@@ -535,12 +538,18 @@ timeunit 1ns; timeprecision 1ps;
   always_ff @(posedge clk) begin: INPUT_CTRL_BLOCK
     if (reset) begin
       reset_input_ctrl_regs();
+      r_input_idle_ctrl_seeded <= 1'b1;
     end else begin
+      if (current_st_input != IDLE_INPUT)
+        r_input_idle_ctrl_seeded <= 1'b0;
       unique case (current_st_input)
         default: begin end
         IDLE_INPUT: begin
-          // Reset control counters/pointers so the next activation starts from the canonical base.
-          load_input_idle_state();
+          // Reset control counters/pointers only once per idle residency.
+          if (!r_input_idle_ctrl_seeded) begin
+            load_input_idle_state();
+            r_input_idle_ctrl_seeded <= 1'b1;
+          end
         end
         BIAS: begin
           // Sequentially advances through the bias region before weights/inputs are fetched.
@@ -641,12 +650,18 @@ timeunit 1ns; timeprecision 1ps;
   always_ff @(posedge clk) begin: INPUT_BUFFER_BLOCK
     if (reset) begin
       reset_input_buffers();
+      r_input_idle_buffer_flushed <= 1'b1;
     end else begin
+      if (current_st_input != IDLE_INPUT)
+        r_input_idle_buffer_flushed <= 1'b0;
       unique case (current_st_input)
         default: begin end
         IDLE_INPUT: begin
-          // Flush buffer content during idle to avoid leaking stale data into the next run.
-          reset_input_buffers();
+          // Flush buffer content once per idle residency to avoid needless toggling.
+          if (!r_input_idle_buffer_flushed) begin
+            reset_input_buffers();
+            r_input_idle_buffer_flushed <= 1'b1;
+          end
         end
         WEIGHT: begin
           // Capture each weight word as it returns from the RAM interface.
