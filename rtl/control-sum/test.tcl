@@ -14,7 +14,7 @@ set GIT_ROOT [exec git rev-parse --show-toplevel]
 # vlog -work work  -svinputport=relaxed $DATA_SV
 
 # Read key=value defines from define.txt and build the +define+key=value flags
-set defines_file "test.txt"
+set defines_file "list_def.txt"
 set define_flags ""
 
 if {[file exists $defines_file]} {
@@ -29,7 +29,7 @@ if {[file exists $defines_file]} {
 }
 
 # Read the file_list.txt file and execute vlog commands for each line, passing defines
-set file_list "list-file.txt"
+set file_list "test.txt"
 set fp [open $file_list r]
 while {[gets $fp line] >= 0} {
     if {[string trim $line] ne ""} {
