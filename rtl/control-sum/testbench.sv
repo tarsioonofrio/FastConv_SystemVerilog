@@ -133,6 +133,11 @@ module tb;
     .p_output(w_conv_output)
   );
 
+  int channel_stride      = FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE;
+  int errors = 0;
+  int addr;
+  int row_index;
+  longint signed expected_val;
 
   // Inicialização dos sinais e reset
   initial begin
@@ -177,16 +182,38 @@ module tb;
     w_input_en = 0;
     w_output_en = 1;
     @(posedge clk);
-    for (int i = 0; i < FEAT_OUTPUT_SIZE; i++) begin
-      for (int j = 0; j < FEAT_OUTPUT_SIZE; j++) begin
-        w_output_addr = i * FEAT_OUTPUT_SIZE + j;
-        @(posedge clk);
-        wait(w_output_valid);
-        if ($signed(const_feat_out[i][j]) != $signed(w_output_data_read)) begin
-          $display("Time %0f | const_feat_out[%0d][%0d] = %0d | Output = %0d", $realtime, i, j, const_feat_out[i][j], w_output_data_read);
-          $display("=== ERROR - End simulation ====");
+
+
+    for (int cout = 0; cout < N_CHANNEL_OUT; cout++) begin
+      for (int row = 0; row < FEAT_OUTPUT_SIZE; row++) begin
+        for (int col = 0; col < FEAT_OUTPUT_SIZE; col++) begin
+          addr      = cout * channel_stride + row * FEAT_OUTPUT_SIZE + col;
+          row_index = cout * FEAT_OUTPUT_SIZE + row;
+          expected_val = $signed(const_feat_out[addr]);
+
+          w_output_addr = addr;
+          @(posedge clk);
+          wait(w_output_valid);
+
+          if (expected_val !== $signed(w_output_data_read)) begin
+            errors++;
+            $display(
+              "Time %d | ch=%0d row=%0d col=%0d | Expected=%0d Got=%0d",
+              $realtime,
+              cout,
+              row,
+              col,
+              expected_val,
+              $signed(w_output_data_read)
+            );
+          end
         end
       end
+    end
+
+    if (errors != 0) begin
+      $display("=== ERROR: %0d mismatches detected - End simulation ===", errors);
+      $finish;
     end
 
     #20ns
