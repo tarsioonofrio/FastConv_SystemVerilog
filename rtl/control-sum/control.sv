@@ -133,7 +133,7 @@ timeunit 1ns; timeprecision 1ps;
   localparam int OUTPUT_CHANNEL_STRIDE                 = FEAT_OUTPUT_SIZE * A1_SIZE * WINDOW_COUNT_PER_AXIS;
   // -- Input path control registers --
   // Base address register for input features
-  logic [$clog2(TOTAL_NUM_CHANNELS + KERNEL_NUM_ELEMS * TOTAL_NUM_CHANNELS + N_CHANNEL_IN * INPUT_NUM_ELEMS)-1:0] r_addr_pointer_input;
+  logic [$clog2(N_CHANNEL_OUT + KERNEL_NUM_ELEMS * TOTAL_NUM_CHANNELS + N_CHANNEL_IN * INPUT_NUM_ELEMS)-1:0] r_addr_pointer_input;
   // Input feature register read counter
   logic [$clog2(INPUT_FEATURE_NUM_ELEMS)-1:0] r_addr_count_input;
   // Row-aligned window counter for read-side address updates and reuse control
@@ -149,11 +149,11 @@ timeunit 1ns; timeprecision 1ps;
 
   // -- Weight path bookkeeping --
   // Base address register for weight blocks
-  logic [$clog2(TOTAL_NUM_CHANNELS + KERNEL_NUM_ELEMS * TOTAL_NUM_CHANNELS)-1:0] r_addr_pointer_kernel;
+  logic [$clog2(N_CHANNEL_OUT + KERNEL_NUM_ELEMS * TOTAL_NUM_CHANNELS)-1:0] r_addr_pointer_kernel;
   // Weight read counter
   logic [$clog2(KERNEL_NUM_ELEMS)-1:0] r_addr_count_kernel;
   // Bias read counter; bias depth is one so it is unused for now
-  logic [$floor($clog2(TOTAL_NUM_CHANNELS) + 0.5)-1:0] r_addr_pointer_bias;
+  logic [$floor($clog2(N_CHANNEL_OUT) + 0.5)-1:0] r_addr_pointer_bias;
   // Temporary substitute for r_addr_pointer_bias
   // logic [2:0] r_addr_pointer_bias;
 
@@ -345,11 +345,6 @@ timeunit 1ns; timeprecision 1ps;
           if (f_is_last_row_input() && (r_window_counter_total_input >= LAST_INPUT_WINDOW_INDEX))
             next_st_input = END_INPUT;
           else
-          // When all output-channel windows are complete, load bias (disabled for now)
-          // if (r_window_counter_total_input == WINDOWS_PER_INPUT_CHANNEL)
-          //  next_st_input = BIAS;
-          // else
-          // When a full set of windows for an input channel is done, reload weights
           if (f_is_last_row_input() && f_is_last_channel_input())
             next_st_input = HOLD_LAST_CONV;
           else if (f_is_last_row_input())
@@ -365,7 +360,10 @@ timeunit 1ns; timeprecision 1ps;
           next_st_input = READ_INPUT;
       end
       HOLD_LAST_CONV: begin
-        if (p_conv_idle)
+        // if (p_conv_idle)
+        if (p_conv_idle && (r_channel_counter_input == 0))
+          next_st_input = BIAS;
+        else if (p_conv_idle)
           next_st_input = WEIGHT;
       end
       END_INPUT: begin
@@ -488,8 +486,8 @@ timeunit 1ns; timeprecision 1ps;
   task automatic reset_input_ctrl_regs();
     r_read_en                      <= 1'b0;
     r_addr_pointer_bias            <= '0;
-    r_addr_pointer_kernel          <= TOTAL_NUM_CHANNELS;
-    r_addr_pointer_input           <= TOTAL_NUM_CHANNELS + KERNEL_NUM_ELEMS * TOTAL_NUM_CHANNELS;
+    r_addr_pointer_kernel          <= N_CHANNEL_OUT;
+    r_addr_pointer_input           <= N_CHANNEL_OUT + KERNEL_NUM_ELEMS * TOTAL_NUM_CHANNELS;
     r_addr_count_kernel            <= '0;
     r_addr_count_input             <= '0;
     r_channel_counter_input        <= '0;
@@ -576,7 +574,7 @@ timeunit 1ns; timeprecision 1ps;
               r_window_counter_all_channel_input <= r_window_counter_all_channel_input + 1;
             // update: r_addr_pointer_input
             if (f_is_last_row_input() && f_is_last_all_channel_input())
-              r_addr_pointer_input <= TOTAL_NUM_CHANNELS + KERNEL_NUM_ELEMS * TOTAL_NUM_CHANNELS;
+              r_addr_pointer_input <= N_CHANNEL_OUT + KERNEL_NUM_ELEMS * TOTAL_NUM_CHANNELS;
             else if (f_is_last_row_input() && !f_is_last_channel_input())
               r_addr_pointer_input <= r_addr_pointer_input + INPUT_ROW_WRAP_DELTA;
             else if (f_is_last_row_input() && f_is_last_channel_input())
