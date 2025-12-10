@@ -162,8 +162,6 @@ timeunit 1ns; timeprecision 1ps;
   logic [$clog2(OUTPUT_FEATURE_NUM_ELEMS)-1:0] r_addr_count_write_out;
   // Output feature register read counter
   logic [$clog2(OUTPUT_FEATURE_NUM_ELEMS)-1:0] r_addr_count_read_out;
-  // Output counter
-  logic [$clog2(OUTPUT_FEATURE_NUM_ELEMS)-1:0] w_addr_count_out;
   // Output feature write counter (unused/commented)
   // logic [$floor($clog2(N_CHANNEL_OUT) + 0.5)-1:0] r_addr_count_ch_out;
   // Debug monitors for end-of-window predicates (still functions for reuse)
