@@ -255,6 +255,8 @@ timeunit 1ns; timeprecision 1ps;
   // Difference between accumulation, write, and read phases on the output path
   // (adjusted by the time spent reading inputs)
   logic [$clog2(CYCLES_HOLD_OUTPUT) - 1:0] r_hold_output;
+  // Guards END_CHANNEL bookkeeping so it only runs once per channel rollover
+  logic r_end_channel_applied;
   // High when the convolution core can accept a new input tile
   logic w_conv_ready_for_input;
   // Single-cycle pulse emitted when the input FSM hands data to the convolution core
@@ -293,8 +295,7 @@ timeunit 1ns; timeprecision 1ps;
     READ_OUTPUT,
     CONV_OUTPUT,
     WRITE_OUTPUT,
-    END_CHANNEL,
-    HOLD_WEIGHT
+    END_CHANNEL
   } state_output_type;
 
   state_input_type current_st_input, next_st_input;
@@ -447,13 +448,9 @@ timeunit 1ns; timeprecision 1ps;
         end
       end
       END_CHANNEL: begin
-        if (next_st_input == CONV_INPUT)
-          next_st_output = READ_OUTPUT;
-        else
-        next_st_output = HOLD_WEIGHT;
-      end
-      HOLD_WEIGHT: begin
-        if (next_st_input == READ_INPUT)
+        // Wait until the input FSM is ready to either feed the core (CONV_INPUT)
+        // or start a new read phase (READ_INPUT), then resume READ_OUTPUT.
+        if ((next_st_input == CONV_INPUT) || (next_st_input == READ_INPUT))
           next_st_output = READ_OUTPUT;
       end
     endcase
@@ -741,6 +738,7 @@ timeunit 1ns; timeprecision 1ps;
     r_window_counter_channel_out  <= '0;
     r_window_counter_row_out      <= '0;
     r_window_counter_col_out      <= '0;
+    r_end_channel_applied         <= 1'b0;
   endtask
 
   // reset_output_data_regs: flushes accumulation buffers that feed p_output_data_write to ensure
@@ -757,19 +755,24 @@ timeunit 1ns; timeprecision 1ps;
       reset_output_ctrl_regs();
     end else begin
       unique case (current_st_output)
-        default: begin end
+        default: begin
+          r_end_channel_applied <= 1'b0;
+        end
         READ_OUTPUT: begin
           // Latch partial sums read from the output RAM while tracking how many samples arrived.
+          r_end_channel_applied <= 1'b0;
           if (p_output_valid && (r_addr_count_read_out < OUTPUT_FEATURE_NUM_ELEMS))
             r_addr_count_read_out <= r_addr_count_read_out + 1;
         end
         CONV_OUTPUT: begin
           // Waits for the convolution result to arrive and clears counters ahead of WRITE_OUTPUT.
+          r_end_channel_applied <= 1'b0;
           r_addr_count_read_out  <= 0;
           r_addr_count_write_out <= 0;
         end
         WRITE_OUTPUT: begin
           // Emits accumulated results to RAM and updates window/channel counters accordingly.
+          r_end_channel_applied <= 1'b0;
           r_addr_count_write_out <= r_addr_count_write_out + 1;
           // r_window_counter_total_out
           if (w_last_write_out)
@@ -800,16 +803,21 @@ timeunit 1ns; timeprecision 1ps;
         end
         END_CHANNEL: begin
           // Handles inter-channel bookkeeping, rewinding pointers or advancing to the next channel.
-          r_window_counter_row_out     <= 0;
-          r_window_counter_col_out     <= 0;
-          r_window_counter_channel_out <= 0;
-          if (w_last_all_channel_out)
-            r_window_counter_all_channel_out <= 0;
-          if (r_channel_counter_out >= N_CHANNEL_IN - 1) begin
-            r_channel_counter_out <= 0;
-          end else begin
-            r_channel_counter_out <= r_channel_counter_out + 1;
-            r_addr_pointer_out    <= r_addr_pointer_out - OUTPUT_CHANNEL_STRIDE;
+          // This block must only execute once per channel rollover, even if END_CHANNEL spans
+          // multiple cycles while the input FSM catches up.
+          if (!r_end_channel_applied) begin
+            r_window_counter_row_out     <= 0;
+            r_window_counter_col_out     <= 0;
+            r_window_counter_channel_out <= 0;
+            if (w_last_all_channel_out)
+              r_window_counter_all_channel_out <= 0;
+            if (r_channel_counter_out >= N_CHANNEL_IN - 1) begin
+              r_channel_counter_out <= 0;
+            end else begin
+              r_channel_counter_out <= r_channel_counter_out + 1;
+              r_addr_pointer_out    <= r_addr_pointer_out - OUTPUT_CHANNEL_STRIDE;
+            end
+            r_end_channel_applied <= 1'b1;
           end
         end
       endcase
