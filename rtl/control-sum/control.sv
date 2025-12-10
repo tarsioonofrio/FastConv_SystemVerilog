@@ -266,6 +266,17 @@ timeunit 1ns; timeprecision 1ps;
   // Accept strobe asserted only when the output FSM is in CONV_OUTPUT and a pending result exists
   logic w_conv_result_accept;
 
+  // High-level predicates derived from counters so the FSMs can use simpler conditions
+  logic w_last_row_input;
+  logic w_last_channel_input;
+  logic w_last_all_channel_input;
+  logic w_all_windows_done_input;
+  logic w_last_read_out;
+  logic w_last_write_out;
+  logic w_last_row_out;
+  logic w_last_channel_out;
+  logic w_last_all_channel_out;
+
   typedef enum {
     IDLE_INPUT,
     BIAS,
@@ -288,6 +299,24 @@ timeunit 1ns; timeprecision 1ps;
 
   state_input_type current_st_input, next_st_input;
   state_output_type current_st_output, next_st_output;
+
+
+  // Helper wires that mirror the f_is_last_* functions, keeping FSM code readable
+  always_comb begin
+    // Input-path predicates
+    w_last_row_input         = f_is_last_row_input();
+    w_last_channel_input     = f_is_last_channel_input();
+    w_last_all_channel_input = f_is_last_all_channel_input();
+    w_all_windows_done_input = w_last_row_input &&
+                               (r_window_counter_total_input >= LAST_INPUT_WINDOW_INDEX);
+
+    // Output-path predicates
+    w_last_read_out        = f_is_last_read_out();
+    w_last_write_out       = f_is_last_write_out();
+    w_last_row_out         = f_is_last_row_out();
+    w_last_channel_out     = f_is_last_channel_out();
+    w_last_all_channel_out = f_is_last_all_channel_out();
+  end
 
 
 
@@ -339,23 +368,20 @@ timeunit 1ns; timeprecision 1ps;
         if (!w_conv_ready_for_input) begin
           next_st_input = CONV_INPUT;
         end else begin
-            // When all windows across input and output channels have been read, finish input
-          if (f_is_last_row_input() && (r_window_counter_total_input >= LAST_INPUT_WINDOW_INDEX))
+          // When all windows across input and output channels have been read, finish input
+          if (w_all_windows_done_input)
             next_st_input = END_INPUT;
-          else
-          // When all output-channel windows are complete, load bias (disabled for now)
-          // if (r_window_counter_total_input == WINDOWS_PER_INPUT_CHANNEL)
-          //  next_st_input = BIAS;
-          // else
-          // When a full set of windows for an input channel is done, reload weights
-          if (f_is_last_row_input() && f_is_last_channel_input())
-            next_st_input = HOLD_LAST_CONV;
-          else if (f_is_last_row_input())
-            next_st_input = READ_INPUT;
-          else if (r_channel_counter_out > 0)
-            next_st_input = HOLD_OUTPUT;
-          else
-            next_st_input = READ_INPUT;
+          else begin
+            // When a full set of windows for an input channel is done, reload weights
+            if (w_last_row_input && w_last_channel_input)
+              next_st_input = HOLD_LAST_CONV;
+            else if (w_last_row_input)
+              next_st_input = READ_INPUT;
+            else if (r_channel_counter_out > 0)
+              next_st_input = HOLD_OUTPUT;
+            else
+              next_st_input = READ_INPUT;
+          end
         end
       end
       HOLD_OUTPUT: begin
@@ -390,7 +416,7 @@ timeunit 1ns; timeprecision 1ps;
           next_st_output = CONV_OUTPUT;
       end
       READ_OUTPUT: begin
-        if (f_is_last_read_out())
+        if (w_last_read_out)
           next_st_output = CONV_OUTPUT;
       end
       // Waits for the convolution-complete signal
@@ -402,16 +428,23 @@ timeunit 1ns; timeprecision 1ps;
       end
       // Waits for the output data write to memory to complete and then returns to idle
       WRITE_OUTPUT: begin
-        // TODO
-        // Evaluate whether this if/else structure should be changed to an if-else tree
-        if (f_is_last_write_out() && !f_is_last_channel_out() && (r_channel_counter_out == 0))
+        // For the last write of a window, decide how to advance:
+        // - Move to the next window of the same channel (CONV_OUTPUT/READ_OUTPUT)
+        // - Rotate channels when a channel completes (END_CHANNEL)
+        // - Return to IDLE_OUTPUT once the full execution ends
+        if (!w_last_write_out) begin
+          // Continue emitting samples for the current window
+          next_st_output = WRITE_OUTPUT;
+        end else if (!w_last_channel_out && (r_channel_counter_out == 0)) begin
           next_st_output = CONV_OUTPUT;
-        else if (f_is_last_write_out() && !f_is_last_channel_out() && (r_channel_counter_out > 0))
+        end else if (!w_last_channel_out && (r_channel_counter_out > 0)) begin
           next_st_output = READ_OUTPUT;
-        else if (f_is_last_write_out() && f_is_last_channel_out())
+        end else if (w_last_channel_out) begin
           next_st_output = END_CHANNEL;
-        else if (f_is_last_write_out() && (r_window_counter_total_out == LAST_INPUT_WINDOW_INDEX))
+        end else if (r_window_counter_total_out == LAST_INPUT_WINDOW_INDEX) begin
+          // This branch only triggers for the very last window across all channels
           next_st_output = IDLE_OUTPUT;
+        end
       end
       END_CHANNEL: begin
         if (next_st_input == CONV_INPUT)
@@ -562,7 +595,7 @@ timeunit 1ns; timeprecision 1ps;
             r_row_index_input            <= '0;
             r_row_stride_input           <= '0;
 
-            if (f_is_last_row_input()) begin
+            if (w_last_row_input) begin
               r_addr_count_input <= 0;
               r_col_index_input  <= 0;
             end else begin
@@ -570,33 +603,33 @@ timeunit 1ns; timeprecision 1ps;
               r_col_index_input  <= C1_SIZE - A1_SIZE;
             end
             // r_window_counter_row_input
-            if (f_is_last_row_input()) begin
+            if (w_last_row_input) begin
               r_window_counter_row_input <= 0;
             end else
               r_window_counter_row_input <= r_window_counter_row_input + 1;
             // r_window_counter_col_input
-            if (f_is_last_row_input() && f_is_last_channel_input())
+            if (w_last_row_input && w_last_channel_input)
               r_window_counter_col_input <= 0;
-            else if (f_is_last_row_input() && (r_window_counter_col_input >= LAST_WINDOW_ROW_INDEX))
+            else if (w_last_row_input && (r_window_counter_col_input >= LAST_WINDOW_ROW_INDEX))
               r_window_counter_col_input <= 0;
-            else if (f_is_last_row_input())
+            else if (w_last_row_input)
               r_window_counter_col_input <= r_window_counter_col_input + 1;
             // r_window_counter_channel_input
-            if (f_is_last_channel_input())
+            if (w_last_channel_input)
               r_window_counter_channel_input <= 0;
             else
               r_window_counter_channel_input <= r_window_counter_channel_input + 1;
             // r_window_counter_all_channel_input
-            if (f_is_last_all_channel_input())
+            if (w_last_all_channel_input)
               r_window_counter_all_channel_input <= 0;
             else
               r_window_counter_all_channel_input <= r_window_counter_all_channel_input + 1;
             // r_addr_pointer_input
-            if (f_is_last_row_input() && f_is_last_all_channel_input())
+            if (w_last_row_input && w_last_all_channel_input)
               r_addr_pointer_input <= TOTAL_NUM_CHANNELS + KERNEL_NUM_ELEMS * TOTAL_NUM_CHANNELS;
-            else if (f_is_last_row_input() && !f_is_last_channel_input())
+            else if (w_last_row_input && !w_last_channel_input)
               r_addr_pointer_input <= r_addr_pointer_input + INPUT_ROW_WRAP_DELTA;
-            else if (f_is_last_row_input() && f_is_last_channel_input())
+            else if (w_last_row_input && w_last_channel_input)
               r_addr_pointer_input <= r_addr_pointer_input + INPUT_CHANNEL_WRAP_DELTA;
             else
               r_addr_pointer_input <= r_addr_pointer_input + A1_SIZE;
@@ -665,7 +698,7 @@ timeunit 1ns; timeprecision 1ps;
         end
         CONV_INPUT: begin
           // When reusing overlap columns, shift the buffer contents left to free room for new data.
-          if (w_conv_input_fire && !f_is_last_row_input()) begin
+          if (w_conv_input_fire && !w_last_row_input) begin
             for (int row = 0; row < C1_SIZE; row++) begin
               for (int col = 0; col < (C1_SIZE - A1_SIZE); col++) begin
                 r_feat_input[row * C1_SIZE + col] <= r_feat_input[row * C1_SIZE + col + A1_SIZE];
@@ -739,30 +772,30 @@ timeunit 1ns; timeprecision 1ps;
           // Emits accumulated results to RAM and updates window/channel counters accordingly.
           r_addr_count_write_out <= r_addr_count_write_out + 1;
           // r_window_counter_total_out
-          if (f_is_last_write_out())
+          if (w_last_write_out)
             r_window_counter_total_out <= r_window_counter_total_out + 1;
           // r_window_counter_row_out
-          if (f_is_last_write_out() && f_is_last_row_out()) begin
+          if (w_last_write_out && w_last_row_out) begin
             r_window_counter_row_out <= 0;
-          end else if (f_is_last_write_out() && !f_is_last_row_out())
+          end else if (w_last_write_out && !w_last_row_out)
             r_window_counter_row_out <= r_window_counter_row_out + 1;
           // r_window_counter_col_out
-          if (f_is_last_write_out() && f_is_last_row_out() && f_is_last_channel_out())
+          if (w_last_write_out && w_last_row_out && w_last_channel_out)
             r_window_counter_col_out <= 0;
-          else if (f_is_last_write_out() && f_is_last_row_out() && (r_window_counter_col_out >= LAST_WINDOW_ROW_INDEX))
+          else if (w_last_write_out && w_last_row_out && (r_window_counter_col_out >= LAST_WINDOW_ROW_INDEX))
             r_window_counter_col_out <= 0;
-          else if (f_is_last_write_out() && f_is_last_row_out())
+          else if (w_last_write_out && w_last_row_out)
             r_window_counter_col_out <= r_window_counter_col_out + 1;
           // r_window_counter_channel_out
-          if (f_is_last_write_out() && !f_is_last_channel_out())
+          if (w_last_write_out && !w_last_channel_out)
             r_window_counter_channel_out <= r_window_counter_channel_out + 1;
           // r_window_counter_all_channel_out
-          if (f_is_last_write_out() && !f_is_last_all_channel_out())
+          if (w_last_write_out && !w_last_all_channel_out)
             r_window_counter_all_channel_out <= r_window_counter_all_channel_out + 1;
           // r_addr_pointer_out
-          if (f_is_last_write_out() && f_is_last_row_out())
+          if (w_last_write_out && w_last_row_out)
             r_addr_pointer_out <= r_addr_pointer_out + OUTPUT_ROW_WRAP_DELTA;
-          else if (f_is_last_write_out() && !f_is_last_row_out())
+          else if (w_last_write_out && !w_last_row_out)
             r_addr_pointer_out <= r_addr_pointer_out + A1_SIZE;
         end
         END_CHANNEL: begin
@@ -770,7 +803,7 @@ timeunit 1ns; timeprecision 1ps;
           r_window_counter_row_out     <= 0;
           r_window_counter_col_out     <= 0;
           r_window_counter_channel_out <= 0;
-          if (f_is_last_all_channel_out())
+          if (w_last_all_channel_out)
             r_window_counter_all_channel_out <= 0;
           if (r_channel_counter_out >= N_CHANNEL_IN - 1) begin
             r_channel_counter_out <= 0;
