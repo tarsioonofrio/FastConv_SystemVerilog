@@ -255,6 +255,10 @@ timeunit 1ns; timeprecision 1ps;
   // Difference between accumulation, write, and read phases on the output path
   // (adjusted by the time spent reading inputs)
   logic [$clog2(CYCLES_HOLD_OUTPUT) - 1:0] r_hold_output;
+  // Internal hold flag that replaces the legacy HOLD_OUTPUT state
+  logic r_hold_output_active;
+  // Tracks when the last convolution of a channel is in flight, replacing HOLD_LAST_CONV
+  logic r_last_conv_pending;
   // Guards END_CHANNEL bookkeeping so it only runs once per channel rollover
   logic r_end_channel_applied;
   // High when the convolution core can accept a new input tile
@@ -285,8 +289,6 @@ timeunit 1ns; timeprecision 1ps;
     WEIGHT,
     CONV_INPUT,
     READ_INPUT,
-    HOLD_OUTPUT,
-    HOLD_LAST_CONV,
     END_INPUT
    } state_input_type;
 
@@ -366,32 +368,32 @@ timeunit 1ns; timeprecision 1ps;
           next_st_input = CONV_INPUT;
       end
       CONV_INPUT: begin
-        if (!w_conv_ready_for_input) begin
+        // When the last convolution of a channel is still running, behave like the
+        // legacy HOLD_LAST_CONV state: wait for p_conv_idle, then reload weights.
+        if (r_last_conv_pending) begin
+          if (p_conv_idle)
+            next_st_input = WEIGHT;
+          else
+            next_st_input = CONV_INPUT;
+        end else if (!w_conv_ready_for_input) begin
+          // Core busy: keep CONV_INPUT active until the current tile completes.
           next_st_input = CONV_INPUT;
         end else begin
-          // When all windows across input and output channels have been read, finish input
+          // Core ready to accept a new tile.
+          // When all windows across input and output channels have been read, finish input.
           if (w_all_windows_done_input)
             next_st_input = END_INPUT;
           else begin
-            // When a full set of windows for an input channel is done, reload weights
+            // When a full set of windows for an input channel is done, stay in CONV_INPUT
+            // while r_last_conv_pending tracks the outstanding convolution.
             if (w_last_row_input && w_last_channel_input)
-              next_st_input = HOLD_LAST_CONV;
+              next_st_input = CONV_INPUT;
             else if (w_last_row_input)
               next_st_input = READ_INPUT;
-            else if (r_channel_counter_out > 0)
-              next_st_input = HOLD_OUTPUT;
             else
               next_st_input = READ_INPUT;
           end
         end
-      end
-      HOLD_OUTPUT: begin
-        if (r_hold_output == (CYCLES_HOLD_OUTPUT - 1))
-          next_st_input = READ_INPUT;
-      end
-      HOLD_LAST_CONV: begin
-        if (p_conv_idle)
-          next_st_input = WEIGHT;
       end
       END_INPUT: begin
         // next_st_input = IDLE_INPUT;
@@ -481,7 +483,10 @@ timeunit 1ns; timeprecision 1ps;
 
   // Handshake #1: input FSM -> convolution core
   assign w_conv_ready_for_input = p_conv_idle && (!r_conv_busy || p_conv_end);
-  assign w_conv_input_fire      = (current_st_input == CONV_INPUT) && w_conv_ready_for_input;
+  // Prevent new requests while the last convolution of a channel is pending completion
+  assign w_conv_input_fire      = (current_st_input == CONV_INPUT) &&
+                                  w_conv_ready_for_input &&
+                                  !r_last_conv_pending;
 
   /*
    Result handshake mirrors the input-side sequencer: the moment the convolution
@@ -522,6 +527,8 @@ timeunit 1ns; timeprecision 1ps;
     r_addr_count_input             <= '0;
     r_channel_counter_input        <= '0;
     r_hold_output                  <= '0;
+    r_hold_output_active           <= 1'b0;
+    r_last_conv_pending            <= 1'b0;
     r_window_counter_total_input   <= '0;
     r_window_counter_channel_input <= '0;
     r_window_counter_col_input     <= '0;
@@ -543,6 +550,8 @@ timeunit 1ns; timeprecision 1ps;
     r_addr_count_input             <= '0;
     r_channel_counter_input        <= '0;
     r_hold_output                  <= '0;
+    r_hold_output_active           <= 1'b0;
+    r_last_conv_pending            <= 1'b0;
     r_window_counter_total_input   <= '0;
     r_window_counter_channel_input <= '0;
     r_window_counter_col_input     <= '0;
@@ -630,41 +639,58 @@ timeunit 1ns; timeprecision 1ps;
               r_addr_pointer_input <= r_addr_pointer_input + INPUT_CHANNEL_WRAP_DELTA;
             else
               r_addr_pointer_input <= r_addr_pointer_input + A1_SIZE;
+
+            // If this was the final window of the current input channel (but not the end
+            // of the full execution), remember that a channel rotation is pending once
+            // the convolution core goes idle.
+            if (w_last_row_input && w_last_channel_input && !w_all_windows_done_input)
+              r_last_conv_pending <= 1'b1;
+
+            // When reusing overlap across output channels, arm the hold timer so READ_INPUT
+            // inserts the same delay previously provided by the HOLD_OUTPUT state.
+            if (!w_last_row_input && (r_channel_counter_out > 0))
+              r_hold_output_active <= 1'b1;
           end
-        end
-        READ_INPUT: begin
-          // Issues RAM reads and walks the row/column indices while filling r_feat_input.
-          r_read_en          <= 1'b1;
-          r_addr_count_kernel <= 0;
-          if (p_input_valid && (r_addr_count_input < C1_SIZE * C1_SIZE)) begin
-            r_addr_count_input <= r_addr_count_input + 1;
-            if (r_row_index_input == (C1_SIZE - 1)) begin
-              r_row_index_input  <= '0;
-              r_row_stride_input <= '0;
-              if (r_col_index_input == (C1_SIZE - 1))
-                r_col_index_input <= '0;
-              else
-                r_col_index_input <= r_col_index_input + 1;
-            end else begin
-              r_row_index_input  <= r_row_index_input + 1;
-              r_row_stride_input <= r_row_stride_input + FEAT_INPUT_SIZE;
-            end
-          end
-        end
-        HOLD_OUTPUT: begin
-          // Inserts a small delay to let OUTPUT_CTRL_BLOCK consume pending windows.
-          if (r_hold_output == (CYCLES_HOLD_OUTPUT - 1))
-            r_hold_output <= 0;
-          else
-            r_hold_output <= r_hold_output + 1;
-        end
-        HOLD_LAST_CONV: begin
-          // Waits for the convolution core to go idle before rotating to the next input channel.
-          if (p_conv_idle) begin
+
+          // Perform the channel rotation once the last convolution result for the current
+          // channel is complete and the core reports idle.
+          if (r_last_conv_pending && p_conv_idle) begin
             if (r_channel_counter_input >= N_CHANNEL_IN - 1)
               r_channel_counter_input <= 0;
             else
               r_channel_counter_input <= r_channel_counter_input + 1;
+            r_last_conv_pending <= 1'b0;
+          end
+        end
+        READ_INPUT: begin
+          // Issues RAM reads and walks the row/column indices while filling r_feat_input.
+          // When r_hold_output_active is high, this block inserts a programmable delay
+          // equivalent to the legacy HOLD_OUTPUT state before new reads are issued.
+          if (r_hold_output_active) begin
+            if (r_hold_output == (CYCLES_HOLD_OUTPUT - 1)) begin
+              r_hold_output        <= '0;
+              r_hold_output_active <= 1'b0;
+            end else begin
+              r_hold_output <= r_hold_output + 1;
+            end
+            r_read_en <= 1'b0;
+          end else begin
+            r_read_en           <= 1'b1;
+            r_addr_count_kernel <= 0;
+            if (p_input_valid && (r_addr_count_input < C1_SIZE * C1_SIZE)) begin
+              r_addr_count_input <= r_addr_count_input + 1;
+              if (r_row_index_input == (C1_SIZE - 1)) begin
+                r_row_index_input  <= '0;
+                r_row_stride_input <= '0;
+                if (r_col_index_input == (C1_SIZE - 1))
+                  r_col_index_input <= '0;
+                else
+                  r_col_index_input <= r_col_index_input + 1;
+              end else begin
+                r_row_index_input  <= r_row_index_input + 1;
+                r_row_stride_input <= r_row_stride_input + FEAT_INPUT_SIZE;
+              end
+            end
           end
         end
       endcase
