@@ -89,10 +89,19 @@ add wave -noupdate -radix decimal -childformat {{{/tb/memory_write/data_in[19]} 
 add wave -noupdate -radix decimal /tb/memory_write/data_out
 add wave -noupdate /tb/memory_write/data_valid
 add wave -noupdate /tb/memory_write/r_cycles_latency
-add wave -noupdate -radix decimal /tb/memory_write/data
+add wave -noupdate -divider mem-read
+add wave -noupdate /tb/memory_read/clk
+add wave -noupdate /tb/memory_read/reset
+add wave -noupdate /tb/memory_read/chip_en
+add wave -noupdate /tb/memory_read/wr_en
+add wave -noupdate -radix unsigned /tb/memory_read/address
+add wave -noupdate /tb/memory_read/data_in
+add wave -noupdate -radix decimal /tb/memory_read/data_out
+add wave -noupdate /tb/memory_read/data_valid
+add wave -noupdate /tb/memory_read/r_cycles_latency
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 11} {63500 ps} 1} {{Cursor 12} {64500 ps} 0}
-quietly wave cursor active 1
+WaveRestoreCursors {{Cursor 3} {5855500 ps} 0} {{Cursor 4} {5870500 ps} 0}
+quietly wave cursor active 2
 configure wave -namecolwidth 256
 configure wave -valuecolwidth 100
 configure wave -justifyvalue left
@@ -107,4 +116,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {21666833 ps} {21677009 ps}
+WaveRestoreZoom {3678694 ps} {3697416 ps}
