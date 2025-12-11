@@ -88,7 +88,6 @@ add wave -noupdate -radix unsigned /tb/memory_write/address
 add wave -noupdate -radix decimal -childformat {{{/tb/memory_write/data_in[19]} -radix decimal} {{/tb/memory_write/data_in[18]} -radix decimal} {{/tb/memory_write/data_in[17]} -radix decimal} {{/tb/memory_write/data_in[16]} -radix decimal} {{/tb/memory_write/data_in[15]} -radix decimal} {{/tb/memory_write/data_in[14]} -radix decimal} {{/tb/memory_write/data_in[13]} -radix decimal} {{/tb/memory_write/data_in[12]} -radix decimal} {{/tb/memory_write/data_in[11]} -radix decimal} {{/tb/memory_write/data_in[10]} -radix decimal} {{/tb/memory_write/data_in[9]} -radix decimal} {{/tb/memory_write/data_in[8]} -radix decimal} {{/tb/memory_write/data_in[7]} -radix decimal} {{/tb/memory_write/data_in[6]} -radix decimal} {{/tb/memory_write/data_in[5]} -radix decimal} {{/tb/memory_write/data_in[4]} -radix decimal} {{/tb/memory_write/data_in[3]} -radix decimal} {{/tb/memory_write/data_in[2]} -radix decimal} {{/tb/memory_write/data_in[1]} -radix decimal} {{/tb/memory_write/data_in[0]} -radix decimal}} -subitemconfig {{/tb/memory_write/data_in[19]} {-height 16 -radix decimal} {/tb/memory_write/data_in[18]} {-height 16 -radix decimal} {/tb/memory_write/data_in[17]} {-height 16 -radix decimal} {/tb/memory_write/data_in[16]} {-height 16 -radix decimal} {/tb/memory_write/data_in[15]} {-height 16 -radix decimal} {/tb/memory_write/data_in[14]} {-height 16 -radix decimal} {/tb/memory_write/data_in[13]} {-height 16 -radix decimal} {/tb/memory_write/data_in[12]} {-height 16 -radix decimal} {/tb/memory_write/data_in[11]} {-height 16 -radix decimal} {/tb/memory_write/data_in[10]} {-height 16 -radix decimal} {/tb/memory_write/data_in[9]} {-height 16 -radix decimal} {/tb/memory_write/data_in[8]} {-height 16 -radix decimal} {/tb/memory_write/data_in[7]} {-height 16 -radix decimal} {/tb/memory_write/data_in[6]} {-height 16 -radix decimal} {/tb/memory_write/data_in[5]} {-height 16 -radix decimal} {/tb/memory_write/data_in[4]} {-height 16 -radix decimal} {/tb/memory_write/data_in[3]} {-height 16 -radix decimal} {/tb/memory_write/data_in[2]} {-height 16 -radix decimal} {/tb/memory_write/data_in[1]} {-height 16 -radix decimal} {/tb/memory_write/data_in[0]} {-height 16 -radix decimal}} /tb/memory_write/data_in
 add wave -noupdate -radix decimal /tb/memory_write/data_out
 add wave -noupdate /tb/memory_write/data_valid
-add wave -noupdate /tb/memory_write/r_cycles_latency
 add wave -noupdate -divider mem-read
 add wave -noupdate /tb/memory_read/clk
 add wave -noupdate /tb/memory_read/reset
@@ -98,7 +97,6 @@ add wave -noupdate -radix unsigned /tb/memory_read/address
 add wave -noupdate /tb/memory_read/data_in
 add wave -noupdate -radix decimal /tb/memory_read/data_out
 add wave -noupdate /tb/memory_read/data_valid
-add wave -noupdate /tb/memory_read/r_cycles_latency
 TreeUpdate [SetDefaultTree]
 WaveRestoreCursors {{Cursor 3} {5855500 ps} 0} {{Cursor 4} {5870500 ps} 0}
 quietly wave cursor active 2
