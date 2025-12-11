@@ -7,6 +7,15 @@ add wave -noupdate -radix unsigned /tb/dut/r_row_index_output
 add wave -noupdate -radix unsigned /tb/dut/r_row_stride_output
 add wave -noupdate -radix unsigned /tb/dut/w_col_offset_output
 add wave -noupdate -radix unsigned /tb/dut/w_offset_total_output
+add wave -noupdate -radix unsigned /tb/dut/r_weight_read_latency
+add wave -noupdate -radix unsigned /tb/dut/r_input_read_latency
+add wave -noupdate -radix unsigned /tb/dut/r_output_read_latency
+add wave -noupdate /tb/dut/w_weight_data_ready
+add wave -noupdate /tb/dut/w_input_data_ready
+add wave -noupdate /tb/dut/w_output_data_ready
+add wave -noupdate /tb/dut/w_weight_read_pending
+add wave -noupdate /tb/dut/w_input_read_pending
+add wave -noupdate /tb/dut/w_output_read_pending
 add wave -noupdate -divider base
 add wave -noupdate /tb/dut/clk
 add wave -noupdate /tb/dut/reset
