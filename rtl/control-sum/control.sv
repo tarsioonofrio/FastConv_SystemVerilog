@@ -124,8 +124,12 @@ timeunit 1ns; timeprecision 1ps;
   // Final window index per output channel
   localparam int LAST_OUTPUT_CHANNEL_WINDOW_INDEX      = WINDOWS_PER_OUTPUT_CHANNEL - 1;
 
+  localparam int RAM_LATENCY                           = (LATENCY < 1) ? 1 : LATENCY;
+  localparam int RAM_LATENCY_RELOAD                    = (RAM_LATENCY > 1) ? (RAM_LATENCY - 1) : 0;
+  localparam int RAM_LATENCY_COUNTER_WIDTH             = (RAM_LATENCY > 1) ? $clog2(RAM_LATENCY + 1) : 1;
   // Latency slack used to time HOLD_OUTPUT
-  localparam int CYCLES_HOLD_OUTPUT                    = (OUTPUT_FEATURE_NUM_ELEMS*2 + 1) - (C1_SIZE * A1_SIZE + 1);
+  localparam int CYCLES_HOLD_OUTPUT_RAW                = (OUTPUT_FEATURE_NUM_ELEMS*2 + RAM_LATENCY) - (C1_SIZE * A1_SIZE + 1);
+  localparam int CYCLES_HOLD_OUTPUT                    = (CYCLES_HOLD_OUTPUT_RAW > 0) ? CYCLES_HOLD_OUTPUT_RAW : 1;
   // Horizontal-to-vertical wrap deltas that keep pointers in-bounds even with padded tiles
   localparam int INPUT_ROW_WRAP_DELTA                  = A1_SIZE * (FEAT_INPUT_SIZE - WINDOW_COUNT_PER_AXIS + 1);
   localparam int INPUT_CHANNEL_WRAP_DELTA              = INPUT_NUM_ELEMS - (WINDOW_COUNT_PER_AXIS - 1) * A1_SIZE * (FEAT_INPUT_SIZE + 1);
@@ -254,7 +258,7 @@ timeunit 1ns; timeprecision 1ps;
 
   // Difference between accumulation, write, and read phases on the output path
   // (adjusted by the time spent reading inputs)
-  logic [$clog2(CYCLES_HOLD_OUTPUT) - 1:0] r_hold_output;
+  logic [$clog2(CYCLES_HOLD_OUTPUT + 1) - 1:0] r_hold_output;
   // High when the convolution core can accept a new input tile
   logic w_conv_ready_for_input;
   // Single-cycle pulse emitted when the input FSM hands data to the convolution core
@@ -265,6 +269,15 @@ timeunit 1ns; timeprecision 1ps;
   logic w_conv_result_ready;
   // Accept strobe asserted only when the output FSM is in CONV_OUTPUT and a pending result exists
   logic w_conv_result_accept;
+  logic [RAM_LATENCY_COUNTER_WIDTH-1:0] r_weight_read_latency;
+  logic [RAM_LATENCY_COUNTER_WIDTH-1:0] r_input_read_latency;
+  logic [RAM_LATENCY_COUNTER_WIDTH-1:0] r_output_read_latency;
+  logic w_weight_data_ready;
+  logic w_input_data_ready;
+  logic w_output_data_ready;
+  logic w_weight_read_pending;
+  logic w_input_read_pending;
+  logic w_output_read_pending;
 
   typedef enum {
     IDLE_INPUT,
@@ -328,11 +341,11 @@ timeunit 1ns; timeprecision 1ps;
       end
       // Waits for the weight fetch covering the active input/output channel pair before moving on to input data
       WEIGHT: begin
-        if (r_addr_count_kernel == (KERNEL_NUM_ELEMS - 1))
+        if ((r_addr_count_kernel == (KERNEL_NUM_ELEMS - 1)) && !w_weight_read_pending)
           next_st_input = READ_INPUT;
       end
       READ_INPUT: begin
-        if (f_is_last_read_input())
+        if (f_is_last_read_input() && !w_input_read_pending)
           next_st_input = CONV_INPUT;
       end
       CONV_INPUT: begin
@@ -390,7 +403,7 @@ timeunit 1ns; timeprecision 1ps;
           next_st_output = CONV_OUTPUT;
       end
       READ_OUTPUT: begin
-        if (f_is_last_read_out())
+        if (f_is_last_read_out() && !w_output_read_pending)
           next_st_output = CONV_OUTPUT;
       end
       // Waits for the convolution-complete signal
@@ -474,6 +487,50 @@ timeunit 1ns; timeprecision 1ps;
   assign w_conv_result_ready    = p_conv_end;
   assign w_conv_result_accept   = (current_st_output == CONV_OUTPUT) && r_conv_result_pending;
 
+  // Latency trackers: keep read side counters aligned with multi-cycle RAMs so the FSMs do not
+  // advance until every outstanding request returned a valid sample.
+  always_ff @(posedge clk or posedge reset) begin: RAM_LATENCY_TRACKING_BLOCK
+    if (reset) begin
+      r_weight_read_latency <= RAM_LATENCY_RELOAD;
+      r_input_read_latency  <= RAM_LATENCY_RELOAD;
+      r_output_read_latency <= RAM_LATENCY_RELOAD;
+    end else begin
+      // Weight stream latency
+      if (current_st_input != WEIGHT) begin
+        r_weight_read_latency <= RAM_LATENCY_RELOAD;
+      end else if (r_weight_read_latency != 0) begin
+        r_weight_read_latency <= r_weight_read_latency - 1;
+      end else if (p_input_valid && (r_addr_count_kernel < (KERNEL_NUM_ELEMS - 1))) begin
+        r_weight_read_latency <= RAM_LATENCY_RELOAD;
+      end
+
+      // Input feature latency
+      if (current_st_input != READ_INPUT) begin
+        r_input_read_latency <= RAM_LATENCY_RELOAD;
+      end else if (r_input_read_latency != 0) begin
+        r_input_read_latency <= r_input_read_latency - 1;
+      end else if (p_input_valid && (r_addr_count_input < (INPUT_FEATURE_NUM_ELEMS - 1))) begin
+        r_input_read_latency <= RAM_LATENCY_RELOAD;
+      end
+
+      // Output readback latency
+      if (current_st_output != READ_OUTPUT) begin
+        r_output_read_latency <= RAM_LATENCY_RELOAD;
+      end else if (r_output_read_latency != 0) begin
+        r_output_read_latency <= r_output_read_latency - 1;
+      end else if (p_output_valid && (r_addr_count_read_out < (OUTPUT_FEATURE_NUM_ELEMS - 1))) begin
+        r_output_read_latency <= RAM_LATENCY_RELOAD;
+      end
+    end
+  end
+
+  assign w_weight_data_ready   = (current_st_input == WEIGHT)      && (r_weight_read_latency == 0) && p_input_valid;
+  assign w_input_data_ready    = (current_st_input == READ_INPUT)  && (r_input_read_latency  == 0) && p_input_valid;
+  assign w_output_data_ready   = (current_st_output == READ_OUTPUT) && (r_output_read_latency == 0) && p_output_valid;
+  assign w_weight_read_pending = (current_st_input == WEIGHT)     && (r_weight_read_latency != 0);
+  assign w_input_read_pending  = (current_st_input == READ_INPUT) && (r_input_read_latency  != 0);
+  assign w_output_read_pending = (current_st_output == READ_OUTPUT) && (r_output_read_latency != 0);
+
 
   /*
    -------------------------------------------------------------
@@ -550,7 +607,7 @@ timeunit 1ns; timeprecision 1ps;
           // Streams kernel coefficients into r_kernel while priming the input counter.
           r_read_en        <= 1'b1;
           r_addr_count_input <= 0;
-          if (p_input_valid) begin
+          if (w_weight_data_ready) begin
             r_addr_pointer_kernel <= r_addr_pointer_kernel + 1;
             r_addr_count_kernel   <= r_addr_count_kernel + 1;
           end
@@ -606,7 +663,7 @@ timeunit 1ns; timeprecision 1ps;
           // Issues RAM reads and walks the row/column indices while filling r_feat_input.
           r_read_en          <= 1'b1;
           r_addr_count_kernel <= 0;
-          if (p_input_valid && (r_addr_count_input < C1_SIZE * C1_SIZE)) begin
+          if (w_input_data_ready && (r_addr_count_input < C1_SIZE * C1_SIZE)) begin
             r_addr_count_input <= r_addr_count_input + 1;
             if (r_row_index_input == (C1_SIZE - 1)) begin
               r_row_index_input  <= '0;
@@ -655,12 +712,12 @@ timeunit 1ns; timeprecision 1ps;
         end
         WEIGHT: begin
           // Capture each weight word as it returns from the RAM interface.
-          if (p_input_valid)
+          if (w_weight_data_ready)
             r_kernel[r_addr_count_kernel] <= p_input_data;
         end
         READ_INPUT: begin
           // Store incoming feature samples using the c_index indirection for stride ordering.
-          if (p_input_valid && (r_addr_count_input < C1_SIZE * C1_SIZE))
+          if (w_input_data_ready && (r_addr_count_input < C1_SIZE * C1_SIZE))
             r_feat_input[c_index[r_addr_count_input]] <= w_input_data_clamped;
         end
         CONV_INPUT: begin
@@ -727,7 +784,7 @@ timeunit 1ns; timeprecision 1ps;
         default: begin end
         READ_OUTPUT: begin
           // Latch partial sums read from the output RAM while tracking how many samples arrived.
-          if (p_output_valid && (r_addr_count_read_out < OUTPUT_FEATURE_NUM_ELEMS))
+          if (w_output_data_ready && (r_addr_count_read_out < OUTPUT_FEATURE_NUM_ELEMS))
             r_addr_count_read_out <= r_addr_count_read_out + 1;
         end
         CONV_OUTPUT: begin
@@ -794,7 +851,7 @@ timeunit 1ns; timeprecision 1ps;
         IDLE_OUTPUT: begin end
         READ_OUTPUT: begin
           // Capture data from the output RAM into r_feat_output for later accumulation.
-          if (p_output_valid && (r_addr_count_read_out < OUTPUT_FEATURE_NUM_ELEMS))
+          if (w_output_data_ready && (r_addr_count_read_out < OUTPUT_FEATURE_NUM_ELEMS))
             r_feat_output[r_addr_count_read_out] <= w_output_data_clamped;
         end
         CONV_OUTPUT: begin
@@ -814,7 +871,7 @@ timeunit 1ns; timeprecision 1ps;
         r_row_index_output <= '0;
         r_row_stride_output <= '0;
       end else begin
-        if ((current_st_output == WRITE_OUTPUT) || ((current_st_output == READ_OUTPUT)) && (p_output_valid && (r_addr_count_read_out < OUTPUT_FEATURE_NUM_ELEMS))) begin
+        if ((current_st_output == WRITE_OUTPUT) || ((current_st_output == READ_OUTPUT) && w_output_data_ready)) begin
           // Row-major traversal for the output feature tile mirrors the input logic:
           // column increments happen every cycle, while row/stride updates only occur
           // when the column reaches the end of the kernel footprint.
