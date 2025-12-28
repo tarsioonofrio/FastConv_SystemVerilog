@@ -42,6 +42,22 @@ The control module typically drives multiple finite state machines (FSMs) to man
 - The design emphasizes modularity to enable reuse of the control subsystem across different FastConv configurations with varying window sizes and channel counts.
 - Testbenches located in this folder simulate the control logic with representative stimuli and validate correct operation through assertion checks and waveform inspection.
 
+### High-level block interactions
+
+Using the conceptual blocks from the hardware documentation:
+
+- **Input Clip → Input Data Path**: clamps/pads samples before they enter the input buffers.
+- **Input Address → Input Data Path**: generates read addresses and window indices for the input RAM.
+- **Input Data Path → Convolution Module**: streams tiled input features into the convolution core.
+- **Input Handshake → Convolution Module**: starts new tiles when the core is idle and ready.
+- **Convolution Module → Output Data Path**: produces transformed feature-map tiles for buffering.
+- **Output Data Path → Output Clip**: formats and clips results before they go to memory.
+- **Output Address → Output Data Path**: supplies write addresses and window indices for the output RAM.
+- **Convolution Module → Output Handshake**: signals that a result tile is ready to be consumed.
+- **Output Handshake → Output Data Path / Output Address**: authorizes each write-back and advances window/channel counters.
+
+These short relationships mirror the internal FSM, address-generation, and handshake logic implemented in `control.sv`, but stay at an architectural block-diagram level.
+
 ### Handshake Signals
 
 Two explicit handshakes keep the FSMs aligned with the convolution core:

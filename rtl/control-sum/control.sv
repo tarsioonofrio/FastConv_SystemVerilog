@@ -279,6 +279,14 @@ timeunit 1ns; timeprecision 1ps;
   logic w_input_read_pending;
   logic w_output_read_pending;
 
+  // High-level debug aliases for documentation/waveforms
+  logic w_read_fin;
+  logic w_conv_start_dbg;
+  logic w_conv_end_dbg;
+  logic w_idle_conv_dbg;
+  logic w_read_ofmap;
+  logic w_write_ofmap;
+
   typedef enum {
     IDLE_INPUT,
     BIAS,
@@ -924,7 +932,10 @@ timeunit 1ns; timeprecision 1ps;
     p_conv_input  = r_feat_input;
     p_conv_weight = r_kernel;
     // p_conv_start  = w_handshake_input;
-    p_conv_start = w_conv_input_fire;
+    p_conv_start      = w_conv_input_fire;
+    w_conv_start_dbg  = w_conv_input_fire;
+    w_conv_end_dbg    = p_conv_end;
+    w_idle_conv_dbg   = p_conv_idle;
   end
 
   // P_INPUT_MUX_BLOCK: selects the RAM address/enables according to the input FSM, keeping the RAM
@@ -948,6 +959,8 @@ timeunit 1ns; timeprecision 1ps;
         p_input_en = 1'b0;
       end
     endcase
+    // Alias for input feature-map reads (FIN)
+    w_read_fin = p_input_en;
   end
 
   // P_OUTPUT_CTRL_BLOCK: exposes OUTPUT_CTRL_BLOCK decisions to the RAM port, toggling enables and
@@ -969,6 +982,9 @@ timeunit 1ns; timeprecision 1ps;
         p_output_wr = w_output_pixel_in_bounds;
       end
     endcase
+    // Aliases for OFMAP access
+    w_read_ofmap  = (current_st_output == READ_OUTPUT)  && p_output_en;
+    w_write_ofmap = (current_st_output == WRITE_OUTPUT) && p_output_en && p_output_wr;
   end
 
   assign p_output_addr = w_addr_ptr_pout;

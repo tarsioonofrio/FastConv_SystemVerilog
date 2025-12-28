@@ -1,5 +1,12 @@
 onerror {resume}
 quietly WaveActivateNextPane {} 0
+add wave -noupdate -divider high_level
+add wave -noupdate /tb/dut/w_read_fin
+add wave -noupdate /tb/dut/w_conv_start_dbg
+add wave -noupdate /tb/dut/w_conv_end_dbg
+add wave -noupdate /tb/dut/w_idle_conv_dbg
+add wave -noupdate /tb/dut/w_read_ofmap
+add wave -noupdate /tb/dut/w_write_ofmap
 add wave -noupdate -radix unsigned /tb/dut/w_addr_ptr_pout
 add wave -noupdate -radix unsigned /tb/dut/p_output_addr
 add wave -noupdate -radix unsigned /tb/dut/r_col_index_output
