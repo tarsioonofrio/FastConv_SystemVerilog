@@ -425,14 +425,16 @@ timeunit 1ns; timeprecision 1ps;
       WRITE_OUTPUT: begin
         // TODO
         // Evaluate whether this if/else structure should be changed to an if-else tree
-        if (f_is_last_write_out() && !f_is_last_channel_out() && (r_channel_counter_out == 0))
-          next_st_output = CONV_OUTPUT;
-        else if (f_is_last_write_out() && !f_is_last_channel_out() && (r_channel_counter_out > 0))
-          next_st_output = READ_OUTPUT;
-        else if (f_is_last_write_out() && f_is_last_channel_out())
-          next_st_output = END_CHANNEL;
-        else if (f_is_last_write_out() && (r_window_counter_total_out == LAST_INPUT_WINDOW_INDEX))
-          next_st_output = IDLE_OUTPUT;
+        if (p_output_valid) begin
+          if (f_is_last_write_out() && !f_is_last_channel_out() && (r_channel_counter_out == 0))
+            next_st_output = CONV_OUTPUT;
+          else if (f_is_last_write_out() && !f_is_last_channel_out() && (r_channel_counter_out > 0))
+            next_st_output = READ_OUTPUT;
+          else if (f_is_last_write_out() && f_is_last_channel_out())
+            next_st_output = END_CHANNEL;
+          else if (f_is_last_write_out() && (r_window_counter_total_out == LAST_INPUT_WINDOW_INDEX))
+            next_st_output = IDLE_OUTPUT;
+        end
       end
       END_CHANNEL: begin
         if (next_st_input == CONV_INPUT)
