@@ -272,12 +272,16 @@ timeunit 1ns; timeprecision 1ps;
   logic [RAM_LATENCY_COUNTER_WIDTH-1:0] r_weight_read_latency;
   logic [RAM_LATENCY_COUNTER_WIDTH-1:0] r_input_read_latency;
   logic [RAM_LATENCY_COUNTER_WIDTH-1:0] r_output_read_latency;
+  // Initial write-side offset so the first store of each WRITE_OUTPUT phase observes RAM_LATENCY
+  logic [RAM_LATENCY_COUNTER_WIDTH-1:0] r_output_write_latency;
   logic w_weight_data_ready;
   logic w_input_data_ready;
   logic w_output_data_ready;
   logic w_weight_read_pending;
   logic w_input_read_pending;
   logic w_output_read_pending;
+  logic w_output_write_ready;
+  logic w_output_write_pending;
 
   // High-level debug aliases for documentation/waveforms
   logic w_read_fin;
@@ -498,12 +502,14 @@ timeunit 1ns; timeprecision 1ps;
   assign w_conv_result_accept   = (current_st_output == CONV_OUTPUT) && r_conv_result_pending;
 
   // Latency trackers: keep read side counters aligned with multi-cycle RAMs so the FSMs do not
-  // advance until every outstanding request returned a valid sample.
+  // advance until every outstanding request returned a valid sample. The write-side latency only
+  // models the initial offset before the first store of each WRITE_OUTPUT phase.
   always_ff @(posedge clk or posedge reset) begin: RAM_LATENCY_TRACKING_BLOCK
     if (reset) begin
       r_weight_read_latency <= RAM_LATENCY_RELOAD;
       r_input_read_latency  <= RAM_LATENCY_RELOAD;
       r_output_read_latency <= RAM_LATENCY_RELOAD;
+      r_output_write_latency <= RAM_LATENCY_RELOAD;
     end else begin
       // Weight stream latency
       if (current_st_input != WEIGHT) begin
@@ -531,6 +537,14 @@ timeunit 1ns; timeprecision 1ps;
       end else if (p_output_valid && (r_addr_count_read_out < (OUTPUT_FEATURE_NUM_ELEMS - 1))) begin
         r_output_read_latency <= RAM_LATENCY_RELOAD;
       end
+
+      // Output write latency (initial offset only): while in WRITE_OUTPUT, wait RAM_LATENCY cycles
+      // before asserting the first write strobe, keeping subsequent stores back-to-back.
+      if (current_st_output != WRITE_OUTPUT) begin
+        r_output_write_latency <= RAM_LATENCY_RELOAD;
+      end else if (r_output_write_latency != 0) begin
+        r_output_write_latency <= r_output_write_latency - 1;
+      end
     end
   end
 
@@ -540,6 +554,8 @@ timeunit 1ns; timeprecision 1ps;
   assign w_weight_read_pending = (current_st_input == WEIGHT)     && (r_weight_read_latency != 0);
   assign w_input_read_pending  = (current_st_input == READ_INPUT) && (r_input_read_latency  != 0);
   assign w_output_read_pending = (current_st_output == READ_OUTPUT) && (r_output_read_latency != 0);
+  assign w_output_write_ready   = (current_st_output == WRITE_OUTPUT) && (r_output_write_latency == 0);
+  assign w_output_write_pending = (current_st_output == WRITE_OUTPUT) && (r_output_write_latency != 0);
 
 
   /*
@@ -804,33 +820,35 @@ timeunit 1ns; timeprecision 1ps;
         end
         WRITE_OUTPUT: begin
           // Emits accumulated results to RAM and updates window/channel counters accordingly.
-          r_addr_count_write_out <= r_addr_count_write_out + 1;
-          // r_window_counter_total_out
-          if (f_is_last_write_out())
-            r_window_counter_total_out <= r_window_counter_total_out + 1;
-          // r_window_counter_row_out
-          if (f_is_last_write_out() && f_is_last_row_out()) begin
-            r_window_counter_row_out <= 0;
-          end else if (f_is_last_write_out() && !f_is_last_row_out())
-            r_window_counter_row_out <= r_window_counter_row_out + 1;
-          // r_window_counter_col_out
-          if (f_is_last_write_out() && f_is_last_row_out() && f_is_last_channel_out())
-            r_window_counter_col_out <= 0;
-          else if (f_is_last_write_out() && f_is_last_row_out() && (r_window_counter_col_out >= LAST_WINDOW_ROW_INDEX))
-            r_window_counter_col_out <= 0;
-          else if (f_is_last_write_out() && f_is_last_row_out())
-            r_window_counter_col_out <= r_window_counter_col_out + 1;
-          // r_window_counter_channel_out
-          if (f_is_last_write_out() && !f_is_last_channel_out())
-            r_window_counter_channel_out <= r_window_counter_channel_out + 1;
-          // r_window_counter_all_channel_out
-          if (f_is_last_write_out() && !f_is_last_all_channel_out())
-            r_window_counter_all_channel_out <= r_window_counter_all_channel_out + 1;
-          // r_addr_pointer_out
-          if (f_is_last_write_out() && f_is_last_row_out())
-            r_addr_pointer_out <= r_addr_pointer_out + OUTPUT_ROW_WRAP_DELTA;
-          else if (f_is_last_write_out() && !f_is_last_row_out())
-            r_addr_pointer_out <= r_addr_pointer_out + A1_SIZE;
+          if (w_output_write_ready) begin
+            r_addr_count_write_out <= r_addr_count_write_out + 1;
+            // r_window_counter_total_out
+            if (f_is_last_write_out())
+              r_window_counter_total_out <= r_window_counter_total_out + 1;
+            // r_window_counter_row_out
+            if (f_is_last_write_out() && f_is_last_row_out()) begin
+              r_window_counter_row_out <= 0;
+            end else if (f_is_last_write_out() && !f_is_last_row_out())
+              r_window_counter_row_out <= r_window_counter_row_out + 1;
+            // r_window_counter_col_out
+            if (f_is_last_write_out() && f_is_last_row_out() && f_is_last_channel_out())
+              r_window_counter_col_out <= 0;
+            else if (f_is_last_write_out() && f_is_last_row_out() && (r_window_counter_col_out >= LAST_WINDOW_ROW_INDEX))
+              r_window_counter_col_out <= 0;
+            else if (f_is_last_write_out() && f_is_last_row_out())
+              r_window_counter_col_out <= r_window_counter_col_out + 1;
+            // r_window_counter_channel_out
+            if (f_is_last_write_out() && !f_is_last_channel_out())
+              r_window_counter_channel_out <= r_window_counter_channel_out + 1;
+            // r_window_counter_all_channel_out
+            if (f_is_last_write_out() && !f_is_last_all_channel_out())
+              r_window_counter_all_channel_out <= r_window_counter_all_channel_out + 1;
+            // r_addr_pointer_out
+            if (f_is_last_write_out() && f_is_last_row_out())
+              r_addr_pointer_out <= r_addr_pointer_out + OUTPUT_ROW_WRAP_DELTA;
+            else if (f_is_last_write_out() && !f_is_last_row_out())
+              r_addr_pointer_out <= r_addr_pointer_out + A1_SIZE;
+          end
         end
         END_CHANNEL: begin
           // Handles inter-channel bookkeeping, rewinding pointers or advancing to the next channel.
@@ -881,7 +899,8 @@ timeunit 1ns; timeprecision 1ps;
         r_row_index_output <= '0;
         r_row_stride_output <= '0;
       end else begin
-        if ((current_st_output == WRITE_OUTPUT) || ((current_st_output == READ_OUTPUT) && w_output_data_ready)) begin
+        if (((current_st_output == WRITE_OUTPUT) && w_output_write_ready) ||
+            ((current_st_output == READ_OUTPUT) && w_output_data_ready)) begin
           // Row-major traversal for the output feature tile mirrors the input logic:
           // column increments happen every cycle, while row/stride updates only occur
           // when the column reaches the end of the kernel footprint.
@@ -981,7 +1000,7 @@ timeunit 1ns; timeprecision 1ps;
       // Waits for the output data write to memory to complete and then returns to idle
       WRITE_OUTPUT: begin
         p_output_en = 1'b1;
-        p_output_wr = w_output_pixel_in_bounds;
+        p_output_wr = w_output_pixel_in_bounds && w_output_write_ready;
       end
     endcase
     // Aliases for OFMAP access
