@@ -538,12 +538,16 @@ timeunit 1ns; timeprecision 1ps;
         r_output_read_latency <= RAM_LATENCY_RELOAD;
       end
 
-      // Output write latency (initial offset only): while in WRITE_OUTPUT, wait RAM_LATENCY cycles
-      // before asserting the first write strobe, keeping subsequent stores back-to-back.
+      // Output write latency: for each store in WRITE_OUTPUT wait RAM_LATENCY cycles between
+      // strobes so the write-side also observes the configured memory latency.
       if (current_st_output != WRITE_OUTPUT) begin
         r_output_write_latency <= RAM_LATENCY_RELOAD;
       end else if (r_output_write_latency != 0) begin
         r_output_write_latency <= r_output_write_latency - 1;
+      end else if ((current_st_output == WRITE_OUTPUT) &&
+                   (r_addr_count_write_out < (OUTPUT_FEATURE_NUM_ELEMS - 1))) begin
+        // A write was just issued with zero latency; reload for the next element.
+        r_output_write_latency <= RAM_LATENCY_RELOAD;
       end
     end
   end
