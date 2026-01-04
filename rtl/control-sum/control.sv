@@ -420,9 +420,11 @@ timeunit 1ns; timeprecision 1ps;
       end
       // Waits for the convolution-complete signal
       CONV_OUTPUT: begin
-        if (w_conv_result_ready && (r_channel_counter_out == 0))
+        // Consume any pending convolution result as soon as the FSM reaches CONV_OUTPUT,
+        // independent of the exact cycle when p_conv_end was asserted.
+        if (r_conv_result_pending && (r_channel_counter_out == 0))
           next_st_output = WRITE_OUTPUT;
-        else if (w_conv_result_ready && (r_channel_counter_out > 0))
+        else if (r_conv_result_pending && (r_channel_counter_out > 0))
           next_st_output = WRITE_OUTPUT;
       end
       // Waits for the output data write to memory to complete and then returns to idle
