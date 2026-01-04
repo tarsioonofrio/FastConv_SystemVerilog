@@ -98,15 +98,6 @@ add wave -noupdate /tb/dut/f_is_last_all_channel_out/w_is_last_all_channel_out
 add wave -noupdate -radix unsigned /tb/dut/w_addr_ptr_pin
 add wave -noupdate /tb/dut/w_output_en
 add wave -noupdate -radix octal -childformat {{{/tb/conv/r_feat[35]} -radix decimal} {{/tb/conv/r_feat[34]} -radix decimal} {{/tb/conv/r_feat[33]} -radix decimal} {{/tb/conv/r_feat[32]} -radix decimal} {{/tb/conv/r_feat[31]} -radix decimal} {{/tb/conv/r_feat[30]} -radix decimal} {{/tb/conv/r_feat[29]} -radix decimal} {{/tb/conv/r_feat[28]} -radix decimal} {{/tb/conv/r_feat[27]} -radix decimal} {{/tb/conv/r_feat[26]} -radix decimal} {{/tb/conv/r_feat[25]} -radix decimal} {{/tb/conv/r_feat[24]} -radix decimal} {{/tb/conv/r_feat[23]} -radix decimal} {{/tb/conv/r_feat[22]} -radix decimal} {{/tb/conv/r_feat[21]} -radix decimal} {{/tb/conv/r_feat[20]} -radix decimal} {{/tb/conv/r_feat[19]} -radix decimal} {{/tb/conv/r_feat[18]} -radix decimal} {{/tb/conv/r_feat[17]} -radix decimal} {{/tb/conv/r_feat[16]} -radix decimal} {{/tb/conv/r_feat[15]} -radix decimal} {{/tb/conv/r_feat[14]} -radix decimal} {{/tb/conv/r_feat[13]} -radix decimal} {{/tb/conv/r_feat[12]} -radix decimal} {{/tb/conv/r_feat[11]} -radix decimal} {{/tb/conv/r_feat[10]} -radix decimal} {{/tb/conv/r_feat[9]} -radix decimal} {{/tb/conv/r_feat[8]} -radix decimal} {{/tb/conv/r_feat[7]} -radix decimal} {{/tb/conv/r_feat[6]} -radix decimal} {{/tb/conv/r_feat[5]} -radix decimal} {{/tb/conv/r_feat[4]} -radix decimal} {{/tb/conv/r_feat[3]} -radix decimal} {{/tb/conv/r_feat[2]} -radix decimal} {{/tb/conv/r_feat[1]} -radix decimal} {{/tb/conv/r_feat[0]} -radix decimal}} -subitemconfig {{/tb/conv/r_feat[35]} {-height 16 -radix decimal} {/tb/conv/r_feat[34]} {-height 16 -radix decimal} {/tb/conv/r_feat[33]} {-height 16 -radix decimal} {/tb/conv/r_feat[32]} {-height 16 -radix decimal} {/tb/conv/r_feat[31]} {-height 16 -radix decimal} {/tb/conv/r_feat[30]} {-height 16 -radix decimal} {/tb/conv/r_feat[29]} {-height 16 -radix decimal} {/tb/conv/r_feat[28]} {-height 16 -radix decimal} {/tb/conv/r_feat[27]} {-height 16 -radix decimal} {/tb/conv/r_feat[26]} {-height 16 -radix decimal} {/tb/conv/r_feat[25]} {-height 16 -radix decimal} {/tb/conv/r_feat[24]} {-height 16 -radix decimal} {/tb/conv/r_feat[23]} {-height 16 -radix decimal} {/tb/conv/r_feat[22]} {-height 16 -radix decimal} {/tb/conv/r_feat[21]} {-height 16 -radix decimal} {/tb/conv/r_feat[20]} {-height 16 -radix decimal} {/tb/conv/r_feat[19]} {-height 16 -radix decimal} {/tb/conv/r_feat[18]} {-height 16 -radix decimal} {/tb/conv/r_feat[17]} {-height 16 -radix decimal} {/tb/conv/r_feat[16]} {-height 16 -radix decimal} {/tb/conv/r_feat[15]} {-height 16 -radix decimal} {/tb/conv/r_feat[14]} {-height 16 -radix decimal} {/tb/conv/r_feat[13]} {-height 16 -radix decimal} {/tb/conv/r_feat[12]} {-height 16 -radix decimal} {/tb/conv/r_feat[11]} {-height 16 -radix decimal} {/tb/conv/r_feat[10]} {-height 16 -radix decimal} {/tb/conv/r_feat[9]} {-height 16 -radix decimal} {/tb/conv/r_feat[8]} {-height 16 -radix decimal} {/tb/conv/r_feat[7]} {-height 16 -radix decimal} {/tb/conv/r_feat[6]} {-height 16 -radix decimal} {/tb/conv/r_feat[5]} {-height 16 -radix decimal} {/tb/conv/r_feat[4]} {-height 16 -radix decimal} {/tb/conv/r_feat[3]} {-height 16 -radix decimal} {/tb/conv/r_feat[2]} {-height 16 -radix decimal} {/tb/conv/r_feat[1]} {-height 16 -radix decimal} {/tb/conv/r_feat[0]} {-height 16 -radix decimal}} /tb/conv/r_feat
-add wave -noupdate -divider mem-write
-add wave -noupdate /tb/memory_write/clk
-add wave -noupdate /tb/memory_write/reset
-add wave -noupdate /tb/memory_write/chip_en
-add wave -noupdate /tb/memory_write/wr_en
-add wave -noupdate -radix unsigned /tb/memory_write/address
-add wave -noupdate -radix decimal -childformat {{{/tb/memory_write/data_in[19]} -radix decimal} {{/tb/memory_write/data_in[18]} -radix decimal} {{/tb/memory_write/data_in[17]} -radix decimal} {{/tb/memory_write/data_in[16]} -radix decimal} {{/tb/memory_write/data_in[15]} -radix decimal} {{/tb/memory_write/data_in[14]} -radix decimal} {{/tb/memory_write/data_in[13]} -radix decimal} {{/tb/memory_write/data_in[12]} -radix decimal} {{/tb/memory_write/data_in[11]} -radix decimal} {{/tb/memory_write/data_in[10]} -radix decimal} {{/tb/memory_write/data_in[9]} -radix decimal} {{/tb/memory_write/data_in[8]} -radix decimal} {{/tb/memory_write/data_in[7]} -radix decimal} {{/tb/memory_write/data_in[6]} -radix decimal} {{/tb/memory_write/data_in[5]} -radix decimal} {{/tb/memory_write/data_in[4]} -radix decimal} {{/tb/memory_write/data_in[3]} -radix decimal} {{/tb/memory_write/data_in[2]} -radix decimal} {{/tb/memory_write/data_in[1]} -radix decimal} {{/tb/memory_write/data_in[0]} -radix decimal}} -subitemconfig {{/tb/memory_write/data_in[19]} {-height 16 -radix decimal} {/tb/memory_write/data_in[18]} {-height 16 -radix decimal} {/tb/memory_write/data_in[17]} {-height 16 -radix decimal} {/tb/memory_write/data_in[16]} {-height 16 -radix decimal} {/tb/memory_write/data_in[15]} {-height 16 -radix decimal} {/tb/memory_write/data_in[14]} {-height 16 -radix decimal} {/tb/memory_write/data_in[13]} {-height 16 -radix decimal} {/tb/memory_write/data_in[12]} {-height 16 -radix decimal} {/tb/memory_write/data_in[11]} {-height 16 -radix decimal} {/tb/memory_write/data_in[10]} {-height 16 -radix decimal} {/tb/memory_write/data_in[9]} {-height 16 -radix decimal} {/tb/memory_write/data_in[8]} {-height 16 -radix decimal} {/tb/memory_write/data_in[7]} {-height 16 -radix decimal} {/tb/memory_write/data_in[6]} {-height 16 -radix decimal} {/tb/memory_write/data_in[5]} {-height 16 -radix decimal} {/tb/memory_write/data_in[4]} {-height 16 -radix decimal} {/tb/memory_write/data_in[3]} {-height 16 -radix decimal} {/tb/memory_write/data_in[2]} {-height 16 -radix decimal} {/tb/memory_write/data_in[1]} {-height 16 -radix decimal} {/tb/memory_write/data_in[0]} {-height 16 -radix decimal}} /tb/memory_write/data_in
-add wave -noupdate -radix decimal /tb/memory_write/data_out
-add wave -noupdate /tb/memory_write/data_valid
 add wave -noupdate -divider mem-read
 add wave -noupdate /tb/memory_read/clk
 add wave -noupdate /tb/memory_read/reset
@@ -116,9 +107,46 @@ add wave -noupdate -radix unsigned /tb/memory_read/address
 add wave -noupdate /tb/memory_read/data_in
 add wave -noupdate -radix decimal /tb/memory_read/data_out
 add wave -noupdate /tb/memory_read/data_valid
+add wave -noupdate -divider mem-write
+add wave -noupdate /tb/memory_write/clk
+add wave -noupdate /tb/memory_write/reset
+add wave -noupdate /tb/memory_write/chip_en
+add wave -noupdate /tb/memory_write/wr_en
+add wave -noupdate -radix unsigned /tb/memory_write/address
+add wave -noupdate -radix decimal -childformat {{{/tb/memory_write/data_in[19]} -radix decimal} {{/tb/memory_write/data_in[18]} -radix decimal} {{/tb/memory_write/data_in[17]} -radix decimal} {{/tb/memory_write/data_in[16]} -radix decimal} {{/tb/memory_write/data_in[15]} -radix decimal} {{/tb/memory_write/data_in[14]} -radix decimal} {{/tb/memory_write/data_in[13]} -radix decimal} {{/tb/memory_write/data_in[12]} -radix decimal} {{/tb/memory_write/data_in[11]} -radix decimal} {{/tb/memory_write/data_in[10]} -radix decimal} {{/tb/memory_write/data_in[9]} -radix decimal} {{/tb/memory_write/data_in[8]} -radix decimal} {{/tb/memory_write/data_in[7]} -radix decimal} {{/tb/memory_write/data_in[6]} -radix decimal} {{/tb/memory_write/data_in[5]} -radix decimal} {{/tb/memory_write/data_in[4]} -radix decimal} {{/tb/memory_write/data_in[3]} -radix decimal} {{/tb/memory_write/data_in[2]} -radix decimal} {{/tb/memory_write/data_in[1]} -radix decimal} {{/tb/memory_write/data_in[0]} -radix decimal}} -subitemconfig {{/tb/memory_write/data_in[19]} {-height 16 -radix decimal} {/tb/memory_write/data_in[18]} {-height 16 -radix decimal} {/tb/memory_write/data_in[17]} {-height 16 -radix decimal} {/tb/memory_write/data_in[16]} {-height 16 -radix decimal} {/tb/memory_write/data_in[15]} {-height 16 -radix decimal} {/tb/memory_write/data_in[14]} {-height 16 -radix decimal} {/tb/memory_write/data_in[13]} {-height 16 -radix decimal} {/tb/memory_write/data_in[12]} {-height 16 -radix decimal} {/tb/memory_write/data_in[11]} {-height 16 -radix decimal} {/tb/memory_write/data_in[10]} {-height 16 -radix decimal} {/tb/memory_write/data_in[9]} {-height 16 -radix decimal} {/tb/memory_write/data_in[8]} {-height 16 -radix decimal} {/tb/memory_write/data_in[7]} {-height 16 -radix decimal} {/tb/memory_write/data_in[6]} {-height 16 -radix decimal} {/tb/memory_write/data_in[5]} {-height 16 -radix decimal} {/tb/memory_write/data_in[4]} {-height 16 -radix decimal} {/tb/memory_write/data_in[3]} {-height 16 -radix decimal} {/tb/memory_write/data_in[2]} {-height 16 -radix decimal} {/tb/memory_write/data_in[1]} {-height 16 -radix decimal} {/tb/memory_write/data_in[0]} {-height 16 -radix decimal}} /tb/memory_write/data_in
+add wave -noupdate -radix decimal /tb/memory_write/data_out
+add wave -noupdate /tb/memory_write/data_valid
+add wave -noupdate -radix decimal /tb/memory_write/data
+add wave -noupdate -divider localparams
+add wave -noupdate -radix unsigned /tb/dut/INPUT_NUM_ELEMS
+add wave -noupdate -radix unsigned /tb/dut/OUTPUT_NUM_ELEMS
+add wave -noupdate -radix unsigned /tb/dut/INPUT_FEATURE_NUM_ELEMS
+add wave -noupdate -radix unsigned /tb/dut/OUTPUT_FEATURE_NUM_ELEMS
+add wave -noupdate -radix unsigned /tb/dut/KERNEL_NUM_ELEMS
+add wave -noupdate -radix unsigned /tb/dut/TOTAL_NUM_CHANNELS
+add wave -noupdate -radix unsigned /tb/dut/WINDOW_COUNT_PER_AXIS
+add wave -noupdate -radix unsigned /tb/dut/WINDOWS_PER_PLANE
+add wave -noupdate -radix unsigned /tb/dut/WINDOWS_PER_INPUT_CHANNEL
+add wave -noupdate -radix unsigned /tb/dut/WINDOWS_PER_OUTPUT_CHANNEL
+add wave -noupdate -radix unsigned /tb/dut/TOTAL_INPUT_WINDOWS
+add wave -noupdate -radix unsigned /tb/dut/LAST_KERNEL_INDEX
+add wave -noupdate -radix unsigned /tb/dut/LAST_WINDOW_INDEX_PER_PLANE
+add wave -noupdate -radix unsigned /tb/dut/LAST_INPUT_WINDOW_INDEX
+add wave -noupdate -radix unsigned /tb/dut/LAST_WINDOW_ROW_INDEX
+add wave -noupdate -radix unsigned /tb/dut/LAST_OUTPUT_CHANNEL_WINDOW_INDEX
+add wave -noupdate -radix unsigned /tb/dut/RAM_LATENCY
+add wave -noupdate -radix unsigned /tb/dut/RAM_LATENCY_RELOAD
+add wave -noupdate -radix unsigned /tb/dut/RAM_LATENCY_COUNTER_WIDTH
+add wave -noupdate -radix unsigned /tb/dut/CYCLES_HOLD_OUTPUT_RAW
+add wave -noupdate -radix unsigned /tb/dut/CYCLES_HOLD_OUTPUT
+add wave -noupdate -radix unsigned /tb/dut/INPUT_ROW_WRAP_DELTA
+add wave -noupdate -radix unsigned /tb/dut/INPUT_CHANNEL_WRAP_DELTA
+add wave -noupdate -radix unsigned /tb/dut/OUTPUT_ROW_WRAP_DELTA
+add wave -noupdate -radix unsigned /tb/dut/OUTPUT_CHANNEL_STRIDE
+add wave -noupdate -radix unsigned /tb/dut/WINDOW_AXIS_COUNTER_WIDTH
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 3} {5855500 ps} 0} {{Cursor 4} {5870500 ps} 0}
-quietly wave cursor active 2
+WaveRestoreCursors {{Cursor 3} {3546713 ps} 0} {{Cursor 4} {5870500 ps} 0}
+quietly wave cursor active 1
 configure wave -namecolwidth 256
 configure wave -valuecolwidth 100
 configure wave -justifyvalue left
@@ -133,4 +161,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {3678694 ps} {3697416 ps}
+WaveRestoreZoom {0 ps} {157500 ns}
