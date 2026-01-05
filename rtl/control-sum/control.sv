@@ -890,7 +890,7 @@ timeunit 1ns; timeprecision 1ps;
         end
         CONV_OUTPUT: begin
           // Store the freshly computed convolution result so WRITE_OUTPUT can sum with RAM data.
-          if (w_conv_result_ready)
+          if (r_conv_result_pending)
             r_conv_output <= p_conv_output;
         end
       endcase
