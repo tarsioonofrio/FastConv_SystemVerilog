@@ -1,16 +1,19 @@
 onerror {resume}
 quietly WaveActivateNextPane {} 0
+add wave -noupdate /tb/memory_read/clk
 add wave -noupdate -divider handshake_input
-add wave -noupdate /tb/dut/p_conv_start
-add wave -noupdate /tb/dut/p_conv_idle
-add wave -noupdate /tb/dut/w_conv_ready_for_input
-add wave -noupdate /tb/dut/w_conv_input_fire
-add wave -noupdate /tb/dut/r_conv_busy
-add wave -noupdate -divider handshake_output
+add wave -noupdate -expand -group {idle_ready} /tb/dut/p_conv_idle
+add wave -noupdate -group {idle_ready} /tb/dut/w_conv_ready_for_input
+add wave -noupdate -expand -group {start_fire} /tb/dut/p_conv_start
+add wave -noupdate -group {start_fire} /tb/dut/w_conv_input_fire
 add wave -noupdate /tb/dut/p_conv_end
-add wave -noupdate /tb/dut/r_conv_result_pending
-add wave -noupdate /tb/dut/w_conv_result_ready
-add wave -noupdate /tb/dut/w_conv_result_accept
+add wave -noupdate /tb/dut/r_conv_busy
+add wave -noupdate /tb/dut/current_st_input
+add wave -noupdate -divider handshake_output
+add wave -noupdate -expand -group {conv_result} /tb/dut/p_conv_end
+add wave -noupdate -group {conv_result} /tb/dut/w_conv_result_ready
+add wave -noupdate -group {conv_result} /tb/dut/w_conv_result_accept
+add wave -noupdate -group {conv_result} /tb/dut/r_conv_result_pending
 add wave -noupdate -divider base
 add wave -noupdate /tb/dut/clk
 add wave -noupdate /tb/dut/reset
@@ -131,7 +134,7 @@ add wave -noupdate -radix unsigned /tb/dut/OUTPUT_ROW_WRAP_DELTA
 add wave -noupdate -radix unsigned /tb/dut/OUTPUT_CHANNEL_STRIDE
 add wave -noupdate -radix unsigned /tb/dut/WINDOW_AXIS_COUNTER_WIDTH
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 3} {1783500 ps} 0}
+WaveRestoreCursors {{Cursor 3} {18736500 ps} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 256
 configure wave -valuecolwidth 100
@@ -147,4 +150,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {0 ps} {19170375 ps}
+WaveRestoreZoom {18699057 ps} {18773943 ps}
