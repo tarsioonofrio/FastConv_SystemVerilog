@@ -146,7 +146,7 @@ add wave -noupdate -radix unsigned /tb/dut/OUTPUT_ROW_WRAP_DELTA
 add wave -noupdate -radix unsigned /tb/dut/OUTPUT_CHANNEL_STRIDE
 add wave -noupdate -radix unsigned /tb/dut/WINDOW_AXIS_COUNTER_WIDTH
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 3} {3546713 ps} 0} {{Cursor 4} {5870500 ps} 0}
+WaveRestoreCursors {{Cursor 3} {1783500 ps} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 256
 configure wave -valuecolwidth 100
@@ -162,4 +162,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {3454379 ps} {3761997 ps}
+WaveRestoreZoom {1778458 ps} {1816912 ps}
