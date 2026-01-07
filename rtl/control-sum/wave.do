@@ -1,31 +1,16 @@
 onerror {resume}
 quietly WaveActivateNextPane {} 0
-add wave -noupdate -divider high_level
-add wave -noupdate /tb/dut/w_read_fin
-add wave -noupdate /tb/dut/w_conv_start_dbg
-add wave -noupdate /tb/dut/w_conv_end_dbg
-add wave -noupdate /tb/dut/w_idle_conv_dbg
-add wave -noupdate /tb/dut/w_read_ofmap
-add wave -noupdate /tb/dut/w_write_ofmap
-add wave -noupdate -radix unsigned /tb/dut/w_addr_ptr_pout
-add wave -noupdate -radix unsigned /tb/dut/p_output_addr
-add wave -noupdate -radix unsigned /tb/dut/r_col_index_output
-add wave -noupdate -radix unsigned /tb/dut/r_row_index_output
-add wave -noupdate -radix unsigned /tb/dut/r_row_stride_output
-add wave -noupdate -radix unsigned /tb/dut/w_col_offset_output
-add wave -noupdate -radix unsigned /tb/dut/w_offset_total_output
-add wave -noupdate -radix unsigned /tb/dut/r_weight_read_latency
-add wave -noupdate -radix unsigned /tb/dut/r_input_read_latency
-add wave -noupdate -radix unsigned /tb/dut/r_output_read_latency
-add wave -noupdate -radix unsigned /tb/dut/r_output_write_latency
-add wave -noupdate /tb/dut/w_weight_data_ready
-add wave -noupdate /tb/dut/w_input_data_ready
-add wave -noupdate /tb/dut/w_output_data_ready
-add wave -noupdate /tb/dut/w_weight_read_pending
-add wave -noupdate /tb/dut/w_input_read_pending
-add wave -noupdate /tb/dut/w_output_read_pending
-add wave -noupdate /tb/dut/w_output_write_ready
-add wave -noupdate /tb/dut/w_output_write_pending
+add wave -noupdate -divider handshake_input
+add wave -noupdate /tb/dut/p_conv_start
+add wave -noupdate /tb/dut/p_conv_idle
+add wave -noupdate /tb/dut/w_conv_ready_for_input
+add wave -noupdate /tb/dut/w_conv_input_fire
+add wave -noupdate /tb/dut/r_conv_busy
+add wave -noupdate -divider handshake_output
+add wave -noupdate /tb/dut/p_conv_end
+add wave -noupdate /tb/dut/r_conv_result_pending
+add wave -noupdate /tb/dut/w_conv_result_ready
+add wave -noupdate /tb/dut/w_conv_result_accept
 add wave -noupdate -divider base
 add wave -noupdate /tb/dut/clk
 add wave -noupdate /tb/dut/reset
@@ -162,4 +147,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {1778458 ps} {1816912 ps}
+WaveRestoreZoom {0 ps} {19170375 ps}
