@@ -128,7 +128,7 @@ timeunit 1ns; timeprecision 1ps;
   localparam int RAM_LATENCY_RELOAD                    = (RAM_LATENCY > 1) ? (RAM_LATENCY - 1) : 0;
   localparam int RAM_LATENCY_COUNTER_WIDTH             = (RAM_LATENCY > 1) ? $clog2(RAM_LATENCY + 1) : 1;
   // Latency slack used to time HOLD_OUTPUT
-  localparam int CYCLES_HOLD_OUTPUT_RAW                = (OUTPUT_FEATURE_NUM_ELEMS*2 * RAM_LATENCY) - (C1_SIZE * A1_SIZE * RAM_LATENCY + 1);
+  localparam int CYCLES_HOLD_OUTPUT_RAW                = (OUTPUT_FEATURE_NUM_ELEMS*2 * RAM_LATENCY + 1) - (C1_SIZE * A1_SIZE * RAM_LATENCY + 1);
   localparam int CYCLES_HOLD_OUTPUT                    = (CYCLES_HOLD_OUTPUT_RAW > 0) ? CYCLES_HOLD_OUTPUT_RAW : 1;
   // Horizontal-to-vertical wrap deltas that keep pointers in-bounds even with padded tiles
   localparam int INPUT_ROW_WRAP_DELTA                  = A1_SIZE * (FEAT_INPUT_SIZE - WINDOW_COUNT_PER_AXIS + 1);
@@ -950,7 +950,7 @@ timeunit 1ns; timeprecision 1ps;
   // P_END_BLOCK: raises p_end once OUTPUT_CTRL_BLOCK reports every window emitted, signaling back to
   // upstream sequencing logic that INPUT_CTRL_BLOCK can idle.
   always_comb begin: P_END_BLOCK
-    p_end = (r_window_counter_total_out >= TOTAL_INPUT_WINDOWS) ? 1'b1 : 1'b0;
+      p_end = (r_window_counter_total_out >= TOTAL_INPUT_WINDOWS) ? 1'b1 : 1'b0;
   end
 
   // P_CONV_BUS_BLOCK: ties INPUT_BUFFER_BLOCK contents to the convolution core, relying on the
