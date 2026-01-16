@@ -1,0 +1,15 @@
+Feature: None
+Weights: None
+Bias stats (min/mean/max): -2.5828/-1.2346/0.0328
+Image side: 16
+Quantization bits: 8
+R2: 0.9998650348721323
+
+Totals
+Naive
+Convolutions: 588
+Multiplications: 5292
+Additions: 4704
+Fast
+Convolutions: 75
+Multiplications: 2700
