@@ -13,8 +13,8 @@ set GIT_ROOT [exec git rev-parse --show-toplevel]
 # }
 # vlog -work work  -svinputport=relaxed $DATA_SV
 
-# Read key=value defines from define.txt and build the +define+key=value flags
-set defines_file "list_def.txt"
+# Read key=value defines from list-def.txt and build the +define+key=value flags
+set defines_file "list-def.txt"
 set define_flags ""
 
 if {[file exists $defines_file]} {
