@@ -2,8 +2,8 @@ Feature: 0
 Weights: 0
 Bias enabled: False
 Image side: 32
-Quantization bits: 0
-Output default and fast are equals: True
+Quantization bits: 8
+R2: 1.0
 
 Totals
 Naive
