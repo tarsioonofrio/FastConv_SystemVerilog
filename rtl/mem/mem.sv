@@ -2,7 +2,7 @@ module Memory
     import pack_def::*;
     import pack_data::*;
     import pack_typedef::*;
- #(
+#(
     parameter int NADDR   = 16,
     parameter int NBITS   = 20,
     parameter int LATENCY = 1,
@@ -27,7 +27,7 @@ module Memory
     if (reset)
       data <= '{default: '0};
     // else if (ROM == 0 && chip_en == 1'b1 && wr_en == 1'b1)
-    else if (chip_en == 1'b1 && wr_en == 1'b1)
+    else if (chip_en == 1'b1 && wr_en == 1'b1 && ROM == 0)
       data[address] <= data_in;
   end
 

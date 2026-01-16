@@ -124,8 +124,12 @@ timeunit 1ns; timeprecision 1ps;
   // Final window index per output channel
   localparam int LAST_OUTPUT_CHANNEL_WINDOW_INDEX      = WINDOWS_PER_OUTPUT_CHANNEL - 1;
 
+  localparam int RAM_LATENCY                           = (LATENCY < 1) ? 1 : LATENCY;
+  localparam int RAM_LATENCY_RELOAD                    = (RAM_LATENCY > 1) ? (RAM_LATENCY - 1) : 0;
+  localparam int RAM_LATENCY_COUNTER_WIDTH             = (RAM_LATENCY > 1) ? $clog2(RAM_LATENCY + 1) : 1;
   // Latency slack used to time HOLD_OUTPUT
-  localparam int CYCLES_HOLD_OUTPUT                    = (OUTPUT_FEATURE_NUM_ELEMS*2 + 1) - (C1_SIZE * A1_SIZE + 1);
+  localparam int CYCLES_HOLD_OUTPUT_RAW                = (OUTPUT_FEATURE_NUM_ELEMS*2 * RAM_LATENCY + 1) - (C1_SIZE * A1_SIZE * RAM_LATENCY + 1);
+  localparam int CYCLES_HOLD_OUTPUT                    = (CYCLES_HOLD_OUTPUT_RAW > 0) ? CYCLES_HOLD_OUTPUT_RAW : 1;
   // Horizontal-to-vertical wrap deltas that keep pointers in-bounds even with padded tiles
   localparam int INPUT_ROW_WRAP_DELTA                  = A1_SIZE * (FEAT_INPUT_SIZE - WINDOW_COUNT_PER_AXIS + 1);
   localparam int INPUT_CHANNEL_WRAP_DELTA              = INPUT_NUM_ELEMS - (WINDOW_COUNT_PER_AXIS - 1) * A1_SIZE * (FEAT_INPUT_SIZE + 1);
@@ -254,7 +258,7 @@ timeunit 1ns; timeprecision 1ps;
 
   // Difference between accumulation, write, and read phases on the output path
   // (adjusted by the time spent reading inputs)
-  logic [$clog2(CYCLES_HOLD_OUTPUT) - 1:0] r_hold_output;
+  logic [$clog2(CYCLES_HOLD_OUTPUT + 1) - 1:0] r_hold_output;
   // High when the convolution core can accept a new input tile
   logic w_conv_ready_for_input;
   // Single-cycle pulse emitted when the input FSM hands data to the convolution core
@@ -265,6 +269,27 @@ timeunit 1ns; timeprecision 1ps;
   logic w_conv_result_ready;
   // Accept strobe asserted only when the output FSM is in CONV_OUTPUT and a pending result exists
   logic w_conv_result_accept;
+  logic [RAM_LATENCY_COUNTER_WIDTH-1:0] r_weight_read_latency;
+  logic [RAM_LATENCY_COUNTER_WIDTH-1:0] r_input_read_latency;
+  logic [RAM_LATENCY_COUNTER_WIDTH-1:0] r_output_read_latency;
+  // Initial write-side offset so the first store of each WRITE_OUTPUT phase observes RAM_LATENCY
+  logic [RAM_LATENCY_COUNTER_WIDTH-1:0] r_output_write_latency;
+  logic w_weight_data_ready;
+  logic w_input_data_ready;
+  logic w_output_data_ready;
+  logic w_weight_read_pending;
+  logic w_input_read_pending;
+  logic w_output_read_pending;
+  logic w_output_write_ready;
+  logic w_output_write_pending;
+
+  // High-level debug aliases for documentation/waveforms
+  logic w_read_fin;
+  logic w_conv_start_dbg;
+  logic w_conv_end_dbg;
+  logic w_idle_conv_dbg;
+  logic w_read_ofmap;
+  logic w_write_ofmap;
 
   typedef enum {
     IDLE_INPUT,
@@ -328,11 +353,11 @@ timeunit 1ns; timeprecision 1ps;
       end
       // Waits for the weight fetch covering the active input/output channel pair before moving on to input data
       WEIGHT: begin
-        if (r_addr_count_kernel == (KERNEL_NUM_ELEMS - 1))
+        if ((r_addr_count_kernel == (KERNEL_NUM_ELEMS - 1)) && !w_weight_read_pending)
           next_st_input = READ_INPUT;
       end
       READ_INPUT: begin
-        if (f_is_last_read_input())
+        if (f_is_last_read_input() && !w_input_read_pending)
           next_st_input = CONV_INPUT;
       end
       CONV_INPUT: begin
@@ -390,28 +415,32 @@ timeunit 1ns; timeprecision 1ps;
           next_st_output = CONV_OUTPUT;
       end
       READ_OUTPUT: begin
-        if (f_is_last_read_out())
+        if (f_is_last_read_out() && !w_output_read_pending)
           next_st_output = CONV_OUTPUT;
       end
       // Waits for the convolution-complete signal
       CONV_OUTPUT: begin
-        if (w_conv_result_ready && (r_channel_counter_out == 0))
+        // Consume any pending convolution result as soon as the FSM reaches CONV_OUTPUT,
+        // independent of the exact cycle when p_conv_end was asserted.
+        if (r_conv_result_pending && (r_channel_counter_out == 0))
           next_st_output = WRITE_OUTPUT;
-        else if (w_conv_result_ready && (r_channel_counter_out > 0))
+        else if (r_conv_result_pending && (r_channel_counter_out > 0))
           next_st_output = WRITE_OUTPUT;
       end
       // Waits for the output data write to memory to complete and then returns to idle
       WRITE_OUTPUT: begin
         // TODO
         // Evaluate whether this if/else structure should be changed to an if-else tree
-        if (f_is_last_write_out() && !f_is_last_channel_out() && (r_channel_counter_out == 0))
-          next_st_output = CONV_OUTPUT;
-        else if (f_is_last_write_out() && !f_is_last_channel_out() && (r_channel_counter_out > 0))
-          next_st_output = READ_OUTPUT;
-        else if (f_is_last_write_out() && f_is_last_channel_out())
-          next_st_output = END_CHANNEL;
-        else if (f_is_last_write_out() && (r_window_counter_total_out == LAST_INPUT_WINDOW_INDEX))
-          next_st_output = IDLE_OUTPUT;
+        if (p_output_valid) begin
+          if (f_is_last_write_out() && !f_is_last_channel_out() && (r_channel_counter_out == 0))
+            next_st_output = CONV_OUTPUT;
+          else if (f_is_last_write_out() && !f_is_last_channel_out() && (r_channel_counter_out > 0))
+            next_st_output = READ_OUTPUT;
+          else if (f_is_last_write_out() && f_is_last_channel_out())
+            next_st_output = END_CHANNEL;
+          else if (f_is_last_write_out() && (r_window_counter_total_out == LAST_INPUT_WINDOW_INDEX))
+            next_st_output = IDLE_OUTPUT;
+        end
       end
       END_CHANNEL: begin
         if (next_st_input == CONV_INPUT)
@@ -473,6 +502,66 @@ timeunit 1ns; timeprecision 1ps;
   // Handshake #2: convolution core -> output FSM
   assign w_conv_result_ready    = p_conv_end;
   assign w_conv_result_accept   = (current_st_output == CONV_OUTPUT) && r_conv_result_pending;
+
+  // Latency trackers: keep read side counters aligned with multi-cycle RAMs so the FSMs do not
+  // advance until every outstanding request returned a valid sample. The write-side latency only
+  // models the initial offset before the first store of each WRITE_OUTPUT phase.
+  always_ff @(posedge clk or posedge reset) begin: RAM_LATENCY_TRACKING_BLOCK
+    if (reset) begin
+      r_weight_read_latency <= RAM_LATENCY_RELOAD;
+      r_input_read_latency  <= RAM_LATENCY_RELOAD;
+      r_output_read_latency <= RAM_LATENCY_RELOAD;
+      r_output_write_latency <= RAM_LATENCY_RELOAD;
+    end else begin
+      // Weight stream latency
+      if (current_st_input != WEIGHT) begin
+        r_weight_read_latency <= RAM_LATENCY_RELOAD;
+      end else if (r_weight_read_latency != 0) begin
+        r_weight_read_latency <= r_weight_read_latency - 1;
+      end else if (p_input_valid && (r_addr_count_kernel < (KERNEL_NUM_ELEMS - 1))) begin
+        r_weight_read_latency <= RAM_LATENCY_RELOAD;
+      end
+
+      // Input feature latency
+      if (current_st_input != READ_INPUT) begin
+        r_input_read_latency <= RAM_LATENCY_RELOAD;
+      end else if (r_input_read_latency != 0) begin
+        r_input_read_latency <= r_input_read_latency - 1;
+      end else if (p_input_valid && (r_addr_count_input < (INPUT_FEATURE_NUM_ELEMS - 1))) begin
+        r_input_read_latency <= RAM_LATENCY_RELOAD;
+      end
+
+      // Output readback latency
+      if (current_st_output != READ_OUTPUT) begin
+        r_output_read_latency <= RAM_LATENCY_RELOAD;
+      end else if (r_output_read_latency != 0) begin
+        r_output_read_latency <= r_output_read_latency - 1;
+      end else if (p_output_valid && (r_addr_count_read_out < (OUTPUT_FEATURE_NUM_ELEMS - 1))) begin
+        r_output_read_latency <= RAM_LATENCY_RELOAD;
+      end
+
+      // Output write latency: for each store in WRITE_OUTPUT wait RAM_LATENCY cycles between
+      // strobes so the write-side also observes the configured memory latency.
+      if (current_st_output != WRITE_OUTPUT) begin
+        r_output_write_latency <= RAM_LATENCY_RELOAD;
+      end else if (r_output_write_latency != 0) begin
+        r_output_write_latency <= r_output_write_latency - 1;
+      end else if ((current_st_output == WRITE_OUTPUT) &&
+                   (r_addr_count_write_out < (OUTPUT_FEATURE_NUM_ELEMS - 1))) begin
+        // A write was just issued with zero latency; reload for the next element.
+        r_output_write_latency <= RAM_LATENCY_RELOAD;
+      end
+    end
+  end
+
+  assign w_weight_data_ready   = (current_st_input == WEIGHT)      && (r_weight_read_latency == 0) && p_input_valid;
+  assign w_input_data_ready    = (current_st_input == READ_INPUT)  && (r_input_read_latency  == 0) && p_input_valid;
+  assign w_output_data_ready   = (current_st_output == READ_OUTPUT) && (r_output_read_latency == 0) && p_output_valid;
+  assign w_weight_read_pending = (current_st_input == WEIGHT)     && (r_weight_read_latency != 0);
+  assign w_input_read_pending  = (current_st_input == READ_INPUT) && (r_input_read_latency  != 0);
+  assign w_output_read_pending = (current_st_output == READ_OUTPUT) && (r_output_read_latency != 0);
+  assign w_output_write_ready   = (current_st_output == WRITE_OUTPUT) && (r_output_write_latency == 0);
+  assign w_output_write_pending = (current_st_output == WRITE_OUTPUT) && (r_output_write_latency != 0);
 
 
   /*
@@ -550,7 +639,7 @@ timeunit 1ns; timeprecision 1ps;
           // Streams kernel coefficients into r_kernel while priming the input counter.
           r_read_en        <= 1'b1;
           r_addr_count_input <= 0;
-          if (p_input_valid) begin
+          if (w_weight_data_ready) begin
             r_addr_pointer_kernel <= r_addr_pointer_kernel + 1;
             r_addr_count_kernel   <= r_addr_count_kernel + 1;
           end
@@ -606,7 +695,7 @@ timeunit 1ns; timeprecision 1ps;
           // Issues RAM reads and walks the row/column indices while filling r_feat_input.
           r_read_en          <= 1'b1;
           r_addr_count_kernel <= 0;
-          if (p_input_valid && (r_addr_count_input < C1_SIZE * C1_SIZE)) begin
+          if (w_input_data_ready && (r_addr_count_input < C1_SIZE * C1_SIZE)) begin
             r_addr_count_input <= r_addr_count_input + 1;
             if (r_row_index_input == (C1_SIZE - 1)) begin
               r_row_index_input  <= '0;
@@ -655,12 +744,12 @@ timeunit 1ns; timeprecision 1ps;
         end
         WEIGHT: begin
           // Capture each weight word as it returns from the RAM interface.
-          if (p_input_valid)
+          if (w_weight_data_ready)
             r_kernel[r_addr_count_kernel] <= p_input_data;
         end
         READ_INPUT: begin
           // Store incoming feature samples using the c_index indirection for stride ordering.
-          if (p_input_valid && (r_addr_count_input < C1_SIZE * C1_SIZE))
+          if (w_input_data_ready && (r_addr_count_input < C1_SIZE * C1_SIZE))
             r_feat_input[c_index[r_addr_count_input]] <= w_input_data_clamped;
         end
         CONV_INPUT: begin
@@ -727,7 +816,7 @@ timeunit 1ns; timeprecision 1ps;
         default: begin end
         READ_OUTPUT: begin
           // Latch partial sums read from the output RAM while tracking how many samples arrived.
-          if (p_output_valid && (r_addr_count_read_out < OUTPUT_FEATURE_NUM_ELEMS))
+          if (w_output_data_ready && (r_addr_count_read_out < OUTPUT_FEATURE_NUM_ELEMS))
             r_addr_count_read_out <= r_addr_count_read_out + 1;
         end
         CONV_OUTPUT: begin
@@ -737,33 +826,35 @@ timeunit 1ns; timeprecision 1ps;
         end
         WRITE_OUTPUT: begin
           // Emits accumulated results to RAM and updates window/channel counters accordingly.
-          r_addr_count_write_out <= r_addr_count_write_out + 1;
-          // r_window_counter_total_out
-          if (f_is_last_write_out())
-            r_window_counter_total_out <= r_window_counter_total_out + 1;
-          // r_window_counter_row_out
-          if (f_is_last_write_out() && f_is_last_row_out()) begin
-            r_window_counter_row_out <= 0;
-          end else if (f_is_last_write_out() && !f_is_last_row_out())
-            r_window_counter_row_out <= r_window_counter_row_out + 1;
-          // r_window_counter_col_out
-          if (f_is_last_write_out() && f_is_last_row_out() && f_is_last_channel_out())
-            r_window_counter_col_out <= 0;
-          else if (f_is_last_write_out() && f_is_last_row_out() && (r_window_counter_col_out >= LAST_WINDOW_ROW_INDEX))
-            r_window_counter_col_out <= 0;
-          else if (f_is_last_write_out() && f_is_last_row_out())
-            r_window_counter_col_out <= r_window_counter_col_out + 1;
-          // r_window_counter_channel_out
-          if (f_is_last_write_out() && !f_is_last_channel_out())
-            r_window_counter_channel_out <= r_window_counter_channel_out + 1;
-          // r_window_counter_all_channel_out
-          if (f_is_last_write_out() && !f_is_last_all_channel_out())
-            r_window_counter_all_channel_out <= r_window_counter_all_channel_out + 1;
-          // r_addr_pointer_out
-          if (f_is_last_write_out() && f_is_last_row_out())
-            r_addr_pointer_out <= r_addr_pointer_out + OUTPUT_ROW_WRAP_DELTA;
-          else if (f_is_last_write_out() && !f_is_last_row_out())
-            r_addr_pointer_out <= r_addr_pointer_out + A1_SIZE;
+          if (w_output_write_ready) begin
+            r_addr_count_write_out <= r_addr_count_write_out + 1;
+            // r_window_counter_total_out
+            if (f_is_last_write_out())
+              r_window_counter_total_out <= r_window_counter_total_out + 1;
+            // r_window_counter_row_out
+            if (f_is_last_write_out() && f_is_last_row_out()) begin
+              r_window_counter_row_out <= 0;
+            end else if (f_is_last_write_out() && !f_is_last_row_out())
+              r_window_counter_row_out <= r_window_counter_row_out + 1;
+            // r_window_counter_col_out
+            if (f_is_last_write_out() && f_is_last_row_out() && f_is_last_channel_out())
+              r_window_counter_col_out <= 0;
+            else if (f_is_last_write_out() && f_is_last_row_out() && (r_window_counter_col_out >= LAST_WINDOW_ROW_INDEX))
+              r_window_counter_col_out <= 0;
+            else if (f_is_last_write_out() && f_is_last_row_out())
+              r_window_counter_col_out <= r_window_counter_col_out + 1;
+            // r_window_counter_channel_out
+            if (f_is_last_write_out() && !f_is_last_channel_out())
+              r_window_counter_channel_out <= r_window_counter_channel_out + 1;
+            // r_window_counter_all_channel_out
+            if (f_is_last_write_out() && !f_is_last_all_channel_out())
+              r_window_counter_all_channel_out <= r_window_counter_all_channel_out + 1;
+            // r_addr_pointer_out
+            if (f_is_last_write_out() && f_is_last_row_out())
+              r_addr_pointer_out <= r_addr_pointer_out + OUTPUT_ROW_WRAP_DELTA;
+            else if (f_is_last_write_out() && !f_is_last_row_out())
+              r_addr_pointer_out <= r_addr_pointer_out + A1_SIZE;
+          end
         end
         END_CHANNEL: begin
           // Handles inter-channel bookkeeping, rewinding pointers or advancing to the next channel.
@@ -794,12 +885,12 @@ timeunit 1ns; timeprecision 1ps;
         IDLE_OUTPUT: begin end
         READ_OUTPUT: begin
           // Capture data from the output RAM into r_feat_output for later accumulation.
-          if (p_output_valid && (r_addr_count_read_out < OUTPUT_FEATURE_NUM_ELEMS))
+          if (w_output_data_ready && (r_addr_count_read_out < OUTPUT_FEATURE_NUM_ELEMS))
             r_feat_output[r_addr_count_read_out] <= w_output_data_clamped;
         end
         CONV_OUTPUT: begin
           // Store the freshly computed convolution result so WRITE_OUTPUT can sum with RAM data.
-          if (w_conv_result_ready)
+          if (r_conv_result_pending)
             r_conv_output <= p_conv_output;
         end
       endcase
@@ -814,7 +905,8 @@ timeunit 1ns; timeprecision 1ps;
         r_row_index_output <= '0;
         r_row_stride_output <= '0;
       end else begin
-        if ((current_st_output == WRITE_OUTPUT) || ((current_st_output == READ_OUTPUT)) && (p_output_valid && (r_addr_count_read_out < OUTPUT_FEATURE_NUM_ELEMS))) begin
+        if (((current_st_output == WRITE_OUTPUT) && w_output_write_ready) ||
+            ((current_st_output == READ_OUTPUT) && w_output_data_ready)) begin
           // Row-major traversal for the output feature tile mirrors the input logic:
           // column increments happen every cycle, while row/stride updates only occur
           // when the column reaches the end of the kernel footprint.
@@ -858,7 +950,7 @@ timeunit 1ns; timeprecision 1ps;
   // P_END_BLOCK: raises p_end once OUTPUT_CTRL_BLOCK reports every window emitted, signaling back to
   // upstream sequencing logic that INPUT_CTRL_BLOCK can idle.
   always_comb begin: P_END_BLOCK
-    p_end = (r_window_counter_total_out >= TOTAL_INPUT_WINDOWS) ? 1'b1 : 1'b0;
+      p_end = (r_window_counter_total_out >= TOTAL_INPUT_WINDOWS) ? 1'b1 : 1'b0;
   end
 
   // P_CONV_BUS_BLOCK: ties INPUT_BUFFER_BLOCK contents to the convolution core, relying on the
@@ -867,7 +959,10 @@ timeunit 1ns; timeprecision 1ps;
     p_conv_input  = r_feat_input;
     p_conv_weight = r_kernel;
     // p_conv_start  = w_handshake_input;
-    p_conv_start = w_conv_input_fire;
+    p_conv_start      = w_conv_input_fire;
+    w_conv_start_dbg  = w_conv_input_fire;
+    w_conv_end_dbg    = p_conv_end;
+    w_idle_conv_dbg   = p_conv_idle;
   end
 
   // P_INPUT_MUX_BLOCK: selects the RAM address/enables according to the input FSM, keeping the RAM
@@ -891,6 +986,8 @@ timeunit 1ns; timeprecision 1ps;
         p_input_en = 1'b0;
       end
     endcase
+    // Alias for input feature-map reads (FIN)
+    w_read_fin = p_input_en;
   end
 
   // P_OUTPUT_CTRL_BLOCK: exposes OUTPUT_CTRL_BLOCK decisions to the RAM port, toggling enables and
@@ -909,9 +1006,12 @@ timeunit 1ns; timeprecision 1ps;
       // Waits for the output data write to memory to complete and then returns to idle
       WRITE_OUTPUT: begin
         p_output_en = 1'b1;
-        p_output_wr = w_output_pixel_in_bounds;
+        p_output_wr = w_output_pixel_in_bounds && w_output_write_ready;
       end
     endcase
+    // Aliases for OFMAP access
+    w_read_ofmap  = (current_st_output == READ_OUTPUT)  && p_output_en;
+    w_write_ofmap = (current_st_output == WRITE_OUTPUT) && p_output_en && p_output_wr;
   end
 
   assign p_output_addr = w_addr_ptr_pout;
