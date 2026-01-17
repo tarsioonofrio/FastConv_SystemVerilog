@@ -119,19 +119,14 @@ module tb;
     i = 0;
     j = 0;
 
-    while (i < FOUT1_SIZE) begin
-      @(posedge clk);
-      #1ps;
-      if (w_output_en && w_output_wr) begin
+    for (i = 0; i < FOUT1_SIZE; i++) begin
+      for (j = 0; j < FOUT2_SIZE; j++) begin
+        @(posedge clk);
+        #1ps;
+        wait(w_output_en && w_output_wr);
         if ($signed(const_feat_out_batch[i][j]) != $signed(w_output_data_write)) begin
           $display("Time %0t | const_feat_out[%0d][%0d] = %0d | Output = %0d", $time, i, j, const_feat_out_batch[i][j], w_output_data_write);
           $display("=== ERROR - End simulation ====");
-        end
-        if (j == FOUT2_SIZE - 1) begin
-          j = 0;
-          i++;
-        end else begin
-          j++;
         end
       end
     end
