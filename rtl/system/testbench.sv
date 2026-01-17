@@ -122,12 +122,12 @@ module tb;
     p_start = 0;
     write_count = 0;
 
-    for (write_count = 0; write_count < (FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE); write_count++) begin
+    for (write_count = 0; write_count < (FOUT1_SIZE * FOUT2_SIZE); write_count++) begin
       @(posedge clk iff (w_output_en && w_output_wr));
       out_index = w_output_addr;
       out_row = out_index / FEAT_OUTPUT_SIZE;
       out_col = out_index % FEAT_OUTPUT_SIZE;
-      if (out_row < FOUT1_SIZE) begin
+      if (out_row < FEAT_OUTPUT_SIZE) begin
         if ($signed(const_feat_out[out_row][out_col]) != $signed(w_output_data_write)) begin
           $display("Time %0t | address %0d | const_feat_out[%0d][%0d] = %0d | Output = %0d", $time, w_output_addr, out_row, out_col, const_feat_out_batch[out_row][out_col], w_output_data_write);
           $display("=== ERROR - End simulation ====");
