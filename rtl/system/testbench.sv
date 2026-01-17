@@ -30,10 +30,7 @@ module tb;
   int count_fout = 0;
   int i = 0;
   int j = 0;
-  int write_count = 0;
-  int out_index = 0;
-  int out_row = 0;
-  int out_col = 0;
+  int total_out_rows = 0;
 
   // Clock generation (10ns period)
   initial clk = 0;
@@ -120,22 +117,28 @@ module tb;
 
     @(posedge clk);
     p_start = 0;
-    write_count = 0;
 
-    for (write_count = 0; write_count < (FOUT1_SIZE * FOUT2_SIZE); write_count++) begin
-      @(posedge clk iff (w_output_en && w_output_wr));
-      out_index = w_output_addr;
-      out_row = out_index / FEAT_OUTPUT_SIZE;
-      out_col = out_index % FEAT_OUTPUT_SIZE;
-      if (out_row < FEAT_OUTPUT_SIZE) begin
-        if ($signed(const_feat_out[out_row][out_col]) != $signed(w_output_data_write)) begin
-          $display("Time %0t | address %0d | const_feat_out[%0d][%0d] = %0d | Output = %0d", $time, w_output_addr, out_row, out_col, const_feat_out_batch[out_row][out_col], w_output_data_write);
+    wait(p_end);
+
+    total_out_rows = FEAT_OUTPUT_SIZE * N_CHANNEL_OUT;
+
+    force w_output_en = 1'b1;
+    force w_output_wr = 1'b0;
+    @(posedge clk);
+    for (i = 0; i < total_out_rows; i++) begin
+      for (j = 0; j < FEAT_OUTPUT_SIZE; j++) begin
+        force w_output_addr = i * FEAT_OUTPUT_SIZE + j;
+        @(posedge clk);
+        wait(w_output_valid);
+        if ($signed(const_feat_out[i][j]) != $signed(w_output_data_read)) begin
+          $display("Time %0t | const_feat_out[%0d][%0d] = %0d | Output = %0d", $time, i, j, const_feat_out[i][j], w_output_data_read);
           $display("=== ERROR - End simulation ====");
         end
       end
     end
-
-    wait(p_end);
+    release w_output_addr;
+    release w_output_en;
+    release w_output_wr;
     $display("=== No errors - End simulation ===");
     $finish;
   end
