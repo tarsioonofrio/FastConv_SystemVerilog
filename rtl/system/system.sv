@@ -43,6 +43,7 @@ module System
   timeprecision 1ps;
 
   logic w_conv_start;
+  logic w_conv_idle;
   logic w_conv_end;
 
   type_input w_conv_input;
@@ -67,28 +68,28 @@ module System
     .NADDR(NADDR),
     .NBITS(NBITS),
     .LATENCY(LATENCY),
-    .ROM(ROM),
-    .QUANT(QUANT),
-    .FEAT_INPUT_SIZE(FEAT_INPUT_SIZE),
-    .FEAT_OUTPUT_SIZE(FEAT_OUTPUT_SIZE),
-    .N_WINDOW(N_WINDOW),
-    .N_CHANNEL_IN(N_CHANNEL_IN),
-    .N_CHANNEL_OUT(N_CHANNEL_OUT),
-    .LAST_WINDOW(LAST_WINDOW)
+    .ROM(ROM)
+    // .QUANT(QUANT)
+    // .FEAT_INPUT_SIZE(FEAT_INPUT_SIZE),
+    // .FEAT_OUTPUT_SIZE(FEAT_OUTPUT_SIZE),
+    // .N_WINDOW(N_WINDOW),
+    // .N_CHANNEL_IN(N_CHANNEL_IN),
+    // .N_CHANNEL_OUT(N_CHANNEL_OUT),
+    // .LAST_WINDOW(LAST_WINDOW)
   ) control (
     .clk(clk),
     .reset(reset),
 
     .p_start(p_start),
     .p_end(p_end),
-    
+
     .p_conv_start(w_conv_start),
     .p_conv_idle(w_conv_idle),
     .p_conv_end(w_conv_end),
 
-    .p_input(w_conv_input),
-    .p_weight(w_conv_weight),
-    .p_output(w_conv_output),
+    .p_conv_input(w_conv_input),
+    .p_conv_weight(w_conv_weight),
+    .p_conv_output(w_conv_output),
 
     .p_input_en(p_input_en),
     .p_input_addr(p_input_addr),
