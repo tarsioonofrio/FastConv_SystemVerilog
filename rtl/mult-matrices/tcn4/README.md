@@ -1,6 +1,6 @@
 # TCN4 Winograd matrices
 
-`mult_matrices.sv` describes the Winograd transforms for the tile configuration with `C1_SIZE = 4` and `A1_SIZE = 2`. The package `packConv` inside the file exposes the following type widths:
+`mult_matrices.sv` describes the Winograd transforms for the tile configuration with `C1_SIZE = 4` and `A1_SIZE = 2`. The package `pack_typedef` inside the file exposes the following type widths:
 
 - `type_input`: 16 elements (`C1_SIZE*C1_SIZE`).
 - `type_weight`: 16 elements (`M1_SIZE*M1_SIZE`).
