@@ -2,7 +2,7 @@
 
 This directory contains the 6×6 Winograd transforms (`C1_SIZE = 6`) that produce 4×4 output tiles (`A1_SIZE = 4`).
 
-Type widths provided by the embedded `packConv` package:
+Type widths provided by the embedded `pack_typedef` package:
 - `type_input`: 36 elements.
 - `type_weight`: 36 elements.
 - `type_output`: 16 elements.
