@@ -28,6 +28,8 @@ module tb;
   logic_vector w_output_data_write;
 
   int count_fout = 0;
+  int i = 0;
+  int j = 0;
 
   // Clock generation (10ns period)
   initial clk = 0;
@@ -114,17 +116,22 @@ module tb;
 
     @(posedge clk);
     p_start = 0;
+    i = 0;
+    j = 0;
 
-    for (int i = 0; i < FOUT1_SIZE; i++) begin
+    while (i < FOUT1_SIZE) begin
       @(posedge clk);
-      wait(dut.control.p_conv_end);
-      @(posedge clk);
-      for (int j = 0; j < FOUT2_SIZE; j++) begin
-        @(posedge clk);
-        wait(w_output_en);
+      #1ps;
+      if (w_output_en && w_output_wr) begin
         if ($signed(const_feat_out_batch[i][j]) != $signed(w_output_data_write)) begin
           $display("Time %0t | const_feat_out[%0d][%0d] = %0d | Output = %0d", $time, i, j, const_feat_out_batch[i][j], w_output_data_write);
           $display("=== ERROR - End simulation ====");
+        end
+        if (j == FOUT2_SIZE - 1) begin
+          j = 0;
+          i++;
+        end else begin
+          j++;
         end
       end
     end
