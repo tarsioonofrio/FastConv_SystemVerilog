@@ -1,130 +1,16 @@
 onerror {resume}
 quietly WaveActivateNextPane {} 0
-add wave -noupdate /tb/dut/clk
-add wave -noupdate /tb/dut/reset
-add wave -noupdate /tb/dut/p_start
-add wave -noupdate /tb/dut/p_end
-add wave -noupdate /tb/dut/clk
-add wave -noupdate /tb/dut/reset
-add wave -noupdate /tb/dut/p_start
-add wave -noupdate /tb/dut/p_end
 add wave -noupdate /tb/dut/w_conv_start
 add wave -noupdate /tb/dut/w_conv_end
-add wave -noupdate /tb/dut/control/clk
-add wave -noupdate /tb/dut/control/reset
-add wave -noupdate /tb/dut/control/p_start
-add wave -noupdate /tb/dut/control/p_end
-add wave -noupdate /tb/dut/control/p_conv_start
-add wave -noupdate /tb/dut/control/p_conv_end
-add wave -noupdate /tb/dut/control/current_st_input
-add wave -noupdate /tb/dut/control/next_st_input
-add wave -noupdate /tb/dut/control/current_st_output
-add wave -noupdate /tb/dut/control/next_st_output
-add wave -noupdate /tb/dut/control/clk
-add wave -noupdate /tb/dut/control/reset
-add wave -noupdate /tb/dut/control/p_start
-add wave -noupdate /tb/dut/control/p_end
-add wave -noupdate /tb/dut/control/p_conv_start
-add wave -noupdate /tb/dut/control/p_conv_idle
-add wave -noupdate /tb/dut/control/p_conv_end
-add wave -noupdate /tb/dut/control/p_input_en
-add wave -noupdate -radix unsigned /tb/dut/control/p_input_addr
-add wave -noupdate -radix decimal /tb/dut/control/p_input_data
-add wave -noupdate /tb/dut/control/p_input_valid
-add wave -noupdate /tb/dut/control/p_output_en
-add wave -noupdate /tb/dut/control/p_output_wr
-add wave -noupdate -radix unsigned /tb/dut/control/p_output_addr
-add wave -noupdate -radix decimal /tb/dut/control/p_output_data_write
-add wave -noupdate -radix decimal /tb/dut/control/p_output_data_read
-add wave -noupdate /tb/dut/control/p_output_valid
-add wave -noupdate -radix unsigned /tb/dut/control/r_addr_pointer_input
-add wave -noupdate -radix unsigned /tb/dut/control/r_addr_count_input
-add wave -noupdate -radix unsigned /tb/dut/control/r_window_counter_row_input
-add wave -noupdate -radix unsigned /tb/dut/control/r_window_counter_col_input
-add wave -noupdate -radix unsigned /tb/dut/control/r_window_counter_channel_input
-add wave -noupdate -radix unsigned /tb/dut/control/r_window_counter_all_channel_input
-add wave -noupdate -radix unsigned /tb/dut/control/r_window_counter_total_input
-add wave -noupdate -radix unsigned /tb/dut/control/r_addr_pointer_kernel
-add wave -noupdate -radix unsigned /tb/dut/control/r_addr_count_kernel
-add wave -noupdate -radix unsigned /tb/dut/control/r_addr_pointer_bias
-add wave -noupdate -radix unsigned /tb/dut/control/r_addr_count_write_out
-add wave -noupdate -radix unsigned /tb/dut/control/r_addr_count_read_out
-add wave -noupdate -radix unsigned /tb/dut/control/w_addr_count_out
-add wave -noupdate -radix unsigned /tb/dut/control/r_addr_pointer_out
-add wave -noupdate -radix unsigned /tb/dut/control/r_window_counter_total_out
-add wave -noupdate -radix unsigned /tb/dut/control/r_window_counter_all_channel_out
-add wave -noupdate -radix unsigned /tb/dut/control/r_window_counter_channel_out
-add wave -noupdate -radix unsigned /tb/dut/control/r_window_counter_row_out
-add wave -noupdate -radix unsigned /tb/dut/control/r_window_counter_col_out
-add wave -noupdate -radix unsigned /tb/dut/control/w_addr_ptr_pin
-add wave -noupdate -radix unsigned /tb/dut/control/w_addr_ptr_pin_raw
-add wave -noupdate -radix unsigned /tb/dut/control/w_addr_ptr_pout
-add wave -noupdate -radix unsigned /tb/dut/control/w_addr_ptr_pout_raw
-add wave -noupdate /tb/dut/control/r_col_index_input
-add wave -noupdate /tb/dut/control/r_row_index_input
-add wave -noupdate /tb/dut/control/r_row_stride_input
-add wave -noupdate /tb/dut/control/w_col_offset_input
-add wave -noupdate /tb/dut/control/w_offset_total_input
-add wave -noupdate /tb/dut/control/w_window_base_col_input
-add wave -noupdate /tb/dut/control/w_window_base_row_input
-add wave -noupdate /tb/dut/control/w_global_col_input
-add wave -noupdate /tb/dut/control/w_global_row_input
-add wave -noupdate /tb/dut/control/w_input_sample_in_bounds
-add wave -noupdate -radix decimal /tb/dut/control/w_input_data_clamped
-add wave -noupdate -radix decimal /tb/dut/control/w_output_data_clamped
-add wave -noupdate /tb/dut/control/r_col_index_output
-add wave -noupdate /tb/dut/control/r_row_index_output
-add wave -noupdate /tb/dut/control/r_row_stride_output
-add wave -noupdate /tb/dut/control/w_col_offset_output
-add wave -noupdate /tb/dut/control/w_offset_total_output
-add wave -noupdate /tb/dut/control/w_window_base_col_out
-add wave -noupdate /tb/dut/control/w_window_base_row_out
-add wave -noupdate /tb/dut/control/w_global_col_out
-add wave -noupdate /tb/dut/control/w_global_row_out
-add wave -noupdate /tb/dut/control/w_output_pixel_in_bounds
-add wave -noupdate /tb/dut/control/w_output_en
-add wave -noupdate -radix unsigned /tb/dut/control/r_channel_counter_input
-add wave -noupdate -radix unsigned /tb/dut/control/r_channel_counter_out
-add wave -noupdate /tb/dut/control/r_conv_end
-add wave -noupdate /tb/dut/control/r_conv_busy
-add wave -noupdate /tb/dut/control/r_read_en
-add wave -noupdate /tb/dut/control/r_hold_output
-add wave -noupdate /tb/dut/control/w_conv_ready_for_input
-add wave -noupdate /tb/dut/control/w_conv_input_fire
-add wave -noupdate /tb/dut/control/r_conv_result_pending
-add wave -noupdate /tb/dut/control/w_conv_result_ready
-add wave -noupdate /tb/dut/control/w_conv_result_accept
-add wave -noupdate /tb/dut/control/r_weight_read_latency
-add wave -noupdate /tb/dut/control/r_input_read_latency
-add wave -noupdate /tb/dut/control/r_output_read_latency
-add wave -noupdate /tb/dut/control/r_output_write_latency
-add wave -noupdate /tb/dut/control/w_weight_data_ready
-add wave -noupdate /tb/dut/control/w_input_data_ready
-add wave -noupdate /tb/dut/control/w_output_data_ready
-add wave -noupdate /tb/dut/control/w_weight_read_pending
-add wave -noupdate /tb/dut/control/w_input_read_pending
-add wave -noupdate /tb/dut/control/w_output_read_pending
-add wave -noupdate /tb/dut/control/w_output_write_ready
-add wave -noupdate /tb/dut/control/w_output_write_pending
-add wave -noupdate /tb/dut/control/w_read_fin
-add wave -noupdate /tb/dut/control/w_conv_start_dbg
-add wave -noupdate /tb/dut/control/w_conv_end_dbg
-add wave -noupdate /tb/dut/control/w_idle_conv_dbg
-add wave -noupdate /tb/dut/control/w_read_ofmap
-add wave -noupdate /tb/dut/control/w_write_ofmap
-add wave -noupdate /tb/dut/control/current_st_input
-add wave -noupdate /tb/dut/control/next_st_input
-add wave -noupdate /tb/dut/control/current_st_output
-add wave -noupdate /tb/dut/control/next_st_output
-add wave -noupdate /tb/dut/conv/clk
-add wave -noupdate /tb/dut/conv/reset
-add wave -noupdate /tb/dut/conv/p_start
-add wave -noupdate /tb/dut/conv/p_end
-add wave -noupdate /tb/dut/conv/p_idle
-add wave -noupdate /tb/dut/conv/current_state
-add wave -noupdate /tb/dut/conv/next_state
-add wave -noupdate /tb/dut/conv/r_end
-add wave -noupdate /tb/dut/conv/r_idx_in
+add wave -noupdate /tb/memory_write/clk
+add wave -noupdate /tb/memory_write/reset
+add wave -noupdate /tb/memory_write/chip_en
+add wave -noupdate /tb/memory_write/wr_en
+add wave -noupdate -radix unsigned /tb/memory_write/address
+add wave -noupdate -radix unsigned /tb/memory_write/data_in
+add wave -noupdate -radix unsigned /tb/memory_write/data_out
+add wave -noupdate /tb/memory_write/data_valid
+add wave -noupdate /tb/memory_write/r_cycles_latency
 TreeUpdate [SetDefaultTree]
 WaveRestoreCursors {{Cursor 1} {129000 ps} 1 Red default} {{Cursor 2} {73500 ps} 0}
 quietly wave cursor active 2
@@ -142,4 +28,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {37946 ps} {109054 ps}
+WaveRestoreZoom {1729123 ps} {1757941 ps}
