@@ -18,14 +18,24 @@ run:
 
 _run:
 	@set -euo pipefail; \
+	print_banner() { \
+		local msg="$$1"; \
+		echo; \
+		echo "========================================"; \
+		echo "$$msg"; \
+		echo "========================================"; \
+		echo; \
+	}; \
 	run_dir() { \
 		local path="$$1"; \
 		if [ -f "$$path/run.sh" ]; then \
+			print_banner "RUNNING: $$path"; \
 			( cd "$$path" && bash ./run.sh ); \
 			return; \
 		fi; \
 		if [ -f "$$path/logical/run.sh" ] && [ -f "$$path/sim/run.sh" ] && [ -f "$$path/power/run.sh" ]; then \
 			for stage in logical sim power; do \
+				print_banner "RUNNING: $$path/$$stage"; \
 				( cd "$$path/$$stage" && bash ./run.sh ); \
 			done; \
 			return; \
