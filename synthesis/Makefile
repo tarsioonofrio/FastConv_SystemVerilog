@@ -21,12 +21,12 @@ _run:
 	run_dir() { \
 		local path="$$1"; \
 		if [ -f "$$path/run.sh" ]; then \
-			( cd "$$path" && ./run.sh ); \
+			( cd "$$path" && bash ./run.sh ); \
 			return; \
 		fi; \
 		if [ -f "$$path/logical/run.sh" ] && [ -f "$$path/sim/run.sh" ] && [ -f "$$path/power/run.sh" ]; then \
 			for stage in logical sim power; do \
-				( cd "$$path/$$stage" && ./run.sh ); \
+				( cd "$$path/$$stage" && bash ./run.sh ); \
 			done; \
 			return; \
 		fi; \
