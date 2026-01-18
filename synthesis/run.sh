@@ -3,6 +3,11 @@
 set -euo pipefail
 # Exit on error, undefined var, or failed pipeline.
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Resolve the script directory to support running from anywhere.
+ERROR_LOG="$SCRIPT_DIR/run-errors.txt"
+# Log file for failed paths, stored next to this script.
+
 print_banner() {
   # Print a visible banner for each step.
   local msg="$1"
@@ -19,15 +24,45 @@ print_banner() {
   # Trailing blank line.
 }
 
+resolve_path() {
+  # Normalize a path to an absolute path if possible.
+  local in_path="$1"
+  # Capture the input path.
+  if [ -d "$in_path" ] || [ -f "$in_path" ]; then
+    # If it exists as given, keep it.
+    echo "$in_path"
+    # Return the original path.
+    return
+  fi
+  # Try relative to the script directory.
+  if [ -d "$SCRIPT_DIR/$in_path" ] || [ -f "$SCRIPT_DIR/$in_path" ]; then
+    # If it exists under the script directory, use that.
+    echo "$SCRIPT_DIR/$in_path"
+    # Return the resolved path.
+    return
+  fi
+  # Fall back to the original input.
+  echo "$in_path"
+  # Let the caller handle missing paths.
+}
+
 run_dir() {
   # Run either a leaf run.sh or the logical/sim/power trio.
-  local path="$1"
+  local path
+  # Declare the local path variable.
+  path="$(resolve_path "$1")"
   # Capture the path argument.
   if [ -f "$path/run.sh" ]; then
     # Direct leaf script case.
     print_banner "RUNNING: $path"
     # Show which folder is running.
-    ( cd "$path" && bash ./run.sh )
+    if ! ( cd "$path" && bash ./run.sh ); then
+      # Capture failures without stopping the whole script.
+      echo "$path" >> "$ERROR_LOG"
+      # Record the failing path.
+      return 1
+      # Propagate failure to the caller.
+    fi
     # Run in a subshell without changing caller CWD.
     return
     # Done for this path.
@@ -38,7 +73,13 @@ run_dir() {
       # Enforce logical -> sim -> power order.
       print_banner "RUNNING: $path/$stage"
       # Show which stage is running.
-      ( cd "$path/$stage" && bash ./run.sh )
+      if ! ( cd "$path/$stage" && bash ./run.sh ); then
+        # Capture failures without stopping the whole script.
+        echo "$path/$stage" >> "$ERROR_LOG"
+        # Record the failing stage path.
+        return 1
+        # Propagate failure to the caller.
+      fi
       # Execute stage script in a subshell.
     done
     return
@@ -54,12 +95,23 @@ if [ "$#" -gt 0 ]; then
   # If arguments are provided, treat each as a target.
   for p in "$@"; do
     # Loop over all arguments.
-    run_dir "$p"
+    if ! run_dir "$p"; then
+      # Track if any path fails.
+      FAILED=1
+      # Continue to next path.
+    fi
     # Run each provided path.
   done
+  if [ "${FAILED:-0}" -ne 0 ]; then
+    # Signal failure if any path failed.
+    exit 1
+  fi
   exit 0
   # Exit after explicit targets are handled.
 fi
+
+> "$ERROR_LOG"
+# Start a fresh error log for this run.
 
 for d in */; do
   # Iterate over subdirectories of synthesis/.
@@ -70,7 +122,15 @@ for d in */; do
   fi
   if [ -f "$d/logical/run.sh" ] && [ -f "$d/sim/run.sh" ] && [ -f "$d/power/run.sh" ]; then
     # Only run directories that look like projects.
-    run_dir "$d"
+    if ! run_dir "$d"; then
+      # Track if any path fails.
+      FAILED=1
+      # Continue to next project.
+    fi
     # Run the project's stages in order.
   fi
 done
+if [ "${FAILED:-0}" -ne 0 ]; then
+  # Signal failure if any path failed.
+  exit 1
+fi
