@@ -8,19 +8,13 @@ help:
 	@echo "  make                  # run all projects (logical -> sim -> power)"
 	@echo "  make <project>         # run logical/sim/power in that project"
 	@echo "  make <path>            # run a specific logical/sim/power folder"
-	@echo "  make run PATH=<path>   # same as above"
+	@echo "  make run RUN_PATH=<path>   # same as above"
 
 run:
 	@$(MAKE) --no-print-directory _run
 
-ifneq ($(filter-out run help,$(MAKECMDGOALS)),)
-TARGETS := $(filter-out run help,$(MAKECMDGOALS))
-.PHONY: $(TARGETS)
-$(TARGETS):
-	@if [ "$@" = "$(firstword $(TARGETS))" ]; then \
-		$(MAKE) --no-print-directory _run PATHS="$(TARGETS)"; \
-	fi
-endif
+%:
+	@$(MAKE) --no-print-directory _run RUN_PATHS="$@"
 
 _run:
 	@set -euo pipefail; \
@@ -39,12 +33,12 @@ _run:
 		echo "Unknown target: $$path" >&2; \
 		exit 2; \
 	}; \
-	if [ -n "$${PATH-}" ]; then \
-		run_dir "$$PATH"; \
+	if [ -n "$${RUN_PATH-}" ]; then \
+		run_dir "$$RUN_PATH"; \
 		exit 0; \
 	fi; \
-	if [ -n "$${PATHS-}" ]; then \
-		for p in $$PATHS; do \
+	if [ -n "$${RUN_PATHS-}" ]; then \
+		for p in $$RUN_PATHS; do \
 			run_dir "$$p"; \
 		done; \
 		exit 0; \
