@@ -3,6 +3,9 @@
 set -euo pipefail
 # Exit on error, undefined var, or failed pipeline.
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Resolve the script directory to support running from anywhere.
+
 print_banner() {
   # Print a visible banner for each step.
   local msg="$1"
@@ -19,9 +22,33 @@ print_banner() {
   # Trailing blank line.
 }
 
+resolve_path() {
+  # Normalize a path to an absolute path if possible.
+  local in_path="$1"
+  # Capture the input path.
+  if [ -d "$in_path" ] || [ -f "$in_path" ]; then
+    # If it exists as given, keep it.
+    echo "$in_path"
+    # Return the original path.
+    return
+  fi
+  # Try relative to the script directory.
+  if [ -d "$SCRIPT_DIR/$in_path" ] || [ -f "$SCRIPT_DIR/$in_path" ]; then
+    # If it exists under the script directory, use that.
+    echo "$SCRIPT_DIR/$in_path"
+    # Return the resolved path.
+    return
+  fi
+  # Fall back to the original input.
+  echo "$in_path"
+  # Let the caller handle missing paths.
+}
+
 run_dir() {
   # Run either a leaf run.sh or the logical/sim/power trio.
-  local path="$1"
+  local path
+  # Declare the local path variable.
+  path="$(resolve_path "$1")"
   # Capture the path argument.
   if [ -f "$path/run.sh" ]; then
     # Direct leaf script case.
