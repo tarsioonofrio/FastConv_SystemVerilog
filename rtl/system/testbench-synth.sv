@@ -34,7 +34,7 @@ module tb;
 
   // Clock generation (10ns period)
   initial clk = 0;
-  always #0.5 clk = ~clk;
+  always #5 clk = ~clk;
 
   // DUT instantiation
   System dut (
@@ -91,8 +91,8 @@ module tb;
 
   // Inicialização dos sinais e reset
   initial begin
-    $dumpfile("dump.vcd");
-    $dumpvars(0, tb);
+    $shm_open("dut.shm");
+    $shm_probe(tb.dut, "ASM");
 
     reset = 1;
     p_start = 0;
