@@ -1,13 +1,9 @@
 module Transform
   import pack_typedef::*;
- #(
-  parameter int QUANT = 8,
-  parameter int NBITS = 20
-  )
   (
     input  type_input pin,
     output type_weight pout
- );
+  );
   timeunit 1ns;
   timeprecision 1ps;
 
@@ -25,12 +21,9 @@ module Transform
 endmodule
 
 
+
 module Inverse
   import pack_typedef::*;
- #(
-  parameter int QUANT = 8,
-  parameter int NBITS = 20
-  )
   (
     input  type_weight pin,
     output type_output pout
@@ -51,7 +44,6 @@ module Inverse
 endmodule
 
 
-
 module MatrixC0
   import pack_typedef::*;
   (
@@ -60,7 +52,6 @@ module MatrixC0
   );
   timeunit 1ns;
   timeprecision 1ps;
-
   logic_vector sp0, sp1, sp2, sp3, sp4, sp5, sp6, sp7, sp8, sp9, sp10, sp11, sp12, sp13, sp14, sp15, sp16, sp17, sp18, sp19, sp20, sp21, sp22, sp23, sp24, sp25, sp26, sp27, sp28, sp29;
   logic_vector sn0, sn1, sn2, sn3, sn4, sn5, sn6, sn7, sn8, sn9, sn10, sn11, sn12, sn13, sn14, sn15, sn16, sn17, sn18, sn19, sn20, sn21, sn22, sn23, sn24, sn25, sn26, sn27, sn28, sn29;
 
@@ -150,7 +141,6 @@ module MatrixC1
   );
   timeunit 1ns;
   timeprecision 1ps;
-
   logic_vector sp0, sp1, sp2, sp3, sp4, sp5, sp6, sp7, sp8, sp9, sp10, sp11, sp12, sp13, sp14, sp15, sp16, sp17, sp18, sp19, sp20, sp21, sp22, sp23, sp24, sp25, sp26, sp27, sp28, sp29, sp30, sp31, sp32, sp33, sp34, sp35;
   logic_vector sn0, sn1, sn2, sn3, sn4, sn5, sn6, sn7, sn8, sn9, sn10, sn11, sn12, sn13, sn14, sn15, sn16, sn17, sn18, sn19, sn20, sn21, sn22, sn23, sn24, sn25, sn26, sn27, sn28, sn29, sn30, sn31, sn32, sn33, sn34, sn35;
 
@@ -255,7 +245,6 @@ module MatrixA1
   );
   timeunit 1ns;
   timeprecision 1ps;
-
   logic_vector sp0, sp1, sp2, sp3, sp4, sp5, sp6, sp7, sp8, sp9, sp10, sp11, sp12, sp13, sp14, sp15, sp16, sp17;
   logic_vector sn0, sn1, sn2, sn3, sn4, sn5, sn6, sn7, sn8, sn9, sn10, sn11, sn12, sn13, sn14, sn15, sn16, sn17;
 
@@ -277,7 +266,6 @@ module MatrixA1
   CSA_3 csa_p15(P[30], P[33], P[34], sp15);
   CSA_3 csa_p16(P[31], P[33], P[35], sp16);
   CSA_3 csa_p17(P[32], P[34], P[35], sp17);
-
   assign soma[0] = sp0;
   assign soma[1] = sp1;
   assign soma[2] = sp2;
@@ -307,7 +295,6 @@ module MatrixA0
   );
   timeunit 1ns;
   timeprecision 1ps;
-
   logic_vector sp0, sp1, sp2, sp3, sp4, sp5, sp6, sp7, sp8;
   logic_vector sn0, sn1, sn2, sn3, sn4, sn5, sn6, sn7, sn8;
 
@@ -320,7 +307,6 @@ module MatrixA0
   CSA_3 csa_p6(P[6], P[12], P[15], sp6);
   CSA_3 csa_p7(P[7], P[13], P[16], sp7);
   CSA_3 csa_p8(P[8], P[14], P[17], sp8);
-
   assign soma[0] = sp0;
   assign soma[1] = sp1;
   assign soma[2] = sp2;

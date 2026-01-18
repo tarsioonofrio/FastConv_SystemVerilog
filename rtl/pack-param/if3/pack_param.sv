@@ -8,5 +8,4 @@ package pack_param;
   localparam int C_SIZE = 5;
   localparam int M_SIZE = 6;
 
-
 endpackage
