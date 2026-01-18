@@ -1,10 +1,10 @@
-data/tcn2/sim/sim-032-3-3-normal/pack_data.sv
+data/tcn4/sim/sim-032-3-3-normal/pack_data.sv
 rtl/pack-def/pack_def.sv
-rtl/pack-param/tcn2/pack_param.sv
+rtl/pack-param/tcn4/pack_param.sv
 rtl/pack-typedef/pack_typedef.sv
 rtl/csa/csa_lib.sv
-rtl/mux-mult/tcn2/mux_mult_04.sv
-rtl/mult-matrices/tcn2/mult_matrices_simplified.sv
+rtl/mux-mult/tcn4/mux_mult_04.sv
+rtl/mult-matrices/tcn4/mult_matrices.sv
 rtl/conv-mux/conv.sv
 rtl/mem/mem.sv
-rtl/control/control.sv
+rtl/control-sum/control.sv
