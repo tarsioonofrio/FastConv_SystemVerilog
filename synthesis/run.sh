@@ -7,6 +7,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # Resolve the script directory to support running from anywhere.
 ERROR_LOG="$SCRIPT_DIR/run-errors.txt"
 # Log file for failed paths, stored next to this script.
+MODE=""
+# Optional mode filter: logical, sim, or power.
 
 print_banner() {
   # Print a visible banner for each step.
@@ -54,6 +56,15 @@ run_dir() {
   # Capture the path argument.
   if [ -f "$path/run.sh" ]; then
     # Direct leaf script case.
+    if [ -n "$MODE" ] && [ "$(basename "$path")" != "$MODE" ]; then
+      # Reject leaf folders that do not match the requested mode.
+      echo "Mode '$MODE' does not match: $path" >&2
+      # Report a clear mismatch.
+      echo "$path" >> "$ERROR_LOG"
+      # Record the failing path.
+      return 1
+      # Propagate failure to the caller.
+    fi
     print_banner "RUNNING: $path"
     # Show which folder is running.
     if ! ( cd "$path" && bash ./run.sh ); then
@@ -71,6 +82,11 @@ run_dir() {
     # Project root case with 3 stages.
     for stage in logical sim power; do
       # Enforce logical -> sim -> power order.
+      if [ -n "$MODE" ] && [ "$stage" != "$MODE" ]; then
+        # Skip stages that are not selected.
+        continue
+        # Move to the next stage.
+      fi
       print_banner "RUNNING: $path/$stage"
       # Show which stage is running.
       if ! ( cd "$path/$stage" && bash ./run.sh ); then
@@ -91,9 +107,68 @@ run_dir() {
   # Use a non-zero exit code for errors.
 }
 
-if [ "$#" -gt 0 ]; then
+> "$ERROR_LOG"
+# Start a fresh error log for this run.
+
+ARGS=()
+# Collect non-option arguments as paths.
+while [ "$#" -gt 0 ]; do
+  # Parse command line arguments.
+  case "$1" in
+    -logical)
+      # Select only logical stage.
+      MODE="logical"
+      # Set the mode filter.
+      shift
+      # Consume this flag.
+      ;;
+    -sim)
+      # Select only sim stage.
+      MODE="sim"
+      # Set the mode filter.
+      shift
+      # Consume this flag.
+      ;;
+    -power)
+      # Select only power stage.
+      MODE="power"
+      # Set the mode filter.
+      shift
+      # Consume this flag.
+      ;;
+    --)
+      # End of options marker.
+      shift
+      # Consume the marker.
+      break
+      # Stop option parsing.
+      ;;
+    -*)
+      # Reject unknown flags.
+      echo "Unknown option: $1" >&2
+      # Report invalid option.
+      exit 2
+      # Exit with error status.
+      ;;
+    *)
+      # Treat as a target path.
+      ARGS+=("$1")
+      # Store the path.
+      shift
+      # Consume this argument.
+      ;;
+  esac
+done
+
+for p in "$@"; do
+  # Append any remaining args after --.
+  ARGS+=("$p")
+  # Store the path.
+done
+
+if [ "${#ARGS[@]}" -gt 0 ]; then
   # If arguments are provided, treat each as a target.
-  for p in "$@"; do
+  for p in "${ARGS[@]}"; do
     # Loop over all arguments.
     if ! run_dir "$p"; then
       # Track if any path fails.
@@ -109,9 +184,6 @@ if [ "$#" -gt 0 ]; then
   exit 0
   # Exit after explicit targets are handled.
 fi
-
-> "$ERROR_LOG"
-# Start a fresh error log for this run.
 
 for d in */; do
   # Iterate over subdirectories of synthesis/.
