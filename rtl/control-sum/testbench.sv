@@ -34,12 +34,15 @@ module tb;
   logic[NADDR-1:0] w_output_addr;
   logic_vector w_output_data_read;
   logic_vector w_output_data_write;
+  logic[NADDR-1:0] w_output_addr_forced;
 
   logic debug;
 
   time exec_time;
 
   int count_fout = 0;
+  int i = 0;
+  int j = 0;
 
   // Clock generation (10ns period)
   initial clk = 0;
@@ -179,9 +182,10 @@ module tb;
     force w_output_en = 1'b1;
     force w_output_wr = 1'b0;
     @(posedge clk);
-    for (int i = 0; i < FEAT_OUTPUT_SIZE; i++) begin
-      for (int j = 0; j < FEAT_OUTPUT_SIZE; j++) begin
-        force w_output_addr = i * FEAT_OUTPUT_SIZE + j;
+    for (i = 0; i < FEAT_OUTPUT_SIZE; i++) begin
+      for (j = 0; j < FEAT_OUTPUT_SIZE; j++) begin
+        w_output_addr_forced = i * FEAT_OUTPUT_SIZE + j;
+        force w_output_addr = w_output_addr_forced;
         @(posedge clk);
         wait(w_output_valid);
         if ($signed(const_feat_out[i][j]) != $signed(w_output_data_read)) begin
