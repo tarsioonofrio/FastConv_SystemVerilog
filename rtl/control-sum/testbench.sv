@@ -174,12 +174,14 @@ module tb;
 
     // debug = 1;
 
-    w_input_en = 0;
-    w_output_en = 1;
+    // Override DUT outputs while reading back memory contents.
+    force w_input_en = 1'b0;
+    force w_output_en = 1'b1;
+    force w_output_wr = 1'b0;
     @(posedge clk);
     for (int i = 0; i < FEAT_OUTPUT_SIZE; i++) begin
       for (int j = 0; j < FEAT_OUTPUT_SIZE; j++) begin
-        w_output_addr = i * FEAT_OUTPUT_SIZE + j;
+        force w_output_addr = i * FEAT_OUTPUT_SIZE + j;
         @(posedge clk);
         wait(w_output_valid);
         if ($signed(const_feat_out[i][j]) != $signed(w_output_data_read)) begin
@@ -188,6 +190,10 @@ module tb;
         end
       end
     end
+    release w_output_addr;
+    release w_output_en;
+    release w_output_wr;
+    release w_input_en;
 
     $display("=== No errors - End simulation ===");
     $display("Total Time %0f", $realtime);
