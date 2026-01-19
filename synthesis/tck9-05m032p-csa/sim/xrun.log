@@ -1,5 +1,5 @@
 xrun(64): 23.03-s003: (c) Copyright 1995-2023 Cadence Design Systems, Inc.
-TOOL:	xrun(64)	23.03-s003: Started on Jan 19, 2026 at 02:39:52 -03
+TOOL:	xrun(64)	23.03-s003: Started on Jan 19, 2026 at 02:53:46 -03
 xrun
 	-f args.txt
 		-smartorder
@@ -18,8 +18,8 @@ xrun
 	/sim/tarsio/FastConv_SystemVerilog/rtl/mux-mult/tck9/mux_mult_05.sv
 	/sim/tarsio/FastConv_SystemVerilog/rtl/mult-matrices/tck9/mult_matrices_csa.sv
 	/sim/tarsio/FastConv_SystemVerilog/rtl/conv-mux/conv.sv
-	/sim/tarsio/FastConv_SystemVerilog/rtl/mem/mem.sv
 	/sim/tarsio/FastConv_SystemVerilog/rtl/control-sum/control.sv
+	/sim/tarsio/FastConv_SystemVerilog/rtl/mem/mem.sv
 	/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench-synth.sv
 	../logical/results/gate_level/system_logic_mapped.v
 	-f ../list-define.txt
@@ -2292,11 +2292,11 @@ file: /sim/tarsio/FastConv_SystemVerilog/rtl/conv-mux/conv.sv
 		errors: 0, warnings: 0
 	module work.Multip:sv
 		errors: 0, warnings: 0
-file: /sim/tarsio/FastConv_SystemVerilog/rtl/mem/mem.sv
-	module work.Memory:sv
-		errors: 0, warnings: 0
 file: /sim/tarsio/FastConv_SystemVerilog/rtl/control-sum/control.sv
 	module work.Control:sv
+		errors: 0, warnings: 0
+file: /sim/tarsio/FastConv_SystemVerilog/rtl/mem/mem.sv
+	module work.Memory:sv
 		errors: 0, warnings: 0
 file: /sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench-synth.sv
 	module work.tb:sv
@@ -4571,4 +4571,4 @@ Time 107345000 | const_feat_out[29][29] = 629 | Output = 1048519
 Simulation complete via $finish(1) at time 125345 NS + 0
 /sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench-synth.sv:143     $finish;
 xcelium> exit
-TOOL:	xrun(64)	23.03-s003: Exiting on Jan 19, 2026 at 02:40:10 -03  (total: 00:00:18)
+TOOL:	xrun(64)	23.03-s003: Exiting on Jan 19, 2026 at 02:54:02 -03  (total: 00:00:16)
