@@ -6,10 +6,8 @@ import pandas as pd
 
 def format_column(folder):
     name = folder[:2].upper()
-    bind = folder[2]
-    size = folder[3]
-    subs = folder[5:]
-    output = f"{name}{bind}{size}_{subs}"
+    etc = folder[2:]
+    output = f"{name}{etc}"
     return output
 
 
