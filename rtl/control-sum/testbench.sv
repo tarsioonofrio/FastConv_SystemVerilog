@@ -34,6 +34,7 @@ module tb;
   logic[NADDR-1:0] w_output_addr;
   logic_vector w_output_data_read;
   logic_vector w_output_data_write;
+  logic[NADDR-1:0] w_output_addr_forced;
 
   logic debug;
 
@@ -181,7 +182,8 @@ module tb;
     @(posedge clk);
     for (int i = 0; i < FEAT_OUTPUT_SIZE; i++) begin
       for (int j = 0; j < FEAT_OUTPUT_SIZE; j++) begin
-        force w_output_addr = i * FEAT_OUTPUT_SIZE + j;
+        w_output_addr_forced = i * FEAT_OUTPUT_SIZE + j;
+        force w_output_addr = w_output_addr_forced;
         @(posedge clk);
         wait(w_output_valid);
         if ($signed(const_feat_out[i][j]) != $signed(w_output_data_read)) begin
