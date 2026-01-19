@@ -6,13 +6,8 @@ import pandas as pd
 
 def format_column(folder):
     name = folder[:2].upper()
-    bind = folder[2]
-    size = folder[3]
-    mult = folder[5:7]
-    if "csa" in folder:
-        output = f"{name}{bind}{size}m{mult}-csa"
-    else:
-        output = f"{name}{bind}{size}m{mult}"
+    etc = folder[2:]
+    output = f"{name}{etc}"
     return output
 
 
