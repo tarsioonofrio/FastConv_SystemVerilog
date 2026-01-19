@@ -1,67 +1,67 @@
-module MatrixA
+module Inverse
   import pack_typedef::*;
   (
-    input  type_weight P,
-    output type_output soma
+    input  type_weight pin,
+    output type_output pout
   );
   timeunit 1ns;
   timeprecision 1ps;
 
-  assign soma[0] = P[0] + P[3] + P[4] + P[18] + P[21] + P[22] + P[24] + P[27] + P[28];
-  assign soma[1] = P[1] + P[3] + P[5] + P[19] + P[21] + P[23] + P[25] + P[27] + P[29];
-  assign soma[2] = P[2] + P[4] + P[5] + P[20] + P[22] + P[23] + P[26] + P[28] + P[29];
-  assign soma[3] = P[6] + P[9] + P[10] + P[18] + P[21] + P[22] + P[30] + P[33] + P[34];
-  assign soma[4] = P[7] + P[9] + P[11] + P[19] + P[21] + P[23] + P[31] + P[33] + P[35];
-  assign soma[5] = P[8] + P[10] + P[11] + P[20] + P[22] + P[23] + P[32] + P[34] + P[35];
-  assign soma[6] = P[12] + P[15] + P[16] + P[24] + P[27] + P[28] + P[30] + P[33] + P[34];
-  assign soma[7] = P[13] + P[15] + P[17] + P[25] + P[27] + P[29] + P[31] + P[33] + P[35];
-  assign soma[8] = P[14] + P[16] + P[17] + P[26] + P[28] + P[29] + P[32] + P[34] + P[35];
+  assign pout[0] = pin[0] + pin[3] + pin[4] + pin[18] + pin[21] + pin[22] + pin[24] + pin[27] + pin[28];
+  assign pout[1] = pin[1] + pin[3] + pin[5] + pin[19] + pin[21] + pin[23] + pin[25] + pin[27] + pin[29];
+  assign pout[2] = pin[2] + pin[4] + pin[5] + pin[20] + pin[22] + pin[23] + pin[26] + pin[28] + pin[29];
+  assign pout[3] = pin[6] + pin[9] + pin[10] + pin[18] + pin[21] + pin[22] + pin[30] + pin[33] + pin[34];
+  assign pout[4] = pin[7] + pin[9] + pin[11] + pin[19] + pin[21] + pin[23] + pin[31] + pin[33] + pin[35];
+  assign pout[5] = pin[8] + pin[10] + pin[11] + pin[20] + pin[22] + pin[23] + pin[32] + pin[34] + pin[35];
+  assign pout[6] = pin[12] + pin[15] + pin[16] + pin[24] + pin[27] + pin[28] + pin[30] + pin[33] + pin[34];
+  assign pout[7] = pin[13] + pin[15] + pin[17] + pin[25] + pin[27] + pin[29] + pin[31] + pin[33] + pin[35];
+  assign pout[8] = pin[14] + pin[16] + pin[17] + pin[26] + pin[28] + pin[29] + pin[32] + pin[34] + pin[35];
 endmodule
 
 
-module MatrixC
+module Transform
   import pack_typedef::*;
   (
-    input  type_input P,
-    output type_weight soma
+    input  type_input pin,
+    output type_weight pout
   );
   timeunit 1ns;
   timeprecision 1ps;
 
-  assign soma[0] = P[0] + P[6] + P[7] + P[11] + P[12] - (P[1] + P[2] + P[5] + P[10]);
-  assign soma[1] = P[2] + P[6] + P[8] + P[11] + P[13] - (P[1] + P[3] + P[7] + P[12]);
-  assign soma[2] = P[4] + P[7] + P[8] + P[12] + P[13] - (P[2] + P[3] + P[9] + P[14]);
-  assign soma[3] = P[1] - (P[6] + P[11]);
-  assign soma[4] = P[2] - (P[7] + P[12]);
-  assign soma[5] = P[3] - (P[8] + P[13]);
-  assign soma[6] = P[6] + P[7] + P[10] + P[16] + P[17] - (P[5] + P[11] + P[12] + P[15]);
-  assign soma[7] = P[6] + P[8] + P[12] + P[16] + P[18] - (P[7] + P[11] + P[13] + P[17]);
-  assign soma[8] = P[7] + P[8] + P[14] + P[17] + P[18] - (P[9] + P[12] + P[13] + P[19]);
-  assign soma[9] = P[11] - (P[6] + P[16]);
-  assign soma[10] = P[12] - (P[7] + P[17]);
-  assign soma[11] = P[13] - (P[8] + P[18]);
-  assign soma[12] = P[11] + P[12] + P[16] + P[17] + P[20] - (P[10] + P[15] + P[21] + P[22]);
-  assign soma[13] = P[11] + P[13] + P[16] + P[18] + P[22] - (P[12] + P[17] + P[21] + P[23]);
-  assign soma[14] = P[12] + P[13] + P[17] + P[18] + P[24] - (P[14] + P[19] + P[22] + P[23]);
-  assign soma[15] = P[21] - (P[11] + P[16]);
-  assign soma[16] = P[22] - (P[12] + P[17]);
-  assign soma[17] = P[23] - (P[13] + P[18]);
-  assign soma[18] = P[5] - (P[6] + P[7]);
-  assign soma[19] = P[7] - (P[6] + P[8]);
-  assign soma[20] = P[9] - (P[7] + P[8]);
-  assign soma[21] = P[6];
-  assign soma[22] = P[7];
-  assign soma[23] = P[8];
-  assign soma[24] = P[10] - (P[11] + P[12]);
-  assign soma[25] = P[12] - (P[11] + P[13]);
-  assign soma[26] = P[14] - (P[12] + P[13]);
-  assign soma[27] = P[11];
-  assign soma[28] = P[12];
-  assign soma[29] = P[13];
-  assign soma[30] = P[15] - (P[16] + P[17]);
-  assign soma[31] = P[17] - (P[16] + P[18]);
-  assign soma[32] = P[19] - (P[17] + P[18]);
-  assign soma[33] = P[16];
-  assign soma[34] = P[17];
-  assign soma[35] = P[18];
+  assign pout[0] = pin[0] + pin[6] + pin[7] + pin[11] + pin[12] - (pin[1] + pin[2] + pin[5] + pin[10]);
+  assign pout[1] = pin[2] + pin[6] + pin[8] + pin[11] + pin[13] - (pin[1] + pin[3] + pin[7] + pin[12]);
+  assign pout[2] = pin[4] + pin[7] + pin[8] + pin[12] + pin[13] - (pin[2] + pin[3] + pin[9] + pin[14]);
+  assign pout[3] = pin[1] - (pin[6] + pin[11]);
+  assign pout[4] = pin[2] - (pin[7] + pin[12]);
+  assign pout[5] = pin[3] - (pin[8] + pin[13]);
+  assign pout[6] = pin[6] + pin[7] + pin[10] + pin[16] + pin[17] - (pin[5] + pin[11] + pin[12] + pin[15]);
+  assign pout[7] = pin[6] + pin[8] + pin[12] + pin[16] + pin[18] - (pin[7] + pin[11] + pin[13] + pin[17]);
+  assign pout[8] = pin[7] + pin[8] + pin[14] + pin[17] + pin[18] - (pin[9] + pin[12] + pin[13] + pin[19]);
+  assign pout[9] = pin[11] - (pin[6] + pin[16]);
+  assign pout[10] = pin[12] - (pin[7] + pin[17]);
+  assign pout[11] = pin[13] - (pin[8] + pin[18]);
+  assign pout[12] = pin[11] + pin[12] + pin[16] + pin[17] + pin[20] - (pin[10] + pin[15] + pin[21] + pin[22]);
+  assign pout[13] = pin[11] + pin[13] + pin[16] + pin[18] + pin[22] - (pin[12] + pin[17] + pin[21] + pin[23]);
+  assign pout[14] = pin[12] + pin[13] + pin[17] + pin[18] + pin[24] - (pin[14] + pin[19] + pin[22] + pin[23]);
+  assign pout[15] = pin[21] - (pin[11] + pin[16]);
+  assign pout[16] = pin[22] - (pin[12] + pin[17]);
+  assign pout[17] = pin[23] - (pin[13] + pin[18]);
+  assign pout[18] = pin[5] - (pin[6] + pin[7]);
+  assign pout[19] = pin[7] - (pin[6] + pin[8]);
+  assign pout[20] = pin[9] - (pin[7] + pin[8]);
+  assign pout[21] = pin[6];
+  assign pout[22] = pin[7];
+  assign pout[23] = pin[8];
+  assign pout[24] = pin[10] - (pin[11] + pin[12]);
+  assign pout[25] = pin[12] - (pin[11] + pin[13]);
+  assign pout[26] = pin[14] - (pin[12] + pin[13]);
+  assign pout[27] = pin[11];
+  assign pout[28] = pin[12];
+  assign pout[29] = pin[13];
+  assign pout[30] = pin[15] - (pin[16] + pin[17]);
+  assign pout[31] = pin[17] - (pin[16] + pin[18]);
+  assign pout[32] = pin[19] - (pin[17] + pin[18]);
+  assign pout[33] = pin[16];
+  assign pout[34] = pin[17];
+  assign pout[35] = pin[18];
 endmodule
