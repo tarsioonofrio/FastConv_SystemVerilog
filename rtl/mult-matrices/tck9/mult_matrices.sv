@@ -1,56 +1,56 @@
-module MatrixA
+module Inverse
   import pack_typedef::*;
   (
-    input  type_weight P,
-    output type_output soma
+    input  type_weight pin,
+    output type_output pout
   );
   timeunit 1ns;
   timeprecision 1ps;
 
-  assign soma[0] = P[0] + P[1] + P[2] + P[3] + P[5] + P[6] + P[7] + P[8] + P[10] + P[11] + P[12] + P[13] + P[15] + P[16] + P[17] + P[18];
-  assign soma[1] = P[1] + (P[3] * 2) + P[6] + (P[8] * 2) + P[11] + (P[13] * 2) + P[16] + (P[18] * 2) - (P[2] + P[7] + P[12] + P[17]);
-  assign soma[2] = P[1] + P[2] + (P[3] * 4) + P[4] + P[6] + P[7] + (P[8] * 4) + P[9] + P[11] + P[12] + (P[13] * 4) + P[14] + P[16] + P[17] + (P[18] * 4) + P[19];
-  assign soma[3] = P[5] + P[6] + P[7] + P[8] + (P[15] * 2) + (P[16] * 2) + (P[17] * 2) + (P[18] * 2) - (P[10] + P[11] + P[12] + P[13]);
-  assign soma[4] = P[6] + (P[8] * 2) + P[12] + (P[16] * 2) + (P[18] * 4) - (P[7] + P[11] + (P[13] * 2) + (P[17] * 2));
-  assign soma[5] = P[6] + P[7] + (P[8] * 4) + P[9] + (P[16] * 2) + (P[17] * 2) + (P[18] * 8) + (P[19] * 2) - (P[11] + P[12] + (P[13] * 4) + P[14]);
-  assign soma[6] = P[5] + P[6] + P[7] + P[8] + P[10] + P[11] + P[12] + P[13] + (P[15] * 4) + (P[16] * 4) + (P[17] * 4) + (P[18] * 4) + P[20] + P[21] + P[22] + P[23];
-  assign soma[7] = P[6] + (P[8] * 2) + P[11] + (P[13] * 2) + (P[16] * 4) + (P[18] * 8) + P[21] + (P[23] * 2) - (P[7] + P[12] + (P[17] * 4) + P[22]);
-  assign soma[8] = P[6] + P[7] + (P[8] * 4) + P[9] + P[11] + P[12] + (P[13] * 4) + P[14] + (P[16] * 4) + (P[17] * 4) + (P[18] * 16) + (P[19] * 4) + P[21] + P[22] + (P[23] * 4) + P[24];
+  assign pout[0] = pin[0] + pin[1] + pin[2] + pin[3] + pin[5] + pin[6] + pin[7] + pin[8] + pin[10] + pin[11] + pin[12] + pin[13] + pin[15] + pin[16] + pin[17] + pin[18];
+  assign pout[1] = pin[1] + (pin[3] * 2) + pin[6] + (pin[8] * 2) + pin[11] + (pin[13] * 2) + pin[16] + (pin[18] * 2) - (pin[2] + pin[7] + pin[12] + pin[17]);
+  assign pout[2] = pin[1] + pin[2] + (pin[3] * 4) + pin[4] + pin[6] + pin[7] + (pin[8] * 4) + pin[9] + pin[11] + pin[12] + (pin[13] * 4) + pin[14] + pin[16] + pin[17] + (pin[18] * 4) + pin[19];
+  assign pout[3] = pin[5] + pin[6] + pin[7] + pin[8] + (pin[15] * 2) + (pin[16] * 2) + (pin[17] * 2) + (pin[18] * 2) - (pin[10] + pin[11] + pin[12] + pin[13]);
+  assign pout[4] = pin[6] + (pin[8] * 2) + pin[12] + (pin[16] * 2) + (pin[18] * 4) - (pin[7] + pin[11] + (pin[13] * 2) + (pin[17] * 2));
+  assign pout[5] = pin[6] + pin[7] + (pin[8] * 4) + pin[9] + (pin[16] * 2) + (pin[17] * 2) + (pin[18] * 8) + (pin[19] * 2) - (pin[11] + pin[12] + (pin[13] * 4) + pin[14]);
+  assign pout[6] = pin[5] + pin[6] + pin[7] + pin[8] + pin[10] + pin[11] + pin[12] + pin[13] + (pin[15] * 4) + (pin[16] * 4) + (pin[17] * 4) + (pin[18] * 4) + pin[20] + pin[21] + pin[22] + pin[23];
+  assign pout[7] = pin[6] + (pin[8] * 2) + pin[11] + (pin[13] * 2) + (pin[16] * 4) + (pin[18] * 8) + pin[21] + (pin[23] * 2) - (pin[7] + pin[12] + (pin[17] * 4) + pin[22]);
+  assign pout[8] = pin[6] + pin[7] + (pin[8] * 4) + pin[9] + pin[11] + pin[12] + (pin[13] * 4) + pin[14] + (pin[16] * 4) + (pin[17] * 4) + (pin[18] * 16) + (pin[19] * 4) + pin[21] + pin[22] + (pin[23] * 4) + pin[24];
 endmodule
 
 
-module MatrixC
+module Transform
   import pack_typedef::*;
   (
-    input  type_input P,
-    output type_weight soma
+    input  type_input pin,
+    output type_weight pout
   );
   timeunit 1ns;
   timeprecision 1ps;
 
-  assign soma[0] = (P[0] * 4) + (P[3] * 2) + P[6] + (P[7] * 2) + (P[11] * 2) + (P[12] * 4) + (P[15] * 2) + P[18] - ((P[1] * 2) + (P[2] * 4) + (P[5] * 2) + P[8] + (P[10] * 4) + (P[13] * 2) + P[16] + (P[17] * 2));
-  assign soma[1] = (P[3] * 2) + (P[6] * 2) + P[7] + (P[11] * 4) + (P[12] * 2) + P[18] - ((P[1] * 4) + (P[2] * 2) + P[8] + (P[13] * 2) + (P[16] * 2) + P[17]);
-  assign soma[2] = (P[1] * 4) + (P[3] * 2) + (P[7] * 3) + (P[12] * 6) + (P[16] * 2) + P[18] - ((P[2] * 6) + (P[6] * 2) + P[8] + (P[11] * 4) + (P[13] * 2) + (P[17] * 3));
-  assign soma[3] = (P[3] * 2) + P[6] + (P[11] * 2) + P[18] - ((P[1] * 2) + P[8] + (P[13] * 2) + P[16]);
-  assign soma[4] = (P[1] * 4) + (P[4] * 2) + P[7] + (P[8] * 2) + (P[12] * 2) + (P[13] * 4) + (P[16] * 2) + P[19] - ((P[2] * 2) + (P[3] * 4) + (P[6] * 2) + P[9] + (P[11] * 4) + (P[14] * 2) + P[17] + (P[18] * 2));
-  assign soma[5] = (P[6] * 2) + (P[7] * 4) + P[11] + (P[12] * 2) + (P[15] * 2) + P[18] - ((P[5] * 4) + (P[8] * 2) + (P[10] * 2) + P[13] + P[16] + (P[17] * 2));
-  assign soma[6] = (P[6] * 4) + (P[7] * 2) + (P[11] * 2) + P[12] + P[18] - ((P[8] * 2) + P[13] + (P[16] * 2) + P[17]);
-  assign soma[7] = (P[7] * 6) + (P[12] * 3) + (P[16] * 2) + P[18] - ((P[6] * 4) + (P[8] * 2) + (P[11] * 2) + P[13] + (P[17] * 3));
-  assign soma[8] = (P[6] * 2) + P[11] + P[18] - ((P[8] * 2) + P[13] + P[16]);
-  assign soma[9] = (P[7] * 2) + (P[8] * 4) + P[12] + (P[13] * 2) + (P[16] * 2) + P[19] - ((P[6] * 4) + (P[9] * 2) + (P[11] * 2) + P[14] + P[17] + (P[18] * 2));
-  assign soma[10] = (P[5] * 4) + (P[8] * 2) + (P[11] * 3) + (P[12] * 6) + (P[15] * 2) + P[18] - ((P[6] * 2) + (P[7] * 4) + (P[10] * 6) + (P[13] * 3) + P[16] + (P[17] * 2));
-  assign soma[11] = (P[8] * 2) + (P[11] * 6) + (P[12] * 3) + P[18] - ((P[6] * 4) + (P[7] * 2) + (P[13] * 3) + (P[16] * 2) + P[17]);
-  assign soma[12] = (P[6] * 4) + (P[8] * 2) + (P[12] * 9) + (P[16] * 2) + P[18] - ((P[7] * 6) + (P[11] * 6) + (P[13] * 3) + (P[17] * 3));
-  assign soma[13] = (P[8] * 2) + (P[11] * 3) + P[18] - ((P[6] * 2) + (P[13] * 3) + P[16]);
-  assign soma[14] = (P[6] * 4) + (P[9] * 2) + (P[12] * 3) + (P[13] * 6) + (P[16] * 2) + P[19] - ((P[7] * 2) + (P[8] * 4) + (P[11] * 6) + (P[14] * 3) + P[17] + (P[18] * 2));
-  assign soma[15] = P[6] + (P[7] * 2) + (P[15] * 2) + P[18] - ((P[5] * 2) + P[8] + P[16] + (P[17] * 2));
-  assign soma[16] = (P[6] * 2) + P[7] + P[18] - (P[8] + (P[16] * 2) + P[17]);
-  assign soma[17] = (P[7] * 3) + (P[16] * 2) + P[18] - ((P[6] * 2) + P[8] + (P[17] * 3));
-  assign soma[18] = P[6] + P[18] - (P[8] + P[16]);
-  assign soma[19] = P[7] + (P[8] * 2) + (P[16] * 2) + P[19] - ((P[6] * 2) + P[9] + P[17] + (P[18] * 2));
-  assign soma[20] = (P[5] * 4) + (P[8] * 2) + P[11] + (P[12] * 2) + (P[16] * 2) + (P[17] * 4) + (P[20] * 2) + P[23] - ((P[6] * 2) + (P[7] * 4) + (P[10] * 2) + P[13] + (P[15] * 4) + (P[18] * 2) + P[21] + (P[22] * 2));
-  assign soma[21] = (P[8] * 2) + (P[11] * 2) + P[12] + (P[16] * 4) + (P[17] * 2) + P[23] - ((P[6] * 4) + (P[7] * 2) + P[13] + (P[18] * 2) + (P[21] * 2) + P[22]);
-  assign soma[22] = (P[6] * 4) + (P[8] * 2) + (P[12] * 3) + (P[17] * 6) + (P[21] * 2) + P[23] - ((P[7] * 6) + (P[11] * 2) + P[13] + (P[16] * 4) + (P[18] * 2) + (P[22] * 3));
-  assign soma[23] = (P[8] * 2) + P[11] + (P[16] * 2) + P[23] - ((P[6] * 2) + P[13] + (P[18] * 2) + P[21]);
-  assign soma[24] = (P[6] * 4) + (P[9] * 2) + P[12] + (P[13] * 2) + (P[17] * 2) + (P[18] * 4) + (P[21] * 2) + P[24] - ((P[7] * 2) + (P[8] * 4) + (P[11] * 2) + P[14] + (P[16] * 4) + (P[19] * 2) + P[22] + (P[23] * 2));
+  assign pout[0] = (pin[0] * 4) + (pin[3] * 2) + pin[6] + (pin[7] * 2) + (pin[11] * 2) + (pin[12] * 4) + (pin[15] * 2) + pin[18] - ((pin[1] * 2) + (pin[2] * 4) + (pin[5] * 2) + pin[8] + (pin[10] * 4) + (pin[13] * 2) + pin[16] + (pin[17] * 2));
+  assign pout[1] = (pin[3] * 2) + (pin[6] * 2) + pin[7] + (pin[11] * 4) + (pin[12] * 2) + pin[18] - ((pin[1] * 4) + (pin[2] * 2) + pin[8] + (pin[13] * 2) + (pin[16] * 2) + pin[17]);
+  assign pout[2] = (pin[1] * 4) + (pin[3] * 2) + (pin[7] * 3) + (pin[12] * 6) + (pin[16] * 2) + pin[18] - ((pin[2] * 6) + (pin[6] * 2) + pin[8] + (pin[11] * 4) + (pin[13] * 2) + (pin[17] * 3));
+  assign pout[3] = (pin[3] * 2) + pin[6] + (pin[11] * 2) + pin[18] - ((pin[1] * 2) + pin[8] + (pin[13] * 2) + pin[16]);
+  assign pout[4] = (pin[1] * 4) + (pin[4] * 2) + pin[7] + (pin[8] * 2) + (pin[12] * 2) + (pin[13] * 4) + (pin[16] * 2) + pin[19] - ((pin[2] * 2) + (pin[3] * 4) + (pin[6] * 2) + pin[9] + (pin[11] * 4) + (pin[14] * 2) + pin[17] + (pin[18] * 2));
+  assign pout[5] = (pin[6] * 2) + (pin[7] * 4) + pin[11] + (pin[12] * 2) + (pin[15] * 2) + pin[18] - ((pin[5] * 4) + (pin[8] * 2) + (pin[10] * 2) + pin[13] + pin[16] + (pin[17] * 2));
+  assign pout[6] = (pin[6] * 4) + (pin[7] * 2) + (pin[11] * 2) + pin[12] + pin[18] - ((pin[8] * 2) + pin[13] + (pin[16] * 2) + pin[17]);
+  assign pout[7] = (pin[7] * 6) + (pin[12] * 3) + (pin[16] * 2) + pin[18] - ((pin[6] * 4) + (pin[8] * 2) + (pin[11] * 2) + pin[13] + (pin[17] * 3));
+  assign pout[8] = (pin[6] * 2) + pin[11] + pin[18] - ((pin[8] * 2) + pin[13] + pin[16]);
+  assign pout[9] = (pin[7] * 2) + (pin[8] * 4) + pin[12] + (pin[13] * 2) + (pin[16] * 2) + pin[19] - ((pin[6] * 4) + (pin[9] * 2) + (pin[11] * 2) + pin[14] + pin[17] + (pin[18] * 2));
+  assign pout[10] = (pin[5] * 4) + (pin[8] * 2) + (pin[11] * 3) + (pin[12] * 6) + (pin[15] * 2) + pin[18] - ((pin[6] * 2) + (pin[7] * 4) + (pin[10] * 6) + (pin[13] * 3) + pin[16] + (pin[17] * 2));
+  assign pout[11] = (pin[8] * 2) + (pin[11] * 6) + (pin[12] * 3) + pin[18] - ((pin[6] * 4) + (pin[7] * 2) + (pin[13] * 3) + (pin[16] * 2) + pin[17]);
+  assign pout[12] = (pin[6] * 4) + (pin[8] * 2) + (pin[12] * 9) + (pin[16] * 2) + pin[18] - ((pin[7] * 6) + (pin[11] * 6) + (pin[13] * 3) + (pin[17] * 3));
+  assign pout[13] = (pin[8] * 2) + (pin[11] * 3) + pin[18] - ((pin[6] * 2) + (pin[13] * 3) + pin[16]);
+  assign pout[14] = (pin[6] * 4) + (pin[9] * 2) + (pin[12] * 3) + (pin[13] * 6) + (pin[16] * 2) + pin[19] - ((pin[7] * 2) + (pin[8] * 4) + (pin[11] * 6) + (pin[14] * 3) + pin[17] + (pin[18] * 2));
+  assign pout[15] = pin[6] + (pin[7] * 2) + (pin[15] * 2) + pin[18] - ((pin[5] * 2) + pin[8] + pin[16] + (pin[17] * 2));
+  assign pout[16] = (pin[6] * 2) + pin[7] + pin[18] - (pin[8] + (pin[16] * 2) + pin[17]);
+  assign pout[17] = (pin[7] * 3) + (pin[16] * 2) + pin[18] - ((pin[6] * 2) + pin[8] + (pin[17] * 3));
+  assign pout[18] = pin[6] + pin[18] - (pin[8] + pin[16]);
+  assign pout[19] = pin[7] + (pin[8] * 2) + (pin[16] * 2) + pin[19] - ((pin[6] * 2) + pin[9] + pin[17] + (pin[18] * 2));
+  assign pout[20] = (pin[5] * 4) + (pin[8] * 2) + pin[11] + (pin[12] * 2) + (pin[16] * 2) + (pin[17] * 4) + (pin[20] * 2) + pin[23] - ((pin[6] * 2) + (pin[7] * 4) + (pin[10] * 2) + pin[13] + (pin[15] * 4) + (pin[18] * 2) + pin[21] + (pin[22] * 2));
+  assign pout[21] = (pin[8] * 2) + (pin[11] * 2) + pin[12] + (pin[16] * 4) + (pin[17] * 2) + pin[23] - ((pin[6] * 4) + (pin[7] * 2) + pin[13] + (pin[18] * 2) + (pin[21] * 2) + pin[22]);
+  assign pout[22] = (pin[6] * 4) + (pin[8] * 2) + (pin[12] * 3) + (pin[17] * 6) + (pin[21] * 2) + pin[23] - ((pin[7] * 6) + (pin[11] * 2) + pin[13] + (pin[16] * 4) + (pin[18] * 2) + (pin[22] * 3));
+  assign pout[23] = (pin[8] * 2) + pin[11] + (pin[16] * 2) + pin[23] - ((pin[6] * 2) + pin[13] + (pin[18] * 2) + pin[21]);
+  assign pout[24] = (pin[6] * 4) + (pin[9] * 2) + pin[12] + (pin[13] * 2) + (pin[17] * 2) + (pin[18] * 4) + (pin[21] * 2) + pin[24] - ((pin[7] * 2) + (pin[8] * 4) + (pin[11] * 2) + pin[14] + (pin[16] * 4) + (pin[19] * 2) + pin[22] + (pin[23] * 2));
 endmodule
