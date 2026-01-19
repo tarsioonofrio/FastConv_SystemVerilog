@@ -1,5 +1,5 @@
 module MatrixA
-  import packConv::*;
+  import pack_typedef::*;
   (
     input  type_weight P,
     output type_output soma
@@ -28,7 +28,7 @@ endmodule
 
 
 module MatrixC
-  import packConv::*;
+  import pack_typedef::*;
   (
     input  type_input P,
     output type_weight soma
