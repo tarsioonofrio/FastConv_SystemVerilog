@@ -3,7 +3,6 @@ transcript
 vsim*
 work
 xcelium*
-xrun.log
 xrun.history
 *.cache
 *.vcd
@@ -43,4 +42,4 @@ genus.log*
 xrun.key
 
 README.md-*.svg
-*.log
+sdf_log.log
