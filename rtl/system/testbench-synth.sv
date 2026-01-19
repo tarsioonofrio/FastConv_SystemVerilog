@@ -31,6 +31,10 @@ module tb;
   int i = 0;
   int j = 0;
   int total_out_rows = 0;
+  time t_start = 0;
+  time t_end = 0;
+  time t_total = 0;
+  integer time_fd = 0;
 
   // Clock generation (10ns period)
   initial clk = 0;
@@ -100,8 +104,9 @@ module tb;
     reset = 0;
     p_start = 1;
 
-    // Start processamento
+    // Start processing
     $display("=== Start processing ===");
+    t_start = $time;
 
     @(posedge clk);
     p_start = 0;
@@ -127,6 +132,13 @@ module tb;
     release w_output_addr;
     release w_output_en;
     release w_output_wr;
+    t_end = $time;
+    t_total = t_end - t_start;
+    time_fd = $fopen("testbench-synth-time.log", "w");
+    if (time_fd) begin
+      $fdisplay(time_fd, "Total execution time: %0t", t_total);
+      $fclose(time_fd);
+    end
     $display("=== No errors - End simulation ===");
     $finish;
   end
