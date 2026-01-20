@@ -13,6 +13,12 @@ def format_column(folder):
     return output
 
 
+def format_project_name(name):
+    if len(name) < 2:
+        return name.upper()
+    return f"{name[:2].upper()}{name[2:]}"
+
+
 def read_file(file_path):
     with open(file_path, "r") as f:
         content = f.readlines()
@@ -54,5 +60,7 @@ list_df = {
 # for f, df in list_df.items():
 #     df.to_csv(f"../report/{f}_power_report.csv")
 df_total = pd.DataFrame({f: df["Total"] for f, df in list_df.items()}).T
-df_total.index.name = "file"
-df_total.to_csv("../report/reportpower.csv")
+df_total.insert(0, "Project", [format_project_name(n) for n in df_total.index])
+df_total.sort_values(by=["Project"], inplace=True)
+df_total.reset_index(drop=True, inplace=True)
+df_total.to_csv("../report/reportpower.csv", index=False)

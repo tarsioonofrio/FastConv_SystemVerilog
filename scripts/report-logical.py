@@ -13,6 +13,12 @@ def format_column(folder):
     return output
 
 
+def format_project_name(name):
+    if len(name) < 2:
+        return name.upper()
+    return f"{name[:2].upper()}{name[2:]}"
+
+
 def read_file(file_path):
     with open(file_path, "r") as f:
         content = f.readlines()
@@ -77,4 +83,7 @@ df.columns = [
     "Flop Count",
 ]
 
-df.to_csv("../report/report_logical.csv")
+df.insert(0, "Project", [format_project_name(n) for n in df.index])
+df.sort_values(by=["Project"], inplace=True)
+df.reset_index(drop=True, inplace=True)
+df.to_csv("../report/report_logical.csv", index=False)
