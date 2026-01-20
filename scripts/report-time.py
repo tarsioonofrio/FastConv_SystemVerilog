@@ -4,9 +4,11 @@ from pathlib import Path
 
 import pandas as pd
 
+
 def format_column(folder):
     name = folder[:2].upper()
-    etc = folder[2:]
+    time = folder[8:12]
+    etc = folder[2:].replace(time, "")
     output = f"{name}{etc}"
     return output
 
@@ -43,16 +45,6 @@ if not rows:
     raise SystemExit("No valid testbench-synth-time.log files found.")
 
 df = pd.DataFrame(rows)
-# Pivot to the desired shape.
-df_pivot = df.pivot(index="side", columns="project", values="time/ns")
-# df_pivot
-# df_pivot.drop(columns='project', inplace=True)
-# df_pivot
-# # Reordena as colunas caso necessário
-# df_pivot = df_pivot[['project', 32, 64, 128, 256, 512]]
-
-df_pivot.columns = [format_column(n) for n in df_pivot.columns]
-df_pivot.sort_index(axis=1, inplace=True)
-df_pivot.sort_index(axis=0, inplace=True)
-# Salva o resultado
-df_pivot.to_csv("../report/time.csv")
+df.sort_values(by=['project'], inplace=True)
+df.reset_index(drop=True, inplace=True)
+df.to_csv("../report/time.csv")
