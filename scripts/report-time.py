@@ -15,6 +15,12 @@ def format_column(folder):
     return output
 
 
+def format_project_name(name):
+    if len(name) < 2:
+        return name.upper()
+    return f"{name[:2].upper()}{name[2:]}"
+
+
 def parse_side(project):
     match = re.search(r"m(\d+)p", project)
     if not match:
@@ -50,6 +56,7 @@ if not rows:
     raise SystemExit("No valid testbench-synth-time.log files found.")
 
 df = pd.DataFrame(rows)
-df.sort_values(by=['project'], inplace=True)
+df["project"] = df["project"].map(format_project_name)
+df.sort_values(by=["project"], inplace=True)
 df.reset_index(drop=True, inplace=True)
-df.to_csv("../report/report-time.csv")
+df.to_csv("../report/report-time.csv", index=False)
