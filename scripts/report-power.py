@@ -63,4 +63,4 @@ df_total = pd.DataFrame({f: df["Total"] for f, df in list_df.items()}).T
 df_total.insert(0, "Project", [format_project_name(n) for n in df_total.index])
 df_total.sort_values(by=["Project"], inplace=True)
 df_total.reset_index(drop=True, inplace=True)
-df_total.to_csv("../report/reportpower.csv", index=False)
+df_total.to_csv("../report/report-power.csv", index=False)
