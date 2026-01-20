@@ -33,6 +33,13 @@ def parse_time(path):
     return int(match.group(1))
 
 
+def parse_multipliers(project):
+    match = re.search(r"-([0-9]+)m", project)
+    if not match:
+        return None
+    return int(match.group(1))
+
+
 def read_file(file_path):
     with open(file_path, "r") as handle:
         return handle.readlines()
@@ -160,11 +167,14 @@ def write_report_merge(report_dir):
     df = df.merge(df_power, on="Project", how="left")
 
     df["nome"] = df["Project"].str.replace(r"m\d+p", "", regex=True)
+    df["multip"] = df["Project"].map(parse_multipliers)
     df["size"] = pd.to_numeric(df["side"], errors="coerce") ** 2
     df["Subtotal"] = pd.to_numeric(df.get("Subtotal"), errors="coerce")
     df["time_ns"] = pd.to_numeric(df["time_ns"], errors="coerce")
     df["energy"] = (df["Subtotal"] * df["time_ns"]) / 1000
 
+    column_order = ["Project", "nome", "multip"]
+    df = df[column_order + [c for c in df.columns if c not in column_order]]
     df.sort_values(by=["Project"], inplace=True)
     df.reset_index(drop=True, inplace=True)
 
