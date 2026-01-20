@@ -12,6 +12,6 @@ The reports include information such as:
 
 These consolidated reports facilitate design space exploration and decision-making by providing an accessible overview of trade-offs between area, power, and performance.
 
-Users can find scripts to generate and manipulate these reports in the `scripts/` directory. The CSV files can be imported into spreadsheet software or used as input to further automated analysis tools.
+Use `scripts/report-all.py` to generate all report CSVs in one run. The CSV files can be imported into spreadsheet software or used as input to further automated analysis tools.
 
 Keep this folder updated with the latest aggregated metrics to maintain a comprehensive history of implemented experiments and synthesis configurations.
