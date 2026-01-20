@@ -3,6 +3,8 @@ from pathlib import Path
 
 import pandas as pd
 
+EXCLUDED_PROJECTS = {"source", "template"}
+
 
 def format_column(folder):
     name = folder[:2].upper()
@@ -27,6 +29,10 @@ def project_name(path):
 path = Path("../synthesis/*/logical/results/reports/*_area.rpt")
 all_files = glob.glob(path.as_posix())
 report_area = {project_name(f): read_file(f) for f in all_files}
+excluded_area = {k for k in report_area if k in EXCLUDED_PROJECTS}
+for name in sorted(excluded_area):
+    print(f"Skipping excluded project: {name}")
+report_area = {k: v for k, v in report_area.items() if k not in EXCLUDED_PROJECTS}
 cell_cout = {k: v[14].split()[1] for k, v in report_area.items()}
 cell_area = {k: v[14].split()[2] for k, v in report_area.items()}
 net_area = {k: v[14].split()[3] for k, v in report_area.items()}
@@ -36,6 +42,10 @@ path = Path("../rtl/conv/*/sintese/results/reports/*_clock_gating.rpt")
 # clock_gating
 all_files = glob.glob(path.as_posix())
 report_clock = {project_name(f): read_file(f) for f in all_files}
+excluded_clock = {k for k in report_clock if k in EXCLUDED_PROJECTS}
+for name in sorted(excluded_clock):
+    print(f"Skipping excluded project: {name}")
+report_clock = {k: v for k, v in report_clock.items() if k not in EXCLUDED_PROJECTS}
 flop_count = {k: v[-4].split()[1] for k, v in report_clock.items()}
 
 # Create a DataFrame from the dictionaries

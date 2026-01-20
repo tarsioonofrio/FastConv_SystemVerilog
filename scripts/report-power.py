@@ -3,6 +3,8 @@ from pathlib import Path
 
 import pandas as pd
 
+EXCLUDED_PROJECTS = {"source", "template"}
+
 
 def format_column(folder):
     name = folder[:2].upper()
@@ -27,8 +29,15 @@ def project_name(path):
 path = Path("../synthesis/*/power/power_evaluation.txt")
 # clock_gating
 all_files = glob.glob(path.as_posix())
-file_name = [Path(f).parent.parent.name for f in all_files]
-report = [read_file(f) for f in all_files]
+filtered_files = []
+for f in all_files:
+    name = Path(f).parent.parent.name
+    if name in EXCLUDED_PROJECTS:
+        print(f"Skipping excluded project: {name}")
+        continue
+    filtered_files.append(f)
+file_name = [Path(f).parent.parent.name for f in filtered_files]
+report = [read_file(f) for f in filtered_files]
 columns = report[0][15].split()[1:5]
 indexes = [v.split()[0] for v in report[0][17:27] if "--" not in v]
 data = [

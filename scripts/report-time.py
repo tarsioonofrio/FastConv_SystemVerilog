@@ -4,6 +4,8 @@ from pathlib import Path
 
 import pandas as pd
 
+EXCLUDED_PROJECTS = {"source", "template"}
+
 
 def format_column(folder):
     name = folder[:2].upper()
@@ -35,6 +37,9 @@ path = "../synthesis/*/sim/testbench-synth-time.log"
 rows = []
 for file_path in glob.glob(path):
     project = Path(file_path).parents[1].name
+    if project in EXCLUDED_PROJECTS:
+        print(f"Skipping excluded project: {project}")
+        continue
     side = parse_side(project)
     time_ns = parse_time(file_path)
     if side is None or time_ns is None:
