@@ -55,8 +55,8 @@ dft.columns = [format_column(n) for n in dft.columns]
 dft.sort_index(axis=1, inplace=True)
 
 
-# Save to CSV
-dft.to_csv("../data/report.csv")
+# # Save to CSV
+# dft.to_csv("../data/report.csv")
 
 df = dft.T
 df.columns = [
@@ -67,4 +67,4 @@ df.columns = [
     "Flop Count",
 ]
 
-df.to_csv("../report/report_transposed.csv")
+df.to_csv("../report/report_logical.csv")
