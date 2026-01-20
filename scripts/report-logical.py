@@ -86,4 +86,4 @@ df.columns = [
 df.insert(0, "Project", [format_project_name(n) for n in df.index])
 df.sort_values(by=["Project"], inplace=True)
 df.reset_index(drop=True, inplace=True)
-df.to_csv("../report/report_logical.csv", index=False)
+df.to_csv("../report/report-logical.csv", index=False)
