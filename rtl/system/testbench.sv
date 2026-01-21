@@ -120,6 +120,8 @@ module tb;
 
     wait(p_end);
 
+    $display("\n*** TIME %f ***\n", $realtime);
+
     total_out_rows = FEAT_OUTPUT_SIZE * N_CHANNEL_OUT;
 
     force w_output_en = 1'b1;
@@ -140,6 +142,7 @@ module tb;
     release w_output_en;
     release w_output_wr;
     $display("=== No errors - End simulation ===");
+    $display("\n*** TIME %f ***\n", $realtime);
     $finish;
   end
 endmodule
