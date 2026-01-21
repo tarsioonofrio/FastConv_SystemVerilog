@@ -106,12 +106,14 @@ module tb;
 
     // Start processing
     $display("=== Start processing ===");
-    t_start = $time;
+    t_start = $realtime;
 
     @(posedge clk);
     p_start = 0;
 
     wait(p_end);
+    $display("\n*** TIME %f ***\n", $realtime);
+    t_end = $realtime;
 
     total_out_rows = FEAT_OUTPUT_SIZE * N_CHANNEL_OUT;
 
@@ -132,14 +134,15 @@ module tb;
     release w_output_addr;
     release w_output_en;
     release w_output_wr;
-    t_end = $time;
+
     t_total = t_end - t_start;
     time_fd = $fopen("testbench-synth-time.log", "w");
     if (time_fd) begin
-      $fdisplay(time_fd, "Total execution time: %0t", t_total);
+      $fdisplay(time_fd, "Total execution time: %f", t_total);
       $fclose(time_fd);
     end
     $display("=== No errors - End simulation ===");
+    $display("\n*** TIME %f ***\n", $realtime);
     $finish;
   end
 endmodule
