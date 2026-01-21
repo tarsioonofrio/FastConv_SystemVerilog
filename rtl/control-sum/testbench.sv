@@ -173,7 +173,8 @@ module tb;
 
 
     wait(w_end);
-    exec_time = $realtime;
+    // exec_time = $realtime;
+    $display("\n *** Total Time %0f ***\n", $realtime);
 
     // debug = 1;
 
@@ -200,7 +201,6 @@ module tb;
     release w_input_en;
 
     $display("=== No errors - End simulation ===");
-    $display("Total Time %0f", $realtime);
     $display("Execution time after wait(end) %0f", exec_time);
 
     #20ns
