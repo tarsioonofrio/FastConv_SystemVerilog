@@ -20,7 +20,7 @@ module MuxMult
   timeunit 1ns;
   timeprecision 1ps;
 
-  localparam logic [5:0] addr [0:SMULT-1][0:NMULT-1] = '{
+  localparam logic [$clog2(SMULT*NMULT-1):0] addr [0:SMULT-1][0:NMULT-1] = '{
     '{  0,  1,  2,  3,  4,  5 },
     '{  6,  7,  8,  9, 10, 11 },
     '{ 12, 13, 14, 15, 16, 17 },
