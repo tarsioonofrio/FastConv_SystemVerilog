@@ -12,8 +12,7 @@ GIT_ROOT=$(git rev-parse --show-toplevel)
 # DATA_FILE="${GIT_ROOT}/data/ifn9/sim/sim-032/pack_data.sv"
 
 # Testbench e pack conforme usado no histórico
-TB=${GIT_ROOT}/rtl/system/testbench-synth.sv
-
+TB=${GIT_ROOT}/rtl/system/testbench.sv
 GATE=../logical/results/gate_level/system_logic_mapped.v
 
 # Monta lista de arquivos (uma só linha, sem newline), prefixando GIT_ROOT
@@ -26,4 +25,4 @@ done < ../list-file.txt
 # defines=$(sed 's/^/-define /' list_def.txt | tr '\n' ' ' | sed 's/ $//')
 
 # Chamada do xrun (mantendo args.txt como no histórico)
-xrun -f args.txt $files $TB $GATE -f ../list-define.txt -run -exit
+xrun -f args.txt $files $TB $GATE -f ../list-define.txt -define GATE_LEVEL -define XRUN -run -exit
