@@ -31,12 +31,37 @@ module tb;
   int i = 0;
   int j = 0;
   int total_out_rows = 0;
+  time t_start = 0;
+  time t_end = 0;
+  time t_total = 0;
+  integer time_fd = 0;
 
   // Clock generation (10ns period)
   initial clk = 0;
   always #5 clk = ~clk;
 
   // DUT instantiation
+`ifdef GATE_LEVEL
+  System dut (
+    .clk(clk),
+    .reset(reset),
+
+    .p_start(p_start),
+    .p_end(p_end),
+
+    .p_input_en(w_input_en),
+    .p_input_addr(w_input_addr),
+    .p_input_valid(w_input_valid),
+    .p_input_data(w_input_data_read),
+
+    .p_output_en(w_output_en),
+    .p_output_wr(w_output_wr),
+    .p_output_addr(w_output_addr),
+    .p_output_data_read(w_output_data_read),
+    .p_output_data_write(w_output_data_write),
+    .p_output_valid(w_output_valid)
+  );
+`else
   System #(
     .NADDR(NADDR),
     .NBITS(NBITS),
@@ -68,6 +93,7 @@ module tb;
     .p_output_data_write(w_output_data_write),
     .p_output_valid(w_output_valid)
   );
+`endif
 
   Memory #(
     .NADDR(NADDR),
@@ -103,8 +129,13 @@ module tb;
 
   // Inicialização dos sinais e reset
   initial begin
+`ifdef XRUN
+    $shm_open("dut.shm");
+    $shm_probe(tb.dut, "ASM");
+`else
     $dumpfile("dump.vcd");
     $dumpvars(0, tb);
+`endif
 
     reset = 1;
     p_start = 0;
@@ -114,6 +145,7 @@ module tb;
 
     // Start processamento
     $display("=== Start processing ===");
+    t_start = $realtime;
 
     @(posedge clk);
     p_start = 0;
@@ -121,6 +153,7 @@ module tb;
     wait(p_end);
 
     $display("\n*** TIME %f ***\n", $realtime);
+    t_end = $realtime;
 
     total_out_rows = FEAT_OUTPUT_SIZE * N_CHANNEL_OUT;
 
@@ -141,6 +174,13 @@ module tb;
     release w_output_addr;
     release w_output_en;
     release w_output_wr;
+
+    t_total = t_end - t_start;
+    time_fd = $fopen("testbench-synth-time.log", "w");
+    if (time_fd) begin
+      $fdisplay(time_fd, "Total execution time: %f", t_total);
+      $fclose(time_fd);
+    end
     $display("=== No errors - End simulation ===");
     $display("\n*** TIME %f ***\n", $realtime);
     $finish;
