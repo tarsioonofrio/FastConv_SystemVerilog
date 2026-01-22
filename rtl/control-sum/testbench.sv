@@ -46,7 +46,7 @@ module tb;
 
   // Clock generation (10ns period)
   initial clk = 0;
-  always #0.5 clk = ~clk;
+  always #5 clk = ~clk;
 
   // DUT instantiation
   Control #(
