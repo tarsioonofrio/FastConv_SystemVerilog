@@ -201,7 +201,10 @@ module tb;
     release w_input_en;
 
     $display("=== No errors - End simulation ===");
-    $display("Execution time after wait(end) %0f", exec_time);
+
+    $display("\n *** Total Time %0f ***\n", $realtime);
+
+    // $display("Execution time after wait(end) %0f", exec_time);
 
     #20ns
 
