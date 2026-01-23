@@ -11,13 +11,13 @@ module tb;
   import pack_data::*;
   import pack_param::*;
   import pack_typedef::*;
+  import pack_mux_mult::*;
 
   type_weight p_weight;
   type_input p_input;
   type_output p_output;
 
   logic clk, reset, p_start, p_end, p_idle;
-  int fi;
 
 
   // Instantiate conv_rapida entity
@@ -48,15 +48,15 @@ module tb;
     @(posedge clk);
 
     // Convert const_weight
-    for (int wi = 0; wi < M1_SIZE; wi++) begin
-      for (int wj = 0; wj < M2_SIZE; wj++) begin
-        p_weight[wj] = (NBITS)'($signed(const_weight[wi][wj]));
+    for (int channel = 0; channel < N_CHANNEL_IN * N_CHANNEL_OUT; channel++) begin
+      for (int weight = 0; weight < NMULT * SMULT; weight++) begin
+        p_weight[weight] = (NBITS)'($signed(const_weight[channel][weight]));
       end
       @(posedge clk);
       // Loop de simulação
-      for (fi = 0; fi < FIN1_SIZE; fi++) begin
-          for (int fj = 0; fj < FIN2_SIZE; fj++) begin
-            p_input[fj] = (NBITS)'($signed(const_feat_in[fi][fj]));
+      for (int batch = 0; batch < FIN1_SIZE; batch++) begin
+          for (int fin = 0; fin < FIN2_SIZE; fin++) begin
+            p_input[fin] = (NBITS)'($signed(const_feat_in[batch][fin]));
           end
 
           p_start = 1'b1;
