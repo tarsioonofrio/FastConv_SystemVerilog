@@ -214,7 +214,7 @@ module tb;
     release w_output_wr;
 
     t_total = t_end - t_start;
-    time_fd = $fopen("testbench-synth-time.log", "w");
+    time_fd = $fopen("sim.log", "w");
     if (time_fd) begin
       $fdisplay(time_fd, "Total execution time: %f", t_total);
       $fdisplay(time_fd, "Total cycles: %0d", cycle_count);
