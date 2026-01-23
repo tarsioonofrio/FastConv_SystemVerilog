@@ -1,5 +1,5 @@
 set GIT_ROOT [exec git rev-parse --show-toplevel]
-set CONSTRAINTS_PATH ${GIT_ROOT}/synthesis/source/scripts
+set CONSTRAINTS_PATH ${GIT_ROOT}/synthesis/_source/scripts
 
 #################################################################################
 # tsmc 28 nm
