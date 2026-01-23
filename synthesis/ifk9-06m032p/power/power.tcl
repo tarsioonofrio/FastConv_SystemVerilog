@@ -2,4 +2,4 @@ set DB_FILE [file normalize [file join [pwd] "../logical/results/gate_level/syst
 set SHM [file normalize [file join [pwd] "../sim/dut.shm"]]
 set GIT_ROOT [exec git rev-parse --show-toplevel]
 
-source ${GIT_ROOT}/synthesis/source/power.tcl
+source ${GIT_ROOT}/synthesis/_source/power.tcl

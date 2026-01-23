@@ -187,11 +187,16 @@ fi
 
 for d in */; do
   # Iterate over subdirectories of synthesis/.
-  if [ "$d" = "source/" ] || [ "$d" = "template/" ]; then
-    # Skip non-project folders.
-    continue
-    # Move on to the next directory.
-  fi
+  case "$d" in
+    _*/)
+      # Skip hidden underscore folders.
+      continue
+      ;;
+    source/|template/)
+      # Skip non-project folders.
+      continue
+      ;;
+  esac
   if [ -f "$d/logical/run.sh" ] && [ -f "$d/sim/run.sh" ] && [ -f "$d/power/run.sh" ]; then
     # Only run directories that look like projects.
     if ! run_dir "$d"; then
