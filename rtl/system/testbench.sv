@@ -35,10 +35,48 @@ module tb;
   time t_end = 0;
   time t_total = 0;
   integer time_fd = 0;
+  int cycle_count = 0;
+  int mem_input_reads = 0;
+  int mem_output_reads = 0;
+  int mem_output_writes = 0;
+  logic count_cycles = 0;
 
   // Clock generation (10ns period)
   initial clk = 0;
   always #5 clk = ~clk;
+
+  // Counters for cycles and memory transactions.
+  always_ff @(posedge clk) begin
+    if (reset) begin
+      cycle_count <= 0;
+      mem_input_reads <= 0;
+      mem_output_reads <= 0;
+      mem_output_writes <= 0;
+      count_cycles <= 0;
+    end else begin
+      if (p_start) begin
+        cycle_count <= 0;
+        mem_input_reads <= 0;
+        mem_output_reads <= 0;
+        mem_output_writes <= 0;
+        count_cycles <= 1;
+      end else if (count_cycles) begin
+        cycle_count <= cycle_count + 1;
+        if (w_input_en && !w_input_wr && w_input_valid) begin
+          mem_input_reads <= mem_input_reads + 1;
+        end
+        if (w_output_en && !w_output_wr && w_output_valid) begin
+          mem_output_reads <= mem_output_reads + 1;
+        end
+        if (w_output_en && w_output_wr) begin
+          mem_output_writes <= mem_output_writes + 1;
+        end
+        if (p_end) begin
+          count_cycles <= 0;
+        end
+      end
+    end
+  end
 
   // DUT instantiation
 `ifdef GATE_LEVEL
@@ -179,6 +217,10 @@ module tb;
     time_fd = $fopen("testbench-synth-time.log", "w");
     if (time_fd) begin
       $fdisplay(time_fd, "Total execution time: %f", t_total);
+      $fdisplay(time_fd, "Total cycles: %0d", cycle_count);
+      $fdisplay(time_fd, "Memory input reads: %0d", mem_input_reads);
+      $fdisplay(time_fd, "Memory output reads: %0d", mem_output_reads);
+      $fdisplay(time_fd, "Memory output writes: %0d", mem_output_writes);
       $fclose(time_fd);
     end
     $display("=== No errors - End simulation ===");
