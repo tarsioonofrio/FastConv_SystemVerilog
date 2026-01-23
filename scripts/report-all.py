@@ -46,7 +46,7 @@ def read_file(file_path):
 
 
 def write_report_time(report_dir, prefix):
-    path = "../synthesis/*/sim/testbench-synth-time.log"
+    path = "../synthesis/*/sim.log"
     rows = []
     for file_path in glob.glob(path):
         project = Path(file_path).parents[1].name
