@@ -19,6 +19,12 @@ module tb;
 
   logic clk, reset, p_start, p_end, p_idle;
   int batch_out = 0;
+  time t_start = 0;
+  time t_end = 0;
+  time t_total = 0;
+  int cycle_count = 0;
+  logic count_cycles = 0;
+  integer time_fd = 0;
 
   // Instantiate conv_rapida entity
   Conv #(
@@ -39,6 +45,24 @@ module tb;
   initial clk = 0;
   always #5 clk = ~clk;
 
+  // Track cycles between p_start and p_end.
+  always_ff @(posedge clk) begin
+    if (reset) begin
+      cycle_count <= 0;
+      count_cycles <= 0;
+    end else begin
+      if (p_start) begin
+        cycle_count <= 0;
+        count_cycles <= 1;
+      end else if (count_cycles) begin
+        cycle_count <= cycle_count + 1;
+        if (p_end) begin
+          count_cycles <= 0;
+        end
+      end
+    end
+  end
+
   // Test process to iterate over the input maps
   initial begin
     p_start = 0;
@@ -46,6 +70,7 @@ module tb;
     @(posedge clk);
     reset = 0;  // Liberar o reset após 5 ns
     @(posedge clk);
+    t_start = $realtime;
 
     // Convert const_weight
     for (int channel = 0; channel < N_CHANNEL_IN * N_CHANNEL_OUT; channel++) begin
@@ -89,11 +114,21 @@ module tb;
           @(posedge clk);
       end
     end
+
+    @(posedge clk);
+
+    t_end = $realtime;
+    t_total = t_end - t_start;
+    time_fd = $fopen("sim.log", "w");
+    if (time_fd) begin
+      $fdisplay(time_fd, "Total execution time: %f", t_total);
+      $fdisplay(time_fd, "Total cycles: %0d", cycle_count);
+      $fclose(time_fd);
+    end
     $display("=== No errors - End simulation ===");
     $display("\n*** TIME %f ***\n", $realtime);
     // $finish;
     // Finalizar a simulação 200 ns após o loop
-    @(posedge clk);
     $finish;
   end
 
