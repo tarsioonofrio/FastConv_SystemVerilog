@@ -1,7 +1,8 @@
-data/ifn9/sim/sim-062/pack_data.sv
+data/ifn9/sim/sim-032-1-1-seq/pack_data.sv
 rtl/pack-def/pack_def.sv
 rtl/pack-param/ifn9/pack_param.sv
 rtl/pack-typedef/pack_typedef.sv
 rtl/csa/csa_lib.sv
 rtl/mux-mult/ifn9/mux_mult_06.sv
-rtl/mult-matrices/ifn9/mult_matrices_simplified.sv
+rtl/mult-matrices/ifn9/mult_matrices.sv
+rtl/mem/mem.sv

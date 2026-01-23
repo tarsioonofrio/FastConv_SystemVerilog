@@ -1,18 +1,20 @@
+file delete {*}[glob -nocomplain wlf*]
+
 if {[file isdirectory work]} { vdel -all -lib work }
 vlib work
 vmap work work
 
 set GIT_ROOT [exec git rev-parse --show-toplevel]
 
-if {[info exists ::env(DATA)]} {
-    set DATA_SV $::env(DATA)
-} else {
-    set DATA_SV "${GIT_ROOT}/data/ifn9/data.sv"
-}
-vlog -work work  -svinputport=relaxed $DATA_SV
+# if {[info exists ::env(DATA)]} {
+#     set DATA_SV $::env(DATA)
+# } else {
+#     set DATA_SV "${GIT_ROOT}/data/ifn9/data.sv"
+# }
+# vlog -work work  -svinputport=relaxed $DATA_SV
 
-# Read key=value defines from define.txt and build the +define+key=value flags
-set defines_file "list_def.txt"
+# Read key=value defines from list-def.txt and build the +define+key=value flags
+set defines_file "list-def.txt"
 set define_flags ""
 
 if {[file exists $defines_file]} {
@@ -25,8 +27,9 @@ if {[file exists $defines_file]} {
     }
     close $fp_def
 }
+
 # Read the file_list.txt file and execute vlog commands for each line, passing defines
-set file_list "list_file.txt"
+set file_list "list-file.txt"
 set fp [open $file_list r]
 while {[gets $fp line] >= 0} {
     if {[string trim $line] ne ""} {
@@ -36,12 +39,13 @@ while {[gets $fp line] >= 0} {
 close $fp
 
 
-vlog -work work -svinputport=relaxed ./conv.sv
-vlog -work work -svinputport=relaxed ./testbench.sv
-
+vlog -work work $define_flags -svinputport=relaxed ./conv.sv
+vlog -work work $define_flags -svinputport=relaxed ./testbench.sv
+# to show FSM
+# vsim -voptargs=+acc -t ps -fsmdebug -coverage -debugDB work.tb
 vsim -voptargs=+acc -t ps work.tb
 set StdArithNoWarnings 1
 set StdVitalGlitchNoWarnings 1
-do wave.do
-# run 1900ns
-run -all
+run 400000ns
+# run 140ns
+# coverage report -output report.txt -srcfile=* -assert -directive -cvg -codeAll
