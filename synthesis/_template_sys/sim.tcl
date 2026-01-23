@@ -47,3 +47,4 @@ set StdArithNoWarnings 1
 set StdVitalGlitchNoWarnings 1
 
 run 400000ns
+quit
