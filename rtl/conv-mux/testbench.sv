@@ -23,7 +23,6 @@ module tb;
   time t_end = 0;
   time t_total = 0;
   int cycle_count = 0;
-  logic count_cycles = 0;
   integer time_fd = 0;
 
   // Instantiate conv_rapida entity
@@ -49,17 +48,8 @@ module tb;
   always_ff @(posedge clk) begin
     if (reset) begin
       cycle_count <= 0;
-      count_cycles <= 0;
     end else begin
-      if (p_start) begin
-        cycle_count <= 0;
-        count_cycles <= 1;
-      end else if (count_cycles) begin
-        cycle_count <= cycle_count + 1;
-        if (p_end) begin
-          count_cycles <= 0;
-        end
-      end
+      cycle_count <= cycle_count + 1;
     end
   end
 
