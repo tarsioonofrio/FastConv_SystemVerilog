@@ -27,7 +27,16 @@ def parse_side(project):
 def parse_time(path):
     with open(path, "r") as handle:
         content = handle.read()
-    match = re.search(r"Total execution time:\s*(\d+)", content)
+    match = re.search(r"Total execution time:\s*([0-9.]+)", content)
+    if not match:
+        return None
+    return float(match.group(1))
+
+
+def parse_cycles(path):
+    with open(path, "r") as handle:
+        content = handle.read()
+    match = re.search(r"Total cycles:\s*(\d+)", content)
     if not match:
         return None
     return int(match.group(1))
@@ -57,12 +66,15 @@ def write_report_time(report_dir, prefix):
             continue
         side = parse_side(project)
         time_ns = parse_time(file_path)
-        if side is None or time_ns is None:
+        cycles = parse_cycles(file_path)
+        if side is None or time_ns is None or cycles is None:
             continue
-        rows.append({"project": project, "side": side, "time/ns": time_ns})
+        rows.append(
+            {"project": project, "side": side, "time/ns": time_ns, "cycles": cycles}
+        )
 
     if not rows:
-        raise SystemExit("No valid testbench-synth-time.log files found.")
+        raise SystemExit("No valid sim.log files found.")
 
     df = pd.DataFrame(rows)
     df["project"] = df["project"].map(format_project_name)
@@ -171,7 +183,9 @@ def write_report_merge(report_dir, prefix):
     df_logical = pd.read_csv(report_dir / f"{label}-report-logical.csv")
     df_power = pd.read_csv(report_dir / f"{label}-report-power.csv")
 
-    df_time = df_time.rename(columns={"project": "Project", "time/ns": "time_ns"})
+    df_time = df_time.rename(
+        columns={"project": "Project", "time/ns": "time_ns", "cycles": "cycles"}
+    )
 
     df = df_time.merge(df_logical, on="Project", how="left")
     df = df.merge(df_power, on="Project", how="left")
@@ -183,7 +197,7 @@ def write_report_merge(report_dir, prefix):
     df["time_ns"] = pd.to_numeric(df["time_ns"], errors="coerce")
     df["energy"] = (df["Subtotal"] * df["time_ns"]) / 1000
 
-    column_order = ["Project", "nome", "multip"]
+    column_order = ["Project", "nome", "multip", "time_ns", "cycles"]
     df = df[column_order + [c for c in df.columns if c not in column_order]]
     df.sort_values(by=["Project"], inplace=True)
     df.reset_index(drop=True, inplace=True)
