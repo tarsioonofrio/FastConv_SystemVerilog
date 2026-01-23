@@ -66,13 +66,13 @@ module tb;
             // To avoid error:
             // %Warning-WIDTHEXPAND: ../../testbench/tb_conv.sv:79:36: Operator NEQ expects 32 bits on the LHS, but LHS's SIGNED generates 20 bits.
             /* verilator lint_off WIDTHEXPAND */
-            if ($signed(p_output[fout]) != $signed(const_feat_out_batch[batch_out][fout])) begin
+            if ($signed(p_output[fout]) != $signed(const_feat_out_batch[batch][fout])) begin
               /* verilator lint_off WIDTHEXPAND */
               // $display("Time: %0t | Data Valid: %b", $time, p_end);
               $display(
                 "Values Error: Time %0t | Data Valid: %b | const_feat_out[%0d][%0d] | p_output | %d != %d",
                 $time, p_end,
-                batch_out, fout, $signed(const_feat_out_batch[batch_out][fout]), $signed(p_output[fout])
+                batch, fout, $signed(const_feat_out_batch[batch][fout]), $signed(p_output[fout])
               );
             end
             batch_out++;
@@ -82,7 +82,7 @@ module tb;
               $display(
                 "Values Error: Time %0t | Data Valid: %b | const_feat_out[%0d][%0d] | p_output | %d != %d",
                 $time, p_end,
-                batch_out, fout, $signed(const_feat_out_batch[batch_out][fout]), $signed(p_output[fout])
+                batch, fout, $signed(const_feat_out_batch[batch][fout]), $signed(p_output[fout])
               );
             end
           end
