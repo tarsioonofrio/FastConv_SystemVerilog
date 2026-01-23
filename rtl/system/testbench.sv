@@ -62,7 +62,7 @@ module tb;
         count_cycles <= 1;
       end else if (count_cycles) begin
         cycle_count <= cycle_count + 1;
-        if (w_input_en && !w_input_wr && w_input_valid) begin
+        if (w_input_en && w_input_valid) begin
           mem_input_reads <= mem_input_reads + 1;
         end
         if (w_output_en && !w_output_wr && w_output_valid) begin
@@ -142,7 +142,7 @@ module tb;
     .clk(clk),
     .reset(reset),
     .chip_en(w_input_en),
-    .wr_en(w_input_wr),
+    .wr_en(0),
     .address(w_input_addr),
     .data_in(w_input_data_write),
     .data_out(w_input_data_read),
