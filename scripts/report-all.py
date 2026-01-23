@@ -45,11 +45,13 @@ def read_file(file_path):
         return handle.readlines()
 
 
-def write_report_time(report_dir):
+def write_report_time(report_dir, prefix):
     path = "../synthesis/*/sim/testbench-synth-time.log"
     rows = []
     for file_path in glob.glob(path):
         project = Path(file_path).parents[1].name
+        if not project.startswith(prefix):
+            continue
         if project in EXCLUDED_PROJECTS:
             print(f"Skipping excluded project: {project}")
             continue
@@ -66,13 +68,15 @@ def write_report_time(report_dir):
     df["project"] = df["project"].map(format_project_name)
     df.sort_values(by=["project"], inplace=True)
     df.reset_index(drop=True, inplace=True)
-    df.to_csv(report_dir / "report-time.csv", index=False)
+    label = prefix.rstrip("-")
+    df.to_csv(report_dir / f"{label}-report-time.csv", index=False)
 
 
-def write_report_logical(report_dir):
+def write_report_logical(report_dir, prefix):
     path = Path("../synthesis/*/logical/results/reports/*_area.rpt")
     all_files = glob.glob(path.as_posix())
     report_area = {project_name_from_report(f): read_file(f) for f in all_files}
+    report_area = {k: v for k, v in report_area.items() if k.startswith(prefix)}
     excluded_area = {k for k in report_area if k in EXCLUDED_PROJECTS}
     for name in sorted(excluded_area):
         print(f"Skipping excluded project: {name}")
@@ -86,6 +90,7 @@ def write_report_logical(report_dir):
     path = Path("../rtl/conv/*/sintese/results/reports/*_clock_gating.rpt")
     all_files = glob.glob(path.as_posix())
     report_clock = {project_name_from_report(f): read_file(f) for f in all_files}
+    report_clock = {k: v for k, v in report_clock.items() if k.startswith(prefix)}
     excluded_clock = {k for k in report_clock if k in EXCLUDED_PROJECTS}
     for name in sorted(excluded_clock):
         print(f"Skipping excluded project: {name}")
@@ -119,15 +124,18 @@ def write_report_logical(report_dir):
     df.insert(0, "Project", [format_project_name(n) for n in df.index])
     df.sort_values(by=["Project"], inplace=True)
     df.reset_index(drop=True, inplace=True)
-    df.to_csv(report_dir / "report-logical.csv", index=False)
+    label = prefix.rstrip("-")
+    df.to_csv(report_dir / f"{label}-report-logical.csv", index=False)
 
 
-def write_report_power(report_dir):
+def write_report_power(report_dir, prefix):
     path = Path("../synthesis/*/power/power_evaluation.txt")
     all_files = glob.glob(path.as_posix())
     filtered_files = []
     for f in all_files:
         name = Path(f).parent.parent.name
+        if not name.startswith(prefix):
+            continue
         if name in EXCLUDED_PROJECTS:
             print(f"Skipping excluded project: {name}")
             continue
@@ -153,13 +161,15 @@ def write_report_power(report_dir):
     df_total.insert(0, "Project", [format_project_name(n) for n in df_total.index])
     df_total.sort_values(by=["Project"], inplace=True)
     df_total.reset_index(drop=True, inplace=True)
-    df_total.to_csv(report_dir / "report-power.csv", index=False)
+    label = prefix.rstrip("-")
+    df_total.to_csv(report_dir / f"{label}-report-power.csv", index=False)
 
 
-def write_report_merge(report_dir):
-    df_time = pd.read_csv(report_dir / "report-time.csv")
-    df_logical = pd.read_csv(report_dir / "report-logical.csv")
-    df_power = pd.read_csv(report_dir / "report-power.csv")
+def write_report_merge(report_dir, prefix):
+    label = prefix.rstrip("-")
+    df_time = pd.read_csv(report_dir / f"{label}-report-time.csv")
+    df_logical = pd.read_csv(report_dir / f"{label}-report-logical.csv")
+    df_power = pd.read_csv(report_dir / f"{label}-report-power.csv")
 
     df_time = df_time.rename(columns={"project": "Project", "time/ns": "time_ns"})
 
@@ -178,25 +188,26 @@ def write_report_merge(report_dir):
     df.sort_values(by=["Project"], inplace=True)
     df.reset_index(drop=True, inplace=True)
 
-    df.to_csv(report_dir / "report-merged.csv", index=False)
+    df.to_csv(report_dir / f"{label}-report-merged.csv", index=False)
 
     mask_9_032p = df["Project"].astype(str).str.contains(r"9-.*032p", regex=True)
     df_9_032p = df[mask_9_032p].copy()
     df_9_032p.reset_index(drop=True, inplace=True)
-    df_9_032p.to_csv(report_dir / "report-merged-9-032p.csv", index=False)
+    df_9_032p.to_csv(report_dir / f"{label}-report-merged-9-032p.csv", index=False)
 
     mask_ifn9_06m = df["Project"].astype(str).str.startswith("IFn9-06m")
     df_ifn9_06m = df[mask_ifn9_06m].copy()
     df_ifn9_06m.reset_index(drop=True, inplace=True)
-    df_ifn9_06m.to_csv(report_dir / "report-merged-IFn9-06m.csv", index=False)
+    df_ifn9_06m.to_csv(report_dir / f"{label}-report-merged-IFn9-06m.csv", index=False)
 
 
 def main():
     report_dir = Path(__file__).resolve().parent.parent / "report"
-    write_report_time(report_dir)
-    write_report_logical(report_dir)
-    write_report_power(report_dir)
-    write_report_merge(report_dir)
+    for prefix in ("sys-", "conv-"):
+        write_report_time(report_dir, prefix)
+        write_report_logical(report_dir, prefix)
+        write_report_power(report_dir, prefix)
+        write_report_merge(report_dir, prefix)
 
 
 if __name__ == "__main__":
