@@ -42,4 +42,4 @@ if {[file exists $defines_file]} {
 
 append HDL_FILES "${GIT_ROOT}/rtl/system/system.sv"
 
-source ${GIT_ROOT}/synthesis/source/logical_synthesis.tcl
+source ${GIT_ROOT}/synthesis/_source/logical_synthesis.tcl
