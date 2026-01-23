@@ -8,7 +8,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ERROR_LOG="$SCRIPT_DIR/run-errors.txt"
 # Log file for failed paths, stored next to this script.
 MODE=""
-# Optional mode filter: logical, sim, or power.
+# Optional mode filter: logical, sim, power, or vsim.
 
 print_banner() {
   # Print a visible banner for each step.
@@ -54,6 +54,30 @@ run_dir() {
   # Declare the local path variable.
   path="$(resolve_path "$1")"
   # Capture the path argument.
+  if [ "$MODE" = "vsim" ]; then
+    # Run vsim -c -do sim.tcl when requested.
+    if [ -f "$path" ] && [ "$(basename "$path")" = "sim.tcl" ]; then
+      # Accept direct sim.tcl paths.
+      print_banner "RUNNING: $path"
+      if ! ( cd "$(dirname "$path")" && vsim -c -do sim.tcl ); then
+        echo "$path" >> "$ERROR_LOG"
+        return 1
+      fi
+      return
+    fi
+    if [ -f "$path/sim.tcl" ]; then
+      # Accept project folders containing sim.tcl.
+      print_banner "RUNNING: $path/sim.tcl"
+      if ! ( cd "$path" && vsim -c -do sim.tcl ); then
+        echo "$path/sim.tcl" >> "$ERROR_LOG"
+        return 1
+      fi
+      return
+    fi
+    echo "Unknown vsim target: $path" >&2
+    echo "$path" >> "$ERROR_LOG"
+    return 1
+  fi
   if [ -f "$path/run.sh" ]; then
     # Direct leaf script case.
     if [ -n "$MODE" ] && [ "$(basename "$path")" != "$MODE" ]; then
@@ -132,6 +156,13 @@ while [ "$#" -gt 0 ]; do
     -power)
       # Select only power stage.
       MODE="power"
+      # Set the mode filter.
+      shift
+      # Consume this flag.
+      ;;
+    -vsim)
+      # Run vsim -c -do sim.tcl per project.
+      MODE="vsim"
       # Set the mode filter.
       shift
       # Consume this flag.
