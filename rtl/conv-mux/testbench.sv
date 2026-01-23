@@ -18,7 +18,7 @@ module tb;
   type_output p_output;
 
   logic clk, reset, p_start, p_end, p_idle;
-
+  int batch_out = 0;
 
   // Instantiate conv_rapida entity
   Conv #(
@@ -58,11 +58,34 @@ module tb;
           for (int fin = 0; fin < FIN2_SIZE; fin++) begin
             p_input[fin] = (NBITS)'($signed(const_feat_in[batch][fin]));
           end
-
           p_start = 1'b1;
           @(posedge clk);
           p_start = 1'b0;
           wait(p_end);
+          for (int fout = 0; fout < FOUT2_SIZE; fout++) begin
+            // To avoid error:
+            // %Warning-WIDTHEXPAND: ../../testbench/tb_conv.sv:79:36: Operator NEQ expects 32 bits on the LHS, but LHS's SIGNED generates 20 bits.
+            /* verilator lint_off WIDTHEXPAND */
+            if ($signed(p_output[fout]) != $signed(const_feat_out_batch[batch_out][fout])) begin
+              /* verilator lint_off WIDTHEXPAND */
+              // $display("Time: %0t | Data Valid: %b", $time, p_end);
+              $display(
+                "Values Error: Time %0t | Data Valid: %b | const_feat_out[%0d][%0d] | p_output | %d != %d",
+                $time, p_end,
+                batch_out, fout, $signed(const_feat_out_batch[batch_out][fout]), $signed(p_output[fout])
+              );
+            end
+            batch_out++;
+            if (DEBUG == 1) begin
+              /* verilator lint_off WIDTHEXPAND */
+              // $display("Time: %0t | Data Valid: %b", $time, p_end);
+              $display(
+                "Values Error: Time %0t | Data Valid: %b | const_feat_out[%0d][%0d] | p_output | %d != %d",
+                $time, p_end,
+                batch_out, fout, $signed(const_feat_out_batch[batch_out][fout]), $signed(p_output[fout])
+              );
+            end
+          end
           @(posedge clk);
       end
     end
@@ -75,33 +98,34 @@ module tb;
   end
 
 
-  // always @(posedge clk) begin
-  //   if (p_end) begin
-  //     // #1; // espera propagação de sinal
-  //     for (int fj = 0; fj < FOUT2_SIZE; fj++) begin
-  //       // To avoid error:
-  //       // %Warning-WIDTHEXPAND: ../../testbench/tb_conv.sv:79:36: Operator NEQ expects 32 bits on the LHS, but LHS's SIGNED generates 20 bits.
-  //       /* verilator lint_off WIDTHEXPAND */
-  //       if ($signed(p_output[fj]) != $signed(const_feat_out[fi][fj])) begin
-  //         /* verilator lint_off WIDTHEXPAND */
-  //         // $display("Time: %0t | Data Valid: %b", $time, p_end);
-  //         $display(
-  //           "Values Error: Time %0t | Data Valid: %b | const_feat_out[%0d][%0d] = %d != %d",
-  //           $time, p_end,
-  //           fi, fj, $signed(const_feat_out[fi][fj]), $signed(p_output[fj])
-  //         );
-  //       end
-  //       if (DEBUG == 1) begin
-  //         /* verilator lint_off WIDTHEXPAND */
-  //         // $display("Time: %0t | Data Valid: %b", $time, p_end);
-  //         $display(
-  //           "Values: Time %0t | Data Valid: %b | const_feat_out[%0d][%0d]  %d | p_output = %d",
-  //           $time, p_end,
-  //           fi, fj, $signed(const_feat_out[fi][fj]), $signed(p_output[fj])
-  //         );
-  //       end
-  //     end
-  //   end
-  // end
+  always @(posedge clk) begin
+    if (p_end) begin
+      // #1; // espera propagação de sinal
+      // for (int fj = 0; fj < FOUT2_SIZE; fj++) begin
+      //   // To avoid error:
+      //   // %Warning-WIDTHEXPAND: ../../testbench/tb_conv.sv:79:36: Operator NEQ expects 32 bits on the LHS, but LHS's SIGNED generates 20 bits.
+      //   /* verilator lint_off WIDTHEXPAND */
+      //   if ($signed(p_output[fj]) != $signed(const_feat_out_batch[batch_out][fj])) begin
+      //     /* verilator lint_off WIDTHEXPAND */
+      //     // $display("Time: %0t | Data Valid: %b", $time, p_end);
+      //     $display(
+      //       "Values Error: Time %0t | Data Valid: %b | const_feat_out[%0d][%0d] = %d != %d",
+      //       $time, p_end,
+      //       batch_out, fj, $signed(const_feat_out_batch[batch_out][fj]), $signed(p_output[fj])
+      //     );
+      //   end
+      //   batch_out++;
+      //   if (DEBUG == 1) begin
+      //     /* verilator lint_off WIDTHEXPAND */
+      //     // $display("Time: %0t | Data Valid: %b", $time, p_end);
+      //     $display(
+      //       "Values: Time %0t | Data Valid: %b | const_feat_out[%0d][%0d]  %d | p_output = %d",
+      //       $time, p_end,
+      //       batch_out, fj, $signed(const_feat_out_batch[batch_out][fj]), $signed(p_output[fj])
+      //     );
+      //   end
+      // end
+    end
+  end
 
 endmodule
