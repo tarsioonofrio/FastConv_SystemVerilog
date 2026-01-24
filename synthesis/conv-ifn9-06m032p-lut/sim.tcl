@@ -47,5 +47,6 @@ vsim -voptargs=+acc -t ps work.tb
 set StdArithNoWarnings 1
 set StdVitalGlitchNoWarnings 1
 run 400000ns
+quit
 # run 140ns
 # coverage report -output report.txt -srcfile=* -assert -directive -cvg -codeAll
