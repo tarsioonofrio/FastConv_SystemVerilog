@@ -10,13 +10,13 @@ module tb;
   import packConv::*;
   import data::*;
 
- // type_weight weight;
- // type_input inputMAP;
- // type_output outputMAP;
+  type_weight weight;
+  type_input inputMAP;
+  type_output outputMAP;
 
-  logic [19:0] inputMAP [0:24];
-  logic [19:0] weight  [0:35];
-  logic [19:0] outputMAP[0:8];
+  // logic [19:0] inputMAP [0:24];
+  // logic [19:0] weight  [0:35];
+  // logic [19:0] outputMAP[0:8];
 
   logic reset, start, data_valid;
   logic clk = 1'b0;
@@ -89,7 +89,8 @@ module tb;
 
 
   // Clock generation - 2 ns - 500 MHz
-  always #1 clk = ~clk;
+  initial clk = 0;
+  always #5 clk = ~clk;
 
   // Test process to iterate over the input maps
   initial begin
