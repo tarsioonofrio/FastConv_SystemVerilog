@@ -233,9 +233,6 @@ timeunit 1ns; timeprecision 1ps;
   logic [$clog2(FEAT_OUTPUT_SIZE + A1_SIZE):0] w_global_row_out;
   logic w_output_pixel_in_bounds;
 
-  // Write-enable mirror for the output RAM port (helps gate strobes during HOLD states)
-  logic w_output_en;
-
   // Counters that keep track of which input/output channel pair is currently active
   logic [$floor($clog2(TOTAL_NUM_CHANNELS) + 0.5):0] r_channel_counter_input;
   logic [$floor($clog2(TOTAL_NUM_CHANNELS) + 0.5):0] r_channel_counter_out;
@@ -287,12 +284,9 @@ timeunit 1ns; timeprecision 1ps;
   logic w_output_write_ready;
 
   // High-level debug aliases for documentation/waveforms
-  logic w_read_fin;
   logic w_conv_start_dbg;
   logic w_conv_end_dbg;
   logic w_idle_conv_dbg;
-  logic w_read_ofmap;
-  logic w_write_ofmap;
   // High when output accumulation should include data read from RAM.
   logic w_output_accumulate_enable;
   // Output write event used to gate datapath operands.
@@ -1035,30 +1029,23 @@ timeunit 1ns; timeprecision 1ps;
     unique case (current_st_input)
       WEIGHT: begin
         p_input_addr = r_addr_pointer_kernel;
-        p_input_en = r_read_en;
+        p_input_en   = r_read_en;
       end
       READ_INPUT: begin
         p_input_addr = w_addr_ptr_pin;
-        p_input_en = r_read_en;
+        p_input_en   = r_read_en;
       end
       default: begin
-        p_input_addr = 0;
-        p_input_en = 1'b0;
+        p_input_addr = '0;
+        p_input_en   = 1'b0;
       end
     endcase
-    // Alias for input feature-map reads (FIN)
-    w_read_fin = p_input_en;
   end
 
   // P_OUTPUT_CTRL_BLOCK: exposes OUTPUT_CTRL_BLOCK decisions to the RAM port, toggling enables and
   // write strobes in lockstep with the internal window counters.
   always_comb begin: P_OUTPUT_CTRL_BLOCK
     unique case (current_st_output)
-      // Waits for the convolution-complete signal
-      default: begin
-        p_output_en = 1'b0;
-        p_output_wr = 1'b0;
-      end
       READ_OUTPUT: begin
         p_output_en = 1'b1;
         p_output_wr = 1'b0;
@@ -1068,10 +1055,12 @@ timeunit 1ns; timeprecision 1ps;
         p_output_en = 1'b1;
         p_output_wr = w_output_pixel_in_bounds && w_output_write_ready;
       end
+      // Waits for the convolution-complete signal
+      default: begin
+        p_output_en = 1'b0;
+        p_output_wr = 1'b0;
+      end
     endcase
-    // Aliases for OFMAP access
-    w_read_ofmap  = (current_st_output == READ_OUTPUT)  && p_output_en;
-    w_write_ofmap = (current_st_output == WRITE_OUTPUT) && p_output_en && p_output_wr;
   end
 
   assign p_output_addr = w_addr_ptr_pout;
