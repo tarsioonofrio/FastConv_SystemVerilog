@@ -156,10 +156,6 @@ timeunit 1ns; timeprecision 1ps;
   logic [$clog2(TOTAL_NUM_CHANNELS + KERNEL_NUM_ELEMS * TOTAL_NUM_CHANNELS)-1:0] r_addr_pointer_kernel;
   // Weight read counter
   logic [$clog2(KERNEL_NUM_ELEMS)-1:0] r_addr_count_kernel;
-  // Bias read counter; bias depth is one so it is unused for now
-  logic [$floor($clog2(TOTAL_NUM_CHANNELS) + 0.5)-1:0] r_addr_pointer_bias;
-  // Temporary substitute for r_addr_pointer_bias
-  // logic [2:0] r_addr_pointer_bias;
 
   // -- Output path control counters --
   // Output feature register write counter
@@ -289,7 +285,6 @@ timeunit 1ns; timeprecision 1ps;
   logic w_input_read_pending;
   logic w_output_read_pending;
   logic w_output_write_ready;
-  logic w_output_write_pending;
 
   // High-level debug aliases for documentation/waveforms
   logic w_read_fin;
@@ -307,7 +302,6 @@ timeunit 1ns; timeprecision 1ps;
 
   typedef enum {
     IDLE_INPUT,
-    BIAS,
     WEIGHT,
     CONV_INPUT,
     READ_INPUT,
@@ -360,10 +354,6 @@ timeunit 1ns; timeprecision 1ps;
       IDLE_INPUT: begin
         if (p_start)
           next_st_input = WEIGHT;
-          // next_st_input = BIAS;
-      end
-      BIAS: begin
-        next_st_input = WEIGHT;
       end
       // Waits for the weight fetch covering the active input/output channel pair before moving on to input data
       WEIGHT: begin
@@ -382,10 +372,6 @@ timeunit 1ns; timeprecision 1ps;
           if (f_is_last_row_input() && (r_window_counter_total_input >= LAST_INPUT_WINDOW_INDEX))
             next_st_input = END_INPUT;
           else
-          // When all output-channel windows are complete, load bias (disabled for now)
-          // if (r_window_counter_total_input == WINDOWS_PER_INPUT_CHANNEL)
-          //  next_st_input = BIAS;
-          // else
           // When a full set of windows for an input channel is done, reload weights
           if (f_is_last_row_input() && f_is_last_channel_input())
             next_st_input = HOLD_LAST_CONV;
@@ -436,9 +422,7 @@ timeunit 1ns; timeprecision 1ps;
       CONV_OUTPUT: begin
         // Consume any pending convolution result as soon as the FSM reaches CONV_OUTPUT,
         // independent of the exact cycle when p_conv_end was asserted.
-        if (r_conv_result_pending && (r_channel_counter_out == 0))
-          next_st_output = WRITE_OUTPUT;
-        else if (r_conv_result_pending && (r_channel_counter_out > 0))
+        if (r_conv_result_pending)
           next_st_output = WRITE_OUTPUT;
       end
       // Waits for the output data write to memory to complete and then returns to idle
@@ -575,7 +559,6 @@ timeunit 1ns; timeprecision 1ps;
   assign w_input_read_pending  = (current_st_input == READ_INPUT) && (r_input_read_latency  != 0);
   assign w_output_read_pending = (current_st_output == READ_OUTPUT) && (r_output_read_latency != 0);
   assign w_output_write_ready   = (current_st_output == WRITE_OUTPUT) && (r_output_write_latency == 0);
-  assign w_output_write_pending = (current_st_output == WRITE_OUTPUT) && (r_output_write_latency != 0);
   assign w_output_accumulate_enable = (r_channel_counter_out > 0);
   assign w_output_write_fire = (current_st_output == WRITE_OUTPUT) &&
                                w_output_write_ready &&
@@ -595,7 +578,6 @@ timeunit 1ns; timeprecision 1ps;
   // the FSM state transitions and handshake logic shared with the convolution core.
   task automatic reset_input_ctrl_regs();
     r_read_en                      <= 1'b0;
-    r_addr_pointer_bias            <= '0;
     r_addr_pointer_kernel          <= N_CHANNEL_OUT;
     r_addr_pointer_input           <= TOTAL_NUM_CHANNELS + KERNEL_NUM_ELEMS * TOTAL_NUM_CHANNELS;
     r_addr_count_kernel            <= '0;
@@ -617,7 +599,6 @@ timeunit 1ns; timeprecision 1ps;
   // with OUTPUT_CTRL_BLOCK when the pipeline drains and waits for new work.
   task automatic load_input_idle_state();
     r_read_en                      <= 1'b0;
-    r_addr_pointer_bias            <= '0;
     r_addr_pointer_kernel          <= TOTAL_NUM_CHANNELS;
     r_addr_pointer_input           <= TOTAL_NUM_CHANNELS + KERNEL_NUM_ELEMS * TOTAL_NUM_CHANNELS;
     r_addr_count_kernel            <= '0;
@@ -654,11 +635,7 @@ timeunit 1ns; timeprecision 1ps;
           // Reset control counters/pointers so the next activation starts from the canonical base.
           load_input_idle_state();
         end
-        BIAS: begin
-          // Sequentially advances through the bias region before weights/inputs are fetched.
-          r_addr_pointer_bias <= r_addr_pointer_bias + 1;
-        end
-        WEIGHT: begin
+          WEIGHT: begin
           // Streams kernel coefficients into r_kernel while priming the input counter.
           r_read_en        <= 1'b1;
           r_addr_count_input <= 0;
@@ -1030,10 +1007,6 @@ timeunit 1ns; timeprecision 1ps;
   // view consistent with what INPUT_CTRL_BLOCK is expecting to capture.
   always_comb begin: P_INPUT_MUX_BLOCK
     unique case (current_st_input)
-      BIAS: begin
-        p_input_addr = r_addr_pointer_bias;
-        p_input_en = 1'b0;
-      end
       WEIGHT: begin
         p_input_addr = r_addr_pointer_kernel;
         p_input_en = r_read_en;
