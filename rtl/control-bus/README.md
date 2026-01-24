@@ -28,26 +28,33 @@ The main control module imports packages such as `pack_def`, `pack_typedef`, and
 | `p_conv_weight`          | out | `type_weight`| Kernel tile forwarded to the core                                           |
 | `p_conv_output`          | in  | `type_output`| Feature-map slice returned by the core                                      |
 | `p_input_en`, `p_input_addr` | out | `logic`/`logic[NADDR-1:0]` | Read-enable and address for the input RAM                |
-| `p_input_data`, `p_input_valid` | in | `logic_vector`/`logic` | Input RAM read data and ready flag                        |
+| `p_input_data`, `p_input_valid` | in | `logic_vector[C1_SIZE-1:0]`/`logic` | Input RAM column data and ready flag     |
 | `p_output_en`, `p_output_wr` | out | `logic` | Output RAM enable and write strobe                                          |
 | `p_output_addr`          | out | `logic[NADDR-1:0]` | Output RAM address                                                    |
-| `p_output_data_write`    | out | `logic_vector` | Data driven when writing to the output RAM                               |
-| `p_output_data_read`, `p_output_valid` | in | `logic_vector`/`logic` | Read-back data and valid flag for accumulation |
+| `p_output_data_write`    | out | `logic_vector[A1_SIZE-1:0]` | Output RAM column write data                        |
+| `p_output_data_read`, `p_output_valid` | in | `logic_vector[A1_SIZE-1:0]`/`logic` | Output RAM column read data and valid flag |
 
 The control module typically drives multiple finite state machines (FSMs) to manage the sequencing of operations such as input buffering, transform stages, multiplication scheduling, and output assembly.
+
+### Column-wide memory interface
+
+- The input RAM returns an entire column per cycle (`C1_SIZE` lanes). The address points to the top row of the column.
+- The output RAM reads/writes a full column per cycle (`A1_SIZE` lanes). The address points to the top row of the column.
+- The control logic clamps each lane independently when rows/columns fall outside the valid feature map.
 
 ### Additional Notes
 
 - The control logic carefully handles synchronization between data arrival, processing stages, and mux selection.
 - The design emphasizes modularity to enable reuse of the control subsystem across different FastConv configurations with varying window sizes and channel counts.
 - Testbenches located in this folder simulate the control logic with representative stimuli and validate correct operation through assertion checks and waveform inspection.
+- The testbench uses a `MemoryColumn` model to emulate column-wide reads and writes.
 
 ### High-level block interactions
 
 Using the conceptual blocks from the hardware documentation:
 
 - **Input Clip → Input Data Path**: clamps/pads samples before they enter the input buffers.
-- **Input Address → Input Data Path**: generates read addresses and window indices for the input RAM.
+- **Input Address → Input Data Path**: generates column addresses and window indices for the input RAM.
 - **Input Data Path → Convolution Module**: streams tiled input features into the convolution core.
 - **Input Handshake → Convolution Module**: starts new tiles when the core is idle and ready.
 - **Convolution Module → Output Data Path**: produces transformed feature-map tiles for buffering.
@@ -74,11 +81,11 @@ Two main FSMs partition the controller responsibilities: the input-side machine 
 
 ### Input FSM
 
-**Purpose**: stream weights, fill each input window, and only release data to the convolution core when it is ready.  
+**Purpose**: stream weights, fill each input window one column per cycle, and only release data to the convolution core when it is ready.  
 **Key states**:  
 - `IDLE_INPUT`: wait for `p_start` while counters remain cleared.  
 - `WEIGHT`: stream kernel tiles and increment the weight counters.  
-- `READ_INPUT`: sweep the sliding window through the feature map, reusing rows when possible.  
+- `READ_INPUT`: sweep the sliding window through the feature map, reading full columns in parallel.  
 - `CONV_INPUT`/`HOLD_*`: hand off tiles to the convolution unit and optionally pause while downstream paths drain.
 
 ```mermaid
@@ -91,7 +98,7 @@ flowchart TB
 
 ### Output FSM
 
-**Purpose**: accept each convolution result exactly once, merge it with previously stored data when needed, and write the final window back to memory.  
+**Purpose**: accept each convolution result exactly once, merge it with previously stored data when needed, and write the final window back to memory one column per cycle.  
 **Key states**:  
 - `IDLE_OUTPUT`: stay idle until `p_start` arrives.  
 - `CONV_OUTPUT`: wait for `w_conv_result_ready` and capture the tile into `r_conv_output`.  
