@@ -252,8 +252,12 @@ timeunit 1ns; timeprecision 1ps;
   type_input  r_feat_input;
   // Logical view of the circular input buffer presented to the convolution core
   type_input  w_feat_input_aligned;
+  // Held copies of the input/weight buses to avoid toggling the core interface when idle.
+  type_input  r_conv_input_hold;
   // Register bank for kernel weights
   type_weight r_kernel;
+  // Held copy of the weight bus to isolate the convolution core input.
+  type_weight r_conv_weight_hold;
   // Register bank for read output features
   type_output r_feat_output;
   // Register bank for output features from convolution module
@@ -296,6 +300,10 @@ timeunit 1ns; timeprecision 1ps;
   logic w_write_ofmap;
   // High when output accumulation should include data read from RAM.
   logic w_output_accumulate_enable;
+  // Output write event used to gate datapath operands.
+  logic w_output_write_fire;
+  logic_vector w_conv_output_gated;
+  logic_vector w_feat_output_gated;
 
   typedef enum {
     IDLE_INPUT,
@@ -569,6 +577,12 @@ timeunit 1ns; timeprecision 1ps;
   assign w_output_write_ready   = (current_st_output == WRITE_OUTPUT) && (r_output_write_latency == 0);
   assign w_output_write_pending = (current_st_output == WRITE_OUTPUT) && (r_output_write_latency != 0);
   assign w_output_accumulate_enable = (r_channel_counter_out > 0);
+  assign w_output_write_fire = (current_st_output == WRITE_OUTPUT) &&
+                               w_output_write_ready &&
+                               w_output_pixel_in_bounds;
+  assign w_conv_output_gated = w_output_write_fire ? r_conv_output[r_addr_count_write_out] : '0;
+  assign w_feat_output_gated = (w_output_write_fire && w_output_accumulate_enable) ?
+                               r_feat_output[r_addr_count_write_out] : '0;
 
 
   /*
@@ -983,11 +997,28 @@ timeunit 1ns; timeprecision 1ps;
       p_end = (r_window_counter_total_out >= TOTAL_INPUT_WINDOWS) ? 1'b1 : 1'b0;
   end
 
+  // CONV_BUS_HOLD_BLOCK: captures the input/weight buses only when a new tile is fired, keeping
+  // the core interface stable while idle.
+  always_ff @(posedge clk or posedge reset) begin: CONV_BUS_HOLD_BLOCK
+    if (reset) begin
+      r_conv_input_hold  <= '{default: '0};
+      r_conv_weight_hold <= '{default: '0};
+    end else if (w_conv_input_fire) begin
+      r_conv_input_hold  <= w_feat_input_aligned;
+      r_conv_weight_hold <= r_kernel;
+    end
+  end
+
   // P_CONV_BUS_BLOCK: ties INPUT_BUFFER_BLOCK contents to the convolution core, relying on the
   // handshake logic declared earlier to fire requests safely.
   always_comb begin: P_CONV_BUS_BLOCK
-    p_conv_input  = w_feat_input_aligned;
-    p_conv_weight = r_kernel;
+    if (w_conv_input_fire) begin
+      p_conv_input  = w_feat_input_aligned;
+      p_conv_weight = r_kernel;
+    end else begin
+      p_conv_input  = r_conv_input_hold;
+      p_conv_weight = r_conv_weight_hold;
+    end
     // p_conv_start  = w_handshake_input;
     p_conv_start      = w_conv_input_fire;
     w_conv_start_dbg  = w_conv_input_fire;
@@ -1049,10 +1080,7 @@ timeunit 1ns; timeprecision 1ps;
   // P_OUTPUT_DATA_WRITE_BLOCK: feeds the output RAM with the accumulated sum of the captured
   // convolution result plus any existing feature data, aligned with OUTPUT_CTRL_BLOCK counters.
   always_comb begin: P_OUTPUT_DATA_WRITE_BLOCK
-    if (w_output_accumulate_enable)
-      p_output_data_write = r_conv_output[r_addr_count_write_out] + r_feat_output[r_addr_count_write_out];
-    else
-      p_output_data_write = r_conv_output[r_addr_count_write_out];
+    p_output_data_write = w_conv_output_gated + w_feat_output_gated;
   end
 
 
