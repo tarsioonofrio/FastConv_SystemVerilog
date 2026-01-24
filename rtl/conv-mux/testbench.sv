@@ -22,8 +22,8 @@ module tb;
   time t_start = 0;
   time t_end = 0;
   time t_total = 0;
-  int cycle_count = 0;
   integer time_fd = 0;
+  int cycle_count;
 
   // Instantiate conv_rapida entity
   Conv #(
