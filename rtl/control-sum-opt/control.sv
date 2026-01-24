@@ -293,6 +293,15 @@ timeunit 1ns; timeprecision 1ps;
   logic w_output_write_fire;
   logic_vector w_conv_output_gated;
   logic_vector w_feat_output_gated;
+  // Clock-enable strobes to gate large sequential blocks while idle.
+  logic w_input_ctrl_enable;
+  logic w_input_buf_enable;
+  logic w_output_ctrl_enable;
+  logic w_output_data_enable;
+  logic w_output_index_enable;
+  logic w_latency_enable;
+  // Tracks whether the input idle baseline has been applied.
+  logic r_input_idle_loaded;
   // Precomputed end-of-window predicates to simplify control decisions.
   logic w_last_read_input;
   logic w_last_row_input;
@@ -477,7 +486,7 @@ timeunit 1ns; timeprecision 1ps;
   always_ff @(posedge clk) begin: CONV_BUSY_BLOCK
     if (reset) begin
       r_conv_busy <= 1'b0;
-    end else begin
+    end else if (p_conv_end || w_conv_input_fire) begin
       if (p_conv_end)
         r_conv_busy <= 1'b0;
       if (w_conv_input_fire)
@@ -498,7 +507,7 @@ timeunit 1ns; timeprecision 1ps;
   always_ff @(posedge clk) begin: CONV_RESULT_PENDING_BLOCK
     if (reset) begin
       r_conv_result_pending <= 1'b0;
-    end else begin
+    end else if (w_conv_result_ready || w_conv_result_accept) begin
       if (w_conv_result_ready)
         r_conv_result_pending <= 1'b1;
       else if (w_conv_result_accept)
@@ -519,7 +528,7 @@ timeunit 1ns; timeprecision 1ps;
       r_input_read_latency  <= RAM_LATENCY_RELOAD;
       r_output_read_latency <= RAM_LATENCY_RELOAD;
       r_output_write_latency <= RAM_LATENCY_RELOAD;
-    end else begin
+    end else if (w_latency_enable) begin
       // Weight stream latency
       if (current_st_input != WEIGHT) begin
         r_weight_read_latency <= RAM_LATENCY_RELOAD;
@@ -575,6 +584,24 @@ timeunit 1ns; timeprecision 1ps;
   assign w_conv_output_gated = w_output_write_fire ? r_conv_output[r_addr_count_write_out] : '0;
   assign w_feat_output_gated = (w_output_write_fire && w_output_accumulate_enable) ?
                                r_feat_output[r_addr_count_write_out] : '0;
+  assign w_input_ctrl_enable   = (current_st_input != IDLE_INPUT) || !r_input_idle_loaded;
+  assign w_input_buf_enable    = w_weight_data_ready || w_input_data_ready;
+  assign w_output_ctrl_enable  = ((current_st_output == READ_OUTPUT) && w_output_data_ready) ||
+                                 (current_st_output == CONV_OUTPUT) ||
+                                 ((current_st_output == WRITE_OUTPUT) && w_output_write_ready) ||
+                                 (current_st_output == END_CHANNEL);
+  assign w_output_data_enable  = ((current_st_output == READ_OUTPUT) && w_output_data_ready) ||
+                                 ((current_st_output == CONV_OUTPUT) && r_conv_result_pending);
+  assign w_output_index_enable = ((current_st_output == WRITE_OUTPUT) && w_output_write_ready) ||
+                                 ((current_st_output == READ_OUTPUT) && w_output_data_ready);
+  assign w_latency_enable      = (current_st_input == WEIGHT) ||
+                                 (current_st_input == READ_INPUT) ||
+                                 (current_st_output == READ_OUTPUT) ||
+                                 (current_st_output == WRITE_OUTPUT) ||
+                                 (r_weight_read_latency != RAM_LATENCY_RELOAD) ||
+                                 (r_input_read_latency != RAM_LATENCY_RELOAD) ||
+                                 (r_output_read_latency != RAM_LATENCY_RELOAD) ||
+                                 (r_output_write_latency != RAM_LATENCY_RELOAD);
   assign w_last_read_input        = (r_addr_count_input == LAST_KERNEL_INDEX);
   assign w_last_row_input         = (r_window_counter_row_input >= LAST_WINDOW_ROW_INDEX);
   assign w_last_channel_input     = (r_window_counter_channel_input >= LAST_WINDOW_INDEX_PER_PLANE);
@@ -648,14 +675,21 @@ timeunit 1ns; timeprecision 1ps;
   always_ff @(posedge clk) begin: INPUT_CTRL_BLOCK
     if (reset) begin
       reset_input_ctrl_regs();
-    end else begin
+      r_input_idle_loaded <= 1'b0;
+    end else if (w_input_ctrl_enable) begin
       unique case (current_st_input)
-        default: begin end
+        default: begin
+          r_input_idle_loaded <= 1'b0;
+        end
         IDLE_INPUT: begin
           // Reset control counters/pointers so the next activation starts from the canonical base.
-          load_input_idle_state();
+          if (!r_input_idle_loaded) begin
+            load_input_idle_state();
+            r_input_idle_loaded <= 1'b1;
+          end
         end
-          WEIGHT: begin
+        WEIGHT: begin
+          r_input_idle_loaded <= 1'b0;
           // Streams kernel coefficients into r_kernel while priming the input counter.
           r_read_en        <= 1'b1;
           r_addr_count_input <= 0;
@@ -665,6 +699,7 @@ timeunit 1ns; timeprecision 1ps;
           end
         end
         CONV_INPUT: begin
+          r_input_idle_loaded <= 1'b0;
           // On each tile handoff, bump window counters and reposition pointers for the next window.
           if (w_conv_input_fire) begin
             r_window_counter_total_input <= r_window_counter_total_input + 1;
@@ -717,6 +752,7 @@ timeunit 1ns; timeprecision 1ps;
           end
         end
         READ_INPUT: begin
+          r_input_idle_loaded <= 1'b0;
           // Issues RAM reads and walks the row/column indices while filling r_feat_input.
           r_read_en          <= 1'b1;
           r_addr_count_kernel <= 0;
@@ -736,6 +772,7 @@ timeunit 1ns; timeprecision 1ps;
           end
         end
         HOLD_OUTPUT: begin
+          r_input_idle_loaded <= 1'b0;
           // Inserts a small delay to let OUTPUT_CTRL_BLOCK consume pending windows.
           if (r_hold_output == (CYCLES_HOLD_OUTPUT - 1))
             r_hold_output <= 0;
@@ -743,6 +780,7 @@ timeunit 1ns; timeprecision 1ps;
             r_hold_output <= r_hold_output + 1;
         end
         HOLD_LAST_CONV: begin
+          r_input_idle_loaded <= 1'b0;
           // Waits for the convolution core to go idle before rotating to the next input channel.
           if (p_conv_idle) begin
             if (r_channel_counter_input >= N_CHANNEL_IN - 1)
@@ -760,12 +798,9 @@ timeunit 1ns; timeprecision 1ps;
   always_ff @(posedge clk) begin: INPUT_BUFFER_BLOCK
     if (reset) begin
       reset_input_buffers();
-    end else begin
+    end else if (w_input_buf_enable) begin
       unique case (current_st_input)
         default: begin end
-        IDLE_INPUT: begin
-          // Keep buffers intact in IDLE to avoid unnecessary toggling.
-        end
         WEIGHT: begin
           // Capture each weight word as it returns from the RAM interface.
           if (w_weight_data_ready)
@@ -782,9 +817,6 @@ timeunit 1ns; timeprecision 1ps;
             physical_index = (r_row_index_input * C1_SIZE) + physical_col;
             r_feat_input[physical_index] <= w_input_data_clamped;
           end
-        end
-        CONV_INPUT: begin
-          // No shifting: reuse is handled by the circular column base.
         end
       endcase
     end
@@ -852,7 +884,7 @@ timeunit 1ns; timeprecision 1ps;
   always_ff @(posedge clk) begin: OUTPUT_CTRL_BLOCK
     if (reset) begin
       reset_output_ctrl_regs();
-    end else begin
+    end else if (w_output_ctrl_enable) begin
       unique case (current_st_output)
         default: begin end
         READ_OUTPUT: begin
@@ -920,7 +952,7 @@ timeunit 1ns; timeprecision 1ps;
   always_ff @(posedge clk) begin: OUTPUT_DATA_BLOCK
     if (reset) begin
       reset_output_data_regs();
-    end else begin
+    end else if (w_output_data_enable) begin
       unique case (current_st_output)
         default: begin end
         IDLE_OUTPUT: begin end
@@ -945,7 +977,7 @@ timeunit 1ns; timeprecision 1ps;
         r_col_index_output <= '0;
         r_row_index_output <= '0;
         r_row_stride_output <= '0;
-      end else begin
+      end else if (w_output_index_enable) begin
         if (((current_st_output == WRITE_OUTPUT) && w_output_write_ready) ||
             ((current_st_output == READ_OUTPUT) && w_output_data_ready)) begin
           // Row-major traversal for the output feature tile mirrors the input logic:
