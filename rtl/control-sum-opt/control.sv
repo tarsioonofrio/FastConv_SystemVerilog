@@ -155,12 +155,8 @@ timeunit 1ns; timeprecision 1ps;
   logic [$clog2(KERNEL_NUM_ELEMS)-1:0] r_addr_count_kernel;
 
   // -- Output path control counters --
-  // Output feature register write counter
-  logic [$clog2(OUTPUT_FEATURE_NUM_ELEMS)-1:0] r_addr_count_write_out;
-  // Output feature register read counter
-  logic [$clog2(OUTPUT_FEATURE_NUM_ELEMS)-1:0] r_addr_count_read_out;
-  // Output counter
-  logic [$clog2(OUTPUT_FEATURE_NUM_ELEMS)-1:0] w_addr_count_out;
+  // Output feature register counter shared across read/write phases
+  logic [$clog2(OUTPUT_FEATURE_NUM_ELEMS)-1:0] r_addr_count_out;
   // Output feature write counter (unused/commented)
   // logic [$floor($clog2(N_CHANNEL_OUT) + 0.5)-1:0] r_addr_count_ch_out;
   // Debug monitors for end-of-window predicates (still functions for reuse)
@@ -547,7 +543,7 @@ timeunit 1ns; timeprecision 1ps;
         r_output_read_latency <= RAM_LATENCY_RELOAD;
       end else if (r_output_read_latency != 0) begin
         r_output_read_latency <= r_output_read_latency - 1;
-      end else if (p_output_valid && (r_addr_count_read_out < (OUTPUT_FEATURE_NUM_ELEMS - 1))) begin
+      end else if (p_output_valid && (r_addr_count_out < (OUTPUT_FEATURE_NUM_ELEMS - 1))) begin
         r_output_read_latency <= RAM_LATENCY_RELOAD;
       end
 
@@ -558,7 +554,7 @@ timeunit 1ns; timeprecision 1ps;
       end else if (r_output_write_latency != 0) begin
         r_output_write_latency <= r_output_write_latency - 1;
       end else if ((current_st_output == WRITE_OUTPUT) &&
-                   (r_addr_count_write_out < (OUTPUT_FEATURE_NUM_ELEMS - 1))) begin
+                   (r_addr_count_out < (OUTPUT_FEATURE_NUM_ELEMS - 1))) begin
         // A write was just issued with zero latency; reload for the next element.
         r_output_write_latency <= RAM_LATENCY_RELOAD;
       end
@@ -576,15 +572,16 @@ timeunit 1ns; timeprecision 1ps;
   assign w_output_write_fire = (current_st_output == WRITE_OUTPUT) &&
                                w_output_write_ready &&
                                w_output_pixel_in_bounds;
-  assign w_conv_output_gated = w_output_write_fire ? r_conv_output[r_addr_count_write_out] : '0;
+  assign w_conv_output_gated = w_output_write_fire ? r_conv_output[r_addr_count_out] : '0;
   assign w_feat_output_gated = (w_output_write_fire && w_output_accumulate_enable) ?
-                               r_feat_output[r_addr_count_write_out] : '0;
+                               r_feat_output[r_addr_count_out] : '0;
   assign w_input_ctrl_enable   = (current_st_input != IDLE_INPUT) || !r_input_idle_loaded;
   assign w_input_buf_enable    = w_weight_data_ready || w_input_data_ready;
   assign w_output_ctrl_enable  = ((current_st_output == READ_OUTPUT) && w_output_data_ready) ||
                                  (current_st_output == CONV_OUTPUT) ||
                                  ((current_st_output == WRITE_OUTPUT) && w_output_write_ready) ||
-                                 (current_st_output == END_CHANNEL);
+                                 (current_st_output == END_CHANNEL) ||
+                                 (current_st_output == HOLD_WEIGHT);
   assign w_output_data_enable  = ((current_st_output == READ_OUTPUT) && w_output_data_ready) ||
                                  ((current_st_output == CONV_OUTPUT) && r_conv_result_pending);
   assign w_output_index_enable = ((current_st_output == WRITE_OUTPUT) && w_output_write_ready) ||
@@ -601,8 +598,8 @@ timeunit 1ns; timeprecision 1ps;
   assign w_last_row_input         = (r_window_counter_row_input >= LAST_WINDOW_ROW_INDEX);
   assign w_last_channel_input     = (r_window_counter_channel_input >= LAST_WINDOW_INDEX_PER_PLANE);
   assign w_last_all_channel_input = (r_window_counter_all_channel_input >= LAST_OUTPUT_CHANNEL_WINDOW_INDEX);
-  assign w_last_read_out          = (r_addr_count_read_out == (OUTPUT_FEATURE_NUM_ELEMS - 1));
-  assign w_last_write_out         = (r_addr_count_write_out == (OUTPUT_FEATURE_NUM_ELEMS - 1));
+  assign w_last_read_out          = (r_addr_count_out == (OUTPUT_FEATURE_NUM_ELEMS - 1));
+  assign w_last_write_out         = (r_addr_count_out == (OUTPUT_FEATURE_NUM_ELEMS - 1));
   assign w_last_row_out           = (r_window_counter_row_out >= LAST_WINDOW_ROW_INDEX);
   assign w_last_channel_out       = (r_window_counter_channel_out >= LAST_WINDOW_INDEX_PER_PLANE);
   assign w_last_all_channel_out   = (r_window_counter_all_channel_out >= (LAST_OUTPUT_CHANNEL_WINDOW_INDEX - 1));
@@ -853,8 +850,7 @@ timeunit 1ns; timeprecision 1ps;
   task automatic reset_output_ctrl_regs();
     r_channel_counter_out         <= '0;
     r_addr_pointer_out            <= '0;
-    r_addr_count_read_out         <= '0;
-    r_addr_count_write_out        <= '0;
+    r_addr_count_out              <= '0;
     r_window_counter_all_channel_out <= '0;
     r_window_counter_channel_out  <= '0;
     r_window_counter_row_out      <= '0;
@@ -874,22 +870,25 @@ timeunit 1ns; timeprecision 1ps;
     if (reset) begin
       reset_output_ctrl_regs();
     end else if (w_output_ctrl_enable) begin
+      if ((current_st_output != READ_OUTPUT) && (next_st_output == READ_OUTPUT))
+        r_addr_count_out <= '0;
+      else if (current_st_output == CONV_OUTPUT)
+        r_addr_count_out <= '0;
+      else if ((current_st_output == READ_OUTPUT) && w_output_data_ready)
+        r_addr_count_out <= r_addr_count_out + 1;
+      else if ((current_st_output == WRITE_OUTPUT) && w_output_write_ready)
+        r_addr_count_out <= r_addr_count_out + 1;
       unique case (current_st_output)
         default: begin end
         READ_OUTPUT: begin
           // Latch partial sums read from the output RAM while tracking how many samples arrived.
-          if (w_output_data_ready && (r_addr_count_read_out < OUTPUT_FEATURE_NUM_ELEMS))
-            r_addr_count_read_out <= r_addr_count_read_out + 1;
         end
         CONV_OUTPUT: begin
           // Waits for the convolution result to arrive and clears counters ahead of WRITE_OUTPUT.
-          r_addr_count_read_out  <= 0;
-          r_addr_count_write_out <= 0;
         end
         WRITE_OUTPUT: begin
           // Emits accumulated results to RAM and updates window/channel counters accordingly.
           if (w_output_write_ready) begin
-            r_addr_count_write_out <= r_addr_count_write_out + 1;
             // r_window_counter_row_out
             if (w_last_write_out && w_last_row_out) begin
               r_window_counter_row_out <= 0;
@@ -944,8 +943,8 @@ timeunit 1ns; timeprecision 1ps;
         IDLE_OUTPUT: begin end
         READ_OUTPUT: begin
           // Capture data from the output RAM into r_feat_output for later accumulation.
-          if (w_output_data_ready && (r_addr_count_read_out < OUTPUT_FEATURE_NUM_ELEMS))
-            r_feat_output[r_addr_count_read_out] <= w_output_data_clamped;
+          if (w_output_data_ready && (r_addr_count_out < OUTPUT_FEATURE_NUM_ELEMS))
+            r_feat_output[r_addr_count_out] <= w_output_data_clamped;
         end
         CONV_OUTPUT: begin
           // Store the freshly computed convolution result so WRITE_OUTPUT can sum with RAM data.
@@ -1166,7 +1165,7 @@ timeunit 1ns; timeprecision 1ps;
   function automatic logic f_is_last_read_out();
     // Static variable preserves the last computed result for waveform visibility
     static logic w_is_last_read_out;
-    w_is_last_read_out = (r_addr_count_read_out == (OUTPUT_FEATURE_NUM_ELEMS - 1));
+    w_is_last_read_out = (r_addr_count_out == (OUTPUT_FEATURE_NUM_ELEMS - 1));
     f_is_last_read_out = w_is_last_read_out;
   endfunction
 
@@ -1175,7 +1174,7 @@ timeunit 1ns; timeprecision 1ps;
   function automatic logic f_is_last_write_out();
     // Static variable preserves the last computed result for waveform visibility
     static logic w_is_last_write_out;
-    w_is_last_write_out = (r_addr_count_write_out == (OUTPUT_FEATURE_NUM_ELEMS - 1));
+    w_is_last_write_out = (r_addr_count_out == (OUTPUT_FEATURE_NUM_ELEMS - 1));
     f_is_last_write_out = w_is_last_write_out;
   endfunction
 
