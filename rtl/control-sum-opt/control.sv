@@ -148,9 +148,6 @@ timeunit 1ns; timeprecision 1ps;
   logic [$clog2(WINDOWS_PER_PLANE)-1:0] r_window_counter_channel_input;
   // Total window counter for a channel (per-channel accumulation)
   logic [$clog2(WINDOWS_PER_OUTPUT_CHANNEL)-1:0] r_window_counter_all_channel_input;
-  // Total window counter for the read path
-  logic [$clog2(TOTAL_INPUT_WINDOWS)-1:0] r_window_counter_total_input;
-
   // -- Weight path bookkeeping --
   // Base address register for weight blocks
   logic [$clog2(TOTAL_NUM_CHANNELS + KERNEL_NUM_ELEMS * TOTAL_NUM_CHANNELS)-1:0] r_addr_pointer_kernel;
@@ -174,8 +171,6 @@ timeunit 1ns; timeprecision 1ps;
 
   // Base address register for output features
   logic [$clog2(N_CHANNEL_OUT * OUTPUT_NUM_ELEMS)-1:0] r_addr_pointer_out;
-  // Total window counter for the write path
-  logic [$clog2(TOTAL_INPUT_WINDOWS)-1:0] r_window_counter_total_out;
   // Total window counter for all in channel for FSM write
   logic [$clog2(WINDOWS_PER_OUTPUT_CHANNEL)-1:0] r_window_counter_all_channel_out;
   // Total window counter for a channel
@@ -293,6 +288,8 @@ timeunit 1ns; timeprecision 1ps;
   logic w_output_write_fire;
   logic_vector w_conv_output_gated;
   logic_vector w_feat_output_gated;
+  // Latches the end-of-run condition once the final output write completes.
+  logic r_output_done;
   // Clock-enable strobes to gate large sequential blocks while idle.
   logic w_input_ctrl_enable;
   logic w_input_buf_enable;
@@ -307,13 +304,11 @@ timeunit 1ns; timeprecision 1ps;
   logic w_last_row_input;
   logic w_last_channel_input;
   logic w_last_all_channel_input;
-  logic w_last_total_input;
   logic w_last_read_out;
   logic w_last_write_out;
   logic w_last_row_out;
   logic w_last_channel_out;
   logic w_last_all_channel_out;
-  logic w_last_total_out;
 
   typedef enum {
     IDLE_INPUT,
@@ -384,7 +379,7 @@ timeunit 1ns; timeprecision 1ps;
           next_st_input = CONV_INPUT;
         end else begin
             // When all windows across input and output channels have been read, finish input
-          if (w_last_row_input && w_last_total_input)
+          if (w_last_row_input && w_last_all_channel_input)
             next_st_input = END_INPUT;
           else
           // When a full set of windows for an input channel is done, reload weights
@@ -445,7 +440,7 @@ timeunit 1ns; timeprecision 1ps;
         if (p_output_valid) begin
           if (w_last_write_out) begin
             if (w_last_channel_out) begin
-              if (w_last_total_out)
+              if (w_last_all_channel_out && w_last_row_out)
                 next_st_output = IDLE_OUTPUT;
               else
                 next_st_output = END_CHANNEL;
@@ -606,13 +601,11 @@ timeunit 1ns; timeprecision 1ps;
   assign w_last_row_input         = (r_window_counter_row_input >= LAST_WINDOW_ROW_INDEX);
   assign w_last_channel_input     = (r_window_counter_channel_input >= LAST_WINDOW_INDEX_PER_PLANE);
   assign w_last_all_channel_input = (r_window_counter_all_channel_input >= LAST_OUTPUT_CHANNEL_WINDOW_INDEX);
-  assign w_last_total_input       = (r_window_counter_total_input >= LAST_INPUT_WINDOW_INDEX);
   assign w_last_read_out          = (r_addr_count_read_out == (OUTPUT_FEATURE_NUM_ELEMS - 1));
   assign w_last_write_out         = (r_addr_count_write_out == (OUTPUT_FEATURE_NUM_ELEMS - 1));
   assign w_last_row_out           = (r_window_counter_row_out >= LAST_WINDOW_ROW_INDEX);
   assign w_last_channel_out       = (r_window_counter_channel_out >= LAST_WINDOW_INDEX_PER_PLANE);
   assign w_last_all_channel_out   = (r_window_counter_all_channel_out >= (LAST_OUTPUT_CHANNEL_WINDOW_INDEX - 1));
-  assign w_last_total_out         = (r_window_counter_total_out == LAST_INPUT_WINDOW_INDEX);
 
 
   /*
@@ -631,7 +624,6 @@ timeunit 1ns; timeprecision 1ps;
     r_addr_count_input             <= '0;
     r_channel_counter_input        <= '0;
     r_hold_output                  <= '0;
-    r_window_counter_total_input   <= '0;
     r_window_counter_channel_input <= '0;
     r_window_counter_col_input     <= '0;
     r_window_counter_row_input     <= '0;
@@ -652,7 +644,6 @@ timeunit 1ns; timeprecision 1ps;
     r_addr_count_input             <= '0;
     r_channel_counter_input        <= '0;
     r_hold_output                  <= '0;
-    r_window_counter_total_input   <= '0;
     r_window_counter_channel_input <= '0;
     r_window_counter_col_input     <= '0;
     r_window_counter_row_input     <= '0;
@@ -702,7 +693,6 @@ timeunit 1ns; timeprecision 1ps;
           r_input_idle_loaded <= 1'b0;
           // On each tile handoff, bump window counters and reposition pointers for the next window.
           if (w_conv_input_fire) begin
-            r_window_counter_total_input <= r_window_counter_total_input + 1;
             r_row_index_input            <= '0;
             r_row_stride_input           <= '0;
 
@@ -865,7 +855,6 @@ timeunit 1ns; timeprecision 1ps;
     r_addr_pointer_out            <= '0;
     r_addr_count_read_out         <= '0;
     r_addr_count_write_out        <= '0;
-    r_window_counter_total_out    <= '0;
     r_window_counter_all_channel_out <= '0;
     r_window_counter_channel_out  <= '0;
     r_window_counter_row_out      <= '0;
@@ -901,9 +890,6 @@ timeunit 1ns; timeprecision 1ps;
           // Emits accumulated results to RAM and updates window/channel counters accordingly.
           if (w_output_write_ready) begin
             r_addr_count_write_out <= r_addr_count_write_out + 1;
-            // r_window_counter_total_out
-            if (w_last_write_out)
-              r_window_counter_total_out <= r_window_counter_total_out + 1;
             // r_window_counter_row_out
             if (w_last_write_out && w_last_row_out) begin
               r_window_counter_row_out <= 0;
@@ -999,6 +985,22 @@ timeunit 1ns; timeprecision 1ps;
       end
   end
 
+  // OUTPUT_DONE_BLOCK: holds the end-of-run flag once the final window write completes.
+  always_ff @(posedge clk or posedge reset) begin: OUTPUT_DONE_BLOCK
+    if (reset) begin
+      r_output_done <= 1'b0;
+    end else if (p_start) begin
+      r_output_done <= 1'b0;
+    end else if ((current_st_output == WRITE_OUTPUT) &&
+                 w_output_write_ready &&
+                 w_last_write_out &&
+                 w_last_row_out &&
+                 w_last_channel_out &&
+                 w_last_all_channel_out) begin
+      r_output_done <= 1'b1;
+    end
+  end
+
   // Output address generation mirrors the input path using
   // `base + row*FEAT_OUTPUT_SIZE + col` for RAM writes.
   assign w_col_offset_output   = r_col_index_output;
@@ -1023,7 +1025,7 @@ timeunit 1ns; timeprecision 1ps;
   // P_END_BLOCK: raises p_end once OUTPUT_CTRL_BLOCK reports every window emitted, signaling back to
   // upstream sequencing logic that INPUT_CTRL_BLOCK can idle.
   always_comb begin: P_END_BLOCK
-      p_end = (r_window_counter_total_out >= TOTAL_INPUT_WINDOWS) ? 1'b1 : 1'b0;
+      p_end = r_output_done;
   end
 
   // CONV_BUS_HOLD_BLOCK: captures the input/weight buses only when a new tile is fired, keeping
