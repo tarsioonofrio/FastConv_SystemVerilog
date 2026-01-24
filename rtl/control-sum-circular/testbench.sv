@@ -185,11 +185,13 @@ module tb;
     @(posedge clk);
     for (i = 0; i < FEAT_OUTPUT_SIZE; i++) begin
       for (j = 0; j < FEAT_OUTPUT_SIZE; j++) begin
+        logic_vector expected_out;
         w_output_addr_forced = i * FEAT_OUTPUT_SIZE + j;
         force w_output_addr = w_output_addr_forced;
         @(posedge clk);
         wait(w_output_valid);
-        if ($signed(const_feat_out[i][j]) != $signed(w_output_data_read)) begin
+        expected_out = logic_vector'(const_feat_out[i][j]);
+        if ($signed(expected_out) != $signed(w_output_data_read)) begin
           $display("Time %0f | const_feat_out[%0d][%0d] = %0d | Output = %0d", $realtime, i, j, const_feat_out[i][j], w_output_data_read);
           $display("=== ERROR - End simulation ====");
         end
