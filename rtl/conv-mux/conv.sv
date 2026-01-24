@@ -5,7 +5,7 @@ module Conv
   import pack_mux_mult::*;
 #(
     parameter int QUANT = 8,
-    parameter int NBITS = 16
+    parameter int NBITS = 20
 ) (
     input logic clk, reset,
 
