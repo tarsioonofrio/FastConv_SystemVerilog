@@ -32,7 +32,7 @@ module tb;
     .p_start(p_start),
     .p_idle(p_idle),
     .p_end(p_end),
-`ifdef GATE_LEVEL
+// `ifdef GATE_LEVEL
     .\p_input[24] (p_input[24]),
     .\p_input[23] (p_input[23]),
     .\p_input[22] (p_input[22]),
@@ -103,11 +103,11 @@ module tb;
     .\p_output[2] (p_output[2]),
     .\p_output[1] (p_output[1]),
     .\p_output[0] (p_output[0])
-`else
-    .p_input(p_input),
-    .p_weight(p_weight),
-    .p_output(p_output)
-`endif
+// `else
+    // .p_input(p_input),
+    // .p_weight(p_weight),
+    // .p_output(p_output)
+// `endif
   );
 
   // Clock generation - 10 ns
