@@ -299,6 +299,18 @@ timeunit 1ns; timeprecision 1ps;
   logic w_output_write_fire;
   logic_vector w_conv_output_gated;
   logic_vector w_feat_output_gated;
+  // Precomputed end-of-window predicates to simplify control decisions.
+  logic w_last_read_input;
+  logic w_last_row_input;
+  logic w_last_channel_input;
+  logic w_last_all_channel_input;
+  logic w_last_total_input;
+  logic w_last_read_out;
+  logic w_last_write_out;
+  logic w_last_row_out;
+  logic w_last_channel_out;
+  logic w_last_all_channel_out;
+  logic w_last_total_out;
 
   typedef enum {
     IDLE_INPUT,
@@ -361,7 +373,7 @@ timeunit 1ns; timeprecision 1ps;
           next_st_input = READ_INPUT;
       end
       READ_INPUT: begin
-        if (f_is_last_read_input() && !w_input_read_pending)
+        if (w_last_read_input && !w_input_read_pending)
           next_st_input = CONV_INPUT;
       end
       CONV_INPUT: begin
@@ -369,13 +381,13 @@ timeunit 1ns; timeprecision 1ps;
           next_st_input = CONV_INPUT;
         end else begin
             // When all windows across input and output channels have been read, finish input
-          if (f_is_last_row_input() && (r_window_counter_total_input >= LAST_INPUT_WINDOW_INDEX))
+          if (w_last_row_input && w_last_total_input)
             next_st_input = END_INPUT;
           else
           // When a full set of windows for an input channel is done, reload weights
-          if (f_is_last_row_input() && f_is_last_channel_input())
+          if (w_last_row_input && w_last_channel_input)
             next_st_input = HOLD_LAST_CONV;
-          else if (f_is_last_row_input())
+          else if (w_last_row_input)
             next_st_input = READ_INPUT;
           else if (r_channel_counter_out > 0)
             next_st_input = HOLD_OUTPUT;
@@ -415,7 +427,7 @@ timeunit 1ns; timeprecision 1ps;
           next_st_output = CONV_OUTPUT;
       end
       READ_OUTPUT: begin
-        if (f_is_last_read_out() && !w_output_read_pending)
+        if (w_last_read_out && !w_output_read_pending)
           next_st_output = CONV_OUTPUT;
       end
       // Waits for the convolution-complete signal
@@ -427,17 +439,20 @@ timeunit 1ns; timeprecision 1ps;
       end
       // Waits for the output data write to memory to complete and then returns to idle
       WRITE_OUTPUT: begin
-        // TODO
-        // Evaluate whether this if/else structure should be changed to an if-else tree
         if (p_output_valid) begin
-          if (f_is_last_write_out() && !f_is_last_channel_out() && (r_channel_counter_out == 0))
-            next_st_output = CONV_OUTPUT;
-          else if (f_is_last_write_out() && !f_is_last_channel_out() && (r_channel_counter_out > 0))
-            next_st_output = READ_OUTPUT;
-          else if (f_is_last_write_out() && f_is_last_channel_out())
-            next_st_output = END_CHANNEL;
-          else if (f_is_last_write_out() && (r_window_counter_total_out == LAST_INPUT_WINDOW_INDEX))
-            next_st_output = IDLE_OUTPUT;
+          if (w_last_write_out) begin
+            if (w_last_channel_out) begin
+              if (w_last_total_out)
+                next_st_output = IDLE_OUTPUT;
+              else
+                next_st_output = END_CHANNEL;
+            end else begin
+              if (r_channel_counter_out == 0)
+                next_st_output = CONV_OUTPUT;
+              else
+                next_st_output = READ_OUTPUT;
+            end
+          end
         end
       end
       END_CHANNEL: begin
@@ -566,6 +581,17 @@ timeunit 1ns; timeprecision 1ps;
   assign w_conv_output_gated = w_output_write_fire ? r_conv_output[r_addr_count_write_out] : '0;
   assign w_feat_output_gated = (w_output_write_fire && w_output_accumulate_enable) ?
                                r_feat_output[r_addr_count_write_out] : '0;
+  assign w_last_read_input        = (r_addr_count_input == LAST_KERNEL_INDEX);
+  assign w_last_row_input         = (r_window_counter_row_input >= LAST_WINDOW_ROW_INDEX);
+  assign w_last_channel_input     = (r_window_counter_channel_input >= LAST_WINDOW_INDEX_PER_PLANE);
+  assign w_last_all_channel_input = (r_window_counter_all_channel_input >= LAST_OUTPUT_CHANNEL_WINDOW_INDEX);
+  assign w_last_total_input       = (r_window_counter_total_input >= LAST_INPUT_WINDOW_INDEX);
+  assign w_last_read_out          = (r_addr_count_read_out == (OUTPUT_FEATURE_NUM_ELEMS - 1));
+  assign w_last_write_out         = (r_addr_count_write_out == (OUTPUT_FEATURE_NUM_ELEMS - 1));
+  assign w_last_row_out           = (r_window_counter_row_out >= LAST_WINDOW_ROW_INDEX);
+  assign w_last_channel_out       = (r_window_counter_channel_out >= LAST_WINDOW_INDEX_PER_PLANE);
+  assign w_last_all_channel_out   = (r_window_counter_all_channel_out >= (LAST_OUTPUT_CHANNEL_WINDOW_INDEX - 1));
+  assign w_last_total_out         = (r_window_counter_total_out == LAST_INPUT_WINDOW_INDEX);
 
 
   /*
@@ -651,7 +677,7 @@ timeunit 1ns; timeprecision 1ps;
             r_row_index_input            <= '0;
             r_row_stride_input           <= '0;
 
-            if (f_is_last_row_input()) begin
+            if (w_last_row_input) begin
               r_addr_count_input <= 0;
               r_col_index_input  <= 0;
               r_input_col_base   <= '0;
@@ -664,33 +690,33 @@ timeunit 1ns; timeprecision 1ps;
                 r_input_col_base <= r_input_col_base + A1_SIZE;
             end
             // r_window_counter_row_input
-            if (f_is_last_row_input()) begin
+            if (w_last_row_input) begin
               r_window_counter_row_input <= 0;
             end else
               r_window_counter_row_input <= r_window_counter_row_input + 1;
             // r_window_counter_col_input
-            if (f_is_last_row_input() && f_is_last_channel_input())
+            if (w_last_row_input && w_last_channel_input)
               r_window_counter_col_input <= 0;
-            else if (f_is_last_row_input() && (r_window_counter_col_input >= LAST_WINDOW_ROW_INDEX))
+            else if (w_last_row_input && (r_window_counter_col_input >= LAST_WINDOW_ROW_INDEX))
               r_window_counter_col_input <= 0;
-            else if (f_is_last_row_input())
+            else if (w_last_row_input)
               r_window_counter_col_input <= r_window_counter_col_input + 1;
             // r_window_counter_channel_input
-            if (f_is_last_channel_input())
+            if (w_last_channel_input)
               r_window_counter_channel_input <= 0;
             else
               r_window_counter_channel_input <= r_window_counter_channel_input + 1;
             // r_window_counter_all_channel_input
-            if (f_is_last_all_channel_input())
+            if (w_last_all_channel_input)
               r_window_counter_all_channel_input <= 0;
             else
               r_window_counter_all_channel_input <= r_window_counter_all_channel_input + 1;
             // r_addr_pointer_input
-            if (f_is_last_row_input() && f_is_last_all_channel_input())
+            if (w_last_row_input && w_last_all_channel_input)
               r_addr_pointer_input <= TOTAL_NUM_CHANNELS + KERNEL_NUM_ELEMS * TOTAL_NUM_CHANNELS;
-            else if (f_is_last_row_input() && !f_is_last_channel_input())
+            else if (w_last_row_input && !w_last_channel_input)
               r_addr_pointer_input <= r_addr_pointer_input + INPUT_ROW_WRAP_DELTA;
-            else if (f_is_last_row_input() && f_is_last_channel_input())
+            else if (w_last_row_input && w_last_channel_input)
               r_addr_pointer_input <= r_addr_pointer_input + INPUT_CHANNEL_WRAP_DELTA;
             else
               r_addr_pointer_input <= r_addr_pointer_input + A1_SIZE;
@@ -850,30 +876,30 @@ timeunit 1ns; timeprecision 1ps;
           if (w_output_write_ready) begin
             r_addr_count_write_out <= r_addr_count_write_out + 1;
             // r_window_counter_total_out
-            if (f_is_last_write_out())
+            if (w_last_write_out)
               r_window_counter_total_out <= r_window_counter_total_out + 1;
             // r_window_counter_row_out
-            if (f_is_last_write_out() && f_is_last_row_out()) begin
+            if (w_last_write_out && w_last_row_out) begin
               r_window_counter_row_out <= 0;
-            end else if (f_is_last_write_out() && !f_is_last_row_out())
+            end else if (w_last_write_out && !w_last_row_out)
               r_window_counter_row_out <= r_window_counter_row_out + 1;
             // r_window_counter_col_out
-            if (f_is_last_write_out() && f_is_last_row_out() && f_is_last_channel_out())
+            if (w_last_write_out && w_last_row_out && w_last_channel_out)
               r_window_counter_col_out <= 0;
-            else if (f_is_last_write_out() && f_is_last_row_out() && (r_window_counter_col_out >= LAST_WINDOW_ROW_INDEX))
+            else if (w_last_write_out && w_last_row_out && (r_window_counter_col_out >= LAST_WINDOW_ROW_INDEX))
               r_window_counter_col_out <= 0;
-            else if (f_is_last_write_out() && f_is_last_row_out())
+            else if (w_last_write_out && w_last_row_out)
               r_window_counter_col_out <= r_window_counter_col_out + 1;
             // r_window_counter_channel_out
-            if (f_is_last_write_out() && !f_is_last_channel_out())
+            if (w_last_write_out && !w_last_channel_out)
               r_window_counter_channel_out <= r_window_counter_channel_out + 1;
             // r_window_counter_all_channel_out
-            if (f_is_last_write_out() && !f_is_last_all_channel_out())
+            if (w_last_write_out && !w_last_all_channel_out)
               r_window_counter_all_channel_out <= r_window_counter_all_channel_out + 1;
             // r_addr_pointer_out
-            if (f_is_last_write_out() && f_is_last_row_out())
+            if (w_last_write_out && w_last_row_out)
               r_addr_pointer_out <= r_addr_pointer_out + OUTPUT_ROW_WRAP_DELTA;
-            else if (f_is_last_write_out() && !f_is_last_row_out())
+            else if (w_last_write_out && !w_last_row_out)
               r_addr_pointer_out <= r_addr_pointer_out + A1_SIZE;
           end
         end
@@ -882,7 +908,7 @@ timeunit 1ns; timeprecision 1ps;
           r_window_counter_row_out     <= 0;
           r_window_counter_col_out     <= 0;
           r_window_counter_channel_out <= 0;
-          if (f_is_last_all_channel_out())
+          if (w_last_all_channel_out)
             r_window_counter_all_channel_out <= 0;
           if (r_channel_counter_out >= N_CHANNEL_IN - 1) begin
             r_channel_counter_out <= 0;
@@ -1057,18 +1083,18 @@ timeunit 1ns; timeprecision 1ps;
   end
 
 
-  // Debug monitor wires so the f_is_last_* predicates remain visible in simulation
-  // always_comb begin: F_END_MONITOR_BLOCK
-  //   w_is_last_read_input         = f_is_last_read_input();
-  //   w_is_last_row_input   = f_is_last_row_input();
-  //   w_is_last_channel_input      = f_is_last_channel_input();
-  //   w_is_last_all_channel_input  = f_is_last_all_channel_input();
-  //   w_is_last_read_out        = f_is_last_read_out();
-  //   w_is_last_write_out       = f_is_last_write_out();
-  //   w_is_last_row_out  = f_is_last_row_out();
-  //   w_is_last_channel_out     = f_is_last_channel_out();
-  //   w_is_last_all_channel_out = f_is_last_all_channel_out();
-  // end
+  // Debug monitor hook so the f_is_last_* predicates remain active in simulation.
+  always_comb begin: F_END_MONITOR_BLOCK
+    void'(f_is_last_read_input());
+    void'(f_is_last_row_input());
+    void'(f_is_last_channel_input());
+    void'(f_is_last_all_channel_input());
+    void'(f_is_last_read_out());
+    void'(f_is_last_write_out());
+    void'(f_is_last_row_out());
+    void'(f_is_last_channel_out());
+    void'(f_is_last_all_channel_out());
+  end
 
   /*
    -------------------------------------------------------------
