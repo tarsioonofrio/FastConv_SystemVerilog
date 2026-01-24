@@ -1,4 +1,4 @@
-SDF_FILE = "../logical/results/gate_level/system_analysis_view_0p90v_25c_captyp_nominal.sdf",
+SDF_FILE = "../logical/results/gate_level/conv_analysis_view_0p90v_25c_captyp_nominal.sdf",
 LOG_FILE = "./sdf_log.log",
 SCOPE = tb.dut;
 MTM_CONTROL = "MAXIMUM",
