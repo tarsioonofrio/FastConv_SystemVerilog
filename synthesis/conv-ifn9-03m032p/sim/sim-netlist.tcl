@@ -45,8 +45,8 @@ while {[gets $fp line] >= 0} {
 close $fp
 
 vlog -work work $define_flags -svinputport=relaxed /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v
-vlog -work work $define_flags -svinputport=relaxed ../logical/results/gate_level/system_logic_mapped.v
-vlog -work work $define_flags -svinputport=relaxed ${GIT_ROOT}/rtl/system/testbench-netlist.sv
+vlog -work work $define_flags -svinputport=relaxed ../logical/results/gate_level/conv_logic_mapped.v
+vlog -work work $define_flags -svinputport=relaxed ${GIT_ROOT}/rtl/conv-mux/testbench-synth.sv
 # to show FSM
 # vsim -voptargs=+acc -t ns -fsmdebug -coverage -debugDB work.tb
 vsim -voptargs=+acc -t ns work.tb
