@@ -5,6 +5,7 @@ from pathlib import Path
 import pandas as pd
 
 EXCLUDED_PROJECTS = {"source", "template"}
+REPO_ROOT = Path(__file__).resolve().parent.parent
 
 
 def format_project_name(name):
@@ -55,10 +56,10 @@ def read_file(file_path):
 
 
 def write_report_time(report_dir, prefix):
-    path = "../synthesis/*/sim.log"
+    path = (REPO_ROOT / "synthesis" / "*" / "sim.log").as_posix()
     rows = []
     for file_path in glob.glob(path):
-        project = Path(file_path).parents[1].name
+        project = Path(file_path).parent.name
         if not project.startswith(prefix):
             continue
         if project in EXCLUDED_PROJECTS:
@@ -85,7 +86,7 @@ def write_report_time(report_dir, prefix):
 
 
 def write_report_logical(report_dir, prefix):
-    path = Path("../synthesis/*/logical/results/reports/*_area.rpt")
+    path = REPO_ROOT / "synthesis" / "*" / "logical" / "results" / "reports" / "*_area.rpt"
     all_files = glob.glob(path.as_posix())
     report_area = {project_name_from_report(f): read_file(f) for f in all_files}
     report_area = {k: v for k, v in report_area.items() if k.startswith(prefix)}
@@ -99,7 +100,7 @@ def write_report_logical(report_dir, prefix):
     net_area = {k: v[14].split()[3] for k, v in report_area.items()}
     total_area = {k: v[14].split()[4] for k, v in report_area.items()}
 
-    path = Path("../rtl/conv/*/sintese/results/reports/*_clock_gating.rpt")
+    path = REPO_ROOT / "rtl" / "conv" / "*" / "sintese" / "results" / "reports" / "*_clock_gating.rpt"
     all_files = glob.glob(path.as_posix())
     report_clock = {project_name_from_report(f): read_file(f) for f in all_files}
     report_clock = {k: v for k, v in report_clock.items() if k.startswith(prefix)}
@@ -141,7 +142,7 @@ def write_report_logical(report_dir, prefix):
 
 
 def write_report_power(report_dir, prefix):
-    path = Path("../synthesis/*/power/power_evaluation.txt")
+    path = REPO_ROOT / "synthesis" / "*" / "power" / "power_evaluation.txt"
     all_files = glob.glob(path.as_posix())
     filtered_files = []
     for f in all_files:
@@ -154,7 +155,23 @@ def write_report_power(report_dir, prefix):
         filtered_files.append(f)
 
     if not filtered_files:
-        raise SystemExit("No valid power_evaluation.txt files found.")
+        label = prefix.rstrip("-")
+        columns = [
+            "Project",
+            "memory",
+            "register",
+            "latch",
+            "logic",
+            "bbox",
+            "clock",
+            "pad",
+            "pm",
+            "Subtotal",
+        ]
+        pd.DataFrame(columns=columns).to_csv(
+            report_dir / f"{label}-report-power.csv", index=False
+        )
+        return
 
     file_names = [Path(f).parent.parent.name for f in filtered_files]
     report = [read_file(f) for f in filtered_files]
