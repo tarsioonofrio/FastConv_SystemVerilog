@@ -125,6 +125,9 @@ module tb;
 
   // Test process to iterate over the input maps
   initial begin
+    $shm_open("dut.shm");
+    $shm_probe(tb.dut, "ASM");
+
     p_start = 0;
     reset = 1;
     @(posedge clk);
@@ -147,11 +150,9 @@ module tb;
           @(posedge clk);
           p_start = 1'b0;
           wait(p_end);
-`ifdef GATE_LEVEL
           // Wait for the core to return idle so outputs are stable with SDF delays.
           wait(p_idle);
           @(posedge clk);
-`endif
           for (int fout = 0; fout < FOUT2_SIZE; fout++) begin
             // To avoid error:
             // %Warning-WIDTHEXPAND: ../../testbench/tb_conv.sv:79:36: Operator NEQ expects 32 bits on the LHS, but LHS's SIGNED generates 20 bits.
