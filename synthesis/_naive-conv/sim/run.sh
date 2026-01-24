@@ -16,7 +16,7 @@ GIT_ROOT=$(git rev-parse --show-toplevel)
 GATE=../logical/results/gate_level/conv_logic_mapped.v
 
 # Monta lista de arquivos (uma só linha, sem newline), prefixando GIT_ROOT
-files="../rtl/pack_conv.sv ../rtl/mac_op9.sv ../rtl/naive_conv.sv ../testbench-synth.sv"
+files="../data.sv ../rtl/pack_conv.sv ../rtl/mac_op9.sv ../rtl/naive_conv.sv ../testbench-synth.sv"
 # while IFS= read -r line; do
 #   files="$files$GIT_ROOT/$line "
 # done < ../list-file.txt

@@ -24,68 +24,17 @@ module tb;
 
 
   // Instantiate conv_rapida entity
-//  conv #(
-//    .QUANT(QUANT_BITS)
-//  ) convolucao (
-//    .clk(clk),
-//    .reset(reset),
-//    .start(start),
-//    .inputMAP(inputMAP),
-//    .weights(weight),
-//    .outputMAP(outputMAP),
-//    .data_valid(data_valid)
-//  );
-
- // Instantiate the DUT below
-  conv conv (
- .clk(clk),
-                   .reset(reset),
-                   .start(start),
-                   .\inputMAP[24] (inputMAP[24]),
-                   .\inputMAP[23] (inputMAP[23]),
-                   .\inputMAP[22] (inputMAP[22]),
-                   .\inputMAP[21] (inputMAP[21]),
-                   .\inputMAP[20] (inputMAP[20]),
-                   .\inputMAP[19] (inputMAP[19]),
-                   .\inputMAP[18] (inputMAP[18]),
-                   .\inputMAP[17] (inputMAP[17]),
-                   .\inputMAP[16] (inputMAP[16]),
-                   .\inputMAP[15] (inputMAP[15]),
-                   .\inputMAP[14] (inputMAP[14]),
-                   .\inputMAP[13] (inputMAP[13]),
-                   .\inputMAP[12] (inputMAP[12]),
-                   .\inputMAP[11] (inputMAP[11]),
-                   .\inputMAP[10] (inputMAP[10]),
-                   .\inputMAP[9]  (inputMAP[9]),
-                   .\inputMAP[8]  (inputMAP[8]),
-                   .\inputMAP[7]  (inputMAP[7]),
-                   .\inputMAP[6]  (inputMAP[6]),
-                   .\inputMAP[5]  (inputMAP[5]),
-                   .\inputMAP[4]  (inputMAP[4]),
-                   .\inputMAP[3]  (inputMAP[3]),
-                   .\inputMAP[2]  (inputMAP[2]),
-                   .\inputMAP[1]  (inputMAP[1]),
-                   .\inputMAP[0]  (inputMAP[0]),
-                   .\weights[8]   (weight[8]),
-                   .\weights[7]   (weight[7]),
-                   .\weights[6]   (weight[6]),
-                   .\weights[5]   (weight[5]),
-                   .\weights[4]   (weight[4]),
-                   .\weights[3]   (weight[3]),
-                   .\weights[2]   (weight[2]),
-                   .\weights[1]   (weight[1]),
-                   .\weights[0]   (weight[0]),
-                   .\outputMAP[8] (outputMAP[8]),
-                   .\outputMAP[7] (outputMAP[7]),
-                   .\outputMAP[6] (outputMAP[6]),
-                   .\outputMAP[5] (outputMAP[5]),
-                   .\outputMAP[4] (outputMAP[4]),
-                   .\outputMAP[3] (outputMAP[3]),
-                   .\outputMAP[2] (outputMAP[2]),
-                   .\outputMAP[1] (outputMAP[1]),
-                   .\outputMAP[0] (outputMAP[0]),
-                   .data_valid(data_valid)
-               );
+ conv #(
+   .QUANT(QUANT_BITS)
+ ) dut (
+   .clk(clk),
+   .reset(reset),
+   .start(start),
+   .inputMAP(inputMAP),
+   .weights(weight),
+   .outputMAP(outputMAP),
+   .data_valid(data_valid)
+ );
 
 
   // Clock generation - 2 ns - 500 MHz
@@ -99,8 +48,8 @@ module tb;
     // $dumpfile("dump.vcd");  // Arquivo VCD para waveform
     // $dumpvars(0, tb);
 
-     $shm_open("conv.shm");
-     $shm_probe(tb.conv, "ASM");
+     $shm_open("dut.shm");
+     $shm_probe(tb.dut, "ASM");
 
 
     // Monitor para debug
@@ -110,7 +59,7 @@ module tb;
     //clk = 0;
     start = 0;
     reset = 1;
-    #5
+    @(posedge clk);
     reset = 0;  // Liberar o reset após 5 ns
 
     // Convert const_weight
@@ -126,14 +75,19 @@ module tb;
           end
 
           start = 1'b1;
-          #10
+          @(posedge clk);
           start = 1'b0;
           wait(data_valid);
-          #10;  // Wait for 100 ns
+          @(posedge clk);
+          @(posedge clk);
       end
     end
     // Finalizar a simulação 200 ns após o loop
-    #10 $finish;
+    @(posedge clk);
+    $display("=== No errors - End simulation ===");
+    $display("\n*** TIME %f ***\n", $realtime);
+
+    $finish;
   end
 
 
@@ -165,15 +119,6 @@ module tb;
 
       end
     end
-  end
-
-
-  final begin
-    integer log_f;
-    log_f = $fopen("sim_summary.txt", "w");
-    $fdisplay(log_f, "time");
-    $fdisplay(log_f, "%0t", $time);
-    $fclose(log_f);
   end
 
 endmodule
