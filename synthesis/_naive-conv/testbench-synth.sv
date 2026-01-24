@@ -19,20 +19,58 @@ module tb;
   // logic [19:0] outputMAP[0:8];
 
   logic reset, start, data_valid;
-  logic clk = 1'b0;
+  logic clk;
   int fi;
 
 
   // Instantiate conv_rapida entity
- conv #(
-   .QUANT(QUANT_BITS)
- ) dut (
+ Conv dut (
    .clk(clk),
    .reset(reset),
    .start(start),
-   .inputMAP(inputMAP),
-   .weights(weight),
-   .outputMAP(outputMAP),
+   .\inputMAP[24] (inputMAP[24]),
+   .\inputMAP[23] (inputMAP[23]),
+   .\inputMAP[22] (inputMAP[22]),
+   .\inputMAP[21] (inputMAP[21]),
+   .\inputMAP[20] (inputMAP[20]),
+   .\inputMAP[19] (inputMAP[19]),
+   .\inputMAP[18] (inputMAP[18]),
+   .\inputMAP[17] (inputMAP[17]),
+   .\inputMAP[16] (inputMAP[16]),
+   .\inputMAP[15] (inputMAP[15]),
+   .\inputMAP[14] (inputMAP[14]),
+   .\inputMAP[13] (inputMAP[13]),
+   .\inputMAP[12] (inputMAP[12]),
+   .\inputMAP[11] (inputMAP[11]),
+   .\inputMAP[10] (inputMAP[10]),
+   .\inputMAP[9]  (inputMAP[9]),
+   .\inputMAP[8]  (inputMAP[8]),
+   .\inputMAP[7]  (inputMAP[7]),
+   .\inputMAP[6]  (inputMAP[6]),
+   .\inputMAP[5]  (inputMAP[5]),
+   .\inputMAP[4]  (inputMAP[4]),
+   .\inputMAP[3]  (inputMAP[3]),
+   .\inputMAP[2]  (inputMAP[2]),
+   .\inputMAP[1]  (inputMAP[1]),
+   .\inputMAP[0]  (inputMAP[0]),
+   .\weights[8]   (weight[8]),
+   .\weights[7]   (weight[7]),
+   .\weights[6]   (weight[6]),
+   .\weights[5]   (weight[5]),
+   .\weights[4]   (weight[4]),
+   .\weights[3]   (weight[3]),
+   .\weights[2]   (weight[2]),
+   .\weights[1]   (weight[1]),
+   .\weights[0]   (weight[0]),
+   .\outputMAP[8] (outputMAP[8]),
+   .\outputMAP[7] (outputMAP[7]),
+   .\outputMAP[6] (outputMAP[6]),
+   .\outputMAP[5] (outputMAP[5]),
+   .\outputMAP[4] (outputMAP[4]),
+   .\outputMAP[3] (outputMAP[3]),
+   .\outputMAP[2] (outputMAP[2]),
+   .\outputMAP[1] (outputMAP[1]),
+   .\outputMAP[0] (outputMAP[0]),
    .data_valid(data_valid)
  );
 

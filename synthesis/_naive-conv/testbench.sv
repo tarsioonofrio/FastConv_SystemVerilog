@@ -25,9 +25,9 @@ module tb;
 
 
   // Instantiate conv_rapida entity
-  conv #(
+  Conv #(
     .QUANT(QUANT_BITS)
-  ) convolucao (
+  ) dut (
     .clk(clk),
     .reset(reset),
     .start(start),
