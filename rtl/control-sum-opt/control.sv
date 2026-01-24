@@ -294,6 +294,8 @@ timeunit 1ns; timeprecision 1ps;
   logic w_idle_conv_dbg;
   logic w_read_ofmap;
   logic w_write_ofmap;
+  // High when output accumulation should include data read from RAM.
+  logic w_output_accumulate_enable;
 
   typedef enum {
     IDLE_INPUT,
@@ -566,6 +568,7 @@ timeunit 1ns; timeprecision 1ps;
   assign w_output_read_pending = (current_st_output == READ_OUTPUT) && (r_output_read_latency != 0);
   assign w_output_write_ready   = (current_st_output == WRITE_OUTPUT) && (r_output_write_latency == 0);
   assign w_output_write_pending = (current_st_output == WRITE_OUTPUT) && (r_output_write_latency != 0);
+  assign w_output_accumulate_enable = (r_channel_counter_out > 0);
 
 
   /*
@@ -750,8 +753,7 @@ timeunit 1ns; timeprecision 1ps;
       unique case (current_st_input)
         default: begin end
         IDLE_INPUT: begin
-          // Flush buffer content during idle to avoid leaking stale data into the next run.
-          reset_input_buffers();
+          // Keep buffers intact in IDLE to avoid unnecessary toggling.
         end
         WEIGHT: begin
           // Capture each weight word as it returns from the RAM interface.
@@ -1047,7 +1049,10 @@ timeunit 1ns; timeprecision 1ps;
   // P_OUTPUT_DATA_WRITE_BLOCK: feeds the output RAM with the accumulated sum of the captured
   // convolution result plus any existing feature data, aligned with OUTPUT_CTRL_BLOCK counters.
   always_comb begin: P_OUTPUT_DATA_WRITE_BLOCK
-    p_output_data_write = r_conv_output[r_addr_count_write_out] + r_feat_output[r_addr_count_write_out];
+    if (w_output_accumulate_enable)
+      p_output_data_write = r_conv_output[r_addr_count_write_out] + r_feat_output[r_addr_count_write_out];
+    else
+      p_output_data_write = r_conv_output[r_addr_count_write_out];
   end
 
 
