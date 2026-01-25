@@ -199,7 +199,9 @@ module tb;
         wait(w_output_valid);
         for (int lane = 0; lane < A1_SIZE; lane++) begin
           if ((i + lane) < (FEAT_OUTPUT_SIZE * N_CHANNEL_OUT)) begin
-            if ($unsigned(const_feat_out[i + lane][j]) != $unsigned(w_output_data_read[lane])) begin
+            logic_vector expected_out;
+            expected_out = logic_vector'(const_feat_out[i + lane][j]);
+            if ($signed(expected_out) != $signed(w_output_data_read[lane])) begin
               $display("Time %0f | const_feat_out[%0d][%0d] = %0d | Output[%0d] = %0d",
                        $realtime, i + lane, j, const_feat_out[i + lane][j], lane, w_output_data_read[lane]);
               $display("=== ERROR - End simulation ====");
