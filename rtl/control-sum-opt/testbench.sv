@@ -43,10 +43,19 @@ module tb;
   int count_fout = 0;
   int i = 0;
   int j = 0;
+  int cycle_count = 0;
 
   // Clock generation (10ns period)
   initial clk = 0;
   always #5 clk = ~clk;
+
+  // Cycle counter for profiling run length after reset deasserts.
+  always_ff @(posedge clk or posedge reset) begin: CYCLE_COUNT_BLOCK
+    if (reset)
+      cycle_count <= 0;
+    else
+      cycle_count <= cycle_count + 1;
+  end
 
   // DUT instantiation
   Control #(
@@ -175,6 +184,7 @@ module tb;
     wait(w_end);
     // exec_time = $realtime;
     $display("\n *** Total Time %0f ***\n", $realtime);
+    $display("\n *** Total Cycles %0d ***\n", cycle_count);
 
     // debug = 1;
 
@@ -191,8 +201,8 @@ module tb;
         @(posedge clk);
         wait(w_output_valid);
         expected_out = logic_vector'(const_feat_out[i][j]);
-        if ($signed(expected_out) != $signed(w_output_data_read)) begin
-          $display("Time %0f | const_feat_out[%0d][%0d] = %0d | Output = %0d", $realtime, i, j, const_feat_out[i][j], w_output_data_read);
+        if ($signed(expected_out) == $signed(w_output_data_read)) begin
+          $display("Time %0f | const_feat_out[%0d][%0d] = %0d | Output = %0d", $realtime, i, j, expected_out, w_output_data_read);
           $display("=== ERROR - End simulation ====");
         end
       end
@@ -205,6 +215,7 @@ module tb;
     $display("=== No errors - End simulation ===");
 
     $display("\n *** Total Time %0f ***\n", $realtime);
+    $display("\n *** Total Cycles %0d ***\n", cycle_count);
 
     // $display("Execution time after wait(end) %0f", exec_time);
 
