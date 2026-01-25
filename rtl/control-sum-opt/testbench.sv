@@ -193,7 +193,7 @@ module tb;
     force w_output_en = 1'b1;
     force w_output_wr = 1'b0;
     @(posedge clk);
-    for (i = 0; i < FEAT_OUTPUT_SIZE; i++) begin
+    for (i = 0; i < FEAT_OUTPUT_SIZE * N_CHANNEL_OUT; i++) begin
       for (j = 0; j < FEAT_OUTPUT_SIZE; j++) begin
         logic_vector expected_out;
         w_output_addr_forced = i * FEAT_OUTPUT_SIZE + j;

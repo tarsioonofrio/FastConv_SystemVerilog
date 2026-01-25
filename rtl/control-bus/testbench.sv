@@ -191,14 +191,14 @@ module tb;
     force w_output_en = 1'b1;
     force w_output_wr = 1'b0;
     @(posedge clk);
-    for (i = 0; i < FEAT_OUTPUT_SIZE; i += A1_SIZE) begin
+    for (i = 0; i < FEAT_OUTPUT_SIZE * N_CHANNEL_OUT; i += A1_SIZE) begin
       for (j = 0; j < FEAT_OUTPUT_SIZE; j++) begin
         w_output_addr_forced = i * FEAT_OUTPUT_SIZE + j;
         force w_output_addr = w_output_addr_forced;
         @(posedge clk);
         wait(w_output_valid);
         for (int lane = 0; lane < A1_SIZE; lane++) begin
-          if ((i + lane) < FEAT_OUTPUT_SIZE) begin
+          if ((i + lane) < (FEAT_OUTPUT_SIZE * N_CHANNEL_OUT)) begin
             if ($unsigned(const_feat_out[i + lane][j]) != $unsigned(w_output_data_read[lane])) begin
               $display("Time %0f | const_feat_out[%0d][%0d] = %0d | Output[%0d] = %0d",
                        $realtime, i + lane, j, const_feat_out[i + lane][j], lane, w_output_data_read[lane]);
