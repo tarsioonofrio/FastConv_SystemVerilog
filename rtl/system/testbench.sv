@@ -142,7 +142,7 @@ module tb;
     .clk(clk),
     .reset(reset),
     .chip_en(w_input_en),
-    .wr_en(0),
+    .wr_en(1'b0),
     .address(w_input_addr),
     .data_in(w_input_data_write),
     .data_out(w_input_data_read),
@@ -190,7 +190,11 @@ module tb;
 
     wait(p_end);
 
-    $display("\n*** TIME %f ***\n", $realtime);
+    $display("\n*** TIME %0f ***\n", $realtime);
+    $display("\n*** TOTAL CYCLES %0d ***\n", cycle_count);
+    $display("\n*** MEM INPUT READS %0d ***\n", mem_input_reads);
+    $display("\n*** MEM OUTPUT READS %0d ***\n", mem_output_reads);
+    $display("\n*** MEM OUTPUT WRITES %0d ***\n", mem_output_writes);
     t_end = $realtime;
 
     total_out_rows = FEAT_OUTPUT_SIZE * N_CHANNEL_OUT;
@@ -224,7 +228,11 @@ module tb;
       $fclose(time_fd);
     end
     $display("=== No errors - End simulation ===");
-    $display("\n*** TIME %f ***\n", $realtime);
+    $display("\n*** TIME %0f ***\n", $realtime);
+    $display("\n*** TOTAL CYCLES %0d ***\n", cycle_count);
+    $display("\n*** MEM INPUT READS %0d ***\n", mem_input_reads);
+    $display("\n*** MEM OUTPUT READS %0d ***\n", mem_output_reads);
+    $display("\n*** MEM OUTPUT WRITES %0d ***\n", mem_output_writes);
     $finish;
   end
 endmodule
