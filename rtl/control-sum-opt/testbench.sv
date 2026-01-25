@@ -183,8 +183,8 @@ module tb;
 
     wait(w_end);
     // exec_time = $realtime;
-    $display("\n *** Total Time %0f ***\n", $realtime);
-    $display("\n *** Total Cycles %0d ***\n", cycle_count);
+    $display("\n*** TIME %0f ***\n", $realtime);
+    $display("\n*** TOTAL CYCLES %0d ***\n", cycle_count);
 
     // debug = 1;
 
@@ -214,8 +214,8 @@ module tb;
 
     $display("=== No errors - End simulation ===");
 
-    $display("\n *** Total Time %0f ***\n", $realtime);
-    $display("\n *** Total Cycles %0d ***\n", cycle_count);
+    $display("\n*** TIME %0f ***\n", $realtime);
+    $display("\n*** TOTAL CYCLES %0d ***\n", cycle_count);
 
     // $display("Execution time after wait(end) %0f", exec_time);
 
