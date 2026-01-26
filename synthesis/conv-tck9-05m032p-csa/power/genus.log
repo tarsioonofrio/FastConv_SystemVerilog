@@ -1,0 +1,82 @@
+Cadence Genus(TM) Synthesis Solution.
+Copyright 2025 Cadence Design Systems, Inc. All rights reserved worldwide.
+Cadence and the Cadence logo are registered trademarks and Genus is a trademark
+of Cadence Design Systems, Inc. in the United States and other countries.
+
+[01:26:09.111505] Configured Lic search path (23.02-s006): 5280@paxos.inf.pucrs.br
+
+Version: 23.14-s090_1, built Thu Feb 27 05:49:50 PST 2025
+Options: -files power.tcl 
+Date:    Mon Jan 26 01:26:09 2026
+Host:    paxos.inf.pucrs.br (x86_64 w/Linux 4.18.0-553.83.1.el8_10.x86_64) (14cores*28cpus*1physical cpu*Intel(R) Core(TM) i9-7940X CPU @ 3.10GHz 19712KB) (131170908KB)
+PID:     2663994
+OS:      Rocky Linux 8.10 (Green Obsidian)
+
+Checking out license: Genus_Synthesis
+[01:26:09.410187] Periodic Lic check successful
+[01:26:09.934490] Feature usage summary:
+[01:26:09.934490] Genus_Synthesis
+
+
+
+***********************************************************************************************************
+***********************************************************************************************************
+
+
+
+Finished executable startup (0 seconds elapsed).
+
+Loading tool scripts...
+Finished loading tool scripts (17 seconds elapsed).
+
+#@ Processing -files option
+@genus:root: 1> source power.tcl
+#@ Begin verbose source ./power.tcl
+@file(power.tcl) 1: set DB_FILE [file normalize [file join [pwd] "../logical/results/gate_level/conv_logic_mapped.db"]]
+@file(power.tcl) 2: set SHM [file normalize [file join [pwd] "../sim/dut.shm"]]
+@file(power.tcl) 3: set GIT_ROOT [exec git rev-parse --show-toplevel]
+@file(power.tcl) 5: source ${GIT_ROOT}/synthesis/_source/power.tcl
+Sourcing '/sim/tarsio/FastConv_SystemVerilog/synthesis/_source/power.tcl' (Mon Jan 26 01:26:27 -03 2026)...
+#@ Begin verbose source /sim/tarsio/FastConv_SystemVerilog/synthesis/_source/power.tcl
+@file(power.tcl) 3: set START_TIME 0ns
+@file(power.tcl) 4: set CONSTRAINTS_PATH ${GIT_ROOT}/synthesis/_source/scripts
+@file(power.tcl) 7: set LIB_PATH /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End
+@file(power.tcl) 8: set TECH_PATH /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Back_End
+@file(power.tcl) 11: create_library_set -name libset_0p90v_25c \
+    -timing  "${LIB_PATH}/timing_power_noise/NLDM/tcbn28hpcplusbwp30p140_180a/tcbn28hpcplusbwp30p140tt0p9v25c.lib"
+@file(power.tcl) 14: create_opcond -name opcond_0p90v_25c  -voltage 0.90 -temperature  25.0
+@file(power.tcl) 16: create_timing_condition -name timing_cond_0p90v_25c \
+    -opcond         opcond_0p90v_25c \
+    -library_sets { libset_0p90v_25c }
+@file(power.tcl) 20: create_rc_corner -name rc_corner_25c_captyp \
+    -temperature 25.0 \
+    -qrc_tech ${TECH_PATH}/qrc/RC_QRC_crn28hpc+_1p09m+ut-alrdl_5x1y1z1u_typical/qrcTechFile
+@file(power.tcl) 24: create_delay_corner -name delay_corner_0p90v_25c_captyp \
+    -timing_condition timing_cond_0p90v_25c \
+     -rc_corner rc_corner_25c_captyp
+@file(power.tcl) 28: create_constraint_mode -name constraints_default \
+    -sdc_files "${CONSTRAINTS_PATH}/constraints.sdc"
+@file(power.tcl) 31: create_analysis_view -name analysis_view_0p90v_25c_captyp_nominal \
+    -constraint_mode constraints_default \
+    -delay_corner delay_corner_0p90v_25c_captyp
+@file(power.tcl) 39: set CURRENT_VIEW analysis_view_0p90v_25c_captyp_nominal
+@file(power.tcl) 41: read_db ${DB_FILE}
+Reading database file '/sim/tarsio/FastConv_SystemVerilog/synthesis/conv-tck9-05m032p-csa/logical/results/gate_level/conv_logic_mapped.db'.
+Warning : Could not open file. [TUI-504]
+        : Cannot open file '/sim/tarsio/FastConv_SystemVerilog/synthesis/conv-tck9-05m032p-csa/logical/results/gate_level/conv_logic_mapped.db' for reading: No such file or directory.
+        : Check permissions of the file and directory.
+#@ End verbose source /sim/tarsio/FastConv_SystemVerilog/synthesis/_source/power.tcl
+#@ End verbose source ./power.tcl
+1
+Encountered problems processing file: power.tcl
+WARNING: This version of the tool is 332 days old.
+@genus:root: 2> pwd
+/sim/tarsio/FastConv_SystemVerilog/synthesis/conv-tck9-05m032p-csa/power
+@genus:root: 3> exit
+
+Lic Summary:
+[01:28:37.240538] Cdslmd servers: paxos
+[01:28:37.240546] Feature usage summary:
+[01:28:37.240546] Genus_Synthesis
+
+Normal exit.

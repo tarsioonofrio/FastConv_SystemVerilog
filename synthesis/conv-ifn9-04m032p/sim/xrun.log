@@ -1,5 +1,5 @@
 xrun(64): 23.03-s003: (c) Copyright 1995-2023 Cadence Design Systems, Inc.
-TOOL:	xrun(64)	23.03-s003: Started on Jan 24, 2026 at 13:12:17 -03
+TOOL:	xrun(64)	23.03-s003: Started on Jan 25, 2026 at 22:03:00 -03
 xrun
 	-f args.txt
 		-smartorder
@@ -2359,6 +2359,8 @@ file: ../logical/results/gate_level/conv_logic_mapped.v
 		pack_mux_mult
 		tb
 	Reading SDF file from location "../logical/results/gate_level/conv_analysis_view_0p90v_25c_captyp_nominal.sdf"
+	Compiled SDF file "conv_analysis_view_0p90v_25c_captyp_nominal.sdf.X" older than source SDF file "../logical/results/gate_level/conv_analysis_view_0p90v_25c_captyp_nominal.sdf".
+	Recompiling.
 	Writing compiled SDF file to "conv_analysis_view_0p90v_25c_captyp_nominal.sdf.X".
 xmelab: *W,FLFNOF: No SDF file specified, but annotation parameters were present, in SDF annotation command file sdf_cmd.cmd, line 6.
 	Annotating SDF timing data:
@@ -2615,4 +2617,4 @@ xcelium> run
 Simulation complete via $finish(1) at time 14035 NS + 0
 /sim/tarsio/FastConv_SystemVerilog/rtl/conv-mux/testbench-synth-if.sv:198     $finish;
 xcelium> exit
-TOOL:	xrun(64)	23.03-s003: Exiting on Jan 24, 2026 at 13:12:28 -03  (total: 00:00:11)
+TOOL:	xrun(64)	23.03-s003: Exiting on Jan 25, 2026 at 22:03:10 -03  (total: 00:00:10)
