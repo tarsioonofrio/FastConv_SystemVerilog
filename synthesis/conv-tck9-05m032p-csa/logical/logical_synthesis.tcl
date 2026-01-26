@@ -2,7 +2,7 @@
 # TOP
 ###############################################################################
 
-set TOP_MODULE system
+set TOP_MODULE conv
 
 set OUT_FILES "[pwd]/results"
 

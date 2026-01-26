@@ -1,0 +1,39 @@
+xrun(64): 23.03-s003: (c) Copyright 1995-2023 Cadence Design Systems, Inc.
+TOOL:	xrun(64)	23.03-s003: Started on Jan 26, 2026 at 01:39:53 -03
+xrun
+	-f args.txt
+		-smartorder
+		-work work
+		-top tb
+		-access +rw
+		-maxdelays
+		-sdf_cmd_file sdf_cmd.cmd
+		-timescale 1ns/1ps
+		/pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v
+	/sim/tarsio/FastConv_SystemVerilog/data/tcn9/sim/sim-032-3-3-normal/pack_data.sv
+	/sim/tarsio/FastConv_SystemVerilog/rtl/pack-def/pack_def.sv
+	/sim/tarsio/FastConv_SystemVerilog/rtl/pack-param/tck9/pack_param.sv
+	/sim/tarsio/FastConv_SystemVerilog/rtl/pack-typedef/pack_typedef.sv
+	/sim/tarsio/FastConv_SystemVerilog/rtl/csa/csa_lib.sv
+	/sim/tarsio/FastConv_SystemVerilog/rtl/mux-mult/tck9/mux_mult_05.sv
+	/sim/tarsio/FastConv_SystemVerilog/rtl/mult-matrices/tck9/mult_matrices_csa.sv
+	/sim/tarsio/FastConv_SystemVerilog/rtl/conv-mux/conv.sv
+	/sim/tarsio/FastConv_SystemVerilog/rtl/control-sum/control.sv
+	/sim/tarsio/FastConv_SystemVerilog/rtl/mem/mem.sv
+	/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench-synth-tc.sv
+	../logical/results/gate_level/system_logic_mapped.v
+	-f ../list-define.txt
+		-define NADDR=16
+		-define NBITS=20
+		-define LATENCY=1
+		-define ROM=1
+		-define QUANT=8
+		-define N_CHANNEL_IN=1
+		-define N_CHANNEL_OUT=1
+		-define LAST_WINDOW=0
+	-define GATE_LEVEL
+	-define XRUN
+	-run
+	-exit
+xrun: *E,FILEMIS: Cannot find the provided file /sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench-synth-tc.sv.
+TOOL:	xrun(64)	23.03-s003: Exiting on Jan 26, 2026 at 01:39:53 -03  (total: 00:00:00)
