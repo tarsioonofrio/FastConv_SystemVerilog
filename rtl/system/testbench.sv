@@ -27,7 +27,7 @@ module tb;
   logic_vector w_output_data_read;
   logic_vector w_output_data_write;
 
-  int count_fout = 0;
+  int count_fout;
   int i = 0;
   int j = 0;
   int total_out_rows = 0;
@@ -35,10 +35,10 @@ module tb;
   time t_end = 0;
   time t_total = 0;
   integer time_fd = 0;
-  int cycle_count = 0;
-  int mem_input_reads = 0;
-  int mem_output_reads = 0;
-  int mem_output_writes = 0;
+  int cycle_count;
+  int mem_input_reads;
+  int mem_output_reads;
+  int mem_output_writes;
   logic count_cycles = 0;
 
   // Clock generation (10ns period)
