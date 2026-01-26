@@ -40,6 +40,6 @@ if {[file exists $defines_file]} {
     close $fp_def
 }
 
-append HDL_FILES "${GIT_ROOT}/rtl/system/system.sv"
+append HDL_FILES "${GIT_ROOT}/rtl/conv-mux/conv.sv"
 
 source ${GIT_ROOT}/synthesis/_source/logical_synthesis.tcl

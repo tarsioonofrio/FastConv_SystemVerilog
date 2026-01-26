@@ -1,5 +1,5 @@
 xrun(64): 23.03-s003: (c) Copyright 1995-2023 Cadence Design Systems, Inc.
-TOOL:	xrun(64)	23.03-s003: Started on Jan 22, 2026 at 17:06:04 -03
+TOOL:	xrun(64)	23.03-s003: Started on Jan 26, 2026 at 17:03:00 -03
 xrun
 	-f args.txt
 		-smartorder
@@ -2574,9 +2574,6 @@ file: ../logical/results/gate_level/system_logic_mapped.v
 		pack_data
 		tb
 	Reading SDF file from location "../logical/results/gate_level/system_analysis_view_0p90v_25c_captyp_nominal.sdf"
-	Compiled SDF file "system_analysis_view_0p90v_25c_captyp_nominal.sdf.X" older than source SDF file "../logical/results/gate_level/system_analysis_view_0p90v_25c_captyp_nominal.sdf".
-	Recompiling.
-	Writing compiled SDF file to "system_analysis_view_0p90v_25c_captyp_nominal.sdf.X".
 xmelab: *W,FLFNOF: No SDF file specified, but annotation parameters were present, in SDF annotation command file sdf_cmd.cmd, line 6.
 	Annotating SDF timing data:
 		Compiled SDF file:     system_analysis_view_0p90v_25c_captyp_nominal.sdf.X
@@ -2795,8 +2792,8 @@ xmelab: *W,NTCNNC: Non-convergence of negative timing check values in instance t
 			streams:   0, words:     0
 		work.Control:v <0x1bf06ac2>
 			streams:   1, words:  6894
-		work.tb:sv <0x35920be0>
-			streams:  40, words: 30353
+		work.tb:sv <0x77d51bc2>
+			streams:  45, words: 40782
 		work.pack_param:sv <0x3b0b3984>
 			streams:   1, words:   708
 		work.pack_data:sv <0x43b6efcb>
@@ -2810,12 +2807,12 @@ xmelab: *W,NTCNNC: Non-convergence of negative timing check values in instance t
 		UDPs:                    18865       4
 		Primitives:              71162       6
 		Timing outputs:          18950      66
-		Registers:                2617      50
+		Registers:                2622      55
 		Scalar wires:            24657       -
 		Expanded wires:             92       5
 		Vectored wires:             20       -
-		Always blocks:               9       5
-		Initial blocks:             16      16
+		Always blocks:              10       6
+		Initial blocks:             15      15
 		Pseudo assignments:         28       -
 		Timing checks:           35890    6010
 		Interconnect:            48384       -
@@ -2830,11 +2827,35 @@ xcelium> run
 
 *** TIME 173365.134000 ***
 
+
+*** TOTAL CYCLES 17335 ***
+
+
+*** MEM INPUT READS 14724 ***
+
+
+*** MEM OUTPUT READS 5418 ***
+
+
+*** MEM OUTPUT WRITES 8100 ***
+
 === No errors - End simulation ===
 
 *** TIME 200375.000000 ***
 
+
+*** TOTAL CYCLES 17336 ***
+
+
+*** MEM INPUT READS 14724 ***
+
+
+*** MEM OUTPUT READS 5419 ***
+
+
+*** MEM OUTPUT WRITES 8100 ***
+
 Simulation complete via $finish(1) at time 200375 NS + 0
-/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv:186     $finish;
+/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv:236     $finish;
 xcelium> exit
-TOOL:	xrun(64)	23.03-s003: Exiting on Jan 22, 2026 at 17:06:52 -03  (total: 00:00:48)
+TOOL:	xrun(64)	23.03-s003: Exiting on Jan 26, 2026 at 17:03:26 -03  (total: 00:00:26)
