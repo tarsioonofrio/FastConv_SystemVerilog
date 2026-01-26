@@ -8,7 +8,12 @@ EXCLUDED_PROJECTS = {"source", "template"}
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
 
+def strip_project_prefix(name):
+    return re.sub(r"^(sys|conv)-?", "", name, flags=re.IGNORECASE)
+
+
 def format_project_name(name):
+    name = strip_project_prefix(name)
     if len(name) < 2:
         return name.upper()
     return f"{name[:2].upper()}{name[2:]}"
@@ -47,12 +52,27 @@ def parse_multipliers(project):
     match = re.search(r"-([0-9]+)m", project)
     if not match:
         return None
-    return int(match.group(1))
+    return match.group(1)
+
+
+def parse_extra(project):
+    match = re.search(r"m\d+p-([^-]+)", project, flags=re.IGNORECASE)
+    if not match:
+        return None
+    return match.group(1)
 
 
 def read_file(file_path):
     with open(file_path, "r") as handle:
         return handle.readlines()
+
+
+def add_name_mult_columns(df, project_col):
+    df = df.copy()
+    df["nome"] = df[project_col].astype(str).str[:4]
+    df["mult"] = df[project_col].map(parse_multipliers)
+    df["extra"] = df[project_col].map(parse_extra)
+    return df
 
 
 def write_report_time(report_dir, prefix):
@@ -79,6 +99,9 @@ def write_report_time(report_dir, prefix):
 
     df = pd.DataFrame(rows)
     df["project"] = df["project"].map(format_project_name)
+    df = add_name_mult_columns(df, "project")
+    column_order = ["project", "nome", "mult", "side", "extra"]
+    df = df[column_order + [c for c in df.columns if c not in column_order]]
     df.sort_values(by=["project"], inplace=True)
     df.reset_index(drop=True, inplace=True)
     label = prefix.rstrip("-")
@@ -135,6 +158,9 @@ def write_report_logical(report_dir, prefix):
     ]
 
     df.insert(0, "Project", [format_project_name(n) for n in df.index])
+    df = add_name_mult_columns(df, "Project")
+    column_order = ["Project", "nome", "mult", "extra"]
+    df = df[column_order + [c for c in df.columns if c not in column_order]]
     df.sort_values(by=["Project"], inplace=True)
     df.reset_index(drop=True, inplace=True)
     label = prefix.rstrip("-")
@@ -158,6 +184,9 @@ def write_report_power(report_dir, prefix):
         label = prefix.rstrip("-")
         columns = [
             "Project",
+            "nome",
+            "mult",
+            "extra",
             "memory",
             "register",
             "latch",
@@ -188,6 +217,9 @@ def write_report_power(report_dir, prefix):
     }
     df_total = pd.DataFrame({f: df["Total"] for f, df in list_df.items()}).T
     df_total.insert(0, "Project", [format_project_name(n) for n in df_total.index])
+    df_total = add_name_mult_columns(df_total, "Project")
+    column_order = ["Project", "nome", "mult", "extra"]
+    df_total = df_total[column_order + [c for c in df_total.columns if c not in column_order]]
     df_total.sort_values(by=["Project"], inplace=True)
     df_total.reset_index(drop=True, inplace=True)
     label = prefix.rstrip("-")
@@ -207,14 +239,13 @@ def write_report_merge(report_dir, prefix):
     df = df_time.merge(df_logical, on="Project", how="left")
     df = df.merge(df_power, on="Project", how="left")
 
-    df["nome"] = df["Project"].str.replace(r"m\d+p", "", regex=True)
-    df["multip"] = df["Project"].map(parse_multipliers)
+    df = add_name_mult_columns(df, "Project")
     df["size"] = pd.to_numeric(df["side"], errors="coerce") ** 2
     df["Subtotal"] = pd.to_numeric(df.get("Subtotal"), errors="coerce")
     df["time_ns"] = pd.to_numeric(df["time_ns"], errors="coerce")
     df["energy"] = (df["Subtotal"] * df["time_ns"]) / 1000
 
-    column_order = ["Project", "nome", "multip", "time_ns", "cycles"]
+    column_order = ["Project", "nome", "mult", "side", "extra", "time_ns", "cycles"]
     df = df[column_order + [c for c in df.columns if c not in column_order]]
     df.sort_values(by=["Project"], inplace=True)
     df.reset_index(drop=True, inplace=True)
@@ -232,6 +263,40 @@ def write_report_merge(report_dir, prefix):
     df_ifn9_06m.to_csv(report_dir / f"{label}-report-merged-IFn9-06m.csv", index=False)
 
 
+def write_chap7_conv_time(report_dir):
+    source = report_dir / "conv-report-time.csv"
+    if not source.exists():
+        print(f"Skipping chap7 export, missing: {source}")
+        return
+    df = pd.read_csv(source)
+    required_cols = {"nome", "mult", "cycles"}
+    if not required_cols.issubset(df.columns):
+        print(f"Skipping chap7 export, missing columns: {required_cols - set(df.columns)}")
+        return
+    df = df[["nome", "mult", "cycles"]].dropna()
+    df["mult"] = pd.to_numeric(df["mult"], errors="coerce")
+    df = df.dropna(subset=["mult"])
+
+    def merge_cycles(series):
+        values = pd.to_numeric(series, errors="coerce").dropna().unique()
+        if len(values) == 0:
+            return None
+        if len(values) == 1:
+            return values[0]
+        return None
+
+    df = df.groupby(["mult", "nome"], as_index=False)["cycles"].agg(merge_cycles)
+    df_pivot = df.pivot(index="mult", columns="nome", values="cycles")
+    df_pivot.sort_index(axis=0, inplace=True)
+    df_pivot = df_pivot.reset_index()
+    output_dir = REPO_ROOT / ".." / "dissertation-doc" / "data" / "chap7"
+    output_dir = output_dir.resolve()
+    if not output_dir.exists():
+        print(f"Skipping chap7 export, missing: {output_dir}")
+        return
+    df_pivot.to_csv(output_dir / "conv-report-time.csv", index=False)
+
+
 def main():
     report_dir = Path(__file__).resolve().parent.parent / "report"
     for prefix in ("sys-", "conv-"):
@@ -239,6 +304,7 @@ def main():
         write_report_logical(report_dir, prefix)
         write_report_power(report_dir, prefix)
         write_report_merge(report_dir, prefix)
+    write_chap7_conv_time(report_dir)
 
 
 if __name__ == "__main__":
