@@ -289,16 +289,6 @@ def write_report_merge(report_dir, prefix):
 
     df.to_csv(report_dir / f"{label}-report-merged.csv", index=False)
 
-    mask_9_032p = df["Project"].astype(str).str.contains(r"9-.*032p", regex=True)
-    df_9_032p = df[mask_9_032p].copy()
-    df_9_032p.reset_index(drop=True, inplace=True)
-    df_9_032p.to_csv(report_dir / f"{label}-report-merged-9-032p.csv", index=False)
-
-    mask_ifn9_06m = df["Project"].astype(str).str.startswith("IFn9-06m")
-    df_ifn9_06m = df[mask_ifn9_06m].copy()
-    df_ifn9_06m.reset_index(drop=True, inplace=True)
-    df_ifn9_06m.to_csv(report_dir / f"{label}-report-merged-IFn9-06m.csv", index=False)
-
 
 def write_chap7_conv_time(report_dir):
     source = report_dir / "conv-report-time.csv"
@@ -627,6 +617,106 @@ def write_chap7_conv_power_reg_logic(report_dir):
     df.to_csv(output_dir / "conv-power-reg-logic.csv", index=False)
 
 
+def write_chap7_conv_tc9(report_dir):
+    logical_source = report_dir / "conv-report-logical.csv"
+    power_source = report_dir / "conv-report-power.csv"
+    if not logical_source.exists():
+        print(f"Skipping chap7 tc9 export, missing: {logical_source}")
+        return
+    if not power_source.exists():
+        print(f"Skipping chap7 tc9 export, missing: {power_source}")
+        return
+    logical = pd.read_csv(logical_source)
+    power = pd.read_csv(power_source)
+    logical_required = {"nome", "mult", "extra", "Cell Area um^2", "Flop Count"}
+    power_required = {"nome", "mult", "extra", "Subtotal", "register", "logic"}
+    if not logical_required.issubset(logical.columns):
+        print(
+            f"Skipping chap7 tc9 export, missing columns: {logical_required - set(logical.columns)}"
+        )
+        return
+    if not power_required.issubset(power.columns):
+        print(
+            f"Skipping chap7 tc9 export, missing columns: {power_required - set(power.columns)}"
+        )
+        return
+
+    logical = logical[["nome", "mult", "extra", "Cell Area um^2", "Flop Count"]].dropna(
+        subset=["nome"]
+    )
+    power = power[["nome", "mult", "extra", "Subtotal", "register", "logic"]].dropna(
+        subset=["nome"]
+    )
+
+    logical = logical[logical["nome"].str.contains(r"(?i)^tc.*9$", regex=True, na=False)]
+    power = power[power["nome"].str.contains(r"(?i)^tc.*9$", regex=True, na=False)]
+
+    logical["extra"] = logical["extra"].fillna("").astype(str).str.strip()
+    power["extra"] = power["extra"].fillna("").astype(str).str.strip()
+
+    logical["mult"] = pd.to_numeric(logical["mult"], errors="coerce")
+    power["mult"] = pd.to_numeric(power["mult"], errors="coerce")
+
+    def expand_base_rows(df, metric_cols):
+        base_rows = df[df["mult"].isna()][["nome"] + metric_cols].copy()
+        df = df[df["mult"].notna()].copy()
+        if not base_rows.empty and not df.empty:
+            mult_values = sorted(df["mult"].dropna().unique())
+            expanded = pd.DataFrame(
+                [
+                    dict({"nome": row["nome"], "mult": mult}, **{k: row[k] for k in metric_cols})
+                    for row in base_rows.to_dict("records")
+                    for mult in mult_values
+                ]
+            )
+            df = pd.concat([df, expanded], ignore_index=True)
+        return df
+
+    logical = expand_base_rows(logical, ["extra", "Cell Area um^2", "Flop Count"])
+    power = expand_base_rows(power, ["extra", "Subtotal", "register", "logic"])
+
+    def merge_metric(series):
+        values = pd.to_numeric(series, errors="coerce").dropna().unique()
+        if len(values) == 0:
+            return None
+        if len(values) == 1:
+            return values[0]
+        return None
+
+    logical["mult"] = logical["mult"].round().astype("Int64")
+    power["mult"] = power["mult"].round().astype("Int64")
+
+    logical = logical.groupby(["mult", "nome", "extra"], dropna=False).agg(
+        cell_area=("Cell Area um^2", merge_metric),
+        flop_count=("Flop Count", merge_metric),
+    )
+    power = power.groupby(["mult", "nome", "extra"], dropna=False).agg(
+        power_subtotal=("Subtotal", merge_metric),
+        power_register=("register", merge_metric),
+        power_logic=("logic", merge_metric),
+    )
+
+    df = logical.join(power, how="outer").reset_index()
+    output_dir = REPO_ROOT / ".." / "dissertation-doc" / "data" / "chap7"
+    output_dir = output_dir.resolve()
+    if not output_dir.exists():
+        print(f"Skipping chap7 tc9 export, missing: {output_dir}")
+        return
+    df = df[
+        [
+            "nome",
+            "mult",
+            "extra",
+            "cell_area",
+            "flop_count",
+            "power_subtotal",
+            "power_register",
+            "power_logic",
+        ]
+    ]
+    df.to_csv(output_dir / "conv-tc9.csv", index=False)
+
+
 def main():
     report_dir = Path(__file__).resolve().parent.parent / "report"
     for prefix in ("sys-", "conv-"):
@@ -640,6 +730,7 @@ def main():
     write_chap7_conv_energy(report_dir)
     write_chap7_conv_power_cycles(report_dir)
     write_chap7_conv_power_reg_logic(report_dir)
+    write_chap7_conv_tc9(report_dir)
 
 
 if __name__ == "__main__":
