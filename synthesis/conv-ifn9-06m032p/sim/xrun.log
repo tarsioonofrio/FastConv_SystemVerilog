@@ -1,5 +1,5 @@
 xrun(64): 23.03-s003: (c) Copyright 1995-2023 Cadence Design Systems, Inc.
-TOOL:	xrun(64)	23.03-s003: Started on Jan 24, 2026 at 12:33:07 -03
+TOOL:	xrun(64)	23.03-s003: Started on Jan 25, 2026 at 22:14:37 -03
 xrun
 	-f args.txt
 		-smartorder
@@ -18,7 +18,7 @@ xrun
 	/sim/tarsio/FastConv_SystemVerilog/rtl/mux-mult/ifn9/mux_mult_06.sv
 	/sim/tarsio/FastConv_SystemVerilog/rtl/mult-matrices/ifn9/mult_matrices.sv
 	/sim/tarsio/FastConv_SystemVerilog/rtl/mem/mem.sv
-	/sim/tarsio/FastConv_SystemVerilog/rtl/conv-mux/testbench-synth.sv
+	/sim/tarsio/FastConv_SystemVerilog/rtl/conv-mux/testbench-synth-if.sv
 	../logical/results/gate_level/conv_logic_mapped.v
 	-f ../list-define.txt
 		-define NADDR=16
@@ -2298,7 +2298,7 @@ file: /sim/tarsio/FastConv_SystemVerilog/rtl/mult-matrices/ifn9/mult_matrices.sv
 file: /sim/tarsio/FastConv_SystemVerilog/rtl/mem/mem.sv
 	module work.Memory:sv
 		errors: 0, warnings: 0
-file: /sim/tarsio/FastConv_SystemVerilog/rtl/conv-mux/testbench-synth.sv
+file: /sim/tarsio/FastConv_SystemVerilog/rtl/conv-mux/testbench-synth-if.sv
 	module work.tb:sv
 		errors: 0, warnings: 0
 file: ../logical/results/gate_level/conv_logic_mapped.v
@@ -2376,11 +2376,14 @@ file: ../logical/results/gate_level/conv_logic_mapped.v
 		pack_def
 		pack_param
 		pack_typedef
-		$unit_0x6c589be3
+		$unit_0x351998ea
 		pack_data
 		pack_mux_mult
 		tb
 	Reading SDF file from location "../logical/results/gate_level/conv_analysis_view_0p90v_25c_captyp_nominal.sdf"
+	Compiled SDF file "conv_analysis_view_0p90v_25c_captyp_nominal.sdf.X" older than source SDF file "../logical/results/gate_level/conv_analysis_view_0p90v_25c_captyp_nominal.sdf".
+	Recompiling.
+	Writing compiled SDF file to "conv_analysis_view_0p90v_25c_captyp_nominal.sdf.X".
 xmelab: *W,FLFNOF: No SDF file specified, but annotation parameters were present, in SDF annotation command file sdf_cmd.cmd, line 6.
 	Annotating SDF timing data:
 		Compiled SDF file:     conv_analysis_view_0p90v_25c_captyp_nominal.sdf.X
@@ -2654,7 +2657,7 @@ xmelab: *W,SDFNET: Unable to annotate to non-existent timing check (RECREM (pose
 			streams:   0, words:     0
 		work.Conv:v <0x1240e20e>
 			streams:   1, words:  1664
-		work.tb:sv <0x672f86c5>
+		work.tb:sv <0x15bb1927>
 			streams:  86, words: 35806
 		work.pack_param:sv <0x3b0b3984>
 			streams:   1, words:   708
@@ -2690,6 +2693,6 @@ xcelium> run
 *** TIME 11035.000000 ***
 
 Simulation complete via $finish(1) at time 11035 NS + 0
-/sim/tarsio/FastConv_SystemVerilog/rtl/conv-mux/testbench-synth.sv:198     $finish;
+/sim/tarsio/FastConv_SystemVerilog/rtl/conv-mux/testbench-synth-if.sv:198     $finish;
 xcelium> exit
-TOOL:	xrun(64)	23.03-s003: Exiting on Jan 24, 2026 at 12:33:16 -03  (total: 00:00:09)
+TOOL:	xrun(64)	23.03-s003: Exiting on Jan 25, 2026 at 22:14:45 -03  (total: 00:00:08)
