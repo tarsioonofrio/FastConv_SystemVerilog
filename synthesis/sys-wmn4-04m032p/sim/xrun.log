@@ -1,5 +1,5 @@
 xrun(64): 23.03-s003: (c) Copyright 1995-2023 Cadence Design Systems, Inc.
-TOOL:	xrun(64)	23.03-s003: Started on Jan 19, 2026 at 02:32:07 -03
+TOOL:	xrun(64)	23.03-s003: Started on Jan 26, 2026 at 16:53:37 -03
 xrun
 	-f args.txt
 		-smartorder
@@ -20,7 +20,7 @@ xrun
 	/sim/tarsio/FastConv_SystemVerilog/rtl/conv-mux/conv.sv
 	/sim/tarsio/FastConv_SystemVerilog/rtl/mem/mem.sv
 	/sim/tarsio/FastConv_SystemVerilog/rtl/control-sum/control.sv
-	/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench-synth.sv
+	/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv
 	../logical/results/gate_level/system_logic_mapped.v
 	-f ../list-define.txt
 		-define NADDR=16
@@ -31,6 +31,8 @@ xrun
 		-define N_CHANNEL_IN=1
 		-define N_CHANNEL_OUT=1
 		-define LAST_WINDOW=0
+	-define GATE_LEVEL
+	-define XRUN
 	-run
 	-exit
 file: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v
@@ -2306,7 +2308,7 @@ file: /sim/tarsio/FastConv_SystemVerilog/rtl/mem/mem.sv
 file: /sim/tarsio/FastConv_SystemVerilog/rtl/control-sum/control.sv
 	module work.Control:sv
 		errors: 0, warnings: 0
-file: /sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench-synth.sv
+file: /sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv
 	module work.tb:sv
 		errors: 0, warnings: 0
 file: ../logical/results/gate_level/system_logic_mapped.v
@@ -2454,7 +2456,7 @@ file: ../logical/results/gate_level/system_logic_mapped.v
 		pack_def
 		pack_param
 		pack_typedef
-		$unit_0x3d71b00e
+		$unit_0x18287b5f
 		pack_data
 		tb
 	Reading SDF file from location "../logical/results/gate_level/system_analysis_view_0p90v_25c_captyp_nominal.sdf"
@@ -2486,197 +2488,392 @@ xmelab: *W,NTCNNC: Non-convergence of negative timing check values in instance t
 		      $width	          9821	             0	                 0	                  0.00
 		   $recovery	             8	             0	                 0	                  0.00
 		  $setuphold	          4938	             0	              4828	                 97.77
-	Building instance overlay tables: .................... Done
-	Generating native compiled code:
-		work.Memory:sv <0x71eac56b>
-			streams:   7, words:  3545
-		work.Memory:sv <0x0a24c8ba>
-			streams:   6, words:  2686
-		work.AOI22D1BWP30P140:v <0x065e05af>
-			streams:   0, words:     0
-		work.AOI222D1BWP30P140:v <0x3790541d>
-			streams:   0, words:     0
-		work.AO211D1BWP30P140:v <0x2d58d5c4>
-			streams:   0, words:     0
-		work.Inverse:v <0x46b93358>
-			streams:   0, words:     0
-		work.XNR3UD1BWP30P140:v <0x13c50e01>
-			streams:   0, words:     0
-		work.OA211D1BWP30P140:v <0x2a07a0be>
-			streams:   0, words:     0
-		work.XNR4D1BWP30P140:v <0x7a085748>
-			streams:   0, words:     0
-		work.XOR4D0BWP30P140:v <0x438fb849>
-			streams:   0, words:     0
-		work.AO21D1BWP30P140:v <0x47f900ae>
-			streams:   0, words:     0
-		work.OAI33D1BWP30P140:v <0x350eaff7>
-			streams:   0, words:     0
-		work.CKMUX2D0BWP30P140:v <0x4b82820d>
-			streams:   0, words:     0
-		work.AOI222D1BWP30P140:v <0x0954e3fb>
-			streams:   0, words:     0
-		work.XOR3UD1BWP30P140:v <0x27870304>
-			streams:   0, words:     0
-		work.Conv:v <0x5ca60b3e>
-			streams:   1, words:   434
-		work.DFCND1BWP30P140:v <0x45909194>
-			streams:   0, words:     0
-		work.FA1OPTCD1BWP30P140:v <0x1cc4a315>
-			streams:   0, words:     0
-		work.FA1D1BWP30P140:v <0x60708e4c>
-			streams:   0, words:     0
-		work.XOR3UD1BWP30P140:v <0x00a2cf98>
-			streams:   0, words:     0
-		work.DFKCND1BWP30P140:v <0x7fc217bc>
-			streams:   0, words:     0
-		work.AOI31D1BWP30P140:v <0x2f18f089>
-			streams:   0, words:     0
-		work.OAI22D1BWP30P140:v <0x3192143f>
-			streams:   0, words:     0
-		work.OAI222D1BWP30P140:v <0x569e4343>
-			streams:   0, words:     0
-		work.AOI211D1BWP30P140:v <0x4fcc31e3>
-			streams:   0, words:     0
-		work.OAI22D1BWP30P140:v <0x16b7d8a3>
-			streams:   0, words:     0
-		work.MUX2NUD1BWP30P140:v <0x012256f9>
-			streams:   0, words:     0
-		work.OAI222D1BWP30P140:v <0x685af4a5>
-			streams:   0, words:     0
-		work.CKMUX2D0BWP30P140:v <0x2cefdc21>
-			streams:   0, words:     0
-		work.OAI32D1BWP30P140:v <0x6f977d9f>
-			streams:   0, words:     0
-		work.AO211D1BWP30P140:v <0x4a358be8>
-			streams:   0, words:     0
-		work.IAO21D1BWP30P140:v <0x6985f353>
-			streams:   0, words:     0
-		work.SDFKCNQARD2BWP30P140:v <0x087477f4>
-			streams:   0, words:     0
-		work.DFMQD1BWP30P140:v <0x2ca3e1d5>
-			streams:   0, words:     0
-		work.DFKCSND1BWP30P140:v <0x2fd95b60>
-			streams:   0, words:     0
-		work.DFKSND1BWP30P140:v <0x53e7c24d>
-			streams:   0, words:     0
-		work.DFQD2BWP30P140:v <0x36d6a9c8>
-			streams:   0, words:     0
-		work.DFKCNQD1BWP30P140:v <0x1d9dc4cd>
-			streams:   0, words:     0
-		work.DFCNQD1BWP30P140:v <0x5cae4557>
-			streams:   0, words:     0
-		work.OAI31D1BWP30P140:v <0x37dc5ba9>
-			streams:   0, words:     0
-		work.MAOI22D1BWP30P140:v <0x168a045d>
-			streams:   0, words:     0
-		work.AOI33D1BWP30P140:v <0x0849b129>
-			streams:   0, words:     0
-		work.AOI32D1BWP30P140:v <0x6e26cf93>
-			streams:   0, words:     0
-		work.OA21D1BWP30P140:v <0x1729db5c>
-			streams:   0, words:     0
-		work.MOAI22D1BWP30P140:v <0x2cc81bc1>
-			streams:   0, words:     0
-		work.MAOI222D1BWP30P140:v <0x362f420d>
-			streams:   0, words:     0
-		work.IAO21D1BWP30P140:v <0x556ca5f9>
-			streams:   0, words:     0
-		work.AOI21D1BWP30P140:v <0x198431f4>
-			streams:   0, words:     0
-		work.OAI211D1BWP30P140:v <0x70a92172>
-			streams:   0, words:     0
-		work.OAI31D1BWP30P140:v <0x09791916>
-			streams:   0, words:     0
-		work.AOI221D1BWP30P140:v <0x0f263231>
-			streams:   0, words:     0
-		work.IOA21D1BWP30P140:v <0x11205b13>
-			streams:   0, words:     0
-		work.XNR2UD1BWP30P140:v <0x61c32a5b>
-			streams:   0, words:     0
-		work.XOR2UD1BWP30P140:v <0x61f3f91b>
-			streams:   0, words:     0
-		work.OAI211D1BWP30P140:v <0x17c47f5e>
-			streams:   0, words:     0
-		work.MUX2NUD1BWP30P140:v <0x664f08d5>
-			streams:   0, words:     0
-		work.OAI21D1BWP30P140:v <0x1c9ef0e7>
-			streams:   0, words:     0
-		work.OAI221D1BWP30P140:v <0x10dfa861>
-			streams:   0, words:     0
-		work.HA1D1BWP30P140:v <0x0d112386>
-			streams:   0, words:     0
-		work.XOR2UD1BWP30P140:v <0x667fe57a>
-			streams:   0, words:     0
-		work.HA1D1BWP30P140:v <0x0a9d3fe7>
-			streams:   0, words:     0
-		work.AO22D0BWP30P140:v <0x60b5be0c>
-			streams:   0, words:     0
-		work.AOI21D1BWP30P140:v <0x256d675e>
-			streams:   0, words:     0
-		work.IOA21D1BWP30P140:v <0x2dc90db9>
-			streams:   0, words:     0
-		work.FA1D1BWP30P140:v <0x27e92d3f>
-			streams:   0, words:     0
-		work.AO21D1BWP30P140:v <0x7b105604>
-			streams:   0, words:     0
-		work.HA1D1BWP30P140:v <0x23031b82>
-			streams:   0, words:     0
-		work.OAI21D1BWP30P140:v <0x2077a64d>
-			streams:   0, words:     0
-		work.AOI22D1BWP30P140:v <0x217bc933>
-			streams:   0, words:     0
-		work.XNR2UD1BWP30P140:v <0x664f363a>
-			streams:   0, words:     0
-		work.MOAI22D1BWP30P140:v <0x0bedd75d>
-			streams:   0, words:     0
-		work.AO22D0BWP30P140:v <0x47907290>
-			streams:   0, words:     0
-		work.DFKCND1BWP30P140:v <0x21c8394c>
-			streams:   0, words:     0
-		work.DFKCNQD2BWP30P140:v <0x354dcc57>
-			streams:   0, words:     0
-		work.CKLNQD1BWP30P140:v <0x1d60a4cf>
-			streams:   0, words:     0
-		work.Control:v <0x5603f7c9>
-			streams:   1, words:  3854
-		work.System:v <0x7c474903>
-			streams:   0, words:     0
-		work.tb:sv <0x27ef44ef>
-			streams:  40, words: 28426
-		work.pack_param:sv <0x424e1aea>
-			streams:   1, words:   708
-		work.pack_data:sv <0x6302cda4>
-			streams:   5, words:  3736
-	Building instance specific data structures.
-	Loading native compiled code:     .................... Done
-	Design hierarchy summary:
-		                     Instances  Unique
-		Modules:                  7163     158
-		Verilog packages:            4       4
-		UDPs:                    10153       4
-		Primitives:              33972       6
-		Timing outputs:           8923      52
-		Registers:                1345      47
-		Scalar wires:            11351       -
-		Expanded wires:             92       5
-		Vectored wires:             16       -
-		Always blocks:               9       5
-		Initial blocks:             16      16
-		Cont. assignments:           0       6
-		Pseudo assignments:         28       -
-		Timing checks:           19713    3393
-		Interconnect:            21043       -
-		Delayed tcheck signals:   3706     914
-		Compilation units:           1       1
-		Simulation timescale:      1ps
-	Writing initial simulation snapshot: work.tb:sv
-Loading snapshot work.tb:sv .................... Done
-xcelium> source /soft64/cadence/ferramentas/XCELIUM2303/tools/xcelium/files/xmsimrc
-xcelium> run
-=== Start processing ===
-=== No errors - End simulation ===
-Simulation complete via $finish(1) at time 234795 NS + 0
-/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench-synth.sv:143     $finish;
-xcelium> exit
-TOOL:	xrun(64)	23.03-s003: Exiting on Jan 19, 2026 at 02:32:25 -03  (total: 00:00:18)
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable cycle_count detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable cycle_count detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable cycle_count detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable cycle_count detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable cycle_count detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable cycle_count detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable cycle_count detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable cycle_count detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable cycle_count detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable cycle_count detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable cycle_count detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable cycle_count detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable cycle_count detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable cycle_count detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable cycle_count detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable cycle_count detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable cycle_count detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable cycle_count detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable cycle_count detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable cycle_count detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable cycle_count detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable cycle_count detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable cycle_count detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable cycle_count detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable cycle_count detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable cycle_count detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable cycle_count detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable cycle_count detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable cycle_count detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable cycle_count detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable cycle_count detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable cycle_count detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_input_reads detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_input_reads detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_input_reads detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_input_reads detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_input_reads detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_input_reads detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_input_reads detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_input_reads detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_input_reads detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_input_reads detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_input_reads detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_input_reads detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_input_reads detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_input_reads detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_input_reads detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_input_reads detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_input_reads detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_input_reads detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_input_reads detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_input_reads detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_input_reads detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_input_reads detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_input_reads detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_input_reads detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_input_reads detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_input_reads detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_input_reads detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_input_reads detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_input_reads detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_input_reads detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_input_reads detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_input_reads detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_output_reads detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_output_reads detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_output_reads detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_output_reads detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_output_reads detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_output_reads detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_output_reads detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_output_reads detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_output_reads detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_output_reads detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_output_reads detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_output_reads detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_output_reads detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_output_reads detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_output_reads detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_output_reads detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_output_reads detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_output_reads detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_output_reads detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_output_reads detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_output_reads detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_output_reads detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_output_reads detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_output_reads detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_output_reads detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_output_reads detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_output_reads detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_output_reads detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_output_reads detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_output_reads detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_output_reads detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_output_reads detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_output_writes detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_output_writes detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_output_writes detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_output_writes detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_output_writes detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_output_writes detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_output_writes detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_output_writes detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_output_writes detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_output_writes detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_output_writes detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_output_writes detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_output_writes detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_output_writes detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_output_writes detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_output_writes detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_output_writes detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_output_writes detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_output_writes detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_output_writes detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_output_writes detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_output_writes detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_output_writes detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_output_writes detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_output_writes detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_output_writes detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_output_writes detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_output_writes detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_output_writes detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_output_writes detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_output_writes detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable mem_output_writes detected.
+  always_ff @(posedge clk) begin
+          |
+xmelab: *E,MULAXX (/sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv,49|10): Multiple drivers to always_ff output variable count_cycles detected.
+xrun: *E,ELBERR: Error (*E) or soft error (*SE) occurred during elaboration (status 1), exiting.
+TOOL:	xrun(64)	23.03-s003: Exiting on Jan 26, 2026 at 16:53:39 -03  (total: 00:00:02)
