@@ -39,7 +39,7 @@ module tb;
   int mem_input_reads;
   int mem_output_reads;
   int mem_output_writes;
-  logic count_cycles = 0;
+  logic count_cycles;
 
   // Clock generation (10ns period)
   initial clk = 0;
