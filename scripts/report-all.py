@@ -476,6 +476,122 @@ def write_chap7_conv_energy(report_dir):
     df_pivot.to_csv(output_dir / "conv-energy.csv", index=False)
 
 
+def write_chap7_conv_power_cycles(report_dir):
+    source = report_dir / "conv-report-merged.csv"
+    if not source.exists():
+        print(f"Skipping chap7 power/cycles export, missing: {source}")
+        return
+    df = pd.read_csv(source)
+    required_cols = {"nome", "mult", "extra", "Subtotal", "energy_nj", "cycles"}
+    if not required_cols.issubset(df.columns):
+        print(
+            f"Skipping chap7 power/cycles export, missing columns: {required_cols - set(df.columns)}"
+        )
+        return
+    df = df[df["extra"].isna() | (df["extra"].astype(str).str.strip() == "")]
+    df = df[["nome", "mult", "Subtotal", "energy_nj", "cycles"]].dropna(
+        subset=["nome"]
+    )
+    df["mult"] = pd.to_numeric(df["mult"], errors="coerce")
+    base_rows = df[df["mult"].isna()][["nome", "Subtotal", "energy_nj", "cycles"]].copy()
+    df = df[df["mult"].notna()].copy()
+    if not base_rows.empty and not df.empty:
+        mult_values = sorted(df["mult"].dropna().unique())
+        expanded = pd.DataFrame(
+            [
+                {
+                    "nome": row["nome"],
+                    "mult": mult,
+                    "Subtotal": row["Subtotal"],
+                    "energy_nj": row["energy_nj"],
+                    "cycles": row["cycles"],
+                }
+                for row in base_rows.to_dict("records")
+                for mult in mult_values
+            ]
+        )
+        df = pd.concat([df, expanded], ignore_index=True)
+
+    def merge_metric(series):
+        values = pd.to_numeric(series, errors="coerce").dropna().unique()
+        if len(values) == 0:
+            return None
+        if len(values) == 1:
+            return values[0]
+        return None
+
+    df["mult"] = df["mult"].round().astype("Int64")
+    df = df.groupby(["mult", "nome"]).agg(
+        power=("Subtotal", merge_metric),
+        energy=("energy_nj", merge_metric),
+        cycles=("cycles", merge_metric),
+    )
+    df = df.reset_index()
+    output_dir = REPO_ROOT / ".." / "dissertation-doc" / "data" / "chap7"
+    output_dir = output_dir.resolve()
+    if not output_dir.exists():
+        print(f"Skipping chap7 power/cycles export, missing: {output_dir}")
+        return
+    df = df[["nome", "mult", "power", "energy", "cycles"]]
+    df.to_csv(output_dir / "conv-power-cycles.csv", index=False)
+
+
+def write_chap7_conv_power_reg_logic(report_dir):
+    source = report_dir / "conv-report-power.csv"
+    if not source.exists():
+        print(f"Skipping chap7 power reg/logic export, missing: {source}")
+        return
+    df = pd.read_csv(source)
+    required_cols = {"nome", "mult", "extra", "register", "logic"}
+    if not required_cols.issubset(df.columns):
+        print(
+            f"Skipping chap7 power reg/logic export, missing columns: {required_cols - set(df.columns)}"
+        )
+        return
+    df = df[df["extra"].isna() | (df["extra"].astype(str).str.strip() == "")]
+    df = df[["nome", "mult", "register", "logic"]].dropna(subset=["nome"])
+    df["mult"] = pd.to_numeric(df["mult"], errors="coerce")
+    base_rows = df[df["mult"].isna()][["nome", "register", "logic"]].copy()
+    df = df[df["mult"].notna()].copy()
+    if not base_rows.empty and not df.empty:
+        mult_values = sorted(df["mult"].dropna().unique())
+        expanded = pd.DataFrame(
+            [
+                {
+                    "nome": row["nome"],
+                    "mult": mult,
+                    "register": row["register"],
+                    "logic": row["logic"],
+                }
+                for row in base_rows.to_dict("records")
+                for mult in mult_values
+            ]
+        )
+        df = pd.concat([df, expanded], ignore_index=True)
+
+    def merge_metric(series):
+        values = pd.to_numeric(series, errors="coerce").dropna().unique()
+        if len(values) == 0:
+            return None
+        if len(values) == 1:
+            return values[0]
+        return None
+
+    df["mult"] = df["mult"].round().astype("Int64")
+    df = df.groupby(["mult", "nome"]).agg(
+        register=("register", merge_metric),
+        logic=("logic", merge_metric),
+    )
+    df = df.reset_index()
+    output_dir = REPO_ROOT / ".." / "dissertation-doc" / "data" / "chap7"
+    output_dir = output_dir.resolve()
+    if not output_dir.exists():
+        print(f"Skipping chap7 power reg/logic export, missing: {output_dir}")
+        return
+    df = df[["nome", "mult", "register", "logic"]]
+    df.to_csv(output_dir / "conv-power-reg-logic.csv", index=False)
+
+
 def main():
     report_dir = Path(__file__).resolve().parent.parent / "report"
     for prefix in ("sys-", "conv-"):
@@ -487,6 +603,8 @@ def main():
     write_chap7_conv_logical(report_dir)
     write_chap7_conv_power(report_dir)
     write_chap7_conv_energy(report_dir)
+    write_chap7_conv_power_cycles(report_dir)
+    write_chap7_conv_power_reg_logic(report_dir)
 
 
 if __name__ == "__main__":
