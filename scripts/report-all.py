@@ -6,6 +6,9 @@ import pandas as pd
 
 EXCLUDED_PROJECTS = {"source", "template"}
 REPO_ROOT = Path(__file__).resolve().parent.parent
+SYS_NAIVE_PROJECT = "sys-naive"
+SYS_NAIVE_SIDE = 32
+SYS_NAIVE_DIR = (REPO_ROOT / ".." / "acc_dse_env" / "synthesis" / "convolution").resolve()
 
 
 def strip_project_prefix(name):
@@ -95,6 +98,21 @@ def write_report_time(report_dir, prefix):
             {"project": project, "side": side, "time/ns": time_ns, "cycles": cycles}
         )
 
+    if prefix == "sys-":
+        sim_path = SYS_NAIVE_DIR / "sim.txt"
+        if sim_path.exists():
+            time_ns = parse_time(sim_path)
+            cycles = parse_cycles(sim_path)
+            if time_ns is not None and cycles is not None:
+                rows.append(
+                    {
+                        "project": SYS_NAIVE_PROJECT,
+                        "side": SYS_NAIVE_SIDE,
+                        "time/ns": time_ns,
+                        "cycles": cycles,
+                    }
+                )
+
     if not rows:
         raise SystemExit("No valid sim.log files found.")
 
@@ -114,6 +132,10 @@ def write_report_logical(report_dir, prefix):
     all_files = glob.glob(path.as_posix())
     report_area = {project_name_from_report(f): read_file(f) for f in all_files}
     report_area = {k: v for k, v in report_area.items() if k.startswith(prefix)}
+    if prefix == "sys-":
+        area_path = SYS_NAIVE_DIR / "logical" / "results" / "reports" / "convolution_area.rpt"
+        if area_path.exists():
+            report_area[SYS_NAIVE_PROJECT] = read_file(area_path)
     excluded_area = {k for k in report_area if k in EXCLUDED_PROJECTS}
     for name in sorted(excluded_area):
         print(f"Skipping excluded project: {name}")
@@ -128,6 +150,10 @@ def write_report_logical(report_dir, prefix):
     all_files = glob.glob(path.as_posix())
     report_clock = {project_name_from_report(f): read_file(f) for f in all_files}
     report_clock = {k: v for k, v in report_clock.items() if k.startswith(prefix)}
+    if prefix == "sys-":
+        clock_path = SYS_NAIVE_DIR / "logical" / "results" / "reports" / "convolution_clock_gating.rpt"
+        if clock_path.exists():
+            report_clock[SYS_NAIVE_PROJECT] = read_file(clock_path)
     excluded_clock = {k for k in report_clock if k in EXCLUDED_PROJECTS}
     for name in sorted(excluded_clock):
         print(f"Skipping excluded project: {name}")
@@ -181,6 +207,11 @@ def write_report_power(report_dir, prefix):
             continue
         filtered_files.append(f)
 
+    if prefix == "sys-":
+        power_path = SYS_NAIVE_DIR / "power" / "power_evaluation.txt"
+        if power_path.exists():
+            filtered_files.append(power_path.as_posix())
+
     if not filtered_files:
         label = prefix.rstrip("-")
         columns = [
@@ -204,6 +235,10 @@ def write_report_power(report_dir, prefix):
         return
 
     file_names = [Path(f).parent.parent.name for f in filtered_files]
+    if prefix == "sys-":
+        file_names = [
+            SYS_NAIVE_PROJECT if name == "convolution" else name for name in file_names
+        ]
     report = [read_file(f) for f in filtered_files]
     columns = report[0][15].split()[1:5]
     indexes = [v.split()[0] for v in report[0][17:27] if "--" not in v]
