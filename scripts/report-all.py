@@ -243,10 +243,11 @@ def write_report_merge(report_dir, prefix):
     df["size"] = pd.to_numeric(df["side"], errors="coerce") ** 2
     df["Subtotal"] = pd.to_numeric(df.get("Subtotal"), errors="coerce")
     df["time_ns"] = pd.to_numeric(df["time_ns"], errors="coerce")
-    df["energy"] = (df["Subtotal"] * df["time_ns"]) / 1000
+    df["energy_nj"] = df["Subtotal"] * df["time_ns"] * 1e-6
 
     column_order = ["Project", "nome", "mult", "side", "extra", "time_ns", "cycles"]
-    df = df[column_order + [c for c in df.columns if c not in column_order]]
+    remaining = [c for c in df.columns if c not in column_order and c != "energy_nj"]
+    df = df[column_order + remaining + ["energy_nj"]]
     df.sort_values(by=["Project"], inplace=True)
     df.reset_index(drop=True, inplace=True)
 
@@ -286,7 +287,9 @@ def write_chap7_conv_time(report_dir):
         return None
 
     df = df.groupby(["mult", "nome"], as_index=False)["cycles"].agg(merge_cycles)
+    df["mult"] = df["mult"].round().astype("Int64")
     df_pivot = df.pivot(index="mult", columns="nome", values="cycles")
+    df_pivot = df_pivot.apply(pd.to_numeric, errors="coerce").round().astype("Int64")
     df_pivot.sort_index(axis=0, inplace=True)
     df_pivot = df_pivot.reset_index()
     output_dir = REPO_ROOT / ".." / "dissertation-doc" / "data" / "chap7"
