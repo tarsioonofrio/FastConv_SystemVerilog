@@ -4,6 +4,16 @@ vmap work work
 
 set GIT_ROOT [exec git rev-parse --show-toplevel]
 
+# set DATA_FILE "${GIT_ROOT}/data/ifn9/sim/sim-032/pack_data.sv"
+
+
+# if {[info exists ::env(DATA)]} {
+#     set DATA_SV $::env(DATA)
+# } else {
+#     set DATA_SV "${GIT_ROOT}/data/ifn9/data.sv"
+# }
+# vlog -work work  -svinputport=relaxed $DATA_SV
+
 # Read key=value defines from define.txt and build the +define+key=value flags
 set defines_file "../list-def.txt"
 set define_flags ""
@@ -20,6 +30,11 @@ if {[file exists $defines_file]} {
     close $fp_def
 }
 
+# vlog -work work -svinputport=relaxed ./data-sim.sv
+
+# Read the file_list.txt file and execute vlog commands for each line, passing defines
+# vlog -work work $define_flags -svinputport=relaxed $DATA_FILE
+
 set file_list "../list-file.txt"
 set fp [open $file_list r]
 while {[gets $fp line] >= 0} {
@@ -31,7 +46,7 @@ close $fp
 
 vlog -work work $define_flags -svinputport=relaxed /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v
 vlog -work work $define_flags -svinputport=relaxed ../logical/results/gate_level/conv_logic_mapped.v
-vlog -work work $define_flags -svinputport=relaxed ${GIT_ROOT}/rtl/conv-mux/testbench-synth-tc16.sv
+vlog -work work $define_flags -svinputport=relaxed ${GIT_ROOT}/rtl/conv-mux/testbench-synth.sv
 # to show FSM
 # vsim -voptargs=+acc -t ns -fsmdebug -coverage -debugDB work.tb
 vsim -voptargs=+acc -t ns work.tb
