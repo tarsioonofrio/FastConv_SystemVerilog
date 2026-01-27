@@ -487,7 +487,8 @@ timeunit 1ns; timeprecision 1ps;
   end
 
   // Handshake #1: input FSM -> convolution core
-  assign w_conv_ready_for_input = p_conv_idle && (!r_conv_busy || p_conv_end);
+  // Prevent new tiles from starting while an unconsumed result is pending.
+  assign w_conv_ready_for_input = p_conv_idle && (!r_conv_busy || p_conv_end) && !r_conv_result_pending;
   assign w_conv_input_fire      = (current_st_input == CONV_INPUT) && w_conv_ready_for_input;
 
   /*
