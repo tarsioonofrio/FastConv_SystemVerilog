@@ -91,21 +91,40 @@ module tb;
     .p_input_en(w_input_en),
     .p_input_addr(w_input_addr),
     .p_input_valid(w_input_valid),
+`ifdef BUS_LANES_4_2
+    .\p_input_data[3] (w_input_data_read[3]),
+    .\p_input_data[2] (w_input_data_read[2]),
+    .\p_input_data[1] (w_input_data_read[1]),
+    .\p_input_data[0] (w_input_data_read[0]),
+`elsif BUS_LANES_5_3
     .\p_input_data[4] (w_input_data_read[4]),
     .\p_input_data[3] (w_input_data_read[3]),
     .\p_input_data[2] (w_input_data_read[2]),
     .\p_input_data[1] (w_input_data_read[1]),
     .\p_input_data[0] (w_input_data_read[0]),
+`else
+    .\p_input_data[0] (w_input_data_read[0]),
+`endif
 
     .p_output_en(w_output_en),
     .p_output_wr(w_output_wr),
     .p_output_addr(w_output_addr),
+`ifdef BUS_LANES_4_2
+    .\p_output_data_read[1] (w_output_data_read[1]),
+    .\p_output_data_read[0] (w_output_data_read[0]),
+    .\p_output_data_write[1] (w_output_data_write[1]),
+    .\p_output_data_write[0] (w_output_data_write[0]),
+`elsif BUS_LANES_5_3
     .\p_output_data_read[2] (w_output_data_read[2]),
     .\p_output_data_read[1] (w_output_data_read[1]),
     .\p_output_data_read[0] (w_output_data_read[0]),
     .\p_output_data_write[2] (w_output_data_write[2]),
     .\p_output_data_write[1] (w_output_data_write[1]),
     .\p_output_data_write[0] (w_output_data_write[0]),
+`else
+    .\p_output_data_read[0] (w_output_data_read[0]),
+    .\p_output_data_write[0] (w_output_data_write[0]),
+`endif
     .p_output_valid(w_output_valid)
   );
 `else
