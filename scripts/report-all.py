@@ -290,8 +290,10 @@ def write_report_merge(report_dir, prefix):
     df.to_csv(report_dir / f"{label}-report-merged.csv", index=False)
 
 
-def write_chap7_conv_time(report_dir):
-    source = report_dir / "conv-report-time.csv"
+def write_chap7_conv_time(report_dir, prefix="conv", output_prefix=None, merge_extra_into_name=False):
+    if output_prefix is None:
+        output_prefix = prefix
+    source = report_dir / f"{prefix}-report-time.csv"
     if not source.exists():
         print(f"Skipping chap7 export, missing: {source}")
         return
@@ -300,7 +302,13 @@ def write_chap7_conv_time(report_dir):
     if not required_cols.issubset(df.columns):
         print(f"Skipping chap7 export, missing columns: {required_cols - set(df.columns)}")
         return
-    df = df[["nome", "mult", "cycles"]].dropna(subset=["nome", "cycles"])
+    if merge_extra_into_name and "extra" not in df.columns:
+        print("Skipping chap7 export, missing column: extra")
+        return
+    df = df[["nome", "mult", "extra", "cycles"]].dropna(subset=["nome", "cycles"])
+    df["extra"] = df["extra"].fillna("").astype(str).str.strip()
+    if merge_extra_into_name:
+        df["nome"] = df["nome"] + df["extra"].map(lambda v: f"-{v}" if v else "")
     df["mult"] = pd.to_numeric(df["mult"], errors="coerce")
     base_rows = df[df["mult"].isna()][["nome", "cycles"]].copy()
     df = df[df["mult"].notna()].copy()
@@ -334,11 +342,13 @@ def write_chap7_conv_time(report_dir):
     if not output_dir.exists():
         print(f"Skipping chap7 export, missing: {output_dir}")
         return
-    df_pivot.to_csv(output_dir / "conv-report-time.csv", index=False)
+    df_pivot.to_csv(output_dir / f"{output_prefix}-report-time.csv", index=False)
 
 
-def write_chap7_conv_logical(report_dir):
-    source = report_dir / "conv-report-logical.csv"
+def write_chap7_conv_logical(report_dir, prefix="conv", output_prefix=None, merge_extra_into_name=False):
+    if output_prefix is None:
+        output_prefix = prefix
+    source = report_dir / f"{prefix}-report-logical.csv"
     if not source.exists():
         print(f"Skipping chap7 logical export, missing: {source}")
         return
@@ -347,13 +357,17 @@ def write_chap7_conv_logical(report_dir):
     if not required_cols.issubset(df.columns):
         print(f"Skipping chap7 logical export, missing columns: {required_cols - set(df.columns)}")
         return
-    df = df[df["extra"].isna() | (df["extra"].astype(str).str.strip() == "")]
+    if not merge_extra_into_name:
+        df = df[df["extra"].isna() | (df["extra"].astype(str).str.strip() == "")]
     output_dir = REPO_ROOT / ".." / "dissertation-doc" / "data" / "chap7"
     output_dir = output_dir.resolve()
     if not output_dir.exists():
         print(f"Skipping chap7 logical export, missing: {output_dir}")
         return
-    df = df[["nome", "mult", "Cell Area um^2", "Flop Count"]].copy()
+    df = df[["nome", "mult", "extra", "Cell Area um^2", "Flop Count"]].copy()
+    df["extra"] = df["extra"].fillna("").astype(str).str.strip()
+    if merge_extra_into_name:
+        df["nome"] = df["nome"] + df["extra"].map(lambda v: f"-{v}" if v else "")
     df["mult"] = pd.to_numeric(df["mult"], errors="coerce")
     base_rows = df[df["mult"].isna()][["nome", "Cell Area um^2", "Flop Count"]].copy()
     df = df[df["mult"].notna()].copy()
@@ -392,7 +406,7 @@ def write_chap7_conv_logical(report_dir):
     df_cell_pivot = df_cell.pivot(index="mult", columns="nome", values="Cell Area um^2")
     df_cell_pivot.sort_index(axis=0, inplace=True)
     df_cell_pivot = df_cell_pivot.reset_index()
-    df_cell_pivot.to_csv(output_dir / "conv-cell-area.csv", index=False)
+    df_cell_pivot.to_csv(output_dir / f"{output_prefix}-cell-area.csv", index=False)
 
     df_flop = df[["nome", "mult", "Flop Count"]].dropna(subset=["Flop Count"])
     df_flop = (
@@ -404,11 +418,13 @@ def write_chap7_conv_logical(report_dir):
     df_flop_pivot = df_flop_pivot.apply(pd.to_numeric, errors="coerce").round().astype("Int64")
     df_flop_pivot.sort_index(axis=0, inplace=True)
     df_flop_pivot = df_flop_pivot.reset_index()
-    df_flop_pivot.to_csv(output_dir / "conv-flop-count.csv", index=False)
+    df_flop_pivot.to_csv(output_dir / f"{output_prefix}-flop-count.csv", index=False)
 
 
-def write_chap7_conv_power(report_dir):
-    source = report_dir / "conv-report-power.csv"
+def write_chap7_conv_power(report_dir, prefix="conv", output_prefix=None, merge_extra_into_name=False):
+    if output_prefix is None:
+        output_prefix = prefix
+    source = report_dir / f"{prefix}-report-power.csv"
     if not source.exists():
         print(f"Skipping chap7 power export, missing: {source}")
         return
@@ -417,8 +433,12 @@ def write_chap7_conv_power(report_dir):
     if not required_cols.issubset(df.columns):
         print(f"Skipping chap7 power export, missing columns: {required_cols - set(df.columns)}")
         return
-    df = df[df["extra"].isna() | (df["extra"].astype(str).str.strip() == "")]
-    df = df[["nome", "mult", "Subtotal"]].dropna(subset=["nome", "Subtotal"])
+    if not merge_extra_into_name:
+        df = df[df["extra"].isna() | (df["extra"].astype(str).str.strip() == "")]
+    df = df[["nome", "mult", "extra", "Subtotal"]].dropna(subset=["nome", "Subtotal"])
+    df["extra"] = df["extra"].fillna("").astype(str).str.strip()
+    if merge_extra_into_name:
+        df["nome"] = df["nome"] + df["extra"].map(lambda v: f"-{v}" if v else "")
     df["mult"] = pd.to_numeric(df["mult"], errors="coerce")
     base_rows = df[df["mult"].isna()][["nome", "Subtotal"]].copy()
     df = df[df["mult"].notna()].copy()
@@ -451,11 +471,13 @@ def write_chap7_conv_power(report_dir):
     if not output_dir.exists():
         print(f"Skipping chap7 power export, missing: {output_dir}")
         return
-    df_pivot.to_csv(output_dir / "conv-power.csv", index=False)
+    df_pivot.to_csv(output_dir / f"{output_prefix}-power.csv", index=False)
 
 
-def write_chap7_conv_energy(report_dir):
-    source = report_dir / "conv-report-merged.csv"
+def write_chap7_conv_energy(report_dir, prefix="conv", output_prefix=None, merge_extra_into_name=False):
+    if output_prefix is None:
+        output_prefix = prefix
+    source = report_dir / f"{prefix}-report-merged.csv"
     if not source.exists():
         print(f"Skipping chap7 energy export, missing: {source}")
         return
@@ -464,8 +486,12 @@ def write_chap7_conv_energy(report_dir):
     if not required_cols.issubset(df.columns):
         print(f"Skipping chap7 energy export, missing columns: {required_cols - set(df.columns)}")
         return
-    df = df[df["extra"].isna() | (df["extra"].astype(str).str.strip() == "")]
-    df = df[["nome", "mult", "energy_nj"]].dropna(subset=["nome", "energy_nj"])
+    if not merge_extra_into_name:
+        df = df[df["extra"].isna() | (df["extra"].astype(str).str.strip() == "")]
+    df = df[["nome", "mult", "extra", "energy_nj"]].dropna(subset=["nome", "energy_nj"])
+    df["extra"] = df["extra"].fillna("").astype(str).str.strip()
+    if merge_extra_into_name:
+        df["nome"] = df["nome"] + df["extra"].map(lambda v: f"-{v}" if v else "")
     df["mult"] = pd.to_numeric(df["mult"], errors="coerce")
     base_rows = df[df["mult"].isna()][["nome", "energy_nj"]].copy()
     df = df[df["mult"].notna()].copy()
@@ -498,11 +524,20 @@ def write_chap7_conv_energy(report_dir):
     if not output_dir.exists():
         print(f"Skipping chap7 energy export, missing: {output_dir}")
         return
-    df_pivot.to_csv(output_dir / "conv-energy.csv", index=False)
+    df_pivot.to_csv(output_dir / f"{output_prefix}-energy.csv", index=False)
 
 
-def write_chap7_conv_power_cycles(report_dir):
-    source = report_dir / "conv-report-merged.csv"
+def write_chap7_conv_power_cycles(
+    report_dir,
+    prefix="conv",
+    output_prefix=None,
+    merge_extra_into_name=False,
+    drop_names_with_k=False,
+    expand_base_rows=True,
+):
+    if output_prefix is None:
+        output_prefix = prefix
+    source = report_dir / f"{prefix}-report-merged.csv"
     if not source.exists():
         print(f"Skipping chap7 power/cycles export, missing: {source}")
         return
@@ -513,14 +548,20 @@ def write_chap7_conv_power_cycles(report_dir):
             f"Skipping chap7 power/cycles export, missing columns: {required_cols - set(df.columns)}"
         )
         return
-    df = df[df["extra"].isna() | (df["extra"].astype(str).str.strip() == "")]
-    df = df[["nome", "mult", "Subtotal", "energy_nj", "cycles"]].dropna(
+    if not merge_extra_into_name:
+        df = df[df["extra"].isna() | (df["extra"].astype(str).str.strip() == "")]
+    df = df[["nome", "mult", "extra", "Subtotal", "energy_nj", "cycles"]].dropna(
         subset=["nome"]
     )
+    df["extra"] = df["extra"].fillna("").astype(str).str.strip()
+    if merge_extra_into_name:
+        df["nome"] = df["nome"] + df["extra"].map(lambda v: f"-{v}" if v else "")
+    if drop_names_with_k:
+        df = df[~df["nome"].astype(str).str.contains("k", case=False, na=False)]
     df["mult"] = pd.to_numeric(df["mult"], errors="coerce")
     base_rows = df[df["mult"].isna()][["nome", "Subtotal", "energy_nj", "cycles"]].copy()
     df = df[df["mult"].notna()].copy()
-    if not base_rows.empty and not df.empty:
+    if expand_base_rows and not base_rows.empty and not df.empty:
         mult_values = sorted(df["mult"].dropna().unique())
         expanded = pd.DataFrame(
             [
@@ -536,6 +577,8 @@ def write_chap7_conv_power_cycles(report_dir):
             ]
         )
         df = pd.concat([df, expanded], ignore_index=True)
+    elif not expand_base_rows and not base_rows.empty:
+        df = pd.concat([df, base_rows], ignore_index=True)
 
     def merge_metric(series):
         values = pd.to_numeric(series, errors="coerce").dropna().unique()
@@ -546,7 +589,7 @@ def write_chap7_conv_power_cycles(report_dir):
         return None
 
     df["mult"] = df["mult"].round().astype("Int64")
-    df = df.groupby(["mult", "nome"]).agg(
+    df = df.groupby(["mult", "nome"], dropna=False).agg(
         power=("Subtotal", merge_metric),
         energy=("energy_nj", merge_metric),
         cycles=("cycles", merge_metric),
@@ -558,11 +601,20 @@ def write_chap7_conv_power_cycles(report_dir):
         print(f"Skipping chap7 power/cycles export, missing: {output_dir}")
         return
     df = df[["nome", "mult", "power", "energy", "cycles"]]
-    df.to_csv(output_dir / "conv-power-cycles.csv", index=False)
+    df.to_csv(output_dir / f"{output_prefix}-power-cycles.csv", index=False)
 
 
-def write_chap7_conv_power_reg_logic(report_dir):
-    source = report_dir / "conv-report-power.csv"
+def write_chap7_conv_power_reg_logic(
+    report_dir,
+    prefix="conv",
+    output_prefix=None,
+    merge_extra_into_name=False,
+    drop_names_with_k=False,
+    expand_base_rows=True,
+):
+    if output_prefix is None:
+        output_prefix = prefix
+    source = report_dir / f"{prefix}-report-power.csv"
     if not source.exists():
         print(f"Skipping chap7 power reg/logic export, missing: {source}")
         return
@@ -573,12 +625,18 @@ def write_chap7_conv_power_reg_logic(report_dir):
             f"Skipping chap7 power reg/logic export, missing columns: {required_cols - set(df.columns)}"
         )
         return
-    df = df[df["extra"].isna() | (df["extra"].astype(str).str.strip() == "")]
-    df = df[["nome", "mult", "register", "logic"]].dropna(subset=["nome"])
+    if not merge_extra_into_name:
+        df = df[df["extra"].isna() | (df["extra"].astype(str).str.strip() == "")]
+    df = df[["nome", "mult", "extra", "register", "logic"]].dropna(subset=["nome"])
+    df["extra"] = df["extra"].fillna("").astype(str).str.strip()
+    if merge_extra_into_name:
+        df["nome"] = df["nome"] + df["extra"].map(lambda v: f"-{v}" if v else "")
+    if drop_names_with_k:
+        df = df[~df["nome"].astype(str).str.contains("k", case=False, na=False)]
     df["mult"] = pd.to_numeric(df["mult"], errors="coerce")
     base_rows = df[df["mult"].isna()][["nome", "register", "logic"]].copy()
     df = df[df["mult"].notna()].copy()
-    if not base_rows.empty and not df.empty:
+    if expand_base_rows and not base_rows.empty and not df.empty:
         mult_values = sorted(df["mult"].dropna().unique())
         expanded = pd.DataFrame(
             [
@@ -593,6 +651,8 @@ def write_chap7_conv_power_reg_logic(report_dir):
             ]
         )
         df = pd.concat([df, expanded], ignore_index=True)
+    elif not expand_base_rows and not base_rows.empty:
+        df = pd.concat([df, base_rows], ignore_index=True)
 
     def merge_metric(series):
         values = pd.to_numeric(series, errors="coerce").dropna().unique()
@@ -603,7 +663,7 @@ def write_chap7_conv_power_reg_logic(report_dir):
         return None
 
     df["mult"] = df["mult"].round().astype("Int64")
-    df = df.groupby(["mult", "nome"]).agg(
+    df = df.groupby(["mult", "nome"], dropna=False).agg(
         register=("register", merge_metric),
         logic=("logic", merge_metric),
     )
@@ -614,12 +674,12 @@ def write_chap7_conv_power_reg_logic(report_dir):
         print(f"Skipping chap7 power reg/logic export, missing: {output_dir}")
         return
     df = df[["nome", "mult", "register", "logic"]]
-    df.to_csv(output_dir / "conv-power-reg-logic.csv", index=False)
+    df.to_csv(output_dir / f"{output_prefix}-power-reg-logic.csv", index=False)
 
 
-def write_chap7_conv_tc9(report_dir):
-    logical_source = report_dir / "conv-report-logical.csv"
-    power_source = report_dir / "conv-report-power.csv"
+def write_chap7_conv_tc9(report_dir, prefix="conv"):
+    logical_source = report_dir / f"{prefix}-report-logical.csv"
+    power_source = report_dir / f"{prefix}-report-power.csv"
     if not logical_source.exists():
         print(f"Skipping chap7 tc9 export, missing: {logical_source}")
         return
@@ -718,7 +778,7 @@ def write_chap7_conv_tc9(report_dir):
             "power_logic",
         ]
     ]
-    df.to_csv(output_dir / "conv-tc9.csv", index=False)
+    df.to_csv(output_dir / f"{prefix}-tc9.csv", index=False)
 
 
 def main():
@@ -728,13 +788,36 @@ def main():
         write_report_logical(report_dir, prefix)
         write_report_power(report_dir, prefix)
         write_report_merge(report_dir, prefix)
-    write_chap7_conv_time(report_dir)
-    write_chap7_conv_logical(report_dir)
-    write_chap7_conv_power(report_dir)
-    write_chap7_conv_energy(report_dir)
-    write_chap7_conv_power_cycles(report_dir)
-    write_chap7_conv_power_reg_logic(report_dir)
-    write_chap7_conv_tc9(report_dir)
+    write_chap7_conv_time(report_dir, prefix="conv")
+    write_chap7_conv_logical(report_dir, prefix="conv")
+    write_chap7_conv_power(report_dir, prefix="conv")
+    write_chap7_conv_energy(report_dir, prefix="conv")
+    write_chap7_conv_power_cycles(
+        report_dir, prefix="conv", drop_names_with_k=True, expand_base_rows=False
+    )
+    write_chap7_conv_power_reg_logic(
+        report_dir, prefix="conv", drop_names_with_k=True, expand_base_rows=False
+    )
+    write_chap7_conv_tc9(report_dir, prefix="conv")
+
+    write_chap7_conv_time(report_dir, prefix="sys", merge_extra_into_name=True)
+    write_chap7_conv_logical(report_dir, prefix="sys", merge_extra_into_name=True)
+    write_chap7_conv_power(report_dir, prefix="sys", merge_extra_into_name=True)
+    write_chap7_conv_energy(report_dir, prefix="sys", merge_extra_into_name=True)
+    write_chap7_conv_power_cycles(
+        report_dir,
+        prefix="sys",
+        merge_extra_into_name=True,
+        drop_names_with_k=False,
+        expand_base_rows=False,
+    )
+    write_chap7_conv_power_reg_logic(
+        report_dir,
+        prefix="sys",
+        merge_extra_into_name=True,
+        drop_names_with_k=False,
+        expand_base_rows=False,
+    )
 
 
 if __name__ == "__main__":
