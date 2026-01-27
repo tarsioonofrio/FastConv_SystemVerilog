@@ -38,8 +38,8 @@ while {[gets $fp line] >= 0} {
 }
 close $fp
 
-vlog -work work $define_flags -svinputport=relaxed ${GIT_ROOT}/rtl/system/system.sv
-vlog -work work $define_flags -svinputport=relaxed ${GIT_ROOT}/rtl/system/testbench.sv
+vlog -work work $define_flags -svinputport=relaxed ${GIT_ROOT}/rtl/system-bus/system.sv
+vlog -work work $define_flags -svinputport=relaxed ${GIT_ROOT}/rtl/system-bus/testbench.sv
 # to show FSM
 # vsim -voptargs=+acc -t ps -fsmdebug -coverage -debugDB work.tb
 vsim -voptargs=+acc -t ps work.tb
