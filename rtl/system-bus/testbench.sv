@@ -102,6 +102,13 @@ module tb;
     .\p_input_data[2] (w_input_data_read[2]),
     .\p_input_data[1] (w_input_data_read[1]),
     .\p_input_data[0] (w_input_data_read[0]),
+`elsif BUS_LANES_6_4
+    .\p_input_data[5] (w_input_data_read[5]),
+    .\p_input_data[4] (w_input_data_read[4]),
+    .\p_input_data[3] (w_input_data_read[3]),
+    .\p_input_data[2] (w_input_data_read[2]),
+    .\p_input_data[1] (w_input_data_read[1]),
+    .\p_input_data[0] (w_input_data_read[0]),
 `else
     .\p_input_data[0] (w_input_data_read[0]),
 `endif
@@ -118,6 +125,15 @@ module tb;
     .\p_output_data_read[2] (w_output_data_read[2]),
     .\p_output_data_read[1] (w_output_data_read[1]),
     .\p_output_data_read[0] (w_output_data_read[0]),
+    .\p_output_data_write[2] (w_output_data_write[2]),
+    .\p_output_data_write[1] (w_output_data_write[1]),
+    .\p_output_data_write[0] (w_output_data_write[0]),
+`elsif BUS_LANES_6_4
+    .\p_output_data_read[3] (w_output_data_read[3]),
+    .\p_output_data_read[2] (w_output_data_read[2]),
+    .\p_output_data_read[1] (w_output_data_read[1]),
+    .\p_output_data_read[0] (w_output_data_read[0]),
+    .\p_output_data_write[3] (w_output_data_write[3]),
     .\p_output_data_write[2] (w_output_data_write[2]),
     .\p_output_data_write[1] (w_output_data_write[1]),
     .\p_output_data_write[0] (w_output_data_write[0]),
