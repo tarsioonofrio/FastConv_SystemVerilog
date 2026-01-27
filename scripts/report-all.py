@@ -702,11 +702,15 @@ def write_chap7_conv_tc9(report_dir):
     if not output_dir.exists():
         print(f"Skipping chap7 tc9 export, missing: {output_dir}")
         return
+    df["nome_extra"] = df["nome"] + df["extra"].replace("", pd.NA).map(
+        lambda v: f"-{v}" if pd.notna(v) and str(v).strip() else ""
+    )
     df = df[
         [
             "nome",
-            "mult",
             "extra",
+            "nome_extra",
+            "mult",
             "cell_area",
             "flop_count",
             "power_subtotal",
