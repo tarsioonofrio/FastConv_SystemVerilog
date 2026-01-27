@@ -622,7 +622,6 @@ def write_chap7_conv_power_cycles(
 
     df["mult"] = df["mult"].round().astype("Int64")
     df = df.groupby(["mult", "nome"], dropna=False).agg(
-        power=("Subtotal", merge_metric),
         energy=("energy_nj", merge_metric),
         cycles=("cycles", merge_metric),
     )
@@ -632,8 +631,8 @@ def write_chap7_conv_power_cycles(
     if not output_dir.exists():
         print(f"Skipping chap7 power/cycles export, missing: {output_dir}")
         return
-    df = df[["nome", "mult", "power", "energy", "cycles"]]
-    df.to_csv(output_dir / f"{output_prefix}-power-cycles.csv", index=False)
+    df = df[["nome", "mult", "energy", "cycles"]]
+    df.to_csv(output_dir / f"{output_prefix}-energy-cycles.csv", index=False)
 
 
 def write_chap7_conv_power_reg_logic(
