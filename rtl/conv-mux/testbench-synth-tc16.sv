@@ -175,7 +175,9 @@ module tb;
             // To avoid error:
             // %Warning-WIDTHEXPAND: ../../testbench/tb_conv.sv:79:36: Operator NEQ expects 32 bits on the LHS, but LHS's SIGNED generates 20 bits.
             /* verilator lint_off WIDTHEXPAND */
-            if ($signed(p_output[fout]) != $signed(const_feat_out_batch[batch][fout])) begin
+            logic signed [NBITS-1:0] expected_output;
+            expected_output = logic_vector'(const_feat_out_batch[batch][fout]);
+            if ($signed(p_output[fout]) != expected_output) begin
               /* verilator lint_off WIDTHEXPAND */
               // $display("Time: %0t | Data Valid: %b", $time, p_end);
               $display(
