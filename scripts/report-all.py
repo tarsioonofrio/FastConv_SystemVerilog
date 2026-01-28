@@ -279,7 +279,7 @@ def write_report_merge(report_dir, prefix):
     df["size"] = pd.to_numeric(df["side"], errors="coerce") ** 2
     df["Subtotal"] = pd.to_numeric(df.get("Subtotal"), errors="coerce")
     df["time_ns"] = pd.to_numeric(df["time_ns"], errors="coerce")
-    df["energy_nj"] = df["Subtotal"] * df["time_ns"] * 1e-6
+    df["energy_nj"] = df["Subtotal"] * df["time_ns"] / 1000
 
     column_order = ["Project", "nome", "mult", "side", "extra", "time_ns", "cycles"]
     remaining = [c for c in df.columns if c not in column_order and c != "energy_nj"]
