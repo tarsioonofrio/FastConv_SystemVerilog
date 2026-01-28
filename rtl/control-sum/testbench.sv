@@ -44,6 +44,8 @@ module tb;
   int i = 0;
   int j = 0;
   int cycle_count = 0;
+  localparam int OUTPUT_TILES_PER_AXIS = (FEAT_OUTPUT_SIZE + A1_SIZE - 1) / A1_SIZE;
+  localparam int OUTPUT_CHANNEL_STRIDE = FEAT_OUTPUT_SIZE * A1_SIZE * OUTPUT_TILES_PER_AXIS;
 
   // Clock generation (10ns period)
   initial clk = 0;
@@ -152,7 +154,6 @@ module tb;
     $dumpvars(0, tb);
 
     debug = 0;
-
     reset = 1;
     w_start = 0;
     @(posedge clk);
@@ -182,6 +183,8 @@ module tb;
 
 
     wait(w_end);
+    // Allow the output FSM and memory write latency to drain before readback.
+    repeat (LATENCY + 4) @(posedge clk);
     // exec_time = $realtime;
     $display("\n*** TIME %0f ***\n", $realtime);
     $display("\n*** TOTAL CYCLES %0d ***\n", cycle_count);
@@ -195,8 +198,12 @@ module tb;
     @(posedge clk);
     for (i = 0; i < FEAT_OUTPUT_SIZE * N_CHANNEL_OUT; i++) begin
       for (j = 0; j < FEAT_OUTPUT_SIZE; j++) begin
+        int output_channel;
+        int row_in_channel;
         logic_vector expected_out;
-        w_output_addr_forced = i * FEAT_OUTPUT_SIZE + j;
+        output_channel = i / FEAT_OUTPUT_SIZE;
+        row_in_channel = i % FEAT_OUTPUT_SIZE;
+        w_output_addr_forced = output_channel * OUTPUT_CHANNEL_STRIDE + row_in_channel * FEAT_OUTPUT_SIZE + j;
         force w_output_addr = w_output_addr_forced;
         @(posedge clk);
         wait(w_output_valid);
@@ -223,4 +230,5 @@ module tb;
 
     $finish;
   end
+
 endmodule
