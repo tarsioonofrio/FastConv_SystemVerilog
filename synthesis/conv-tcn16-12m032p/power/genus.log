@@ -3,19 +3,19 @@ Copyright 2025 Cadence Design Systems, Inc. All rights reserved worldwide.
 Cadence and the Cadence logo are registered trademarks and Genus is a trademark
 of Cadence Design Systems, Inc. in the United States and other countries.
 
-[18:01:09.111513] Configured Lic search path (23.02-s006): 5280@paxos.inf.pucrs.br
+[01:05:31.111441] Configured Lic search path (23.02-s006): 5280@paxos.inf.pucrs.br
 
 Version: 23.14-s090_1, built Thu Feb 27 05:49:50 PST 2025
 Options: -files power.tcl 
-Date:    Tue Jan 27 18:01:09 2026
+Date:    Wed Jan 28 01:05:31 2026
 Host:    paxos.inf.pucrs.br (x86_64 w/Linux 4.18.0-553.83.1.el8_10.x86_64) (14cores*28cpus*1physical cpu*Intel(R) Core(TM) i9-7940X CPU @ 3.10GHz 19712KB) (131170908KB)
-PID:     3024439
+PID:     3221605
 OS:      Rocky Linux 8.10 (Green Obsidian)
 
 Checking out license: Genus_Synthesis
-[18:01:09.378906] Periodic Lic check successful
-[18:01:09.378914] Feature usage summary:
-[18:01:09.378914] Genus_Synthesis
+[01:05:31.030689] Periodic Lic check successful
+[01:05:31.554992] Feature usage summary:
+[01:05:31.554992] Genus_Synthesis
 
 
 
@@ -24,7 +24,7 @@ Checking out license: Genus_Synthesis
 
 
 
-Finished executable startup (1 second elapsed).
+Finished executable startup (0 seconds elapsed).
 
 Loading tool scripts...
 Finished loading tool scripts (17 seconds elapsed).
@@ -36,7 +36,7 @@ Finished loading tool scripts (17 seconds elapsed).
 @file(power.tcl) 2: set SHM [file normalize [file join [pwd] "../sim/dut.shm"]]
 @file(power.tcl) 3: set GIT_ROOT [exec git rev-parse --show-toplevel]
 @file(power.tcl) 5: source ${GIT_ROOT}/synthesis/_source/power.tcl
-Sourcing '/sim/tarsio/FastConv_SystemVerilog/synthesis/_source/power.tcl' (Tue Jan 27 18:01:26 -03 2026)...
+Sourcing '/sim/tarsio/FastConv_SystemVerilog/synthesis/_source/power.tcl' (Wed Jan 28 01:05:48 -03 2026)...
 #@ Begin verbose source /sim/tarsio/FastConv_SystemVerilog/synthesis/_source/power.tcl
 @file(power.tcl) 3: set START_TIME 0ns
 @file(power.tcl) 4: set CONSTRAINTS_PATH ${GIT_ROOT}/synthesis/_source/scripts
@@ -61,7 +61,7 @@ Sourcing '/sim/tarsio/FastConv_SystemVerilog/synthesis/_source/power.tcl' (Tue J
     -delay_corner delay_corner_0p90v_25c_captyp
 @file(power.tcl) 39: set CURRENT_VIEW analysis_view_0p90v_25c_captyp_nominal
 @file(power.tcl) 41: read_db ${DB_FILE}
-Reading database file '/sim/tarsio/FastConv_SystemVerilog/synthesis/conv-tcn16-06m032p/logical/results/gate_level/conv_logic_mapped.db'.
+Reading database file '/sim/tarsio/FastConv_SystemVerilog/synthesis/conv-tcn16-12m032p/logical/results/gate_level/conv_logic_mapped.db'.
 Warning : The database was written with a different version. [DATABASE-109]
         : The database was written by '21.12-s068_1'. Reading it with '23.14-s090_1'.
         : In production, read and write databases with the very same version of the product.
@@ -302,42 +302,48 @@ Stage : incr_opt
   =================
    Message Summary
   =================
--------------------------------------------------------------------------------------------------------------------------------------------------
-|     Id     |  Sev  |Count|                                                    Message Text                                                    |
--------------------------------------------------------------------------------------------------------------------------------------------------
-|DATABASE-109|Warning|    1|The database was written with a different version.                                                                  |
-|            |       |     |In production, read and write databases with the very same version of the product.                                  |
-|LBR-9       |Warning|  258|Library cell has no output pins defined.                                                                            |
-|            |       |     |Add the missing output pin(s)                                                                                       |
-|            |       |     | , then reload the library. Else the library cell will be marked as timing model i.e. unusable. Timing_model means  |
-|            |       |     | that the cell does not have any defined function. If there is no output pin, Genus will mark library cell as       |
-|            |       |     | unusable i.e. the attribute 'usable' will be marked to 'false' on the libcell. Therefore, the cell is not used for |
-|            |       |     | mapping and it will not be picked up from the library for synthesis. If you query the attribute 'unusable_reason'  |
-|            |       |     | on the libcell; result will be: 'Library cell has no output pins.'Note: The message LBR-9 is only for the logical  |
-|            |       |     | pins and not for the power_ground pins. Genus will depend upon the output function defined in the pin group        |
-|            |       |     | (output pin) of the cell, to use it for mapping. The pg_pin will not have any function defined.                    |
-|LBR-40      |Info   |    3|An unsupported construct was detected in this library.                                                              |
-|            |       |     |Check to see if this construct is really needed for synthesis. Many liberty constructs are not actually required.   |
-|LBR-41      |Info   |    3|An output library pin lacks a function attribute.                                                                   |
-|            |       |     |If the remainder of this library cell's semantic checks are successful, it will be considered as a timing-model     |
-|            |       |     | (because one of its outputs does not have a valid function.                                                        |
-|LBR-101     |Warning|   12|Unusable clock gating integrated cell found at the time of loading libraries. This warning happens because a        |
-|            |       |     | particular library cell is defined as 'clock_gating_integrated_cell', but 'dont_use' attribute is defined as true  |
-|            |       |     | in the liberty library. To make Genus use this cell for clock gating insertion, 'dont_use' attribute should be set |
-|            |       |     | to false.                                                                                                          |
-|            |       |     |To make the cell usable, change the value of 'dont_use' attribute to false.                                         |
-|LBR-109     |Info   |    1|Set default library domain.                                                                                         |
-|LBR-412     |Info   |    3|Created nominal operating condition.                                                                                |
-|            |       |     |The nominal operating condition is represented, either by the nominal PVT values specified in the library source    |
-|            |       |     | (via nom_process,nom_voltage and nom_temperature respectively), or by the default PVT values (1.0,1.0,1.0).        |
-|LBR-518     |Info   |    3|Missing a function attribute in the output pin definition.                                                          |
-|PHYS-12     |Warning|    3|The variant range of wire parameters is too large. An example of wire parameters are, a WIDTH for layer, PITCH for  |
-|            |       |     | layer, MINSPACING for layers, etc.                                                                                 |
-|            |       |     |Check the consistency of the parameters, and see if you can ignore this message or you're using different LEF file  |
-|            |       |     | with wrong parameters.                                                                                             |
-|PHYS-279    |Warning|  132|Physical cell not defined in library.                                                                               |
-|            |       |     |Ensure that the proper library files are available and have been imported.                                          |
--------------------------------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------
+|     Id     |  Sev  |Count|                                      Message Text                                       |
+----------------------------------------------------------------------------------------------------------------------
+|DATABASE-109|Warning|    1|The database was written with a different version.                                       |
+|            |       |     |In production, read and write databases with the very same version of the product.       |
+|LBR-9       |Warning|  258|Library cell has no output pins defined.                                                 |
+|            |       |     |Add the missing output pin(s)                                                            |
+|            |       |     | , then reload the library. Else the library cell will be marked as timing model i.e.    |
+|            |       |     | unusable. Timing_model means that the cell does not have any defined function. If there |
+|            |       |     | is no output pin, Genus will mark library cell as unusable i.e. the attribute 'usable'  |
+|            |       |     | will be marked to 'false' on the libcell. Therefore, the cell is not used for mapping   |
+|            |       |     | and it will not be picked up from the library for synthesis. If you query the attribute |
+|            |       |     | 'unusable_reason' on the libcell; result will be: 'Library cell has no output           |
+|            |       |     | pins.'Note: The message LBR-9 is only for the logical pins and not for the power_ground |
+|            |       |     | pins. Genus will depend upon the output function defined in the pin group (output pin)  |
+|            |       |     | of the cell, to use it for mapping. The pg_pin will not have any function defined.      |
+|LBR-40      |Info   |    3|An unsupported construct was detected in this library.                                   |
+|            |       |     |Check to see if this construct is really needed for synthesis. Many liberty constructs   |
+|            |       |     | are not actually required.                                                              |
+|LBR-41      |Info   |    3|An output library pin lacks a function attribute.                                        |
+|            |       |     |If the remainder of this library cell's semantic checks are successful, it will be       |
+|            |       |     | considered as a timing-model (because one of its outputs does not have a valid function.|
+|LBR-101     |Warning|   12|Unusable clock gating integrated cell found at the time of loading libraries. This       |
+|            |       |     | warning happens because a particular library cell is defined as                         |
+|            |       |     | 'clock_gating_integrated_cell', but 'dont_use' attribute is defined as true in the      |
+|            |       |     | liberty library. To make Genus use this cell for clock gating insertion, 'dont_use'     |
+|            |       |     | attribute should be set to false.                                                       |
+|            |       |     |To make the cell usable, change the value of 'dont_use' attribute to false.              |
+|LBR-109     |Info   |    1|Set default library domain.                                                              |
+|LBR-412     |Info   |    3|Created nominal operating condition.                                                     |
+|            |       |     |The nominal operating condition is represented, either by the nominal PVT values         |
+|            |       |     | specified in the library source                                                         |
+|            |       |     | (via nom_process,nom_voltage and nom_temperature respectively)                          |
+|            |       |     | , or by the default PVT values (1.0,1.0,1.0).                                           |
+|LBR-518     |Info   |    3|Missing a function attribute in the output pin definition.                               |
+|PHYS-12     |Warning|    3|The variant range of wire parameters is too large. An example of wire parameters are, a  |
+|            |       |     | WIDTH for layer, PITCH for layer, MINSPACING for layers, etc.                           |
+|            |       |     |Check the consistency of the parameters, and see if you can ignore this message or you're|
+|            |       |     | using different LEF file with wrong parameters.                                         |
+|PHYS-279    |Warning|  132|Physical cell not defined in library.                                                    |
+|            |       |     |Ensure that the proper library files are available and have been imported.               |
+----------------------------------------------------------------------------------------------------------------------
 
   According to qrc_tech_file, there are total 10 routing layers [ V(5) / H(5) ]
 
@@ -362,20 +368,20 @@ Warning : The variant range of wire parameters is too large. An example of wire 
   Setting attribute of root '/': 'interconnect_mode' = ple
 @file(power.tcl) 45: read_stimulus $SHM -dut_instance tb.dut -start ${START_TIME}
 Checking out license: Joules_Implementation_Opt
-[18:01:53.414144] Periodic Lic check successful
-[18:01:53.414160] Feature usage summary:
-[18:01:53.414160] Genus_Synthesis
-[18:01:53.414161] Joules_Implementation_Opt
+[01:06:15.145618] Periodic Lic check successful
+[01:06:15.145634] Feature usage summary:
+[01:06:15.145634] Genus_Synthesis
+[01:06:15.145635] Joules_Implementation_Opt
 
 Info   : STIM-0001 [StimInfo] read_stimulus effective options 
        : -file :
-       : /sim/tarsio/FastConv_SystemVerilog/synthesis/conv-tcn16-06m032p/sim/dut.shm
+       : /sim/tarsio/FastConv_SystemVerilog/synthesis/conv-tcn16-12m032p/sim/dut.shm
        : -dut_instance : tb.dut
        : -format : shm(auto determined)
        : -start : 0ns
 Info   : STIM-0001 Design top is Conv
 Info   : STIM-0001 Started reading input stimulus file
-       : /sim/tarsio/FastConv_SystemVerilog/synthesis/conv-tcn16-06m032p/sim/dut.shm
+       : /sim/tarsio/FastConv_SystemVerilog/synthesis/conv-tcn16-12m032p/sim/dut.shm
 Info   : STIM-0001 Found top instance /tb/dut
 Info   : STIM-0001 [StimInfo] Design Hierarchy Parsing Progress Report :   0%Info   : STIM-0001 Found top instance /tb/dut
    1%   2%   3%   4%   5%   6%   7%   8%   9%  10%  11%  12%  13%  14%  15%  16%  17%  18%  19%  20%  21%  22%  23%  24%  25%  26%  27%  28%  29%  30%  31%  32%  33%  34%  35%  36%  37%  38%  39%  40%  41%  42%  43%  44%  45%  46%  47%  48%  49%  50%  51%  52%  53%  54%  55%  56%  57%  58%  59%  60%  61%  62%  63%  64%  65%  66%  67%  68%  69%  70%  71%  72%  73%  74%  75%  76%  77%  78%  79%  80%  81%  82%  83%  84%  85%  86%  87%  88%  89%  90%  91%  92%  93%  94%  95%  96%  97%  98%  99% 100%
@@ -383,7 +389,7 @@ Info   : STIM-0002 [StimInfo] Finished design hierarchy parsing.
 Info   : STIM-0010 [StimInfo] Total number of frames '1'
 Info   : STIM-0001 [StimInfo] Value Change Section Parsing Progress Report :   0%   1%   2%   3%   4%   5%   6%   7%   8%   9%  10%  11%  12%  13%  14%  15%  16%  17%  18%  19%  20%  21%  22%  23%  24%  25%  26%  27%  28%  29%  30%  31%  32%  33%  34%  35%  36%  37%  38%  39%  40%  41%  42%  43%  44%  45%  46%  47%  48%  49%  50%  51%  52%  53%  54%  55%  56%  57%  58%  59%  60%  61%  62%  63%  64%  65%  66%  67%  68%  69%  70%  71%  72%  73%  74%  75%  76%  77%  78%  79%  80%  81%  82%  83%  84%  85%  86%  87%  88%  89%  90%  91%  92%  93%  94%  95%  96%  97%  98%  99% 100%
 
-Info   : STIM-0012 [StimInfo] Simulation start = 0 ps, end = 7075000 ps.
+Info   : STIM-0012 [StimInfo] Simulation start = 0 ps, end = 5155000 ps.
 Info   : STIM-0002 Finished processing value changes, started storage.
 Info   : STIM-0002 Stimulus has been identified as a gate level stimulus,
        : switching on -allow_n_nets option..
@@ -440,14 +446,14 @@ Primary Ports
   I/O                      0           0            0      0        N/A 
 Sequential Outputs                                                      
   Memory                   0           0            0      0        N/A 
-  Flop                   728           0            0    728    100.00% 
+  Flop                   833           0            0    833    100.00% 
   Latch                    0           0            0      0        N/A 
   Arch ICGC                0           0            0      0        N/A 
-  Inferred ICGC           19           0            0     19    100.00% 
-  Total ICGC              19           0            0     19    100.00% 
+  Inferred ICGC            3           0            0      3    100.00% 
+  Total ICGC               3           0            0      3    100.00% 
 Drivers                                                                 
-  Driver nets          28774           0           13  28787    100.00% 
-  RTL Driver nets      21336           0            0  21336    100.00% 
+  Driver nets          30761           0           20  30781    100.00% 
+  RTL Driver nets      25835           0            0  25835    100.00% 
 DFT                                                                     
   Input Ports              0           0            0      0        N/A 
   Flop Outputs             0           0            0      0        N/A 
@@ -483,9 +489,9 @@ Output file: power_evaluation.txt
 @file(power.tcl) 49: exit
 
 Lic Summary:
-[18:01:56.044683] Cdslmd servers: paxos
-[18:01:56.044704] Feature usage summary:
-[18:01:56.044705] Genus_Synthesis
-[18:01:56.044706] Joules_Implementation_Opt
+[01:06:18.147307] Cdslmd servers: paxos
+[01:06:18.147328] Feature usage summary:
+[01:06:18.147329] Genus_Synthesis
+[01:06:18.147329] Joules_Implementation_Opt
 
 Normal exit.
