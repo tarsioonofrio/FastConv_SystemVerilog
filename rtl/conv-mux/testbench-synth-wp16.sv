@@ -24,6 +24,7 @@ module tb;
   time t_total = 0;
   integer time_fd = 0;
   int cycle_count;
+  localparam int OUTPUT_TILES_PER_AXIS = (FEAT_OUTPUT_SIZE + A1_SIZE - 1) / A1_SIZE;
 
   // Instantiate conv_rapida entity
   Conv dut (
@@ -200,12 +201,32 @@ module tb;
           wait(p_idle);
           @(posedge clk);
           for (int fout = 0; fout < FOUT2_SIZE; fout++) begin
+            int tile_row;
+            int tile_col;
+            int local_row;
+            int local_col;
+            int global_row;
+            int global_col;
+            logic output_in_bounds;
+
+            // Map batch index to output tile position.
+            tile_row = batch / OUTPUT_TILES_PER_AXIS;
+            tile_col = batch % OUTPUT_TILES_PER_AXIS;
+            // Map linear fout to local row/col inside the tile.
+            local_row = fout / A1_SIZE;
+            local_col = fout % A1_SIZE;
+            // Compute global output coordinates.
+            global_row = tile_row * A1_SIZE + local_row;
+            global_col = tile_col * A1_SIZE + local_col;
+            output_in_bounds = (global_row < FEAT_OUTPUT_SIZE) && (global_col < FEAT_OUTPUT_SIZE);
+
             // To avoid error:
             // %Warning-WIDTHEXPAND: ../../testbench/tb_conv.sv:79:36: Operator NEQ expects 32 bits on the LHS, but LHS's SIGNED generates 20 bits.
             /* verilator lint_off WIDTHEXPAND */
-            logic signed [NBITS-1:0] expected_output;
-            expected_output = logic_vector'(const_feat_out_batch[batch][fout]);
-            if ($signed(p_output[fout]) != expected_output) begin
+            if (output_in_bounds) begin
+              logic signed [NBITS-1:0] expected_output;
+              expected_output = logic_vector'(const_feat_out_batch[batch][fout]);
+              if ($signed(p_output[fout]) != expected_output) begin
               /* verilator lint_off WIDTHEXPAND */
               // $display("Time: %0t | Data Valid: %b", $time, p_end);
               $display(
@@ -213,6 +234,7 @@ module tb;
                 $time, p_end,
                 batch, fout, $signed(const_feat_out_batch[batch][fout]), $signed(p_output[fout])
               );
+              end
             end
             batch_out++;
             if (DEBUG == 1) begin
