@@ -282,6 +282,10 @@ timeunit 1ns; timeprecision 1ps;
   logic w_output_read_pending;
   logic w_output_write_ready;
   logic w_output_write_pending;
+  // Set when READ_INPUT captured the full input tile and cleared on conv fire.
+  logic r_input_tile_ready;
+  // Arms a one-cycle delay so the buffer shift happens before conv starts.
+  logic r_conv_input_armed;
 
   // High-level debug aliases for documentation/waveforms
   logic w_read_fin;
@@ -479,7 +483,7 @@ timeunit 1ns; timeprecision 1ps;
   end
 
   // Handshake #1: input FSM -> convolution core
-  assign w_conv_ready_for_input = p_conv_idle && (!r_conv_busy || p_conv_end);
+  assign w_conv_ready_for_input = p_conv_idle && (!r_conv_busy || p_conv_end) && r_input_tile_ready && r_conv_input_armed;
   assign w_conv_input_fire      = (current_st_input == CONV_INPUT) && w_conv_ready_for_input;
 
   /*
@@ -589,6 +593,8 @@ timeunit 1ns; timeprecision 1ps;
     r_col_index_input              <= '0;
     r_row_index_input              <= '0;
     r_row_stride_input             <= '0;
+    r_input_tile_ready             <= 1'b0;
+    r_conv_input_armed             <= 1'b0;
   endtask
 
   // load_input_idle_state: reapplies the canonical IDLE initialization so the input FSM realigns
@@ -610,6 +616,8 @@ timeunit 1ns; timeprecision 1ps;
     r_col_index_input              <= '0;
     r_row_index_input              <= '0;
     r_row_stride_input             <= '0;
+    r_input_tile_ready             <= 1'b0;
+    r_conv_input_armed             <= 1'b0;
   endtask
 
   // reset_input_buffers: wipes the local kernel/input tiles to prevent stale data from being handed
@@ -630,6 +638,7 @@ timeunit 1ns; timeprecision 1ps;
         IDLE_INPUT: begin
           // Reset control counters/pointers so the next activation starts from the canonical base.
           load_input_idle_state();
+          r_conv_input_armed <= 1'b0;
         end
         BIAS: begin
           // Sequentially advances through the bias region before weights/inputs are fetched.
@@ -647,6 +656,8 @@ timeunit 1ns; timeprecision 1ps;
         CONV_INPUT: begin
           // On each tile handoff, bump window counters and reposition pointers for the next window.
           if (w_conv_input_fire) begin
+            r_input_tile_ready         <= 1'b0;
+            r_conv_input_armed         <= 1'b0;
             r_window_counter_total_input <= r_window_counter_total_input + 1;
             r_row_index_input            <= '0;
             r_row_stride_input           <= '0;
@@ -689,12 +700,17 @@ timeunit 1ns; timeprecision 1ps;
               r_addr_pointer_input <= r_addr_pointer_input + INPUT_CHANNEL_WRAP_DELTA;
             else
               r_addr_pointer_input <= r_addr_pointer_input + A1_SIZE;
+          end else if (!r_input_tile_ready) begin
+            r_conv_input_armed <= 1'b0;
+          end else if (!r_conv_input_armed) begin
+            r_conv_input_armed <= 1'b1;
           end
         end
         READ_INPUT: begin
           // Issues RAM reads and walks the row/column indices while filling r_feat_input.
           r_read_en          <= 1'b1;
           r_addr_count_kernel <= 0;
+          r_conv_input_armed <= 1'b0;
           if (w_input_data_ready && (r_addr_count_input < C1_SIZE * C1_SIZE)) begin
             r_addr_count_input <= r_addr_count_input + 1;
             if (r_row_index_input == (C1_SIZE - 1)) begin
@@ -709,6 +725,8 @@ timeunit 1ns; timeprecision 1ps;
               r_row_stride_input <= r_row_stride_input + FEAT_INPUT_SIZE;
             end
           end
+          if (w_input_data_ready && (r_addr_count_input == LAST_KERNEL_INDEX))
+            r_input_tile_ready <= 1'b1;
         end
         HOLD_OUTPUT: begin
           // Inserts a small delay to let OUTPUT_CTRL_BLOCK consume pending windows.

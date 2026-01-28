@@ -1,6 +1,8 @@
 onerror {resume}
 quietly WaveActivateNextPane {} 0
 add wave -noupdate /tb/memory_read/clk
+add wave -noupdate /tb/dut/r_input_tile_ready
+add wave -noupdate /tb/dut/r_conv_input_armed
 add wave -noupdate -divider handshake_input
 add wave -noupdate /tb/dut/current_st_input
 add wave -noupdate -expand -group idle_ready /tb/dut/p_conv_idle
