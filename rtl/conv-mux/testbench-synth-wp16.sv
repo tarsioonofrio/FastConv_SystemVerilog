@@ -82,7 +82,7 @@ module tb;
     .\p_weight[53] (p_weight[53]),
     .\p_weight[52] (p_weight[52]),
     .\p_weight[51] (p_weight[51]),
-    .\p_weight[50] (p_weight[50])
+    .\p_weight[50] (p_weight[50]),
     .\p_weight[49] (p_weight[49]),
     .\p_weight[48] (p_weight[48]),
     .\p_weight[47] (p_weight[47]),
