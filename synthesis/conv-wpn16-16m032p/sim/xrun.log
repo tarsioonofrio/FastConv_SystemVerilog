@@ -1,5 +1,5 @@
 xrun(64): 23.03-s003: (c) Copyright 1995-2023 Cadence Design Systems, Inc.
-TOOL:	xrun(64)	23.03-s003: Started on Jan 27, 2026 at 20:45:34 -03
+TOOL:	xrun(64)	23.03-s003: Started on Jan 27, 2026 at 23:51:58 -03
 xrun
 	-f args.txt
 		-smartorder
@@ -2373,9 +2373,6 @@ file: ../logical/results/gate_level/conv_logic_mapped.v
 		pack_mux_mult
 		tb
 	Reading SDF file from location "../logical/results/gate_level/conv_analysis_view_0p90v_25c_captyp_nominal.sdf"
-	Compiled SDF file "conv_analysis_view_0p90v_25c_captyp_nominal.sdf.X" older than source SDF file "../logical/results/gate_level/conv_analysis_view_0p90v_25c_captyp_nominal.sdf".
-	Recompiling.
-	Writing compiled SDF file to "conv_analysis_view_0p90v_25c_captyp_nominal.sdf.X".
 xmelab: *W,FLFNOF: No SDF file specified, but annotation parameters were present, in SDF annotation command file sdf_cmd.cmd, line 6.
 	Annotating SDF timing data:
 		Compiled SDF file:     conv_analysis_view_0p90v_25c_captyp_nominal.sdf.X
@@ -2675,8 +2672,8 @@ xmelab: *W,SDFNET: Unable to annotate to non-existent timing check (RECREM (pose
 			streams:   0, words:     0
 		work.Conv:v <0x15d585e1>
 			streams:   1, words:   510
-		work.tb:sv <0x5dd3a339>
-			streams: 132, words: 47146
+		work.tb:sv <0x266ecc92>
+			streams: 132, words: 48097
 		work.pack_param:sv <0x422d7b0d>
 			streams:   1, words:   708
 		work.pack_data:sv <0x756120f7>
@@ -2690,7 +2687,7 @@ xmelab: *W,SDFNET: Unable to annotate to non-existent timing check (RECREM (pose
 		UDPs:                      7222       4
 		Primitives:              100800       6
 		Timing outputs:           37052     119
-		Registers:                 1317      33
+		Registers:                 1325      41
 		Scalar wires:             40422       -
 		Expanded wires:            2320     116
 		Vectored wires:              16       -
@@ -2706,135 +2703,11 @@ xmelab: *W,SDFNET: Unable to annotate to non-existent timing check (RECREM (pose
 Loading snapshot work.tb:sv .................... Done
 xcelium> source /soft64/cadence/ferramentas/XCELIUM2303/tools/xcelium/files/xmsimrc
 xcelium> run
-Values Error: Time 735000 | Data Valid: 0 | const_feat_out[7][2] | p_output |           0 !=     -326
-Values Error: Time 735000 | Data Valid: 0 | const_feat_out[7][3] | p_output |           0 !=      497
-Values Error: Time 735000 | Data Valid: 0 | const_feat_out[7][6] | p_output |           0 !=      239
-Values Error: Time 735000 | Data Valid: 0 | const_feat_out[7][7] | p_output |           0 !=    -1316
-Values Error: Time 735000 | Data Valid: 0 | const_feat_out[7][10] | p_output |           0 !=      864
-Values Error: Time 735000 | Data Valid: 0 | const_feat_out[7][11] | p_output |           0 !=     -112
-Values Error: Time 735000 | Data Valid: 0 | const_feat_out[7][14] | p_output |           0 !=     -110
-Values Error: Time 735000 | Data Valid: 0 | const_feat_out[7][15] | p_output |           0 !=      890
-Values Error: Time 1455000 | Data Valid: 0 | const_feat_out[15][2] | p_output |           0 !=      127
-Values Error: Time 1455000 | Data Valid: 0 | const_feat_out[15][3] | p_output |           0 !=     -356
-Values Error: Time 1455000 | Data Valid: 0 | const_feat_out[15][6] | p_output |           0 !=     -464
-Values Error: Time 1455000 | Data Valid: 0 | const_feat_out[15][7] | p_output |           0 !=     -149
-Values Error: Time 1455000 | Data Valid: 0 | const_feat_out[15][10] | p_output |           0 !=      -52
-Values Error: Time 1455000 | Data Valid: 0 | const_feat_out[15][11] | p_output |           0 !=     -215
-Values Error: Time 1455000 | Data Valid: 0 | const_feat_out[15][14] | p_output |           0 !=      800
-Values Error: Time 1455000 | Data Valid: 0 | const_feat_out[15][15] | p_output |           0 !=      -17
-Values Error: Time 2175000 | Data Valid: 0 | const_feat_out[23][2] | p_output |           0 !=     -622
-Values Error: Time 2175000 | Data Valid: 0 | const_feat_out[23][3] | p_output |           0 !=      834
-Values Error: Time 2175000 | Data Valid: 0 | const_feat_out[23][6] | p_output |           0 !=      195
-Values Error: Time 2175000 | Data Valid: 0 | const_feat_out[23][7] | p_output |           0 !=      554
-Values Error: Time 2175000 | Data Valid: 0 | const_feat_out[23][10] | p_output |           0 !=      -20
-Values Error: Time 2175000 | Data Valid: 0 | const_feat_out[23][11] | p_output |           0 !=     -478
-Values Error: Time 2175000 | Data Valid: 0 | const_feat_out[23][14] | p_output |           0 !=    -1189
-Values Error: Time 2175000 | Data Valid: 0 | const_feat_out[23][15] | p_output |           0 !=     -456
-Values Error: Time 2895000 | Data Valid: 0 | const_feat_out[31][2] | p_output |           0 !=       19
-Values Error: Time 2895000 | Data Valid: 0 | const_feat_out[31][3] | p_output |           0 !=      464
-Values Error: Time 2895000 | Data Valid: 0 | const_feat_out[31][6] | p_output |           0 !=       98
-Values Error: Time 2895000 | Data Valid: 0 | const_feat_out[31][7] | p_output |           0 !=     -831
-Values Error: Time 2895000 | Data Valid: 0 | const_feat_out[31][10] | p_output |           0 !=      643
-Values Error: Time 2895000 | Data Valid: 0 | const_feat_out[31][11] | p_output |           0 !=     -446
-Values Error: Time 2895000 | Data Valid: 0 | const_feat_out[31][14] | p_output |           0 !=      486
-Values Error: Time 2895000 | Data Valid: 0 | const_feat_out[31][15] | p_output |           0 !=      251
-Values Error: Time 3615000 | Data Valid: 0 | const_feat_out[39][2] | p_output |           0 !=     -713
-Values Error: Time 3615000 | Data Valid: 0 | const_feat_out[39][3] | p_output |           0 !=     1075
-Values Error: Time 3615000 | Data Valid: 0 | const_feat_out[39][6] | p_output |           0 !=     -221
-Values Error: Time 3615000 | Data Valid: 0 | const_feat_out[39][7] | p_output |           0 !=       39
-Values Error: Time 3615000 | Data Valid: 0 | const_feat_out[39][10] | p_output |           0 !=      487
-Values Error: Time 3615000 | Data Valid: 0 | const_feat_out[39][11] | p_output |           0 !=     -744
-Values Error: Time 3615000 | Data Valid: 0 | const_feat_out[39][14] | p_output |           0 !=     -109
-Values Error: Time 3615000 | Data Valid: 0 | const_feat_out[39][15] | p_output |           0 !=      915
-Values Error: Time 4335000 | Data Valid: 0 | const_feat_out[47][2] | p_output |           0 !=      110
-Values Error: Time 4335000 | Data Valid: 0 | const_feat_out[47][3] | p_output |           0 !=     -705
-Values Error: Time 4335000 | Data Valid: 0 | const_feat_out[47][6] | p_output |           0 !=    -1866
-Values Error: Time 4335000 | Data Valid: 0 | const_feat_out[47][7] | p_output |           0 !=     1106
-Values Error: Time 4335000 | Data Valid: 0 | const_feat_out[47][10] | p_output |           0 !=     1631
-Values Error: Time 4335000 | Data Valid: 0 | const_feat_out[47][11] | p_output |           0 !=     -831
-Values Error: Time 4335000 | Data Valid: 0 | const_feat_out[47][14] | p_output |           0 !=     -190
-Values Error: Time 4335000 | Data Valid: 0 | const_feat_out[47][15] | p_output |           0 !=       47
-Values Error: Time 5055000 | Data Valid: 0 | const_feat_out[55][2] | p_output |           0 !=      176
-Values Error: Time 5055000 | Data Valid: 0 | const_feat_out[55][3] | p_output |           0 !=     -663
-Values Error: Time 5055000 | Data Valid: 0 | const_feat_out[55][6] | p_output |           0 !=      308
-Values Error: Time 5055000 | Data Valid: 0 | const_feat_out[55][7] | p_output |           0 !=       24
-Values Error: Time 5055000 | Data Valid: 0 | const_feat_out[55][10] | p_output |           0 !=      993
-Values Error: Time 5055000 | Data Valid: 0 | const_feat_out[55][11] | p_output |           0 !=     -463
-Values Error: Time 5055000 | Data Valid: 0 | const_feat_out[55][14] | p_output |           0 !=    -1517
-Values Error: Time 5055000 | Data Valid: 0 | const_feat_out[55][15] | p_output |           0 !=     1196
-Values Error: Time 5145000 | Data Valid: 0 | const_feat_out[56][8] | p_output |           0 !=     -179
-Values Error: Time 5145000 | Data Valid: 0 | const_feat_out[56][9] | p_output |           0 !=       92
-Values Error: Time 5145000 | Data Valid: 0 | const_feat_out[56][10] | p_output |           0 !=      154
-Values Error: Time 5145000 | Data Valid: 0 | const_feat_out[56][11] | p_output |           0 !=      302
-Values Error: Time 5145000 | Data Valid: 0 | const_feat_out[56][12] | p_output |           0 !=     -480
-Values Error: Time 5145000 | Data Valid: 0 | const_feat_out[56][13] | p_output |           0 !=      -69
-Values Error: Time 5145000 | Data Valid: 0 | const_feat_out[56][14] | p_output |           0 !=       95
-Values Error: Time 5145000 | Data Valid: 0 | const_feat_out[56][15] | p_output |           0 !=      194
-Values Error: Time 5235000 | Data Valid: 0 | const_feat_out[57][8] | p_output |           0 !=       26
-Values Error: Time 5235000 | Data Valid: 0 | const_feat_out[57][9] | p_output |           0 !=     -757
-Values Error: Time 5235000 | Data Valid: 0 | const_feat_out[57][10] | p_output |           0 !=     -350
-Values Error: Time 5235000 | Data Valid: 0 | const_feat_out[57][11] | p_output |           0 !=      477
-Values Error: Time 5235000 | Data Valid: 0 | const_feat_out[57][12] | p_output |           0 !=      202
-Values Error: Time 5235000 | Data Valid: 0 | const_feat_out[57][13] | p_output |           0 !=      369
-Values Error: Time 5235000 | Data Valid: 0 | const_feat_out[57][14] | p_output |           0 !=     -575
-Values Error: Time 5235000 | Data Valid: 0 | const_feat_out[57][15] | p_output |           0 !=     -508
-Values Error: Time 5325000 | Data Valid: 0 | const_feat_out[58][8] | p_output |           0 !=      468
-Values Error: Time 5325000 | Data Valid: 0 | const_feat_out[58][9] | p_output |           0 !=     -165
-Values Error: Time 5325000 | Data Valid: 0 | const_feat_out[58][10] | p_output |           0 !=     -430
-Values Error: Time 5325000 | Data Valid: 0 | const_feat_out[58][11] | p_output |           0 !=       19
-Values Error: Time 5325000 | Data Valid: 0 | const_feat_out[58][12] | p_output |           0 !=      171
-Values Error: Time 5325000 | Data Valid: 0 | const_feat_out[58][13] | p_output |           0 !=      448
-Values Error: Time 5325000 | Data Valid: 0 | const_feat_out[58][14] | p_output |           0 !=     -268
-Values Error: Time 5325000 | Data Valid: 0 | const_feat_out[58][15] | p_output |           0 !=      -56
-Values Error: Time 5415000 | Data Valid: 0 | const_feat_out[59][8] | p_output |           0 !=     -801
-Values Error: Time 5415000 | Data Valid: 0 | const_feat_out[59][9] | p_output |           0 !=      614
-Values Error: Time 5415000 | Data Valid: 0 | const_feat_out[59][10] | p_output |           0 !=      384
-Values Error: Time 5415000 | Data Valid: 0 | const_feat_out[59][11] | p_output |           0 !=      631
-Values Error: Time 5415000 | Data Valid: 0 | const_feat_out[59][12] | p_output |           0 !=      -89
-Values Error: Time 5415000 | Data Valid: 0 | const_feat_out[59][13] | p_output |           0 !=      457
-Values Error: Time 5415000 | Data Valid: 0 | const_feat_out[59][14] | p_output |           0 !=      609
-Values Error: Time 5415000 | Data Valid: 0 | const_feat_out[59][15] | p_output |           0 !=     -860
-Values Error: Time 5505000 | Data Valid: 0 | const_feat_out[60][8] | p_output |           0 !=      247
-Values Error: Time 5505000 | Data Valid: 0 | const_feat_out[60][9] | p_output |           0 !=     -822
-Values Error: Time 5505000 | Data Valid: 0 | const_feat_out[60][10] | p_output |           0 !=      651
-Values Error: Time 5505000 | Data Valid: 0 | const_feat_out[60][11] | p_output |           0 !=     -825
-Values Error: Time 5505000 | Data Valid: 0 | const_feat_out[60][12] | p_output |           0 !=      193
-Values Error: Time 5505000 | Data Valid: 0 | const_feat_out[60][13] | p_output |           0 !=     -142
-Values Error: Time 5505000 | Data Valid: 0 | const_feat_out[60][14] | p_output |           0 !=     -817
-Values Error: Time 5505000 | Data Valid: 0 | const_feat_out[60][15] | p_output |           0 !=      287
-Values Error: Time 5595000 | Data Valid: 0 | const_feat_out[61][8] | p_output |           0 !=      785
-Values Error: Time 5595000 | Data Valid: 0 | const_feat_out[61][9] | p_output |           0 !=     -815
-Values Error: Time 5595000 | Data Valid: 0 | const_feat_out[61][10] | p_output |           0 !=     -191
-Values Error: Time 5595000 | Data Valid: 0 | const_feat_out[61][11] | p_output |           0 !=     1080
-Values Error: Time 5595000 | Data Valid: 0 | const_feat_out[61][12] | p_output |           0 !=      -36
-Values Error: Time 5595000 | Data Valid: 0 | const_feat_out[61][13] | p_output |           0 !=     1090
-Values Error: Time 5595000 | Data Valid: 0 | const_feat_out[61][14] | p_output |           0 !=     -226
-Values Error: Time 5595000 | Data Valid: 0 | const_feat_out[61][15] | p_output |           0 !=        4
-Values Error: Time 5685000 | Data Valid: 0 | const_feat_out[62][8] | p_output |           0 !=     -956
-Values Error: Time 5685000 | Data Valid: 0 | const_feat_out[62][9] | p_output |           0 !=      592
-Values Error: Time 5685000 | Data Valid: 0 | const_feat_out[62][10] | p_output |           0 !=     -859
-Values Error: Time 5685000 | Data Valid: 0 | const_feat_out[62][11] | p_output |           0 !=      292
-Values Error: Time 5685000 | Data Valid: 0 | const_feat_out[62][12] | p_output |           0 !=      375
-Values Error: Time 5685000 | Data Valid: 0 | const_feat_out[62][13] | p_output |           0 !=     -810
-Values Error: Time 5685000 | Data Valid: 0 | const_feat_out[62][14] | p_output |           0 !=     -195
-Values Error: Time 5685000 | Data Valid: 0 | const_feat_out[62][15] | p_output |           0 !=     -353
-Values Error: Time 5775000 | Data Valid: 0 | const_feat_out[63][2] | p_output |           0 !=    -1163
-Values Error: Time 5775000 | Data Valid: 0 | const_feat_out[63][3] | p_output |           0 !=      205
-Values Error: Time 5775000 | Data Valid: 0 | const_feat_out[63][6] | p_output |           0 !=     1255
-Values Error: Time 5775000 | Data Valid: 0 | const_feat_out[63][7] | p_output |           0 !=     -403
-Values Error: Time 5775000 | Data Valid: 0 | const_feat_out[63][8] | p_output |           0 !=      520
-Values Error: Time 5775000 | Data Valid: 0 | const_feat_out[63][9] | p_output |           0 !=     -429
-Values Error: Time 5775000 | Data Valid: 0 | const_feat_out[63][10] | p_output |           0 !=      -36
-Values Error: Time 5775000 | Data Valid: 0 | const_feat_out[63][11] | p_output |           0 !=      387
-Values Error: Time 5775000 | Data Valid: 0 | const_feat_out[63][12] | p_output |           0 !=      412
-Values Error: Time 5775000 | Data Valid: 0 | const_feat_out[63][13] | p_output |           0 !=      686
-Values Error: Time 5775000 | Data Valid: 0 | const_feat_out[63][14] | p_output |           0 !=       41
-Values Error: Time 5775000 | Data Valid: 0 | const_feat_out[63][15] | p_output |           0 !=     -479
 === No errors - End simulation ===
 
 *** TIME 5795.000000 ***
 
 Simulation complete via $finish(1) at time 5795 NS + 0
-/sim/tarsio/FastConv_SystemVerilog/rtl/conv-mux/testbench-synth-wp16.sv:244     $finish;
+/sim/tarsio/FastConv_SystemVerilog/rtl/conv-mux/testbench-synth-wp16.sv:268     $finish;
 xcelium> exit
-TOOL:	xrun(64)	23.03-s003: Exiting on Jan 27, 2026 at 20:45:43 -03  (total: 00:00:09)
+TOOL:	xrun(64)	23.03-s003: Exiting on Jan 27, 2026 at 23:52:08 -03  (total: 00:00:10)
