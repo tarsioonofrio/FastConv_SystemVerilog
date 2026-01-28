@@ -21,6 +21,11 @@ module tb;
   logic reset, start, data_valid;
   logic clk;
   int fi;
+  time t_start = 0;
+  time t_end = 0;
+  time t_total = 0;
+  int cycle_count = 0;
+  integer time_fd = 0;
 
 
   // Instantiate conv_rapida entity
@@ -79,6 +84,15 @@ module tb;
   initial clk = 0;
   always #5 clk = ~clk;
 
+  // Track cycles between reset deassert and end of run.
+  always_ff @(posedge clk) begin
+    if (reset) begin
+      cycle_count <= 0;
+    end else begin
+      cycle_count <= cycle_count + 1;
+    end
+  end
+
   // Test process to iterate over the input maps
   initial begin
 
@@ -98,6 +112,7 @@ module tb;
     start = 0;
     reset = 1;
     @(posedge clk);
+    t_start = $realtime;
     reset = 0;  // Liberar o reset após 5 ns
 
     // Convert const_weight
@@ -122,6 +137,14 @@ module tb;
     end
     // Finalizar a simulação 200 ns após o loop
     @(posedge clk);
+    t_end = $realtime;
+    t_total = t_end - t_start;
+    time_fd = $fopen("sim.log", "w");
+    if (time_fd) begin
+      $fdisplay(time_fd, "Total execution time: %f", t_total);
+      $fdisplay(time_fd, "Total cycles: %0d", cycle_count);
+      $fclose(time_fd);
+    end
     $display("=== No errors - End simulation ===");
     $display("\n*** TIME %f ***\n", $realtime);
 
