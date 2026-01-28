@@ -1,5 +1,5 @@
 xrun(64): 23.03-s003: (c) Copyright 1995-2023 Cadence Design Systems, Inc.
-TOOL:	xrun(64)	23.03-s003: Started on Jan 27, 2026 at 18:00:04 -03
+TOOL:	xrun(64)	23.03-s003: Started on Jan 27, 2026 at 23:55:42 -03
 xrun
 	-f args.txt
 		-smartorder
@@ -15,7 +15,7 @@ xrun
 	/sim/tarsio/FastConv_SystemVerilog/rtl/pack-param/tcn16/pack_param.sv
 	/sim/tarsio/FastConv_SystemVerilog/rtl/pack-typedef/pack_typedef.sv
 	/sim/tarsio/FastConv_SystemVerilog/rtl/csa/csa_lib.sv
-	/sim/tarsio/FastConv_SystemVerilog/rtl/mux-mult/tcn16/mux_mult_06.sv
+	/sim/tarsio/FastConv_SystemVerilog/rtl/mux-mult/tcn16/mux_mult_09.sv
 	/sim/tarsio/FastConv_SystemVerilog/rtl/mult-matrices/tcn16/mult_matrices.sv
 	/sim/tarsio/FastConv_SystemVerilog/rtl/mem/mem.sv
 	/sim/tarsio/FastConv_SystemVerilog/rtl/conv-mux/testbench-synth-tc.sv
@@ -2277,7 +2277,7 @@ file: /sim/tarsio/FastConv_SystemVerilog/rtl/csa/csa_lib.sv
 		errors: 0, warnings: 0
 	module work.CSA_18:sv
 		errors: 0, warnings: 0
-file: /sim/tarsio/FastConv_SystemVerilog/rtl/mux-mult/tcn16/mux_mult_06.sv
+file: /sim/tarsio/FastConv_SystemVerilog/rtl/mux-mult/tcn16/mux_mult_09.sv
 	package work.pack_mux_mult:sv
 		errors: 0, warnings: 0
 	module work.MuxMult:sv
@@ -2304,10 +2304,6 @@ file: /sim/tarsio/FastConv_SystemVerilog/rtl/conv-mux/testbench-synth-tc.sv
 file: ../logical/results/gate_level/conv_logic_mapped.v
 	module work.RC_CG_MOD:v
 		errors: 0, warnings: 0
-	module work.RC_CG_MOD_1:v
-		errors: 0, warnings: 0
-	module work.RC_CG_MOD_2:v
-		errors: 0, warnings: 0
 	module work.RC_CG_MOD_3:v
 		errors: 0, warnings: 0
 	module work.RC_CG_MOD_4:v
@@ -2332,15 +2328,43 @@ file: ../logical/results/gate_level/conv_logic_mapped.v
 		errors: 0, warnings: 0
 	module work.RC_CG_MOD_14:v
 		errors: 0, warnings: 0
-	module work.RC_CG_MOD_15:v
-		errors: 0, warnings: 0
-	module work.RC_CG_MOD_16:v
-		errors: 0, warnings: 0
-	module work.RC_CG_MOD_17:v
-		errors: 0, warnings: 0
 	module work.RC_CG_MOD_18:v
 		errors: 0, warnings: 0
+	module work.RC_CG_MOD_19:v
+		errors: 0, warnings: 0
+	module work.RC_CG_MOD_21:v
+		errors: 0, warnings: 0
+	module work.RC_CG_MOD_22:v
+		errors: 0, warnings: 0
+	module work.RC_CG_MOD_23:v
+		errors: 0, warnings: 0
+	module work.RC_CG_MOD_24:v
+		errors: 0, warnings: 0
+	module work.RC_CG_MOD_25:v
+		errors: 0, warnings: 0
+	module work.RC_CG_MOD_26:v
+		errors: 0, warnings: 0
+	module work.RC_CG_MOD_27:v
+		errors: 0, warnings: 0
+	module work.RC_CG_MOD_28:v
+		errors: 0, warnings: 0
+	module work.RC_CG_MOD_29:v
+		errors: 0, warnings: 0
+	module work.RC_CG_MOD_30:v
+		errors: 0, warnings: 0
+	module work.RC_CG_MOD_31:v
+		errors: 0, warnings: 0
+	module work.RC_CG_MOD_32:v
+		errors: 0, warnings: 0
+	module work.RC_CG_MOD_33:v
+		errors: 0, warnings: 0
 	module work.Multip:v
+		errors: 0, warnings: 0
+	module work.Multip_111:v
+		errors: 0, warnings: 0
+	module work.Multip_110:v
+		errors: 0, warnings: 0
+	module work.Multip_109:v
 		errors: 0, warnings: 0
 	module work.Multip_108:v
 		errors: 0, warnings: 0
@@ -2366,56 +2390,64 @@ file: ../logical/results/gate_level/conv_logic_mapped.v
 		errors: 0, warnings: 0
 	module work.Transform:v
 		errors: 0, warnings: 0
+	module work.RC_CG_MOD_1:v
+		errors: 0, warnings: 0
+	module work.RC_CG_MOD_2:v
+		errors: 0, warnings: 0
+	module work.RC_CG_MOD_16:v
+		errors: 0, warnings: 0
 	module work.Conv:v
 		errors: 0, warnings: 0
 	Elaborating the design hierarchy:
 		Caching library 'work' ....... Done
   Conv dut (
          |
-xmelab: *W,CUVWSP (/sim/tarsio/FastConv_SystemVerilog/rtl/conv-mux/testbench-synth-tc.sv,29|9): 7 output ports were not connected:
-xmelab: (../logical/results/gate_level/conv_logic_mapped.v,69543): p_output[9]
-xmelab: (../logical/results/gate_level/conv_logic_mapped.v,69543): p_output[10]
-xmelab: (../logical/results/gate_level/conv_logic_mapped.v,69543): p_output[11]
-xmelab: (../logical/results/gate_level/conv_logic_mapped.v,69543): p_output[12]
-xmelab: (../logical/results/gate_level/conv_logic_mapped.v,69544): p_output[13]
-xmelab: (../logical/results/gate_level/conv_logic_mapped.v,69544): p_output[14]
-xmelab: (../logical/results/gate_level/conv_logic_mapped.v,69544): p_output[15]
+xmelab: *W,CUVWSP (/sim/tarsio/FastConv_SystemVerilog/rtl/conv-mux/testbench-synth-tc.sv,30|9): 7 output ports were not connected:
+xmelab: (../logical/results/gate_level/conv_logic_mapped.v,75074): p_output[9]
+xmelab: (../logical/results/gate_level/conv_logic_mapped.v,75074): p_output[10]
+xmelab: (../logical/results/gate_level/conv_logic_mapped.v,75074): p_output[11]
+xmelab: (../logical/results/gate_level/conv_logic_mapped.v,75074): p_output[12]
+xmelab: (../logical/results/gate_level/conv_logic_mapped.v,75075): p_output[13]
+xmelab: (../logical/results/gate_level/conv_logic_mapped.v,75075): p_output[14]
+xmelab: (../logical/results/gate_level/conv_logic_mapped.v,75075): p_output[15]
 
   Conv dut (
          |
-xmelab: *W,CUVWSI (/sim/tarsio/FastConv_SystemVerilog/rtl/conv-mux/testbench-synth-tc.sv,29|9): 22 input ports were not connected:
-xmelab: (../logical/results/gate_level/conv_logic_mapped.v,69529): p_input[25]
-xmelab: (../logical/results/gate_level/conv_logic_mapped.v,69529): p_input[26]
-xmelab: (../logical/results/gate_level/conv_logic_mapped.v,69529): p_input[27]
-xmelab: (../logical/results/gate_level/conv_logic_mapped.v,69529): p_input[28]
-xmelab: (../logical/results/gate_level/conv_logic_mapped.v,69530): p_input[29]
-xmelab: (../logical/results/gate_level/conv_logic_mapped.v,69530): p_input[30]
-xmelab: (../logical/results/gate_level/conv_logic_mapped.v,69530): p_input[31]
-xmelab: (../logical/results/gate_level/conv_logic_mapped.v,69530): p_input[32]
-xmelab: (../logical/results/gate_level/conv_logic_mapped.v,69531): p_input[33]
-xmelab: (../logical/results/gate_level/conv_logic_mapped.v,69531): p_input[34]
-xmelab: (../logical/results/gate_level/conv_logic_mapped.v,69531): p_input[35]
-xmelab: (../logical/results/gate_level/conv_logic_mapped.v,69538): p_weight[25]
-xmelab: (../logical/results/gate_level/conv_logic_mapped.v,69538): p_weight[26]
-xmelab: (../logical/results/gate_level/conv_logic_mapped.v,69538): p_weight[27]
-xmelab: (../logical/results/gate_level/conv_logic_mapped.v,69538): p_weight[28]
-xmelab: (../logical/results/gate_level/conv_logic_mapped.v,69539): p_weight[29]
-xmelab: (../logical/results/gate_level/conv_logic_mapped.v,69539): p_weight[30]
-xmelab: (../logical/results/gate_level/conv_logic_mapped.v,69539): p_weight[31]
-xmelab: (../logical/results/gate_level/conv_logic_mapped.v,69539): p_weight[32]
-xmelab: (../logical/results/gate_level/conv_logic_mapped.v,69540): p_weight[33]
-xmelab: (../logical/results/gate_level/conv_logic_mapped.v,69540): p_weight[34]
-xmelab: (../logical/results/gate_level/conv_logic_mapped.v,69540): p_weight[35]
+xmelab: *W,CUVWSI (/sim/tarsio/FastConv_SystemVerilog/rtl/conv-mux/testbench-synth-tc.sv,30|9): 22 input ports were not connected:
+xmelab: (../logical/results/gate_level/conv_logic_mapped.v,75060): p_input[25]
+xmelab: (../logical/results/gate_level/conv_logic_mapped.v,75060): p_input[26]
+xmelab: (../logical/results/gate_level/conv_logic_mapped.v,75060): p_input[27]
+xmelab: (../logical/results/gate_level/conv_logic_mapped.v,75060): p_input[28]
+xmelab: (../logical/results/gate_level/conv_logic_mapped.v,75061): p_input[29]
+xmelab: (../logical/results/gate_level/conv_logic_mapped.v,75061): p_input[30]
+xmelab: (../logical/results/gate_level/conv_logic_mapped.v,75061): p_input[31]
+xmelab: (../logical/results/gate_level/conv_logic_mapped.v,75061): p_input[32]
+xmelab: (../logical/results/gate_level/conv_logic_mapped.v,75062): p_input[33]
+xmelab: (../logical/results/gate_level/conv_logic_mapped.v,75062): p_input[34]
+xmelab: (../logical/results/gate_level/conv_logic_mapped.v,75062): p_input[35]
+xmelab: (../logical/results/gate_level/conv_logic_mapped.v,75069): p_weight[25]
+xmelab: (../logical/results/gate_level/conv_logic_mapped.v,75069): p_weight[26]
+xmelab: (../logical/results/gate_level/conv_logic_mapped.v,75069): p_weight[27]
+xmelab: (../logical/results/gate_level/conv_logic_mapped.v,75069): p_weight[28]
+xmelab: (../logical/results/gate_level/conv_logic_mapped.v,75070): p_weight[29]
+xmelab: (../logical/results/gate_level/conv_logic_mapped.v,75070): p_weight[30]
+xmelab: (../logical/results/gate_level/conv_logic_mapped.v,75070): p_weight[31]
+xmelab: (../logical/results/gate_level/conv_logic_mapped.v,75070): p_weight[32]
+xmelab: (../logical/results/gate_level/conv_logic_mapped.v,75071): p_weight[33]
+xmelab: (../logical/results/gate_level/conv_logic_mapped.v,75071): p_weight[34]
+xmelab: (../logical/results/gate_level/conv_logic_mapped.v,75071): p_weight[35]
 
 	Top level design units:
 		pack_def
 		pack_param
 		pack_typedef
-		$unit_0x077002d9
+		$unit_0x347988f8
 		pack_data
 		pack_mux_mult
 		tb
 	Reading SDF file from location "../logical/results/gate_level/conv_analysis_view_0p90v_25c_captyp_nominal.sdf"
+	Compiled SDF file "conv_analysis_view_0p90v_25c_captyp_nominal.sdf.X" older than source SDF file "../logical/results/gate_level/conv_analysis_view_0p90v_25c_captyp_nominal.sdf".
+	Recompiling.
 	Writing compiled SDF file to "conv_analysis_view_0p90v_25c_captyp_nominal.sdf.X".
 xmelab: *W,FLFNOF: No SDF file specified, but annotation parameters were present, in SDF annotation command file sdf_cmd.cmd, line 6.
 	Annotating SDF timing data:
@@ -2426,65 +2458,99 @@ xmelab: *W,FLFNOF: No SDF file specified, but annotation parameters were present
 		MTM control:           
 		Scale factors:         
 		Scale type:            
-xmelab: *W,SDFNET: Unable to annotate to non-existent timing check (RECREM (posedge CDN) (COND D_SDFCHK (posedge CP)) (-18) (44)) of instance tb.dut.\current_state_reg[0]  of module DFCNQD1BWP30P140 <../logical/results/gate_level/conv_analysis_view_0p90v_25c_captyp_nominal.sdf, line 374384>.
-xmelab: *W,SDFNET: Unable to annotate to non-existent timing check (RECREM (posedge CDN) (COND D_SDFCHK (posedge CP)) (-19) (44)) of instance tb.dut.\current_state_reg[1]  of module DFCND1BWP30P140 <../logical/results/gate_level/conv_analysis_view_0p90v_25c_captyp_nominal.sdf, line 462697>.
+xmelab: *W,SDFNET: Unable to annotate to non-existent timing check (RECREM (posedge CDN) (COND D_SDFCHK (posedge CP)) (-18) (45)) of instance tb.dut.\current_state_reg[0]  of module DFCNQD1BWP30P140 <../logical/results/gate_level/conv_analysis_view_0p90v_25c_captyp_nominal.sdf, line 404478>.
+xmelab: *W,SDFNET: Unable to annotate to non-existent timing check (RECREM (posedge CDN) (COND D_SDFCHK (posedge CP)) (-18) (45)) of instance tb.dut.\current_state_reg[1]  of module DFCND1BWP30P140 <../logical/results/gate_level/conv_analysis_view_0p90v_25c_captyp_nominal.sdf, line 480255>.
 	Annotation completed with 0 Errors and 2 Warnings
 	SDF statistics: 
-		 No. of Pathdelays = 231445  	 No. of Disabled Pathdelays = 0        Annotated = 100.00% (231445/231445) 
-		 No. of Tchecks    = 4583    	 No. of Disabled Tchecks    = 0        Annotated = 32.56% (1492/4583) 
+		 No. of Pathdelays = 240214  	 No. of Disabled Pathdelays = 0        Annotated = 100.00% (240214/240214) 
+		 No. of Tchecks    = 4877    	 No. of Disabled Tchecks    = 0        Annotated = 32.19% (1570/4877) 
 				        Total(T) 	   Disabled(D) 	    Annotated(A)	  Percentage(A/(T-D))
-		 Path Delays	        231445	             0	            231445	                100.00
+		 Path Delays	        240214	             0	            240214	                100.00
 		       $hold	             2	             0	                 0	                  0.00
-		      $width	          3049	             0	                 0	                  0.00
+		      $width	          3241	             0	                 0	                  0.00
 		   $recovery	             2	             0	                 0	                  0.00
-		  $setuphold	          1530	             0	              1492	                 97.52
+		  $setuphold	          1632	             0	              1570	                 96.20
 	Building instance overlay tables: .................... Done
 	Generating native compiled code:
+		work.IOA21D4BWP30P140:v <0x7148a14d>
+			streams:   0, words:     0
+		work.MOAI22D4BWP30P140:v <0x7dc6f9bc>
+			streams:   0, words:     0
+		work.AO22D4BWP30P140:v <0x0ea64f94>
+			streams:   0, words:     0
+		work.AOI211OPTREPBD4BWP30P140:v <0x7f6ae2c1>
+			streams:   0, words:     0
 		work.AOI221D2BWP30P140:v <0x22280f3a>
 			streams:   0, words:     0
-		work.DFQD4BWP30P140:v <0x2715bbec>
+		work.DFQD4BWP30P140:v <0x3176e2a6>
 			streams:   0, words:     0
 		work.DFCND1BWP30P140:v <0x409868b6>
 			streams:   0, words:     0
 		work.DFD1BWP30P140:v <0x285844d3>
 			streams:   0, words:     0
-		work.AOI222D1BWP30P140:v <0x0954e3fb>
+		work.AOI22D1BWP30P140:v <0x065e05af>
+			streams:   0, words:     0
+		work.AOI222D2BWP30P140:v <0x3f76c231>
+			streams:   0, words:     0
+		work.AOI222D1BWP30P140:v <0x3790541d>
+			streams:   0, words:     0
+		work.AO211D1BWP30P140:v <0x4a358be8>
+			streams:   0, words:     0
+		work.AOI22D1P5BWP30P140:v <0x70ff2cb0>
 			streams:   0, words:     0
 		work.OAI221D2BWP30P140:v <0x2165752a>
 			streams:   0, words:     0
-		work.OAI221D1BWP30P140:v <0x0c6b4821>
+		work.OAI211D2BWP30P140:v <0x16e98d12>
 			streams:   0, words:     0
-		work.DFKCNQD2BWP30P140:v <0x36454e10>
+		work.DFKCNQD2BWP30P140:v <0x354dcc57>
 			streams:   0, words:     0
 		work.DFQD1BWP30P140:v <0x2df5d436>
+			streams:   0, words:     0
+		work.DFKSND1BWP30P140:v <0x53e7c24d>
 			streams:   0, words:     0
 		work.DFQD2BWP30P140:v <0x36d6a9c8>
 			streams:   0, words:     0
 		work.DFCNQD1BWP30P140:v <0x734a5ad9>
 			streams:   0, words:     0
-		work.IAO22D4BWP30P140:v <0x55fe49b2>
+		work.AOI22D6BWP30P140:v <0x4933a5b5>
 			streams:   0, words:     0
-		work.IOA22D1BWP30P140:v <0x18ec858d>
+		work.AOI21OPTREPBD4BWP30P140:v <0x615680fa>
+			streams:   0, words:     0
+		work.AO211D4BWP30P140:v <0x57052a0e>
+			streams:   0, words:     0
+		work.OAI22OPTPBD2BWP30P140:v <0x11542ec1>
+			streams:   0, words:     0
+		work.OAI22D1P5BWP30P140:v <0x3d9aa451>
 			streams:   0, words:     0
 		work.AOI22D0P7BWP30P140:v <0x3524ada1>
 			streams:   0, words:     0
-		work.AO22D2BWP30P140:v <0x4f4f1e89>
+		work.IOA22D2BWP30P140:v <0x4f8af860>
+			streams:   0, words:     0
+		work.AOI22D4BWP30P140:v <0x0afa9eb2>
+			streams:   0, words:     0
+		work.IAO22D4BWP30P140:v <0x55fe49b2>
+			streams:   0, words:     0
+		work.AOI211OPTREPBD2BWP30P140:v <0x5c0d8ba5>
+			streams:   0, words:     0
+		work.IOA21D1BWP30P140:v <0x2dc90db9>
+			streams:   0, words:     0
+		work.AOI222D1BWP30P140:v <0x0954e3fb>
+			streams:   0, words:     0
+		work.AOI211OPTREPBD1BWP30P140:v <0x0948c7e2>
+			streams:   0, words:     0
+		work.OAI221D1BWP30P140:v <0x0c6b4821>
 			streams:   0, words:     0
 		work.OAI211D1BWP30P140:v <0x70a92172>
 			streams:   0, words:     0
-		work.MatrixC1:v <0x602ee86c>
+		work.AOI221D1BWP30P140:v <0x0f263231>
 			streams:   0, words:     0
-		work.MatrixC0:v <0x79c8aebe>
+		work.MatrixC1:v <0x2674c8b2>
+			streams:   0, words:     0
+		work.XOR2UD0BWP30P140:v <0x131dbf7c>
+			streams:   0, words:     0
+		work.MatrixC0:v <0x31dd4f98>
 			streams:   0, words:     0
 		work.Transform:v <0x6d0f909a>
-			streams:   0, words:     0
-		work.AO211D1BWP30P140:v <0x76e694c0>
-			streams:   0, words:     0
-		work.AOI21OPTREPBD2BWP30P140:v <0x1f04ba63>
-			streams:   0, words:     0
-		work.IOA21D4BWP30P140:v <0x7148a14d>
-			streams:   0, words:     0
-		work.MAOI22D2BWP30P140:v <0x5030dc36>
 			streams:   0, words:     0
 		work.XNR3D4BWP30P140:v <0x594f5199>
 			streams:   0, words:     0
@@ -2492,179 +2558,175 @@ xmelab: *W,SDFNET: Unable to annotate to non-existent timing check (RECREM (pose
 			streams:   0, words:     0
 		work.IAO22D2BWP30P140:v <0x4374b7e6>
 			streams:   0, words:     0
-		work.FA1D0BWP30P140:v <0x7474651a>
+		work.IOA22D1BWP30P140:v <0x18ec858d>
 			streams:   0, words:     0
-		work.OA22D1BWP30P140:v <0x65d4aa72>
+		work.XOR3D4BWP30P140:v <0x5188cab0>
 			streams:   0, words:     0
-		work.MAOI22D1BWP30P140:v <0x168a045d>
+		work.XNR3D2BWP30P140:v <0x30a9f357>
 			streams:   0, words:     0
-		work.OAI21D6BWP30P140:v <0x10d6144f>
-			streams:   0, words:     0
-		work.AO21D4BWP30P140:v <0x0acb089f>
-			streams:   0, words:     0
-		work.XNR3D1BWP30P140:v <0x32ba97a0>
-			streams:   0, words:     0
-		work.MAOI222D2BWP30P140:v <0x6900ad11>
-			streams:   0, words:     0
-		work.IOA21D2BWP30P140:v <0x0a916b28>
-			streams:   0, words:     0
-		work.XOR2D4BWP30P140:v <0x0a32d9fd>
-			streams:   0, words:     0
-		work.AOI22D2BWP30P140:v <0x761db4de>
-			streams:   0, words:     0
-		work.MUX2NUD1BWP30P140:v <0x664f08d5>
+		work.OA21D2BWP30P140:v <0x05f1278a>
 			streams:   0, words:     0
 		work.MOAI22D0BWP30P140:v <0x1dd0d8ff>
 			streams:   0, words:     0
-		work.OA21D2BWP30P140:v <0x6482929d>
+		work.XNR3D1BWP30P140:v <0x32ba97a0>
 			streams:   0, words:     0
-		work.AO22D4BWP30P140:v <0x0ea64f94>
-			streams:   0, words:     0
-		work.IAO21D4BWP30P140:v <0x5c006104>
+		work.MUX2NUD1BWP30P140:v <0x664f08d5>
 			streams:   0, words:     0
 		work.XOR4D1BWP30P140:v <0x54573ce0>
 			streams:   0, words:     0
-		work.XNR4D1BWP30P140:v <0x7a085748>
+		work.OAI21OPTREPBD4BWP30P140:v <0x52ce80c4>
 			streams:   0, words:     0
-		work.XOR2OPTND2BWP30P140:v <0x1971ca81>
+		work.OA21D4BWP30P140:v <0x3b68667a>
 			streams:   0, words:     0
-		work.OAI21D1BWP30P140:v <0x1c9ef0e7>
-			streams:   0, words:     0
-		work.XNR2OPTND2BWP30P140:v <0x5f53001f>
-			streams:   0, words:     0
-		work.XOR3D1BWP30P140:v <0x01c2c7a0>
-			streams:   0, words:     0
-		work.FA1OPTCD2BWP30P140:v <0x64a8bf89>
-			streams:   0, words:     0
-		work.FA1D2BWP30P140:v <0x7285c8cd>
-			streams:   0, words:     0
-		work.XNR2D1BWP30P140:v <0x711f8d89>
-			streams:   0, words:     0
-		work.XOR2D1BWP30P140:v <0x67de0f82>
+		work.MAOI222D2BWP30P140:v <0x6900ad11>
 			streams:   0, words:     0
 		work.AOI21D4BWP30P140:v <0x6a273377>
 			streams:   0, words:     0
-		work.XNR2OPTND4BWP30P140:v <0x4b4930e6>
+		work.MOAI22D2BWP30P140:v <0x7fe15e83>
+			streams:   0, words:     0
+		work.AOI22D2BWP30P140:v <0x761db4de>
+			streams:   0, words:     0
+		work.MAOI22D2BWP30P140:v <0x45a3411f>
+			streams:   0, words:     0
+		work.XOR4D0BWP30P140:v <0x438fb849>
+			streams:   0, words:     0
+		work.XNR4D1BWP30P140:v <0x7a085748>
+			streams:   0, words:     0
+		work.AOI21OPTREPBD2BWP30P140:v <0x1f04ba63>
+			streams:   0, words:     0
+		work.XNR2OPTND2BWP30P140:v <0x5f53001f>
+			streams:   0, words:     0
+		work.OAI21D1BWP30P140:v <0x1c9ef0e7>
 			streams:   0, words:     0
 		work.XNR2UD1BWP30P140:v <0x61c32a5b>
 			streams:   0, words:     0
-		work.HA1D1BWP30P140:v <0x0d112386>
+		work.FA1D2BWP30P140:v <0x7285c8cd>
 			streams:   0, words:     0
-		work.FA1D1BWP30P140:v <0x60708e4c>
-			streams:   0, words:     0
-		work.FA1OPTCD1BWP30P140:v <0x1cc4a315>
+		work.XOR2D1BWP30P140:v <0x67de0f82>
 			streams:   0, words:     0
 		work.OAI21D0P7BWP30P140:v <0x064334f0>
 			streams:   0, words:     0
+		work.XNR2OPTND4BWP30P140:v <0x4b4930e6>
+			streams:   0, words:     0
+		work.HA1D1BWP30P140:v <0x0d112386>
+			streams:   0, words:     0
+		work.FA1OPTCD1BWP30P140:v <0x1cc4a315>
+			streams:   0, words:     0
+		work.FA1D1BWP30P140:v <0x60708e4c>
+			streams:   0, words:     0
+		work.FA1OPTCD2BWP30P140:v <0x64a8bf89>
+			streams:   0, words:     0
 		work.XOR2UD1BWP30P140:v <0x667fe57a>
 			streams:   0, words:     0
-		work.OAI21OPTREPBD2BWP30P140:v <0x162a0c7b>
-			streams:   0, words:     0
-		work.XNR2D2BWP30P140:v <0x1b634ebd>
+		work.XNR2D1BWP30P140:v <0x711f8d89>
 			streams:   0, words:     0
 		work.IAO21D0BWP30P140:v <0x29db4230>
+			streams:   0, words:     0
+		work.XNR3UD1BWP30P140:v <0x13c50e01>
+			streams:   0, words:     0
+		work.IAO21D1BWP30P140:v <0x556ca5f9>
 			streams:   0, words:     0
 		work.IOA21D0BWP30P140:v <0x0fdb69d9>
 			streams:   0, words:     0
 		work.OAI21OPTREPBD1BWP30P140:v <0x6dae7acc>
 			streams:   0, words:     0
+		work.AOI21D2BWP30P140:v <0x69a1ef69>
+			streams:   0, words:     0
 		work.Inverse:v <0x32baba8e>
+			streams:   0, words:     0
+		work.XOR2D4BWP30P140:v <0x0a32d9fd>
+			streams:   0, words:     0
+		work.MUX2ND4BWP30P140:v <0x265bf203>
+			streams:   0, words:     0
+		work.OAI21D2BWP30P140:v <0x505278d0>
+			streams:   0, words:     0
+		work.AO211D2BWP30P140:v <0x06a0ac37>
 			streams:   0, words:     0
 		work.XOR2D2BWP30P140:v <0x467255e9>
 			streams:   0, words:     0
-		work.OA211D1BWP30P140:v <0x2a07a0be>
+		work.MUX2OPTD4BWP30P140:v <0x0774b293>
 			streams:   0, words:     0
-		work.XOR4D2BWP30P140:v <0x39846317>
+		work.AO22D2BWP30P140:v <0x4f4f1e89>
+			streams:   0, words:     0
+		work.IAO21D2BWP30P140:v <0x3a233b71>
+			streams:   0, words:     0
+		work.MUX2OPTD8BWP30P140:v <0x11a04ffb>
+			streams:   0, words:     0
+		work.XOR2OPTND2BWP30P140:v <0x1efdd6e0>
+			streams:   0, words:     0
+		work.XNR2OPTND6BWP30P140:v <0x66be5161>
+			streams:   0, words:     0
+		work.MUX2NOPTD6BWP30P140:v <0x7df71657>
+			streams:   0, words:     0
+		work.AO21D2BWP30P140:v <0x3452496f>
+			streams:   0, words:     0
+		work.MUX2OPTD2BWP30P140:v <0x359e2179>
+			streams:   0, words:     0
+		work.MUX2NOPTD8BWP30P140:v <0x5d1940b1>
 			streams:   0, words:     0
 		work.MUX2ND2BWP30P140:v <0x25dd2e1d>
 			streams:   0, words:     0
-		work.MUX2NOPTD6BWP30P140:v <0x4741a071>
+		work.OA22D2BWP30P140:v <0x2b4342fb>
 			streams:   0, words:     0
-		work.CKXOR2D1BWP30P140:v <0x17da49ed>
-			streams:   0, words:     0
-		work.XOR3D2BWP30P140:v <0x3e98736e>
-			streams:   0, words:     0
-		work.XOR4D0BWP30P140:v <0x438fb849>
-			streams:   0, words:     0
-		work.HA1D2BWP30P140:v <0x20b567a2>
-			streams:   0, words:     0
-		work.XNR2OPTND8BWP30P140:v <0x05571da8>
+		work.OAI21OPTREPBD2BWP30P140:v <0x162a0c7b>
 			streams:   0, words:     0
 		work.OAI22OPTPBD1BWP30P140:v <0x32cab308>
 			streams:   0, words:     0
 		work.OAI22D2BWP30P140:v <0x41d1a54e>
 			streams:   0, words:     0
-		work.OA21D4BWP30P140:v <0x3b68667a>
-			streams:   0, words:     0
-		work.AOI21OPTREPBD1BWP30P140:v <0x6480ccd4>
-			streams:   0, words:     0
-		work.OAI21D2BWP30P140:v <0x505278d0>
-			streams:   0, words:     0
-		work.AOI31D1BWP30P140:v <0x2f18f089>
-			streams:   0, words:     0
-		work.AO21D2BWP30P140:v <0x3452496f>
-			streams:   0, words:     0
-		work.AOI21D2BWP30P140:v <0x69a1ef69>
-			streams:   0, words:     0
-		work.IAO21D1BWP30P140:v <0x556ca5f9>
-			streams:   0, words:     0
-		work.MUX2OPTD2BWP30P140:v <0x359e2179>
-			streams:   0, words:     0
-		work.XNR3UD1BWP30P140:v <0x13c50e01>
-			streams:   0, words:     0
-		work.MUX2NOPTD8BWP30P140:v <0x5d1940b1>
-			streams:   0, words:     0
-		work.OA22D2BWP30P140:v <0x2b4342fb>
-			streams:   0, words:     0
-		work.XNR2OPTND2BWP30P140:v <0x58df1c7e>
-			streams:   0, words:     0
-		work.MUX2NOPTD4BWP30P140:v <0x36c431b8>
-			streams:   0, words:     0
-		work.OAI21D4BWP30P140:v <0x53d4a4ce>
-			streams:   0, words:     0
-		work.AOI32D1BWP30P140:v <0x6e26cf93>
-			streams:   0, words:     0
-		work.OAI211D1BWP30P140:v <0x17c47f5e>
+		work.OA211D1BWP30P140:v <0x71b9e1ba>
 			streams:   0, words:     0
 		work.FA1D2BWP30P140:v <0x351c6bbe>
 			streams:   0, words:     0
-		work.XNR2UD0BWP30P140:v <0x4be14c91>
+		work.OAI31D1BWP30P140:v <0x37dc5ba9>
 			streams:   0, words:     0
-		work.AOI221D1BWP30P140:v <0x0f263231>
+		work.XNR2D4BWP30P140:v <0x79f06426>
 			streams:   0, words:     0
-		work.XNR3D2BWP30P140:v <0x30a9f357>
+		work.XNR2OPTND8BWP30P140:v <0x36da9cc3>
 			streams:   0, words:     0
-		work.AO211D2BWP30P140:v <0x5d1eed33>
+		work.MUX2NOPTD4BWP30P140:v <0x36c431b8>
+			streams:   0, words:     0
+		work.XNR2OPTND2BWP30P140:v <0x58df1c7e>
+			streams:   0, words:     0
+		work.XOR2OPTND4BWP30P140:v <0x40e126f9>
+			streams:   0, words:     0
+		work.MUX2NOPTD2BWP30P140:v <0x76615255>
+			streams:   0, words:     0
+		work.AOI211D1BWP30P140:v <0x4fcc31e3>
+			streams:   0, words:     0
+		work.OAI32D1BWP30P140:v <0x706da700>
+			streams:   0, words:     0
+		work.MAOI22D1BWP30P140:v <0x168a045d>
+			streams:   0, words:     0
+		work.AOI21OPTREPBD1BWP30P140:v <0x6480ccd4>
+			streams:   0, words:     0
+		work.IOA21D2BWP30P140:v <0x0a916b28>
+			streams:   0, words:     0
+		work.FA1OPTCD1BWP30P140:v <0x5b5d0066>
+			streams:   0, words:     0
+		work.AO211D1BWP30P140:v <0x2d58d5c4>
+			streams:   0, words:     0
+		work.XOR3D1BWP30P140:v <0x01c2c7a0>
 			streams:   0, words:     0
 		work.XOR3UD1BWP30P140:v <0x27870304>
 			streams:   0, words:     0
-		work.XNR2OPTND6BWP30P140:v <0x66be5161>
+		work.XOR3D2BWP30P140:v <0x3e98736e>
 			streams:   0, words:     0
-		work.XNR2OPTND4BWP30P140:v <0x4cc52c87>
-			streams:   0, words:     0
-		work.XOR2OPTND6BWP30P140:v <0x1a48e680>
-			streams:   0, words:     0
-		work.XOR2OPTND4BWP30P140:v <0x40e126f9>
+		work.OA22D4BWP30P140:v <0x6aaa13e6>
 			streams:   0, words:     0
 		work.MUX2OPTD6BWP30P140:v <0x6696aabd>
 			streams:   0, words:     0
 		work.XOR2D1BWP30P140:v <0x605213e3>
 			streams:   0, words:     0
-		work.XOR2OPTND2BWP30P140:v <0x1efdd6e0>
-			streams:   0, words:     0
-		work.MUX2NOPTD2BWP30P140:v <0x76615255>
+		work.MUX2D4BWP30P140:v <0x18cd6273>
 			streams:   0, words:     0
 		work.XOR2UD1BWP30P140:v <0x61f3f91b>
 			streams:   0, words:     0
-		work.XNR2UD1BWP30P140:v <0x664f363a>
-			streams:   0, words:     0
-		work.IOA21D1BWP30P140:v <0x11205b13>
+		work.OAI21D4BWP30P140:v <0x53d4a4ce>
 			streams:   0, words:     0
 		work.AO22D0BWP30P140:v <0x60b5be0c>
 			streams:   0, words:     0
-		work.MOAI22D2BWP30P140:v <0x7fe15e83>
-			streams:   0, words:     0
-		work.OAI31D1BWP30P140:v <0x37dc5ba9>
+		work.IOA21D1BWP30P140:v <0x11205b13>
 			streams:   0, words:     0
 		work.AO22D1BWP30P140:v <0x2b16ddfc>
 			streams:   0, words:     0
@@ -2672,76 +2734,70 @@ xmelab: *W,SDFNET: Unable to annotate to non-existent timing check (RECREM (pose
 			streams:   0, words:     0
 		work.AOI22D1BWP30P140:v <0x217bc933>
 			streams:   0, words:     0
-		work.OAI22D1BWP30P140:v <0x16b7d8a3>
-			streams:   0, words:     0
 		work.HA1D1BWP30P140:v <0x23031b82>
 			streams:   0, words:     0
-		work.AOI211D1BWP30P140:v <0x4fcc31e3>
+		work.AOI32D1BWP30P140:v <0x6e26cf93>
 			streams:   0, words:     0
-		work.OAI32D1BWP30P140:v <0x706da700>
-			streams:   0, words:     0
-		work.IAO21D2BWP30P140:v <0x3a233b71>
+		work.OAI22D1BWP30P140:v <0x16b7d8a3>
 			streams:   0, words:     0
 		work.MAOI222D1BWP30P140:v <0x362f420d>
 			streams:   0, words:     0
-		work.FA1OPTCD2BWP30P140:v <0x23311cfa>
-			streams:   0, words:     0
-		work.XNR2D1BWP30P140:v <0x769391e8>
-			streams:   0, words:     0
-		work.OAI21D1BWP30P140:v <0x2077a64d>
-			streams:   0, words:     0
-		work.OA21D1BWP30P140:v <0x1729db5c>
-			streams:   0, words:     0
-		work.MUX2D2BWP30P140:v <0x26542383>
-			streams:   0, words:     0
-		work.XNR2D2BWP30P140:v <0x1cef52dc>
+		work.OAI211D1BWP30P140:v <0x17c47f5e>
 			streams:   0, words:     0
 		work.AO21D1BWP30P140:v <0x47f900ae>
 			streams:   0, words:     0
+		work.FA1OPTCD2BWP30P140:v <0x23311cfa>
+			streams:   0, words:     0
+		work.XNR2UD1BWP30P140:v <0x664f363a>
+			streams:   0, words:     0
+		work.OA21D1BWP30P140:v <0x1729db5c>
+			streams:   0, words:     0
+		work.OAI31D2BWP30P140:v <0x718a7206>
+			streams:   0, words:     0
+		work.OAI21D1BWP30P140:v <0x2077a64d>
+			streams:   0, words:     0
+		work.XNR2D2BWP30P140:v <0x1cef52dc>
+			streams:   0, words:     0
 		work.AOI21D1BWP30P140:v <0x198431f4>
 			streams:   0, words:     0
-		work.XNR2D4BWP30P140:v <0x4a7de54d>
+		work.XNR2D1BWP30P140:v <0x769391e8>
 			streams:   0, words:     0
-		work.MUX2D4BWP30P140:v <0x18cd6273>
+		work.XNR2OPTND4BWP30P140:v <0x4cc52c87>
 			streams:   0, words:     0
 		work.FA1D4BWP30P140:v <0x10f6e6bc>
-			streams:   0, words:     0
-		work.XOR3D4BWP30P140:v <0x78917d97>
-			streams:   0, words:     0
-		work.FA1OPTCD1BWP30P140:v <0x5b5d0066>
 			streams:   0, words:     0
 		work.FA1D1BWP30P140:v <0x27e92d3f>
 			streams:   0, words:     0
 		work.CKLNQD1BWP30P140:v <0x1d60a4cf>
 			streams:   0, words:     0
-		work.Conv:v <0x43af4a98>
-			streams:   1, words:  1498
-		work.tb:sv <0x0f42a120>
-			streams:  75, words: 33500
+		work.Conv:v <0x40376692>
+			streams:   1, words:  2410
+		work.tb:sv <0x7c70deaf>
+			streams:  75, words: 34451
 		work.pack_param:sv <0x434c4b6e>
 			streams:   1, words:   708
-		work.pack_data:sv <0x1e636b8c>
+		work.pack_data:sv <0x756120f7>
 			streams:   5, words:  3543
 	Building instance specific data structures.
 	Loading native compiled code:     .................... Done
 	Design hierarchy summary:
 		                     Instances  Unique
-		Modules:                 21178     261
+		Modules:                 22246     291
 		Verilog packages:            5       5
-		UDPs:                     3854       4
-		Primitives:              78204       6
-		Timing outputs:          27344     132
-		Registers:                 771      36
-		Scalar wires:            29457       -
+		UDPs:                     4047       4
+		Primitives:              82193       6
+		Timing outputs:          28920     137
+		Registers:                 790      45
+		Scalar wires:            31124       -
 		Expanded wires:           1180      59
 		Vectored wires:             12       -
 		Always blocks:               2       2
 		Initial blocks:             14      14
 		Cont. assignments:           0       8
 		Pseudo assignments:         65       -
-		Timing checks:            6113    1513
-		Interconnect:            59977       2
-		Delayed tcheck signals:   1491     747
+		Timing checks:            6509    1590
+		Interconnect:            61626       1
+		Delayed tcheck signals:   1541     773
 		Compilation units:           1       1
 		Simulation timescale:      1ps
 	Writing initial simulation snapshot: work.tb:sv
@@ -2750,9 +2806,9 @@ xcelium> source /soft64/cadence/ferramentas/XCELIUM2303/tools/xcelium/files/xmsi
 xcelium> run
 === No errors - End simulation ===
 
-*** TIME 7075.000000 ***
+*** TIME 5795.000000 ***
 
-Simulation complete via $finish(1) at time 7075 NS + 0
-/sim/tarsio/FastConv_SystemVerilog/rtl/conv-mux/testbench-synth-tc.sv:187     $finish;
+Simulation complete via $finish(1) at time 5795 NS + 0
+/sim/tarsio/FastConv_SystemVerilog/rtl/conv-mux/testbench-synth-tc.sv:211     $finish;
 xcelium> exit
-TOOL:	xrun(64)	23.03-s003: Exiting on Jan 27, 2026 at 18:00:18 -03  (total: 00:00:14)
+TOOL:	xrun(64)	23.03-s003: Exiting on Jan 27, 2026 at 23:55:50 -03  (total: 00:00:08)
