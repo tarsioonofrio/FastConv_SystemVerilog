@@ -72,7 +72,7 @@ def read_file(file_path):
 
 def add_name_mult_columns(df, project_col):
     df = df.copy()
-    df["nome"] = df[project_col].astype(str).str[:4]
+    df["nome"] = df[project_col].astype(str).str.split("-").str[0]
     df["mult"] = df[project_col].map(parse_multipliers)
     df["extra"] = df[project_col].map(parse_extra)
     df.loc[df[project_col].astype(str).str.contains("naive", case=False, na=False), "nome"] = "naive"
