@@ -1,12 +1,3 @@
-MAE/RMSE for sim-032-*-normal datasets
+MAE/RMSE for sim-032-*-normal datasets (merged)
 ================================================
-data/ifn9/sim/sim-032-1-1-normal: count=900 mae=572.511469 rmse=717.602335 max_abs=2259.092595 max_rel=623.853550 mismatch_rate=1.000000
-data/ifn9/sim/sim-032-3-3-normal: count=2700 mae=1121.117926 rmse=1430.418015 max_abs=5681.597880 max_rel=3642.935450 mismatch_rate=1.000000
-data/tcn16/sim/sim-032-1-1-normal: count=900 mae=580.205698 rmse=727.107345 max_abs=2608.953124 max_rel=5480.862255 mismatch_rate=1.000000
-data/tcn16/sim/sim-032-3-3-normal: count=2700 mae=1149.194252 rmse=1459.000806 max_abs=5827.597880 max_rel=34356.105674 mismatch_rate=1.000000
-data/tcn4/sim/sim-032-1-1-normal: count=900 mae=572.494804 rmse=717.570533 max_abs=2257.092595 max_rel=583.761125 mismatch_rate=1.000000
-data/tcn4/sim/sim-032-3-3-normal: count=2700 mae=1121.470608 rmse=1430.684904 max_abs=5688.597880 max_rel=3825.530612 mismatch_rate=1.000000
-data/tcn9/sim/sim-032-1-1-normal: count=900 mae=573.055314 rmse=717.695492 max_abs=2252.092595 max_rel=2504.128911 mismatch_rate=1.000000
-data/tcn9/sim/sim-032-3-3-normal: count=2700 mae=1120.685106 rmse=1429.770105 max_abs=5659.597880 max_rel=8327.995315 mismatch_rate=1.000000
-data/wpn16/sim/sim-032-1-1-normal: count=900 mae=572.894802 rmse=717.935291 max_abs=2249.092595 max_rel=1152.592617 mismatch_rate=1.000000
-data/wpn16/sim/sim-032-3-3-normal: count=2700 mae=1121.703862 rmse=1431.143449 max_abs=5658.597880 max_rel=13013.055180 mismatch_rate=1.000000
+ALL: count=18000 mae=0.156268 rmse=0.452394 max_abs=12.369091 max_rel=133.207444 mismatch_rate=0.975389
