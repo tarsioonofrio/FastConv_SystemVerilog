@@ -22,20 +22,32 @@ def read_numbers(path):
     return values
 
 
-def compute_metrics(quantized, reference, eps=1e-9):
-    count = min(len(quantized), len(reference))
+def read_ints(path):
+    values = []
+    with path.open("r", encoding="utf-8") as handle:
+        for line in handle:
+            line = line.strip()
+            if not line:
+                continue
+            values.append(int(float(line)))
+    return values
+
+
+def compute_metrics(quantized_int, reference, quant_bits, eps=1e-9):
+    count = min(len(quantized_int), len(reference))
     if count == 0:
         return count, None, None, None, None, None
-    q = quantized[:count]
-    r = reference[:count]
-    mae = mean_absolute_error(r, q)
-    rmse = math.sqrt(mean_squared_error(r, q))
-    max_abs = max_error(r, q)
-    r_arr = np.asarray(r, dtype=float)
-    q_arr = np.asarray(q, dtype=float)
-    rel = np.abs(r_arr - q_arr) / np.maximum(np.abs(r_arr), eps)
+    scale = 2**quant_bits
+    q_int = np.asarray(quantized_int[:count], dtype=int)
+    r_arr = np.asarray(reference[:count], dtype=float)
+    q_dequant = q_int.astype(float) / scale
+    mae = mean_absolute_error(r_arr, q_dequant)
+    rmse = math.sqrt(mean_squared_error(r_arr, q_dequant))
+    max_abs = max_error(r_arr, q_dequant)
+    rel = np.abs(r_arr - q_dequant) / np.maximum(np.abs(r_arr), eps)
     max_rel = float(np.max(rel)) if rel.size else None
-    mismatches = int(np.sum(r_arr != q_arr))
+    r_quant = np.trunc(r_arr * scale).astype(int)
+    mismatches = int(np.sum(q_int != r_quant))
     mismatch_rate = (mismatches / count) if count else None
     return count, mae, rmse, max_abs, max_rel, mismatch_rate
 
@@ -53,22 +65,32 @@ def main():
         default=str(REPORT_DIR),
         help="Directory to write metrics outputs.",
     )
+    parser.add_argument(
+        "--quant-bits",
+        type=int,
+        default=8,
+        help="Quantization bits used to dequantize s.txt values.",
+    )
     args = parser.parse_args()
     report_dir = Path(args.report_dir)
     report_dir.mkdir(parents=True, exist_ok=True)
 
     rows = []
     warnings = []
+    all_quantized = []
+    all_reference = []
     for sim_dir in find_sim_dirs(REPO_ROOT):
         s_path = sim_dir / "s.txt"
         s_default_path = sim_dir / "s_default.txt"
         if not s_path.exists() or not s_default_path.exists():
             warnings.append(f"Missing inputs: {sim_dir}")
             continue
-        quantized = read_numbers(s_path)
+        quantized = read_ints(s_path)
         reference = read_numbers(s_default_path)
+        all_quantized.extend(quantized)
+        all_reference.extend(reference)
         count, mae, rmse, max_abs, max_rel, mismatch_rate = compute_metrics(
-            quantized, reference
+            quantized, reference, args.quant_bits
         )
         if count == 0 or mae is None or rmse is None:
             warnings.append(f"No samples: {sim_dir}")
@@ -92,6 +114,10 @@ def main():
     csv_path = report_dir / "metrics-sim-032-normal.csv"
     txt_path = report_dir / "metrics-sim-032-normal.txt"
 
+    total_count, total_mae, total_rmse, total_max_abs, total_max_rel, total_mismatch = (
+        compute_metrics(all_quantized, all_reference, args.quant_bits)
+    )
+
     with csv_path.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(
             handle,
@@ -106,19 +132,30 @@ def main():
             ],
         )
         writer.writeheader()
-        for row in rows:
-            writer.writerow(row)
+        writer.writerow(
+            {
+                "dataset": "ALL",
+                "count": total_count,
+                "mae": total_mae,
+                "rmse": total_rmse,
+                "max_abs": total_max_abs,
+                "max_rel": total_max_rel,
+                "mismatch_rate": total_mismatch,
+            }
+        )
 
     with txt_path.open("w", encoding="utf-8") as handle:
-        handle.write("MAE/RMSE for sim-032-*-normal datasets\n")
+        handle.write("MAE/RMSE for sim-032-*-normal datasets (merged)\n")
         handle.write("=" * 48 + "\n")
-        for row in rows:
+        if total_count and total_mae is not None:
             handle.write(
-                f"{row['dataset']}: count={row['count']} "
-                f"mae={row['mae']:.6f} rmse={row['rmse']:.6f} "
-                f"max_abs={row['max_abs']:.6f} max_rel={row['max_rel']:.6f} "
-                f"mismatch_rate={row['mismatch_rate']:.6f}\n"
+                f"ALL: count={total_count} "
+                f"mae={total_mae:.6f} rmse={total_rmse:.6f} "
+                f"max_abs={total_max_abs:.6f} max_rel={total_max_rel:.6f} "
+                f"mismatch_rate={total_mismatch:.6f}\n"
             )
+        else:
+            handle.write("ALL: no samples\n")
         if warnings:
             handle.write("\nWarnings:\n")
             for warning in warnings:
