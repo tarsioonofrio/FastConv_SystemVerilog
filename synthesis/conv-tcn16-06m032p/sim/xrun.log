@@ -1,5 +1,5 @@
 xrun(64): 23.03-s003: (c) Copyright 1995-2023 Cadence Design Systems, Inc.
-TOOL:	xrun(64)	23.03-s003: Started on Jan 27, 2026 at 18:00:04 -03
+TOOL:	xrun(64)	23.03-s003: Started on Jan 27, 2026 at 23:55:33 -03
 xrun
 	-f args.txt
 		-smartorder
@@ -2372,7 +2372,7 @@ file: ../logical/results/gate_level/conv_logic_mapped.v
 		Caching library 'work' ....... Done
   Conv dut (
          |
-xmelab: *W,CUVWSP (/sim/tarsio/FastConv_SystemVerilog/rtl/conv-mux/testbench-synth-tc.sv,29|9): 7 output ports were not connected:
+xmelab: *W,CUVWSP (/sim/tarsio/FastConv_SystemVerilog/rtl/conv-mux/testbench-synth-tc.sv,30|9): 7 output ports were not connected:
 xmelab: (../logical/results/gate_level/conv_logic_mapped.v,69543): p_output[9]
 xmelab: (../logical/results/gate_level/conv_logic_mapped.v,69543): p_output[10]
 xmelab: (../logical/results/gate_level/conv_logic_mapped.v,69543): p_output[11]
@@ -2383,7 +2383,7 @@ xmelab: (../logical/results/gate_level/conv_logic_mapped.v,69544): p_output[15]
 
   Conv dut (
          |
-xmelab: *W,CUVWSI (/sim/tarsio/FastConv_SystemVerilog/rtl/conv-mux/testbench-synth-tc.sv,29|9): 22 input ports were not connected:
+xmelab: *W,CUVWSI (/sim/tarsio/FastConv_SystemVerilog/rtl/conv-mux/testbench-synth-tc.sv,30|9): 22 input ports were not connected:
 xmelab: (../logical/results/gate_level/conv_logic_mapped.v,69529): p_input[25]
 xmelab: (../logical/results/gate_level/conv_logic_mapped.v,69529): p_input[26]
 xmelab: (../logical/results/gate_level/conv_logic_mapped.v,69529): p_input[27]
@@ -2416,6 +2416,8 @@ xmelab: (../logical/results/gate_level/conv_logic_mapped.v,69540): p_weight[35]
 		pack_mux_mult
 		tb
 	Reading SDF file from location "../logical/results/gate_level/conv_analysis_view_0p90v_25c_captyp_nominal.sdf"
+	Compiled SDF file "conv_analysis_view_0p90v_25c_captyp_nominal.sdf.X" older than source SDF file "../logical/results/gate_level/conv_analysis_view_0p90v_25c_captyp_nominal.sdf".
+	Recompiling.
 	Writing compiled SDF file to "conv_analysis_view_0p90v_25c_captyp_nominal.sdf.X".
 xmelab: *W,FLFNOF: No SDF file specified, but annotation parameters were present, in SDF annotation command file sdf_cmd.cmd, line 6.
 	Annotating SDF timing data:
@@ -2716,11 +2718,11 @@ xmelab: *W,SDFNET: Unable to annotate to non-existent timing check (RECREM (pose
 			streams:   0, words:     0
 		work.Conv:v <0x43af4a98>
 			streams:   1, words:  1498
-		work.tb:sv <0x0f42a120>
-			streams:  75, words: 33500
+		work.tb:sv <0x74754f6d>
+			streams:  75, words: 34451
 		work.pack_param:sv <0x434c4b6e>
 			streams:   1, words:   708
-		work.pack_data:sv <0x1e636b8c>
+		work.pack_data:sv <0x756120f7>
 			streams:   5, words:  3543
 	Building instance specific data structures.
 	Loading native compiled code:     .................... Done
@@ -2731,7 +2733,7 @@ xmelab: *W,SDFNET: Unable to annotate to non-existent timing check (RECREM (pose
 		UDPs:                     3854       4
 		Primitives:              78204       6
 		Timing outputs:          27344     132
-		Registers:                 771      36
+		Registers:                 779      44
 		Scalar wires:            29457       -
 		Expanded wires:           1180      59
 		Vectored wires:             12       -
@@ -2753,6 +2755,6 @@ xcelium> run
 *** TIME 7075.000000 ***
 
 Simulation complete via $finish(1) at time 7075 NS + 0
-/sim/tarsio/FastConv_SystemVerilog/rtl/conv-mux/testbench-synth-tc.sv:187     $finish;
+/sim/tarsio/FastConv_SystemVerilog/rtl/conv-mux/testbench-synth-tc.sv:211     $finish;
 xcelium> exit
-TOOL:	xrun(64)	23.03-s003: Exiting on Jan 27, 2026 at 18:00:18 -03  (total: 00:00:14)
+TOOL:	xrun(64)	23.03-s003: Exiting on Jan 27, 2026 at 23:55:42 -03  (total: 00:00:09)
