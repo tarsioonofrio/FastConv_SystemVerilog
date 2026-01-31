@@ -806,10 +806,8 @@ def write_chap7_conv_power_cycles(
     if not output_dir.exists():
         print(f"Skipping chap7 power/cycles export, missing: {output_dir}")
         return
-    df = df[["nome", "mult", "energy", "cycles", "power", "cell_area"]]
-    df = _add_distance_norm(
-        df, ["cycles", "energy", "power", "cell_area"], "nome"
-    )
+    df = df[["nome", "mult", "energy", "cycles"]]
+    df = _add_distance_norm(df, ["cycles", "energy"], "nome")
     df = df[["nome", "mult", "energy", "cycles", "distance_norm"]]
     df.to_csv(output_dir / f"{output_prefix}-energy-cycles.csv", index=False)
 
@@ -933,6 +931,185 @@ def write_chap7_conv_metric_cycles(
     df = _add_distance_norm(df, ["cycles", metric_name], "nome")
     df = df[["nome", "mult", metric_name, "cycles", "distance_norm"]]
     df.to_csv(output_dir / f"{output_prefix}-{output_suffix}.csv", index=False)
+
+
+def write_chap7_conv_distance_4d(
+    report_dir,
+    prefix="conv",
+    output_prefix=None,
+    merge_extra_into_name=False,
+    drop_names_with_k=False,
+    expand_base_rows=True,
+):
+    if output_prefix is None:
+        output_prefix = prefix
+    source = report_dir / f"{prefix}-report-merged.csv"
+    if not source.exists():
+        print(f"Skipping chap7 4d distance export, missing: {source}")
+        return
+    df = pd.read_csv(source)
+    required_cols = {
+        "nome",
+        "mult",
+        "extra",
+        "cycles",
+        "Subtotal",
+        "energy_nj",
+        "Cell Area um^2",
+    }
+    if not required_cols.issubset(df.columns):
+        print(
+            f"Skipping chap7 4d distance export, missing columns: {required_cols - set(df.columns)}"
+        )
+        return
+    if not merge_extra_into_name:
+        df = df[df["extra"].isna() | (df["extra"].astype(str).str.strip() == "")]
+    df = df[
+        ["nome", "mult", "extra", "cycles", "Subtotal", "energy_nj", "Cell Area um^2"]
+    ].dropna(subset=["nome"])
+    df["extra"] = df["extra"].fillna("").astype(str).str.strip()
+    if merge_extra_into_name:
+        df["nome"] = df["nome"] + df["extra"].map(lambda v: f"-{v}" if v else "")
+    if drop_names_with_k:
+        df = df[~df["nome"].astype(str).str.contains("k", case=False, na=False)]
+    df["mult"] = pd.to_numeric(df["mult"], errors="coerce")
+    base_rows = df[df["mult"].isna()][
+        ["nome", "cycles", "Subtotal", "energy_nj", "Cell Area um^2"]
+    ].copy()
+    df = df[df["mult"].notna()].copy()
+    if expand_base_rows and not base_rows.empty and not df.empty:
+        mult_values = sorted(df["mult"].dropna().unique())
+        expanded = pd.DataFrame(
+            [
+                {
+                    "nome": row["nome"],
+                    "mult": mult,
+                    "cycles": row["cycles"],
+                    "Subtotal": row["Subtotal"],
+                    "energy_nj": row["energy_nj"],
+                    "Cell Area um^2": row["Cell Area um^2"],
+                }
+                for row in base_rows.to_dict("records")
+                for mult in mult_values
+            ]
+        )
+        df = pd.concat([df, expanded], ignore_index=True)
+    elif not expand_base_rows and not base_rows.empty:
+        df = pd.concat([df, base_rows], ignore_index=True)
+
+    def merge_metric(series):
+        values = pd.to_numeric(series, errors="coerce").dropna().unique()
+        if len(values) == 0:
+            return None
+        if len(values) == 1:
+            return values[0]
+        return None
+
+    df["mult"] = df["mult"].round().astype("Int64")
+    df = df.groupby(["mult", "nome"], dropna=False).agg(
+        cycles=("cycles", merge_metric),
+        power=("Subtotal", merge_metric),
+        energy=("energy_nj", merge_metric),
+        cell_area=("Cell Area um^2", merge_metric),
+    )
+    df = df.reset_index()
+    output_dir = REPO_ROOT / ".." / "dissertation-doc" / "data" / "chap7"
+    output_dir = output_dir.resolve()
+    if not output_dir.exists():
+        print(f"Skipping chap7 4d distance export, missing: {output_dir}")
+        return
+    df = df[["nome", "mult", "cycles", "cell_area", "power", "energy"]]
+    df = _add_distance_norm(df, ["cycles", "cell_area", "power", "energy"], "nome")
+    df = df[["nome", "mult", "cycles", "cell_area", "power", "energy", "distance_norm"]]
+    df.to_csv(output_dir / f"{output_prefix}-4d-distance.csv", index=False)
+
+
+def write_chap7_conv_distance_3d(
+    report_dir,
+    prefix="conv",
+    output_prefix=None,
+    merge_extra_into_name=False,
+    drop_names_with_k=False,
+    expand_base_rows=True,
+):
+    if output_prefix is None:
+        output_prefix = prefix
+    source = report_dir / f"{prefix}-report-merged.csv"
+    if not source.exists():
+        print(f"Skipping chap7 3d distance export, missing: {source}")
+        return
+    df = pd.read_csv(source)
+    required_cols = {
+        "nome",
+        "mult",
+        "extra",
+        "cycles",
+        "Subtotal",
+        "Cell Area um^2",
+    }
+    if not required_cols.issubset(df.columns):
+        print(
+            f"Skipping chap7 3d distance export, missing columns: {required_cols - set(df.columns)}"
+        )
+        return
+    if not merge_extra_into_name:
+        df = df[df["extra"].isna() | (df["extra"].astype(str).str.strip() == "")]
+    df = df[
+        ["nome", "mult", "extra", "cycles", "Subtotal", "Cell Area um^2"]
+    ].dropna(subset=["nome"])
+    df["extra"] = df["extra"].fillna("").astype(str).str.strip()
+    if merge_extra_into_name:
+        df["nome"] = df["nome"] + df["extra"].map(lambda v: f"-{v}" if v else "")
+    if drop_names_with_k:
+        df = df[~df["nome"].astype(str).str.contains("k", case=False, na=False)]
+    df["mult"] = pd.to_numeric(df["mult"], errors="coerce")
+    base_rows = df[df["mult"].isna()][
+        ["nome", "cycles", "Subtotal", "Cell Area um^2"]
+    ].copy()
+    df = df[df["mult"].notna()].copy()
+    if expand_base_rows and not base_rows.empty and not df.empty:
+        mult_values = sorted(df["mult"].dropna().unique())
+        expanded = pd.DataFrame(
+            [
+                {
+                    "nome": row["nome"],
+                    "mult": mult,
+                    "cycles": row["cycles"],
+                    "Subtotal": row["Subtotal"],
+                    "Cell Area um^2": row["Cell Area um^2"],
+                }
+                for row in base_rows.to_dict("records")
+                for mult in mult_values
+            ]
+        )
+        df = pd.concat([df, expanded], ignore_index=True)
+    elif not expand_base_rows and not base_rows.empty:
+        df = pd.concat([df, base_rows], ignore_index=True)
+
+    def merge_metric(series):
+        values = pd.to_numeric(series, errors="coerce").dropna().unique()
+        if len(values) == 0:
+            return None
+        if len(values) == 1:
+            return values[0]
+        return None
+
+    df["mult"] = df["mult"].round().astype("Int64")
+    df = df.groupby(["mult", "nome"], dropna=False).agg(
+        cycles=("cycles", merge_metric),
+        power=("Subtotal", merge_metric),
+        cell_area=("Cell Area um^2", merge_metric),
+    )
+    df = df.reset_index()
+    output_dir = REPO_ROOT / ".." / "dissertation-doc" / "data" / "chap7"
+    output_dir = output_dir.resolve()
+    if not output_dir.exists():
+        print(f"Skipping chap7 3d distance export, missing: {output_dir}")
+        return
+    df = df[["nome", "mult", "cycles", "cell_area", "power"]]
+    df = _add_distance_norm(df, ["cycles", "cell_area", "power"], "nome")
+    df = df[["nome", "mult", "cycles", "cell_area", "power", "distance_norm"]]
+    df.to_csv(output_dir / f"{output_prefix}-3d-distance.csv", index=False)
 
 
 def write_chap7_conv_power_reg_logic(
@@ -1144,6 +1321,18 @@ def main():
         drop_names_with_k=True,
         expand_base_rows=False,
     )
+    write_chap7_conv_distance_4d(
+        report_dir,
+        prefix="conv",
+        drop_names_with_k=True,
+        expand_base_rows=False,
+    )
+    write_chap7_conv_distance_3d(
+        report_dir,
+        prefix="conv",
+        drop_names_with_k=True,
+        expand_base_rows=False,
+    )
     write_chap7_conv_metric_cycles(
         report_dir,
         metric_col="Cell Area um^2",
@@ -1188,6 +1377,20 @@ def main():
         report_dir, prefix="sys", merge_extra_into_name=True
     )
     write_chap7_conv_power_cycles(
+        report_dir,
+        prefix="sys",
+        merge_extra_into_name=True,
+        drop_names_with_k=False,
+        expand_base_rows=False,
+    )
+    write_chap7_conv_distance_4d(
+        report_dir,
+        prefix="sys",
+        merge_extra_into_name=True,
+        drop_names_with_k=False,
+        expand_base_rows=False,
+    )
+    write_chap7_conv_distance_3d(
         report_dir,
         prefix="sys",
         merge_extra_into_name=True,
