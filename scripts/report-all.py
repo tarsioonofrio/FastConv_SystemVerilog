@@ -11,6 +11,7 @@ SYS_NAIVE_SIDE = 32
 SYS_NAIVE_DIR = (
     REPO_ROOT / ".." / "acc_dse_env" / "synthesis" / "convolution"
 ).resolve()
+CHAPTER7_DIR = (REPO_ROOT / ".." / "dissertation-doc" / "data" / "chap7").resolve()
 
 
 def strip_project_prefix(name):
@@ -1304,6 +1305,121 @@ def write_chap7_conv_tc9(report_dir, prefix="conv"):
     df.to_csv(output_dir / f"{prefix}-tc9.csv", index=False)
 
 
+def write_ratio_tables(report_dir):
+    report_dir = Path(report_dir).resolve()
+    if not CHAPTER7_DIR.exists():
+        print(f"Skipping ratio export, missing: {CHAPTER7_DIR}")
+        return
+    for label in ("conv", "sys"):
+        df = pd.read_csv(report_dir / f"{label}-report-merged.csv")
+        required = {"cycles", "Cell Area um^2", "Subtotal", "energy_nj"}
+        missing = required - set(df.columns)
+        if missing:
+            print(f"Skipping {label} ratio export, missing {missing}")
+            continue
+        naive_rows = df[df["nome"].astype(str).str.lower() == "naive"]
+        if naive_rows.empty:
+            print(f"Skipping {label} ratio export, naive row missing")
+            continue
+        naive = naive_rows.iloc[0]
+        naive_cycles = float(naive["cycles"])
+        naive_area = float(naive["Cell Area um^2"])
+        naive_power = float(naive["Subtotal"])
+        naive_energy = float(naive["energy_nj"])
+        out = df.copy()
+        out["cycles"] = pd.to_numeric(out["cycles"], errors="coerce")
+        out["Cell Area um^2"] = pd.to_numeric(out["Cell Area um^2"], errors="coerce")
+        out["Subtotal"] = pd.to_numeric(out["Subtotal"], errors="coerce")
+        out["energy_nj"] = pd.to_numeric(out["energy_nj"], errors="coerce")
+        out["slowdown_cycles"] = round(
+            100 * (1 - (out["cycles"] / naive_cycles)), 2
+        )
+        out["ratio_cell_area"] = round(
+            100 * (1 - (out["Cell Area um^2"] / naive_area)), 2
+        )
+        out["ratio_power"] = round(
+            100 * (1 - (out["Subtotal"] / naive_power)), 2
+        )
+        out["ratio_energy"] = round(
+            100 * (1 - (out["energy_nj"] / naive_energy)), 2
+        )
+        cols = [
+            "Project",
+            "nome",
+            "extra",
+            "mult",
+            "cycles",
+            "Cell Area um^2",
+            "Subtotal",
+            "energy_nj",
+            "slowdown_cycles",
+            "ratio_cell_area",
+            "ratio_power",
+            "ratio_energy",
+        ]
+        out = out[cols].copy()
+        out.sort_values(by=["nome", "mult", "extra"], inplace=True)
+        out.to_csv(CHAPTER7_DIR / f"{label}-ratio-naive.csv", index=False)
+
+
+def write_naive_energy_tables(report_dir, baselines):
+    report_dir = Path(report_dir).resolve()
+    if not CHAPTER7_DIR.exists():
+        print(f"Skipping naive energy export, missing: {CHAPTER7_DIR}")
+        return
+    df = pd.read_csv(report_dir / "sys-report-merged.csv")
+    for baseline in baselines:
+        candidate = df[
+            (df.get("Project", "").astype(str).str.lower() == baseline.lower())
+            | (df["nome"].astype(str).str.lower() == baseline.lower())
+        ]
+        if candidate.empty:
+            print(f"Skipping baseline {baseline}, not found")
+            continue
+        row = candidate.iloc[0]
+        base_cycles = float(row["cycles"])
+        base_energy = float(row["energy_nj"])
+        metrics = []
+        for _, entry in df.iterrows():
+            cycles = pd.to_numeric(entry["cycles"], errors="coerce")
+            energy = pd.to_numeric(entry["energy_nj"], errors="coerce")
+            if pd.isna(cycles) or pd.isna(energy) or energy == 0:
+                continue
+            equivalent = (base_cycles / cycles) * base_energy
+            delta = (equivalent - energy) / energy * 100
+            metrics.append(
+                {
+                    "Project": entry.get("Project", ""),
+                    "nome": entry["nome"],
+                    "mult": entry.get("mult"),
+                    "side": entry.get("side"),
+                    "cycles": cycles,
+                    "energy": energy,
+                    "energy_baseline_eq": equivalent,
+                    "energy_increase_pct": delta,
+                }
+            )
+        if not metrics:
+            continue
+        out_df = pd.DataFrame(metrics)
+        csv_path = CHAPTER7_DIR / f"sys-{baseline.lower()}-equivalent-energy.csv"
+        txt_path = CHAPTER7_DIR / f"sys-{baseline.lower()}-equivalent-energy.txt"
+        out_df.to_csv(csv_path, index=False)
+        with txt_path.open("w", encoding="utf-8") as handle:
+            handle.write(
+                f"baseline={baseline} cycles={base_cycles:.0f} energy={base_energy:.6f} nJ\n\n"
+            )
+            for row in metrics:
+                handle.write(
+                    f"{row['Project']}: cycles={row['cycles']:.0f} "
+                    f"energy={row['energy']:.6f} nJ | "
+                    f"energy_baseline_eq={row['energy_baseline_eq']:.6f} nJ "
+                    f"delta={row['energy_increase_pct']:.2f}%\n"
+                )
+        print(f"Wrote {csv_path}")
+        print(f"Wrote {txt_path}")
+
+
 def main():
     report_dir = Path(__file__).resolve().parent.parent / "report"
     for prefix in ("sys-", "conv-"):
@@ -1434,6 +1550,8 @@ def main():
         drop_names_with_k=False,
         expand_base_rows=False,
     )
+    write_ratio_tables(report_dir)
+    write_naive_energy_tables(report_dir, ["naive", "TCn9-05m032p-bus"])
 
 
 if __name__ == "__main__":
