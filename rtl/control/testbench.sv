@@ -70,11 +70,11 @@ module tb;
 
     .p_start(w_start),
     .p_end(w_end),
-    
+
     .p_conv_start(w_conv_start),
     .p_conv_idle(w_conv_idle),
     .p_conv_end(w_conv_end),
-    
+
     .p_conv_input(w_conv_input),
     .p_conv_weight(w_conv_weight),
     .p_conv_output(w_conv_output),
