@@ -16,30 +16,39 @@ module System
   // parameter int FEAT_OUTPUT_SIZE = 60,
   // parameter int LAST_WINDOW      = 0
 ) (
-  input  logic clk,
-  input  logic reset,
-  input  logic p_start,
-  output logic p_end,
+  // Global clock/reset domain
+  input  logic clk,                              // System clock driving all sequential logic
+  input  logic reset,                            // Asynchronous-active-high reset
 
-  output logic p_read_en,
-  output logic[NADDR-1:0] p_read_addr,
-  input  logic_vector p_read_data,
-  input  logic p_read_valid,
+  // Top-level sequencing interface
+  input  logic p_start,                          // Top-level start pulse for the entire control flow
+  output logic p_end,                            // Asserted once every pipeline completes all work
 
-  output logic p_write_en,
-  output logic[NADDR-1:0] p_write_addr,
-  output logic_vector p_write_data
+  // Input RAM interface
+  output logic p_input_en,                       // Enables a read operation on the input RAM
+  output logic[NADDR-1:0] p_input_addr,          // Address issued to the input RAM
+  input  logic_vector p_input_data,              // Data returned from the input RAM
+  input  logic p_input_valid,                    // Read-valid flag from the input RAM
+
+  // Output RAM interface
+  output logic p_output_en,                      // Enables access to the output RAM port
+  output logic p_output_wr,                      // Write strobe for the output RAM port
+  output logic[NADDR-1:0] p_output_addr,         // Address issued to the output RAM
+  output logic_vector p_output_data_write,       // Data driven into the output RAM on writes
+  input  logic_vector p_output_data_read,        // Data captured from the output RAM on reads
+  input  logic p_output_valid                    // Read-valid flag from the output RAM
 );
 
   timeunit 1ns;
   timeprecision 1ps;
 
   logic w_conv_start;
+  logic w_conv_idle;
   logic w_conv_end;
 
-  type_input w_input;
-  type_weight w_weight;
-  type_output w_output;
+  type_input w_conv_input;
+  type_weight w_conv_weight;
+  type_output w_conv_output;
 
   // logic w_read_en;
   // logic w_read_wr;
@@ -59,34 +68,40 @@ module System
     .NADDR(NADDR),
     .NBITS(NBITS),
     .LATENCY(LATENCY),
-    .ROM(ROM),
-    .QUANT(QUANT),
-    .FEAT_INPUT_SIZE(FEAT_INPUT_SIZE),
-    .FEAT_OUTPUT_SIZE(FEAT_OUTPUT_SIZE),
-    .N_WINDOW(N_WINDOW),
-    .N_CHANNEL_IN(N_CHANNEL_IN),
-    .N_CHANNEL_OUT(N_CHANNEL_OUT),
-    .LAST_WINDOW(LAST_WINDOW)
+    .ROM(ROM)
+    // .QUANT(QUANT)
+    // .FEAT_INPUT_SIZE(FEAT_INPUT_SIZE),
+    // .FEAT_OUTPUT_SIZE(FEAT_OUTPUT_SIZE),
+    // .N_WINDOW(N_WINDOW),
+    // .N_CHANNEL_IN(N_CHANNEL_IN),
+    // .N_CHANNEL_OUT(N_CHANNEL_OUT),
+    // .LAST_WINDOW(LAST_WINDOW)
   ) control (
     .clk(clk),
     .reset(reset),
 
     .p_start(p_start),
     .p_end(p_end),
+
     .p_conv_start(w_conv_start),
+    .p_conv_idle(w_conv_idle),
     .p_conv_end(w_conv_end),
-    .p_input(w_input),
-    .p_weight(w_weight),
-    .p_output(w_output),
 
-    .p_read_en(p_read_en),
-    .p_read_addr(p_read_addr),
-    .p_read_valid(p_read_valid),
-    .p_read_data(p_read_data),
+    .p_conv_input(w_conv_input),
+    .p_conv_weight(w_conv_weight),
+    .p_conv_output(w_conv_output),
 
-    .p_write_en(p_write_en),
-    .p_write_addr(p_write_addr),
-    .p_write_data(p_write_data)
+    .p_input_en(p_input_en),
+    .p_input_addr(p_input_addr),
+    .p_input_valid(p_input_valid),
+    .p_input_data(p_input_data),
+
+    .p_output_en(p_output_en),
+    .p_output_wr(p_output_wr),
+    .p_output_addr(p_output_addr),
+    .p_output_data_read(p_output_data_read),
+    .p_output_data_write(p_output_data_write),
+    .p_output_valid(p_output_valid)
   );
 
   Conv #(
@@ -97,10 +112,11 @@ module System
     .reset(reset),
 
     .p_start(w_conv_start),
+    .p_idle(w_conv_idle),
     .p_end(w_conv_end),
-    .p_input(w_input),
-    .p_weight(w_weight),
-    .p_output(w_output)
+    .p_input(w_conv_input),
+    .p_weight(w_conv_weight),
+    .p_output(w_conv_output)
   );
 
 endmodule

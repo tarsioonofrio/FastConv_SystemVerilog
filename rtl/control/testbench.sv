@@ -37,10 +37,19 @@ module tb;
 
 
   int count_fout = 0;
+  int cycle_count = 0;
 
   // Clock generation (10ns period)
   initial clk = 0;
   always #0.5 clk = ~clk;
+
+  // Cycle counter for overall run length after reset deasserts.
+  always_ff @(posedge clk or posedge reset) begin: CYCLE_COUNT_BLOCK
+    if (reset)
+      cycle_count <= 0;
+    else
+      cycle_count <= cycle_count + 1;
+  end
 
   // DUT instantiation
   Control #(
@@ -61,11 +70,11 @@ module tb;
 
     .p_start(w_start),
     .p_end(w_end),
-    
+
     .p_conv_start(w_conv_start),
     .p_conv_idle(w_conv_idle),
     .p_conv_end(w_conv_end),
-    
+
     .p_conv_input(w_conv_input),
     .p_conv_weight(w_conv_weight),
     .p_conv_output(w_conv_output),
@@ -158,6 +167,8 @@ module tb;
     end
 
     wait(w_end);
+    $display("\n*** TIME %0f ***\n", $realtime);
+    $display("\n*** TOTAL CYCLES %0d ***\n", cycle_count);
     $display("=== No errors - End simulation ===");
     $finish;
   end

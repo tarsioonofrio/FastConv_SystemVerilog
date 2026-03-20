@@ -3,7 +3,6 @@ transcript
 vsim*
 work
 xcelium*
-xrun.log
 xrun.history
 *.cache
 *.vcd
@@ -29,8 +28,6 @@ modelsim.ini
 *.X
 *.dsn
 *.trn
-genus.cmd*
-genus.log*
 
 *.vstf
 *.png
@@ -43,4 +40,7 @@ genus.log*
 xrun.key
 
 README.md-*.svg
-*.log
+sdf_log.log
+.zed/
+__pycache__/
+logs/

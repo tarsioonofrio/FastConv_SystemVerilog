@@ -11,7 +11,7 @@ for SVDIR in ../fast-convolution-rtl/test/*/sv/; do
     if [[ "$SVDIR" == *"2d-"* ]]; then
         MAT="./rtl/mult-matrices/$VAR/"
         mkdir -p "$MAT"
-        cp "$SVDIR"/mult_matrices.sv "$MAT"
+        cp "$SVDIR"/mult_matrices*.sv "$MAT"
     fi
 
     # Copy param

@@ -14,7 +14,7 @@ package pack_def;
     `define NBITS 20
   `endif
   `ifndef LATENCY
-    `define LATENCY 2
+    `define LATENCY 1
   `endif
   `ifndef ROM
     `define ROM 1
