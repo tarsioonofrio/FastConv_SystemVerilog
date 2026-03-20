@@ -62,6 +62,9 @@ module Control
   state_input_type current_st_input, next_st_input;
   state_output_type current_st_output, next_st_output;
 
+  // Avoid zero-width vectors when the channel count is 1.
+  localparam int CH_OUT_W = (N_CHANNEL_OUT > 1) ? $clog2(N_CHANNEL_OUT) : 1;
+
   // Weight read counter
   logic [$clog2(M1_SIZE*M2_SIZE)-1:0] r_count_wh;
   // Input feature read counter
@@ -69,9 +72,9 @@ module Control
   // Output feature write counter
   logic [$clog2(A1_SIZE*A2_SIZE)-1:0] r_count_fout;
   // Output feature write counter
-  logic [$floor($clog2(N_CHANNEL_OUT) + 0.5)-1:0] r_count_ch_out;
+  logic [CH_OUT_W-1:0] r_count_ch_out;
   // Bias read counter; bias depth is one so it is unused for now
-  logic [$floor($clog2(N_CHANNEL_OUT) + 0.5)-1:0] r_addr_bias;
+  logic [CH_OUT_W-1:0] r_addr_bias;
   // Temporary substitute for r_addr_bias
   // logic [2:0] r_addr_bias;
   // Base address register for weight blocks
