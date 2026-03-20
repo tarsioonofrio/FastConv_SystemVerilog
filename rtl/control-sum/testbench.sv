@@ -34,16 +34,30 @@ module tb;
   logic[NADDR-1:0] w_output_addr;
   logic_vector w_output_data_read;
   logic_vector w_output_data_write;
+  logic[NADDR-1:0] w_output_addr_forced;
 
   logic debug;
 
   time exec_time;
 
   int count_fout = 0;
+  int i = 0;
+  int j = 0;
+  int cycle_count = 0;
+  localparam int OUTPUT_TILES_PER_AXIS = (FEAT_OUTPUT_SIZE + A1_SIZE - 1) / A1_SIZE;
+  localparam int OUTPUT_CHANNEL_STRIDE = FEAT_OUTPUT_SIZE * A1_SIZE * OUTPUT_TILES_PER_AXIS;
 
   // Clock generation (10ns period)
   initial clk = 0;
-  always #0.5 clk = ~clk;
+  always #5 clk = ~clk;
+
+  // Cycle counter for overall run length after reset deasserts.
+  always_ff @(posedge clk or posedge reset) begin: CYCLE_COUNT_BLOCK
+    if (reset)
+      cycle_count <= 0;
+    else
+      cycle_count <= cycle_count + 1;
+  end
 
   // DUT instantiation
   Control #(
@@ -140,7 +154,6 @@ module tb;
     $dumpvars(0, tb);
 
     debug = 0;
-
     reset = 1;
     w_start = 0;
     @(posedge clk);
@@ -170,31 +183,52 @@ module tb;
 
 
     wait(w_end);
-    exec_time = $realtime;
+    // Allow the output FSM and memory write latency to drain before readback.
+    repeat (LATENCY + 4) @(posedge clk);
+    // exec_time = $realtime;
+    $display("\n*** TIME %0f ***\n", $realtime);
+    $display("\n*** TOTAL CYCLES %0d ***\n", cycle_count);
 
     // debug = 1;
 
-    w_input_en = 0;
-    w_output_en = 1;
+    // Override DUT outputs while reading back memory contents.
+    force w_input_en = 1'b0;
+    force w_output_en = 1'b1;
+    force w_output_wr = 1'b0;
     @(posedge clk);
-    for (int i = 0; i < FEAT_OUTPUT_SIZE; i++) begin
-      for (int j = 0; j < FEAT_OUTPUT_SIZE; j++) begin
-        w_output_addr = i * FEAT_OUTPUT_SIZE + j;
+    for (i = 0; i < FEAT_OUTPUT_SIZE * N_CHANNEL_OUT; i++) begin
+      for (j = 0; j < FEAT_OUTPUT_SIZE; j++) begin
+        int output_channel;
+        int row_in_channel;
+        logic_vector expected_out;
+        output_channel = i / FEAT_OUTPUT_SIZE;
+        row_in_channel = i % FEAT_OUTPUT_SIZE;
+        w_output_addr_forced = output_channel * OUTPUT_CHANNEL_STRIDE + row_in_channel * FEAT_OUTPUT_SIZE + j;
+        force w_output_addr = w_output_addr_forced;
         @(posedge clk);
         wait(w_output_valid);
-        if ($signed(const_feat_out[i][j]) != $signed(w_output_data_read)) begin
-          $display("Time %0f | const_feat_out[%0d][%0d] = %0d | Output = %0d", $realtime, i, j, const_feat_out[i][j], w_output_data_read);
+        expected_out = logic_vector'(const_feat_out[i][j]);
+        if ($signed(expected_out) != $signed(w_output_data_read)) begin
+          $display("Time %0f | const_feat_out[%0d][%0d] = %0d | Output = %0d", $realtime, i, j, expected_out, w_output_data_read);
           $display("=== ERROR - End simulation ====");
         end
       end
     end
+    release w_output_addr;
+    release w_output_en;
+    release w_output_wr;
+    release w_input_en;
 
     $display("=== No errors - End simulation ===");
-    $display("Total Time %0f", $realtime);
-    $display("Execution time after wait(end) %0f", exec_time);
+
+    $display("\n*** TIME %0f ***\n", $realtime);
+    $display("\n*** TOTAL CYCLES %0d ***\n", cycle_count);
+
+    // $display("Execution time after wait(end) %0f", exec_time);
 
     #20ns
 
     $finish;
   end
+
 endmodule

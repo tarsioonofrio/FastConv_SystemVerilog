@@ -1,0 +1,53 @@
+\documentclass{article}%
+\usepackage[T1]{fontenc}%
+\usepackage[utf8]{inputenc}%
+\usepackage{lmodern}%
+\usepackage{textcomp}%
+\usepackage{lastpage}%
+\usepackage{amsmath}%
+%
+\usepackage[landscape]{geometry}%
+\title{Symbolic 1D Convolution}%
+\author{Fast{-}Convolution Python Library}%
+\date{\today}%
+%
+\begin{document}%
+\normalsize%
+\maketitle%
+\[%
+s = a^t \{[q \odot (bg)] \odot (c^t d)\}%
+\]%
+\[%
+d = \left[\begin{matrix}d_{0}\\d_{1}\\d_{2}\\d_{3}\\d_{4}\\d_{5}\end{matrix}\right]%
+\]%
+\[%
+g = \left[\begin{matrix}g_{0}\\g_{1}\\g_{2}\end{matrix}\right]%
+\]%
+\[%
+\left[\begin{matrix}s_{0}\\s_{1}\\s_{2}\\s_{3}\end{matrix}\right] = \left[\begin{matrix}1 & 1 & 1 & 1 & 1 & 0\\0 & 1 & -1 & 2 & -2 & 0\\0 & 1 & 1 & 4 & 4 & 0\\0 & 1 & -1 & 8 & -8 & 1\end{matrix}\right] \left\{ \left[ \left[\begin{matrix}\frac{1}{4}\\- \frac{1}{6}\\- \frac{1}{6}\\\frac{1}{24}\\\frac{1}{24}\\1\end{matrix}\right] \odot \left( \left[\begin{matrix}1 & 0 & 0\\1 & 1 & 1\\1 & -1 & 1\\1 & 2 & 4\\1 & -2 & 4\\0 & 0 & 1\end{matrix}\right] \left[\begin{matrix}g_{0}\\g_{1}\\g_{2}\end{matrix}\right] \right) \right] \odot \left( \left[\begin{matrix}4 & 0 & -5 & 0 & 1 & 0\\0 & -4 & -4 & 1 & 1 & 0\\0 & 4 & -4 & -1 & 1 & 0\\0 & -2 & -1 & 2 & 1 & 0\\0 & 2 & -1 & -2 & 1 & 0\\0 & 4 & 0 & -5 & 0 & 1\end{matrix}\right] \left[\begin{matrix}d_{0}\\d_{1}\\d_{2}\\d_{3}\\d_{4}\\d_{5}\end{matrix}\right] \right) \right\}%
+\]%
+\[%
+\left[\begin{matrix}G_{0}\\G_{1}\\G_{2}\\G_{3}\\G_{4}\\G_{5}\end{matrix}\right] = \left[\begin{matrix}\frac{g_{0}}{4}\\- \frac{g_{0}}{6} - \frac{g_{1}}{6} - \frac{g_{2}}{6}\\- \frac{g_{0}}{6} + \frac{g_{1}}{6} - \frac{g_{2}}{6}\\\frac{g_{0}}{24} + \frac{g_{1}}{12} + \frac{g_{2}}{6}\\\frac{g_{0}}{24} - \frac{g_{1}}{12} + \frac{g_{2}}{6}\\g_{2}\end{matrix}\right] = \left[\begin{matrix}\frac{1}{4}\\- \frac{1}{6}\\- \frac{1}{6}\\\frac{1}{24}\\\frac{1}{24}\\1\end{matrix}\right] \odot \left[\begin{matrix}g_{0}\\g_{0} + g_{1} + g_{2}\\g_{0} - g_{1} + g_{2}\\g_{0} + 2 g_{1} + 4 g_{2}\\g_{0} - 2 g_{1} + 4 g_{2}\\g_{2}\end{matrix}\right] = \left[\begin{matrix}\frac{1}{4}\\- \frac{1}{6}\\- \frac{1}{6}\\\frac{1}{24}\\\frac{1}{24}\\1\end{matrix}\right] \odot \left( \left[\begin{matrix}1 & 0 & 0\\1 & 1 & 1\\1 & -1 & 1\\1 & 2 & 4\\1 & -2 & 4\\0 & 0 & 1\end{matrix}\right] \left[\begin{matrix}g_{0}\\g_{1}\\g_{2}\end{matrix}\right] \right)%
+\]%
+\[%
+\left[\begin{matrix}D_{0}\\D_{1}\\D_{2}\\D_{3}\\D_{4}\\D_{5}\end{matrix}\right] = \left[\begin{matrix}4 d_{0} - 5 d_{2} + d_{4}\\- 4 d_{1} - 4 d_{2} + d_{3} + d_{4}\\4 d_{1} - 4 d_{2} - d_{3} + d_{4}\\- 2 d_{1} - d_{2} + 2 d_{3} + d_{4}\\2 d_{1} - d_{2} - 2 d_{3} + d_{4}\\4 d_{1} - 5 d_{3} + d_{5}\end{matrix}\right] = \left[\begin{matrix}4 & 0 & -5 & 0 & 1 & 0\\0 & -4 & -4 & 1 & 1 & 0\\0 & 4 & -4 & -1 & 1 & 0\\0 & -2 & -1 & 2 & 1 & 0\\0 & 2 & -1 & -2 & 1 & 0\\0 & 4 & 0 & -5 & 0 & 1\end{matrix}\right] \left[\begin{matrix}d_{0}\\d_{1}\\d_{2}\\d_{3}\\d_{4}\\d_{5}\end{matrix}\right]%
+\]%
+\[%
+S = G \odot D%
+\]%
+\[%
+\left[\begin{matrix}S_{0}\\S_{1}\\S_{2}\\S_{3}\\S_{4}\\S_{5}\end{matrix}\right] = \left[\begin{matrix}G_{0}\\G_{1}\\G_{2}\\G_{3}\\G_{4}\\G_{5}\end{matrix}\right] \odot \left[\begin{matrix}D_{0}\\D_{1}\\D_{2}\\D_{3}\\D_{4}\\D_{5}\end{matrix}\right]%
+\]%
+\[%
+\left[\begin{matrix}s_{0}\\s_{1}\\s_{2}\\s_{3}\end{matrix}\right] = \left[\begin{matrix}S_{0} + S_{1} + S_{2} + S_{3} + S_{4}\\S_{1} - S_{2} + 2 S_{3} - 2 S_{4}\\S_{1} + S_{2} + 4 S_{3} + 4 S_{4}\\S_{1} - S_{2} + 8 S_{3} - 8 S_{4} + S_{5}\end{matrix}\right] = \left[\begin{matrix}1 & 1 & 1 & 1 & 1 & 0\\0 & 1 & -1 & 2 & -2 & 0\\0 & 1 & 1 & 4 & 4 & 0\\0 & 1 & -1 & 8 & -8 & 1\end{matrix}\right] \left[\begin{matrix}S_{0}\\S_{1}\\S_{2}\\S_{3}\\S_{4}\\S_{5}\end{matrix}\right]%
+\]%
+\[%
+a^{t} = \left[\begin{matrix}2^{0} & 2^{0} & 2^{0} & 2^{0} & 2^{0} & 0\\0 & 2^{0} & - 2^{0} & 2^{1} & - 2^{1} & 0\\0 & 2^{0} & 2^{0} & 2^{2} & 2^{2} & 0\\0 & 2^{0} & - 2^{0} & 2^{3} & - 2^{3} & 2^{0}\end{matrix}\right]%
+\]%
+\[%
+b = \left[\begin{matrix}2^{0} & 0 & 0\\2^{0} & 2^{0} & 2^{0}\\2^{0} & - 2^{0} & 2^{0}\\2^{0} & 2^{1} & 2^{2}\\2^{0} & - 2^{1} & 2^{2}\\0 & 0 & 2^{0}\end{matrix}\right]%
+\]%
+\[%
+c^{t} = \left[\begin{matrix}2^{2} & 0 & - 2^{0} - 2^{2} & 0 & 2^{0} & 0\\0 & - 2^{2} & - 2^{2} & 2^{0} & 2^{0} & 0\\0 & 2^{2} & - 2^{2} & - 2^{0} & 2^{0} & 0\\0 & - 2^{1} & - 2^{0} & 2^{1} & 2^{0} & 0\\0 & 2^{1} & - 2^{0} & - 2^{1} & 2^{0} & 0\\0 & 2^{2} & 0 & - 2^{0} - 2^{2} & 0 & 2^{0}\end{matrix}\right]%
+\]%
+\end{document}

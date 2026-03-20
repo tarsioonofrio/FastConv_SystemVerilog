@@ -1,0 +1,32 @@
+Baseline-equivalent energy to match cycles (sys-report-merged)
+================================================================
+baseline=TCn9-05m032p-bus cycles=7484, energy=222.093687 nJ
+
+IFn9-02m032p: cycles=19874 energy=361.289446 nJ | baseline_factor=0.3766 energy_baseline_eq=83.634354 nJ delta=-76.85%
+IFn9-03m032p: cycles=17390 energy=358.547020 nJ | baseline_factor=0.4304 energy_baseline_eq=95.580745 nJ delta=-73.34%
+IFn9-04m032p: cycles=17363 energy=322.873667 nJ | baseline_factor=0.4310 energy_baseline_eq=95.729376 nJ delta=-70.35%
+IFn9-06m032p-bus: cycles=8483 energy=255.710704 nJ | baseline_factor=0.8822 energy_baseline_eq=195.938837 nJ delta=-23.37%
+IFn9-06m032p: cycles=17336 energy=360.073921 nJ | baseline_factor=0.4317 energy_baseline_eq=95.878470 nJ delta=-73.37%
+IFn9-09m032p-bus: cycles=7574 energy=252.238437 nJ | baseline_factor=0.9881 energy_baseline_eq=219.454602 nJ delta=-13.00%
+IFn9-09m032p: cycles=17318 energy=370.657154 nJ | baseline_factor=0.4322 energy_baseline_eq=95.978124 nJ delta=-74.11%
+IFn9-12m032p-bus: cycles=6674 energy=218.790405 nJ | baseline_factor=1.1214 energy_baseline_eq=249.048420 nJ delta=13.83%
+IFn9-12m032p: cycles=17309 energy=369.645811 nJ | baseline_factor=0.4324 energy_baseline_eq=96.028029 nJ delta=-74.02%
+IFn9-18m032p-bus: cycles=6363 energy=219.512683 nJ | baseline_factor=1.1762 energy_baseline_eq=261.220989 nJ delta=19.00%
+IFn9-18m032p: cycles=17300 energy=400.219930 nJ | baseline_factor=0.4326 energy_baseline_eq=96.077986 nJ delta=-75.99%
+TCn16-06m032p-bus: cycles=7152 energy=261.542918 nJ | baseline_factor=1.0464 energy_baseline_eq=232.403405 nJ delta=-11.14%
+TCn16-06m032p: cycles=18375 energy=465.824625 nJ | baseline_factor=0.4073 energy_baseline_eq=90.457097 nJ delta=-80.58%
+TCn16-09m032p-bus: cycles=6672 energy=259.968475 nJ | baseline_factor=1.1217 energy_baseline_eq=249.123075 nJ delta=-4.17%
+TCn16-09m032p: cycles=18357 energy=485.100246 nJ | baseline_factor=0.4077 energy_baseline_eq=90.545795 nJ delta=-81.33%
+TCn16-12m032p-bus: cycles=6432 energy=245.551891 nJ | baseline_factor=1.1636 energy_baseline_eq=258.418712 nJ delta=5.24%
+TCn16-12m032p: cycles=18348 energy=482.750558 nJ | baseline_factor=0.4079 energy_baseline_eq=90.590209 nJ delta=-81.23%
+TCn16-18m032p-bus: cycles=6363 energy=259.601492 nJ | baseline_factor=1.1762 energy_baseline_eq=261.220989 nJ delta=0.62%
+TCn16-18m032p: cycles=17300 energy=400.219930 nJ | baseline_factor=0.4326 energy_baseline_eq=96.077986 nJ delta=-75.99%
+TCn9-05m032p: cycles=17228 energy=336.364640 nJ | baseline_factor=0.4344 energy_baseline_eq=96.479519 nJ delta=-71.32%
+WMn4-02m032p: cycles=23334 energy=265.736926 nJ | baseline_factor=0.3207 energy_baseline_eq=71.232929 nJ delta=-73.19%
+WMn4-04m032p-bus: cycles=10318 energy=193.539885 nJ | baseline_factor=0.7253 energy_baseline_eq=161.092184 nJ delta=-16.77%
+WMn4-04m032p: cycles=20778 energy=255.081117 nJ | baseline_factor=0.3602 energy_baseline_eq=79.995628 nJ delta=-68.64%
+WMn4-08m032p-bus: cycles=10318 energy=193.539885 nJ | baseline_factor=0.7253 energy_baseline_eq=161.092184 nJ delta=-16.77%
+WMn4-08m032p: cycles=20760 energy=282.670236 nJ | baseline_factor=0.3605 energy_baseline_eq=80.064988 nJ delta=-71.68%
+WPn16-08m032p-bus: cycles=10318 energy=193.539885 nJ | baseline_factor=0.7253 energy_baseline_eq=161.092184 nJ delta=-16.77%
+WPn16-08m032p: cycles=20760 energy=282.670236 nJ | baseline_factor=0.3605 energy_baseline_eq=80.064988 nJ delta=-71.68%
+NAive: cycles=34857 energy=159.481885 nJ | baseline_factor=0.2147 energy_baseline_eq=47.684802 nJ delta=-70.10%
