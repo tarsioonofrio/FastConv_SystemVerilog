@@ -26,6 +26,7 @@ FastConv is an optimized 2D convolution architecture (Toom-Cook and variants) de
 
 1. Choose appropriate data files and parameters in `data/<project>/` (by default, `rtl/system/list-file.txt` already points to the IFN9 set). Adjust the contents of `list-file.txt` and `list-def.txt` if you want to test another variant.
 2. Go to `rtl/system/` and run the TCL compile/simulate script:
+   
    ```bash
    cd rtl/system
    vsim -c -do sim.tcl
@@ -37,12 +38,15 @@ FastConv is an optimized 2D convolution architecture (Toom-Cook and variants) de
 
 1. Copy `synthesis/source/` to a new folder (e.g., `cp -R synthesis/source synthesis/my-project`) and adjust `list-file.txt` and `list-define.txt` for the desired file set.
 2. In `synthesis/<project>/logical/`, run synthesis:
+   
    ```bash
    cd synthesis/<project>/logical
    genus -f run_logical_synthesis.tcl
    ```
+   
    The script loads the MMMC scenarios (`scripts/mmmc_tsmc_28_bv.tcl`), synthesizes the defined top, and generates reports/netlists in `results/`.
 3. For power analysis, enter `synthesis/<project>/power/` and reuse the generated netlist:
+   
    ```bash
    cd synthesis/<project>/power
    genus -f run_power.tcl
