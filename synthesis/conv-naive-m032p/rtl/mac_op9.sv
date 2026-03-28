@@ -52,6 +52,24 @@ endmodule
 
 
 //--------------------------------------------------------------
+// Multiplier
+//--------------------------------------------------------------
+module Multip
+     import packConv::*;
+(
+  input  logic_vector op1,
+  input  logic_vector op2,
+  output logic signed [8+NBITS-1:0] product
+);
+  timeunit 1ns;
+  timeprecision 1ps;
+
+  assign product = (NBITS+8)'($signed(op1) * $signed(op2));
+endmodule
+
+
+
+//--------------------------------------------------------------
 // 9 multipliers and a carry-save structure
 //
 //  precisa fazer tudo com mais 8 bits (QUANT) para ter resultados iguais à fast  
@@ -81,12 +99,16 @@ module macoperation
   state EA, PE;
   
 
-  // 9 paralell multipliers - trunca com a QUANTIZAÇÃO - GERA  28 BITS E NÃO 20—--
-  always_comb begin
-    for (int m=0; m < 9; m=m+1) begin
-        prod[m] = (NBITS+8)'($signed(inputs9[m]) * $signed(weights9[m]));
-    end 
-  end
+  // 9 parallel multipliers - keep QUANT extra bits in the partial products.
+  generate
+    for (genvar m = 0; m < 9; m = m + 1) begin : gen_mult
+      Multip mult_i(
+        .op1(inputs9[m]),
+        .op2(weights9[m]),
+        .product(prod[m])
+      );
+    end
+  endgenerate
 
 
   // carry-save adder with 9 inputs
