@@ -23,11 +23,11 @@ module Control
 
     input  logic p_start,
     output logic p_end,
-    
+
     output logic p_conv_start,
     input  logic p_conv_idle,
     input  logic p_conv_end,
-    
+
     output logic p_start_channel,
 
     output type_input  p_conv_input,
