@@ -50,8 +50,8 @@ module Control
     IDLE_CONTROL,
     BIAS,
     WEIGHT,
-    FEAT_INPUT,
-    CONV_INPUT,
+    READ_INPUT,
+    TRANSFER,
     END_CONTROL
   } state_input_type;
 
@@ -155,15 +155,15 @@ module Control
       // Waits for the weight fetch covering the active input/output channel pair before moving on to input data
       WEIGHT: begin
         if (r_count_wh == (M1_SIZE * M2_SIZE) - 1) begin
-          next_st_input = FEAT_INPUT;
+          next_st_input = READ_INPUT;
         end
       end
       // Waits until the input register bank is full; based on processed windows it may keep reading, reload weights/bias, or finish
-      FEAT_INPUT: begin
+      READ_INPUT: begin
         if ((r_count_fin == (C1_SIZE * C2_SIZE)) && p_conv_idle)
-          next_st_input = CONV_INPUT;
+          next_st_input = TRANSFER;
       end
-      CONV_INPUT: begin
+      TRANSFER: begin
         // When all windows across input and output channels have been read, finish control
         if (r_window_in_total == N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN - 1)
           next_st_input = END_CONTROL;
@@ -177,7 +177,7 @@ module Control
           next_st_input = WEIGHT;
         else
         // Otherwise keep reading input data
-          next_st_input = FEAT_INPUT;
+          next_st_input = READ_INPUT;
       end
     endcase
   end
@@ -230,7 +230,7 @@ module Control
           end
         end
         // Each cycle advances the input address and stores the returned value in the indexed slot
-        FEAT_INPUT: begin
+        READ_INPUT: begin
           r_read_en  <= 1'b1;
           r_count_wh <= 0;
           if (p_input_valid) begin
@@ -238,7 +238,7 @@ module Control
             r_feat_in[c_index[r_count_fin]] <= p_input_data;
           end
         end
-        CONV_INPUT: begin
+        TRANSFER: begin
           // When the input buffer is full, increment the total window counter
           r_window_in_total <= r_window_in_total + 1;
 
@@ -315,7 +315,7 @@ module Control
     p_conv_input      = r_feat_in;
     p_conv_weight     = r_weight;
     p_end        = (current_st_input == END_CONTROL);
-    p_conv_start = (current_st_input == CONV_INPUT);
+    p_conv_start = (current_st_input == TRANSFER);
   end
 
 
@@ -374,7 +374,7 @@ module Control
         p_input_addr = r_addr_wh;
         p_input_en = r_read_en;
       end
-      FEAT_INPUT: begin
+      READ_INPUT: begin
         p_input_addr = w_addr_fin;
         p_input_en = r_read_en;
       end
