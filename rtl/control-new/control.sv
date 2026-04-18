@@ -51,6 +51,7 @@ module Control
     BIAS,
     WEIGHT,
     FEAT_INPUT,
+    CONV_INPUT,
     END_CONTROL
   } state_input_type;
 
@@ -159,22 +160,24 @@ module Control
       end
       // Waits until the input register bank is full; based on processed windows it may keep reading, reload weights/bias, or finish
       FEAT_INPUT: begin
-        if (w_end_fin) begin
-          // When all windows across input and output channels have been read, finish control
-          if (r_window_in_total == N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN - 1)
-            next_st_input = END_CONTROL;
-          else
-          // When all output-channel windows are complete, load bias (disabled for now)
-          // if (r_window_in_total == N_WINDOW * N_WINDOW * N_CHANNEL_OUT)
-          //  next_st_input = BIAS;
-          // else
-          // When a full set of windows for an input channel is done, reload weights
-          if (r_window_in_channel == N_WINDOW * N_WINDOW - 1)
-            next_st_input = WEIGHT;
-          else
-          // Otherwise keep reading input data
-            next_st_input = FEAT_INPUT;
-        end
+        if ((r_count_fin == (C1_SIZE * C2_SIZE)) && p_conv_idle)
+          next_st_input = CONV_INPUT;
+      end
+      CONV_INPUT: begin
+        // When all windows across input and output channels have been read, finish control
+        if (r_window_in_total == N_WINDOW * N_WINDOW * N_CHANNEL_OUT * N_CHANNEL_IN - 1)
+          next_st_input = END_CONTROL;
+        else
+        // When all output-channel windows are complete, load bias (disabled for now)
+        // if (r_window_in_total == N_WINDOW * N_WINDOW * N_CHANNEL_OUT)
+        //  next_st_input = BIAS;
+        // else
+        // When a full set of windows for an input channel is done, reload weights
+        if (r_window_in_channel == N_WINDOW * N_WINDOW - 1)
+          next_st_input = WEIGHT;
+        else
+        // Otherwise keep reading input data
+          next_st_input = FEAT_INPUT;
       end
     endcase
   end
@@ -234,10 +237,10 @@ module Control
             r_count_fin                     <= r_count_fin + 1;
             r_feat_in[c_index[r_count_fin]] <= p_input_data;
           end
-
+        end
+        CONV_INPUT: begin
           // When the input buffer is full, increment the total window counter
-          if(w_end_fin)
-            r_window_in_total <= r_window_in_total + 1;
+          r_window_in_total <= r_window_in_total + 1;
 
           // if (r_window_in_channel)
 
@@ -245,7 +248,7 @@ module Control
           // - increment the per-row window counter
           // - position the input feature counter at the reuse start column
           // - move the base pointer to the next window horizontally
-          if (w_end_fin && !w_end_line_in && !w_end_channel_in) begin
+          if (!w_end_line_in && !w_end_channel_in) begin
             r_window_in_horizontal <= r_window_in_horizontal + 1;
             r_window_in_channel <= r_window_in_channel + 1;
             // r_count_fin <= 10;
@@ -273,13 +276,13 @@ module Control
           // - reset the per-row window counter
           // - reset the input feature counter to zero (no horizontal reuse)
           // - jump vertically to the first address of the window several rows below, with no vertical reuse
-          else if (w_end_fin && w_end_line_in && !w_end_channel_in) begin
+          else if (w_end_line_in && !w_end_channel_in) begin
             r_window_in_channel <= r_window_in_channel + 1;
             r_window_in_horizontal <= 0;
             r_count_fin <= 0;
             r_addr_fin  <= r_addr_fin + C1_SIZE + FEAT_INPUT_SIZE * (A1_SIZE - 1);
           end
-          else if (w_end_fin && w_end_line_in && w_end_channel_in) begin
+          else if (w_end_line_in && w_end_channel_in) begin
             r_window_in_channel <= 0;
             r_window_in_horizontal <= 0;
             r_count_fin <= 0;
@@ -311,18 +314,18 @@ module Control
   always_comb begin
     p_conv_input      = r_feat_in;
     p_conv_weight     = r_weight;
-    p_end        = (current_st_input == END_CONTROL) ? 1'b1 : 1'b0;
-    p_conv_start = w_end_fin;
+    p_end        = (current_st_input == END_CONTROL);
+    p_conv_start = (current_st_input == CONV_INPUT);
   end
 
 
   // Combinational logic asserting when the input buffer is full and convolution can start
-  always_comb begin
-    if ((r_count_fin == (C1_SIZE * C2_SIZE)) && p_conv_idle)
-      w_end_fin = 1'b1;
-    else
-      w_end_fin = 1'b0;
-  end
+  // always_comb begin
+  //   if ((r_count_fin == (C1_SIZE * C2_SIZE)) && p_conv_idle)
+  //     w_end_fin = 1'b1;
+  //   else
+  //     w_end_fin = 1'b0;
+  // end
 
 
   // Combinational logic computing the input read address from the input counter
