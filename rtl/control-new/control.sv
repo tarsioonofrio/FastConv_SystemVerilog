@@ -15,7 +15,6 @@ module Control
     parameter int N_CHANNEL_IN     = 1,
     parameter int N_CHANNEL_OUT    = 1,
     parameter int FEAT_INPUT_SIZE  = 32,
-    parameter int FEAT_OUTPUT_SIZE = 30,
     parameter int LAST_WINDOW      = 0
 ) (
     input  logic clk,
@@ -57,7 +56,7 @@ module Control
 
   typedef enum {
     IDLE_OUTPUT,
-    FEAT_OUTPUT
+    WRITE_OUTPUT
   } state_output_type;
 
   state_input_type current_st_input, next_st_input;
@@ -65,6 +64,7 @@ module Control
 
   // Avoid zero-width vectors when the channel count is 1.
   localparam int CH_OUT_W = (N_CHANNEL_OUT > 1) ? $clog2(N_CHANNEL_OUT) : 1;
+  localparam int FEAT_OUTPUT_SIZE = FEAT_INPUT_SIZE - 2;
 
   // Weight read counter
   logic [$clog2(M1_SIZE*M2_SIZE)-1:0] r_count_wh;
@@ -395,19 +395,19 @@ module Control
       // Waits for the convolution-complete signal
       IDLE_OUTPUT: begin
         if (p_conv_end)
-          next_st_output = FEAT_OUTPUT;
+          next_st_output = WRITE_OUTPUT;
       end
       // Waits for the output data write to memory to complete and then returns to idle
-      FEAT_OUTPUT: begin
+      WRITE_OUTPUT: begin
         if (w_end_fout)
           next_st_output = IDLE_OUTPUT;
       end
     endcase
   end
 
-  // If the current state is FEAT_OUTPUT, enable write
+  // If the current state is WRITE_OUTPUT, enable write
   always_comb begin
-    if (current_st_output == FEAT_OUTPUT)
+    if (current_st_output == WRITE_OUTPUT)
       p_output_en = 1'b1;
     else
       p_output_en = 1'b0;
@@ -456,7 +456,7 @@ module Control
             r_feat_out <= p_conv_output;
         end
         // Write output data to memory
-        FEAT_OUTPUT: begin
+        WRITE_OUTPUT: begin
           if (w_end_fout && w_end_line_out && w_end_channel_out)
             r_start_channel = 1'b1;
           else
