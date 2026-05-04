@@ -1,0 +1,8 @@
+flowchart TB
+    WW(["W_WRITE"]) -->|"EA_R==AP"| Z(["ZERA9"])
+    Z -->|"end_conv && contRd==8"| WR(["WRITE9"])
+    R(["READ9"]) -->|"end_conv && contRd==8"| WR
+    WR -->|"current_IFchannel==0 && contWr==8"| Z
+    WR -->|"current_IFchannel>0 && contWr==8"| R
+    WR -->|"lastOFMAP"| WW
+    WR -->|"otherwise"| WR
