@@ -5,12 +5,12 @@
 
 module Control #(
     parameter int unsigned N_CHANNEL_IN        =  2,
-    parameter int unsigned N_CHANNEL_OUT        =  3,
-    parameter int unsigned KERNEL_SIZE       =  5,
-    parameter int unsigned FEAT_INPUT_SIZE        =  17,
-    parameter int unsigned FEAT_INPUT_WIDTH      =  8,
-    parameter int unsigned NADDR          =  18,   // bits to p_input_addr the memory
-    parameter int unsigned CONV_MULTIPLY_STEPS      =  6     // multiplication steps
+    parameter int unsigned N_CHANNEL_OUT       =  3,
+    parameter int unsigned KERNEL_SIZE         =  5,
+    parameter int unsigned FEAT_INPUT_SIZE     =  17,
+    parameter int unsigned FEAT_INPUT_WIDTH    =  8,
+    parameter int unsigned NADDR               =  18,   // bits to p_input_addr the memory
+    parameter int unsigned CONV_MULTIPLY_STEPS =  6     // multiplication steps
  )(
     input  logic clk,
     input  logic reset,
