@@ -16,7 +16,7 @@ The main control module is implemented in `control.sv`.
 | `FEAT_INPUT_SIZE` | `int unsigned` | Input feature-map row count. |
 | `FEAT_INPUT_WIDTH` | `int unsigned` | Input feature-map column count. |
 | `NADDR` | `int unsigned` | Memory address bus width. |
-| `CONV_MULTIPLY_STEPS` | `int unsigned` | Iterations used in the HAD stage of the convolution micro-sequencer. |
+| `CONV_MULTIPLY_STEPS` | `int unsigned` | Iterations used in the HADAMARD stage of the convolution micro-sequencer. |
 
 ### Ports
 
@@ -31,8 +31,8 @@ The main control module is implemented in `control.sv`.
 ### Additional Notes
 
 - The controller is partitioned into three FSMs: read/addressing (`r_state_read_curr`), convolution micro-sequencing (`r_state_conv_curr`), and writeback (`r_state_write_curr`).
-- Input-window storage is implemented with `r_feat_input[0:24]` plus `r_conv_input[0:24]`, with row-shift behavior controlled by `w_feat_input_write_en` in state `XFER`.
-- Weight streaming is controlled by `READ_WEIGHTS`, `r_addr_count_kernel`, and `w_weight_write_en`, writing `weightReg[0:WEIGHT_CYCLES-1]`.
+- Input-window storage is implemented with `r_feat_input[0:24]` plus `r_conv_input[0:24]`, with row-shift behavior controlled by `w_feat_input_write_en` in state `TRANSFER`.
+- Weight streaming is controlled by `READ_WEIGHTS`, `r_addr_count_kernel`, and `w_weight_write_en`, writing `weight_reg[0:WEIGHT_CYCLES-1]`.
 - Writeback progression is guarded by `w_conv_end`, `r_output_read_count`, and `r_output_write_count` so every 3x3 output tile is sequenced before the next channel/window.
 
 Use this module as a reference guide to understand control flow for address generation, convolution triggering, and output writeback in the FastConv controller.
@@ -48,43 +48,43 @@ The Mermaid sources live in `docs/*.mmd` and are mirrored below.
 - `WAIT`: idle until `p_start` is asserted.
 - `AP`: per-channel setup and counter resets.
 - `READ_WEIGHTS`: stream `KERNEL_SIZE*KERNEL_SIZE` weights from memory.
-- `R10A` / `R10B` / `R15A` / `R15B` / `R15C`: read and shift 5 columns across 5 rows.
-- `XFER`: move `r_feat_input[]` into `r_conv_input[]` and advance convolution counters.
+- `READ_IN_10A` / `READ_IN_10B` / `READ_IN_15A` / `READ_IN_15B` / `READ_IN_15C`: read and shift 5 columns across 5 rows.
+- `TRANSFER`: move `r_feat_input[]` into `r_conv_input[]` and advance convolution counters.
 - `HOLD_WRITE`: wait for write FSM completion (`w_write_done`).
 - `NEXT_ROW`: move to next horizontal base or switch IFMAP/channel.
 
 ```mermaid
 flowchart TB
     W(["WAIT"]) -->|"p_start"| AP(["AP"]) --> RW(["READ_WEIGHTS"])
-    RW -->|"w_weight_done"| R10A(["R10A"])
-    RW -->|"lastOFMAP"| W
-    R10A -->|"r_addr_count_input==4"| R10B(["R10B"])
-    R10B -->|"r_addr_count_input==4"| R15A(["R15A"])
-    R15A -->|"r_addr_count_input==4"| R15B(["R15B"])
-    R15B -->|"r_addr_count_input==4"| R15C(["R15C"])
-    R15C -->|"r_addr_count_input==4"| X(["XFER"])
+    RW -->|"w_weight_done"| READ_IN_10A(["READ_IN_10A"])
+    RW -->|"last_output"| W
+    READ_IN_10A -->|"r_addr_count_input==4"| READ_IN_10B(["READ_IN_10B"])
+    READ_IN_10B -->|"r_addr_count_input==4"| READ_IN_15A(["READ_IN_15A"])
+    READ_IN_15A -->|"r_addr_count_input==4"| READ_IN_15B(["READ_IN_15B"])
+    READ_IN_15B -->|"r_addr_count_input==4"| READ_IN_15C(["READ_IN_15C"])
+    READ_IN_15C -->|"r_addr_count_input==4"| X(["TRANSFER"])
     X --> HW(["HOLD_WRITE"])
-    HW -->|"w_write_done && !last_line"| R15A
+    HW -->|"w_write_done && !last_line"| READ_IN_15A
     HW -->|"w_write_done && last_line"| NR(["NEXT_ROW"])
-    NR -->|"lastIFMAP"| AP
-    NR -->|"!lastIFMAP"| R10A
+    NR -->|"last_input"| AP
+    NR -->|"!last_input"| READ_IN_10A
 ```
 
 ### Convolution Micro-FSM (`r_state_conv_curr`)
 
-**Purpose**: issue the internal convolution phase once `r_state_read_curr` reaches `XFER`.
+**Purpose**: issue the internal convolution phase once `r_state_read_curr` reaches `TRANSFER`.
 
 - `WAIT_CONV`: wait for a fresh window transfer.
-- `T1`: initialize the multiplication counter.
-- `HAD`: iterate until `r_conv_multiply_count == CONV_MULTIPLY_STEPS-1`.
-- `T2`: pulse completion (`w_conv_end` is set using `r_state_conv_next==T2`).
+- `TRANSFORM`: initialize the multiplication counter.
+- `HADAMARD`: iterate until `r_conv_multiply_count == CONV_MULTIPLY_STEPS-1`.
+- `INVERSE`: pulse completion (`w_conv_end` is set using `r_state_conv_next==INVERSE`).
 
 ```mermaid
 flowchart TB
-    WC(["WAIT_CONV"]) -->|"r_state_read_curr==XFER"| T1(["T1"])
-    T1 --> H(["HAD"])
-    H -->|"r_conv_multiply_count==CONV_MULTIPLY_STEPS-1"| T2(["T2"])
-    T2 --> WC
+    WC(["WAIT_CONV"]) -->|"r_state_read_curr==TRANSFER"| TRANSFORM(["TRANSFORM"])
+    TRANSFORM --> H(["HADAMARD"])
+    H -->|"r_conv_multiply_count==CONV_MULTIPLY_STEPS-1"| INVERSE(["INVERSE"])
+    INVERSE --> WC
 ```
 
 ### Write FSM (`r_state_write_curr`)
@@ -92,17 +92,17 @@ flowchart TB
 **Purpose**: sequence zero/read/write phases for 3x3 result tiles.
 
 - `WAIT_WRITE`: idle/write-wait state before activation.
-- `ZERA9`: initialization phase when `r_channel_counter_input==0`.
+- `RESET9`: initialization phase when `r_channel_counter_input==0`.
 - `READ_OUTPUT`: read-back phase when accumulating channels (`r_channel_counter_input>0`).
 - `WRITE_OUTPUT`: write 9 outputs and branch by channel/OFMAP completion.
 
 ```mermaid
 flowchart TB
-    WW(["WAIT_WRITE"]) -->|"r_state_read_curr==AP"| Z(["ZERA9"])
+    WW(["WAIT_WRITE"]) -->|"r_state_read_curr==AP"| Z(["RESET9"])
     Z -->|"w_conv_end && r_output_read_count==8"| WR(["WRITE_OUTPUT"])
     R(["READ_OUTPUT"]) -->|"w_conv_end && r_output_read_count==8"| WR
     WR -->|"r_channel_counter_input==0 && r_output_write_count==8"| Z
     WR -->|"r_channel_counter_input>0 && r_output_write_count==8"| R
-    WR -->|"lastOFMAP"| WW
+    WR -->|"last_output"| WW
     WR -->|"otherwise"| WR
 ```

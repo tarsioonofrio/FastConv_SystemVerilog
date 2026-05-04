@@ -22,10 +22,10 @@ module tb;
     logic [19:0] p_input_data;
 
     // --- TABELA DE DADOS ---
-    logic [19:0] inputMEM [0:INPUT_MEMORY_SIZE-1];
+    logic [19:0] input_mem [0:INPUT_MEMORY_SIZE-1];
 
     // Lógica para alimentar p_input_data baseada no sinal p_input_addr (se dentro do limite da tabela)
-    assign p_input_data =  inputMEM[p_input_addr];
+    assign p_input_data =  input_mem[p_input_addr];
 
     // Instanciação do Módulo (DUT)
     Control #(
@@ -53,9 +53,9 @@ module tb;
     initial begin
 
         // Primeiro, limpa toda a memória
-        //inputMEM = '{default: 20'd0};
+        //input_mem = '{default: 20'd0};
         
-        inputMEM = '{
+        input_mem = '{
 
             // first IPMAP
             0,   17,  34,  51,  68,  85,  102, 119, 136, 153, 170,

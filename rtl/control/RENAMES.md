@@ -111,5 +111,5 @@ As requested, the migration **did not** rename `last*` naming to `is_last*`.
 Examples intentionally kept:
 
 - `last_line`
-- `lastIFMAP`
-- `lastOFMAP`
+- `last_input`
+- `last_output`
