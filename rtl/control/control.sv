@@ -20,10 +20,10 @@ module Control #(
     output logic [NADDR-1:0] p_input_addr,
     input  logic [19:0] p_input_data
 );
-    logic [19:0] r_feat_input[0:24];                      // register bank
-    logic [19:0] r_conv_input[0:24];                  // convolution reg bank
-    logic [19:0] w_next_feat_input[0:24];                  // wires to shift the register bank
-    logic [24:0] w_feat_input_write_en;                             // chip enable for each register
+    logic [19:0] r_feat_input[0:24];        // input feature register bank
+    logic [19:0] r_conv_input[0:24];        // convolution input register bank
+    logic [19:0] w_next_feat_input[0:24];   // next values for feature shift bank
+    logic [24:0] w_feat_input_write_en;     // write-enable per feature register
     logic w_conv_end, last_line, last_input, last_output;
     logic [3:0] r_output_read_count, r_output_write_count;
     logic [NADDR-1:0] r_addr_pointer_input, r_window_row_step, r_addr_pointer_kernel;
@@ -52,8 +52,8 @@ module Control #(
     localparam int WEIGHT_WIDTH      = $clog2(WEIGHT_CYCLES);
     logic [19:0] weight_reg[0:WEIGHT_CYCLES-1];
     logic [WEIGHT_CYCLES-1:0] w_weight_write_en;
-    logic [WEIGHT_WIDTH-1:0]      r_addr_count_kernel;
-    logic                     w_weight_done, w_write_done;
+    logic [WEIGHT_WIDTH-1:0] r_addr_count_kernel;
+    logic w_weight_done, w_write_done;
 
     // -------------------------------------------------------------------------
     // FSM STATES DECLARION
@@ -256,7 +256,7 @@ module Control #(
                 if (w_feat_input_write_en[i])  r_feat_input[i] <= w_next_feat_input[i];
     end
 
-    // weigh register bank - with the idea of CE (chip enable)
+    // Weight register bank with per-entry write-enable.
     always_comb begin
         w_weight_write_en = '0;
         if (r_state_read_curr == READ_WEIGHTS)
