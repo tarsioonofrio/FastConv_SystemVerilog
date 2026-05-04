@@ -3,46 +3,46 @@
 module tb;
 
     // Parâmetros do DUT
-    localparam int unsigned NB_IFMAP   =  3;
-    localparam int unsigned NB_OFMAP   =  3;
-    localparam int unsigned SZ_KERNEL  =  5;
-    localparam int unsigned NB_LINES   = 17;
-    localparam int unsigned NB_COLUMNS = 11;
-    localparam int unsigned NB_MULTIPS = 6;
+    localparam int unsigned N_CHANNEL_IN   =  3;
+    localparam int unsigned N_CHANNEL_OUT   =  3;
+    localparam int unsigned KERNEL_SIZE  =  5;
+    localparam int unsigned FEAT_INPUT_SIZE   = 17;
+    localparam int unsigned FEAT_INPUT_WIDTH = 11;
+    localparam int unsigned CONV_MULTIPLY_STEPS = 6;
 
-    localparam int unsigned INPUT_MEMORY_SIZE = NB_IFMAP*NB_LINES*NB_COLUMNS + NB_OFMAP*NB_IFMAP*SZ_KERNEL*SZ_KERNEL;
+    localparam int unsigned INPUT_MEMORY_SIZE = N_CHANNEL_IN*FEAT_INPUT_SIZE*FEAT_INPUT_WIDTH + N_CHANNEL_OUT*N_CHANNEL_IN*KERNEL_SIZE*KERNEL_SIZE;
 
-    localparam int unsigned ADDR_W     = $clog2(INPUT_MEMORY_SIZE);
+    localparam int unsigned NADDR     = $clog2(INPUT_MEMORY_SIZE);
 
     // Sinais de interface
     logic clk;
-    logic rst;
-    logic start, end_all_convolutions;
-    logic [ADDR_W-1:0] address;
-    logic [19:0] Din;
+    logic reset;
+    logic p_start, p_end;
+    logic [NADDR-1:0] p_input_addr;
+    logic [19:0] p_input_data;
 
     // --- TABELA DE DADOS ---
     logic [19:0] inputMEM [0:INPUT_MEMORY_SIZE-1];
 
-    // Lógica para alimentar Din baseada no sinal address (se dentro do limite da tabela)
-    assign Din =  inputMEM[address];
+    // Lógica para alimentar p_input_data baseada no sinal p_input_addr (se dentro do limite da tabela)
+    assign p_input_data =  inputMEM[p_input_addr];
 
     // Instanciação do Módulo (DUT)
-    conv_controller #(
-        .NB_IFMAP(NB_IFMAP),
-        .NB_OFMAP(NB_OFMAP),
-        .SZ_KERNEL(SZ_KERNEL),
-        .NB_LINES(NB_LINES),
-        .NB_COLUMNS(NB_COLUMNS),
-        .ADDR_W(ADDR_W),
-        .NB_MULTIPS(NB_MULTIPS)
+    Control #(
+        .N_CHANNEL_IN(N_CHANNEL_IN),
+        .N_CHANNEL_OUT(N_CHANNEL_OUT),
+        .KERNEL_SIZE(KERNEL_SIZE),
+        .FEAT_INPUT_SIZE(FEAT_INPUT_SIZE),
+        .FEAT_INPUT_WIDTH(FEAT_INPUT_WIDTH),
+        .NADDR(NADDR),
+        .CONV_MULTIPLY_STEPS(CONV_MULTIPLY_STEPS)
     ) dut (
         .clk(clk),
-        .rst(rst),
-        .start(start),
-        .address(address),
-        .Din(Din),
-        .end_all_convolutions(end_all_convolutions)
+        .reset(reset),
+        .p_start(p_start),
+        .p_input_addr(p_input_addr),
+        .p_input_data(p_input_data),
+        .p_end(p_end)
     );
 
     // Gerador de Clock: 100MHz -> Período de 10ns
@@ -131,18 +131,18 @@ module tb;
         };
 
         // Reset inicial (Ativo alto conforme código fonte)
-        rst = 1;
-        start = 0;
+        reset = 1;
+        p_start = 0;
         
         // Mantém reset por 20 ns
-        #20 rst = 0;
+        #20 reset = 0;
 
-        #80 start = 1;
-        #10 start = 0;
+        #80 p_start = 1;
+        #10 p_start = 0;
 
-        // aguarda end_all_convolutions subir
-        if (end_all_convolutions !== 1'b1)
-              @(posedge end_all_convolutions);
+        // aguarda p_end subir
+        if (p_end !== 1'b1)
+              @(posedge p_end);
 
          // espera mais 200 ns
         #200;
