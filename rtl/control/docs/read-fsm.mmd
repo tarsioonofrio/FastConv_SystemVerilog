@@ -1,0 +1,14 @@
+flowchart TB
+    W(["WAIT"]) -->|"start"| AP(["AP"]) --> RW(["READ_WEIGHTS"])
+    RW -->|"weight_done"| R10A(["R10A"])
+    RW -->|"lastOFMAP"| W
+    R10A -->|"cnt_col==4"| R10B(["R10B"])
+    R10B -->|"cnt_col==4"| R15A(["R15A"])
+    R15A -->|"cnt_col==4"| R15B(["R15B"])
+    R15B -->|"cnt_col==4"| R15C(["R15C"])
+    R15C -->|"cnt_col==4"| X(["XFER"])
+    X --> WW(["WAIT_WR"])
+    WW -->|"end_write_results && !last_line"| R15A
+    WW -->|"end_write_results && last_line"| CL(["CHANGE_LINE"])
+    CL -->|"lastIFMAP"| AP
+    CL -->|"!lastIFMAP"| R10A

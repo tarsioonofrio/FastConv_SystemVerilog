@@ -1,0 +1,5 @@
+flowchart TB
+    WC(["W_CONV"]) -->|"EA_R==XFER"| T1(["T1"])
+    T1 --> H(["HAD"])
+    H -->|"cnt_multip==NB_MULTIPS-1"| T2(["T2"])
+    T2 --> WC
