@@ -10,14 +10,14 @@ add wave -noupdate -divider LEITURA
 add wave -noupdate /tb/dut/r_state_read_curr
 add wave -noupdate /tb/dut/r_state_read_next
 add wave -noupdate /tb/dut/p_input_data
-add wave -noupdate /tb/dut/base_VRd
-add wave -noupdate -color purple -radix unsigned /tb/dut/cnt_col
+add wave -noupdate /tb/dut/w_base_feat_input
+add wave -noupdate -color purple -radix unsigned /tb/dut/r_addr_count_input
 add wave -noupdate -color purple -radix unsigned /tb/dut/r_channel_counter_input
 add wave -noupdate -color purple -radix unsigned /tb/dut/r_channel_counter_output
 add wave -noupdate -color purple -radix unsigned /tb/dut/r_window_counter_input
 add wave -noupdate -color purple -radix unsigned /tb/dut/r_window_counter_row
 add wave -noupdate -color purple -radix decimal /tb/dut/r_addr_count_kernel
-add wave -noupdate -color purple -radix decimal /tb/dut/end_write_results
+add wave -noupdate -color purple -radix decimal /tb/dut/w_write_done
 add wave -noupdate -color blue /tb/dut/r_window_row_step
 add wave -noupdate -divider {New Divider}
 add wave -noupdate -color Red -radix unsigned /tb/dut/p_input_addr
@@ -35,7 +35,7 @@ add wave -noupdate -divider CONVOLUTION
 add wave -noupdate /tb/dut/r_state_conv_curr
 add wave -noupdate /tb/dut/r_state_conv_next
 add wave -noupdate -color red /tb/dut/w_conv_end
-add wave -noupdate -color black /tb/dut/cnt_multip
+add wave -noupdate -color black /tb/dut/r_conv_multiply_count
 add wave -noupdate -divider {MEMORY WRITE}
 add wave -noupdate /tb/dut/r_state_write_curr
 add wave -noupdate /tb/dut/r_state_write_next
