@@ -1,5 +1,5 @@
 SRCDIR = .
-SRC =  $(SRCDIR)/conv_controller.sv
+SRC =  $(SRCDIR)/control.sv
 
 TB = $(SRCDIR)/tb.sv
 
