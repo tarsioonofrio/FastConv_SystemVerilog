@@ -1,0 +1,398 @@
+/*
+   CONVOLUTION CONTROLLER  - (V0 - FERNANDO MORAES)  - 24/ABRIL
+*/
+`timescale 1ns/1ps
+
+module Control #(
+    parameter int unsigned N_CHANNEL_IN        =  2,
+    parameter int unsigned N_CHANNEL_OUT        =  3,
+    parameter int unsigned KERNEL_SIZE       =  5,
+    parameter int unsigned FEAT_INPUT_SIZE        =  17,
+    parameter int unsigned FEAT_INPUT_WIDTH      =  8,
+    parameter int unsigned NADDR          =  18,   // bits to p_input_addr the memory
+    parameter int unsigned CONV_MULTIPLY_STEPS      =  6     // multiplication steps
+ )(
+    input  logic clk,
+    input  logic reset,
+    input  logic p_start,
+    output logic p_end,
+
+    output logic [NADDR-1:0] p_input_addr,
+    input  logic [19:0] p_input_data
+);
+    logic [19:0] r_feat_input[0:24];                      // register bank
+    logic [19:0] r_conv_input[0:24];                  // convolution reg bank
+    logic [19:0] w_next_feat_input[0:24];                  // wires to shift the register bank
+    logic [24:0] w_feat_input_write_en;                             // chip enable for each register
+    logic w_conv_end, last_line, lastIFMAP, lastOFMAP;
+    logic [3:0] r_output_read_count, r_output_write_count;
+    logic [NADDR-1:0] r_addr_pointer_input, r_window_row_step, r_addr_pointer_kernel;
+
+    localparam CHANNEL_INPUT_COUNTER_W = $clog2(N_CHANNEL_IN) + 1;
+    logic [CHANNEL_INPUT_COUNTER_W-1:0] r_channel_counter_input;
+
+    localparam CHANNEL_OUTPUT_COUNTER_W = $clog2(N_CHANNEL_OUT) + 1;
+    logic [CHANNEL_OUTPUT_COUNTER_W-1:0] r_channel_counter_output;
+
+    localparam WINDOW_COUNT_PER_LINE =  FEAT_INPUT_SIZE / 3;            // assuming output 3x3
+    localparam WINDOW_COUNT_PER_COLUMN =  FEAT_INPUT_WIDTH / 3;
+    localparam WINDOW_COUNT_PER_CHANNEL =  WINDOW_COUNT_PER_LINE * WINDOW_COUNT_PER_COLUMN;
+
+    localparam WINDOW_COUNTER_W = $clog2(WINDOW_COUNT_PER_LINE*WINDOW_COUNT_PER_COLUMN);
+    logic [WINDOW_COUNTER_W-1:0] r_window_counter_input;
+
+    localparam WINDOW_ROW_COUNTER_W = $clog2(WINDOW_COUNT_PER_LINE) + 1;
+    logic [WINDOW_ROW_COUNTER_W-1:0] r_window_counter_row;
+
+    localparam ADDR_INPUT_COUNTER_W = $clog2(WINDOW_COUNT_PER_COLUMN) + 1;
+    logic [ADDR_INPUT_COUNTER_W-1:0] w_base_feat_input, r_addr_count_input;
+
+    // REGISTER BANK FOR THE WEIGHTS ////////////////////////////////////////////
+    localparam int WEIGHT_CYCLES = KERNEL_SIZE * KERNEL_SIZE;
+    localparam int WEIGHT_W      = $clog2(WEIGHT_CYCLES);
+    logic [19:0] weightReg[0:WEIGHT_CYCLES-1];
+    logic [WEIGHT_CYCLES-1:0] w_weight_write_en;
+    logic [WEIGHT_W-1:0]      r_addr_count_kernel;
+    logic                     w_weight_done, w_write_done;
+
+    // -------------------------------------------------------------------------
+    // FSM STATES DECLARION
+    // -------------------------------------------------------------------------
+    typedef enum logic [3:0] { WAIT, AP,  READ_WEIGHTS, R10A, R10B, R15A, R15B, R15C, HOLD_WRITE, XFER, NEXT_ROW} state_read_t;
+    state_read_t r_state_read_curr, r_state_read_next;
+
+    typedef enum logic [1:0] { WAIT_CONV, T1,  HAD, T2  } state_conv_t;
+    state_conv_t r_state_conv_curr, r_state_conv_next;
+
+    typedef enum logic [2:0] { WAIT_WRITE,  ZERA9,  READ_OUTPUT, WRITE_OUTPUT } state_write_t;
+    state_write_t r_state_write_curr, r_state_write_next;
+
+    // ----------------------------------------------------------------------------------------------------
+    // -------  PART 1 - ADDRESS TO ACCESS THE IFMAP AND WEIGHT MEMORY ------------------------------------
+    // ----------------------------------------------------------------------------------------------------
+    assign p_input_addr = (r_state_read_curr==READ_WEIGHTS) ? r_addr_pointer_kernel : r_addr_pointer_input + NADDR'(r_addr_count_input);   // p_input_addr mux
+
+    always_ff @(posedge clk or posedge reset) begin
+        if (reset) begin
+            r_addr_pointer_input <= '0;
+            r_window_row_step <= 3;
+        end
+        else if ((r_state_read_curr==R10A && r_state_read_next==R10B) || (r_state_read_curr==R10B && r_state_read_next==R15A) || (r_state_read_curr==R15A && r_state_read_next==R15B) || (r_state_read_curr==R15B && r_state_read_next==R15C) || r_state_read_curr==XFER)
+            r_addr_pointer_input <= r_addr_pointer_input + NADDR'(FEAT_INPUT_WIDTH);    // change internal p_input_addr in the state transition or in the XFER state (CAUTION: PE)
+
+        else if (r_state_read_curr==NEXT_ROW  &&  !lastIFMAP) begin     // when change the line, the read pointer moves 'r_window_row_step'
+            r_addr_pointer_input <= r_window_row_step + NADDR'(r_channel_counter_input*FEAT_INPUT_SIZE*FEAT_INPUT_WIDTH);   // restart for the first line
+            r_window_row_step  <= r_window_row_step  + 3;
+        end
+
+        else if (r_state_read_curr==AP && lastIFMAP ) begin
+            r_addr_pointer_input <= r_addr_pointer_input - NADDR'(FEAT_INPUT_WIDTH) + NADDR'(KERNEL_SIZE);   // adjust the pointer to the next IFMAP
+            r_window_row_step <= 3;
+
+            if (r_channel_counter_input == CHANNEL_INPUT_COUNTER_W'(N_CHANNEL_IN-1) ) begin               // change the IFMAP
+`ifdef SIMULATION
+                $display("RESETANDO PARA O CANAL 0 - DEU A VOLTA NOS IFMAPS time=%0t %d (%0d) r_state_read_curr = %s", $time, r_channel_counter_input, N_CHANNEL_IN, r_state_read_curr.name());
+
+`endif
+                r_addr_pointer_input <= 0;
+            end
+       end
+    end
+
+    always_ff @(posedge clk or posedge reset) begin
+        if (reset) begin
+            r_addr_pointer_kernel <= 0;
+        end
+        else if (r_state_read_curr == WAIT && r_state_read_next == AP)    // initializes only ONCE the weight p_input_addr (after the IFMAPs in the memory) (CAUTION: PE)
+                r_addr_pointer_kernel <=  NADDR'(N_CHANNEL_IN * FEAT_INPUT_SIZE * FEAT_INPUT_WIDTH);
+        else if (r_state_read_curr == READ_WEIGHTS)
+                r_addr_pointer_kernel <= r_addr_pointer_kernel + 1;   // next weight
+    end
+
+    // ----------------------------------------------------------------------------------------------------
+    // -------  PART 2 - READ FSM AND REGISTERS -----------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------
+    always_ff @(posedge clk or posedge reset) begin
+        if (reset)
+            r_state_read_curr <= WAIT;
+        else
+            r_state_read_curr <= r_state_read_next;
+    end
+
+    always_comb begin
+        r_state_read_next = r_state_read_curr;
+        priority case (r_state_read_curr)
+            WAIT:         if (p_start)           r_state_read_next = AP;
+            AP:                                r_state_read_next = READ_WEIGHTS;
+            READ_WEIGHTS:  if (w_weight_done)    r_state_read_next = R10A;
+                           else if (lastOFMAP) r_state_read_next = WAIT;        //end processing
+            R10A:        if (r_addr_count_input == 4)     r_state_read_next = R10B;        // read 5*5 values
+            R10B:        if (r_addr_count_input == 4)     r_state_read_next = R15A;
+            R15A:        if (r_addr_count_input == 4)     r_state_read_next = R15B;
+            R15B:        if (r_addr_count_input == 4)     r_state_read_next = R15C;
+            R15C:        if (r_addr_count_input == 4)     r_state_read_next = XFER;
+            XFER:        r_state_read_next = HOLD_WRITE;                     // p_start the convolution
+            HOLD_WRITE:     if (last_line && w_write_done)  r_state_read_next = NEXT_ROW;
+                         else  if (w_write_done)         r_state_read_next = R15A;
+                         else                                 r_state_read_next = HOLD_WRITE;
+            NEXT_ROW: if (lastIFMAP) r_state_read_next = AP;
+                            else        r_state_read_next = R10A;
+            default:    r_state_read_next = WAIT;
+        endcase
+    end
+
+    assign w_weight_done       = (r_addr_count_kernel == WEIGHT_W'(WEIGHT_CYCLES-1));
+    assign w_write_done = r_output_write_count==0 || r_output_write_count==8;        // compare to zero for the first write test or the last value (8) in the next convolutions
+    assign last_line         = (r_window_counter_row == WINDOW_ROW_COUNTER_W'(WINDOW_COUNT_PER_LINE));
+    assign lastIFMAP         = (r_window_counter_input == WINDOW_COUNTER_W'(WINDOW_COUNT_PER_CHANNEL));
+    assign lastOFMAP         = (r_channel_counter_output == CHANNEL_OUTPUT_COUNTER_W'(N_CHANNEL_OUT));
+
+    assign p_end = ((r_state_write_next == WAIT_WRITE && lastOFMAP));  // output to signalize the end of the convolution process
+
+    // -------------------------------------------------------------------------
+    // READING REGISTERS
+    // -------------------------------------------------------------------------
+
+    always_ff @(posedge clk or posedge reset) begin
+        if (reset) begin
+            r_addr_count_input <= 0;
+        end else begin
+            if (r_state_read_curr == READ_WEIGHTS) begin
+                r_addr_count_input <= 0;
+            end
+            else if (r_state_read_curr inside {R10A, R10B, R15A, R15B, R15C}) begin
+                if (r_addr_count_input == 4)
+                    r_addr_count_input <= 0;
+                else
+                    r_addr_count_input <= r_addr_count_input + 1;
+            end
+        end
+    end
+
+     assign w_base_feat_input = (r_state_read_curr == R10A) ? 0 :
+                       (r_state_read_curr == R10B) ? 1 :
+                       (r_state_read_curr == R15A) ? 2 :
+                       (r_state_read_curr == R15B) ? 3 :
+                       (r_state_read_curr == R15C) ? 4 :  0;
+
+
+    // SET OF FIVE CONTROL REGISTERS:
+    // r_channel_counter_input: number of the current IFMAP channel being read
+    // r_channel_counter_output: number of the current OFMAP channel being processed
+    // r_window_counter_input:  number of convolutions in a given IFMAP channel
+    // r_window_counter_row :  number of horizontal convolutions in a given IFMAP channel - detect the last line
+    // r_addr_count_kernel:        number of weights read from memory
+    always_ff @(posedge clk or posedge reset) begin
+        if (reset) begin
+            r_channel_counter_input  <= '1;  // p_start with all bits in '1' - IFchannel must be {0,1,2}
+            r_channel_counter_output  <= 0;
+            r_window_counter_input   <= 0;
+            r_window_counter_row    <= 0;
+            r_addr_count_kernel         <= 0;
+        end else begin
+            if (r_state_read_curr == AP) begin
+
+                if (r_channel_counter_input == CHANNEL_INPUT_COUNTER_W'(N_CHANNEL_IN-1)) begin
+                    r_channel_counter_input <= '0;
+                    r_channel_counter_output <= r_channel_counter_output + 1;
+                end
+                else begin
+                    r_channel_counter_input <= r_channel_counter_input + 1;
+                end
+                r_window_counter_input <= 0;    // reset counters
+                r_window_counter_row  <= 0;
+                r_addr_count_kernel       <= 0;
+            end
+
+            if (r_state_read_curr == NEXT_ROW) begin
+                r_window_counter_row <= 0;
+            end
+
+            if (r_state_read_curr == XFER) begin
+                r_window_counter_input <= r_window_counter_input + 1;
+                r_window_counter_row <= r_window_counter_row + 1;
+            end
+
+            if (r_state_read_curr == READ_WEIGHTS)  begin
+                 r_addr_count_kernel <= r_addr_count_kernel + 1;
+            end
+        end
+    end
+
+    // -------------------------------------------------------------------------
+    // READING REGISTER BANK
+    // -------------------------------------------------------------------------
+    always_comb begin
+        for (int unsigned i = 0; i < 25; i++)     // connection between register outputs to register inputs
+            w_next_feat_input[i] = p_input_data;
+
+        w_next_feat_input[0]  = (r_state_read_curr == R10A) ? p_input_data : r_feat_input[3];     // makes the shifts - minimize muxes
+        w_next_feat_input[1]  = (r_state_read_curr == R10B) ? p_input_data : r_feat_input[4];
+        w_next_feat_input[5]  = (r_state_read_curr == R10A) ? p_input_data : r_feat_input[8];
+        w_next_feat_input[6]  = (r_state_read_curr == R10B) ? p_input_data : r_feat_input[9];
+        w_next_feat_input[10] = (r_state_read_curr == R10A) ? p_input_data : r_feat_input[13];
+        w_next_feat_input[11] = (r_state_read_curr == R10B) ? p_input_data : r_feat_input[14];
+        w_next_feat_input[15] = (r_state_read_curr == R10A) ? p_input_data : r_feat_input[18];
+        w_next_feat_input[16] = (r_state_read_curr == R10B) ? p_input_data : r_feat_input[19];
+        w_next_feat_input[20] = (r_state_read_curr == R10A) ? p_input_data : r_feat_input[23];
+        w_next_feat_input[21] = (r_state_read_curr == R10B) ? p_input_data : r_feat_input[24];
+    end
+
+    always_comb begin     // 'w_feat_input_write_en' to write into the register bank r_feat_input
+        w_feat_input_write_en = '0;
+        case (r_state_read_curr)
+            R10A, R10B, R15A, R15B, R15C:   w_feat_input_write_en[w_base_feat_input + r_addr_count_input * 5] = 1'b1;
+            XFER:     w_feat_input_write_en = 25'b0001100011000110001100011;   // make the shift
+            default:  w_feat_input_write_en = '0;
+        endcase
+    end
+
+    always_ff @(posedge clk or posedge reset) begin    // initializes and write into the register bank and convolution register bank
+        if (reset)
+            for (int unsigned i = 0; i < 25; i++)
+                r_feat_input[i] <= '0;
+        else
+            for (int unsigned i = 0; i < 25; i++)
+                if (w_feat_input_write_en[i])  r_feat_input[i] <= w_next_feat_input[i];
+    end
+
+    // weigh register bank - with the idea of CE (chip enable)
+    always_comb begin
+        w_weight_write_en = '0;
+        if (r_state_read_curr == READ_WEIGHTS)
+            w_weight_write_en[r_addr_count_kernel] = 1'b1;
+    end
+
+    always_ff @(posedge clk or posedge reset) begin
+        if (reset) begin
+            for (int unsigned i = 0; i < WEIGHT_CYCLES; i++)
+                weightReg[i] <= '0;
+        end else begin
+            for (int unsigned i = 0; i < WEIGHT_CYCLES; i++)
+                if (w_weight_write_en[i]) weightReg[i] <= p_input_data;
+        end
+    end
+
+    // ----------------------------------------------------------------------------------------------------
+    // -------  PART 3 - CONVOLUTION CONTROL AND CONVOLUTION MODULES --------------------------------------
+    // ----------------------------------------------------------------------------------------------------
+    localparam CONV_MULTIPLY_COUNTER_W = $clog2(CONV_MULTIPLY_STEPS) + 1;
+    logic [CONV_MULTIPLY_COUNTER_W-1:0] r_conv_multiply_count;
+
+    always_ff @(posedge clk or posedge reset) begin
+        if (reset)
+            r_state_conv_curr <= WAIT_CONV;
+        else
+            r_state_conv_curr <= r_state_conv_next;
+    end
+
+    always_comb begin
+        r_state_conv_next = r_state_conv_curr;    // default
+        priority case (r_state_conv_curr)
+            WAIT_CONV: if (r_state_read_curr == XFER)                     r_state_conv_next = T1;     // starts the convolution after moving date to the convolution register bank
+            T1:                                           r_state_conv_next = HAD;
+            HAD:    if (r_conv_multiply_count==CONV_MULTIPLY_COUNTER_W'(CONV_MULTIPLY_STEPS-1)) r_state_conv_next = T2;
+            T2:                                           r_state_conv_next = WAIT_CONV;
+            default:                                      r_state_conv_next = WAIT_CONV;
+        endcase
+    end
+
+    // -------------------------------------------------------------------------
+    // CONVOLUTION REGISTER BANK AND CONVOLUTION REGISTERS:  w_conv_end  -- r_conv_multiply_count
+    // -------------------------------------------------------------------------
+`ifdef SIMULATION
+     time prev_time, curr_time;  // debug
+`endif
+
+     always_ff @(posedge clk or posedge reset) begin    // register bank for the convolution
+        if (reset)
+            for (int unsigned i = 0; i < 25; i++)
+                r_conv_input[i] <= '0;
+        else begin
+            if (r_state_read_curr == XFER) begin              // fill the convolution register bank
+                   for (int unsigned i = 0; i < 25; i++)
+                        r_conv_input[i] <= r_feat_input[i];
+`ifdef SIMULATION
+                   curr_time = $time;     // debug
+                   $display("current time = %0t | previous time = %0t | diff = %0t", curr_time, prev_time, (curr_time - prev_time));
+                   prev_time <= curr_time;
+`endif
+            end
+        end
+    end
+
+    always_ff @(posedge clk or posedge reset) begin
+        if (reset)
+            w_conv_end <= 0;
+        else begin
+            if (r_state_conv_next == T2)            // *** CAUTION: PE
+                w_conv_end <=  1;
+            else if (r_state_write_curr == WRITE_OUTPUT)
+                w_conv_end <= 0;
+        end
+    end
+
+    always_ff @(posedge clk or posedge reset) begin
+        if (reset)
+            r_conv_multiply_count <= 0;
+        else begin
+            if (r_state_conv_curr == T1)
+                r_conv_multiply_count <= 0;
+            else if (r_state_conv_curr== HAD)
+                r_conv_multiply_count <=  r_conv_multiply_count + 1;
+        end
+    end
+
+    // ----------------------------------------------------------------------------------------------------
+    // -------  PART 4 - WRITE FSM AND READ/WRITE COUNTER -------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------
+    always_ff @(posedge clk or posedge reset) begin
+        if (reset)
+            r_state_write_curr <= WAIT_WRITE;
+        else
+            r_state_write_curr <= r_state_write_next;
+    end
+
+    always_comb begin
+        r_state_write_next = r_state_write_curr;    // default
+
+        priority case (r_state_write_curr)
+            WAIT_WRITE: if (r_state_read_curr==AP)                                    r_state_write_next = ZERA9;     // wait p_start reading the IFMAPs to p_start writing the results
+                        else                                          r_state_write_next = WAIT_WRITE;
+            ZERA9:   if (w_conv_end && r_output_read_count==8)                       r_state_write_next = WRITE_OUTPUT;
+            READ_OUTPUT:   if (w_conv_end && r_output_read_count==8)                       r_state_write_next = WRITE_OUTPUT;
+            WRITE_OUTPUT:  if (r_channel_counter_input==0 && r_output_write_count==8)           r_state_write_next = ZERA9;
+                         else if (r_channel_counter_input>0  && r_output_write_count==8)  r_state_write_next = READ_OUTPUT ;
+                         else if (lastOFMAP)                          r_state_write_next = WAIT_WRITE;  //end processing
+                         else  r_state_write_next = WRITE_OUTPUT;
+            default: r_state_write_next = WAIT_WRITE;
+        endcase
+    end
+
+    // -------------------------------------------------------------------------
+    // WRITE REGISTERS - r_output_read_count e r_output_write_count
+    // -------------------------------------------------------------------------
+    always_ff @(posedge clk or posedge reset) begin
+        if (reset) begin
+            r_output_read_count <= 0;
+            r_output_write_count <= 0;
+        end
+        else begin
+            if (r_state_write_curr==WRITE_OUTPUT) begin
+                r_output_read_count <= 0;
+                if (r_output_write_count < 8)
+                    r_output_write_count <= r_output_write_count + 1;
+                else
+                    r_output_write_count <= 8;
+            end
+            else if (r_state_write_curr==ZERA9 || r_state_write_curr==READ_OUTPUT) begin
+                r_output_write_count <= 0;
+                if (r_output_read_count < 8)
+                    r_output_read_count <= r_output_read_count + 1;
+                else
+                    r_output_read_count <= 8;
+            end
+        end
+    end
+
+endmodule

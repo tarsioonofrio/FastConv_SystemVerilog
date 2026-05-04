@@ -2,7 +2,7 @@ if {[file isdirectory work]} { vdel -all -lib work }
 vlib work
 vmap work work
 
-vlog +define+SIMULATION conv_controller.sv
+vlog +define+SIMULATION control.sv
 vlog tb.sv
 
 vsim -voptargs=+acc=lprn -t ps work.tb
