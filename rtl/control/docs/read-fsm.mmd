@@ -1,14 +1,14 @@
 flowchart TB
     W(["WAIT"]) -->|"p_start"| AP(["AP"]) --> RW(["READ_WEIGHTS"])
-    RW -->|"w_weight_done"| R10A(["R10A"])
-    RW -->|"lastOFMAP"| W
-    R10A -->|"r_addr_count_input==4"| R10B(["R10B"])
-    R10B -->|"r_addr_count_input==4"| R15A(["R15A"])
-    R15A -->|"r_addr_count_input==4"| R15B(["R15B"])
-    R15B -->|"r_addr_count_input==4"| R15C(["R15C"])
-    R15C -->|"r_addr_count_input==4"| X(["XFER"])
+    RW -->|"w_weight_done"| READ_IN_10A(["READ_IN_10A"])
+    RW -->|"last_output"| W
+    READ_IN_10A -->|"r_addr_count_input==4"| READ_IN_10B(["READ_IN_10B"])
+    READ_IN_10B -->|"r_addr_count_input==4"| READ_IN_15A(["READ_IN_15A"])
+    READ_IN_15A -->|"r_addr_count_input==4"| READ_IN_15B(["READ_IN_15B"])
+    READ_IN_15B -->|"r_addr_count_input==4"| READ_IN_15C(["READ_IN_15C"])
+    READ_IN_15C -->|"r_addr_count_input==4"| X(["TRANSFER"])
     X --> HW(["HOLD_WRITE"])
-    HW -->|"w_write_done && !last_line"| R15A
+    HW -->|"w_write_done && !last_line"| READ_IN_15A
     HW -->|"w_write_done && last_line"| NR(["NEXT_ROW"])
-    NR -->|"lastIFMAP"| AP
-    NR -->|"!lastIFMAP"| R10A
+    NR -->|"last_input"| AP
+    NR -->|"!last_input"| READ_IN_10A
