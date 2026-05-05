@@ -1,5 +1,5 @@
 flowchart TB
-    WC(["WAIT_CONV"]) -->|"r_state_read_curr==TRANSFER"| TRANSFORM(["TRANSFORM"])
+    WC(["WAIT_CONV"]) -->|"st_read_curr==TRANSFER"| TRANSFORM(["TRANSFORM"])
     TRANSFORM --> H(["HADAMARD"])
     H -->|"r_conv_multiply_count==CONV_MULTIPLY_STEPS-1"| INVERSE(["INVERSE"])
     INVERSE --> WC
