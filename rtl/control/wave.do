@@ -1,5 +1,5 @@
 add wave -noupdate -divider ESTADOS
-add wave -noupdate /tb/dut/r_state_input_curr
+add wave -noupdate /tb/dut/r_state_input_current
 add wave -noupdate /tb/dut/r_state_conv_current
 add wave -noupdate /tb/dut/r_state_output_current
 add wave -noupdate -divider SINCRONISMO
@@ -7,7 +7,7 @@ add wave -noupdate -color black /tb/dut/reset
 add wave -noupdate -color black /tb/dut/clk
 add wave -noupdate -color black /tb/dut/p_start
 add wave -noupdate -divider LEITURA
-add wave -noupdate /tb/dut/r_state_input_curr
+add wave -noupdate /tb/dut/r_state_input_current
 add wave -noupdate /tb/dut/r_state_input_next
 add wave -noupdate /tb/dut/p_input_data
 add wave -noupdate /tb/dut/w_base_feat_input

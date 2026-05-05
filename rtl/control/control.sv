@@ -71,7 +71,7 @@ module Control #(
     TRANSFER,
     NEXT_ROW
   } state_input_type;
-  state_input_type r_state_input_curr, r_state_input_next;
+  state_input_type r_state_input_current, r_state_input_next;
 
   typedef enum logic [1:0] {
     WAIT_CONV,
@@ -92,28 +92,28 @@ module Control #(
   // ----------------------------------------------------------------------------------------------------
   // -------  PART 1 - ADDRESS TO ACCESS THE IFMAP AND WEIGHT MEMORY ------------------------------------
   // ----------------------------------------------------------------------------------------------------
-  assign p_input_addr = (r_state_input_curr == READ_WEIGHTS) ? r_addr_pointer_kernel : r_addr_pointer_input + NADDR'(r_addr_count_input);  // p_input_addr mux
+  assign p_input_addr = (r_state_input_current == READ_WEIGHTS) ? r_addr_pointer_kernel : r_addr_pointer_input + NADDR'(r_addr_count_input);  // p_input_addr mux
 
   always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
       r_addr_pointer_input <= '0;
       r_window_row_step <= 3;
     end
-    else if ((r_state_input_curr == READ_IN_10A && r_state_input_next == READ_IN_10B) || (r_state_input_curr == READ_IN_10B && r_state_input_next == READ_IN_15A) || (r_state_input_curr == READ_IN_15A && r_state_input_next == READ_IN_15B) || (r_state_input_curr == READ_IN_15B && r_state_input_next == READ_IN_15C) || r_state_input_curr == TRANSFER)
+    else if ((r_state_input_current == READ_IN_10A && r_state_input_next == READ_IN_10B) || (r_state_input_current == READ_IN_10B && r_state_input_next == READ_IN_15A) || (r_state_input_current == READ_IN_15A && r_state_input_next == READ_IN_15B) || (r_state_input_current == READ_IN_15B && r_state_input_next == READ_IN_15C) || r_state_input_current == TRANSFER)
       r_addr_pointer_input <= r_addr_pointer_input + NADDR'(FEAT_INPUT_WIDTH);    // change internal p_input_addr in the state transition or in the TRANSFER state (CAUTION: PE)
 
-    else if (r_state_input_curr == NEXT_ROW && !last_input) begin  // when change the line, the read pointer moves 'r_window_row_step'
+    else if (r_state_input_current == NEXT_ROW && !last_input) begin  // when change the line, the read pointer moves 'r_window_row_step'
       r_addr_pointer_input <= r_window_row_step + NADDR'(r_channel_counter_input * FEAT_INPUT_SIZE * FEAT_INPUT_WIDTH);  // restart for the first line
       r_window_row_step <= r_window_row_step + 3;
-    end else if (r_state_input_curr == AP && last_input) begin
+    end else if (r_state_input_current == AP && last_input) begin
       r_addr_pointer_input <= r_addr_pointer_input - NADDR'(FEAT_INPUT_WIDTH) + NADDR'(KERNEL_SIZE);   // adjust the pointer to the next IFMAP
       r_window_row_step <= 3;
 
       if (r_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN-1) ) begin               // change the IFMAP
 `ifdef SIMULATION
         $display(
-            "RESETANDO PARA O CANAL 0 - DEU A VOLTA NOS IFMAPS time=%0t %d (%0d) r_state_input_curr = %s",
-            $time, r_channel_counter_input, N_CHANNEL_IN, r_state_input_curr.name());
+            "RESETANDO PARA O CANAL 0 - DEU A VOLTA NOS IFMAPS time=%0t %d (%0d) r_state_input_current = %s",
+            $time, r_channel_counter_input, N_CHANNEL_IN, r_state_input_current.name());
 
 `endif
         r_addr_pointer_input <= 0;
@@ -125,9 +125,9 @@ module Control #(
     if (reset) begin
       r_addr_pointer_kernel <= 0;
     end
-        else if (r_state_input_curr == WAIT && r_state_input_next == AP)    // initializes only ONCE the weight p_input_addr (after the IFMAPs in the memory) (CAUTION: PE)
+        else if (r_state_input_current == WAIT && r_state_input_next == AP)    // initializes only ONCE the weight p_input_addr (after the IFMAPs in the memory) (CAUTION: PE)
       r_addr_pointer_kernel <= NADDR'(N_CHANNEL_IN * FEAT_INPUT_SIZE * FEAT_INPUT_WIDTH);
-    else if (r_state_input_curr == READ_WEIGHTS)
+    else if (r_state_input_current == READ_WEIGHTS)
       r_addr_pointer_kernel <= r_addr_pointer_kernel + 1;  // next weight
   end
 
@@ -135,13 +135,13 @@ module Control #(
   // -------  PART 2 - READ FSM AND REGISTERS -----------------------------------------------------------
   // ----------------------------------------------------------------------------------------------------
   always_ff @(posedge clk or posedge reset) begin
-    if (reset) r_state_input_curr <= WAIT;
-    else r_state_input_curr <= r_state_input_next;
+    if (reset) r_state_input_current <= WAIT;
+    else r_state_input_current <= r_state_input_next;
   end
 
   always_comb begin
-    r_state_input_next = r_state_input_curr;
-    priority case (r_state_input_curr)
+    r_state_input_next = r_state_input_current;
+    priority case (r_state_input_current)
       WAIT: if (p_start) r_state_input_next = AP;
       AP: r_state_input_next = READ_WEIGHTS;
       READ_WEIGHTS:
@@ -180,21 +180,21 @@ module Control #(
     if (reset) begin
       r_addr_count_input <= 0;
     end else begin
-      if (r_state_input_curr == READ_WEIGHTS) begin
+      if (r_state_input_current == READ_WEIGHTS) begin
         r_addr_count_input <= 0;
       end
-            else if (r_state_input_curr inside {READ_IN_10A, READ_IN_10B, READ_IN_15A, READ_IN_15B, READ_IN_15C}) begin
+            else if (r_state_input_current inside {READ_IN_10A, READ_IN_10B, READ_IN_15A, READ_IN_15B, READ_IN_15C}) begin
         if (r_addr_count_input == 4) r_addr_count_input <= 0;
         else r_addr_count_input <= r_addr_count_input + 1;
       end
     end
   end
 
-  assign w_base_feat_input = (r_state_input_curr == READ_IN_10A) ? 0 :
-                             (r_state_input_curr == READ_IN_10B) ? 1 :
-                             (r_state_input_curr == READ_IN_15A) ? 2 :
-                             (r_state_input_curr == READ_IN_15B) ? 3 :
-                             (r_state_input_curr == READ_IN_15C) ? 4 :  0;
+  assign w_base_feat_input = (r_state_input_current == READ_IN_10A) ? 0 :
+                             (r_state_input_current == READ_IN_10B) ? 1 :
+                             (r_state_input_current == READ_IN_15A) ? 2 :
+                             (r_state_input_current == READ_IN_15B) ? 3 :
+                             (r_state_input_current == READ_IN_15C) ? 4 :  0;
 
 
   // SET OF FIVE CONTROL REGISTERS:
@@ -211,7 +211,7 @@ module Control #(
       r_window_counter_row     <= 0;
       r_addr_count_kernel      <= 0;
     end else begin
-      if (r_state_input_curr == AP) begin
+      if (r_state_input_current == AP) begin
 
         if (r_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1)) begin
           r_channel_counter_input  <= '0;
@@ -224,16 +224,16 @@ module Control #(
         r_addr_count_kernel    <= 0;
       end
 
-      if (r_state_input_curr == NEXT_ROW) begin
+      if (r_state_input_current == NEXT_ROW) begin
         r_window_counter_row <= 0;
       end
 
-      if (r_state_input_curr == TRANSFER) begin
+      if (r_state_input_current == TRANSFER) begin
         r_window_counter_input <= r_window_counter_input + 1;
         r_window_counter_row   <= r_window_counter_row + 1;
       end
 
-      if (r_state_input_curr == READ_WEIGHTS) begin
+      if (r_state_input_current == READ_WEIGHTS) begin
         r_addr_count_kernel <= r_addr_count_kernel + 1;
       end
     end
@@ -246,21 +246,21 @@ module Control #(
     for (int unsigned i = 0; i < 25; i++)  // connection between register outputs to register inputs
     w_next_feat_input[i] = p_input_data;
 
-    w_next_feat_input[0]  = (r_state_input_curr == READ_IN_10A) ? p_input_data : r_feat_input[3];     // makes the shifts - minimize muxes
-    w_next_feat_input[1]  = (r_state_input_curr == READ_IN_10B) ? p_input_data : r_feat_input[4];
-    w_next_feat_input[5]  = (r_state_input_curr == READ_IN_10A) ? p_input_data : r_feat_input[8];
-    w_next_feat_input[6]  = (r_state_input_curr == READ_IN_10B) ? p_input_data : r_feat_input[9];
-    w_next_feat_input[10] = (r_state_input_curr == READ_IN_10A) ? p_input_data : r_feat_input[13];
-    w_next_feat_input[11] = (r_state_input_curr == READ_IN_10B) ? p_input_data : r_feat_input[14];
-    w_next_feat_input[15] = (r_state_input_curr == READ_IN_10A) ? p_input_data : r_feat_input[18];
-    w_next_feat_input[16] = (r_state_input_curr == READ_IN_10B) ? p_input_data : r_feat_input[19];
-    w_next_feat_input[20] = (r_state_input_curr == READ_IN_10A) ? p_input_data : r_feat_input[23];
-    w_next_feat_input[21] = (r_state_input_curr == READ_IN_10B) ? p_input_data : r_feat_input[24];
+    w_next_feat_input[0]  = (r_state_input_current == READ_IN_10A) ? p_input_data : r_feat_input[3];     // makes the shifts - minimize muxes
+    w_next_feat_input[1]  = (r_state_input_current == READ_IN_10B) ? p_input_data : r_feat_input[4];
+    w_next_feat_input[5]  = (r_state_input_current == READ_IN_10A) ? p_input_data : r_feat_input[8];
+    w_next_feat_input[6]  = (r_state_input_current == READ_IN_10B) ? p_input_data : r_feat_input[9];
+    w_next_feat_input[10] = (r_state_input_current == READ_IN_10A) ? p_input_data : r_feat_input[13];
+    w_next_feat_input[11] = (r_state_input_current == READ_IN_10B) ? p_input_data : r_feat_input[14];
+    w_next_feat_input[15] = (r_state_input_current == READ_IN_10A) ? p_input_data : r_feat_input[18];
+    w_next_feat_input[16] = (r_state_input_current == READ_IN_10B) ? p_input_data : r_feat_input[19];
+    w_next_feat_input[20] = (r_state_input_current == READ_IN_10A) ? p_input_data : r_feat_input[23];
+    w_next_feat_input[21] = (r_state_input_current == READ_IN_10B) ? p_input_data : r_feat_input[24];
   end
 
   always_comb begin  // 'w_feat_input_write_en' to write into the register bank r_feat_input
     w_feat_input_write_en = '0;
-    case (r_state_input_curr)
+    case (r_state_input_current)
       READ_IN_10A, READ_IN_10B, READ_IN_15A, READ_IN_15B, READ_IN_15C:
       w_feat_input_write_en[w_base_feat_input + r_addr_count_input * 5] = 1'b1;
       TRANSFER: w_feat_input_write_en = 25'b0001100011000110001100011;  // make the shift
@@ -278,7 +278,7 @@ module Control #(
   // Weight register bank with per-entry write-enable.
   always_comb begin
     w_weight_write_en = '0;
-    if (r_state_input_curr == READ_WEIGHTS) w_weight_write_en[r_addr_count_kernel] = 1'b1;
+    if (r_state_input_current == READ_WEIGHTS) w_weight_write_en[r_addr_count_kernel] = 1'b1;
   end
 
   always_ff @(posedge clk or posedge reset) begin
@@ -305,7 +305,7 @@ module Control #(
     r_state_conv_next = r_state_conv_current;  // default
     priority case (r_state_conv_current)
       WAIT_CONV:
-      if (r_state_input_curr == TRANSFER)
+      if (r_state_input_current == TRANSFER)
         r_state_conv_next = TRANSFORM;     // starts the convolution after moving date to the convolution register bank
       TRANSFORM: r_state_conv_next = HADAMARD;
       HADAMARD:
@@ -326,7 +326,7 @@ module Control #(
   always_ff @(posedge clk or posedge reset) begin  // register bank for the convolution
     if (reset) for (int unsigned i = 0; i < 25; i++) r_conv_input[i] <= '0;
     else begin
-      if (r_state_input_curr == TRANSFER) begin  // fill the convolution register bank
+      if (r_state_input_current == TRANSFER) begin  // fill the convolution register bank
         for (int unsigned i = 0; i < 25; i++) r_conv_input[i] <= r_feat_input[i];
 `ifdef SIMULATION
         curr_time = $time;  // debug
@@ -368,7 +368,7 @@ module Control #(
 
     priority case (r_state_output_current)
       WAIT_WRITE:
-      if (r_state_input_curr == AP)
+      if (r_state_input_current == AP)
         r_state_output_next = RESET9;     // wait p_start reading the IFMAPs to p_start writing the results
         else r_state_output_next = WAIT_WRITE;
         RESET9: if (w_conv_end && r_output_read_count == 8) r_state_output_next = WRITE_OUTPUT;
