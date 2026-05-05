@@ -1,7 +1,7 @@
 SRCDIR = .
 SRC =  $(SRCDIR)/control.sv
 
-TB = $(SRCDIR)/tb.sv
+TB = $(SRCDIR)/testbench.sv
 
 TOP_MODULE = tb
 
