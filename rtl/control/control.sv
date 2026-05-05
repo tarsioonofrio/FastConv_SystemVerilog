@@ -70,50 +70,50 @@ module Control #(
     HOLD_WRITE,
     TRANSFER,
     NEXT_ROW
-  } state_input_type;
-  state_input_type r_state_input_current, r_state_input_next;
+  } type_st_input;
+  type_st_input st_input_current, st_input_next;
 
   typedef enum logic [1:0] {
     WAIT_CONV,
     TRANSFORM,
     HADAMARD,
     INVERSE
-  } state_conv_type;
-  state_conv_type r_state_conv_current, r_state_conv_next;
+  } type_st_conv;
+  type_st_conv st_conv_current, st_conv_next;
 
   typedef enum logic [2:0] {
     WAIT_WRITE,
     RESET9,
     READ_OUTPUT,
     WRITE_OUTPUT
-  } state_output_type;
-  state_output_type r_state_output_current, r_state_output_next;
+  } type_st_output;
+  type_st_output st_output_current, st_output_next;
 
   // ----------------------------------------------------------------------------------------------------
   // -------  PART 1 - ADDRESS TO ACCESS THE IFMAP AND WEIGHT MEMORY ------------------------------------
   // ----------------------------------------------------------------------------------------------------
-  assign p_input_addr = (r_state_input_current == READ_WEIGHTS) ? r_addr_pointer_kernel : r_addr_pointer_input + NADDR'(r_addr_count_input);  // p_input_addr mux
+  assign p_input_addr = (st_input_current == READ_WEIGHTS) ? r_addr_pointer_kernel : r_addr_pointer_input + NADDR'(r_addr_count_input);  // p_input_addr mux
 
   always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
       r_addr_pointer_input <= '0;
       r_window_row_step <= 3;
     end
-    else if ((r_state_input_current == READ_IN_10A && r_state_input_next == READ_IN_10B) || (r_state_input_current == READ_IN_10B && r_state_input_next == READ_IN_15A) || (r_state_input_current == READ_IN_15A && r_state_input_next == READ_IN_15B) || (r_state_input_current == READ_IN_15B && r_state_input_next == READ_IN_15C) || r_state_input_current == TRANSFER)
+    else if ((st_input_current == READ_IN_10A && st_input_next == READ_IN_10B) || (st_input_current == READ_IN_10B && st_input_next == READ_IN_15A) || (st_input_current == READ_IN_15A && st_input_next == READ_IN_15B) || (st_input_current == READ_IN_15B && st_input_next == READ_IN_15C) || st_input_current == TRANSFER)
       r_addr_pointer_input <= r_addr_pointer_input + NADDR'(FEAT_INPUT_WIDTH);    // change internal p_input_addr in the state transition or in the TRANSFER state (CAUTION: PE)
 
-    else if (r_state_input_current == NEXT_ROW && !last_input) begin  // when change the line, the read pointer moves 'r_window_row_step'
+    else if (st_input_current == NEXT_ROW && !last_input) begin  // when change the line, the read pointer moves 'r_window_row_step'
       r_addr_pointer_input <= r_window_row_step + NADDR'(r_channel_counter_input * FEAT_INPUT_SIZE * FEAT_INPUT_WIDTH);  // restart for the first line
       r_window_row_step <= r_window_row_step + 3;
-    end else if (r_state_input_current == AP && last_input) begin
+    end else if (st_input_current == AP && last_input) begin
       r_addr_pointer_input <= r_addr_pointer_input - NADDR'(FEAT_INPUT_WIDTH) + NADDR'(KERNEL_SIZE);   // adjust the pointer to the next IFMAP
       r_window_row_step <= 3;
 
       if (r_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN-1) ) begin               // change the IFMAP
 `ifdef SIMULATION
         $display(
-            "RESETANDO PARA O CANAL 0 - DEU A VOLTA NOS IFMAPS time=%0t %d (%0d) r_state_input_current = %s",
-            $time, r_channel_counter_input, N_CHANNEL_IN, r_state_input_current.name());
+            "RESETANDO PARA O CANAL 0 - DEU A VOLTA NOS IFMAPS time=%0t %d (%0d) st_input_current = %s",
+            $time, r_channel_counter_input, N_CHANNEL_IN, st_input_current.name());
 
 `endif
         r_addr_pointer_input <= 0;
@@ -125,9 +125,9 @@ module Control #(
     if (reset) begin
       r_addr_pointer_kernel <= 0;
     end
-        else if (r_state_input_current == WAIT && r_state_input_next == AP)    // initializes only ONCE the weight p_input_addr (after the IFMAPs in the memory) (CAUTION: PE)
+        else if (st_input_current == WAIT && st_input_next == AP)    // initializes only ONCE the weight p_input_addr (after the IFMAPs in the memory) (CAUTION: PE)
       r_addr_pointer_kernel <= NADDR'(N_CHANNEL_IN * FEAT_INPUT_SIZE * FEAT_INPUT_WIDTH);
-    else if (r_state_input_current == READ_WEIGHTS)
+    else if (st_input_current == READ_WEIGHTS)
       r_addr_pointer_kernel <= r_addr_pointer_kernel + 1;  // next weight
   end
 
@@ -135,32 +135,32 @@ module Control #(
   // -------  PART 2 - READ FSM AND REGISTERS -----------------------------------------------------------
   // ----------------------------------------------------------------------------------------------------
   always_ff @(posedge clk or posedge reset) begin
-    if (reset) r_state_input_current <= WAIT;
-    else r_state_input_current <= r_state_input_next;
+    if (reset) st_input_current <= WAIT;
+    else st_input_current <= st_input_next;
   end
 
   always_comb begin
-    r_state_input_next = r_state_input_current;
-    priority case (r_state_input_current)
-      WAIT: if (p_start) r_state_input_next = AP;
-      AP: r_state_input_next = READ_WEIGHTS;
+    st_input_next = st_input_current;
+    priority case (st_input_current)
+      WAIT: if (p_start) st_input_next = AP;
+      AP: st_input_next = READ_WEIGHTS;
       READ_WEIGHTS:
-      if (w_weight_done) r_state_input_next = READ_IN_10A;
-      else if (last_output) r_state_input_next = WAIT;  //end processing
-      READ_IN_10A: if (r_addr_count_input == 4) r_state_input_next = READ_IN_10B;  // read 5*5 values
-      READ_IN_10B: if (r_addr_count_input == 4) r_state_input_next = READ_IN_15A;
-      READ_IN_15A: if (r_addr_count_input == 4) r_state_input_next = READ_IN_15B;
-      READ_IN_15B: if (r_addr_count_input == 4) r_state_input_next = READ_IN_15C;
-      READ_IN_15C: if (r_addr_count_input == 4) r_state_input_next = TRANSFER;
-      TRANSFER: r_state_input_next = HOLD_WRITE;  // p_start the convolution
+      if (w_weight_done) st_input_next = READ_IN_10A;
+      else if (last_output) st_input_next = WAIT;  //end processing
+      READ_IN_10A: if (r_addr_count_input == 4) st_input_next = READ_IN_10B;  // read 5*5 values
+      READ_IN_10B: if (r_addr_count_input == 4) st_input_next = READ_IN_15A;
+      READ_IN_15A: if (r_addr_count_input == 4) st_input_next = READ_IN_15B;
+      READ_IN_15B: if (r_addr_count_input == 4) st_input_next = READ_IN_15C;
+      READ_IN_15C: if (r_addr_count_input == 4) st_input_next = TRANSFER;
+      TRANSFER: st_input_next = HOLD_WRITE;  // p_start the convolution
       HOLD_WRITE:
-      if (last_line && w_write_done) r_state_input_next = NEXT_ROW;
-      else if (w_write_done) r_state_input_next = READ_IN_15A;
-      else r_state_input_next = HOLD_WRITE;
+      if (last_line && w_write_done) st_input_next = NEXT_ROW;
+      else if (w_write_done) st_input_next = READ_IN_15A;
+      else st_input_next = HOLD_WRITE;
       NEXT_ROW:
-      if (last_input) r_state_input_next = AP;
-      else r_state_input_next = READ_IN_10A;
-      default: r_state_input_next = WAIT;
+      if (last_input) st_input_next = AP;
+      else st_input_next = READ_IN_10A;
+      default: st_input_next = WAIT;
     endcase
   end
 
@@ -170,7 +170,7 @@ module Control #(
   assign last_input = (r_window_counter_input == WINDOW_COUNTER_WIDTH'(WINDOW_COUNT_PER_CHANNEL));
   assign last_output = (r_channel_counter_output == CHANNEL_OUTPUT_COUNTER_WIDTH'(N_CHANNEL_OUT));
 
-  assign p_end = ((r_state_output_next == WAIT_WRITE && last_output));  // output to signalize the end of the convolution process
+  assign p_end = ((st_output_next == WAIT_WRITE && last_output));  // output to signalize the end of the convolution process
 
   // -------------------------------------------------------------------------
   // READING REGISTERS
@@ -180,21 +180,21 @@ module Control #(
     if (reset) begin
       r_addr_count_input <= 0;
     end else begin
-      if (r_state_input_current == READ_WEIGHTS) begin
+      if (st_input_current == READ_WEIGHTS) begin
         r_addr_count_input <= 0;
       end
-            else if (r_state_input_current inside {READ_IN_10A, READ_IN_10B, READ_IN_15A, READ_IN_15B, READ_IN_15C}) begin
+            else if (st_input_current inside {READ_IN_10A, READ_IN_10B, READ_IN_15A, READ_IN_15B, READ_IN_15C}) begin
         if (r_addr_count_input == 4) r_addr_count_input <= 0;
         else r_addr_count_input <= r_addr_count_input + 1;
       end
     end
   end
 
-  assign w_base_feat_input = (r_state_input_current == READ_IN_10A) ? 0 :
-                             (r_state_input_current == READ_IN_10B) ? 1 :
-                             (r_state_input_current == READ_IN_15A) ? 2 :
-                             (r_state_input_current == READ_IN_15B) ? 3 :
-                             (r_state_input_current == READ_IN_15C) ? 4 :  0;
+  assign w_base_feat_input = (st_input_current == READ_IN_10A) ? 0 :
+                             (st_input_current == READ_IN_10B) ? 1 :
+                             (st_input_current == READ_IN_15A) ? 2 :
+                             (st_input_current == READ_IN_15B) ? 3 :
+                             (st_input_current == READ_IN_15C) ? 4 :  0;
 
 
   // SET OF FIVE CONTROL REGISTERS:
@@ -211,7 +211,7 @@ module Control #(
       r_window_counter_row     <= 0;
       r_addr_count_kernel      <= 0;
     end else begin
-      if (r_state_input_current == AP) begin
+      if (st_input_current == AP) begin
 
         if (r_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1)) begin
           r_channel_counter_input  <= '0;
@@ -224,16 +224,16 @@ module Control #(
         r_addr_count_kernel    <= 0;
       end
 
-      if (r_state_input_current == NEXT_ROW) begin
+      if (st_input_current == NEXT_ROW) begin
         r_window_counter_row <= 0;
       end
 
-      if (r_state_input_current == TRANSFER) begin
+      if (st_input_current == TRANSFER) begin
         r_window_counter_input <= r_window_counter_input + 1;
         r_window_counter_row   <= r_window_counter_row + 1;
       end
 
-      if (r_state_input_current == READ_WEIGHTS) begin
+      if (st_input_current == READ_WEIGHTS) begin
         r_addr_count_kernel <= r_addr_count_kernel + 1;
       end
     end
@@ -246,21 +246,21 @@ module Control #(
     for (int unsigned i = 0; i < 25; i++)  // connection between register outputs to register inputs
     w_next_feat_input[i] = p_input_data;
 
-    w_next_feat_input[0]  = (r_state_input_current == READ_IN_10A) ? p_input_data : r_feat_input[3];     // makes the shifts - minimize muxes
-    w_next_feat_input[1]  = (r_state_input_current == READ_IN_10B) ? p_input_data : r_feat_input[4];
-    w_next_feat_input[5]  = (r_state_input_current == READ_IN_10A) ? p_input_data : r_feat_input[8];
-    w_next_feat_input[6]  = (r_state_input_current == READ_IN_10B) ? p_input_data : r_feat_input[9];
-    w_next_feat_input[10] = (r_state_input_current == READ_IN_10A) ? p_input_data : r_feat_input[13];
-    w_next_feat_input[11] = (r_state_input_current == READ_IN_10B) ? p_input_data : r_feat_input[14];
-    w_next_feat_input[15] = (r_state_input_current == READ_IN_10A) ? p_input_data : r_feat_input[18];
-    w_next_feat_input[16] = (r_state_input_current == READ_IN_10B) ? p_input_data : r_feat_input[19];
-    w_next_feat_input[20] = (r_state_input_current == READ_IN_10A) ? p_input_data : r_feat_input[23];
-    w_next_feat_input[21] = (r_state_input_current == READ_IN_10B) ? p_input_data : r_feat_input[24];
+    w_next_feat_input[0]  = (st_input_current == READ_IN_10A) ? p_input_data : r_feat_input[3];     // makes the shifts - minimize muxes
+    w_next_feat_input[1]  = (st_input_current == READ_IN_10B) ? p_input_data : r_feat_input[4];
+    w_next_feat_input[5]  = (st_input_current == READ_IN_10A) ? p_input_data : r_feat_input[8];
+    w_next_feat_input[6]  = (st_input_current == READ_IN_10B) ? p_input_data : r_feat_input[9];
+    w_next_feat_input[10] = (st_input_current == READ_IN_10A) ? p_input_data : r_feat_input[13];
+    w_next_feat_input[11] = (st_input_current == READ_IN_10B) ? p_input_data : r_feat_input[14];
+    w_next_feat_input[15] = (st_input_current == READ_IN_10A) ? p_input_data : r_feat_input[18];
+    w_next_feat_input[16] = (st_input_current == READ_IN_10B) ? p_input_data : r_feat_input[19];
+    w_next_feat_input[20] = (st_input_current == READ_IN_10A) ? p_input_data : r_feat_input[23];
+    w_next_feat_input[21] = (st_input_current == READ_IN_10B) ? p_input_data : r_feat_input[24];
   end
 
   always_comb begin  // 'w_feat_input_write_en' to write into the register bank r_feat_input
     w_feat_input_write_en = '0;
-    case (r_state_input_current)
+    case (st_input_current)
       READ_IN_10A, READ_IN_10B, READ_IN_15A, READ_IN_15B, READ_IN_15C:
       w_feat_input_write_en[w_base_feat_input + r_addr_count_input * 5] = 1'b1;
       TRANSFER: w_feat_input_write_en = 25'b0001100011000110001100011;  // make the shift
@@ -278,7 +278,7 @@ module Control #(
   // Weight register bank with per-entry write-enable.
   always_comb begin
     w_weight_write_en = '0;
-    if (r_state_input_current == READ_WEIGHTS) w_weight_write_en[r_addr_count_kernel] = 1'b1;
+    if (st_input_current == READ_WEIGHTS) w_weight_write_en[r_addr_count_kernel] = 1'b1;
   end
 
   always_ff @(posedge clk or posedge reset) begin
@@ -297,22 +297,22 @@ module Control #(
   logic [CONV_MULTIPLY_COUNTER_WIDTH-1:0] r_conv_multiply_count;
 
   always_ff @(posedge clk or posedge reset) begin
-    if (reset) r_state_conv_current <= WAIT_CONV;
-    else r_state_conv_current <= r_state_conv_next;
+    if (reset) st_conv_current <= WAIT_CONV;
+    else st_conv_current <= st_conv_next;
   end
 
   always_comb begin
-    r_state_conv_next = r_state_conv_current;  // default
-    priority case (r_state_conv_current)
+    st_conv_next = st_conv_current;  // default
+    priority case (st_conv_current)
       WAIT_CONV:
-      if (r_state_input_current == TRANSFER)
-        r_state_conv_next = TRANSFORM;     // starts the convolution after moving date to the convolution register bank
-      TRANSFORM: r_state_conv_next = HADAMARD;
+      if (st_input_current == TRANSFER)
+        st_conv_next = TRANSFORM;     // starts the convolution after moving date to the convolution register bank
+        TRANSFORM: st_conv_next = HADAMARD;
       HADAMARD:
       if (r_conv_multiply_count == CONV_MULTIPLY_COUNTER_WIDTH'(CONV_MULTIPLY_STEPS - 1))
-        r_state_conv_next = INVERSE;
-      INVERSE: r_state_conv_next = WAIT_CONV;
-      default: r_state_conv_next = WAIT_CONV;
+        st_conv_next = INVERSE;
+        INVERSE: st_conv_next = WAIT_CONV;
+        default: st_conv_next = WAIT_CONV;
     endcase
   end
 
@@ -326,7 +326,7 @@ module Control #(
   always_ff @(posedge clk or posedge reset) begin  // register bank for the convolution
     if (reset) for (int unsigned i = 0; i < 25; i++) r_conv_input[i] <= '0;
     else begin
-      if (r_state_input_current == TRANSFER) begin  // fill the convolution register bank
+      if (st_input_current == TRANSFER) begin  // fill the convolution register bank
         for (int unsigned i = 0; i < 25; i++) r_conv_input[i] <= r_feat_input[i];
 `ifdef SIMULATION
         curr_time = $time;  // debug
@@ -341,17 +341,17 @@ module Control #(
   always_ff @(posedge clk or posedge reset) begin
     if (reset) w_conv_end <= 0;
     else begin
-      if (r_state_conv_next == INVERSE)  // *** CAUTION: PE
+      if (st_conv_next == INVERSE)  // *** CAUTION: PE
         w_conv_end <= 1;
-      else if (r_state_output_current == WRITE_OUTPUT) w_conv_end <= 0;
+      else if (st_output_current == WRITE_OUTPUT) w_conv_end <= 0;
     end
   end
 
   always_ff @(posedge clk or posedge reset) begin
     if (reset) r_conv_multiply_count <= 0;
     else begin
-      if (r_state_conv_current == TRANSFORM) r_conv_multiply_count <= 0;
-      else if (r_state_conv_current == HADAMARD) r_conv_multiply_count <= r_conv_multiply_count + 1;
+      if (st_conv_current == TRANSFORM) r_conv_multiply_count <= 0;
+      else if (st_conv_current == HADAMARD) r_conv_multiply_count <= r_conv_multiply_count + 1;
     end
   end
 
@@ -359,27 +359,27 @@ module Control #(
   // -------  PART 4 - WRITE FSM AND READ/WRITE COUNTER -------------------------------------------------
   // ----------------------------------------------------------------------------------------------------
   always_ff @(posedge clk or posedge reset) begin
-    if (reset) r_state_output_current <= WAIT_WRITE;
-    else r_state_output_current <= r_state_output_next;
+    if (reset) st_output_current <= WAIT_WRITE;
+    else st_output_current <= st_output_next;
   end
 
   always_comb begin
-    r_state_output_next = r_state_output_current;  // default
+    st_output_next = st_output_current;  // default
 
-    priority case (r_state_output_current)
+    priority case (st_output_current)
       WAIT_WRITE:
-      if (r_state_input_current == AP)
-        r_state_output_next = RESET9;     // wait p_start reading the IFMAPs to p_start writing the results
-        else r_state_output_next = WAIT_WRITE;
-        RESET9: if (w_conv_end && r_output_read_count == 8) r_state_output_next = WRITE_OUTPUT;
-        READ_OUTPUT: if (w_conv_end && r_output_read_count == 8) r_state_output_next = WRITE_OUTPUT;
+      if (st_input_current == AP)
+        st_output_next = RESET9;     // wait p_start reading the IFMAPs to p_start writing the results
+        else st_output_next = WAIT_WRITE;
+        RESET9: if (w_conv_end && r_output_read_count == 8) st_output_next = WRITE_OUTPUT;
+        READ_OUTPUT: if (w_conv_end && r_output_read_count == 8) st_output_next = WRITE_OUTPUT;
       WRITE_OUTPUT:
-      if (r_channel_counter_input == 0 && r_output_write_count == 8) r_state_output_next = RESET9;
+      if (r_channel_counter_input == 0 && r_output_write_count == 8) st_output_next = RESET9;
       else if (r_channel_counter_input > 0 && r_output_write_count == 8)
-        r_state_output_next = READ_OUTPUT;
-        else if (last_output) r_state_output_next = WAIT_WRITE;  //end processing
-      else r_state_output_next = WRITE_OUTPUT;
-      default: r_state_output_next = WAIT_WRITE;
+        st_output_next = READ_OUTPUT;
+        else if (last_output) st_output_next = WAIT_WRITE;  //end processing
+      else st_output_next = WRITE_OUTPUT;
+      default: st_output_next = WAIT_WRITE;
     endcase
   end
 
@@ -391,11 +391,11 @@ module Control #(
       r_output_read_count  <= 0;
       r_output_write_count <= 0;
     end else begin
-      if (r_state_output_current == WRITE_OUTPUT) begin
+      if (st_output_current == WRITE_OUTPUT) begin
         r_output_read_count <= 0;
         if (r_output_write_count < 8) r_output_write_count <= r_output_write_count + 1;
         else r_output_write_count <= 8;
-      end else if (r_state_output_current == RESET9 || r_state_output_current == READ_OUTPUT) begin
+      end else if (st_output_current == RESET9 || st_output_current == READ_OUTPUT) begin
         r_output_write_count <= 0;
         if (r_output_read_count < 8) r_output_read_count <= r_output_read_count + 1;
         else r_output_read_count <= 8;
