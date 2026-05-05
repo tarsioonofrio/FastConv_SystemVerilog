@@ -116,8 +116,8 @@ module Conv
         .NBITS(NBITS)
       )
       multip(
-        .register(r_feat[r_idx_out[i]]),
-        .weight(p_weight[r_idx_out[i]]),
+        .register_input(r_feat[r_idx_out[i]]),
+        .weight_input(p_weight[r_idx_out[i]]),
         .product(product[i])
       );
     end
@@ -137,19 +137,3 @@ module Conv
 endmodule
 
 
-module Multip
-  import pack_typedef::*;
-#(
-    parameter int QUANT = 8,
-    parameter int NBITS = 20
-) (
-    input logic_vector register,
-    input logic_vector weight,
-    output logic signed [NBITS-1+QUANT:0] product
-);
-  timeunit 1ns; timeprecision 1ps;
-  logic signed [NBITS-1+QUANT:0] partial_product;
-
-  assign partial_product = (NBITS + QUANT)'($signed(register) * $signed(weight));
-  assign product = (NBITS)'(partial_product[NBITS-1+QUANT:QUANT]);
-endmodule
