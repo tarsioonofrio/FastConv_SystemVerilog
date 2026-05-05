@@ -92,18 +92,18 @@ module Control #(
   // ----------------------------------------------------------------------------------------------------
   // -------  PART 1 - ADDRESS TO ACCESS THE IFMAP AND WEIGHT MEMORY ------------------------------------
   // ----------------------------------------------------------------------------------------------------
-  assign p_input_addr = (r_state_read_curr==READ_WEIGHTS) ? r_addr_pointer_kernel : r_addr_pointer_input + NADDR'(r_addr_count_input);   // p_input_addr mux
+  assign p_input_addr = (r_state_read_curr == READ_WEIGHTS) ? r_addr_pointer_kernel : r_addr_pointer_input + NADDR'(r_addr_count_input);  // p_input_addr mux
 
   always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
       r_addr_pointer_input <= '0;
       r_window_row_step <= 3;
     end
-        else if ((r_state_read_curr==READ_IN_10A && r_state_read_next==READ_IN_10B) || (r_state_read_curr==READ_IN_10B && r_state_read_next==READ_IN_15A) || (r_state_read_curr==READ_IN_15A && r_state_read_next==READ_IN_15B) || (r_state_read_curr==READ_IN_15B && r_state_read_next==READ_IN_15C) || r_state_read_curr==TRANSFER)
+    else if ((r_state_read_curr == READ_IN_10A && r_state_read_next == READ_IN_10B) || (r_state_read_curr == READ_IN_10B && r_state_read_next == READ_IN_15A) || (r_state_read_curr == READ_IN_15A && r_state_read_next == READ_IN_15B) || (r_state_read_curr == READ_IN_15B && r_state_read_next == READ_IN_15C) || r_state_read_curr == TRANSFER)
       r_addr_pointer_input <= r_addr_pointer_input + NADDR'(FEAT_INPUT_WIDTH);    // change internal p_input_addr in the state transition or in the TRANSFER state (CAUTION: PE)
 
-    else if (r_state_read_curr==NEXT_ROW  &&  !last_input) begin     // when change the line, the read pointer moves 'r_window_row_step'
-      r_addr_pointer_input <= r_window_row_step + NADDR'(r_channel_counter_input*FEAT_INPUT_SIZE*FEAT_INPUT_WIDTH);   // restart for the first line
+    else if (r_state_read_curr == NEXT_ROW && !last_input) begin  // when change the line, the read pointer moves 'r_window_row_step'
+      r_addr_pointer_input <= r_window_row_step + NADDR'(r_channel_counter_input * FEAT_INPUT_SIZE * FEAT_INPUT_WIDTH);  // restart for the first line
       r_window_row_step <= r_window_row_step + 3;
     end else if (r_state_read_curr == AP && last_input) begin
       r_addr_pointer_input <= r_addr_pointer_input - NADDR'(FEAT_INPUT_WIDTH) + NADDR'(KERNEL_SIZE);   // adjust the pointer to the next IFMAP
@@ -165,7 +165,7 @@ module Control #(
   end
 
   assign w_weight_done = (r_addr_count_kernel == WEIGHT_WIDTH'(WEIGHT_CYCLES - 1));
-  assign w_write_done = r_output_write_count==0 || r_output_write_count==8;        // compare to zero for the first write test or the last value (8) in the next convolutions
+  assign w_write_done = r_output_write_count == 0 || r_output_write_count == 8;  // compare to zero for the first write test or the last value (8) in the next convolutions
   assign last_line = (r_window_counter_row == WINDOW_ROW_COUNTER_WIDTH'(WINDOW_COUNT_PER_LINE));
   assign last_input = (r_window_counter_input == WINDOW_COUNTER_WIDTH'(WINDOW_COUNT_PER_CHANNEL));
   assign last_output = (r_channel_counter_output == CHANNEL_OUTPUT_COUNTER_WIDTH'(N_CHANNEL_OUT));
@@ -262,7 +262,7 @@ module Control #(
     w_feat_input_write_en = '0;
     case (r_state_read_curr)
       READ_IN_10A, READ_IN_10B, READ_IN_15A, READ_IN_15B, READ_IN_15C:
-      w_feat_input_write_en[w_base_feat_input+r_addr_count_input*5] = 1'b1;
+      w_feat_input_write_en[w_base_feat_input + r_addr_count_input * 5] = 1'b1;
       TRANSFER: w_feat_input_write_en = 25'b0001100011000110001100011;  // make the shift
       default: w_feat_input_write_en = '0;
     endcase
