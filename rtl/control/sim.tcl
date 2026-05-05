@@ -3,7 +3,7 @@ vlib work
 vmap work work
 
 vlog +define+SIMULATION control.sv
-vlog tb.sv
+vlog testbench.sv
 
 vsim -voptargs=+acc=lprn -t ps work.tb
 
