@@ -33,26 +33,27 @@ This document records the naming migration applied to the `rtl/control` block to
 | `CONVOLUTIONS_PER_LINE` | `WINDOW_COUNT_PER_LINE` |
 | `CONVOLUTIONS_PER_COLUMN` | `WINDOW_COUNT_PER_COLUMN` |
 | `CONVOLUTIONS_PER_CHANNEL` | `WINDOW_COUNT_PER_CHANNEL` |
-| `BITS_IF` | `CHANNEL_INPUT_COUNTER_W` |
-| `BITS_OF` | `CHANNEL_OUTPUT_COUNTER_W` |
-| `BITS_CONV` | `WINDOW_COUNTER_W` |
-| `BITS_LINE` | `WINDOW_ROW_COUNTER_W` |
-| `BITS_COL` | `ADDR_INPUT_COUNTER_W` |
-| `BITSM` | `CONV_MULTIPLY_COUNTER_W` |
+| `BITS_IF` | `CHANNEL_INPUT_COUNTER_WIDTH` |
+| `BITS_OF` | `CHANNEL_OUTPUT_COUNTER_WIDTH` |
+| `BITS_CONV` | `WINDOW_COUNTER_WIDTH` |
+| `BITS_LINE` | `WINDOW_ROW_COUNTER_WIDTH` |
+| `BITS_COL` | `ADDR_INPUT_COUNTER_WIDTH` |
+| `WEIGHT_W` | `WEIGHT_WIDTH` |
+| `BITSM` | `CONV_MULTIPLY_COUNTER_WIDTH` |
 
 ## 4. FSM Type/State Variables
 
 | Before | After |
 | --- | --- |
-| `state_r_t` | `state_read_t` |
-| `EA_R` | `r_state_read_curr` |
-| `PE_R` | `r_state_read_next` |
-| `state_c_t` | `state_conv_t` |
-| `EA_C` | `r_state_conv_curr` |
-| `PE_C` | `r_state_conv_next` |
-| `state_w_t` | `state_write_t` |
-| `EA_W` | `r_state_write_curr` |
-| `PE_W` | `r_state_write_next` |
+| `state_r_t` | `type_st_input` |
+| `EA_R` | `st_input_current` |
+| `PE_R` | `st_input_next` |
+| `state_c_t` | `type_st_conv` |
+| `EA_C` | `st_conv_current` |
+| `PE_C` | `st_conv_next` |
+| `state_w_t` | `type_st_output` |
+| `EA_W` | `st_output_current` |
+| `PE_W` | `st_output_next` |
 
 ## 5. FSM Enum State Names
 
@@ -60,8 +61,18 @@ This document records the naming migration applied to the `rtl/control` block to
 | --- | --- |
 | `WAIT_WR` | `HOLD_WRITE` |
 | `CHANGE_LINE` | `NEXT_ROW` |
+| `R10A` | `READ_IN_10A` |
+| `R10B` | `READ_IN_10B` |
+| `R15A` | `READ_IN_15A` |
+| `R15B` | `READ_IN_15B` |
+| `R15C` | `READ_IN_15C` |
+| `XFER` | `TRANSFER` |
 | `W_CONV` | `WAIT_CONV` |
+| `T1` | `TRANSFORM` |
+| `HAD` | `HADAMARD` |
+| `T2` | `INVERSE` |
 | `W_WRITE` | `WAIT_WRITE` |
+| `ZERA9` | `RESET9` |
 | `READ9` | `READ_OUTPUT` |
 | `WRITE9` | `WRITE_OUTPUT` |
 
@@ -74,6 +85,7 @@ This document records the naming migration applied to the `rtl/control` block to
 | `nextVrd` | `w_next_feat_input` |
 | `ce` | `w_feat_input_write_en` |
 | `ce_w` | `w_weight_write_en` |
+| `weightReg` | `weight_reg` |
 | `end_conv` | `w_conv_end` |
 | `contRd` | `r_output_read_count` |
 | `contWr` | `r_output_write_count` |
@@ -91,22 +103,28 @@ This document records the naming migration applied to the `rtl/control` block to
 | `end_write_results` | `w_write_done` |
 | `cnt_multip` | `r_conv_multiply_count` |
 
-## 7. Supporting Files Updated
+## 7. Testbench Naming
+
+| Before | After |
+| --- | --- |
+| `inputMEM` | `input_mem` |
+
+## 8. Supporting Files Updated
 
 The following files were updated to reflect the new names and references:
 
 - `tb.sv`
 - `Makefile`
-- `sim.do`
+- `sim.tcl`
 - `wave.do`
 - `README.md`
 - `docs/read-fsm.mmd`
 - `docs/conv-fsm.mmd`
 - `docs/write-fsm.mmd`
 
-## 8. Explicit Non-Change
+## 9. Explicit Non-Change
 
-As requested, the migration **did not** rename `last*` naming to `is_last*`.
+As requested, the migration did not rename `last*` naming to `is_last*`.
 
 Examples intentionally kept:
 
