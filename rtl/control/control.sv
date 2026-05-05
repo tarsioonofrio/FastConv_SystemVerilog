@@ -60,7 +60,7 @@ module Control #(
   // -------------------------------------------------------------------------
   typedef enum logic [3:0] {
     WAIT_INPUT,
-    AP,
+    UPDATE_ADDRESS,
     READ_WEIGHTS,
     READ_IN_10A,
     READ_IN_10B,
@@ -105,7 +105,7 @@ module Control #(
     else if (st_input_current == NEXT_ROW && !last_input) begin  // when change the line, the read pointer moves 'r_window_row_step'
       r_addr_pointer_input <= r_window_row_step + NADDR'(r_channel_counter_input * FEAT_INPUT_SIZE * FEAT_INPUT_WIDTH);  // restart for the first line
       r_window_row_step <= r_window_row_step + 3;
-    end else if (st_input_current == AP && last_input) begin
+    end else if (st_input_current == UPDATE_ADDRESS && last_input) begin
       r_addr_pointer_input <= r_addr_pointer_input - NADDR'(FEAT_INPUT_WIDTH) + NADDR'(KERNEL_SIZE);   // adjust the pointer to the next IFMAP
       r_window_row_step <= 3;
 
@@ -125,7 +125,7 @@ module Control #(
     if (reset) begin
       r_addr_pointer_kernel <= 0;
     end
-        else if (st_input_current == WAIT_INPUT && st_input_next == AP)    // initializes only ONCE the weight p_input_addr (after the IFMAPs in the memory) (CAUTION: PE)
+        else if (st_input_current == WAIT_INPUT && st_input_next == UPDATE_ADDRESS)    // initializes only ONCE the weight p_input_addr (after the IFMAPs in the memory) (CAUTION: PE)
       r_addr_pointer_kernel <= NADDR'(N_CHANNEL_IN * FEAT_INPUT_SIZE * FEAT_INPUT_WIDTH);
     else if (st_input_current == READ_WEIGHTS)
       r_addr_pointer_kernel <= r_addr_pointer_kernel + 1;  // next weight
@@ -142,8 +142,8 @@ module Control #(
   always_comb begin
     st_input_next = st_input_current;
     priority case (st_input_current)
-      WAIT_INPUT: if (p_start) st_input_next = AP;
-      AP: st_input_next = READ_WEIGHTS;
+      WAIT_INPUT: if (p_start) st_input_next = UPDATE_ADDRESS;
+      UPDATE_ADDRESS: st_input_next = READ_WEIGHTS;
       READ_WEIGHTS:
       if (w_weight_done) st_input_next = READ_IN_10A;
       else if (last_output) st_input_next = WAIT_INPUT;  //end processing
@@ -158,7 +158,7 @@ module Control #(
       else if (w_write_done) st_input_next = READ_IN_15A;
       else st_input_next = HOLD_WRITE;
       NEXT_ROW:
-      if (last_input) st_input_next = AP;
+      if (last_input) st_input_next = UPDATE_ADDRESS;
       else st_input_next = READ_IN_10A;
       default: st_input_next = WAIT_INPUT;
     endcase
@@ -211,7 +211,7 @@ module Control #(
       r_window_counter_row     <= 0;
       r_addr_count_kernel      <= 0;
     end else begin
-      if (st_input_current == AP) begin
+      if (st_input_current == UPDATE_ADDRESS) begin
 
         if (r_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1)) begin
           r_channel_counter_input  <= '0;
@@ -368,7 +368,7 @@ module Control #(
 
     priority case (st_output_current)
       WAIT_OUTPUT:
-      if (st_input_current == AP)
+      if (st_input_current == UPDATE_ADDRESS)
         st_output_next = RESET9;     // wait p_start reading the IFMAPs to p_start writing the results
         else st_output_next = WAIT_OUTPUT;
         RESET9: if (w_conv_end && r_output_read_count == 8) st_output_next = WRITE_OUTPUT;
