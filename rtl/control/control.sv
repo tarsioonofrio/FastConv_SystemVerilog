@@ -3,7 +3,12 @@
 */
 `timescale 1ns / 1ps
 
-module Control #(
+module Control
+  import pack_def::*;
+  import pack_data::*;
+  import pack_param::*;
+  import pack_typedef::*;
+  #(
     parameter int unsigned N_CHANNEL_IN        = 2,
     parameter int unsigned N_CHANNEL_OUT       = 3,
     parameter int unsigned KERNEL_SIZE         = 5,
@@ -11,7 +16,7 @@ module Control #(
     parameter int unsigned FEAT_INPUT_WIDTH    = 8,
     parameter int unsigned NADDR               = 18,  // bits to p_input_addr the memory
     parameter int unsigned CONV_MULTIPLY_STEPS = 6    // multiplication steps
-) (
+  ) (
     input  logic clk,
     input  logic reset,
     input  logic p_start,
@@ -402,5 +407,37 @@ module Control #(
       end
     end
   end
+
+
+  // Instance of matrix multiplier "C"
+  Transform trf (
+      .pin (r_feat[C1_SIZE*C1_SIZE-1:0]),
+      .pout(w_prod_c)
+  );
+
+  MuxMult mux_mult(
+    .idx_in(r_idx_in),
+    .idx_out(r_idx_out)
+  );
+
+  generate
+    for (genvar i = 0; i < NMULT; i++) begin
+      Multip #(
+        .QUANT(QUANT),
+        .NBITS(NBITS)
+      )
+      multip(
+        .register_input(r_feat[r_idx_out[i]]),
+        .weight_input(p_weight[r_idx_out[i]]),
+        .product(product[i])
+      );
+    end
+  endgenerate
+
+  // Instance of matrix multiplier "A"
+  Inverse inv (
+      .pin (r_feat),
+      .pout(w_prod_a)
+  );
 
 endmodule
