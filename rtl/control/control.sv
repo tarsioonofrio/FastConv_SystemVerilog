@@ -59,7 +59,7 @@ module Control #(
   // FSM STATES DECLARION
   // -------------------------------------------------------------------------
   typedef enum logic [3:0] {
-    WAIT,
+    WAIT_INPUT,
     AP,
     READ_WEIGHTS,
     READ_IN_10A,
@@ -82,7 +82,7 @@ module Control #(
   type_st_conv st_conv_current, st_conv_next;
 
   typedef enum logic [2:0] {
-    WAIT_WRITE,
+    WAIT_OUTPUT,
     RESET9,
     READ_OUTPUT,
     WRITE_OUTPUT
@@ -125,7 +125,7 @@ module Control #(
     if (reset) begin
       r_addr_pointer_kernel <= 0;
     end
-        else if (st_input_current == WAIT && st_input_next == AP)    // initializes only ONCE the weight p_input_addr (after the IFMAPs in the memory) (CAUTION: PE)
+        else if (st_input_current == WAIT_INPUT && st_input_next == AP)    // initializes only ONCE the weight p_input_addr (after the IFMAPs in the memory) (CAUTION: PE)
       r_addr_pointer_kernel <= NADDR'(N_CHANNEL_IN * FEAT_INPUT_SIZE * FEAT_INPUT_WIDTH);
     else if (st_input_current == READ_WEIGHTS)
       r_addr_pointer_kernel <= r_addr_pointer_kernel + 1;  // next weight
@@ -135,18 +135,18 @@ module Control #(
   // -------  PART 2 - READ FSM AND REGISTERS -----------------------------------------------------------
   // ----------------------------------------------------------------------------------------------------
   always_ff @(posedge clk or posedge reset) begin
-    if (reset) st_input_current <= WAIT;
+    if (reset) st_input_current <= WAIT_INPUT;
     else st_input_current <= st_input_next;
   end
 
   always_comb begin
     st_input_next = st_input_current;
     priority case (st_input_current)
-      WAIT: if (p_start) st_input_next = AP;
+      WAIT_INPUT: if (p_start) st_input_next = AP;
       AP: st_input_next = READ_WEIGHTS;
       READ_WEIGHTS:
       if (w_weight_done) st_input_next = READ_IN_10A;
-      else if (last_output) st_input_next = WAIT;  //end processing
+      else if (last_output) st_input_next = WAIT_INPUT;  //end processing
       READ_IN_10A: if (r_addr_count_input == 4) st_input_next = READ_IN_10B;  // read 5*5 values
       READ_IN_10B: if (r_addr_count_input == 4) st_input_next = READ_IN_15A;
       READ_IN_15A: if (r_addr_count_input == 4) st_input_next = READ_IN_15B;
@@ -160,7 +160,7 @@ module Control #(
       NEXT_ROW:
       if (last_input) st_input_next = AP;
       else st_input_next = READ_IN_10A;
-      default: st_input_next = WAIT;
+      default: st_input_next = WAIT_INPUT;
     endcase
   end
 
@@ -170,7 +170,7 @@ module Control #(
   assign last_input = (r_window_counter_input == WINDOW_COUNTER_WIDTH'(WINDOW_COUNT_PER_CHANNEL));
   assign last_output = (r_channel_counter_output == CHANNEL_OUTPUT_COUNTER_WIDTH'(N_CHANNEL_OUT));
 
-  assign p_end = ((st_output_next == WAIT_WRITE && last_output));  // output to signalize the end of the convolution process
+  assign p_end = ((st_output_next == WAIT_OUTPUT && last_output));  // output to signalize the end of the convolution process
 
   // -------------------------------------------------------------------------
   // READING REGISTERS
@@ -359,7 +359,7 @@ module Control #(
   // -------  PART 4 - WRITE FSM AND READ/WRITE COUNTER -------------------------------------------------
   // ----------------------------------------------------------------------------------------------------
   always_ff @(posedge clk or posedge reset) begin
-    if (reset) st_output_current <= WAIT_WRITE;
+    if (reset) st_output_current <= WAIT_OUTPUT;
     else st_output_current <= st_output_next;
   end
 
@@ -367,19 +367,19 @@ module Control #(
     st_output_next = st_output_current;  // default
 
     priority case (st_output_current)
-      WAIT_WRITE:
+      WAIT_OUTPUT:
       if (st_input_current == AP)
         st_output_next = RESET9;     // wait p_start reading the IFMAPs to p_start writing the results
-        else st_output_next = WAIT_WRITE;
+        else st_output_next = WAIT_OUTPUT;
         RESET9: if (w_conv_end && r_output_read_count == 8) st_output_next = WRITE_OUTPUT;
         READ_OUTPUT: if (w_conv_end && r_output_read_count == 8) st_output_next = WRITE_OUTPUT;
       WRITE_OUTPUT:
       if (r_channel_counter_input == 0 && r_output_write_count == 8) st_output_next = RESET9;
       else if (r_channel_counter_input > 0 && r_output_write_count == 8)
         st_output_next = READ_OUTPUT;
-        else if (last_output) st_output_next = WAIT_WRITE;  //end processing
+        else if (last_output) st_output_next = WAIT_OUTPUT;  //end processing
       else st_output_next = WRITE_OUTPUT;
-      default: st_output_next = WAIT_WRITE;
+      default: st_output_next = WAIT_OUTPUT;
     endcase
   end
 
