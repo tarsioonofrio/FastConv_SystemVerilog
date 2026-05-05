@@ -8,6 +8,7 @@ module Control
   import pack_data::*;
   import pack_param::*;
   import pack_typedef::*;
+  import pack_mux_mult::*;
   #(
     parameter int unsigned N_CHANNEL_IN        = 2,
     parameter int unsigned N_CHANNEL_OUT       = 3,
@@ -25,9 +26,9 @@ module Control
     output logic [NADDR-1:0] p_input_addr,
     input logic [19:0] p_input_data
 );
-  logic [19:0] r_feat_input[0:24];  // input feature register bank
-  logic [19:0] r_conv_input[0:24];  // convolution input register bank
-  logic [19:0] w_next_feat_input[0:24];  // next values for feature shift bank
+  logic_vector r_feat_input[24:0];  // input feature register bank
+  logic_vector r_conv_input[24:0];  // convolution input register bank
+  logic_vector w_next_feat_input[24:0];  // next values for feature shift bank
   logic [24:0] w_feat_input_write_en;  // write-enable per feature register
   logic w_conv_end, last_line, last_input, last_output;
   logic [3:0] r_output_read_count, r_output_write_count;
@@ -55,7 +56,7 @@ module Control
   // REGISTER BANK FOR THE WEIGHTS ////////////////////////////////////////////
   localparam int WEIGHT_CYCLES = KERNEL_SIZE * KERNEL_SIZE;
   localparam int WEIGHT_WIDTH = $clog2(WEIGHT_CYCLES);
-  logic [19:0] weight_reg[0:WEIGHT_CYCLES-1];
+  logic_vector weight_reg[WEIGHT_CYCLES-1:0];
   logic [WEIGHT_CYCLES-1:0] w_weight_write_en;
   logic [WEIGHT_WIDTH-1:0] r_addr_count_kernel;
   logic w_weight_done, w_write_done;
@@ -409,35 +410,47 @@ module Control
   end
 
 
+  // type_weight r_feat;
+
+  type_weight w_prod_c;
+  type_output w_prod_a;
+
+  // logic r_end;
+
+  logic [$clog2(SMULT-1):0] r_idx_in;
+  logic [$clog2(SMULT*NMULT-1):0] r_idx_out[NMULT-1:0];
+
+  logic signed [NBITS-1+QUANT:0] product [NMULT-1:0];  // QUANT more bits for the multipliers
+
   // Instance of matrix multiplier "C"
-  Transform trf (
-      .pin (r_feat[C1_SIZE*C1_SIZE-1:0]),
-      .pout(w_prod_c)
-  );
+  // Transform trf (
+  //     .pin (r_conv_input[C1_SIZE*C1_SIZE-1:0]),
+  //     .pout(w_prod_c)
+  // );
 
-  MuxMult mux_mult(
-    .idx_in(r_idx_in),
-    .idx_out(r_idx_out)
-  );
+  // MuxMult mux_mult(
+  //   .idx_in(r_idx_in),
+  //   .idx_out(r_idx_out)
+  // );
 
-  generate
-    for (genvar i = 0; i < NMULT; i++) begin
-      Multip #(
-        .QUANT(QUANT),
-        .NBITS(NBITS)
-      )
-      multip(
-        .register_input(r_feat[r_idx_out[i]]),
-        .weight_input(p_weight[r_idx_out[i]]),
-        .product(product[i])
-      );
-    end
-  endgenerate
+  // generate
+  //   for (genvar i = 0; i < NMULT; i++) begin
+  //     Multip #(
+  //       .QUANT(QUANT),
+  //       .NBITS(NBITS)
+  //     )
+  //     multip(
+  //       .register_input(r_conv_input[r_idx_out[i]]),
+  //       .weight_input(weight_reg[r_idx_out[i]]),
+  //       .product(product[i])
+  //     );
+  //   end
+  // endgenerate
 
-  // Instance of matrix multiplier "A"
-  Inverse inv (
-      .pin (r_feat),
-      .pout(w_prod_a)
-  );
+  // // Instance of matrix multiplier "A"
+  // Inverse inv (
+  //     .pin (r_conv_input),
+  //     .pout(w_prod_a)
+  // );
 
 endmodule
