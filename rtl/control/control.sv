@@ -109,7 +109,7 @@ module Control
   // ----------------------------------------------------------------------------------------------------
   assign p_input_addr = (st_input_current == READ_WEIGHTS) ? r_addr_pointer_kernel : r_addr_pointer_input + NADDR'(r_addr_count_input);  // p_input_addr mux
 
-  always_ff @(posedge clk or posedge reset) begin
+  always_ff @(posedge clk or posedge reset) begin: INPUT_ADDR_POINTER_BLOCK
     if (reset) begin
       r_addr_pointer_input <= '0;
       r_window_row_step <= 3;
@@ -136,7 +136,7 @@ module Control
     end
   end
 
-  always_ff @(posedge clk or posedge reset) begin
+  always_ff @(posedge clk or posedge reset) begin: WEIGHT_ADDR_POINTER_BLOCK
     if (reset) begin
       r_addr_pointer_kernel <= 0;
     end
@@ -149,12 +149,12 @@ module Control
   // ----------------------------------------------------------------------------------------------------
   // -------  PART 2 - READ FSM AND REGISTERS -----------------------------------------------------------
   // ----------------------------------------------------------------------------------------------------
-  always_ff @(posedge clk or posedge reset) begin
+  always_ff @(posedge clk or posedge reset) begin: INPUT_STATE_REG_BLOCK
     if (reset) st_input_current <= WAIT_INPUT;
     else st_input_current <= st_input_next;
   end
 
-  always_comb begin
+  always_comb begin: INPUT_NEXT_STATE_BLOCK
     st_input_next = st_input_current;
     priority case (st_input_current)
       WAIT_INPUT: if (p_start) st_input_next = UPDATE_ADDRESS;
@@ -191,7 +191,7 @@ module Control
   // READING REGISTERS
   // -------------------------------------------------------------------------
 
-  always_ff @(posedge clk or posedge reset) begin
+  always_ff @(posedge clk or posedge reset) begin: INPUT_READ_COUNTER_BLOCK
     if (reset) begin
       r_addr_count_input <= 0;
     end else begin
@@ -218,7 +218,7 @@ module Control
   // r_window_counter_input:  number of convolutions in a given IFMAP channel
   // r_window_counter_row :  number of horizontal convolutions in a given IFMAP channel - detect the last line
   // r_addr_count_kernel:        number of weights read from memory
-  always_ff @(posedge clk or posedge reset) begin
+  always_ff @(posedge clk or posedge reset) begin: INPUT_CONTROL_COUNTERS_BLOCK
     if (reset) begin
       r_channel_counter_input  <= '1;  // p_start with all bits in '1' - IFchannel must be {0,1,2}
       r_channel_counter_output <= 0;
@@ -257,7 +257,7 @@ module Control
   // -------------------------------------------------------------------------
   // READING REGISTER BANK
   // -------------------------------------------------------------------------
-  always_comb begin
+  always_comb begin: INPUT_SHIFT_DATA_BLOCK
     for (int unsigned i = 0; i < 25; i++)  // connection between register outputs to register inputs
     w_next_feat_input[i] = p_input_data;
 
@@ -273,7 +273,7 @@ module Control
     w_next_feat_input[21] = (st_input_current == READ_IN_10B) ? p_input_data : r_feat_input[24];
   end
 
-  always_comb begin  // 'w_feat_input_write_en' to write into the register bank r_feat_input
+  always_comb begin: INPUT_SHIFT_WE_BLOCK  // 'w_feat_input_write_en' to write into the register bank r_feat_input
     w_feat_input_write_en = '0;
     case (st_input_current)
       READ_IN_10A, READ_IN_10B, READ_IN_15A, READ_IN_15B, READ_IN_15C:
@@ -283,7 +283,7 @@ module Control
     endcase
   end
 
-  always_ff @(posedge clk or posedge reset) begin    // initializes and write into the register bank and convolution register bank
+  always_ff @(posedge clk or posedge reset) begin: INPUT_FEATURE_REG_BLOCK  // initializes and write into the register bank and convolution register bank
     if (reset) for (int unsigned i = 0; i < 25; i++) r_feat_input[i] <= '0;
     else
       for (int unsigned i = 0; i < 25; i++)
@@ -291,12 +291,12 @@ module Control
   end
 
   // Weight register bank with per-entry write-enable.
-  always_comb begin
+  always_comb begin: WEIGHT_WE_BLOCK
     w_weight_write_en = '0;
     if (st_input_current == READ_WEIGHTS) w_weight_write_en[r_addr_count_kernel] = 1'b1;
   end
 
-  always_ff @(posedge clk or posedge reset) begin
+  always_ff @(posedge clk or posedge reset) begin: WEIGHT_REG_BLOCK
     if (reset) begin
       for (int unsigned i = 0; i < WEIGHT_CYCLES; i++) weight_reg[i] <= '0;
     end else begin
@@ -311,12 +311,12 @@ module Control
   localparam CONV_MULTIPLY_COUNTER_WIDTH = $clog2(CONV_MULTIPLY_STEPS) + 1;
   logic [CONV_MULTIPLY_COUNTER_WIDTH-1:0] r_conv_multiply_count;
 
-  always_ff @(posedge clk or posedge reset) begin
+  always_ff @(posedge clk or posedge reset) begin: CONV_STATE_REG_BLOCK
     if (reset) st_conv_current <= WAIT_CONV;
     else st_conv_current <= st_conv_next;
   end
 
-  always_comb begin
+  always_comb begin: CONV_NEXT_STATE_BLOCK
     st_conv_next = st_conv_current;  // default
     priority case (st_conv_current)
       WAIT_CONV: begin
@@ -342,7 +342,7 @@ module Control
   time prev_time, curr_time;  // debug
 `endif
 
-  always_ff @(posedge clk or posedge reset) begin  // register bank for the convolution
+  always_ff @(posedge clk or posedge reset) begin: CONV_INPUT_REG_BLOCK  // register bank for the convolution
     if (reset) for (int unsigned i = 0; i < 25; i++) r_conv_input[i] <= '0;
     else begin
       if (st_input_current == TRANSFER) begin  // fill the convolution register bank
@@ -357,7 +357,7 @@ module Control
     end
   end
 
-  always_ff @(posedge clk or posedge reset) begin
+  always_ff @(posedge clk or posedge reset) begin: CONV_END_FLAG_BLOCK
     if (reset) w_conv_end <= 0;
     else begin
       if (st_conv_next == INVERSE)  // *** CAUTION: PE
@@ -367,7 +367,7 @@ module Control
     end
   end
 
-  always_ff @(posedge clk or posedge reset) begin
+  always_ff @(posedge clk or posedge reset) begin: CONV_MULTIPLY_COUNTER_BLOCK
     if (reset) r_conv_multiply_count <= 0;
     else begin
       if (st_conv_current == TRANSFORM) r_conv_multiply_count <= 0;
@@ -377,7 +377,7 @@ module Control
   end
 
 
-  always_ff @(posedge clk) begin
+  always_ff @(posedge clk) begin: CONV_DATAPATH_BLOCK
     if (reset) begin
       r_idx_in <= 1'b0;
     end else begin
@@ -438,12 +438,12 @@ module Control
   // ----------------------------------------------------------------------------------------------------
   // -------  PART 4 - WRITE FSM AND READ/WRITE COUNTER -------------------------------------------------
   // ----------------------------------------------------------------------------------------------------
-  always_ff @(posedge clk or posedge reset) begin
+  always_ff @(posedge clk or posedge reset) begin: OUTPUT_STATE_REG_BLOCK
     if (reset) st_output_current <= WAIT_OUTPUT;
     else st_output_current <= st_output_next;
   end
 
-  always_comb begin
+  always_comb begin: OUTPUT_NEXT_STATE_BLOCK
     st_output_next = st_output_current;  // default
 
     priority case (st_output_current)
@@ -466,7 +466,7 @@ module Control
   // -------------------------------------------------------------------------
   // WRITE REGISTERS - r_output_read_count e r_output_write_count
   // -------------------------------------------------------------------------
-  always_ff @(posedge clk or posedge reset) begin
+  always_ff @(posedge clk or posedge reset) begin: OUTPUT_RW_COUNTER_BLOCK
     if (reset) begin
       r_output_read_count  <= 0;
       r_output_write_count <= 0;
