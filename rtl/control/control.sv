@@ -61,6 +61,15 @@ module Control
   logic [WEIGHT_WIDTH-1:0] r_addr_count_kernel;
   logic w_weight_done, w_write_done;
 
+  type_weight r_conv_temp;
+  type_weight w_conv_transform;
+  type_output w_conv_inverse;
+  logic [$clog2(SMULT-1):0] r_idx_in;
+  logic [$clog2(SMULT*NMULT-1):0] r_idx_out[NMULT-1:0];
+  logic signed [NBITS-1+QUANT:0] product [NMULT-1:0];  // QUANT more bits for the multipliers
+  // logic r_end;
+
+
   // -------------------------------------------------------------------------
   // FSM STATES DECLARION
   // -------------------------------------------------------------------------
@@ -367,17 +376,6 @@ module Control
     end
   end
 
-  type_weight r_conv_temp;
-
-  type_weight w_conv_transform;
-  type_output w_conv_inverse;
-
-  // logic r_end;
-
-  logic [$clog2(SMULT-1):0] r_idx_in;
-  logic [$clog2(SMULT*NMULT-1):0] r_idx_out[NMULT-1:0];
-
-  logic signed [NBITS-1+QUANT:0] product [NMULT-1:0];  // QUANT more bits for the multipliers
 
   always_ff @(posedge clk) begin
     if (reset) begin
