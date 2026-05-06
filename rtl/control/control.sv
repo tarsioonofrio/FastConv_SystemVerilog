@@ -189,7 +189,7 @@ module Control
       if (st_input_current == READ_WEIGHTS) begin
         r_addr_count_input <= 0;
       end
-            else if (st_input_current inside {READ_IN_10A, READ_IN_10B, READ_IN_15A, READ_IN_15B, READ_IN_15C}) begin
+      else if (st_input_current inside {READ_IN_10A, READ_IN_10B, READ_IN_15A, READ_IN_15B, READ_IN_15C}) begin
         if (r_addr_count_input == 4) r_addr_count_input <= 0;
         else r_addr_count_input <= r_addr_count_input + 1;
       end
@@ -309,31 +309,20 @@ module Control
 
   always_comb begin
     st_conv_next = st_conv_current;  // default
-
     priority case (st_conv_current)
       WAIT_CONV: begin
         if (st_input_current == TRANSFER) begin
           st_conv_next = TRANSFORM;  // starts the convolution after moving data to the convolution register bank
         end
       end
-
-      TRANSFORM: begin
-        st_conv_next = HADAMARD;
-      end
-
+      TRANSFORM: st_conv_next = HADAMARD;
       HADAMARD: begin
         if (r_conv_multiply_count == CONV_MULTIPLY_COUNTER_WIDTH'(CONV_MULTIPLY_STEPS - 1)) begin
           st_conv_next = INVERSE;
         end
       end
-
-      INVERSE: begin
-        st_conv_next = WAIT_CONV;
-      end
-
-      default: begin
-        st_conv_next = WAIT_CONV;
-      end
+      INVERSE: st_conv_next = WAIT_CONV;
+      default: st_conv_next = WAIT_CONV;
     endcase
   end
 
@@ -377,6 +366,76 @@ module Control
       else if (st_conv_current == HADAMARD) r_conv_multiply_count <= r_conv_multiply_count + 1;
     end
   end
+
+  type_weight r_conv_temp;
+
+  type_weight w_conv_transform;
+  type_output w_conv_inverse;
+
+  // logic r_end;
+
+  logic [$clog2(SMULT-1):0] r_idx_in;
+  logic [$clog2(SMULT*NMULT-1):0] r_idx_out[NMULT-1:0];
+
+  logic signed [NBITS-1+QUANT:0] product [NMULT-1:0];  // QUANT more bits for the multipliers
+
+  always_ff @(posedge clk) begin
+    if (reset) begin
+      r_idx_in <= 1'b0;
+    end else begin
+      unique case (st_conv_current)
+        WAIT_CONV: begin
+          r_idx_in <= 1'b0;
+          if (p_start) begin
+            r_conv_temp[C1_SIZE*C1_SIZE-1:0] <= r_conv_input;
+          end
+        end
+        TRANSFORM: begin
+          r_conv_temp <= w_conv_transform;
+        end
+        HADAMARD: begin
+          r_idx_in <= r_idx_in + 1;
+          for (int i = 0; i < NMULT; i++) begin
+            r_conv_temp[r_idx_out[i]] <= product[i];
+          end
+        end
+        INVERSE: begin
+        end
+      endcase
+    end
+  end
+
+  // Instance of matrix multiplier "C"
+  Transform trf (
+      .pin (r_conv_input[C1_SIZE*C1_SIZE-1:0]),
+      .pout(w_conv_transform)
+  );
+
+  MuxMult mux_mult(
+    .idx_in(r_idx_in),
+    .idx_out(r_idx_out)
+  );
+
+  generate
+    for (genvar i = 0; i < NMULT; i++) begin
+      Multip #(
+        .QUANT(QUANT),
+        .NBITS(NBITS)
+      )
+      multip(
+        .register_input(r_conv_temp[r_idx_out[i]]),
+        .weight_input(weight_reg[r_idx_out[i]]),
+        .product(product[i])
+      );
+    end
+  endgenerate
+
+  // Instance of matrix multiplier "A"
+  Inverse inv (
+      .pin (r_conv_temp),
+      .pout(w_conv_inverse)
+  );
+
 
   // ----------------------------------------------------------------------------------------------------
   // -------  PART 4 - WRITE FSM AND READ/WRITE COUNTER -------------------------------------------------
@@ -425,49 +484,5 @@ module Control
       end
     end
   end
-
-
-  type_weight r_feat;
-
-  type_weight w_conv_transform;
-  type_output w_conv_inverse;
-
-  // logic r_end;
-
-  logic [$clog2(SMULT-1):0] r_idx_in;
-  logic [$clog2(SMULT*NMULT-1):0] r_idx_out[NMULT-1:0];
-
-  logic signed [NBITS-1+QUANT:0] product [NMULT-1:0];  // QUANT more bits for the multipliers
-
-  // Instance of matrix multiplier "C"
-  Transform trf (
-      .pin (r_conv_input[C1_SIZE*C1_SIZE-1:0]),
-      .pout(w_conv_transform)
-  );
-
-  MuxMult mux_mult(
-    .idx_in(r_idx_in),
-    .idx_out(r_idx_out)
-  );
-
-  generate
-    for (genvar i = 0; i < NMULT; i++) begin
-      Multip #(
-        .QUANT(QUANT),
-        .NBITS(NBITS)
-      )
-      multip(
-        .register_input(r_feat[r_idx_out[i]]),
-        .weight_input(weight_reg[r_idx_out[i]]),
-        .product(product[i])
-      );
-    end
-  endgenerate
-
-  // Instance of matrix multiplier "A"
-  Inverse inv (
-      .pin (r_feat),
-      .pout(w_conv_inverse)
-  );
 
 endmodule
