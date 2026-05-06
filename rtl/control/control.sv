@@ -309,16 +309,31 @@ module Control
 
   always_comb begin
     st_conv_next = st_conv_current;  // default
+
     priority case (st_conv_current)
-      WAIT_CONV:
-      if (st_input_current == TRANSFER)
-        st_conv_next = TRANSFORM;     // starts the convolution after moving date to the convolution register bank
-        TRANSFORM: st_conv_next = HADAMARD;
-      HADAMARD:
-      if (r_conv_multiply_count == CONV_MULTIPLY_COUNTER_WIDTH'(CONV_MULTIPLY_STEPS - 1))
-        st_conv_next = INVERSE;
-        INVERSE: st_conv_next = WAIT_CONV;
-        default: st_conv_next = WAIT_CONV;
+      WAIT_CONV: begin
+        if (st_input_current == TRANSFER) begin
+          st_conv_next = TRANSFORM;  // starts the convolution after moving data to the convolution register bank
+        end
+      end
+
+      TRANSFORM: begin
+        st_conv_next = HADAMARD;
+      end
+
+      HADAMARD: begin
+        if (r_conv_multiply_count == CONV_MULTIPLY_COUNTER_WIDTH'(CONV_MULTIPLY_STEPS - 1)) begin
+          st_conv_next = INVERSE;
+        end
+      end
+
+      INVERSE: begin
+        st_conv_next = WAIT_CONV;
+      end
+
+      default: begin
+        st_conv_next = WAIT_CONV;
+      end
     endcase
   end
 
@@ -350,6 +365,7 @@ module Control
       if (st_conv_next == INVERSE)  // *** CAUTION: PE
         w_conv_end <= 1;
       else if (st_output_current == WRITE_OUTPUT) w_conv_end <= 0;
+      // else if (st_output_current == WRITE_OUTPUT || st_conv_current == WAIT_CONV) w_conv_end <= 0;
     end
   end
 
@@ -357,6 +373,7 @@ module Control
     if (reset) r_conv_multiply_count <= 0;
     else begin
       if (st_conv_current == TRANSFORM) r_conv_multiply_count <= 0;
+      // if (st_conv_current == WAIT_CONV || st_conv_current == TRANSFORM) r_conv_multiply_count <= 0;
       else if (st_conv_current == HADAMARD) r_conv_multiply_count <= r_conv_multiply_count + 1;
     end
   end
@@ -410,10 +427,10 @@ module Control
   end
 
 
-  // type_weight r_feat;
+  type_weight r_feat;
 
-  type_weight w_prod_c;
-  type_output w_prod_a;
+  type_weight w_conv_transform;
+  type_output w_conv_inverse;
 
   // logic r_end;
 
@@ -423,34 +440,34 @@ module Control
   logic signed [NBITS-1+QUANT:0] product [NMULT-1:0];  // QUANT more bits for the multipliers
 
   // Instance of matrix multiplier "C"
-  // Transform trf (
-  //     .pin (r_conv_input[C1_SIZE*C1_SIZE-1:0]),
-  //     .pout(w_prod_c)
-  // );
+  Transform trf (
+      .pin (r_conv_input[C1_SIZE*C1_SIZE-1:0]),
+      .pout(w_conv_transform)
+  );
 
-  // MuxMult mux_mult(
-  //   .idx_in(r_idx_in),
-  //   .idx_out(r_idx_out)
-  // );
+  MuxMult mux_mult(
+    .idx_in(r_idx_in),
+    .idx_out(r_idx_out)
+  );
 
-  // generate
-  //   for (genvar i = 0; i < NMULT; i++) begin
-  //     Multip #(
-  //       .QUANT(QUANT),
-  //       .NBITS(NBITS)
-  //     )
-  //     multip(
-  //       .register_input(r_conv_input[r_idx_out[i]]),
-  //       .weight_input(weight_reg[r_idx_out[i]]),
-  //       .product(product[i])
-  //     );
-  //   end
-  // endgenerate
+  generate
+    for (genvar i = 0; i < NMULT; i++) begin
+      Multip #(
+        .QUANT(QUANT),
+        .NBITS(NBITS)
+      )
+      multip(
+        .register_input(r_feat[r_idx_out[i]]),
+        .weight_input(weight_reg[r_idx_out[i]]),
+        .product(product[i])
+      );
+    end
+  endgenerate
 
-  // // Instance of matrix multiplier "A"
-  // Inverse inv (
-  //     .pin (r_conv_input),
-  //     .pout(w_prod_a)
-  // );
+  // Instance of matrix multiplier "A"
+  Inverse inv (
+      .pin (r_feat),
+      .pout(w_conv_inverse)
+  );
 
 endmodule
