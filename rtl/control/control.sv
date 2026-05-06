@@ -415,7 +415,7 @@ module Control
   );
 
   generate
-    for (genvar i = 0; i < NMULT; i++) begin
+    for (genvar i = 0; i < NMULT; i++) begin : MULTIP_BLOCK
       Multip #(
         .QUANT(QUANT),
         .NBITS(NBITS)
