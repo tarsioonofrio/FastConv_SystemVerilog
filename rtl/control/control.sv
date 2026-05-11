@@ -125,13 +125,13 @@ module Control
       r_window_row_step <= 3;
 
       if (r_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN-1) ) begin               // change the IFMAP
-`ifdef SIMULATION
-        $display(
-            "RESETANDO PARA O CANAL 0 - DEU A VOLTA NOS IFMAPS time=%0t %d (%0d) st_input_current = %s",
-            $time, r_channel_counter_input, N_CHANNEL_IN, st_input_current.name());
-
-`endif
         r_addr_pointer_input <= 0;
+        `ifdef SIMULATION
+            $display(
+                "RESETANDO PARA O CANAL 0 - DEU A VOLTA NOS IFMAPS time=%0t %d (%0d) st_input_current = %s",
+                $time, r_channel_counter_input, N_CHANNEL_IN, st_input_current.name());
+
+        `endif
       end
     end
   end
@@ -139,8 +139,7 @@ module Control
   always_ff @(posedge clk or posedge reset) begin: WEIGHT_ADDR_POINTER_BLOCK
     if (reset) begin
       r_addr_pointer_kernel <= 0;
-    end
-        else if (st_input_current == WAIT_INPUT && st_input_next == UPDATE_ADDRESS)    // initializes only ONCE the weight p_input_addr (after the IFMAPs in the memory) (CAUTION: PE)
+    else if (st_input_current == WAIT_INPUT && st_input_next == UPDATE_ADDRESS)    // initializes only ONCE the weight p_input_addr (after the IFMAPs in the memory) (CAUTION: PE)
       r_addr_pointer_kernel <= NADDR'(N_CHANNEL_IN * FEAT_INPUT_SIZE * FEAT_INPUT_WIDTH);
     else if (st_input_current == READ_WEIGHTS)
       r_addr_pointer_kernel <= r_addr_pointer_kernel + 1;  // next weight
@@ -150,8 +149,10 @@ module Control
   // -------  PART 2 - READ FSM AND REGISTERS -----------------------------------------------------------
   // ----------------------------------------------------------------------------------------------------
   always_ff @(posedge clk or posedge reset) begin: INPUT_STATE_REG_BLOCK
-    if (reset) st_input_current <= WAIT_INPUT;
-    else st_input_current <= st_input_next;
+    if (reset)
+      st_input_current <= WAIT_INPUT;
+    else
+      st_input_current <= st_input_next;
   end
 
   always_comb begin: INPUT_NEXT_STATE_BLOCK
@@ -160,8 +161,8 @@ module Control
       WAIT_INPUT: if (p_start) st_input_next = UPDATE_ADDRESS;
       UPDATE_ADDRESS: st_input_next = READ_WEIGHTS;
       READ_WEIGHTS:
-      if (w_weight_done) st_input_next = READ_IN_10A;
-      else if (last_output) st_input_next = WAIT_INPUT;  //end processing
+        if (w_weight_done) st_input_next = READ_IN_10A;
+        else if (last_output) st_input_next = WAIT_INPUT;  //end processing
       READ_IN_10A: if (r_addr_count_input == 4) st_input_next = READ_IN_10B;  // read 5*5 values
       READ_IN_10B: if (r_addr_count_input == 4) st_input_next = READ_IN_15A;
       READ_IN_15A: if (r_addr_count_input == 4) st_input_next = READ_IN_15B;
@@ -169,12 +170,12 @@ module Control
       READ_IN_15C: if (r_addr_count_input == 4) st_input_next = TRANSFER;
       TRANSFER: st_input_next = HOLD_WRITE;  // p_start the convolution
       HOLD_WRITE:
-      if (last_line && w_write_done) st_input_next = NEXT_ROW;
-      else if (w_write_done) st_input_next = READ_IN_15A;
-      else st_input_next = HOLD_WRITE;
+        if (last_line && w_write_done) st_input_next = NEXT_ROW;
+        else if (w_write_done) st_input_next = READ_IN_15A;
+        else st_input_next = HOLD_WRITE;
       NEXT_ROW:
-      if (last_input) st_input_next = UPDATE_ADDRESS;
-      else st_input_next = READ_IN_10A;
+        if (last_input) st_input_next = UPDATE_ADDRESS;
+        else st_input_next = READ_IN_10A;
       default: st_input_next = WAIT_INPUT;
     endcase
   end
@@ -199,8 +200,10 @@ module Control
         r_addr_count_input <= 0;
       end
       else if (st_input_current inside {READ_IN_10A, READ_IN_10B, READ_IN_15A, READ_IN_15B, READ_IN_15C}) begin
-        if (r_addr_count_input == 4) r_addr_count_input <= 0;
-        else r_addr_count_input <= r_addr_count_input + 1;
+        if (r_addr_count_input == 4)
+          r_addr_count_input <= 0;
+        else
+          r_addr_count_input <= r_addr_count_input + 1;
       end
     end
   end
@@ -227,7 +230,6 @@ module Control
       r_addr_count_kernel      <= 0;
     end else begin
       if (st_input_current == UPDATE_ADDRESS) begin
-
         if (r_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1)) begin
           r_channel_counter_input  <= '0;
           r_channel_counter_output <= r_channel_counter_output + 1;
@@ -277,31 +279,39 @@ module Control
     w_feat_input_write_en = '0;
     case (st_input_current)
       READ_IN_10A, READ_IN_10B, READ_IN_15A, READ_IN_15B, READ_IN_15C:
-      w_feat_input_write_en[w_base_feat_input + r_addr_count_input * 5] = 1'b1;
-      TRANSFER: w_feat_input_write_en = 25'b0001100011000110001100011;  // make the shift
-      default: w_feat_input_write_en = '0;
+        w_feat_input_write_en[w_base_feat_input + r_addr_count_input * 5] = 1'b1;
+      TRANSFER:
+        w_feat_input_write_en = 25'b0001100011000110001100011;  // make the shift
+      default:
+        w_feat_input_write_en = '0;
     endcase
   end
 
   always_ff @(posedge clk or posedge reset) begin: INPUT_FEATURE_REG_BLOCK  // initializes and write into the register bank and convolution register bank
-    if (reset) for (int unsigned i = 0; i < 25; i++) r_feat_input[i] <= '0;
+    if (reset)
+      for (int unsigned i = 0; i < 25; i++)
+        r_feat_input[i] <= '0;
     else
       for (int unsigned i = 0; i < 25; i++)
-      if (w_feat_input_write_en[i]) r_feat_input[i] <= w_next_feat_input[i];
+        if (w_feat_input_write_en[i])
+          r_feat_input[i] <= w_next_feat_input[i];
   end
 
   // Weight register bank with per-entry write-enable.
   always_comb begin: WEIGHT_WE_BLOCK
     w_weight_write_en = '0;
-    if (st_input_current == READ_WEIGHTS) w_weight_write_en[r_addr_count_kernel] = 1'b1;
+    if (st_input_current == READ_WEIGHTS)
+      w_weight_write_en[r_addr_count_kernel] = 1'b1;
   end
 
   always_ff @(posedge clk or posedge reset) begin: WEIGHT_REG_BLOCK
     if (reset) begin
-      for (int unsigned i = 0; i < WEIGHT_CYCLES; i++) weight_reg[i] <= '0;
+      for (int unsigned i = 0; i < WEIGHT_CYCLES; i++)
+        weight_reg[i] <= '0;
     end else begin
       for (int unsigned i = 0; i < WEIGHT_CYCLES; i++)
-      if (w_weight_write_en[i]) weight_reg[i] <= p_input_data;
+        if (w_weight_write_en[i])
+          weight_reg[i] <= p_input_data;
     end
   end
 
@@ -312,8 +322,10 @@ module Control
   logic [CONV_MULTIPLY_COUNTER_WIDTH-1:0] r_conv_multiply_count;
 
   always_ff @(posedge clk or posedge reset) begin: CONV_STATE_REG_BLOCK
-    if (reset) st_conv_current <= WAIT_CONV;
-    else st_conv_current <= st_conv_next;
+    if (reset)
+      st_conv_current <= WAIT_CONV;
+    else
+      st_conv_current <= st_conv_next;
   end
 
   always_comb begin: CONV_NEXT_STATE_BLOCK
@@ -324,13 +336,15 @@ module Control
           st_conv_next = TRANSFORM;  // starts the convolution after moving data to the convolution register bank
         end
       end
-      TRANSFORM: st_conv_next = HADAMARD;
+      TRANSFORM:
+        st_conv_next = HADAMARD;
       HADAMARD: begin
         if (r_conv_multiply_count == CONV_MULTIPLY_COUNTER_WIDTH'(CONV_MULTIPLY_STEPS - 1)) begin
           st_conv_next = INVERSE;
         end
       end
-      INVERSE: st_conv_next = WAIT_CONV;
+      INVERSE:
+        st_conv_next = WAIT_CONV;
       default: st_conv_next = WAIT_CONV;
     endcase
   end
@@ -343,36 +357,44 @@ module Control
 `endif
 
   always_ff @(posedge clk or posedge reset) begin: CONV_INPUT_REG_BLOCK  // register bank for the convolution
-    if (reset) for (int unsigned i = 0; i < 25; i++) r_conv_input[i] <= '0;
+    if (reset)
+      for (int unsigned i = 0; i < 25; i++)
+        r_conv_input[i] <= '0;
     else begin
       if (st_input_current == TRANSFER) begin  // fill the convolution register bank
-        for (int unsigned i = 0; i < 25; i++) r_conv_input[i] <= r_feat_input[i];
-`ifdef SIMULATION
-        curr_time = $time;  // debug
-        $display("current time = %0t | previous time = %0t | diff = %0t", curr_time, prev_time,
-                 (curr_time - prev_time));
-        prev_time <= curr_time;
-`endif
+        for (int unsigned i = 0; i < 25; i++)
+          r_conv_input[i] <= r_feat_input[i];
+          `ifdef SIMULATION
+            curr_time = $time;  // debug
+            $display("current time = %0t | previous time = %0t | diff = %0t", curr_time, prev_time,
+                    (curr_time - prev_time));
+            prev_time <= curr_time;
+          `endif
       end
     end
   end
 
   always_ff @(posedge clk or posedge reset) begin: CONV_END_FLAG_BLOCK
-    if (reset) w_conv_end <= 0;
+    if (reset)
+      w_conv_end <= 0;
     else begin
       if (st_conv_next == INVERSE)  // *** CAUTION: PE
         w_conv_end <= 1;
-      else if (st_output_current == WRITE_OUTPUT) w_conv_end <= 0;
-      // else if (st_output_current == WRITE_OUTPUT || st_conv_current == WAIT_CONV) w_conv_end <= 0;
+      else if (st_output_current == WRITE_OUTPUT)
+        w_conv_end <= 0;
+        // else if (st_output_current == WRITE_OUTPUT || st_conv_current == WAIT_CONV) w_conv_end <= 0;
     end
   end
 
   always_ff @(posedge clk or posedge reset) begin: CONV_MULTIPLY_COUNTER_BLOCK
-    if (reset) r_conv_multiply_count <= 0;
+    if (reset)
+      r_conv_multiply_count <= 0;
     else begin
-      if (st_conv_current == TRANSFORM) r_conv_multiply_count <= 0;
+      if (st_conv_current == TRANSFORM)
+          r_conv_multiply_count <= 0;
       // if (st_conv_current == WAIT_CONV || st_conv_current == TRANSFORM) r_conv_multiply_count <= 0;
-      else if (st_conv_current == HADAMARD) r_conv_multiply_count <= r_conv_multiply_count + 1;
+      else if (st_conv_current == HADAMARD)
+        r_conv_multiply_count <= r_conv_multiply_count + 1;
     end
   end
 
@@ -448,18 +470,27 @@ module Control
 
     priority case (st_output_current)
       WAIT_OUTPUT:
-      if (st_input_current == UPDATE_ADDRESS)
-        st_output_next = RESET9;     // wait p_start reading the IFMAPs to p_start writing the results
-        else st_output_next = WAIT_OUTPUT;
-        RESET9: if (w_conv_end && r_output_read_count == 8) st_output_next = WRITE_OUTPUT;
-        READ_OUTPUT: if (w_conv_end && r_output_read_count == 8) st_output_next = WRITE_OUTPUT;
+        if (st_input_current == UPDATE_ADDRESS)
+          st_output_next = RESET9;     // wait p_start reading the IFMAPs to p_start writing the results
+        else
+          st_output_next = WAIT_OUTPUT;
+      RESET9:
+        if (w_conv_end && r_output_read_count == 8)
+          st_output_next = WRITE_OUTPUT;
+      READ_OUTPUT:
+        if (w_conv_end && r_output_read_count == 8)
+          st_output_next = WRITE_OUTPUT;
       WRITE_OUTPUT:
-      if (r_channel_counter_input == 0 && r_output_write_count == 8) st_output_next = RESET9;
-      else if (r_channel_counter_input > 0 && r_output_write_count == 8)
-        st_output_next = READ_OUTPUT;
-        else if (last_output) st_output_next = WAIT_OUTPUT;  //end processing
-      else st_output_next = WRITE_OUTPUT;
-      default: st_output_next = WAIT_OUTPUT;
+        if (r_channel_counter_input == 0 && r_output_write_count == 8)
+          st_output_next = RESET9;
+        else if (r_channel_counter_input > 0 && r_output_write_count == 8)
+          st_output_next = READ_OUTPUT;
+        else if (last_output)
+          st_output_next = WAIT_OUTPUT;  //end processing
+        else
+          st_output_next = WRITE_OUTPUT;
+      default:
+        st_output_next = WAIT_OUTPUT;
     endcase
   end
 
@@ -473,12 +504,16 @@ module Control
     end else begin
       if (st_output_current == WRITE_OUTPUT) begin
         r_output_read_count <= 0;
-        if (r_output_write_count < 8) r_output_write_count <= r_output_write_count + 1;
-        else r_output_write_count <= 8;
+        if (r_output_write_count < 8)
+          r_output_write_count <= r_output_write_count + 1;
+        else
+          r_output_write_count <= 8;
       end else if (st_output_current == RESET9 || st_output_current == READ_OUTPUT) begin
         r_output_write_count <= 0;
-        if (r_output_read_count < 8) r_output_read_count <= r_output_read_count + 1;
-        else r_output_read_count <= 8;
+        if (r_output_read_count < 8)
+          r_output_read_count <= r_output_read_count + 1;
+        else
+          r_output_read_count <= 8;
       end
     end
   end
