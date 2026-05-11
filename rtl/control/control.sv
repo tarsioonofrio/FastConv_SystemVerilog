@@ -137,7 +137,7 @@ module Control
   end
 
   always_ff @(posedge clk or posedge reset) begin: WEIGHT_ADDR_POINTER_BLOCK
-    if (reset) begin
+    if (reset)
       r_addr_pointer_kernel <= 0;
     else if (st_input_current == WAIT_INPUT && st_input_next == UPDATE_ADDRESS)    // initializes only ONCE the weight p_input_addr (after the IFMAPs in the memory) (CAUTION: PE)
       r_addr_pointer_kernel <= NADDR'(N_CHANNEL_IN * FEAT_INPUT_SIZE * FEAT_INPUT_WIDTH);
