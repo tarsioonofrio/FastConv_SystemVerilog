@@ -129,7 +129,8 @@ module Control
         `ifdef SIMULATION
             $display(
                 "RESETANDO PARA O CANAL 0 - DEU A VOLTA NOS IFMAPS time=%0t %d (%0d) st_input_current = %s",
-                $time, r_channel_counter_input, N_CHANNEL_IN, st_input_current.name());
+                $time, r_channel_counter_input, N_CHANNEL_IN, st_input_current.name()
+            );
 
         `endif
       end
@@ -366,8 +367,7 @@ module Control
           r_conv_input[i] <= r_feat_input[i];
           `ifdef SIMULATION
             curr_time = $time;  // debug
-            $display("current time = %0t | previous time = %0t | diff = %0t", curr_time, prev_time,
-                    (curr_time - prev_time));
+            $display("current time = %0t | previous time = %0t | diff = %0t", curr_time, prev_time, (curr_time - prev_time));
             prev_time <= curr_time;
           `endif
       end
