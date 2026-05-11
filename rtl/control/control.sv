@@ -401,13 +401,14 @@ module Control
   always_ff @(posedge clk) begin: CONV_DATAPATH_BLOCK
     if (reset) begin
       r_idx_in <= 1'b0;
+      r_conv_temp <= '{default: '0};
     end else begin
       unique case (st_conv_current)
         WAIT_CONV: begin
           r_idx_in <= 1'b0;
-          if (p_start) begin
-            r_conv_temp[C1_SIZE*C1_SIZE-1:0] <= r_conv_input;
-          end
+          // if (p_start) begin
+          //   r_conv_temp[C1_SIZE*C1_SIZE-1:0] <= r_conv_input;
+          // end
         end
         TRANSFORM: begin
           r_conv_temp <= w_conv_transform;
@@ -426,7 +427,8 @@ module Control
 
   // Instance of matrix multiplier "C"
   Transform trf (
-      .pin (r_conv_input[C1_SIZE*C1_SIZE-1:0]),
+      // .pin (r_conv_input[C1_SIZE*C1_SIZE-1:0]),
+      .pin (r_conv_input),
       .pout(w_conv_transform)
   );
 
