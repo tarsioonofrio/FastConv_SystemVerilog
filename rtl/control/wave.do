@@ -46,7 +46,7 @@ add wave -noupdate /tb/dut/r_output_read_count
 add wave -noupdate /tb/dut/r_output_write_count
 add wave -noupdate /tb/dut/r_conv_multiply_count
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {29134462 ps} 0}
+WaveRestoreCursors {{Cursor 1} {625000 ps} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 238
 configure wave -valuecolwidth 100
@@ -62,4 +62,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {574604 ps} {1053452 ps}
+WaveRestoreZoom {454891 ps} {933739 ps}
