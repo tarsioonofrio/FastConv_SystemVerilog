@@ -131,7 +131,6 @@ module Control
                 "RESETANDO PARA O CANAL 0 - DEU A VOLTA NOS IFMAPS time=%0t %d (%0d) st_input_current = %s",
                 $time, r_channel_counter_input, N_CHANNEL_IN, st_input_current.name()
             );
-
         `endif
       end
     end
