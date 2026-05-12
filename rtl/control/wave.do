@@ -23,6 +23,7 @@ add wave -noupdate -color purple -radix decimal /tb/dut/w_write_done
 add wave -noupdate -color blue -radix decimal /tb/dut/r_window_row_step
 add wave -noupdate -divider {New Divider}
 add wave -noupdate -color Red -radix unsigned /tb/dut/p_input_addr
+add wave -noupdate -radix unsigned /tb/dut/r_addr_pointer_kernel
 add wave -noupdate -color Red -radix unsigned /tb/dut/r_addr_pointer_input
 add wave -noupdate -divider {New Divider}
 add wave -noupdate -color purple -radix decimal -childformat {{{/tb/dut/r_feat_input[24]} -radix decimal} {{/tb/dut/r_feat_input[23]} -radix decimal} {{/tb/dut/r_feat_input[22]} -radix decimal} {{/tb/dut/r_feat_input[21]} -radix decimal} {{/tb/dut/r_feat_input[20]} -radix decimal} {{/tb/dut/r_feat_input[19]} -radix decimal} {{/tb/dut/r_feat_input[18]} -radix decimal} {{/tb/dut/r_feat_input[17]} -radix decimal} {{/tb/dut/r_feat_input[16]} -radix decimal} {{/tb/dut/r_feat_input[15]} -radix decimal} {{/tb/dut/r_feat_input[14]} -radix decimal} {{/tb/dut/r_feat_input[13]} -radix decimal} {{/tb/dut/r_feat_input[12]} -radix decimal} {{/tb/dut/r_feat_input[11]} -radix decimal} {{/tb/dut/r_feat_input[10]} -radix decimal} {{/tb/dut/r_feat_input[9]} -radix decimal} {{/tb/dut/r_feat_input[8]} -radix decimal} {{/tb/dut/r_feat_input[7]} -radix decimal} {{/tb/dut/r_feat_input[6]} -radix decimal} {{/tb/dut/r_feat_input[5]} -radix decimal} {{/tb/dut/r_feat_input[4]} -radix decimal} {{/tb/dut/r_feat_input[3]} -radix decimal} {{/tb/dut/r_feat_input[2]} -radix decimal} {{/tb/dut/r_feat_input[1]} -radix decimal} {{/tb/dut/r_feat_input[0]} -radix decimal}} -expand -subitemconfig {{/tb/dut/r_feat_input[24]} {-color purple -height 21 -radix decimal} {/tb/dut/r_feat_input[23]} {-color purple -height 21 -radix decimal} {/tb/dut/r_feat_input[22]} {-color purple -height 21 -radix decimal} {/tb/dut/r_feat_input[21]} {-color purple -height 21 -radix decimal} {/tb/dut/r_feat_input[20]} {-color purple -height 21 -radix decimal} {/tb/dut/r_feat_input[19]} {-color purple -height 21 -radix decimal} {/tb/dut/r_feat_input[18]} {-color purple -height 21 -radix decimal} {/tb/dut/r_feat_input[17]} {-color purple -height 21 -radix decimal} {/tb/dut/r_feat_input[16]} {-color purple -height 21 -radix decimal} {/tb/dut/r_feat_input[15]} {-color purple -height 21 -radix decimal} {/tb/dut/r_feat_input[14]} {-color purple -height 21 -radix decimal} {/tb/dut/r_feat_input[13]} {-color purple -height 21 -radix decimal} {/tb/dut/r_feat_input[12]} {-color purple -height 21 -radix decimal} {/tb/dut/r_feat_input[11]} {-color purple -height 21 -radix decimal} {/tb/dut/r_feat_input[10]} {-color purple -height 21 -radix decimal} {/tb/dut/r_feat_input[9]} {-color purple -height 21 -radix decimal} {/tb/dut/r_feat_input[8]} {-color purple -height 21 -radix decimal} {/tb/dut/r_feat_input[7]} {-color purple -height 21 -radix decimal} {/tb/dut/r_feat_input[6]} {-color purple -height 21 -radix decimal} {/tb/dut/r_feat_input[5]} {-color purple -height 21 -radix decimal} {/tb/dut/r_feat_input[4]} {-color purple -height 21 -radix decimal} {/tb/dut/r_feat_input[3]} {-color purple -height 21 -radix decimal} {/tb/dut/r_feat_input[2]} {-color purple -height 21 -radix decimal} {/tb/dut/r_feat_input[1]} {-color purple -height 21 -radix decimal} {/tb/dut/r_feat_input[0]} {-color purple -height 21 -radix decimal}} /tb/dut/r_feat_input
@@ -51,7 +52,7 @@ add wave -noupdate /tb/dut/r_output_read_count
 add wave -noupdate /tb/dut/r_output_write_count
 add wave -noupdate /tb/dut/r_conv_multiply_count
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {625000 ps} 0}
+WaveRestoreCursors {{Cursor 1} {365640 ps} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 238
 configure wave -valuecolwidth 100
@@ -67,4 +68,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {610036 ps} {639964 ps}
+WaveRestoreZoom {251898 ps} {730746 ps}
