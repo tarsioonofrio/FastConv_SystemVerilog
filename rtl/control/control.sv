@@ -329,7 +329,7 @@ module Control
   end
 
   always_comb begin: CONV_NEXT_STATE_BLOCK
-    st_conv_next = st_conv_current;  // default
+    // st_conv_next = st_conv_current;  // default
     priority case (st_conv_current)
       WAIT_CONV: begin
         if (st_input_current == TRANSFER) begin
