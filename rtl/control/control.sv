@@ -55,7 +55,7 @@ module Control
 
   // REGISTER BANK FOR THE WEIGHTS ////////////////////////////////////////////
   localparam int WEIGHT_CYCLES = KERNEL_SIZE * KERNEL_SIZE;
-  localparam int WEIGHT_WIDTH = $clog2(WEIGHT_CYCLES);
+  localparam int WEIGHT_WIDTH = $clog2(WEIGHT_CYCLES)+1;
   logic_vector weight_reg[WEIGHT_CYCLES-1:0];
   logic [WEIGHT_CYCLES-1:0] w_weight_write_en;
   logic [WEIGHT_WIDTH-1:0] r_addr_count_kernel;
