@@ -70,11 +70,11 @@ module tb;
   Control #(
     .N_CHANNEL_IN(N_CHANNEL_IN),
     .N_CHANNEL_OUT(N_CHANNEL_OUT),
-    .KERNEL_SIZE(KERNEL_SIZE),
+    .KERNEL_SIZE(6),
     .FEAT_INPUT_SIZE(FEAT_INPUT_SIZE),
-    .FEAT_INPUT_WIDTH(FEAT_INPUT_WIDTH),
+    .FEAT_INPUT_WIDTH(16),
     .NADDR(NADDR),
-    .CONV_MULTIPLY_STEPS(SMULT)
+    .CONV_MULTIPLY_STEPS(6)
   ) dut (
     .clk(clk),
     .reset(reset),
