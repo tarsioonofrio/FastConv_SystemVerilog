@@ -433,7 +433,12 @@ module Control
   end
 
   // Instance of matrix multiplier "C"
-  Transform trf (
+  Transform #(
+    .NBITS(NBITS),
+    .A1_SIZE(A1_SIZE),
+    .C1_SIZE(C1_SIZE),
+    .M1_SIZE(M1_SIZE)
+  ) trf (
       // .pin (r_conv_input[C1_SIZE*C1_SIZE-1:0]),
       .pin (r_conv_input),
       .pout(w_conv_transform)
@@ -459,7 +464,12 @@ module Control
   endgenerate
 
   // Instance of matrix multiplier "A"
-  Inverse inv (
+  Inverse #(
+    .NBITS(NBITS),
+    .A1_SIZE(A1_SIZE),
+    .C1_SIZE(C1_SIZE),
+    .M1_SIZE(M1_SIZE)
+  ) inv (
       .pin (r_conv_temp),
       .pout(w_conv_inverse)
   );
