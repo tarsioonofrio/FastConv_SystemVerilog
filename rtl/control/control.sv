@@ -5,7 +5,7 @@
 
 module Control
   #(
-    parameter int unsigned N_CHANNEL_IN        = 2,
+    parameter int unsigned N_CHANNEL_IN        = 3,
     parameter int unsigned N_CHANNEL_OUT       = 3,
     parameter int unsigned KERNEL_SIZE         = 5,
     parameter int unsigned FEAT_INPUT_SIZE     = 17,
