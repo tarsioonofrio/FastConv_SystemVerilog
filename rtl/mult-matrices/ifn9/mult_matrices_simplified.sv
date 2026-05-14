@@ -7,12 +7,10 @@ module Transform #(
     input  logic [NBITS-1:0] pin [C1_SIZE*C1_SIZE-1:0],
     output logic [NBITS-1:0] pout [M1_SIZE*M1_SIZE-1:0]
   );
-  typedef logic [NBITS-1:0] logic_vector;
-  typedef logic_vector type_matrix_c [C1_SIZE*M1_SIZE-1:0];
   timeunit 1ns;
   timeprecision 1ps;
 
-  type_matrix_c partial;
+  logic [NBITS-1:0] partial [C1_SIZE*M1_SIZE-1:0];
 
   // Instance of matrix multiplier "C"
   MatrixC0 #(
@@ -44,12 +42,10 @@ module Inverse #(
     input  logic [NBITS-1:0] pin [M1_SIZE*M1_SIZE-1:0],
     output logic [NBITS-1:0] pout [A1_SIZE*A1_SIZE-1:0]
  );
-  typedef logic [NBITS-1:0] logic_vector;
-  typedef logic_vector type_matrix_a [C1_SIZE*M1_SIZE-1:0];
   timeunit 1ns;
   timeprecision 1ps;
 
-  type_matrix_a partial;
+  logic [NBITS-1:0] partial [C1_SIZE*M1_SIZE-1:0];
 
   MatrixA1 #(
     .NBITS(NBITS),
@@ -79,15 +75,14 @@ module MatrixC0 #(
     input  logic [NBITS-1:0] P [C1_SIZE*C1_SIZE-1:0],
     output logic [NBITS-1:0] soma [C1_SIZE*M1_SIZE-1:0]
   );
-  typedef logic [NBITS-1:0] logic_vector;
   timeunit 1ns;
   timeprecision 1ps;
 
-  logic_vector sn0, sn1, sn2;
-  logic_vector sn6, sn7, sn8;
-  logic_vector sn12, sn13, sn14;
-  logic_vector sn18, sn19, sn20;
-  logic_vector sn24, sn25, sn26;
+  logic [NBITS-1:0] sn0, sn1, sn2;
+  logic [NBITS-1:0] sn6, sn7, sn8;
+  logic [NBITS-1:0] sn12, sn13, sn14;
+  logic [NBITS-1:0] sn18, sn19, sn20;
+  logic [NBITS-1:0] sn24, sn25, sn26;
 
   CSA_2 csa_n0 (P[1], P[2],  sn0);
   CSA_2 csa_n6 (P[6], P[7],  sn6);
@@ -153,13 +148,12 @@ module MatrixC1 #(
     input  logic [NBITS-1:0] P [C1_SIZE*M1_SIZE-1:0],
     output logic [NBITS-1:0] soma [M1_SIZE*M1_SIZE-1:0]
   );
-  typedef logic [NBITS-1:0] logic_vector;
   timeunit 1ns;
   timeprecision 1ps;
 
-  logic_vector sn0, sn1, sn2, sn3, sn4, sn5;
-  logic_vector sn6, sn7, sn8, sn9, sn10, sn11;
-  logic_vector sn12, sn13, sn14, sn15, sn16, sn17;
+  logic [NBITS-1:0] sn0, sn1, sn2, sn3, sn4, sn5;
+  logic [NBITS-1:0] sn6, sn7, sn8, sn9, sn10, sn11;
+  logic [NBITS-1:0] sn12, sn13, sn14, sn15, sn16, sn17;
 
   CSA_2 csa_n0 (P[06], P[12], sn0);
   CSA_2 csa_n1 (P[07], P[13], sn1);
@@ -232,12 +226,11 @@ module MatrixA1 #(
     input  logic [NBITS-1:0] P [M1_SIZE*M1_SIZE-1:0],
     output logic [NBITS-1:0] soma [C1_SIZE*M1_SIZE-1:0]
   );
-  typedef logic [NBITS-1:0] logic_vector;
   timeunit 1ns;
   timeprecision 1ps;
 
-  logic_vector sp0, sp1, sp2, sp3, sp4, sp5, sp6, sp7, sp8;
-  logic_vector sp9, sp10, sp11, sp12, sp13, sp14, sp15, sp16, sp17;
+  logic [NBITS-1:0] sp0, sp1, sp2, sp3, sp4, sp5, sp6, sp7, sp8;
+  logic [NBITS-1:0] sp9, sp10, sp11, sp12, sp13, sp14, sp15, sp16, sp17;
 
   CSA_3 csa_p0 (P[0], P[3], P[4], sp0);
   CSA_3 csa_p1 (P[1], P[3], P[5], sp1);
@@ -289,11 +282,10 @@ module MatrixA0 #(
     input  logic [NBITS-1:0] P [C1_SIZE*M1_SIZE-1:0],
     output logic [NBITS-1:0] soma [A1_SIZE*A1_SIZE-1:0]
   );
-  typedef logic [NBITS-1:0] logic_vector;
   timeunit 1ns;
   timeprecision 1ps;
 
-  logic_vector sp0, sp2, sp1, sp3, sp4, sp5, sp6, sp7, sp8;
+  logic [NBITS-1:0] sp0, sp2, sp1, sp3, sp4, sp5, sp6, sp7, sp8;
 
   CSA_3 csa_p0(P[0], P[9],  P[12], sp0);
   CSA_3 csa_p1(P[1], P[10], P[13], sp1);

@@ -28,14 +28,10 @@ module Control
     output logic [NADDR-1:0] p_input_addr,
     input logic [19:0] p_input_data
 );
-  typedef logic [NBITS-1:0] logic_vector;
-  typedef logic_vector type_input  [C1_SIZE*C1_SIZE-1:0];
-  typedef logic_vector type_output [A1_SIZE*A1_SIZE-1:0];
-  typedef logic_vector type_weight [M1_SIZE*M1_SIZE-1:0];
 
-  logic_vector r_feat_input[24:0];  // input feature register bank
-  logic_vector r_conv_input[24:0];  // convolution input register bank
-  logic_vector w_next_feat_input[24:0];  // next values for feature shift bank
+  logic [NBITS-1:0] r_feat_input[24:0];  // input feature register bank
+  logic [NBITS-1:0] r_conv_input[24:0];  // convolution input register bank
+  logic [NBITS-1:0] w_next_feat_input[24:0];  // next values for feature shift bank
   logic [24:0] w_feat_input_write_en;  // write-enable per feature register
   logic w_conv_end, last_line, last_input, last_output;
   logic [3:0] r_output_read_count, r_output_write_count;
@@ -63,14 +59,14 @@ module Control
   // REGISTER BANK FOR THE WEIGHTS ////////////////////////////////////////////
   localparam int WEIGHT_CYCLES = KERNEL_SIZE * KERNEL_SIZE;
   localparam int WEIGHT_WIDTH = $clog2(WEIGHT_CYCLES)+1;
-  logic_vector weight_reg[WEIGHT_CYCLES-1:0];
+  logic [NBITS-1:0] weight_reg[WEIGHT_CYCLES-1:0];
   logic [WEIGHT_CYCLES-1:0] w_weight_write_en;
   logic [WEIGHT_WIDTH-1:0] r_addr_count_kernel;
   logic w_weight_done, w_write_done;
 
-  type_weight r_conv_temp;
-  type_weight w_conv_transform;
-  type_output w_conv_inverse;
+  logic [NBITS-1:0] r_conv_temp [M1_SIZE*M1_SIZE-1:0];
+  logic [NBITS-1:0] w_conv_transform [M1_SIZE*M1_SIZE-1:0];
+  logic [NBITS-1:0] w_conv_inverse [A1_SIZE*A1_SIZE-1:0];
   logic [$clog2(SMULT-1):0] r_idx_in;
   logic [$clog2(SMULT*NMULT-1):0] r_idx_out[NMULT-1:0];
   logic signed [NBITS-1+QUANT:0] product [NMULT-1:0];  // QUANT more bits for the multipliers

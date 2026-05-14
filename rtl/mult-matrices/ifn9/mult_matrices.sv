@@ -7,12 +7,10 @@ module Transform #(
     input  logic [NBITS-1:0] pin [C1_SIZE*C1_SIZE-1:0],
     output logic [NBITS-1:0] pout [M1_SIZE*M1_SIZE-1:0]
   );
-  typedef logic [NBITS-1:0] logic_vector;
-  typedef logic_vector type_matrix_c [C1_SIZE*M1_SIZE-1:0];
   timeunit 1ns;
   timeprecision 1ps;
 
-  type_matrix_c partial;
+  logic [NBITS-1:0] partial [C1_SIZE*M1_SIZE-1:0];
 
   // Instance of matrix multiplier "C"
   MatrixC0 #(
@@ -44,12 +42,10 @@ module Inverse #(
     input  logic [NBITS-1:0] pin [M1_SIZE*M1_SIZE-1:0],
     output logic [NBITS-1:0] pout [A1_SIZE*A1_SIZE-1:0]
  );
-  typedef logic [NBITS-1:0] logic_vector;
-  typedef logic_vector type_matrix_a [C1_SIZE*M1_SIZE-1:0];
   timeunit 1ns;
   timeprecision 1ps;
 
-  type_matrix_a partial;
+  logic [NBITS-1:0] partial [C1_SIZE*M1_SIZE-1:0];
 
   MatrixA1 #(
     .NBITS(NBITS),
