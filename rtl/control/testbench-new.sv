@@ -74,7 +74,14 @@ module tb;
     .FEAT_INPUT_SIZE(FEAT_INPUT_SIZE),
     .FEAT_INPUT_WIDTH(16),
     .NADDR(NADDR),
-    .CONV_MULTIPLY_STEPS(6)
+    .CONV_MULTIPLY_STEPS(6),
+    .NBITS(NBITS),
+    .QUANT(QUANT),
+    .A1_SIZE(A1_SIZE),
+    .C1_SIZE(C1_SIZE),
+    .M1_SIZE(M1_SIZE),
+    .NMULT(6),
+    .SMULT(6)
   ) dut (
     .clk(clk),
     .reset(reset),
