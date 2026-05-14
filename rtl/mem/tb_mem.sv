@@ -3,8 +3,6 @@
 // -------------------------------------------------------------------------
 module tb;
   import pack_data::*;
-  import pack_def::*;
-  import pack_typedef::*;
 
   timeunit 1ns;
   timeprecision 1ps;
@@ -56,7 +54,8 @@ module tb;
     .NADDR(NADDR),
     .NBITS(NBITS),
     .LATENCY(LATENCY),
-    .ROM(ROM)
+    .ROM(ROM),
+    .CONST_DATA(const_data)
   ) memory (
     .clk(clk),
     .reset(reset),
@@ -149,3 +148,5 @@ module tb;
 
 
 endmodule
+  localparam int NBITS = 16;
+  typedef logic [NBITS-1:0] logic_vector;
