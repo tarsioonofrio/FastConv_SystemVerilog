@@ -2,10 +2,8 @@ module tb;
   timeunit 1ns;
   timeprecision 1ps;
 
-  import pack_def::*;
   import pack_data::*;
   import pack_param::*;
-  import pack_typedef::*;
 
   logic clk;
   logic reset;
@@ -95,7 +93,8 @@ module tb;
     .NADDR(NADDR),
     .NBITS(NBITS),
     .LATENCY(LATENCY),
-    .ROM(ROM)
+    .ROM(ROM),
+    .CONST_DATA(const_data)
   ) memory_read(
     .clk(clk),
     .reset(reset),
@@ -208,3 +207,13 @@ module tb;
   end
 
 endmodule
+  localparam int NBITS = 16;
+  localparam int NADDR = 14;
+  localparam int LATENCY = 1;
+  localparam int ROM = 1;
+  localparam int QUANT = 8;
+
+  typedef logic [NBITS-1:0] logic_vector;
+  typedef logic_vector type_input [C1_SIZE*C1_SIZE-1:0];
+  typedef logic_vector type_weight [M1_SIZE*M1_SIZE-1:0];
+  typedef logic_vector type_output [A1_SIZE*A1_SIZE-1:0];
