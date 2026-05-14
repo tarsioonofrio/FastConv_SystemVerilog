@@ -1,25 +1,22 @@
-module Memory
-    import pack_def::*;
-    import pack_data::*;
-    import pack_typedef::*;
-#(
+module Memory #(
     parameter int NADDR   = 16,
     parameter int NBITS   = 20,
     parameter int LATENCY = 1,
-    parameter int ROM     = 0
+    parameter int ROM     = 0,
+    parameter logic [NBITS-1:0] CONST_DATA [0:(2**NADDR)-1] = '{default: '0}
   )
   (
     input  logic            clk, reset, chip_en, wr_en,
     input  logic[NADDR-1:0] address,
-    input  logic_vector     data_in,
-    output logic_vector     data_out,
+    input  logic [NBITS-1:0] data_in,
+    output logic [NBITS-1:0] data_out,
     output logic            data_valid
   );
 
   timeunit 1ns;
   timeprecision 1ps;
 
-  logic_vector data[0:2**NADDR-1];
+  logic [NBITS-1:0] data[0:2**NADDR-1];
 
   int r_cycles_latency;
 
@@ -35,7 +32,7 @@ module Memory
     if (ROM == 0 && chip_en == 1'b1)
       data_out = data[address];
     else if (ROM == 1 && chip_en == 1'b1)
-      data_out = $signed(const_data[address]);
+      data_out = $signed(CONST_DATA[address]);
     else
       data_out = '{default: '0};
   end
