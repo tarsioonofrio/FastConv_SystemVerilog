@@ -1,11 +1,3 @@
-file delete {*}[glob -nocomplain wlf*]
-
-if {[file isdirectory work]} { vdel -all -lib work }
-vlib work
-vmap work work
-
-set GIT_ROOT [exec git rev-parse --show-toplevel]
-
 # Centralized compile-time defines set directly in this script.
 # Add more entries here if other packages/modules require them.
 
@@ -15,6 +7,11 @@ set LATENCY 1
 set ROM 1
 set QUANT 8
 
+set DATA data/ifn9/sim/sim-032-1-1-seq/pack_data.sv
+set PARAM rtl/pack-param/ifn9/pack_param.sv
+set MUX rtl/mux-mult/ifn9/mux_mult_06.sv
+set MULT rtl/mult-matrices/ifn9/mult_matrices_csa.sv
+
 set define_flags ""
 append define_flags "+define+NADDR=$NADDR "
 append define_flags "+define+NBITS=$NBITS "
@@ -22,16 +19,25 @@ append define_flags "+define+LATENCY=$LATENCY "
 append define_flags "+define+ROM=$ROM "
 append define_flags "+define+QUANT=$QUANT "
 
-# Read the file_list.txt file and execute vlog commands for each line, passing defines
-set file_list "list-file.txt"
-set fp [open $file_list r]
-while {[gets $fp line] >= 0} {
-    if {[string trim $line] ne ""} {
-        vlog -work work $define_flags -svinputport=relaxed ${GIT_ROOT}/$line
-    }
-}
-close $fp
 
+file delete {*}[glob -nocomplain wlf*]
+if {[file isdirectory work]} { vdel -all -lib work }
+vlib work
+vmap work work
+
+# Read the file_list.txt file and execute vlog commands for each line, passing defines
+set GIT_ROOT [exec git rev-parse --show-toplevel]
+set file_list [list \
+  "${GIT_ROOT}/${DATA}" \
+  "${GIT_ROOT}/${PARAM}" \
+  "${GIT_ROOT}/${MUX}" \
+  "${GIT_ROOT}/rtl/csa/csa_lib.sv" \
+  "${GIT_ROOT}/${MULT}" \
+  "${GIT_ROOT}/rtl/mem/mem.sv" \
+  "${GIT_ROOT}/rtl/multip/multip.sv" \
+]
+
+vlog -work work $define_flags -svinputport=relaxed {*}$file_list
 
 vlog -work work +define+SIMULATION $define_flags -svinputport=relaxed ./control.sv
 # vlog -work work $define_flags -svinputport=relaxed ./control.sv
