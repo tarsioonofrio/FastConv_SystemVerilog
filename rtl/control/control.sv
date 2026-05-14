@@ -29,10 +29,10 @@ module Control
     input logic [19:0] p_input_data
 );
 
-  logic [NBITS-1:0] r_feat_input[24:0];  // input feature register bank
-  logic [NBITS-1:0] r_conv_input[24:0];  // convolution input register bank
-  logic [NBITS-1:0] w_next_feat_input[24:0];  // next values for feature shift bank
-  logic [24:0] w_feat_input_write_en;  // write-enable per feature register
+  logic [NBITS-1:0] r_feat_input[(C1_SIZE * C1_SIZE) - 1:0];  // input feature register bank
+  logic [NBITS-1:0] r_conv_input[(C1_SIZE * C1_SIZE) - 1:0];  // convolution input register bank
+  logic [NBITS-1:0] w_next_feat_input[(C1_SIZE * C1_SIZE) - 1:0];  // next values for feature shift bank
+  logic [(C1_SIZE * C1_SIZE) - 1:0] w_feat_input_write_en;  // write-enable per feature register
   logic w_conv_end, last_line, last_input, last_output;
   logic [3:0] r_output_read_count, r_output_write_count;
   logic [NADDR-1:0] r_addr_pointer_input, r_window_row_step, r_addr_pointer_kernel;
