@@ -1,13 +1,18 @@
 module Transform
-  import pack_typedef::*;
+  #(
+    parameter int NBITS = 16,
+    parameter int A1_SIZE = 3,
+    parameter int C1_SIZE = 5,
+    parameter int M1_SIZE = 6
+  )
   (
-    input  type_input pin,
-    output type_weight pout
+    input  logic [NBITS-1:0] [C1_SIZE*C1_SIZE-1:0] pin,
+    output logic [NBITS-1:0] [M1_SIZE*M1_SIZE-1:0] pout
   );
   timeunit 1ns;
   timeprecision 1ps;
 
-  type_matrix_c partial;
+  logic [NBITS-1:0] [C1_SIZE*M1_SIZE-1:0] partial;
 
   // Instance of matrix multiplier "C"
   MatrixC0 matrix_c0(
@@ -20,18 +25,21 @@ module Transform
   );
 endmodule
 
-
-
 module Inverse
-  import pack_typedef::*;
+  #(
+    parameter int NBITS = 16,
+    parameter int A1_SIZE = 3,
+    parameter int C1_SIZE = 5,
+    parameter int M1_SIZE = 6
+  )
   (
-    input  type_weight pin,
-    output type_output pout
+    input  logic [NBITS-1:0] [M1_SIZE*M1_SIZE-1:0] pin,
+    output logic [NBITS-1:0] [A1_SIZE*A1_SIZE-1:0] pout
  );
   timeunit 1ns;
   timeprecision 1ps;
 
-  type_matrix_a partial;
+  logic [NBITS-1:0] [C1_SIZE*M1_SIZE-1:0] partial;
 
   MatrixA1 matrix_a1 (
     .P(pin),
@@ -43,12 +51,16 @@ module Inverse
   );
 endmodule
 
-
 module MatrixC0
-  import pack_typedef::*;
+  #(
+    parameter int NBITS = 16,
+    parameter int A1_SIZE = 3,
+    parameter int C1_SIZE = 5,
+    parameter int M1_SIZE = 6
+  )
   (
-    input  type_input P,
-    output type_matrix_c soma
+    input  logic [NBITS-1:0] [C1_SIZE*C1_SIZE-1:0] P,
+    output logic [NBITS-1:0] [C1_SIZE*M1_SIZE-1:0] soma
   );
   timeunit 1ns;
   timeprecision 1ps;
@@ -91,12 +103,16 @@ module MatrixC0
   assign soma[35] = (P[31] * 4) + P[35] - ((P[33] * 5));
 endmodule
 
-
 module MatrixC1
-  import pack_typedef::*;
+  #(
+    parameter int NBITS = 16,
+    parameter int A1_SIZE = 3,
+    parameter int C1_SIZE = 5,
+    parameter int M1_SIZE = 6
+  )
   (
-    input  type_matrix_c P,
-    output type_weight soma
+    input  logic [NBITS-1:0] [C1_SIZE*M1_SIZE-1:0] P,
+    output logic [NBITS-1:0] [M1_SIZE*M1_SIZE-1:0] soma
   );
   timeunit 1ns;
   timeprecision 1ps;
@@ -139,12 +155,16 @@ module MatrixC1
   assign soma[35] = (P[11] * 4) + P[35] - ((P[23] * 5));
 endmodule
 
-
 module MatrixA1
-  import pack_typedef::*;
+  #(
+    parameter int NBITS = 16,
+    parameter int A1_SIZE = 3,
+    parameter int C1_SIZE = 5,
+    parameter int M1_SIZE = 6
+  )
   (
-    input  type_weight P,
-    output type_matrix_a soma
+    input  logic [NBITS-1:0] [M1_SIZE*M1_SIZE-1:0] P,
+    output logic [NBITS-1:0] [C1_SIZE*M1_SIZE-1:0] soma
   );
   timeunit 1ns;
   timeprecision 1ps;
@@ -175,12 +195,16 @@ module MatrixA1
   assign soma[23] = P[31] + (P[33] * 8) + P[35] - (P[32] + (P[34] * 8));
 endmodule
 
-
 module MatrixA0
-  import pack_typedef::*;
+  #(
+    parameter int NBITS = 16,
+    parameter int A1_SIZE = 3,
+    parameter int C1_SIZE = 5,
+    parameter int M1_SIZE = 6
+  )
   (
-    input  type_matrix_a P,
-    output type_output soma
+    input  logic [NBITS-1:0] [C1_SIZE*M1_SIZE-1:0] P,
+    output logic [NBITS-1:0] [A1_SIZE*A1_SIZE-1:0] soma
   );
   timeunit 1ns;
   timeprecision 1ps;
