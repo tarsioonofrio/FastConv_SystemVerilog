@@ -1,8 +1,13 @@
 module Inverse
-  import pack_typedef::*;
+  #(
+    parameter int NBITS = 16,
+    parameter int A1_SIZE = 3,
+    parameter int C1_SIZE = 5,
+    parameter int M1_SIZE = 6
+  )
   (
-    input  type_weight pin,
-    output type_output pout
+    input  logic [NBITS-1:0] [M1_SIZE*M1_SIZE-1:0] pin,
+    output logic [NBITS-1:0] [A1_SIZE*A1_SIZE-1:0] pout
   );
   timeunit 1ns;
   timeprecision 1ps;
@@ -26,17 +31,21 @@ module Inverse
   CSA_9 sp8 (pin[14], pin[16], pin[17], pin[26], pin[28], pin[29], pin[32], pin[34], pin[35],  pout[8]);
 endmodule
 
-
 module Transform
-  import pack_typedef::*;
+  #(
+    parameter int NBITS = 16,
+    parameter int A1_SIZE = 3,
+    parameter int C1_SIZE = 5,
+    parameter int M1_SIZE = 6
+  )
   (
-    input  type_input pin,
-    output type_weight pout
+    input  logic [NBITS-1:0] [C1_SIZE*C1_SIZE-1:0] pin,
+    output logic [NBITS-1:0] [M1_SIZE*M1_SIZE-1:0] pout
   );
   timeunit 1ns;
   timeprecision 1ps;
 
-  type_weight cp, cn;
+  logic [NBITS-1:0] [M1_SIZE*M1_SIZE-1:0] cp, cn;
 
   CSA_5 sp0 (pin[0], pin[6], pin[7], pin[11], pin[12],  cp[0]);
   CSA_4 sn0 (pin[1], pin[2], pin[5], pin[10], cn[0] );

@@ -31,8 +31,6 @@ module Transform #(
   );
 endmodule
 
-
-
 module Inverse #(
     parameter int NBITS = 16,
     parameter int A1_SIZE = 3,
@@ -65,7 +63,6 @@ module Inverse #(
     .soma(pout)
   );
 endmodule
-
 
 module MatrixC0 #(
     parameter int NBITS = 16,
@@ -109,7 +106,6 @@ module MatrixC0 #(
   assign soma[28] = P[22];
   assign soma[29] = P[23];
 endmodule
-
 
 module MatrixC1 #(
     parameter int NBITS = 16,
@@ -160,7 +156,6 @@ module MatrixC1 #(
   assign soma[35] = P[23];
 endmodule
 
-
 module MatrixA1 #(
     parameter int NBITS = 16,
     parameter int C1_SIZE = 5,
@@ -191,7 +186,6 @@ module MatrixA1 #(
   assign soma[16] = P[31] + P[33] + P[35];
   assign soma[17] = P[32] + P[34] + P[35];
 endmodule
-
 
 module MatrixA0 #(
     parameter int NBITS = 16,
