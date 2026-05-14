@@ -5,20 +5,28 @@
 //--------------------------------------------------------------
 // FA adder
 //--------------------------------------------------------------
-import pack_def::*;
-import pack_typedef::*;
+`ifndef NBITS
+  `define NBITS 16
+`endif
+
+typedef logic [`NBITS-1:0] logic_vector;
+typedef logic_vector [1:0] two_words;
+typedef logic_vector [3:0] four_words;
+typedef logic_vector [5:0] six_words;
+typedef logic_vector [7:0] eight_words;
+typedef logic_vector [9:0] ten_words;
 
 module FA
 (
-  input  logic [NBITS-1:0] a, b, c,
-  output logic [NBITS-1:0] sum, cout
+  input  logic [`NBITS-1:0] a, b, c,
+  output logic [`NBITS-1:0] sum, cout
 );
 
   timeunit 1ns;
   timeprecision 1ps;
 
   assign sum = a ^ b ^ c;
-  assign cout = (NBITS)'({(a & b) | (a & c) | (b & c), 1'b0}); // cout applied to the next bit
+  assign cout = (`NBITS)'({(a & b) | (a & c) | (b & c), 1'b0}); // cout applied to the next bit
 endmodule
 
 //--------------------------------------------------------------
@@ -26,8 +34,8 @@ endmodule
 //--------------------------------------------------------------
 module CSA_1
 (
-  input  logic [NBITS-1:0] op0,
-  output logic [NBITS-1:0] sum
+  input  logic [`NBITS-1:0] op0,
+  output logic [`NBITS-1:0] sum
 );
 
   timeunit 1ns;
@@ -42,8 +50,8 @@ endmodule
 //--------------------------------------------------------------
 module CSA_2
 (
-  input  logic [NBITS-1:0] op0, op1,
-  output logic [NBITS-1:0] sum
+  input  logic [`NBITS-1:0] op0, op1,
+  output logic [`NBITS-1:0] sum
 );
 
   timeunit 1ns;
@@ -57,13 +65,13 @@ endmodule
 //--------------------------------------------------------------
 module CSA_3
 (
-  input  logic [NBITS-1:0] op0, op1, op2,
-  output logic [NBITS-1:0] sum
+  input  logic [`NBITS-1:0] op0, op1, op2,
+  output logic [`NBITS-1:0] sum
 );
   timeunit 1ns;
   timeprecision 1ps;
 
-  logic [NBITS-1:0] sum_Q, cout_Q;
+  logic [`NBITS-1:0] sum_Q, cout_Q;
 
   FA layer1(.a(op2), .b(op1), .c(op0), .sum(sum_Q), .cout(cout_Q));
   assign sum = sum_Q + cout_Q;
@@ -74,14 +82,14 @@ endmodule
 //--------------------------------------------------------------
 module CSA_4
 (
-  input  logic [NBITS-1:0] op0, op1, op2, op3,
-  output logic [NBITS-1:0] sum
+  input  logic [`NBITS-1:0] op0, op1, op2, op3,
+  output logic [`NBITS-1:0] sum
 );
   timeunit 1ns;
   timeprecision 1ps;
 
   two_words sumL1;
-  logic [NBITS-1:0] sum_Q, cout_Q;
+  logic [`NBITS-1:0] sum_Q, cout_Q;
 
   FA layer1(.a(op3), .b(op2), .c(op1), .sum(sumL1[0]), .cout(sumL1[1]));
   FA layer2(.a(sumL1[0]), .b(sumL1[1]), .c(op0), .sum(sum_Q), .cout(cout_Q));
@@ -94,18 +102,18 @@ endmodule
 //--------------------------------------------------------------
 module CSA_5
 (
-  input  logic [NBITS-1:0] op0, op1, op2, op3, op4,
-  output logic [NBITS-1:0] sum
+  input  logic [`NBITS-1:0] op0, op1, op2, op3, op4,
+  output logic [`NBITS-1:0] sum
 );
   timeunit 1ns;
   timeprecision 1ps;
 
   four_words sumL1;
   two_words sumL2;
-  logic [NBITS-1:0] sum_Q, cout_Q;
+  logic [`NBITS-1:0] sum_Q, cout_Q;
 
   FA L1a(.a(op4), .b(op3), .c(op2),   .sum(sumL1[0]), .cout(sumL1[1]));
-  FA L1b(.a(op1), .b(op0), .c({NBITS{1'b0}}), .sum(sumL1[2]), .cout(sumL1[3]));
+  FA L1b(.a(op1), .b(op0), .c({`NBITS{1'b0}}), .sum(sumL1[2]), .cout(sumL1[3]));
 
   FA L2(.a(sumL1[0]), .b(sumL1[1]), .c(sumL1[2]), .sum(sumL2[0]), .cout(sumL2[1]));
 
@@ -119,14 +127,14 @@ endmodule
 //--------------------------------------------------------------
 module CSA_6
 (
-  input  logic [NBITS-1:0] op0, op1, op2, op3, op4, op5,
-  output logic [NBITS-1:0] sum
+  input  logic [`NBITS-1:0] op0, op1, op2, op3, op4, op5,
+  output logic [`NBITS-1:0] sum
 );
   timeunit 1ns;
   timeprecision 1ps;
 
   four_words sumL1, sumL2;
-  logic [NBITS-1:0] sum_Q, cout_Q;
+  logic [`NBITS-1:0] sum_Q, cout_Q;
 
   FA L1a(.a(op5), .b(op4), .c(op3), .sum(sumL1[0]), .cout(sumL1[1]));
   FA L1b(.a(op2), .b(op1), .c(op0), .sum(sumL1[2]), .cout(sumL1[3]));
@@ -143,21 +151,21 @@ endmodule
 //--------------------------------------------------------------
 module CSA_7
 (
-  input  logic [NBITS-1:0] op0, op1, op2, op3, op4, op5, op6,
-  output logic [NBITS-1:0] sum
+  input  logic [`NBITS-1:0] op0, op1, op2, op3, op4, op5, op6,
+  output logic [`NBITS-1:0] sum
 );
   timeunit 1ns;
   timeprecision 1ps;
 
   four_words sumL1, sumL2;
   two_words sumL3;
-  logic [NBITS-1:0] sum_Q, cout_Q;
+  logic [`NBITS-1:0] sum_Q, cout_Q;
 
   FA L1a(.a(op6), .b(op5), .c(op4), .sum(sumL1[0]), .cout(sumL1[1]));
   FA L1b(.a(op3), .b(op2), .c(op1), .sum(sumL1[2]), .cout(sumL1[3]));
 
   FA L2a(.a(sumL1[0]), .b(sumL1[1]), .c(sumL1[2]), .sum(sumL2[0]), .cout(sumL2[1]));
-  FA L2b(.a(sumL1[3]), .b(op0),      .c({NBITS{1'b0}}),    .sum(sumL2[2]), .cout(sumL2[3]));
+  FA L2b(.a(sumL1[3]), .b(op0),      .c({`NBITS{1'b0}}),    .sum(sumL2[2]), .cout(sumL2[3]));
 
   FA L3(.a(sumL2[0]), .b(sumL2[1]), .c(sumL2[2]), .sum(sumL3[0]), .cout(sumL3[1]));
 
@@ -171,15 +179,15 @@ endmodule
 //--------------------------------------------------------------
 module CSA_8
 (
-  input  logic [NBITS-1:0] op0, op1, op2, op3, op4, op5, op6, op7,
-  output logic [NBITS-1:0] sum
+  input  logic [`NBITS-1:0] op0, op1, op2, op3, op4, op5, op6, op7,
+  output logic [`NBITS-1:0] sum
 );
   timeunit 1ns;
   timeprecision 1ps;
 
   four_words sumL1, sumL2;
   two_words sumL3;
-  logic [NBITS-1:0] sum_Q, cout_Q;
+  logic [`NBITS-1:0] sum_Q, cout_Q;
 
   FA L1a(.a(op7), .b(op6), .c(op5), .sum(sumL1[0]), .cout(sumL1[1]));
   FA L1b(.a(op4), .b(op3), .c(op2), .sum(sumL1[2]), .cout(sumL1[3]));
@@ -200,8 +208,8 @@ endmodule
 //--------------------------------------------------------------
 module CSA_9
 (
-  input  logic [NBITS-1:0] op0, op1, op2, op3, op4, op5, op6, op7, op8,
-  output logic [NBITS-1:0] sum
+  input  logic [`NBITS-1:0] op0, op1, op2, op3, op4, op5, op6, op7, op8,
+  output logic [`NBITS-1:0] sum
 );
   timeunit 1ns;
   timeprecision 1ps;
@@ -209,7 +217,7 @@ module CSA_9
   six_words sumL1;
   four_words sumL2;
   two_words sumL3;
-  logic [NBITS-1:0] sum_Q, cout_Q;
+  logic [`NBITS-1:0] sum_Q, cout_Q;
 
   FA L1a(.a(op8), .b(op7), .c(op6), .sum(sumL1[0]), .cout(sumL1[1]));
   FA L1b(.a(op5), .b(op4), .c(op3), .sum(sumL1[2]), .cout(sumL1[3]));
@@ -230,8 +238,8 @@ endmodule
 //--------------------------------------------------------------
 module CSA_12
 (
-  input  logic [NBITS-1:0] op0, op1, op2, op3, op4, op5, op6, op7, op8, op9, op10, op11,
-  output logic [NBITS-1:0] sum
+  input  logic [`NBITS-1:0] op0, op1, op2, op3, op4, op5, op6, op7, op8, op9, op10, op11,
+  output logic [`NBITS-1:0] sum
 );
   timeunit 1ns;
   timeprecision 1ps;
@@ -241,7 +249,7 @@ module CSA_12
   four_words sumL3;
   two_words sumL4;
 
-  logic [NBITS-1:0] sum_Q, cout_Q;
+  logic [`NBITS-1:0] sum_Q, cout_Q;
 
   FA L1a(.a(op0),  .b(op1),  .c(op2),  .sum(sumL1[0]), .cout(sumL1[1]));
   FA L1b(.a(op3),  .b(op4),  .c(op5),  .sum(sumL1[2]), .cout(sumL1[3]));
@@ -266,9 +274,9 @@ endmodule
 //--------------------------------------------------------------
 module CSA_16
 (
-  input  logic [NBITS-1:0] op0, op1, op2, op3, op4, op5, op6, op7,
+  input  logic [`NBITS-1:0] op0, op1, op2, op3, op4, op5, op6, op7,
                                op8, op9, op10, op11, op12, op13, op14, op15,
-  output logic [NBITS-1:0] sum
+  output logic [`NBITS-1:0] sum
 );
   timeunit 1ns;
   timeprecision 1ps;
@@ -277,7 +285,7 @@ module CSA_16
   six_words sumL2;
   four_words sumL3, sumL4;
   two_words sumL5;
-  logic [NBITS-1:0] sum_Q, cout_Q;
+  logic [`NBITS-1:0] sum_Q, cout_Q;
 
   FA L1a(.a(op15), .b(op14), .c(op13), .sum(sumL1[0]), .cout(sumL1[1]));
   FA L1b(.a(op12), .b(op11), .c(op10), .sum(sumL1[2]), .cout(sumL1[3]));
@@ -308,24 +316,24 @@ endmodule
 //--------------------------------------------------------------
 module CSA_18
 (
-  input  logic[NBITS-1:0] inputs[18], // 18 operandos de entrada
-  output logic [NBITS-1:0] sum
+  input  logic[`NBITS-1:0] inputs[18], // 18 operandos de entrada
+  output logic [`NBITS-1:0] sum
 );
   timeunit 1ns;
   timeprecision 1ps;
 
-  typedef logic [NBITS-1:0] layer1 [0:11];
-  typedef logic [NBITS-1:0] layer2 [0:8];
-  typedef logic [NBITS-1:0] layer3 [0:5];
-  typedef logic [NBITS-1:0] layer4 [0:3];
-  typedef logic [NBITS-1:0] layer5 [0:1];
+  typedef logic [`NBITS-1:0] layer1 [0:11];
+  typedef logic [`NBITS-1:0] layer2 [0:8];
+  typedef logic [`NBITS-1:0] layer3 [0:5];
+  typedef logic [`NBITS-1:0] layer4 [0:3];
+  typedef logic [`NBITS-1:0] layer5 [0:1];
 
   layer1 sumL1;
   layer2 sumL2;
   layer3 sumL3;
   layer4 sumL4;
   layer5 sumL5;
-  logic [NBITS-1:0] sum_Q, cout_Q;
+  logic [`NBITS-1:0] sum_Q, cout_Q;
 
   // Primeira camada de CSAs (6 grupos de 3 operandos) -> vetor com 12 resultados
   genvar i;

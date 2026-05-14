@@ -1,20 +1,33 @@
-module Transform
-  import pack_typedef::*;
-  (
-    input  type_input pin,
-    output type_weight pout
+module Transform #(
+    parameter int NBITS = 16,
+    parameter int A1_SIZE = 3,
+    parameter int C1_SIZE = 5,
+    parameter int M1_SIZE = 6
+  ) (
+    input  logic [NBITS-1:0] pin [C1_SIZE*C1_SIZE-1:0],
+    output logic [NBITS-1:0] pout [M1_SIZE*M1_SIZE-1:0]
   );
+  typedef logic [NBITS-1:0] logic_vector;
+  typedef logic_vector type_matrix_c [C1_SIZE*M1_SIZE-1:0];
   timeunit 1ns;
   timeprecision 1ps;
 
   type_matrix_c partial;
 
   // Instance of matrix multiplier "C"
-  MatrixC0 matrix_c0(
+  MatrixC0 #(
+    .NBITS(NBITS),
+    .C1_SIZE(C1_SIZE),
+    .M1_SIZE(M1_SIZE)
+  ) matrix_c0(
     .P(pin),
     .soma(partial)
   );
-  MatrixC1 matrix_c1(
+  MatrixC1 #(
+    .NBITS(NBITS),
+    .C1_SIZE(C1_SIZE),
+    .M1_SIZE(M1_SIZE)
+  ) matrix_c1(
     .P(partial),
     .soma(pout)
   );
@@ -22,34 +35,51 @@ endmodule
 
 
 
-module Inverse
-  import pack_typedef::*;
-  (
-    input  type_weight pin,
-    output type_output pout
+module Inverse #(
+    parameter int NBITS = 16,
+    parameter int A1_SIZE = 3,
+    parameter int C1_SIZE = 5,
+    parameter int M1_SIZE = 6
+  ) (
+    input  logic [NBITS-1:0] pin [M1_SIZE*M1_SIZE-1:0],
+    output logic [NBITS-1:0] pout [A1_SIZE*A1_SIZE-1:0]
  );
+  typedef logic [NBITS-1:0] logic_vector;
+  typedef logic_vector type_matrix_a [C1_SIZE*M1_SIZE-1:0];
   timeunit 1ns;
   timeprecision 1ps;
 
   type_matrix_a partial;
 
-  MatrixA1 matrix_a1 (
+  MatrixA1 #(
+    .NBITS(NBITS),
+    .C1_SIZE(C1_SIZE),
+    .M1_SIZE(M1_SIZE)
+  ) matrix_a1 (
     .P(pin),
     .soma(partial)
   );
-  MatrixA0 matrix_a0 (
+  MatrixA0 #(
+    .NBITS(NBITS),
+    .A1_SIZE(A1_SIZE),
+    .C1_SIZE(C1_SIZE),
+    .M1_SIZE(M1_SIZE)
+  ) matrix_a0 (
     .P(partial),
     .soma(pout)
   );
 endmodule
 
 
-module MatrixC0
-  import pack_typedef::*;
-  (
-    input  type_input P,
-    output type_matrix_c soma
+module MatrixC0 #(
+    parameter int NBITS = 16,
+    parameter int C1_SIZE = 5,
+    parameter int M1_SIZE = 6
+  ) (
+    input  logic [NBITS-1:0] P [C1_SIZE*C1_SIZE-1:0],
+    output logic [NBITS-1:0] soma [C1_SIZE*M1_SIZE-1:0]
   );
+  typedef logic [NBITS-1:0] logic_vector;
   timeunit 1ns;
   timeprecision 1ps;
 
@@ -115,12 +145,15 @@ module MatrixC0
 endmodule
 
 
-module MatrixC1
-  import pack_typedef::*;
-  (
-    input  type_matrix_c P,
-    output type_weight soma
+module MatrixC1 #(
+    parameter int NBITS = 16,
+    parameter int C1_SIZE = 5,
+    parameter int M1_SIZE = 6
+  ) (
+    input  logic [NBITS-1:0] P [C1_SIZE*M1_SIZE-1:0],
+    output logic [NBITS-1:0] soma [M1_SIZE*M1_SIZE-1:0]
   );
+  typedef logic [NBITS-1:0] logic_vector;
   timeunit 1ns;
   timeprecision 1ps;
 
@@ -191,12 +224,15 @@ module MatrixC1
 endmodule
 
 
-module MatrixA1
-  import pack_typedef::*;
-  (
-    input  type_weight P,
-    output type_matrix_a soma
+module MatrixA1 #(
+    parameter int NBITS = 16,
+    parameter int C1_SIZE = 5,
+    parameter int M1_SIZE = 6
+  ) (
+    input  logic [NBITS-1:0] P [M1_SIZE*M1_SIZE-1:0],
+    output logic [NBITS-1:0] soma [C1_SIZE*M1_SIZE-1:0]
   );
+  typedef logic [NBITS-1:0] logic_vector;
   timeunit 1ns;
   timeprecision 1ps;
 
@@ -244,12 +280,16 @@ module MatrixA1
 endmodule
 
 
-module MatrixA0
-  import pack_typedef::*;
-  (
-    input  type_matrix_a P,
-    output type_output soma
+module MatrixA0 #(
+    parameter int NBITS = 16,
+    parameter int A1_SIZE = 3,
+    parameter int C1_SIZE = 5,
+    parameter int M1_SIZE = 6
+  ) (
+    input  logic [NBITS-1:0] P [C1_SIZE*M1_SIZE-1:0],
+    output logic [NBITS-1:0] soma [A1_SIZE*A1_SIZE-1:0]
   );
+  typedef logic [NBITS-1:0] logic_vector;
   timeunit 1ns;
   timeprecision 1ps;
 
