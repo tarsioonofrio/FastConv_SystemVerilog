@@ -4,11 +4,6 @@
 `timescale 1ns / 1ps
 
 module Control
-  import pack_def::*;
-  import pack_data::*;
-  import pack_param::*;
-  import pack_typedef::*;
-  import pack_mux_mult::*;
   #(
     parameter int unsigned N_CHANNEL_IN        = 2,
     parameter int unsigned N_CHANNEL_OUT       = 3,
@@ -16,7 +11,14 @@ module Control
     parameter int unsigned FEAT_INPUT_SIZE     = 17,
     parameter int unsigned FEAT_INPUT_WIDTH    = 8,
     parameter int unsigned NADDR               = 18,  // bits to p_input_addr the memory
-    parameter int unsigned CONV_MULTIPLY_STEPS = 6    // multiplication steps
+    parameter int unsigned CONV_MULTIPLY_STEPS = 6,   // multiplication steps
+    parameter int unsigned NBITS               = 20,
+    parameter int unsigned QUANT               = 8,
+    parameter int unsigned A1_SIZE             = 3,
+    parameter int unsigned C1_SIZE             = 5,
+    parameter int unsigned M1_SIZE             = 6,
+    parameter int unsigned NMULT               = 6,
+    parameter int unsigned SMULT               = 6
   ) (
     input  logic clk,
     input  logic reset,
@@ -26,6 +28,11 @@ module Control
     output logic [NADDR-1:0] p_input_addr,
     input logic [19:0] p_input_data
 );
+  typedef logic [NBITS-1:0] logic_vector;
+  typedef logic_vector type_input  [C1_SIZE*C1_SIZE-1:0];
+  typedef logic_vector type_output [A1_SIZE*A1_SIZE-1:0];
+  typedef logic_vector type_weight [M1_SIZE*M1_SIZE-1:0];
+
   logic_vector r_feat_input[24:0];  // input feature register bank
   logic_vector r_conv_input[24:0];  // convolution input register bank
   logic_vector w_next_feat_input[24:0];  // next values for feature shift bank
