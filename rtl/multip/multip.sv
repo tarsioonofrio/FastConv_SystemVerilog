@@ -1,11 +1,9 @@
-module Multip
-  import pack_typedef::*;
-#(
+module Multip #(
     parameter int QUANT = 8,
     parameter int NBITS = 20
 ) (
-    input logic_vector register_input,
-    input logic_vector weight_input,
+    input logic [NBITS-1:0] register_input,
+    input logic [NBITS-1:0] weight_input,
     output logic signed [NBITS-1+QUANT:0] product
 );
   timeunit 1ns;
