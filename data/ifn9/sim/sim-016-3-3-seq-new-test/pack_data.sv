@@ -11,8 +11,8 @@ package pack_data;
   localparam int FEAT_INPUT_SIZE = 16;
   localparam int FEAT_OUTPUT_SIZE = 14;
   localparam int N_WINDOW = 4;
-  localparam int N_CHANNEL_IN = 1;
-  localparam int N_CHANNEL_OUT = 1;
+  localparam int N_CHANNEL_IN = 3;
+  localparam int N_CHANNEL_OUT = 3;
   localparam int const_data[1092] = '{
     0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240,
     1, 17, 33, 49, 65, 81, 97, 113, 129, 145, 161, 177, 193, 209, 225, 241,
