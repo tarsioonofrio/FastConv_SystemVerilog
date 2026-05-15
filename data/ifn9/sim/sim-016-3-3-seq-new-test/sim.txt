@@ -1,0 +1,15 @@
+Feature: 0
+Weights: 0
+Bias enabled: False
+Image side: 16
+Quantization bits: 8
+R2: 1.0
+
+Totals
+Naive
+Convolutions: 196
+Multiplications: 1764
+Additions: 1568
+Fast
+Convolutions: 25
+Multiplications: 900
