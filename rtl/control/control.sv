@@ -124,7 +124,7 @@ module Control
       r_addr_pointer_input <= r_window_row_step + NADDR'(r_channel_counter_input * FEAT_INPUT_SIZE * FEAT_INPUT_WIDTH);  // restart for the first line
       r_window_row_step <= r_window_row_step + 3;
     end else if (st_input_current == UPDATE_ADDRESS && last_input) begin
-      r_addr_pointer_input <= r_addr_pointer_input - NADDR'(FEAT_INPUT_WIDTH) + NADDR'(KERNEL_SIZE);   // adjust the pointer to the next IFMAP
+      r_addr_pointer_input <= r_addr_pointer_input - NADDR'(FEAT_INPUT_WIDTH) + NADDR'(KERNEL_SIZE) - 1;   // adjust the pointer to the next IFMAP
       r_window_row_step <= 3;
 
       if (r_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN-1) ) begin               // change the IFMAP
