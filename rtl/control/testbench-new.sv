@@ -3,14 +3,15 @@ module tb;
   timeprecision 1ps;
 
   import pack_data::*;
+  import pack_param::*;
 
   localparam int NBITS = 16;
   localparam int NADDR = 14;
   localparam int LATENCY = 1;
   localparam int ROM = 1;
-  localparam int A1_SIZE = 3;
-  localparam int C1_SIZE = 5;
-  localparam int M1_SIZE = 6;
+  // localparam int A1_SIZE = 3;
+  // localparam int C1_SIZE = 5;
+  // localparam int M1_SIZE = 6;
 
   logic clk;
   logic reset;
@@ -81,7 +82,7 @@ module tb;
     .NADDR(NADDR),
     .CONV_MULTIPLY_STEPS(6),
     .NBITS(NBITS),
-    .QUANT(QUANT),
+    .QUANT(QUANT_BITS),
     .A1_SIZE(A1_SIZE),
     .C1_SIZE(C1_SIZE),
     .M1_SIZE(M1_SIZE),
