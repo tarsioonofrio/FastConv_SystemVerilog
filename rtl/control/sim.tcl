@@ -5,7 +5,7 @@ set NADDR 14
 set NBITS 16
 set LATENCY 1
 set ROM 1
-set QUANT 8
+# set QUANT 8
 
 set DATA data/ifn9/sim/sim-032-1-1-seq/pack_data.sv
 set PARAM rtl/pack-param/ifn9/pack_param.sv
@@ -17,7 +17,7 @@ append define_flags "+define+NADDR=$NADDR "
 append define_flags "+define+NBITS=$NBITS "
 append define_flags "+define+LATENCY=$LATENCY "
 append define_flags "+define+ROM=$ROM "
-append define_flags "+define+QUANT=$QUANT "
+# append define_flags "+define+QUANT=$QUANT "
 
 
 file delete {*}[glob -nocomplain wlf*]
