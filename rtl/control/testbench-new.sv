@@ -78,7 +78,7 @@ module tb;
     .N_CHANNEL_OUT(N_CHANNEL_OUT),
     .KERNEL_SIZE(6),
     .FEAT_INPUT_SIZE(FEAT_INPUT_SIZE),
-    .FEAT_INPUT_WIDTH(16),
+    .FEAT_INPUT_WIDTH(20),
     .NADDR(NADDR),
     .CONV_MULTIPLY_STEPS(6),
     .NBITS(NBITS),
@@ -102,6 +102,7 @@ module tb;
     .NBITS(NBITS),
     .LATENCY(LATENCY),
     .ROM(ROM),
+    .CONST_DATA_SIZE(1092),
     .CONST_DATA(const_data)
   ) memory_read(
     .clk(clk),
@@ -190,7 +191,7 @@ module tb;
         force w_output_addr = w_output_addr_forced;
         @(posedge clk);
         wait(w_output_valid);
-        expected_out = logic [NBITS-1:0]'(const_feat_out[i][j]);
+        expected_out = const_feat_out[i][j];
         if ($signed(expected_out) != $signed(w_output_data_read)) begin
           $display("Time %0f | const_feat_out[%0d][%0d] = %0d | Output = %0d", $realtime, i, j, expected_out, w_output_data_read);
           $display("=== ERROR - End simulation ====");

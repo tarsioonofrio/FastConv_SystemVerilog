@@ -3,7 +3,8 @@ module Memory #(
     parameter int NBITS   = 20,
     parameter int LATENCY = 1,
     parameter int ROM     = 0,
-    parameter logic [NBITS-1:0] CONST_DATA [0:(2**NADDR)-1] = '{default: '0}
+    parameter int CONST_DATA_SIZE = 0,
+    parameter int CONST_DATA[] = '{0}
   )
   (
     input  logic            clk, reset, chip_en, wr_en,
@@ -32,7 +33,7 @@ module Memory #(
     if (ROM == 0 && chip_en == 1'b1)
       data_out = data[address];
     else if (ROM == 1 && chip_en == 1'b1)
-      data_out = $signed(CONST_DATA[address]);
+      data_out = (address < CONST_DATA_SIZE) ? CONST_DATA[address] : '0;
     else
       data_out = '{default: '0};
   end
