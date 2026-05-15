@@ -91,12 +91,13 @@ module tb;
             t_idx = f_transposed_index(k);
             if ($signed(dut.w_conv_inverse[k]) != $signed(const_feat_out_batch[conv_inverse_check_idx][t_idx])) begin
               $display("ERROR INVERSE[%0d] idx=%0d expected=%0d got=%0d time=%0t",
-                       k, conv_inverse_check_idx, const_feat_out_batch[conv_inverse_check_idx][t_idx], dut.w_conv_inverse[k], $time);
+                       k, conv_inverse_check_idx, const_feat_out_batch[conv_inverse_check_idx][t_idx], $signed(dut.w_conv_inverse[k]), $realtime);
             end
           end
-        end else begin
-          $display("ERROR: conv_inverse_check_idx overflow idx=%0d time=%0t", conv_inverse_check_idx, $time);
         end
+        // else begin
+        //   $display("ERROR: conv_inverse_check_idx overflow idx=%0d time=%0t", conv_inverse_check_idx, $realtime);
+        // end
         conv_inverse_check_idx <= conv_inverse_check_idx + 1;
       end
     end
@@ -122,7 +123,7 @@ module tb;
       // espera mais 200 ns
     #200;
 
-    $display("Simulacao finalizada em %0t", $time);
+    $display("Simulacao finalizada em %0t", $realtime);
     $finish;
   end
 
