@@ -3,21 +3,23 @@
 module tb;
   import pack_data::*;
   import pack_param::*;
+  import pack_mux_mult::*;
 
   // Parâmetros do DUT
-  localparam int unsigned N_CHANNEL_IN   =  3;
-  localparam int unsigned N_CHANNEL_OUT   =  3;
+
+  // localparam int unsigned N_CHANNEL_IN   =  3;
+  // localparam int unsigned N_CHANNEL_OUT   =  3;
   localparam int unsigned KERNEL_SIZE  =  6;
-  localparam int unsigned FEAT_INPUT_SIZE   = 16;
-  localparam int unsigned FEAT_INPUT_WIDTH = 16;
+  // localparam int unsigned FEAT_INPUT_SIZE   = 16;
+  localparam int unsigned FEAT_INPUT_WIDTH = FEAT_INPUT_SIZE;
   localparam int unsigned CONV_MULTIPLY_STEPS = 6;
   localparam int unsigned NBITS = 20;
-  localparam int unsigned QUANT = 8;
-  localparam int unsigned A1_SIZE = 3;
-  localparam int unsigned C1_SIZE = 5;
-  localparam int unsigned M1_SIZE = 6;
-  localparam int unsigned NMULT = 6;
-  localparam int unsigned SMULT = 6;
+  // localparam int unsigned QUANT = 8;
+  // localparam int unsigned A1_SIZE = 3;
+  // localparam int unsigned C1_SIZE = 5;
+  // localparam int unsigned M1_SIZE = 6;
+  // localparam int unsigned NMULT = 6;
+  // localparam int unsigned SMULT = 6;
 
   localparam int unsigned INPUT_MEMORY_SIZE = N_CHANNEL_IN*FEAT_INPUT_SIZE*FEAT_INPUT_WIDTH + N_CHANNEL_OUT*N_CHANNEL_IN*KERNEL_SIZE*KERNEL_SIZE;
 
@@ -60,11 +62,11 @@ module tb;
     .N_CHANNEL_OUT(N_CHANNEL_OUT),
     .KERNEL_SIZE(KERNEL_SIZE),
     .FEAT_INPUT_SIZE(FEAT_INPUT_SIZE),
-    .FEAT_INPUT_WIDTH(FEAT_INPUT_WIDTH),
+    .FEAT_INPUT_WIDTH(FEAT_INPUT_SIZE),
     .NADDR(NADDR),
     .CONV_MULTIPLY_STEPS(CONV_MULTIPLY_STEPS),
     .NBITS(NBITS),
-    .QUANT(QUANT),
+    .QUANT(QUANT_BITS),
     .A1_SIZE(A1_SIZE),
     .C1_SIZE(C1_SIZE),
     .M1_SIZE(M1_SIZE),
