@@ -26,7 +26,7 @@ module Control
     output logic p_end,
 
     output logic [NADDR-1:0] p_input_addr,
-    input logic [19:0] p_input_data
+    input logic [NBITS-1:0] p_input_data
 );
 
   logic [NBITS-1:0] r_feat_input[(C1_SIZE * C1_SIZE) - 1:0];  // input feature register bank
