@@ -8,7 +8,6 @@ module tb;
   localparam int NADDR = 14;
   localparam int LATENCY = 1;
   localparam int ROM = 1;
-  localparam int QUANT = 8;
   localparam int A1_SIZE = 3;
   localparam int C1_SIZE = 5;
   localparam int M1_SIZE = 6;
