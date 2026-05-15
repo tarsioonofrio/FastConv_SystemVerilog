@@ -30,9 +30,29 @@ module tb;
   logic p_start, p_end;
   logic [NADDR-1:0] p_input_addr;
   logic [19:0] p_input_data;
+  int input_addr_idx;
+  int conv_inverse_check_idx;
+  logic in_inverse_d;
+  localparam logic [1:0] ST_CONV_INVERSE = 2'b11;
+
+  function automatic int f_transposed_index(input int idx);
+    int row_idx;
+    int col_idx;
+    begin
+      row_idx = idx / A1_SIZE;
+      col_idx = idx % A1_SIZE;
+      f_transposed_index = col_idx * A1_SIZE + row_idx;
+    end
+  endfunction
 
   // Reads directly from the dataset package memory image.
-  assign p_input_data = (p_input_addr < INPUT_MEMORY_SIZE) ? NBITS'(const_data[p_input_addr]) : '0;
+  always_comb begin
+    input_addr_idx = int'(p_input_addr);
+    if (input_addr_idx < INPUT_MEMORY_SIZE)
+      p_input_data = NBITS'(const_data[input_addr_idx]);
+    else
+      p_input_data = '0;
+  end
 
   // Instanciação do Módulo (DUT)
   Control #(
@@ -62,6 +82,32 @@ module tb;
   // Gerador de Clock: 100MHz -> Período de 10ns
   initial clk = 0;
   always #5 clk = ~clk;
+
+  // Validate each inverse output window against golden batch data.
+  always_ff @(posedge clk or posedge reset) begin
+    if (reset) begin
+      conv_inverse_check_idx <= 0;
+      in_inverse_d <= 1'b0;
+    end else begin
+      in_inverse_d <= (dut.st_conv_current == ST_CONV_INVERSE);
+
+      if ((dut.st_conv_current == ST_CONV_INVERSE) && !in_inverse_d) begin
+        if (conv_inverse_check_idx < $size(const_feat_out_batch)) begin
+          for (int k = 0; k < A1_SIZE * A1_SIZE; k++) begin
+            int t_idx;
+            t_idx = f_transposed_index(k);
+            if ($signed(dut.w_conv_inverse[k]) != $signed(const_feat_out_batch[conv_inverse_check_idx][t_idx])) begin
+              $display("ERROR INVERSE[%0d] idx=%0d expected=%0d got=%0d time=%0t",
+                       k, conv_inverse_check_idx, const_feat_out_batch[conv_inverse_check_idx][t_idx], dut.w_conv_inverse[k], $time);
+            end
+          end
+        end else begin
+          $display("ERROR: conv_inverse_check_idx overflow idx=%0d time=%0t", conv_inverse_check_idx, $time);
+        end
+        conv_inverse_check_idx <= conv_inverse_check_idx + 1;
+      end
+    end
+  end
 
   // Estímulos
   initial begin
