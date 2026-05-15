@@ -3,7 +3,15 @@ module tb;
   timeprecision 1ps;
 
   import pack_data::*;
-  import pack_param::*;
+
+  localparam int NBITS = 16;
+  localparam int NADDR = 14;
+  localparam int LATENCY = 1;
+  localparam int ROM = 1;
+  localparam int QUANT = 8;
+  localparam int A1_SIZE = 3;
+  localparam int C1_SIZE = 5;
+  localparam int M1_SIZE = 6;
 
   logic clk;
   logic reset;
@@ -15,24 +23,24 @@ module tb;
   logic w_conv_idle;
   logic w_conv_end;
 
-  type_input w_conv_input;
-  type_weight w_conv_weight;
-  type_output w_conv_output;
+  logic [NBITS-1:0] w_conv_input [C1_SIZE*C1_SIZE-1:0];
+  logic [NBITS-1:0] w_conv_weight [M1_SIZE*M1_SIZE-1:0];
+  logic [NBITS-1:0] w_conv_output [A1_SIZE*A1_SIZE-1:0];
 
   logic w_input_en;
   logic w_input_wr;
   logic w_input_valid;
-  logic[NADDR-1:0] w_input_addr;
-  logic_vector w_input_data_write;
-  logic_vector w_input_data_read;
+  logic [NADDR-1:0] w_input_addr;
+  logic [NBITS-1:0] w_input_data_write;
+  logic [NBITS-1:0] w_input_data_read;
 
   logic w_output_en;
   logic w_output_wr;
   logic w_output_valid;
-  logic[NADDR-1:0] w_output_addr;
-  logic_vector w_output_data_read;
-  logic_vector w_output_data_write;
-  logic[NADDR-1:0] w_output_addr_forced;
+  logic [NADDR-1:0] w_output_addr;
+  logic [NBITS-1:0] w_output_data_read;
+  logic [NBITS-1:0] w_output_data_write;
+  logic [NADDR-1:0] w_output_addr_forced;
 
   logic [NADDR-1:0] w_control_input_addr;
 
@@ -175,14 +183,14 @@ module tb;
       for (j = 0; j < FEAT_OUTPUT_SIZE; j++) begin
         int output_channel;
         int row_in_channel;
-        logic_vector expected_out;
+        logic [NBITS-1:0] expected_out;
         output_channel = i / FEAT_OUTPUT_SIZE;
         row_in_channel = i % FEAT_OUTPUT_SIZE;
         w_output_addr_forced = output_channel * OUTPUT_CHANNEL_STRIDE + row_in_channel * FEAT_OUTPUT_SIZE + j;
         force w_output_addr = w_output_addr_forced;
         @(posedge clk);
         wait(w_output_valid);
-        expected_out = logic_vector'(const_feat_out[i][j]);
+        expected_out = logic [NBITS-1:0]'(const_feat_out[i][j]);
         if ($signed(expected_out) != $signed(w_output_data_read)) begin
           $display("Time %0f | const_feat_out[%0d][%0d] = %0d | Output = %0d", $realtime, i, j, expected_out, w_output_data_read);
           $display("=== ERROR - End simulation ====");
@@ -207,13 +215,3 @@ module tb;
   end
 
 endmodule
-  localparam int NBITS = 16;
-  localparam int NADDR = 14;
-  localparam int LATENCY = 1;
-  localparam int ROM = 1;
-  localparam int QUANT = 8;
-
-  typedef logic [NBITS-1:0] logic_vector;
-  typedef logic_vector type_input [C1_SIZE*C1_SIZE-1:0];
-  typedef logic_vector type_weight [M1_SIZE*M1_SIZE-1:0];
-  typedef logic_vector type_output [A1_SIZE*A1_SIZE-1:0];
