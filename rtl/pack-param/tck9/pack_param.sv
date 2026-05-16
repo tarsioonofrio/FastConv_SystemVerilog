@@ -4,7 +4,7 @@ package pack_param;
   timeprecision 1ps;
 
   localparam int TRANSFORM_SIZE = 3;
-  localparam int B_SIZE = 3;
+  localparam int KERNEL_SIZE = 3;
   localparam int INVERSE_SIZE = 5;
   localparam int HADAMARD_SIZE = 5;
   const int c_index[25] = '{
