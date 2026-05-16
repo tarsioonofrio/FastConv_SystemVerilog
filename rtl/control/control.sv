@@ -7,7 +7,7 @@ module Control
   #(
     parameter int unsigned N_CHANNEL_IN        = 3,
     parameter int unsigned N_CHANNEL_OUT       = 3,
-    parameter int unsigned KERNEL_SIZE         = 6,
+    // parameter int unsigned KERNEL_SIZE         = 6,
     parameter int unsigned FEAT_INPUT_SIZE     = 17,
     parameter int unsigned FEAT_INPUT_WIDTH    = 8,
     parameter int unsigned NADDR               = 18,  // bits to p_input_addr the memory
