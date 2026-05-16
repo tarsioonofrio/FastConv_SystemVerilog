@@ -1,7 +1,6 @@
 module Transform #(
     parameter int NBITS = 20,
     parameter int TRANSFORM_SIZE = 3,
-    parameter int B_SIZE = 3,
     parameter int INVERSE_SIZE = 5,
     parameter int HADAMARD_SIZE = 5
   ) (
@@ -35,7 +34,6 @@ endmodule
 module Inverse #(
     parameter int NBITS = 20,
     parameter int TRANSFORM_SIZE = 3,
-    parameter int B_SIZE = 3,
     parameter int INVERSE_SIZE = 5,
     parameter int HADAMARD_SIZE = 5
   ) (
@@ -299,7 +297,6 @@ endmodule
 module MatrixA0 #(
     parameter int NBITS = 20,
     parameter int TRANSFORM_SIZE = 3,
-    parameter int B_SIZE = 3,
     parameter int INVERSE_SIZE = 5,
     parameter int HADAMARD_SIZE = 5
   ) (
