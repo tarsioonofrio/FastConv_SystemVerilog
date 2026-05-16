@@ -4,14 +4,14 @@
 
 package pack_mux_mult;
   parameter int NUM_MULT = 1;
-  parameter int STATE_MULT = 36;
+  parameter int STATE_MULT = 64;
 endpackage
 
 
 module MuxMult
   (
-    input  logic[$clog2(36-1):0] idx_in, // current state
-    output logic[$clog2(36*1-1):0] idx_out[0:1-1]  // index array output
+    input  logic[$clog2(64-1):0] idx_in, // current state
+    output logic[$clog2(64*1-1):0] idx_out[0:1-1]  // index array output
   );
 
   timeunit 1ns;
@@ -55,6 +55,34 @@ module MuxMult
       33: begin idx_out[0]=33; end
       34: begin idx_out[0]=34; end
       35: begin idx_out[0]=35; end
+      36: begin idx_out[0]=36; end
+      37: begin idx_out[0]=37; end
+      38: begin idx_out[0]=38; end
+      39: begin idx_out[0]=39; end
+      40: begin idx_out[0]=40; end
+      41: begin idx_out[0]=41; end
+      42: begin idx_out[0]=42; end
+      43: begin idx_out[0]=43; end
+      44: begin idx_out[0]=44; end
+      45: begin idx_out[0]=45; end
+      46: begin idx_out[0]=46; end
+      47: begin idx_out[0]=47; end
+      48: begin idx_out[0]=48; end
+      49: begin idx_out[0]=49; end
+      50: begin idx_out[0]=50; end
+      51: begin idx_out[0]=51; end
+      52: begin idx_out[0]=52; end
+      53: begin idx_out[0]=53; end
+      54: begin idx_out[0]=54; end
+      55: begin idx_out[0]=55; end
+      56: begin idx_out[0]=56; end
+      57: begin idx_out[0]=57; end
+      58: begin idx_out[0]=58; end
+      59: begin idx_out[0]=59; end
+      60: begin idx_out[0]=60; end
+      61: begin idx_out[0]=61; end
+      62: begin idx_out[0]=62; end
+      63: begin idx_out[0]=63; end
     endcase
   end
 

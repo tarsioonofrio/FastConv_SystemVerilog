@@ -14,11 +14,11 @@ module Control
     parameter int unsigned CONV_MULTIPLY_STEPS = 6,   // multiplication steps
     parameter int unsigned NBITS               = 20,
     parameter int unsigned QUANT               = 8,
-    parameter int unsigned A1_SIZE             = 3,
-    parameter int unsigned C1_SIZE             = 5,
-    parameter int unsigned M1_SIZE             = 6,
-    parameter int unsigned NMULT               = 6,
-    parameter int unsigned SMULT               = 6
+    parameter int unsigned TRANSFORM_SIZE      = 3,
+    parameter int unsigned INVERSE_SIZE        = 5,
+    parameter int unsigned HADAMARD_SIZE       = 6,
+    parameter int unsigned NUM_MULT               = 6,
+    parameter int unsigned STATE_MULT               = 6
   ) (
     input  logic clk,
     input  logic reset,
@@ -29,10 +29,10 @@ module Control
     input logic [NBITS-1:0] p_input_data
 );
 
-  logic [NBITS-1:0] r_feat_input[(C1_SIZE * C1_SIZE) - 1:0];  // input feature register bank
-  logic [NBITS-1:0] r_conv_input[(C1_SIZE * C1_SIZE) - 1:0];  // convolution input register bank
-  logic [NBITS-1:0] w_next_feat_input[(C1_SIZE * C1_SIZE) - 1:0];  // next values for feature shift bank
-  logic [(C1_SIZE * C1_SIZE) - 1:0] w_feat_input_write_en;  // write-enable per feature register
+  logic [NBITS-1:0] r_feat_input[(INVERSE_SIZE * INVERSE_SIZE) - 1:0];  // input feature register bank
+  logic [NBITS-1:0] r_conv_input[(INVERSE_SIZE * INVERSE_SIZE) - 1:0];  // convolution input register bank
+  logic [NBITS-1:0] w_next_feat_input[(INVERSE_SIZE * INVERSE_SIZE) - 1:0];  // next values for feature shift bank
+  logic [(INVERSE_SIZE * INVERSE_SIZE) - 1:0] w_feat_input_write_en;  // write-enable per feature register
   logic w_conv_end, last_line, last_input, last_output;
   logic [3:0] r_output_read_count, r_output_write_count;
   logic [NADDR-1:0] r_addr_pointer_input, r_window_row_step, r_addr_pointer_kernel;
@@ -64,12 +64,12 @@ module Control
   logic [WEIGHT_WIDTH-1:0] r_addr_count_kernel;
   logic w_weight_done, w_write_done;
 
-  logic [NBITS-1:0] r_conv_temp [M1_SIZE*M1_SIZE-1:0];
-  logic [NBITS-1:0] w_conv_transform [M1_SIZE*M1_SIZE-1:0];
-  logic [NBITS-1:0] w_conv_inverse [A1_SIZE*A1_SIZE-1:0];
-  logic [$clog2(SMULT-1):0] r_idx_in;
-  logic [$clog2(SMULT*NMULT-1):0] r_idx_out[NMULT-1:0];
-  logic signed [NBITS-1+QUANT:0] product [NMULT-1:0];  // QUANT more bits for the multipliers
+  logic [NBITS-1:0] r_conv_temp [HADAMARD_SIZE*HADAMARD_SIZE-1:0];
+  logic [NBITS-1:0] w_conv_transform [HADAMARD_SIZE*HADAMARD_SIZE-1:0];
+  logic [NBITS-1:0] w_conv_inverse [TRANSFORM_SIZE*TRANSFORM_SIZE-1:0];
+  logic [$clog2(STATE_MULT-1):0] r_idx_in;
+  logic [$clog2(STATE_MULT*NUM_MULT-1):0] r_idx_out[NUM_MULT-1:0];
+  logic signed [NBITS-1+QUANT:0] product [NUM_MULT-1:0];  // QUANT more bits for the multipliers
   // logic r_end;
 
 
@@ -418,7 +418,7 @@ module Control
         end
         HADAMARD: begin
           r_idx_in <= r_idx_in + 1;
-          for (int i = 0; i < NMULT; i++) begin
+          for (int i = 0; i < NUM_MULT; i++) begin
             r_conv_temp[r_idx_out[i]] <= product[i];
           end
         end
@@ -431,9 +431,9 @@ module Control
   // Instance of matrix multiplier "C"
   Transform #(
     .NBITS(NBITS),
-    .A1_SIZE(A1_SIZE),
-    .C1_SIZE(C1_SIZE),
-    .M1_SIZE(M1_SIZE)
+    .TRANSFORM_SIZE(TRANSFORM_SIZE),
+    .INVERSE_SIZE(INVERSE_SIZE),
+    .HADAMARD_SIZE(HADAMARD_SIZE)
   ) trf (
       // .pin (r_conv_input[C1_SIZE*C1_SIZE-1:0]),
       .pin (r_conv_input),
@@ -446,7 +446,7 @@ module Control
   );
 
   generate
-    for (genvar i = 0; i < NMULT; i++) begin : MULTIP_BLOCK
+    for (genvar i = 0; i < NUM_MULT; i++) begin : MULTIP_BLOCK
       Multip #(
         .QUANT(QUANT),
         .NBITS(NBITS)
@@ -462,9 +462,9 @@ module Control
   // Instance of matrix multiplier "A"
   Inverse #(
     .NBITS(NBITS),
-    .A1_SIZE(A1_SIZE),
-    .C1_SIZE(C1_SIZE),
-    .M1_SIZE(M1_SIZE)
+    .TRANSFORM_SIZE(TRANSFORM_SIZE),
+    .INVERSE_SIZE(INVERSE_SIZE),
+    .HADAMARD_SIZE(HADAMARD_SIZE)
   ) inv (
       .pin (r_conv_temp),
       .pout(w_conv_inverse)
