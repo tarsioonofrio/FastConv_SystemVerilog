@@ -3,8 +3,8 @@
 //-------------------------------------------------------------------------
 
 package pack_mux_mult;
-  parameter int NMULT = 9;
-  parameter int SMULT = 4;
+  parameter int NUM_MULT = 9;
+  parameter int STATE_MULT = 4;
 endpackage
 
 
