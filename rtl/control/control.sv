@@ -11,7 +11,6 @@ module Control
     parameter int unsigned FEAT_INPUT_SIZE     = 17,
     parameter int unsigned FEAT_INPUT_WIDTH    = 8,
     parameter int unsigned NADDR               = 18,  // bits to p_input_addr the memory
-    // parameter int unsigned STATE_MULT = 6,   // multiplication steps
     parameter int unsigned NBITS               = 20,
     parameter int unsigned QUANT               = 8,
     parameter int unsigned TRANSFORM_SIZE      = 3,
