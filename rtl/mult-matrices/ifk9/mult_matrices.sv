@@ -1,13 +1,8 @@
 module Inverse
-  #(
-    parameter int NBITS = 16,
-    parameter int A1_SIZE = 3,
-    parameter int C1_SIZE = 5,
-    parameter int M1_SIZE = 6
-  )
+  import pack_typedef::*;
   (
-    input  logic [NBITS-1:0] [M1_SIZE*M1_SIZE-1:0] pin,
-    output logic [NBITS-1:0] [A1_SIZE*A1_SIZE-1:0] pout
+    input  type_weight pin,
+    output type_output pout
   );
   timeunit 1ns;
   timeprecision 1ps;
@@ -23,16 +18,12 @@ module Inverse
   assign pout[8] = pin[14] + pin[16] + pin[17] + pin[26] + pin[28] + pin[29] + pin[32] + pin[34] + pin[35];
 endmodule
 
+
 module Transform
-  #(
-    parameter int NBITS = 16,
-    parameter int A1_SIZE = 3,
-    parameter int C1_SIZE = 5,
-    parameter int M1_SIZE = 6
-  )
+  import pack_typedef::*;
   (
-    input  logic [NBITS-1:0] [C1_SIZE*C1_SIZE-1:0] pin,
-    output logic [NBITS-1:0] [M1_SIZE*M1_SIZE-1:0] pout
+    input  type_input pin,
+    output type_weight pout
   );
   timeunit 1ns;
   timeprecision 1ps;
