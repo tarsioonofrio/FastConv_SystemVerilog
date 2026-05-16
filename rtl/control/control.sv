@@ -7,18 +7,18 @@ module Control
   #(
     parameter int unsigned N_CHANNEL_IN        = 3,
     parameter int unsigned N_CHANNEL_OUT       = 3,
-    parameter int unsigned KERNEL_SIZE         = 5,
+    parameter int unsigned KERNEL_SIZE         = 6,
     parameter int unsigned FEAT_INPUT_SIZE     = 17,
     parameter int unsigned FEAT_INPUT_WIDTH    = 8,
     parameter int unsigned NADDR               = 18,  // bits to p_input_addr the memory
-    parameter int unsigned CONV_MULTIPLY_STEPS = 6,   // multiplication steps
+    // parameter int unsigned STATE_MULT = 6,   // multiplication steps
     parameter int unsigned NBITS               = 20,
     parameter int unsigned QUANT               = 8,
     parameter int unsigned TRANSFORM_SIZE      = 3,
     parameter int unsigned INVERSE_SIZE        = 5,
     parameter int unsigned HADAMARD_SIZE       = 6,
-    parameter int unsigned NUM_MULT               = 6,
-    parameter int unsigned STATE_MULT               = 6
+    parameter int unsigned NUM_MULT            = 6,
+    parameter int unsigned STATE_MULT          = 6
   ) (
     input  logic clk,
     input  logic reset,
@@ -57,7 +57,7 @@ module Control
   logic [ADDR_INPUT_COUNTER_WIDTH-1:0] w_base_feat_input, r_addr_count_input;
 
   // REGISTER BANK FOR THE WEIGHTS ////////////////////////////////////////////
-  localparam int WEIGHT_CYCLES = KERNEL_SIZE * KERNEL_SIZE;
+  localparam int WEIGHT_CYCLES = HADAMARD_SIZE * HADAMARD_SIZE;
   localparam int WEIGHT_WIDTH = $clog2(WEIGHT_CYCLES)+1;
   logic [NBITS-1:0] weight_reg[WEIGHT_CYCLES-1:0];
   logic [WEIGHT_CYCLES-1:0] w_weight_write_en;
@@ -124,7 +124,7 @@ module Control
       r_addr_pointer_input <= r_window_row_step + NADDR'(r_channel_counter_input * FEAT_INPUT_SIZE * FEAT_INPUT_WIDTH);  // restart for the first line
       r_window_row_step <= r_window_row_step + 3;
     end else if (st_input_current == UPDATE_ADDRESS && last_input) begin
-      r_addr_pointer_input <= r_addr_pointer_input - NADDR'(FEAT_INPUT_WIDTH) + NADDR'(KERNEL_SIZE) - 1;   // adjust the pointer to the next IFMAP
+      r_addr_pointer_input <= r_addr_pointer_input - NADDR'(FEAT_INPUT_WIDTH) + NADDR'(HADAMARD_SIZE) - 1;   // adjust the pointer to the next IFMAP
       r_window_row_step <= 3;
 
       if (r_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN-1) ) begin               // change the IFMAP
@@ -321,7 +321,7 @@ module Control
   // ----------------------------------------------------------------------------------------------------
   // -------  PART 3 - CONVOLUTION CONTROL AND CONVOLUTION MODULES --------------------------------------
   // ----------------------------------------------------------------------------------------------------
-  localparam CONV_MULTIPLY_COUNTER_WIDTH = $clog2(CONV_MULTIPLY_STEPS) + 1;
+  localparam CONV_MULTIPLY_COUNTER_WIDTH = $clog2(STATE_MULT) + 1;
   logic [CONV_MULTIPLY_COUNTER_WIDTH-1:0] r_conv_multiply_count;
 
   always_ff @(posedge clk or posedge reset) begin: CONV_STATE_REG_BLOCK
@@ -342,7 +342,7 @@ module Control
       TRANSFORM:
         st_conv_next = HADAMARD;
       HADAMARD: begin
-        if (r_conv_multiply_count == CONV_MULTIPLY_COUNTER_WIDTH'(CONV_MULTIPLY_STEPS - 1)) begin
+        if (r_conv_multiply_count == CONV_MULTIPLY_COUNTER_WIDTH'(STATE_MULT - 1)) begin
           st_conv_next = INVERSE;
         end
       end

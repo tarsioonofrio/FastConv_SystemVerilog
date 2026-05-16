@@ -7,12 +7,12 @@ module tb;
 
   // Parâmetros do DUT
 
-  localparam int unsigned KERNEL_SIZE  =  6;
+  // localparam int unsigned KERNEL_SIZE  =  6;
   localparam int unsigned FEAT_INPUT_WIDTH = FEAT_INPUT_SIZE;
-  localparam int unsigned CONV_MULTIPLY_STEPS = 6;
+  // localparam int unsigned CONV_MULTIPLY_STEPS = 6;
   localparam int unsigned NBITS = 20;
 
-  localparam int unsigned INPUT_MEMORY_SIZE = N_CHANNEL_IN*FEAT_INPUT_SIZE*FEAT_INPUT_WIDTH + N_CHANNEL_OUT*N_CHANNEL_IN*KERNEL_SIZE*KERNEL_SIZE;
+  localparam int unsigned INPUT_MEMORY_SIZE = N_CHANNEL_IN*FEAT_INPUT_SIZE*FEAT_INPUT_WIDTH + N_CHANNEL_OUT*N_CHANNEL_IN*HADAMARD_SIZE*HADAMARD_SIZE;
 
   localparam int unsigned INPUT_MEMORY_INIT_SIZE = 1083;
   localparam int unsigned NADDR     = $clog2(INPUT_MEMORY_SIZE);
@@ -51,11 +51,10 @@ module tb;
   Control #(
     .N_CHANNEL_IN(N_CHANNEL_IN),
     .N_CHANNEL_OUT(N_CHANNEL_OUT),
-    .KERNEL_SIZE(KERNEL_SIZE),
     .FEAT_INPUT_SIZE(FEAT_INPUT_SIZE),
     .FEAT_INPUT_WIDTH(FEAT_INPUT_SIZE),
     .NADDR(NADDR),
-    .CONV_MULTIPLY_STEPS(CONV_MULTIPLY_STEPS),
+    // .CONV_MULTIPLY_STEPS(CONV_MULTIPLY_STEPS),
     .NBITS(NBITS),
     .QUANT(QUANT_BITS),
     .TRANSFORM_SIZE(TRANSFORM_SIZE),
