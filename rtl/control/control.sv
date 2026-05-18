@@ -24,9 +24,18 @@ module Control
     input  logic p_start,
     output logic p_end,
 
+    output logic p_input_en,                       // Enables a read operation on the input RAM
     output logic [NADDR-1:0] p_input_addr,
-    input logic [NBITS-1:0] p_input_data
-);
+    input  logic [NBITS-1:0] p_input_data,
+    input  logic p_input_valid,                    // Read-valid flag from the input RAM
+
+    output logic p_output_en,                      // Enables access to the output RAM port
+    output logic p_output_wr,                      // Write strobe for the output RAM port
+    output logic[NADDR-1:0] p_output_addr,         // Address issued to the output RAM
+    output [NBITS-1:0] p_output_data_write,        // Data driven into the output RAM on writes
+    input  [NBITS-1:0] p_output_data_read,         // Data captured from the output RAM on reads
+    input  logic p_output_valid                    // Read-valid flag from the output RAM
+  );
 
   logic [NBITS-1:0] r_feat_input[(INVERSE_SIZE * INVERSE_SIZE) - 1:0];  // input feature register bank
   logic [NBITS-1:0] r_conv_input[(INVERSE_SIZE * INVERSE_SIZE) - 1:0];  // convolution input register bank
@@ -66,6 +75,8 @@ module Control
   logic [NBITS-1:0] r_conv_temp [HADAMARD_SIZE*HADAMARD_SIZE-1:0];
   logic [NBITS-1:0] w_conv_transform [HADAMARD_SIZE*HADAMARD_SIZE-1:0];
   logic [NBITS-1:0] w_conv_inverse [TRANSFORM_SIZE*TRANSFORM_SIZE-1:0];
+  logic [NBITS-1:0] r_output_write [TRANSFORM_SIZE*TRANSFORM_SIZE-1:0];
+  logic [NBITS-1:0] r_output_read [TRANSFORM_SIZE*TRANSFORM_SIZE-1:0];
   logic [$clog2(STATE_MULT-1):0] r_idx_in;
   logic [$clog2(STATE_MULT*NUM_MULT-1):0] r_idx_out[NUM_MULT-1:0];
   logic signed [NBITS-1+QUANT:0] product [NUM_MULT-1:0];  // QUANT more bits for the multipliers
@@ -530,5 +541,20 @@ module Control
       end
     end
   end
+
+  always_ff @(posedge clk) begin: OUTPUT_DATA_BLOCK
+    if (reset) begin
+      r_output_write <= '{default: '0};
+      r_output_read <= '{default: '0};
+    end else begin
+      if (w_conv_end)
+        r_output_write <= w_conv_inverse;
+    end
+  end
+
+  always_comb begin: P_OUTPUT_DATA_WRITE_BLOCK
+    p_output_data_write = r_output_write[r_output_write_count] + r_output_read[r_output_write_count];
+  end
+
 
 endmodule
