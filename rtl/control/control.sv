@@ -341,7 +341,7 @@ module Control
       TRANSFORM:
         st_conv_next = HADAMARD;
       HADAMARD: begin
-        if (r_conv_multiply_count == CONV_MULTIPLY_COUNTER_WIDTH'(STATE_MULT - 1)) begin
+        if (r_conv_multiply_count == STATE_MULT'(STATE_MULT - 1)) begin
           st_conv_next = INVERSE;
         end
       end
