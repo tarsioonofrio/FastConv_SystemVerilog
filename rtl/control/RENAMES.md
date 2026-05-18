@@ -30,6 +30,11 @@ This document records the naming migration applied to the `rtl/control` block to
 | `NB_COLUMNS`               | `FEAT_INPUT_WIDTH`             |
 | `ADDR_W`                   | `NADDR`                        |
 | `NB_MULTIPS`               | `CONV_MULTIPLY_STEPS`          |
+| `A1_SIZE`                  | `TRANSFORM_SIZE`               |
+| `C1_SIZE`                  | `INVERSE_SIZE`                 |
+| `M1_SIZE`                  | `HADAMARD_SIZE`                |
+| `NMULT`                    | `NUM_MULT`                     |
+| `SMULT`                    | `STATE_MULT`                   |
 | `CONVOLUTIONS_PER_LINE`    | `WINDOW_COUNT_PER_LINE`        |
 | `CONVOLUTIONS_PER_COLUMN`  | `WINDOW_COUNT_PER_COLUMN`      |
 | `CONVOLUTIONS_PER_CHANNEL` | `WINDOW_COUNT_PER_CHANNEL`     |
@@ -108,12 +113,14 @@ This document records the naming migration applied to the `rtl/control` block to
 | Before     | After       |
 | ---------- | ----------- |
 | `inputMEM` | `input_mem` |
+| `tb.sv`    | `testbench.sv` |
 
 ## 8. Supporting Files Updated
 
 The following files were updated to reflect the new names and references:
 
-- `tb.sv`
+- `testbench.sv`
+- `testbench-new.sv`
 - `Makefile`
 - `sim.tcl`
 - `wave.do`
