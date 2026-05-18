@@ -60,6 +60,24 @@ The Mermaid sources live in `docs/*.mmd` and are mirrored below.
 - `HOLD_WRITE`: wait for write FSM completion (`w_write_done`).
 - `NEXT_ROW`: move to next horizontal base or switch IFMAP/channel.
 
+#### Column-Read Process Notes
+
+- The read path uses two 5x5 banks:
+  - `r_feat_input`: window read/shift bank.
+  - `r_conv_input`: bank transferred to the convolution datapath.
+- The sequence is split as:
+  - `READ_IN_10A` -> `READ_IN_10B` -> `READ_IN_15A` -> `READ_IN_15B` -> `READ_IN_15C`.
+- Each read state performs 5 accesses and transitions when `r_addr_count_input == 4`.
+- `TRANSFER` copies the 25 elements to `r_conv_input` and decides whether to continue vertical sweep (`READ_IN_15A`) or go to `NEXT_ROW`.
+- `NEXT_ROW` advances the base address logic to the next window position (or next IFMAP/channel, depending on end flags).
+
+Key registers in this process:
+
+- `st_input_current`, `st_input_next`: input FSM state/current-next.
+- `r_addr_count_input`: inner 0..4 read counter used in all `READ_IN_*` states.
+- `w_base_feat_input`: write-base selector used to place incoming samples in `r_feat_input`.
+- Address generation uses base + row/column offsets with `FEAT_INPUT_WIDTH` as line stride.
+
 ```mermaid
 flowchart TB
     W(["WAIT"]) -->|"p_start"| AP(["AP"]) --> RW(["READ_WEIGHTS"])
