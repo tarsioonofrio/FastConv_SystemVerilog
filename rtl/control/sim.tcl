@@ -53,6 +53,9 @@ set StdVitalGlitchNoWarnings 1
 # Extract names directly from the SV source (parameter/localparam declarations),
 # then try to examine each symbol under the DUT scope.
 proc get_constant_names_from_sv {sv_file} {
+  if {![file exists $sv_file]} {
+    return {}
+  }
   set fh [open $sv_file r]
   set txt [read $fh]
   close $fh
@@ -60,7 +63,7 @@ proc get_constant_names_from_sv {sv_file} {
   set names {}
   foreach line [split $txt "\n"] {
     set s [string trim $line]
-    if {[regexp {^(parameter|localparam)\b} $s]} {
+    if {[regexp {^(parameter|localparam)\M} $s]} {
       # Match last identifier before '='
       if {[regexp {([A-Za-z_][A-Za-z0-9_]*)\s*=} $s -> n]} {
         lappend names $n
@@ -96,7 +99,8 @@ proc dump_constants_auto {scope sv_file} {
   echo ""
 }
 
-dump_constants_auto sim:/tb/dut ./control.sv
+set CONTROL_SV "${GIT_ROOT}/rtl/control/control.sv"
+dump_constants_auto sim:/tb/dut $CONTROL_SV
 
 do wave.do
 do mem.do
