@@ -78,8 +78,8 @@ module Control
   logic [NBITS-1:0] w_conv_inverse [TRANSFORM_SIZE*TRANSFORM_SIZE-1:0];
   logic [NBITS-1:0] r_output_write [TRANSFORM_SIZE*TRANSFORM_SIZE-1:0];
   logic [NBITS-1:0] r_output_read [TRANSFORM_SIZE*TRANSFORM_SIZE-1:0];
-  logic [$clog2(STATE_MULT-1):0] r_idx_in;
-  logic [$clog2(STATE_MULT*NUM_MULT-1):0] r_idx_out[NUM_MULT-1:0];
+  logic [$clog2(STATE_MULT-1):0] r_conv_idx_in;
+  logic [$clog2(STATE_MULT*NUM_MULT-1):0] r_conv_idx_out[NUM_MULT-1:0];
   logic signed [NBITS-1+QUANT:0] product [NUM_MULT-1:0];  // QUANT more bits for the multipliers
   // logic r_end;
 
@@ -414,12 +414,12 @@ module Control
 
   always_ff @(posedge clk) begin: CONV_DATAPATH_BLOCK
     if (reset) begin
-      r_idx_in <= 1'b0;
+      r_conv_idx_in <= 1'b0;
       r_conv_temp <= '{default: '0};
     end else begin
       unique case (st_conv_current)
         WAIT_CONV: begin
-          r_idx_in <= 1'b0;
+          r_conv_idx_in <= 1'b0;
           // if (p_start) begin
           //   r_conv_temp[C1_SIZE*C1_SIZE-1:0] <= r_conv_input;
           // end
@@ -428,9 +428,9 @@ module Control
           r_conv_temp <= w_conv_transform;
         end
         HADAMARD: begin
-          r_idx_in <= r_idx_in + 1;
+          r_conv_idx_in <= r_conv_idx_in + 1;
           for (int i = 0; i < NUM_MULT; i++) begin
-            r_conv_temp[r_idx_out[i]] <= product[i];
+            r_conv_temp[r_conv_idx_out[i]] <= product[i];
           end
         end
         INVERSE: begin
@@ -452,8 +452,8 @@ module Control
   );
 
   MuxMult mux_mult(
-    .idx_in(r_idx_in),
-    .idx_out(r_idx_out)
+    .idx_in(r_conv_idx_in),
+    .idx_out(r_conv_idx_out)
   );
 
   generate
@@ -463,8 +463,8 @@ module Control
         .NBITS(NBITS)
       )
       multip(
-        .register_input(r_conv_temp[r_idx_out[i]]),
-        .weight_input(r_input_weight[r_idx_out[i]]),
+        .register_input(r_conv_temp[r_conv_idx_out[i]]),
+        .weight_input(r_input_weight[r_conv_idx_out[i]]),
         .product(product[i])
       );
     end
