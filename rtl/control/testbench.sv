@@ -123,6 +123,8 @@ module tb;
 
   // Estímulos
   initial begin
+    $dumpfile("dump.vcd");
+    $dumpvars(0, tb);
 
     // Reset inicial (Ativo alto conforme código fonte)
     reset = 1;
