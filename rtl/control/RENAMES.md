@@ -30,8 +30,8 @@ This document records the naming migration applied to the `rtl/control` block to
 | `NB_COLUMNS`               | `FEAT_INPUT_WIDTH`             |
 | `ADDR_W`                   | `NADDR`                        |
 | `NB_MULTIPS`               | `CONV_MULTIPLY_STEPS`          |
-| `A1_SIZE`                  | `TRANSFORM_SIZE`               |
-| `C1_SIZE`                  | `INVERSE_SIZE`                 |
+| `A1_SIZE`                  | `CONV_OUTPUT_SIZE`               |
+| `C1_SIZE`                  | `CONV_INPUT_SIZE`                 |
 | `M1_SIZE`                  | `HADAMARD_SIZE`                |
 | `NMULT`                    | `NUM_MULT`                     |
 | `SMULT`                    | `STATE_MULT`                   |

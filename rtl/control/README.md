@@ -17,8 +17,8 @@ The main control module is implemented in `control.sv`.
 | `NADDR`               | `int unsigned` | Memory address bus width.                                                              |
 | `NBITS`               | `int unsigned` | Data width used by input/weight/intermediate/output data paths.                        |
 | `QUANT`               | `int unsigned` | Quantization shift used by `Multip`.                                                   |
-| `TRANSFORM_SIZE`      | `int unsigned` | Output tile side size (Winograd output domain).                                        |
-| `INVERSE_SIZE`        | `int unsigned` | Input window side size (inverse/feature window domain).                                |
+| `CONV_OUTPUT_SIZE`      | `int unsigned` | Output tile side size (Winograd output domain).                                        |
+| `CONV_INPUT_SIZE`        | `int unsigned` | Input window side size (inverse/feature window domain).                                |
 | `HADAMARD_SIZE`       | `int unsigned` | Hadamard/intermediate matrix side size.                                                |
 | `NUM_MULT`            | `int unsigned` | Number of multipliers active per hadamard step.                                        |
 | `STATE_MULT`          | `int unsigned` | Number of hadamard index states.                                                       |
