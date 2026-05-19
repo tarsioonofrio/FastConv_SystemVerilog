@@ -37,14 +37,14 @@ module Control
     input  logic p_output_valid                    // Read-valid flag from the output RAM
   );
 
-  logic [NBITS-1:0] r_feat_input[(INVERSE_SIZE * INVERSE_SIZE) - 1:0];  // input feature register bank
+  logic [NBITS-1:0] r_input_feat[(INVERSE_SIZE * INVERSE_SIZE) - 1:0];  // input feature register bank
   logic [NBITS-1:0] r_conv_input[(INVERSE_SIZE * INVERSE_SIZE) - 1:0];  // convolution input register bank
-  logic [NBITS-1:0] w_next_feat_input[(INVERSE_SIZE * INVERSE_SIZE) - 1:0];  // next values for feature shift bank
-  logic [(INVERSE_SIZE * INVERSE_SIZE) - 1:0] w_feat_input_write_en;  // write-enable per feature register
-  logic w_conv_end, last_line, last_input, last_output;
+  logic [NBITS-1:0] w_input_feat_next[(INVERSE_SIZE * INVERSE_SIZE) - 1:0];  // next values for feature shift bank
+  logic [(INVERSE_SIZE * INVERSE_SIZE) - 1:0] w_input_feat_write_en;  // write-enable per feature register
+  logic w_conv_end, w_input_last_line, w_input_last_input, w_input_last_output;
   logic [3:0] r_output_read_count, r_output_write_count;
-  logic [NADDR-1:0] r_addr_pointer_input, r_addr_pointer_kernel, r_addr_pointer_output;
-  logic [NADDR-1:0] r_window_row_step;
+  logic [NADDR-1:0] r_input_addr_feat, r_input_addr_kernel, r_addr_pointer_output;
+  logic [NADDR-1:0] r_input_window_row;
 
   localparam CHANNEL_INPUT_COUNTER_WIDTH = $clog2(N_CHANNEL_IN) + 1;
   logic [CHANNEL_INPUT_COUNTER_WIDTH-1:0] r_channel_counter_input;
@@ -68,10 +68,10 @@ module Control
   // REGISTER BANK FOR THE WEIGHTS ////////////////////////////////////////////
   localparam int WEIGHT_CYCLES = HADAMARD_SIZE * HADAMARD_SIZE;
   localparam int WEIGHT_WIDTH = $clog2(WEIGHT_CYCLES)+1;
-  logic [NBITS-1:0] weight_reg[WEIGHT_CYCLES-1:0];
+  logic [NBITS-1:0] r_input_weight[WEIGHT_CYCLES-1:0];
   logic [WEIGHT_CYCLES-1:0] w_weight_write_en;
   logic [WEIGHT_WIDTH-1:0] r_addr_count_kernel;
-  logic w_weight_done, w_write_done;
+  logic w_input_weight_done, w_input_write_done;
 
   logic [NBITS-1:0] r_conv_temp [HADAMARD_SIZE*HADAMARD_SIZE-1:0];
   logic [NBITS-1:0] w_conv_transform [HADAMARD_SIZE*HADAMARD_SIZE-1:0];
@@ -121,25 +121,25 @@ module Control
   // ----------------------------------------------------------------------------------------------------
   // -------  PART 1 - ADDRESS TO ACCESS THE IFMAP AND WEIGHT MEMORY ------------------------------------
   // ----------------------------------------------------------------------------------------------------
-  assign p_input_addr = (st_input_current == READ_WEIGHTS) ? r_addr_pointer_kernel : r_addr_pointer_input + NADDR'(r_addr_count_input);  // p_input_addr mux
+  assign p_input_addr = (st_input_current == READ_WEIGHTS) ? r_input_addr_kernel : r_input_addr_feat + NADDR'(r_addr_count_input);  // p_input_addr mux
 
   always_ff @(posedge clk or posedge reset) begin: INPUT_ADDR_POINTER_BLOCK
     if (reset) begin
-      r_addr_pointer_input <= '0;
-      r_window_row_step <= 3;
+      r_input_addr_feat <= '0;
+      r_input_window_row <= 3;
     end
     else if ((st_input_current == READ_IN_10A && st_input_next == READ_IN_10B) || (st_input_current == READ_IN_10B && st_input_next == READ_IN_15A) || (st_input_current == READ_IN_15A && st_input_next == READ_IN_15B) || (st_input_current == READ_IN_15B && st_input_next == READ_IN_15C) || st_input_current == TRANSFER)
-      r_addr_pointer_input <= r_addr_pointer_input + NADDR'(FEAT_INPUT_WIDTH);    // change internal p_input_addr in the state transition or in the TRANSFER state (CAUTION: PE)
+      r_input_addr_feat <= r_input_addr_feat + NADDR'(FEAT_INPUT_WIDTH);    // change internal p_input_addr in the state transition or in the TRANSFER state (CAUTION: PE)
 
-    else if (st_input_current == NEXT_ROW && !last_input) begin  // when change the line, the read pointer moves 'r_window_row_step'
-      r_addr_pointer_input <= r_window_row_step + NADDR'(r_channel_counter_input * FEAT_INPUT_SIZE * FEAT_INPUT_WIDTH);  // restart for the first line
-      r_window_row_step <= r_window_row_step + 3;
-    end else if (st_input_current == UPDATE_ADDRESS && last_input) begin
-      r_addr_pointer_input <= r_addr_pointer_input - NADDR'(FEAT_INPUT_WIDTH) + NADDR'(HADAMARD_SIZE) - 1;   // adjust the pointer to the next IFMAP
-      r_window_row_step <= 3;
+    else if (st_input_current == NEXT_ROW && !w_input_last_input) begin  // when change the line, the read pointer moves 'r_input_window_row'
+      r_input_addr_feat <= r_input_window_row + NADDR'(r_channel_counter_input * FEAT_INPUT_SIZE * FEAT_INPUT_WIDTH);  // restart for the first line
+      r_input_window_row <= r_input_window_row + 3;
+    end else if (st_input_current == UPDATE_ADDRESS && w_input_last_input) begin
+      r_input_addr_feat <= r_input_addr_feat - NADDR'(FEAT_INPUT_WIDTH) + NADDR'(HADAMARD_SIZE) - 1;   // adjust the pointer to the next IFMAP
+      r_input_window_row <= 3;
 
       if (r_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN-1) ) begin               // change the IFMAP
-        r_addr_pointer_input <= 0;
+        r_input_addr_feat <= 0;
         `ifdef SIMULATION
             $display(
                 "RESETANDO PARA O CANAL 0 - DEU A VOLTA NOS IFMAPS time=%0t %d (%0d) st_input_current = %s",
@@ -152,11 +152,11 @@ module Control
 
   always_ff @(posedge clk or posedge reset) begin: WEIGHT_ADDR_POINTER_BLOCK
     if (reset)
-      r_addr_pointer_kernel <= 0;
+      r_input_addr_kernel <= 0;
     else if (st_input_current == WAIT_INPUT && st_input_next == UPDATE_ADDRESS)    // initializes only ONCE the weight p_input_addr (after the IFMAPs in the memory) (CAUTION: PE)
-      r_addr_pointer_kernel <= NADDR'(N_CHANNEL_IN * FEAT_INPUT_SIZE * FEAT_INPUT_WIDTH);
+      r_input_addr_kernel <= NADDR'(N_CHANNEL_IN * FEAT_INPUT_SIZE * FEAT_INPUT_WIDTH);
     else if (st_input_current == READ_WEIGHTS)
-      r_addr_pointer_kernel <= r_addr_pointer_kernel + 1;  // next weight
+      r_input_addr_kernel <= r_input_addr_kernel + 1;  // next weight
   end
 
   // ----------------------------------------------------------------------------------------------------
@@ -175,8 +175,8 @@ module Control
       WAIT_INPUT: if (p_start) st_input_next = UPDATE_ADDRESS;
       UPDATE_ADDRESS: st_input_next = READ_WEIGHTS;
       READ_WEIGHTS:
-        if (w_weight_done) st_input_next = READ_IN_10A;
-        else if (last_output) st_input_next = WAIT_INPUT;  //end processing
+        if (w_input_weight_done) st_input_next = READ_IN_10A;
+        else if (w_input_last_output) st_input_next = WAIT_INPUT;  //end processing
       READ_IN_10A: if (r_addr_count_input == 4) st_input_next = READ_IN_10B;  // read 5*5 values
       READ_IN_10B: if (r_addr_count_input == 4) st_input_next = READ_IN_15A;
       READ_IN_15A: if (r_addr_count_input == 4) st_input_next = READ_IN_15B;
@@ -184,23 +184,23 @@ module Control
       READ_IN_15C: if (r_addr_count_input == 4) st_input_next = TRANSFER;
       TRANSFER: st_input_next = HOLD_WRITE;  // p_start the convolution
       HOLD_WRITE:
-        if (last_line && w_write_done) st_input_next = NEXT_ROW;
-        else if (w_write_done) st_input_next = READ_IN_15A;
+        if (w_input_last_line && w_input_write_done) st_input_next = NEXT_ROW;
+          else if (w_input_write_done) st_input_next = READ_IN_15A;
         else st_input_next = HOLD_WRITE;
       NEXT_ROW:
-        if (last_input) st_input_next = UPDATE_ADDRESS;
+        if (w_input_last_input) st_input_next = UPDATE_ADDRESS;
         else st_input_next = READ_IN_10A;
       default: st_input_next = WAIT_INPUT;
     endcase
   end
 
-  assign w_weight_done = (r_addr_count_kernel == WEIGHT_WIDTH'(WEIGHT_CYCLES - 1));
-  assign w_write_done = r_output_write_count == 0 || r_output_write_count == 8;  // compare to zero for the first write test or the last value (8) in the next convolutions
-  assign last_line = (r_window_counter_row == WINDOW_ROW_COUNTER_WIDTH'(WINDOW_COUNT_PER_LINE));
-  assign last_input = (r_window_counter_input == WINDOW_COUNTER_WIDTH'(WINDOW_COUNT_PER_CHANNEL));
-  assign last_output = (r_channel_counter_output == CHANNEL_OUTPUT_COUNTER_WIDTH'(N_CHANNEL_OUT));
+  assign w_input_weight_done = (r_addr_count_kernel == WEIGHT_WIDTH'(WEIGHT_CYCLES - 1));
+  assign w_input_write_done = r_output_write_count == 0 || r_output_write_count == 8;  // compare to zero for the first write test or the last value (8) in the next convolutions
+  assign w_input_last_line = (r_window_counter_row == WINDOW_ROW_COUNTER_WIDTH'(WINDOW_COUNT_PER_LINE));
+  assign w_input_last_input = (r_window_counter_input == WINDOW_COUNTER_WIDTH'(WINDOW_COUNT_PER_CHANNEL));
+  assign w_input_last_output = (r_channel_counter_output == CHANNEL_OUTPUT_COUNTER_WIDTH'(N_CHANNEL_OUT));
 
-  assign p_end = ((st_output_next == WAIT_OUTPUT && last_output));  // output to signalize the end of the convolution process
+  assign p_end = ((st_output_next == WAIT_OUTPUT && w_input_last_output));  // output to signalize the end of the convolution process
 
   // -------------------------------------------------------------------------
   // READING REGISTERS
@@ -275,40 +275,40 @@ module Control
   // -------------------------------------------------------------------------
   always_comb begin: INPUT_SHIFT_DATA_BLOCK
     for (int unsigned i = 0; i < 25; i++)  // connection between register outputs to register inputs
-    w_next_feat_input[i] = p_input_data;
+    w_input_feat_next[i] = p_input_data;
 
-    w_next_feat_input[0]  = (st_input_current == READ_IN_10A) ? p_input_data : r_feat_input[3];     // makes the shifts - minimize muxes
-    w_next_feat_input[1]  = (st_input_current == READ_IN_10B) ? p_input_data : r_feat_input[4];
-    w_next_feat_input[5]  = (st_input_current == READ_IN_10A) ? p_input_data : r_feat_input[8];
-    w_next_feat_input[6]  = (st_input_current == READ_IN_10B) ? p_input_data : r_feat_input[9];
-    w_next_feat_input[10] = (st_input_current == READ_IN_10A) ? p_input_data : r_feat_input[13];
-    w_next_feat_input[11] = (st_input_current == READ_IN_10B) ? p_input_data : r_feat_input[14];
-    w_next_feat_input[15] = (st_input_current == READ_IN_10A) ? p_input_data : r_feat_input[18];
-    w_next_feat_input[16] = (st_input_current == READ_IN_10B) ? p_input_data : r_feat_input[19];
-    w_next_feat_input[20] = (st_input_current == READ_IN_10A) ? p_input_data : r_feat_input[23];
-    w_next_feat_input[21] = (st_input_current == READ_IN_10B) ? p_input_data : r_feat_input[24];
+    w_input_feat_next[0]  = (st_input_current == READ_IN_10A) ? p_input_data : r_input_feat[3];     // makes the shifts - minimize muxes
+    w_input_feat_next[1]  = (st_input_current == READ_IN_10B) ? p_input_data : r_input_feat[4];
+    w_input_feat_next[5]  = (st_input_current == READ_IN_10A) ? p_input_data : r_input_feat[8];
+    w_input_feat_next[6]  = (st_input_current == READ_IN_10B) ? p_input_data : r_input_feat[9];
+    w_input_feat_next[10] = (st_input_current == READ_IN_10A) ? p_input_data : r_input_feat[13];
+    w_input_feat_next[11] = (st_input_current == READ_IN_10B) ? p_input_data : r_input_feat[14];
+    w_input_feat_next[15] = (st_input_current == READ_IN_10A) ? p_input_data : r_input_feat[18];
+    w_input_feat_next[16] = (st_input_current == READ_IN_10B) ? p_input_data : r_input_feat[19];
+    w_input_feat_next[20] = (st_input_current == READ_IN_10A) ? p_input_data : r_input_feat[23];
+    w_input_feat_next[21] = (st_input_current == READ_IN_10B) ? p_input_data : r_input_feat[24];
   end
 
-  always_comb begin: INPUT_SHIFT_WE_BLOCK  // 'w_feat_input_write_en' to write into the register bank r_feat_input
-    w_feat_input_write_en = '0;
+  always_comb begin: INPUT_SHIFT_WE_BLOCK  // 'w_input_feat_write_en' to write into the register bank r_input_feat
+    w_input_feat_write_en = '0;
     case (st_input_current)
       READ_IN_10A, READ_IN_10B, READ_IN_15A, READ_IN_15B, READ_IN_15C:
-        w_feat_input_write_en[w_base_feat_input + r_addr_count_input * 5] = 1'b1;
+        w_input_feat_write_en[w_base_feat_input + r_addr_count_input * 5] = 1'b1;
       TRANSFER:
-        w_feat_input_write_en = 25'b0001100011000110001100011;  // make the shift
+        w_input_feat_write_en = 25'b0001100011000110001100011;  // make the shift
       default:
-        w_feat_input_write_en = '0;
+        w_input_feat_write_en = '0;
     endcase
   end
 
   always_ff @(posedge clk or posedge reset) begin: INPUT_FEATURE_REG_BLOCK  // initializes and write into the register bank and convolution register bank
     if (reset)
       for (int unsigned i = 0; i < 25; i++)
-        r_feat_input[i] <= '0;
+        r_input_feat[i] <= '0;
     else
       for (int unsigned i = 0; i < 25; i++)
-        if (w_feat_input_write_en[i])
-          r_feat_input[i] <= w_next_feat_input[i];
+        if (w_input_feat_write_en[i])
+          r_input_feat[i] <= w_input_feat_next[i];
   end
 
   // Weight register bank with per-entry write-enable.
@@ -321,11 +321,11 @@ module Control
   always_ff @(posedge clk or posedge reset) begin: WEIGHT_REG_BLOCK
     if (reset) begin
       for (int unsigned i = 0; i < WEIGHT_CYCLES; i++)
-        weight_reg[i] <= '0;
+        r_input_weight[i] <= '0;
     end else begin
       for (int unsigned i = 0; i < WEIGHT_CYCLES; i++)
         if (w_weight_write_en[i])
-          weight_reg[i] <= p_input_data;
+          r_input_weight[i] <= p_input_data;
     end
   end
 
@@ -377,7 +377,7 @@ module Control
     else begin
       if (st_input_current == TRANSFER) begin  // fill the convolution register bank
         for (int unsigned i = 0; i < 25; i++)
-          r_conv_input[i] <= r_feat_input[i];
+          r_conv_input[i] <= r_input_feat[i];
           `ifdef SIMULATION
             curr_time = $time;  // debug
             $display("current time = %0t | previous time = %0t | diff = %0t", curr_time, prev_time, (curr_time - prev_time));
@@ -464,7 +464,7 @@ module Control
       )
       multip(
         .register_input(r_conv_temp[r_idx_out[i]]),
-        .weight_input(weight_reg[r_idx_out[i]]),
+        .weight_input(r_input_weight[r_idx_out[i]]),
         .product(product[i])
       );
     end
@@ -510,7 +510,7 @@ module Control
           st_output_next = RESET9;
         else if (r_channel_counter_input > 0 && r_output_write_count == 8)
           st_output_next = READ_OUTPUT;
-        else if (last_output)
+        else if (w_input_last_output)
           st_output_next = WAIT_OUTPUT;  //end processing
         else
           st_output_next = WRITE_OUTPUT;
@@ -563,17 +563,17 @@ module Control
   // always_ff @(posedge clk or posedge reset) begin: INPUT_ADDR_POINTER_BLOCK
   //   if (reset) begin
   //     r_addr_pointer_output <= '0;
-  //     r_window_row_step <= 3;
+  //     r_input_window_row <= 3;
   //   end
   //   else if ((st_input_current == READ_IN_10A && st_input_next == READ_IN_10B) || (st_input_current == READ_IN_10B && st_input_next == READ_IN_15A) || (st_input_current == READ_IN_15A && st_input_next == READ_IN_15B) || (st_input_current == READ_IN_15B && st_input_next == READ_IN_15C) || st_input_current == TRANSFER)
   //     r_addr_pointer_output <= r_addr_pointer_output + NADDR'(FEAT_INPUT_WIDTH);    // change internal p_input_addr in the state transition or in the TRANSFER state (CAUTION: PE)
 
-  //   else if (st_input_current == NEXT_ROW && !last_input) begin  // when change the line, the read pointer moves 'r_window_row_step'
-  //     r_addr_pointer_output <= r_window_row_step + NADDR'(r_channel_counter_input * (FEAT_INPUT_SIZE - 2) * (FEAT_INPUT_WIDTH - 2));  // restart for the first line
-  //     r_window_row_step <= r_window_row_step + 3;
-  //   end else if (st_input_current == UPDATE_ADDRESS && last_input) begin
+  //   else if (st_input_current == NEXT_ROW && !w_input_last_input) begin  // when change the line, the read pointer moves 'r_input_window_row'
+  //     r_addr_pointer_output <= r_input_window_row + NADDR'(r_channel_counter_input * (FEAT_INPUT_SIZE - 2) * (FEAT_INPUT_WIDTH - 2));  // restart for the first line
+  //     r_input_window_row <= r_input_window_row + 3;
+  //   end else if (st_input_current == UPDATE_ADDRESS && w_input_last_input) begin
   //     r_addr_pointer_output <= r_addr_pointer_output - NADDR'(FEAT_INPUT_WIDTH) + NADDR'(HADAMARD_SIZE) - 1;   // adjust the pointer to the next IFMAP
-  //     r_window_row_step <= 3;
+  //     r_input_window_row <= 3;
 
   //     if (r_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN-1) ) begin               // change the IFMAP
   //       r_addr_pointer_output <= 0;

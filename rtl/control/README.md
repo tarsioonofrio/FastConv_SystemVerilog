@@ -12,11 +12,9 @@ The main control module is implemented in `control.sv`.
 | --------------------- | -------------- | -------------------------------------------------------------------------------------- |
 | `N_CHANNEL_IN`        | `int unsigned` | Number of input feature-map channels.                                                  |
 | `N_CHANNEL_OUT`       | `int unsigned` | Number of output feature-map channels.                                                 |
-| `KERNEL_SIZE`         | `int unsigned` | Kernel size used to derive the number of streamed weights (`KERNEL_SIZE*KERNEL_SIZE`). |
 | `FEAT_INPUT_SIZE`     | `int unsigned` | Input feature-map row count.                                                           |
 | `FEAT_INPUT_WIDTH`    | `int unsigned` | Input feature-map column count.                                                        |
 | `NADDR`               | `int unsigned` | Memory address bus width.                                                              |
-| `CONV_MULTIPLY_STEPS` | `int unsigned` | Iterations used in the HADAMARD stage of the convolution micro-sequencer.              |
 | `NBITS`               | `int unsigned` | Data width used by input/weight/intermediate/output data paths.                        |
 | `QUANT`               | `int unsigned` | Quantization shift used by `Multip`.                                                   |
 | `TRANSFORM_SIZE`      | `int unsigned` | Output tile side size (Winograd output domain).                                        |
@@ -32,14 +30,22 @@ The main control module is implemented in `control.sv`.
 | `clk`, `reset` | in  | `logic`            | Clock and asynchronous reset.                                              |
 | `p_start`      | in  | `logic`            | Start pulse that moves the read FSM out of `WAIT`.                         |
 | `p_end`        | out | `logic`            | End flag asserted when the write FSM returns to idle after the last OFMAP. |
+| `p_input_en`   | out | `logic`            | Input memory enable.                                                        |
 | `p_input_addr` | out | `logic[NADDR-1:0]` | Shared memory address for IFMAP and weight reads (muxed by read state).    |
 | `p_input_data` | in  | `logic[NBITS-1:0]` | Memory read data captured into weight/input register banks.                |
+| `p_input_valid`| in  | `logic`            | Input memory read-valid flag.                                               |
+| `p_output_en`  | out | `logic`            | Output memory enable.                                                       |
+| `p_output_wr`  | out | `logic`            | Output memory write strobe.                                                 |
+| `p_output_addr`| out | `logic[NADDR-1:0]` | Output memory address.                                                      |
+| `p_output_data_write` | out | `logic[NBITS-1:0]` | Output memory write data.                                            |
+| `p_output_data_read`  | in  | `logic[NBITS-1:0]` | Output memory read data.                                             |
+| `p_output_valid`      | in  | `logic`            | Output memory read-valid flag.                                       |
 
 ### Additional Notes
 
 - The controller is partitioned into three FSMs: input/addressing (`st_input_current`), convolution micro-sequencing (`st_conv_current`), and writeback (`st_output_current`).
-- Input-window storage is implemented with `r_feat_input[0:24]` plus `r_conv_input[0:24]`, with row-shift behavior controlled by `w_feat_input_write_en` in state `TRANSFER`.
-- Weight streaming is controlled by `READ_WEIGHTS`, `r_addr_count_kernel`, and `w_weight_write_en`, writing `weight_reg[0:WEIGHT_CYCLES-1]`.
+- Input-window storage is implemented with `r_input_feat[0:24]` plus `r_conv_input[0:24]`, with row-shift behavior controlled by `w_input_feat_write_en` in state `TRANSFER`.
+- Weight streaming is controlled by `READ_WEIGHTS`, `r_addr_count_kernel`, and `w_weight_write_en`, writing `r_input_weight[0:WEIGHT_CYCLES-1]`.
 - Writeback progression is guarded by `w_conv_end`, `r_output_read_count`, and `r_output_write_count` so every 3x3 output tile is sequenced before the next channel/window.
 
 Use this module as a reference guide to understand control flow for address generation, convolution triggering, and output writeback in the FastConv controller.
@@ -54,16 +60,16 @@ The Mermaid sources live in `docs/*.mmd` and are mirrored below.
 
 - `WAIT`: idle until `p_start` is asserted.
 - `AP`: per-channel setup and counter resets.
-- `READ_WEIGHTS`: stream `KERNEL_SIZE*KERNEL_SIZE` weights from memory.
+- `READ_WEIGHTS`: stream `HADAMARD_SIZE*HADAMARD_SIZE` weights from memory.
 - `READ_IN_10A` / `READ_IN_10B` / `READ_IN_15A` / `READ_IN_15B` / `READ_IN_15C`: read and shift 5 columns across 5 rows.
-- `TRANSFER`: move `r_feat_input[]` into `r_conv_input[]` and advance convolution counters.
-- `HOLD_WRITE`: wait for write FSM completion (`w_write_done`).
+- `TRANSFER`: move `r_input_feat[]` into `r_conv_input[]` and advance convolution counters.
+- `HOLD_WRITE`: wait for write FSM completion (`w_input_write_done`).
 - `NEXT_ROW`: move to next horizontal base or switch IFMAP/channel.
 
 #### Column-Read Process Notes
 
 - The read path uses two 5x5 banks:
-  - `r_feat_input`: window read/shift bank.
+  - `r_input_feat`: window read/shift bank.
   - `r_conv_input`: bank transferred to the convolution datapath.
 - The sequence is split as:
   - `READ_IN_10A` -> `READ_IN_10B` -> `READ_IN_15A` -> `READ_IN_15B` -> `READ_IN_15C`.
@@ -75,24 +81,24 @@ Key registers in this process:
 
 - `st_input_current`, `st_input_next`: input FSM state/current-next.
 - `r_addr_count_input`: inner 0..4 read counter used in all `READ_IN_*` states.
-- `w_base_feat_input`: write-base selector used to place incoming samples in `r_feat_input`.
+- `w_base_feat_input`: write-base selector used to place incoming samples in `r_input_feat`.
 - Address generation uses base + row/column offsets with `FEAT_INPUT_WIDTH` as line stride.
 
 ```mermaid
 flowchart TB
     W(["WAIT"]) -->|"p_start"| AP(["AP"]) --> RW(["READ_WEIGHTS"])
-    RW -->|"w_weight_done"| READ_IN_10A(["READ_IN_10A"])
-    RW -->|"last_output"| W
+    RW -->|"w_input_weight_done"| READ_IN_10A(["READ_IN_10A"])
+    RW -->|"w_input_last_output"| W
     READ_IN_10A -->|"r_addr_count_input==4"| READ_IN_10B(["READ_IN_10B"])
     READ_IN_10B -->|"r_addr_count_input==4"| READ_IN_15A(["READ_IN_15A"])
     READ_IN_15A -->|"r_addr_count_input==4"| READ_IN_15B(["READ_IN_15B"])
     READ_IN_15B -->|"r_addr_count_input==4"| READ_IN_15C(["READ_IN_15C"])
     READ_IN_15C -->|"r_addr_count_input==4"| X(["TRANSFER"])
     X --> HW(["HOLD_WRITE"])
-    HW -->|"w_write_done && !last_line"| READ_IN_15A
-    HW -->|"w_write_done && last_line"| NR(["NEXT_ROW"])
-    NR -->|"last_input"| AP
-    NR -->|"!last_input"| READ_IN_10A
+    HW -->|"w_input_write_done && !w_input_last_line"| READ_IN_15A
+    HW -->|"w_input_write_done && w_input_last_line"| NR(["NEXT_ROW"])
+    NR -->|"w_input_last_input"| AP
+    NR -->|"!w_input_last_input"| READ_IN_10A
 ```
 
 ### Convolution Micro-FSM (`st_conv_current`)
@@ -101,14 +107,14 @@ flowchart TB
 
 - `WAIT_CONV`: wait for a fresh window transfer.
 - `TRANSFORM`: initialize the multiplication counter.
-- `HADAMARD`: iterate until `r_conv_multiply_count == CONV_MULTIPLY_STEPS-1`.
+- `HADAMARD`: iterate until `r_conv_multiply_count == STATE_MULT-1`.
 - `INVERSE`: pulse completion and return to `WAIT_CONV`.
 
 ```mermaid
 flowchart TB
     WC(["WAIT_CONV"]) -->|"st_input_current==TRANSFER"| TRANSFORM(["TRANSFORM"])
     TRANSFORM --> H(["HADAMARD"])
-    H -->|"r_conv_multiply_count==CONV_MULTIPLY_STEPS-1"| INVERSE(["INVERSE"])
+    H -->|"r_conv_multiply_count==STATE_MULT-1"| INVERSE(["INVERSE"])
     INVERSE --> WC
 ```
 
@@ -128,6 +134,6 @@ flowchart TB
     R(["READ_OUTPUT"]) -->|"w_conv_end && r_output_read_count==8"| WR
     WR -->|"r_channel_counter_input==0 && r_output_write_count==8"| Z
     WR -->|"r_channel_counter_input>0 && r_output_write_count==8"| R
-    WR -->|"last_output"| WW
+    WR -->|"w_input_last_output"| WW
     WR -->|"otherwise"| WR
 ```
