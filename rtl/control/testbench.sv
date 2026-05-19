@@ -40,9 +40,9 @@ module tb;
     int row_idx;
     int col_idx;
     begin
-      row_idx = idx / TRANSFORM_SIZE;
-      col_idx = idx % TRANSFORM_SIZE;
-      f_transposed_index = col_idx * TRANSFORM_SIZE + row_idx;
+      row_idx = idx / CONV_OUTPUT_SIZE;
+      col_idx = idx % CONV_OUTPUT_SIZE;
+      f_transposed_index = col_idx * CONV_OUTPUT_SIZE + row_idx;
     end
   endfunction
 
@@ -68,8 +68,8 @@ module tb;
     // .CONV_MULTIPLY_STEPS(CONV_MULTIPLY_STEPS),
     .NBITS(NBITS),
     .QUANT(QUANT_BITS),
-    .TRANSFORM_SIZE(TRANSFORM_SIZE),
-    .INVERSE_SIZE(INVERSE_SIZE),
+    .CONV_OUTPUT_SIZE(CONV_OUTPUT_SIZE),
+    .CONV_INPUT_SIZE(CONV_INPUT_SIZE),
     .HADAMARD_SIZE(HADAMARD_SIZE),
     .NUM_MULT(NUM_MULT),
     .STATE_MULT(STATE_MULT)
@@ -104,7 +104,7 @@ module tb;
 
       if ((dut.st_conv_current == ST_CONV_INVERSE) && !in_inverse_d) begin
         if (conv_inverse_check_idx < $size(const_feat_out_batch)) begin
-          for (int k = 0; k < TRANSFORM_SIZE * TRANSFORM_SIZE; k++) begin
+          for (int k = 0; k < CONV_OUTPUT_SIZE * CONV_OUTPUT_SIZE; k++) begin
             int t_idx;
             t_idx = f_transposed_index(k);
             if ($signed(dut.w_conv_inverse[k]) != $signed(const_feat_out_batch[conv_inverse_check_idx][t_idx])) begin

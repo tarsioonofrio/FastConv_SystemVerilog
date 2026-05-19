@@ -9,8 +9,8 @@ module tb;
   localparam int NADDR = 14;
   localparam int LATENCY = 1;
   localparam int ROM = 1;
-  // localparam int TRANSFORM_SIZE = 3;
-  // localparam int INVERSE_SIZE = 5;
+  // localparam int CONV_OUTPUT_SIZE = 3;
+  // localparam int CONV_INPUT_SIZE = 5;
   // localparam int HADAMARD_SIZE = 6;
 
   logic clk;
@@ -23,9 +23,9 @@ module tb;
   logic w_conv_idle;
   logic w_conv_end;
 
-  logic [NBITS-1:0] w_conv_input [INVERSE_SIZE*INVERSE_SIZE-1:0];
+  logic [NBITS-1:0] w_conv_input [CONV_INPUT_SIZE*CONV_INPUT_SIZE-1:0];
   logic [NBITS-1:0] w_conv_weight [HADAMARD_SIZE*HADAMARD_SIZE-1:0];
-  logic [NBITS-1:0] w_conv_output [TRANSFORM_SIZE*TRANSFORM_SIZE-1:0];
+  logic [NBITS-1:0] w_conv_output [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
 
   logic w_input_en;
   logic w_input_wr;
@@ -52,8 +52,8 @@ module tb;
   int i = 0;
   int j = 0;
   int cycle_count = 0;
-  localparam int OUTPUT_TILES_PER_AXIS = (FEAT_OUTPUT_SIZE + TRANSFORM_SIZE - 1) / TRANSFORM_SIZE;
-  localparam int OUTPUT_CHANNEL_STRIDE = FEAT_OUTPUT_SIZE * TRANSFORM_SIZE * OUTPUT_TILES_PER_AXIS;
+  localparam int OUTPUT_TILES_PER_AXIS = (FEAT_OUTPUT_SIZE + CONV_OUTPUT_SIZE - 1) / CONV_OUTPUT_SIZE;
+  localparam int OUTPUT_CHANNEL_STRIDE = FEAT_OUTPUT_SIZE * CONV_OUTPUT_SIZE * OUTPUT_TILES_PER_AXIS;
 
   // Clock generation (10ns period)
   initial clk = 0;
@@ -83,8 +83,8 @@ module tb;
     .CONV_MULTIPLY_STEPS(6),
     .NBITS(NBITS),
     .QUANT(QUANT_BITS),
-    .TRANSFORM_SIZE(TRANSFORM_SIZE),
-    .INVERSE_SIZE(INVERSE_SIZE),
+    .CONV_OUTPUT_SIZE(CONV_OUTPUT_SIZE),
+    .CONV_INPUT_SIZE(CONV_INPUT_SIZE),
     .HADAMARD_SIZE(HADAMARD_SIZE),
     .NUM_MULT(NUM_MULT),
     .STATE_MULT(STATE_MULT)
