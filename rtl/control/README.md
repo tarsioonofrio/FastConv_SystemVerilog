@@ -45,7 +45,7 @@ The main control module is implemented in `control.sv`.
 
 - The controller is partitioned into three FSMs: input/addressing (`st_input_current`), convolution micro-sequencing (`st_conv_current`), and writeback (`st_output_current`).
 - Input-window storage is implemented with `r_input_feat[0:24]` plus `r_conv_input[0:24]`, with row-shift behavior controlled by `w_input_feat_write_en` in state `TRANSFER`.
-- Weight streaming is controlled by `READ_WEIGHTS`, `r_addr_count_kernel`, and `w_weight_write_en`, writing `r_input_weight[0:WEIGHT_CYCLES-1]`.
+- Weight streaming is controlled by `READ_WEIGHTS`, `r_input_addr_count_kernel`, and `w_weight_write_en`, writing `r_input_weight[0:WEIGHT_CYCLES-1]`.
 - Writeback progression is guarded by `w_conv_end`, `r_output_read_count`, and `r_output_write_count` so every 3x3 output tile is sequenced before the next channel/window.
 
 Use this module as a reference guide to understand control flow for address generation, convolution triggering, and output writeback in the FastConv controller.
@@ -86,6 +86,9 @@ Key registers in this process:
 
 - `st_input_current`, `st_input_next`: input FSM state/current-next.
 - `r_addr_count_input`: inner 0..4 read counter used in all `READ_IN_*` states.
+- `r_input_window_counter`: increments in `TRANSFER` and resets in `UPDATE_ADDRESS`; tracks total windows processed in the current IFMAP channel.
+- `r_input_window_counter_row`: increments in `TRANSFER`, resets in `NEXT_ROW`/`UPDATE_ADDRESS`; tracks windows in the current row sweep.
+- `r_input_addr_count_kernel`: increments in `READ_WEIGHTS`; tracks weight-read index inside one kernel load.
 - `w_base_feat_input`: write-base selector used to place incoming samples in `r_input_feat`.
 - Address generation uses base + row/column offsets with `FEAT_INPUT_WIDTH` as line stride.
 
