@@ -31,9 +31,9 @@ module Control
 
     output logic p_output_en,                      // Enables access to the output RAM port
     output logic p_output_wr,                      // Write strobe for the output RAM port
-    output logic[NADDR-1:0] p_output_addr,         // Address issued to the output RAM
-    output [NBITS-1:0] p_output_data_write,        // Data driven into the output RAM on writes
-    input  [NBITS-1:0] p_output_data_read,         // Data captured from the output RAM on reads
+    output logic [NADDR-1:0] p_output_addr,        // Address issued to the output RAM
+    output logic [NBITS-1:0] p_output_data_write,  // Data driven into the output RAM on writes
+    input  logic [NBITS-1:0] p_output_data_read,   // Data captured from the output RAM on reads
     input  logic p_output_valid                    // Read-valid flag from the output RAM
   );
 
@@ -547,6 +547,10 @@ module Control
       r_output_write <= '{default: '0};
       r_output_read <= '{default: '0};
     end else begin
+      if (st_output_current == RESET9) begin
+        r_output_write <= '{default: '0};
+        r_output_read <= '{default: '0};
+      end
       if (w_conv_end)
         r_output_write <= w_conv_inverse;
     end
