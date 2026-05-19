@@ -86,17 +86,24 @@ This document records the naming migration applied to the `rtl/control` block to
 | Before              | After                      |
 | ------------------- | -------------------------- |
 | `Vrd`               | `r_feat_input`             |
+| `r_feat_input`      | `r_input_feat`             |
 | `convReg`           | `r_conv_input`             |
 | `nextVrd`           | `w_next_feat_input`        |
+| `w_next_feat_input` | `w_input_feat_next`        |
 | `ce`                | `w_feat_input_write_en`    |
+| `w_feat_input_write_en` | `w_input_feat_write_en` |
 | `ce_w`              | `w_weight_write_en`        |
 | `weightReg`         | `weight_reg`               |
+| `weight_reg`        | `r_input_weight`           |
 | `end_conv`          | `w_conv_end`               |
 | `contRd`            | `r_output_read_count`      |
 | `contWr`            | `r_output_write_count`     |
 | `internal_address`  | `r_addr_pointer_input`     |
+| `r_addr_pointer_input` | `r_input_addr_feat`      |
 | `horizontal_step`   | `r_window_row_step`        |
+| `r_window_row_step` | `r_input_window_row`       |
 | `weight_address`    | `r_addr_pointer_kernel`    |
+| `r_addr_pointer_kernel` | `r_input_addr_kernel`   |
 | `current_IFchannel` | `r_channel_counter_input`  |
 | `current_OFchannel` | `r_channel_counter_output` |
 | `cnt_convolutions`  | `r_window_counter_input`   |
@@ -106,6 +113,11 @@ This document records the naming migration applied to the `rtl/control` block to
 | `cnt_weight`        | `r_addr_count_kernel`      |
 | `weight_done`       | `w_weight_done`            |
 | `end_write_results` | `w_write_done`             |
+| `w_weight_done`     | `w_input_weight_done`      |
+| `w_write_done`      | `w_input_write_done`       |
+| `last_line`         | `w_input_last_line`        |
+| `last_input`        | `w_input_last_input`       |
+| `last_output`       | `w_input_last_output`      |
 | `cnt_multip`        | `r_conv_multiply_count`    |
 
 ## 7. Testbench Naming
