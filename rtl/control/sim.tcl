@@ -52,5 +52,5 @@ do wave.do
 do mem.do
 
 # run 31000  ns
-run 400000ns
+run 200000ns
 # coverage report -output report.txt -srcfile=* -assert -directive -cvg -codeAll
