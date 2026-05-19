@@ -565,7 +565,7 @@ module Control
       r_addr_pointer_output <= '0;
     end else begin
       if (st_output_current == WRITE_OUTPUT && r_output_write_count == 8 && !w_input_last_output) begin
-        r_addr_pointer_output <= r_addr_pointer_output + NADDR'(OUTPUT_TILE_STRIDE);
+        r_addr_pointer_output <= r_addr_pointer_output + NADDR'(FEAT_INPUT_WIDTH - 2);
       end
 
       if (st_input_current == UPDATE_ADDRESS && w_input_last_input) begin
