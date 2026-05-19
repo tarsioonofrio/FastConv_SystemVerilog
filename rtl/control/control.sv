@@ -43,7 +43,8 @@ module Control
   logic [(INVERSE_SIZE * INVERSE_SIZE) - 1:0] w_feat_input_write_en;  // write-enable per feature register
   logic w_conv_end, last_line, last_input, last_output;
   logic [3:0] r_output_read_count, r_output_write_count;
-  logic [NADDR-1:0] r_addr_pointer_input, r_window_row_step, r_addr_pointer_kernel;
+  logic [NADDR-1:0] r_addr_pointer_input, r_addr_pointer_kernel, r_addr_pointer_output;
+  logic [NADDR-1:0] r_window_row_step;
 
   localparam CHANNEL_INPUT_COUNTER_WIDTH = $clog2(N_CHANNEL_IN) + 1;
   logic [CHANNEL_INPUT_COUNTER_WIDTH-1:0] r_channel_counter_input;
@@ -556,9 +557,34 @@ module Control
     end
   end
 
-  always_comb begin: P_OUTPUT_DATA_WRITE_BLOCK
-    p_output_data_write = r_output_write[r_output_write_count] + r_output_read[r_output_write_count];
-  end
+  assign p_output_data_write = r_output_write[r_output_write_count] + r_output_read[r_output_write_count];
+  assign p_output_addr = (st_output_current == READ_OUTPUT) ? r_addr_pointer_output + NADDR'(r_output_read_count) : r_addr_pointer_output + NADDR'(r_output_write_count);  // p_input_addr mux
 
+  // always_ff @(posedge clk or posedge reset) begin: INPUT_ADDR_POINTER_BLOCK
+  //   if (reset) begin
+  //     r_addr_pointer_output <= '0;
+  //     r_window_row_step <= 3;
+  //   end
+  //   else if ((st_input_current == READ_IN_10A && st_input_next == READ_IN_10B) || (st_input_current == READ_IN_10B && st_input_next == READ_IN_15A) || (st_input_current == READ_IN_15A && st_input_next == READ_IN_15B) || (st_input_current == READ_IN_15B && st_input_next == READ_IN_15C) || st_input_current == TRANSFER)
+  //     r_addr_pointer_output <= r_addr_pointer_output + NADDR'(FEAT_INPUT_WIDTH);    // change internal p_input_addr in the state transition or in the TRANSFER state (CAUTION: PE)
+
+  //   else if (st_input_current == NEXT_ROW && !last_input) begin  // when change the line, the read pointer moves 'r_window_row_step'
+  //     r_addr_pointer_output <= r_window_row_step + NADDR'(r_channel_counter_input * (FEAT_INPUT_SIZE - 2) * (FEAT_INPUT_WIDTH - 2));  // restart for the first line
+  //     r_window_row_step <= r_window_row_step + 3;
+  //   end else if (st_input_current == UPDATE_ADDRESS && last_input) begin
+  //     r_addr_pointer_output <= r_addr_pointer_output - NADDR'(FEAT_INPUT_WIDTH) + NADDR'(HADAMARD_SIZE) - 1;   // adjust the pointer to the next IFMAP
+  //     r_window_row_step <= 3;
+
+  //     if (r_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN-1) ) begin               // change the IFMAP
+  //       r_addr_pointer_output <= 0;
+  //       `ifdef SIMULATION
+  //           $display(
+  //               "RESETANDO PARA O CANAL 0 - DEU A VOLTA NOS IFMAPS time=%0t %d (%0d) st_input_current = %s",
+  //               $time, r_channel_counter_input, N_CHANNEL_IN, st_input_current.name()
+  //           );
+  //       `endif
+  //     end
+  //   end
+  // end
 
 endmodule
