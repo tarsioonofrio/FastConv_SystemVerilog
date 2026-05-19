@@ -560,31 +560,5 @@ module Control
   assign p_output_data_write = r_output_write[r_output_write_count] + r_output_read[r_output_write_count];
   assign p_output_addr = (st_output_current == READ_OUTPUT) ? r_addr_pointer_output + NADDR'(r_output_read_count) : r_addr_pointer_output + NADDR'(r_output_write_count);  // p_input_addr mux
 
-  // always_ff @(posedge clk or posedge reset) begin: INPUT_ADDR_POINTER_BLOCK
-  //   if (reset) begin
-  //     r_addr_pointer_output <= '0;
-  //     r_input_window_row <= 3;
-  //   end
-  //   else if ((st_input_current == READ_IN_10A && st_input_next == READ_IN_10B) || (st_input_current == READ_IN_10B && st_input_next == READ_IN_15A) || (st_input_current == READ_IN_15A && st_input_next == READ_IN_15B) || (st_input_current == READ_IN_15B && st_input_next == READ_IN_15C) || st_input_current == TRANSFER)
-  //     r_addr_pointer_output <= r_addr_pointer_output + NADDR'(FEAT_INPUT_WIDTH);    // change internal p_input_addr in the state transition or in the TRANSFER state (CAUTION: PE)
-
-  //   else if (st_input_current == NEXT_ROW && !w_input_last_input) begin  // when change the line, the read pointer moves 'r_input_window_row'
-  //     r_addr_pointer_output <= r_input_window_row + NADDR'(r_channel_counter_input * (FEAT_INPUT_SIZE - 2) * (FEAT_INPUT_WIDTH - 2));  // restart for the first line
-  //     r_input_window_row <= r_input_window_row + 3;
-  //   end else if (st_input_current == UPDATE_ADDRESS && w_input_last_input) begin
-  //     r_addr_pointer_output <= r_addr_pointer_output - NADDR'(FEAT_INPUT_WIDTH) + NADDR'(HADAMARD_SIZE) - 1;   // adjust the pointer to the next IFMAP
-  //     r_input_window_row <= 3;
-
-  //     if (r_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN-1) ) begin               // change the IFMAP
-  //       r_addr_pointer_output <= 0;
-  //       `ifdef SIMULATION
-  //           $display(
-  //               "RESETANDO PARA O CANAL 0 - DEU A VOLTA NOS IFMAPS time=%0t %d (%0d) st_input_current = %s",
-  //               $time, r_channel_counter_input, N_CHANNEL_IN, st_input_current.name()
-  //           );
-  //       `endif
-  //     end
-  //   end
-  // end
 
 endmodule
