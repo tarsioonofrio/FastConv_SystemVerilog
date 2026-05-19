@@ -21,8 +21,16 @@ module tb;
   logic clk;
   logic reset;
   logic p_start, p_end;
+  logic p_input_en;
   logic [NADDR-1:0] p_input_addr;
   logic [19:0] p_input_data;
+  logic p_input_valid;
+  logic p_output_en;
+  logic p_output_wr;
+  logic [NADDR-1:0] p_output_addr;
+  logic [NBITS-1:0] p_output_data_write;
+  logic [NBITS-1:0] p_output_data_read;
+  logic p_output_valid;
   int input_addr_idx;
   int conv_inverse_check_idx;
   logic in_inverse_d;
@@ -46,6 +54,9 @@ module tb;
     else
       p_input_data = '0;
   end
+  assign p_input_valid = 1'b1;
+  assign p_output_data_read = '0;
+  assign p_output_valid = 1'b1;
 
   // Instanciação do Módulo (DUT)
   Control #(
@@ -66,8 +77,16 @@ module tb;
     .clk(clk),
     .reset(reset),
     .p_start(p_start),
+    .p_input_en(p_input_en),
     .p_input_addr(p_input_addr),
     .p_input_data(p_input_data),
+    .p_input_valid(p_input_valid),
+    .p_output_en(p_output_en),
+    .p_output_wr(p_output_wr),
+    .p_output_addr(p_output_addr),
+    .p_output_data_write(p_output_data_write),
+    .p_output_data_read(p_output_data_read),
+    .p_output_valid(p_output_valid),
     .p_end(p_end)
   );
 
