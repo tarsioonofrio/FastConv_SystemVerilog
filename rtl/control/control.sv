@@ -558,14 +558,18 @@ module Control
   end
 
   localparam int OUTPUT_CHANNEL_STRIDE = (FEAT_INPUT_SIZE - 2) * (FEAT_INPUT_WIDTH - 2);
-  localparam int OUTPUT_TILE_STRIDE = TRANSFORM_SIZE;
+  localparam int OUTPUT_WINDOW_COLUMN_STRIDE = FEAT_INPUT_WIDTH * TRANSFORM_SIZE;
+  localparam int OUTPUT_WINDOW_LINE_WRAP = (FEAT_INPUT_WIDTH * TRANSFORM_SIZE * (WINDOW_COUNT_PER_LINE - 1)) - TRANSFORM_SIZE;
 
   always_ff @(posedge clk or posedge reset) begin: OUTPUT_ADDR_POINTER_BLOCK
     if (reset) begin
       r_addr_pointer_output <= '0;
     end else begin
       if (st_output_current == WRITE_OUTPUT && r_output_write_count == 8 && !w_input_last_output) begin
-        r_addr_pointer_output <= r_addr_pointer_output + NADDR'(FEAT_INPUT_WIDTH - 2);
+        if (w_input_last_line)
+          r_addr_pointer_output <= r_addr_pointer_output - NADDR'(OUTPUT_WINDOW_LINE_WRAP);
+        else
+          r_addr_pointer_output <= r_addr_pointer_output + NADDR'(OUTPUT_WINDOW_COLUMN_STRIDE);
       end
 
       if (st_input_current == UPDATE_ADDRESS && w_input_last_input) begin
