@@ -12,11 +12,11 @@ add wave -noupdate -divider LEITURA
 add wave -noupdate /tb/dut/st_input_current
 add wave -noupdate /tb/dut/st_input_next
 add wave -noupdate -radix decimal /tb/dut/p_input_data
-add wave -noupdate -radix decimal /tb/dut/w_base_feat_input
-add wave -noupdate -color purple -radix unsigned /tb/dut/r_addr_count_input
+add wave -noupdate -radix decimal /tb/dut/w_input_base_feat
+add wave -noupdate -color purple -radix unsigned /tb/dut/r_input_addr_count
 add wave -noupdate -color purple -radix unsigned /tb/dut/r_channel_counter_input
 add wave -noupdate -color purple -radix unsigned /tb/dut/r_channel_counter_output
-add wave -noupdate -color purple -radix unsigned /tb/dut/r_input_window_counter
+add wave -noupdate -color purple -radix unsigned /tb/dut/r_input_window_counter_col
 add wave -noupdate -color purple -radix unsigned /tb/dut/r_input_window_counter_row
 add wave -noupdate -color purple -radix decimal /tb/dut/r_input_addr_count_kernel
 add wave -noupdate -color purple -radix decimal /tb/dut/w_input_write_done
@@ -27,7 +27,7 @@ add wave -noupdate -radix unsigned /tb/dut/r_input_addr_kernel
 add wave -noupdate -color Red -radix unsigned /tb/dut/r_input_addr_feat
 add wave -noupdate -divider {New Divider}
 add wave -noupdate -color purple -radix decimal -childformat {{{/tb/dut/r_input_feat[24]} -radix decimal} {{/tb/dut/r_input_feat[23]} -radix decimal} {{/tb/dut/r_input_feat[22]} -radix decimal} {{/tb/dut/r_input_feat[21]} -radix decimal} {{/tb/dut/r_input_feat[20]} -radix decimal} {{/tb/dut/r_input_feat[19]} -radix decimal} {{/tb/dut/r_input_feat[18]} -radix decimal} {{/tb/dut/r_input_feat[17]} -radix decimal} {{/tb/dut/r_input_feat[16]} -radix decimal} {{/tb/dut/r_input_feat[15]} -radix decimal} {{/tb/dut/r_input_feat[14]} -radix decimal} {{/tb/dut/r_input_feat[13]} -radix decimal} {{/tb/dut/r_input_feat[12]} -radix decimal} {{/tb/dut/r_input_feat[11]} -radix decimal} {{/tb/dut/r_input_feat[10]} -radix decimal} {{/tb/dut/r_input_feat[9]} -radix decimal} {{/tb/dut/r_input_feat[8]} -radix decimal} {{/tb/dut/r_input_feat[7]} -radix decimal} {{/tb/dut/r_input_feat[6]} -radix decimal} {{/tb/dut/r_input_feat[5]} -radix decimal} {{/tb/dut/r_input_feat[4]} -radix decimal} {{/tb/dut/r_input_feat[3]} -radix decimal} {{/tb/dut/r_input_feat[2]} -radix decimal} {{/tb/dut/r_input_feat[1]} -radix decimal} {{/tb/dut/r_input_feat[0]} -radix decimal}} -subitemconfig {{/tb/dut/r_input_feat[24]} {-color purple -height 21 -radix decimal} {/tb/dut/r_input_feat[23]} {-color purple -height 21 -radix decimal} {/tb/dut/r_input_feat[22]} {-color purple -height 21 -radix decimal} {/tb/dut/r_input_feat[21]} {-color purple -height 21 -radix decimal} {/tb/dut/r_input_feat[20]} {-color purple -height 21 -radix decimal} {/tb/dut/r_input_feat[19]} {-color purple -height 21 -radix decimal} {/tb/dut/r_input_feat[18]} {-color purple -height 21 -radix decimal} {/tb/dut/r_input_feat[17]} {-color purple -height 21 -radix decimal} {/tb/dut/r_input_feat[16]} {-color purple -height 21 -radix decimal} {/tb/dut/r_input_feat[15]} {-color purple -height 21 -radix decimal} {/tb/dut/r_input_feat[14]} {-color purple -height 21 -radix decimal} {/tb/dut/r_input_feat[13]} {-color purple -height 21 -radix decimal} {/tb/dut/r_input_feat[12]} {-color purple -height 21 -radix decimal} {/tb/dut/r_input_feat[11]} {-color purple -height 21 -radix decimal} {/tb/dut/r_input_feat[10]} {-color purple -height 21 -radix decimal} {/tb/dut/r_input_feat[9]} {-color purple -height 21 -radix decimal} {/tb/dut/r_input_feat[8]} {-color purple -height 21 -radix decimal} {/tb/dut/r_input_feat[7]} {-color purple -height 21 -radix decimal} {/tb/dut/r_input_feat[6]} {-color purple -height 21 -radix decimal} {/tb/dut/r_input_feat[5]} {-color purple -height 21 -radix decimal} {/tb/dut/r_input_feat[4]} {-color purple -height 21 -radix decimal} {/tb/dut/r_input_feat[3]} {-color purple -height 21 -radix decimal} {/tb/dut/r_input_feat[2]} {-color purple -height 21 -radix decimal} {/tb/dut/r_input_feat[1]} {-color purple -height 21 -radix decimal} {/tb/dut/r_input_feat[0]} {-color purple -height 21 -radix decimal}} /tb/dut/r_input_feat
-add wave -noupdate -color black /tb/dut/w_input_feat_write_en
+add wave -noupdate -color black /tb/dut/w_input_feat_en
 add wave -noupdate -color red /tb/dut/w_input_last_line
 add wave -noupdate -color red /tb/dut/w_input_last_input
 add wave -noupdate -color red /tb/dut/w_input_last_output

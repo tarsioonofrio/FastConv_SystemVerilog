@@ -44,7 +44,7 @@ The main control module is implemented in `control.sv`.
 ### Additional Notes
 
 - The controller is partitioned into three FSMs: input/addressing (`st_input_current`), convolution micro-sequencing (`st_conv_current`), and writeback (`st_output_current`).
-- Input-window storage is implemented with `r_input_feat[0:24]` plus `r_conv_input[0:24]`, with row-shift behavior controlled by `w_input_feat_write_en` in state `TRANSFER`.
+- Input-window storage is implemented with `r_input_feat[0:24]` plus `r_conv_input[0:24]`, with row-shift behavior controlled by `w_input_feat_en` in state `TRANSFER`.
 - Weight streaming is controlled by `READ_WEIGHTS`, `r_input_addr_count_kernel`, and `w_weight_write_en`, writing `r_input_weight[0:WEIGHT_CYCLES-1]`.
 - Writeback progression is guarded by `w_conv_end`, `r_output_read_count`, and `r_output_write_count` so every 3x3 output tile is sequenced before the next channel/window.
 
@@ -78,18 +78,18 @@ The Mermaid sources live in `docs/*.mmd` and are mirrored below.
   - `r_conv_input`: bank transferred to the convolution datapath.
 - The sequence is split as:
   - `READ_IN_10A` -> `READ_IN_10B` -> `READ_IN_15A` -> `READ_IN_15B` -> `READ_IN_15C`.
-- Each read state performs 5 accesses and transitions when `r_addr_count_input == 4`.
+- Each read state performs 5 accesses and transitions when `r_input_addr_count == 4`.
 - `TRANSFER` copies the 25 elements to `r_conv_input` and decides whether to continue vertical sweep (`READ_IN_15A`) or go to `NEXT_ROW`.
 - `NEXT_ROW` advances the base address logic to the next window position (or next IFMAP/channel, depending on end flags).
 
 Key registers in this process:
 
 - `st_input_current`, `st_input_next`: input FSM state/current-next.
-- `r_addr_count_input`: inner 0..4 read counter used in all `READ_IN_*` states.
-- `r_input_window_counter`: increments in `TRANSFER` and resets in `UPDATE_ADDRESS`; tracks total windows processed in the current IFMAP channel.
+- `r_input_addr_count`: inner 0..4 read counter used in all `READ_IN_*` states.
+- `r_input_window_counter_col`: increments in `TRANSFER` and resets in `UPDATE_ADDRESS`; tracks total windows processed in the current IFMAP channel.
 - `r_input_window_counter_row`: increments in `TRANSFER`, resets in `NEXT_ROW`/`UPDATE_ADDRESS`; tracks windows in the current row sweep.
 - `r_input_addr_count_kernel`: increments in `READ_WEIGHTS`; tracks weight-read index inside one kernel load.
-- `w_base_feat_input`: write-base selector used to place incoming samples in `r_input_feat`.
+- `w_input_base_feat`: write-base selector used to place incoming samples in `r_input_feat`.
 - Address generation uses base + row/column offsets with `FEAT_INPUT_WIDTH` as line stride.
 
 ```mermaid
@@ -97,11 +97,11 @@ flowchart TB
     W(["WAIT"]) -->|"p_start"| AP(["AP"]) --> RW(["READ_WEIGHTS"])
     RW -->|"w_input_weight_done"| READ_IN_10A(["READ_IN_10A"])
     RW -->|"w_input_last_output"| W
-    READ_IN_10A -->|"r_addr_count_input==4"| READ_IN_10B(["READ_IN_10B"])
-    READ_IN_10B -->|"r_addr_count_input==4"| READ_IN_15A(["READ_IN_15A"])
-    READ_IN_15A -->|"r_addr_count_input==4"| READ_IN_15B(["READ_IN_15B"])
-    READ_IN_15B -->|"r_addr_count_input==4"| READ_IN_15C(["READ_IN_15C"])
-    READ_IN_15C -->|"r_addr_count_input==4"| X(["TRANSFER"])
+    READ_IN_10A -->|"r_input_addr_count==4"| READ_IN_10B(["READ_IN_10B"])
+    READ_IN_10B -->|"r_input_addr_count==4"| READ_IN_15A(["READ_IN_15A"])
+    READ_IN_15A -->|"r_input_addr_count==4"| READ_IN_15B(["READ_IN_15B"])
+    READ_IN_15B -->|"r_input_addr_count==4"| READ_IN_15C(["READ_IN_15C"])
+    READ_IN_15C -->|"r_input_addr_count==4"| X(["TRANSFER"])
     X --> HW(["HOLD_WRITE"])
     HW -->|"w_input_write_done && !w_input_last_line"| READ_IN_15A
     HW -->|"w_input_write_done && w_input_last_line"| NR(["NEXT_ROW"])
