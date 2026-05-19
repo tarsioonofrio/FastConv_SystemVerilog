@@ -40,7 +40,7 @@ module Control
   logic [NBITS-1:0] r_input_feat[(INVERSE_SIZE * INVERSE_SIZE) - 1:0];  // input feature register bank
   logic [NBITS-1:0] r_conv_input[(INVERSE_SIZE * INVERSE_SIZE) - 1:0];  // convolution input register bank
   logic [NBITS-1:0] w_input_feat_next[(INVERSE_SIZE * INVERSE_SIZE) - 1:0];  // next values for feature shift bank
-  logic [(INVERSE_SIZE * INVERSE_SIZE) - 1:0] w_input_feat_write_en;  // write-enable per feature register
+  logic [(INVERSE_SIZE * INVERSE_SIZE) - 1:0] w_input_feat_en;  // write-enable per feature register
   logic w_conv_end, w_input_last_line, w_input_last_input, w_input_last_output;
   logic [3:0] r_output_read_count, r_output_write_count;
   logic [NADDR-1:0] r_input_addr_feat, r_input_addr_kernel, r_addr_pointer_output;
@@ -57,20 +57,20 @@ module Control
   localparam WINDOW_COUNT_PER_CHANNEL = WINDOW_COUNT_PER_LINE * WINDOW_COUNT_PER_COLUMN;
 
   localparam WINDOW_COUNTER_WIDTH = $clog2(WINDOW_COUNT_PER_LINE * WINDOW_COUNT_PER_COLUMN);
-  logic [WINDOW_COUNTER_WIDTH-1:0] r_window_counter_input;
+  logic [WINDOW_COUNTER_WIDTH-1:0] r_input_window_counter_col;
 
   localparam WINDOW_ROW_COUNTER_WIDTH = $clog2(WINDOW_COUNT_PER_LINE) + 1;
-  logic [WINDOW_ROW_COUNTER_WIDTH-1:0] r_window_counter_row;
+  logic [WINDOW_ROW_COUNTER_WIDTH-1:0] r_input_window_counter_row;
 
   localparam ADDR_INPUT_COUNTER_WIDTH = $clog2(WINDOW_COUNT_PER_COLUMN) + 1;
-  logic [ADDR_INPUT_COUNTER_WIDTH-1:0] w_base_feat_input, r_input_addr_count;
+  logic [ADDR_INPUT_COUNTER_WIDTH-1:0] w_input_base_feat, r_input_addr_count;
 
   // REGISTER BANK FOR THE WEIGHTS ////////////////////////////////////////////
   localparam int WEIGHT_CYCLES = HADAMARD_SIZE * HADAMARD_SIZE;
   localparam int WEIGHT_WIDTH = $clog2(WEIGHT_CYCLES)+1;
   logic [NBITS-1:0] r_input_weight[WEIGHT_CYCLES-1:0];
-  logic [WEIGHT_CYCLES-1:0] w_weight_write_en;
-  logic [WEIGHT_WIDTH-1:0] r_addr_count_kernel;
+  logic [WEIGHT_CYCLES-1:0] w_input_weight_en;
+  logic [WEIGHT_WIDTH-1:0] r_input_addr_count_kernel;
   logic w_input_weight_done, w_input_write_done;
 
   logic [NBITS-1:0] r_conv_temp [HADAMARD_SIZE*HADAMARD_SIZE-1:0];
@@ -194,10 +194,10 @@ module Control
     endcase
   end
 
-  assign w_input_weight_done = (r_addr_count_kernel == WEIGHT_WIDTH'(WEIGHT_CYCLES - 1));
+  assign w_input_weight_done = (r_input_addr_count_kernel == WEIGHT_WIDTH'(WEIGHT_CYCLES - 1));
   assign w_input_write_done = r_output_write_count == 0 || r_output_write_count == 8;  // compare to zero for the first write test or the last value (8) in the next convolutions
-  assign w_input_last_line = (r_window_counter_row == WINDOW_ROW_COUNTER_WIDTH'(WINDOW_COUNT_PER_LINE));
-  assign w_input_last_input = (r_window_counter_input == WINDOW_COUNTER_WIDTH'(WINDOW_COUNT_PER_CHANNEL));
+  assign w_input_last_line = (r_input_window_counter_row == WINDOW_ROW_COUNTER_WIDTH'(WINDOW_COUNT_PER_LINE));
+  assign w_input_last_input = (r_input_window_counter_col == WINDOW_COUNTER_WIDTH'(WINDOW_COUNT_PER_CHANNEL));
   assign w_input_last_output = (r_channel_counter_output == CHANNEL_OUTPUT_COUNTER_WIDTH'(N_CHANNEL_OUT));
 
   assign p_end = ((st_output_next == WAIT_OUTPUT && w_input_last_output));  // output to signalize the end of the convolution process
@@ -222,7 +222,7 @@ module Control
     end
   end
 
-  assign w_base_feat_input = (st_input_current == READ_IN_10A) ? 0 :
+  assign w_input_base_feat = (st_input_current == READ_IN_10A) ? 0 :
                              (st_input_current == READ_IN_10B) ? 1 :
                              (st_input_current == READ_IN_15A) ? 2 :
                              (st_input_current == READ_IN_15B) ? 3 :
@@ -232,16 +232,16 @@ module Control
   // SET OF FIVE CONTROL REGISTERS:
   // r_channel_counter_input: number of the current IFMAP channel being read
   // r_channel_counter_output: number of the current OFMAP channel being processed
-  // r_window_counter_input:  number of convolutions in a given IFMAP channel
-  // r_window_counter_row :  number of horizontal convolutions in a given IFMAP channel - detect the last line
-  // r_addr_count_kernel:        number of weights read from memory
+  // r_input_window_counter_col:  number of convolutions in a given IFMAP channel
+  // r_input_window_counter_row :  number of horizontal convolutions in a given IFMAP channel - detect the last line
+  // r_input_addr_count_kernel:        number of weights read from memory
   always_ff @(posedge clk or posedge reset) begin: INPUT_CONTROL_COUNTERS_BLOCK
     if (reset) begin
-      r_channel_counter_input  <= '1;  // p_start with all bits in '1' - IFchannel must be {0,1,2}
-      r_channel_counter_output <= 0;
-      r_window_counter_input   <= 0;
-      r_window_counter_row     <= 0;
-      r_addr_count_kernel      <= 0;
+      r_channel_counter_input    <= '1;  // p_start with all bits in '1' - IFchannel must be {0,1,2}
+      r_channel_counter_output   <= 0;
+      r_input_addr_count_kernel  <= 0;
+      r_input_window_counter_col <= 0;
+      r_input_window_counter_row <= 0;
     end else begin
       if (st_input_current == UPDATE_ADDRESS) begin
         if (r_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1)) begin
@@ -250,22 +250,22 @@ module Control
         end else begin
           r_channel_counter_input <= r_channel_counter_input + 1;
         end
-        r_window_counter_input <= 0;  // reset counters
-        r_window_counter_row   <= 0;
-        r_addr_count_kernel    <= 0;
+        r_input_addr_count_kernel  <= 0;
+        r_input_window_counter_col <= 0;  // reset counters
+        r_input_window_counter_row <= 0;
       end
 
       if (st_input_current == NEXT_ROW) begin
-        r_window_counter_row <= 0;
+        r_input_window_counter_row <= 0;
       end
 
       if (st_input_current == TRANSFER) begin
-        r_window_counter_input <= r_window_counter_input + 1;
-        r_window_counter_row   <= r_window_counter_row + 1;
+        r_input_window_counter_col <= r_input_window_counter_col + 1;
+        r_input_window_counter_row <= r_input_window_counter_row + 1;
       end
 
       if (st_input_current == READ_WEIGHTS) begin
-        r_addr_count_kernel <= r_addr_count_kernel + 1;
+        r_input_addr_count_kernel <= r_input_addr_count_kernel + 1;
       end
     end
   end
@@ -289,15 +289,15 @@ module Control
     w_input_feat_next[21] = (st_input_current == READ_IN_10B) ? p_input_data : r_input_feat[24];
   end
 
-  always_comb begin: INPUT_SHIFT_WE_BLOCK  // 'w_input_feat_write_en' to write into the register bank r_input_feat
-    w_input_feat_write_en = '0;
+  always_comb begin: INPUT_SHIFT_WE_BLOCK  // 'w_input_feat_en' to write into the register bank r_input_feat
+    w_input_feat_en = '0;
     case (st_input_current)
       READ_IN_10A, READ_IN_10B, READ_IN_15A, READ_IN_15B, READ_IN_15C:
-        w_input_feat_write_en[w_base_feat_input + r_input_addr_count * 5] = 1'b1;
+        w_input_feat_en[w_input_base_feat + r_input_addr_count * 5] = 1'b1;
       TRANSFER:
-        w_input_feat_write_en = 25'b0001100011000110001100011;  // make the shift
+        w_input_feat_en = 25'b0001100011000110001100011;  // make the shift
       default:
-        w_input_feat_write_en = '0;
+        w_input_feat_en = '0;
     endcase
   end
 
@@ -307,15 +307,15 @@ module Control
         r_input_feat[i] <= '0;
     else
       for (int unsigned i = 0; i < 25; i++)
-        if (w_input_feat_write_en[i])
+        if (w_input_feat_en[i])
           r_input_feat[i] <= w_input_feat_next[i];
   end
 
   // Weight register bank with per-entry write-enable.
   always_comb begin: WEIGHT_WE_BLOCK
-    w_weight_write_en = '0;
+    w_input_weight_en = '0;
     if (st_input_current == READ_WEIGHTS)
-      w_weight_write_en[r_addr_count_kernel] = 1'b1;
+      w_input_weight_en[r_input_addr_count_kernel] = 1'b1;
   end
 
   always_ff @(posedge clk or posedge reset) begin: WEIGHT_REG_BLOCK
@@ -324,7 +324,7 @@ module Control
         r_input_weight[i] <= '0;
     end else begin
       for (int unsigned i = 0; i < WEIGHT_CYCLES; i++)
-        if (w_weight_write_en[i])
+        if (w_input_weight_en[i])
           r_input_weight[i] <= p_input_data;
     end
   end
