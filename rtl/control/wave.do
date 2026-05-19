@@ -22,6 +22,7 @@ add wave -noupdate -color purple -radix unsigned /tb/dut/r_input_window_counter_
 add wave -noupdate -color purple -radix decimal /tb/dut/r_input_addr_count_kernel
 add wave -noupdate -color purple -radix decimal /tb/dut/w_input_write_done
 add wave -noupdate -color blue -radix decimal /tb/dut/r_input_window_row
+add wave -noupdate -radix unsigned /tb/dut/r_addr_pointer_output
 add wave -noupdate -divider {ADDR INPUT}
 add wave -noupdate -color Red -radix unsigned /tb/dut/p_input_addr
 add wave -noupdate -radix unsigned /tb/dut/r_input_addr_kernel
@@ -76,4 +77,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ps
 update
-WaveRestoreZoom {0 ps} {167990930 ps}
+WaveRestoreZoom {13323617 ps} {181314547 ps}

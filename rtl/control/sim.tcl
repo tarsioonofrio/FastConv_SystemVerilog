@@ -48,6 +48,33 @@ vsim -voptargs=+acc=lprn -t ps work.tb
 # vsim -voptargs=+acc -t ps work.tb
 set StdArithNoWarnings 1
 set StdVitalGlitchNoWarnings 1
+
+# Generic constant dump (parameters/localparams) from DUT scope without manual list.
+proc dump_constants_auto {scope} {
+  echo ""
+  echo "=== DUT PARAMETERS / LOCALPARAMS ==="
+  if {[catch {set const_paths [find constants ${scope}/*]}]} {
+    set const_paths {}
+  }
+
+  if {[llength $const_paths] == 0} {
+    echo "<no constants found under ${scope}>"
+  } else {
+    foreach p [lsort $const_paths] {
+      set n [file tail $p]
+      if {[catch {set v [examine $p]}]} {
+        echo [format "%-36s = <unreadable>" $n]
+      } else {
+        echo [format "%-36s = %s" $n $v]
+      }
+    }
+  }
+  echo "===================================="
+  echo ""
+}
+
+dump_constants_auto sim:/tb/dut
+
 do wave.do
 do mem.do
 
