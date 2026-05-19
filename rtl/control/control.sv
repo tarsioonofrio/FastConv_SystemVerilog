@@ -557,6 +557,27 @@ module Control
     end
   end
 
+  localparam int OUTPUT_CHANNEL_STRIDE = (FEAT_INPUT_SIZE - 2) * (FEAT_INPUT_WIDTH - 2);
+  localparam int OUTPUT_TILE_STRIDE = TRANSFORM_SIZE;
+
+  always_ff @(posedge clk or posedge reset) begin: OUTPUT_ADDR_POINTER_BLOCK
+    if (reset) begin
+      r_addr_pointer_output <= '0;
+    end else begin
+      if (st_output_current == WRITE_OUTPUT && r_output_write_count == 8 && !w_input_last_output) begin
+        r_addr_pointer_output <= r_addr_pointer_output + NADDR'(OUTPUT_TILE_STRIDE);
+      end
+
+      if (st_input_current == UPDATE_ADDRESS && w_input_last_input) begin
+        if (r_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1)) begin
+          r_addr_pointer_output <= NADDR'((r_channel_counter_output + 1) * OUTPUT_CHANNEL_STRIDE);
+        end else begin
+          r_addr_pointer_output <= NADDR'(r_channel_counter_output * OUTPUT_CHANNEL_STRIDE);
+        end
+      end
+    end
+  end
+
   assign p_output_data_write = r_output_write[r_output_write_count] + r_output_read[r_output_write_count];
   assign p_output_addr = (st_output_current == READ_OUTPUT) ? r_addr_pointer_output + NADDR'(r_output_read_count) : r_addr_pointer_output + NADDR'(r_output_write_count);  // p_input_addr mux
 
