@@ -50,6 +50,11 @@ The main control module is implemented in `control.sv`.
 
 Use this module as a reference guide to understand control flow for address generation, convolution triggering, and output writeback in the FastConv controller.
 
+## Waveform Script
+
+- `wave.do` is maintained for both GUI and batch flows.
+- Unsupported GUI-only commands in batch mode (`vsim -c`), such as `configure wave`/`WaveRestore*`, were removed to avoid transcript errors.
+
 ## FSM Overview
 
 The Mermaid sources live in `docs/*.mmd` and are mirrored below.

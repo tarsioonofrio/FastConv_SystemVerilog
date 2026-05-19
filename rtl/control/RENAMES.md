@@ -143,10 +143,15 @@ The following files were updated to reflect the new names and references:
 
 ## 9. Explicit Non-Change
 
-As requested, the migration did not rename `last*` naming to `is_last*`.
+As requested, the migration did not rename `*_last_*` naming to `*_is_last_*`.
 
 Examples intentionally kept:
 
-- `last_line`
-- `last_input`
-- `last_output`
+- `w_input_last_line`
+- `w_input_last_input`
+- `w_input_last_output`
+
+## 10. Wave Script Compatibility
+
+- `wave.do` was cleaned to run in ModelSim batch mode (`vsim -c`).
+- GUI-only commands such as `configure wave`, `WaveRestoreCursors`, and `WaveRestoreZoom` were removed.
