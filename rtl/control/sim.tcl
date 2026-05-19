@@ -50,30 +50,53 @@ set StdArithNoWarnings 1
 set StdVitalGlitchNoWarnings 1
 
 # Generic constant dump (parameters/localparams) from DUT scope without manual list.
-proc dump_constants_auto {scope} {
+# Extract names directly from the SV source (parameter/localparam declarations),
+# then try to examine each symbol under the DUT scope.
+proc get_constant_names_from_sv {sv_file} {
+  set fh [open $sv_file r]
+  set txt [read $fh]
+  close $fh
+
+  set names {}
+  foreach line [split $txt "\n"] {
+    set s [string trim $line]
+    if {[regexp {^(parameter|localparam)\b} $s]} {
+      # Match last identifier before '='
+      if {[regexp {([A-Za-z_][A-Za-z0-9_]*)\s*=} $s -> n]} {
+        lappend names $n
+      }
+    }
+  }
+  # unique + sorted
+  return [lsort -unique $names]
+}
+
+proc dump_constants_auto {scope sv_file} {
   echo ""
   echo "=== DUT PARAMETERS / LOCALPARAMS ==="
-  if {[catch {set const_paths [find constants ${scope}/*]}]} {
-    set const_paths {}
-  }
-
-  if {[llength $const_paths] == 0} {
-    echo "<no constants found under ${scope}>"
+  set const_names [get_constant_names_from_sv $sv_file]
+  if {[llength $const_names] == 0} {
+    echo "<no parameter/localparam names found in ${sv_file}>"
   } else {
-    foreach p [lsort $const_paths] {
-      set n [file tail $p]
+    set found 0
+    foreach n $const_names {
+      set p "${scope}/${n}"
       if {[catch {set v [examine $p]}]} {
         echo [format "%-36s = <unreadable>" $n]
       } else {
+        set found 1
         echo [format "%-36s = %s" $n $v]
       }
+    }
+    if {!$found} {
+      echo "<no readable constants under ${scope}>"
     }
   }
   echo "===================================="
   echo ""
 }
 
-dump_constants_auto sim:/tb/dut
+dump_constants_auto sim:/tb/dut ./control.sv
 
 do wave.do
 do mem.do
