@@ -5,7 +5,7 @@
 | Parameter | Value | Description |
 |-----------|-------|-------------|
 | `A_SIZE` | 2 | Output tile dimension. |
-| `B_SIZE` | 3 | Auxiliary Winograd stride dimension. |
+| `CONV_KERNEL_SIZE` | 3 | Auxiliary Winograd stride dimension. |
 | `C_SIZE` | 4 | Input tile dimension after padding. |
 | `M_SIZE` | 4 | Winograd-domain tile dimension. |
 

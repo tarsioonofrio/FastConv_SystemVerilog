@@ -13,8 +13,8 @@ module Control
     parameter int unsigned NADDR               = 18,  // bits to p_input_addr the memory
     parameter int unsigned NBITS               = 20,
     parameter int unsigned QUANT               = 8,
-    parameter int unsigned TRANSFORM_SIZE      = 3,
-    parameter int unsigned INVERSE_SIZE        = 5,
+    parameter int unsigned CONV_OUTPUT_SIZE      = 3,
+    parameter int unsigned CONV_INPUT_SIZE        = 5,
     parameter int unsigned HADAMARD_SIZE       = 6,
     parameter int unsigned NUM_MULT            = 6,
     parameter int unsigned STATE_MULT          = 6
@@ -37,10 +37,10 @@ module Control
     input  logic p_output_valid                    // Read-valid flag from the output RAM
   );
 
-  logic [NBITS-1:0] r_input_feat[(INVERSE_SIZE * INVERSE_SIZE) - 1:0];  // input feature register bank
-  logic [NBITS-1:0] r_conv_input[(INVERSE_SIZE * INVERSE_SIZE) - 1:0];  // convolution input register bank
-  logic [NBITS-1:0] w_input_feat_next[(INVERSE_SIZE * INVERSE_SIZE) - 1:0];  // next values for feature shift bank
-  logic [(INVERSE_SIZE * INVERSE_SIZE) - 1:0] w_input_feat_en;  // write-enable per feature register
+  logic [NBITS-1:0] r_input_feat[(CONV_INPUT_SIZE * CONV_INPUT_SIZE) - 1:0];  // input feature register bank
+  logic [NBITS-1:0] r_conv_input[(CONV_INPUT_SIZE * CONV_INPUT_SIZE) - 1:0];  // convolution input register bank
+  logic [NBITS-1:0] w_input_feat_next[(CONV_INPUT_SIZE * CONV_INPUT_SIZE) - 1:0];  // next values for feature shift bank
+  logic [(CONV_INPUT_SIZE * CONV_INPUT_SIZE) - 1:0] w_input_feat_en;  // write-enable per feature register
   logic w_conv_end, w_input_last_line, w_input_last_input, w_input_last_output;
   logic [3:0] r_output_read_count, r_output_write_count;
   logic [NADDR-1:0] r_input_addr_feat, r_input_addr_kernel, r_addr_pointer_output;
@@ -75,9 +75,9 @@ module Control
 
   logic [NBITS-1:0] r_conv_temp [HADAMARD_SIZE*HADAMARD_SIZE-1:0];
   logic [NBITS-1:0] w_conv_transform [HADAMARD_SIZE*HADAMARD_SIZE-1:0];
-  logic [NBITS-1:0] w_conv_inverse [TRANSFORM_SIZE*TRANSFORM_SIZE-1:0];
-  logic [NBITS-1:0] r_output_write [TRANSFORM_SIZE*TRANSFORM_SIZE-1:0];
-  logic [NBITS-1:0] r_output_read [TRANSFORM_SIZE*TRANSFORM_SIZE-1:0];
+  logic [NBITS-1:0] w_conv_inverse [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
+  logic [NBITS-1:0] r_output_write [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
+  logic [NBITS-1:0] r_output_read [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
   logic [$clog2(STATE_MULT-1):0] r_conv_idx_in;
   logic [$clog2(STATE_MULT*NUM_MULT-1):0] r_conv_idx_out[NUM_MULT-1:0];
   logic signed [NBITS-1+QUANT:0] product [NUM_MULT-1:0];  // QUANT more bits for the multipliers
@@ -442,8 +442,8 @@ module Control
   // Instance of matrix multiplier "C"
   Transform #(
     .NBITS(NBITS),
-    .TRANSFORM_SIZE(TRANSFORM_SIZE),
-    .INVERSE_SIZE(INVERSE_SIZE),
+    .CONV_OUTPUT_SIZE(CONV_OUTPUT_SIZE),
+    .CONV_INPUT_SIZE(CONV_INPUT_SIZE),
     .HADAMARD_SIZE(HADAMARD_SIZE)
   ) trf (
       // .pin (r_conv_input[C1_SIZE*C1_SIZE-1:0]),
@@ -473,8 +473,8 @@ module Control
   // Instance of matrix multiplier "A"
   Inverse #(
     .NBITS(NBITS),
-    .TRANSFORM_SIZE(TRANSFORM_SIZE),
-    .INVERSE_SIZE(INVERSE_SIZE),
+    .CONV_OUTPUT_SIZE(CONV_OUTPUT_SIZE),
+    .CONV_INPUT_SIZE(CONV_INPUT_SIZE),
     .HADAMARD_SIZE(HADAMARD_SIZE)
   ) inv (
       .pin (r_conv_temp),
@@ -558,8 +558,8 @@ module Control
   end
 
   localparam int OUTPUT_CHANNEL_STRIDE = (FEAT_INPUT_SIZE - 2) * (FEAT_INPUT_WIDTH - 2);
-  localparam int OUTPUT_WINDOW_COLUMN_STRIDE = (FEAT_INPUT_SIZE - 2) * INVERSE_SIZE;
-  localparam int OUTPUT_WINDOW_LINE_WRAP = ((FEAT_INPUT_SIZE - 2) * INVERSE_SIZE * (WINDOW_COUNT_PER_LINE - 1)) - INVERSE_SIZE;
+  localparam int OUTPUT_WINDOW_COLUMN_STRIDE = (FEAT_INPUT_SIZE - 2) * CONV_INPUT_SIZE;
+  localparam int OUTPUT_WINDOW_LINE_WRAP = ((FEAT_INPUT_SIZE - 2) * CONV_INPUT_SIZE * (WINDOW_COUNT_PER_LINE - 1)) - CONV_INPUT_SIZE;
 
   always_ff @(posedge clk or posedge reset) begin: OUTPUT_ADDR_POINTER_BLOCK
     if (reset) begin
