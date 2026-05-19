@@ -63,7 +63,7 @@ module Control
   logic [WINDOW_ROW_COUNTER_WIDTH-1:0] r_window_counter_row;
 
   localparam ADDR_INPUT_COUNTER_WIDTH = $clog2(WINDOW_COUNT_PER_COLUMN) + 1;
-  logic [ADDR_INPUT_COUNTER_WIDTH-1:0] w_base_feat_input, r_addr_count_input;
+  logic [ADDR_INPUT_COUNTER_WIDTH-1:0] w_base_feat_input, r_input_addr_count;
 
   // REGISTER BANK FOR THE WEIGHTS ////////////////////////////////////////////
   localparam int WEIGHT_CYCLES = HADAMARD_SIZE * HADAMARD_SIZE;
@@ -112,7 +112,7 @@ module Control
 
   typedef enum logic [2:0] {
     WAIT_OUTPUT,
-    RESET9,
+    RESET_OUTPUT,
     READ_OUTPUT,
     WRITE_OUTPUT
   } type_st_output;
@@ -121,7 +121,7 @@ module Control
   // ----------------------------------------------------------------------------------------------------
   // -------  PART 1 - ADDRESS TO ACCESS THE IFMAP AND WEIGHT MEMORY ------------------------------------
   // ----------------------------------------------------------------------------------------------------
-  assign p_input_addr = (st_input_current == READ_WEIGHTS) ? r_input_addr_kernel : r_input_addr_feat + NADDR'(r_addr_count_input);  // p_input_addr mux
+  assign p_input_addr = (st_input_current == READ_WEIGHTS) ? r_input_addr_kernel : r_input_addr_feat + NADDR'(r_input_addr_count);  // p_input_addr mux
 
   always_ff @(posedge clk or posedge reset) begin: INPUT_ADDR_POINTER_BLOCK
     if (reset) begin
@@ -177,11 +177,11 @@ module Control
       READ_WEIGHTS:
         if (w_input_weight_done) st_input_next = READ_IN_10A;
         else if (w_input_last_output) st_input_next = WAIT_INPUT;  //end processing
-      READ_IN_10A: if (r_addr_count_input == 4) st_input_next = READ_IN_10B;  // read 5*5 values
-      READ_IN_10B: if (r_addr_count_input == 4) st_input_next = READ_IN_15A;
-      READ_IN_15A: if (r_addr_count_input == 4) st_input_next = READ_IN_15B;
-      READ_IN_15B: if (r_addr_count_input == 4) st_input_next = READ_IN_15C;
-      READ_IN_15C: if (r_addr_count_input == 4) st_input_next = TRANSFER;
+      READ_IN_10A: if (r_input_addr_count == 4) st_input_next = READ_IN_10B;  // read 5*5 values
+      READ_IN_10B: if (r_input_addr_count == 4) st_input_next = READ_IN_15A;
+      READ_IN_15A: if (r_input_addr_count == 4) st_input_next = READ_IN_15B;
+      READ_IN_15B: if (r_input_addr_count == 4) st_input_next = READ_IN_15C;
+      READ_IN_15C: if (r_input_addr_count == 4) st_input_next = TRANSFER;
       TRANSFER: st_input_next = HOLD_WRITE;  // p_start the convolution
       HOLD_WRITE:
         if (w_input_last_line && w_input_write_done) st_input_next = NEXT_ROW;
@@ -208,16 +208,16 @@ module Control
 
   always_ff @(posedge clk or posedge reset) begin: INPUT_READ_COUNTER_BLOCK
     if (reset) begin
-      r_addr_count_input <= 0;
+      r_input_addr_count <= 0;
     end else begin
       if (st_input_current == READ_WEIGHTS) begin
-        r_addr_count_input <= 0;
+        r_input_addr_count <= 0;
       end
       else if (st_input_current inside {READ_IN_10A, READ_IN_10B, READ_IN_15A, READ_IN_15B, READ_IN_15C}) begin
-        if (r_addr_count_input == 4)
-          r_addr_count_input <= 0;
+        if (r_input_addr_count == 4)
+          r_input_addr_count <= 0;
         else
-          r_addr_count_input <= r_addr_count_input + 1;
+          r_input_addr_count <= r_input_addr_count + 1;
       end
     end
   end
@@ -293,7 +293,7 @@ module Control
     w_input_feat_write_en = '0;
     case (st_input_current)
       READ_IN_10A, READ_IN_10B, READ_IN_15A, READ_IN_15B, READ_IN_15C:
-        w_input_feat_write_en[w_base_feat_input + r_addr_count_input * 5] = 1'b1;
+        w_input_feat_write_en[w_base_feat_input + r_input_addr_count * 5] = 1'b1;
       TRANSFER:
         w_input_feat_write_en = 25'b0001100011000110001100011;  // make the shift
       default:
@@ -496,10 +496,10 @@ module Control
     priority case (st_output_current)
       WAIT_OUTPUT:
         if (st_input_current == UPDATE_ADDRESS)
-          st_output_next = RESET9;     // wait p_start reading the IFMAPs to p_start writing the results
+          st_output_next = RESET_OUTPUT;     // wait p_start reading the IFMAPs to p_start writing the results
         else
           st_output_next = WAIT_OUTPUT;
-      RESET9:
+      RESET_OUTPUT:
         if (w_conv_end && r_output_read_count == 8)
           st_output_next = WRITE_OUTPUT;
       READ_OUTPUT:
@@ -507,7 +507,7 @@ module Control
           st_output_next = WRITE_OUTPUT;
       WRITE_OUTPUT:
         if (r_channel_counter_input == 0 && r_output_write_count == 8)
-          st_output_next = RESET9;
+          st_output_next = RESET_OUTPUT;
         else if (r_channel_counter_input > 0 && r_output_write_count == 8)
           st_output_next = READ_OUTPUT;
         else if (w_input_last_output)
@@ -533,7 +533,7 @@ module Control
           r_output_write_count <= r_output_write_count + 1;
         else
           r_output_write_count <= 8;
-      end else if (st_output_current == RESET9 || st_output_current == READ_OUTPUT) begin
+      end else if (st_output_current == RESET_OUTPUT || st_output_current == READ_OUTPUT) begin
         r_output_write_count <= 0;
         if (r_output_read_count < 8)
           r_output_read_count <= r_output_read_count + 1;
@@ -548,7 +548,7 @@ module Control
       r_output_write <= '{default: '0};
       r_output_read <= '{default: '0};
     end else begin
-      if (st_output_current == RESET9) begin
+      if (st_output_current == RESET_OUTPUT) begin
         r_output_write <= '{default: '0};
         r_output_read <= '{default: '0};
       end
