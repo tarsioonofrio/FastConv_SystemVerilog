@@ -47,6 +47,7 @@ The main control module is implemented in `control.sv`.
 - Input-window storage is implemented with `r_input_feat[0:24]` plus `r_conv_input[0:24]`, with row-shift behavior controlled by `w_input_feat_en` in state `TRANSFER`.
 - Weight streaming is controlled by `READ_WEIGHTS`, `r_input_addr_count_kernel`, and `w_weight_write_en`, writing `r_input_weight[0:WEIGHT_CYCLES-1]`.
 - Writeback progression is guarded by `w_conv_end`, `r_output_read_count`, and `r_output_write_count` so every 3x3 output tile is sequenced before the next channel/window.
+- Output base addressing is tracked by `r_addr_pointer_output`, advancing by output-window column stride and wrapping to the next row at line end.
 
 Use this module as a reference guide to understand control flow for address generation, convolution triggering, and output writeback in the FastConv controller.
 
@@ -137,7 +138,7 @@ flowchart TB
 
 ```mermaid
 flowchart TB
-    WW(["WAIT_WRITE"]) -->|"st_input_current==UPDATE_ADDRESS"| Z(["RESET9"])
+    WW(["WAIT_WRITE"]) -->|"st_input_current==UPDATE_ADDRESS"| Z(["RESET_OUTPUT"])
     Z -->|"w_conv_end && r_output_read_count==8"| WR(["WRITE_OUTPUT"])
     R(["READ_OUTPUT"]) -->|"w_conv_end && r_output_read_count==8"| WR
     WR -->|"r_channel_counter_input==0 && r_output_write_count==8"| Z
