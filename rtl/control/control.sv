@@ -561,15 +561,20 @@ module Control
   localparam int OUTPUT_WINDOW_COLUMN_STRIDE = (FEAT_INPUT_SIZE - 2) * CONV_OUTPUT_SIZE;
   localparam int OUTPUT_WINDOW_LINE_WRAP = ((FEAT_INPUT_SIZE - 2) * CONV_OUTPUT_SIZE * (WINDOW_COUNT_PER_LINE - 1)) - CONV_OUTPUT_SIZE;
 
+  logic [NADDR-1:0] r_addr_pointer_output_target;
+
   always_ff @(posedge clk or posedge reset) begin: OUTPUT_ADDR_POINTER_BLOCK
     if (reset) begin
       r_addr_pointer_output <= '0;
+      r_addr_pointer_output_target <= OUTPUT_CHANNEL_STRIDE - OUTPUT_WINDOW_COLUMN_STRIDE - 1;
     end else begin
       if (st_output_current == WRITE_OUTPUT && r_output_write_count == 8 && !w_input_last_output) begin
-        if (w_input_last_line)
-          r_addr_pointer_output <= r_addr_pointer_output - NADDR'(OUTPUT_WINDOW_LINE_WRAP);
-        else
+        if (r_addr_pointer_output < r_addr_pointer_output_target)
           r_addr_pointer_output <= r_addr_pointer_output + NADDR'(OUTPUT_WINDOW_COLUMN_STRIDE);
+        else begin
+          r_addr_pointer_output <= r_addr_pointer_output - NADDR'(OUTPUT_WINDOW_LINE_WRAP);
+          r_addr_pointer_output_target <= r_addr_pointer_output_target + CONV_OUTPUT_SIZE;
+        end
       end
 
       if (st_input_current == UPDATE_ADDRESS && w_input_last_input) begin
