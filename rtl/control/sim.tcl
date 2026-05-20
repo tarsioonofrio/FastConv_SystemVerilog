@@ -7,7 +7,8 @@ set LATENCY 1
 set ROM 1
 # set QUANT 8
 
-set DATA data/ifn9/sim/sim-032-3-3-seq-new-test/pack_data.sv
+set DATA data/ifn9/sim/sim-032-1-1-seq/pack_data.sv
+# set DATA data/ifn9/sim/sim-032-3-3-seq-new-test/pack_data.sv
 set PARAM rtl/pack-param/ifn9/pack_param.sv
 set MUX rtl/mux-mult/ifn9/mux_mult_06.sv
 set MULT rtl/mult-matrices/ifn9/mult_matrices_csa.sv
@@ -41,7 +42,7 @@ vlog -work work $define_flags -svinputport=relaxed {*}$file_list
 
 # vlog -work work +define+SIMULATION $define_flags -svinputport=relaxed ./control.sv
 vlog -work work $define_flags -svinputport=relaxed ./control.sv
-vlog -work work $define_flags -svinputport=relaxed ./testbench.sv
+vlog -work work $define_flags -svinputport=relaxed ./testbench-new.sv
 # to show FSM
 # vsim -voptargs=+acc -t ps -fsmdebug -coverage -debugDB work.tb
 vsim -voptargs=+acc=lprn -t ps work.tb
