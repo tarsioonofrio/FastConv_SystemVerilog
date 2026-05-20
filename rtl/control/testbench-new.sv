@@ -4,11 +4,16 @@ module tb;
 
   import pack_data::*;
   import pack_param::*;
+  import pack_mux_mult::*;
+
 
   localparam int NBITS = 16;
   localparam int NADDR = 14;
   localparam int LATENCY = 1;
   localparam int ROM = 1;
+  localparam int FEAT_INPUT_WIDTH = FEAT_INPUT_SIZE;
+  // localparam int NUM_MULT_LOCAL = 6;
+  // localparam int STATE_MULT_LOCAL = 6;
   // localparam int CONV_OUTPUT_SIZE = 3;
   // localparam int CONV_INPUT_SIZE = 5;
   // localparam int HADAMARD_SIZE = 6;
@@ -42,8 +47,6 @@ module tb;
   logic [NBITS-1:0] w_output_data_write;
   logic [NADDR-1:0] w_output_addr_forced;
 
-  logic [NADDR-1:0] w_control_input_addr;
-
   logic debug;
 
   time exec_time;
@@ -59,11 +62,6 @@ module tb;
   initial clk = 0;
   always #5 clk = ~clk;
 
-  // New Control uses only memory read address/data path.
-  assign w_input_en = 1'b1;
-  assign w_input_wr = 1'b0;
-  assign w_input_addr = w_control_input_addr;
-
   // Cycle counter for overall run length after reset deasserts.
   always_ff @(posedge clk or posedge reset) begin: CYCLE_COUNT_BLOCK
     if (reset)
@@ -76,11 +74,9 @@ module tb;
   Control #(
     .N_CHANNEL_IN(N_CHANNEL_IN),
     .N_CHANNEL_OUT(N_CHANNEL_OUT),
-    .KERNEL_SIZE(6),
     .FEAT_INPUT_SIZE(FEAT_INPUT_SIZE),
-    .FEAT_INPUT_WIDTH(20),
+    .FEAT_INPUT_WIDTH(FEAT_INPUT_WIDTH),
     .NADDR(NADDR),
-    .CONV_MULTIPLY_STEPS(6),
     .NBITS(NBITS),
     .QUANT(QUANT_BITS),
     .CONV_OUTPUT_SIZE(CONV_OUTPUT_SIZE),
@@ -93,27 +89,21 @@ module tb;
     .reset(reset),
     .p_start(w_start),
     .p_end(w_end),
-    .p_input_addr(w_control_input_addr),
-    .p_input_data(w_input_data_read)
+    .p_input_en(w_input_en),
+    .p_input_addr(w_input_addr),
+    .p_input_data(w_input_data_read),
+    .p_input_valid(w_input_valid),
+    .p_output_en(w_output_en),
+    .p_output_wr(w_output_wr),
+    .p_output_addr(w_output_addr),
+    .p_output_data_write(w_output_data_write),
+    .p_output_data_read(w_output_data_read),
+    .p_output_valid(w_output_valid)
   );
 
-  Memory #(
-    .NADDR(NADDR),
-    .NBITS(NBITS),
-    .LATENCY(LATENCY),
-    .ROM(ROM),
-    .CONST_DATA_SIZE(1092),
-    .CONST_DATA(const_data)
-  ) memory_read(
-    .clk(clk),
-    .reset(reset),
-    .chip_en(w_input_en),
-    .wr_en(w_input_wr),
-    .address(w_input_addr),
-    .data_in(w_input_data_write),
-    .data_out(w_input_data_read),
-    .data_valid(w_input_valid)
-  );
+  assign w_input_wr = 1'b0;
+  assign w_input_data_read = (w_input_en && w_input_addr < $size(const_data)) ? NBITS'(const_data[w_input_addr]) : '0;
+  assign w_input_valid = w_input_en;
 
   Memory #(
     .NADDR(NADDR),
