@@ -42,7 +42,7 @@ vlog -work work $define_flags -svinputport=relaxed {*}$file_list
 
 # vlog -work work +define+SIMULATION $define_flags -svinputport=relaxed ./control.sv
 vlog -work work $define_flags -svinputport=relaxed ./control.sv
-vlog -work work $define_flags -svinputport=relaxed ./testbench-new.sv
+vlog -work work $define_flags -svinputport=relaxed ./testbench.sv
 # to show FSM
 # vsim -voptargs=+acc -t ps -fsmdebug -coverage -debugDB work.tb
 vsim -voptargs=+acc=lprn -t ps work.tb
