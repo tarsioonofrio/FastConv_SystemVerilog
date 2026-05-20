@@ -43,7 +43,7 @@ module Control
   logic [(CONV_INPUT_SIZE * CONV_INPUT_SIZE) - 1:0] w_input_feat_en;  // write-enable per feature register
   logic w_conv_end, w_input_last_line, w_input_last_input, w_input_last_output;
   logic [3:0] r_output_read_count, r_output_write_count;
-  logic [NADDR-1:0] r_input_addr_feat, r_input_addr_kernel, r_addr_pointer_output;
+  logic [NADDR-1:0] r_input_addr_feat, r_input_addr_kernel, r_output_addr
   logic [NADDR-1:0] r_input_window_row;
 
   localparam CHANNEL_INPUT_COUNTER_WIDTH = $clog2(N_CHANNEL_IN) + 1;
@@ -561,36 +561,38 @@ module Control
   localparam int OUTPUT_WINDOW_COLUMN_STRIDE = (FEAT_INPUT_SIZE - 2) * CONV_OUTPUT_SIZE;
   localparam int OUTPUT_WINDOW_LINE_WRAP = ((FEAT_INPUT_SIZE - 2) * CONV_OUTPUT_SIZE * (WINDOW_COUNT_PER_LINE - 1)) - CONV_OUTPUT_SIZE;
 
-  logic [NADDR-1:0] r_addr_pointer_output_target;
+  logic [NADDR-1:0] r_output_addr_target;
 
   always_ff @(posedge clk or posedge reset) begin: OUTPUT_ADDR_POINTER_BLOCK
     if (reset) begin
-      r_addr_pointer_output <= '0;
-      r_addr_pointer_output_target <= OUTPUT_CHANNEL_STRIDE - OUTPUT_WINDOW_COLUMN_STRIDE - 1;
+      r_output_addr <= '0;
+      r_output_addr_target <= OUTPUT_CHANNEL_STRIDE - OUTPUT_WINDOW_COLUMN_STRIDE - 1;
     end else begin
       if (st_output_current == WRITE_OUTPUT && r_output_write_count == 8 && !w_input_last_output) begin
-        if (r_addr_pointer_output < r_addr_pointer_output_target)
-          r_addr_pointer_output <= r_addr_pointer_output + NADDR'(OUTPUT_WINDOW_COLUMN_STRIDE);
+        if (r_output_addr < r_output_addr_target)
+          r_output_addr <= r_output_addr + NADDR'(OUTPUT_WINDOW_COLUMN_STRIDE);
         else begin
-          r_addr_pointer_output <= r_addr_pointer_output - NADDR'(OUTPUT_WINDOW_LINE_WRAP);
-          r_addr_pointer_output_target <= r_addr_pointer_output_target + CONV_OUTPUT_SIZE;
+          r_output_addr <= r_output_addr - NADDR'(OUTPUT_WINDOW_LINE_WRAP);
+          r_output_addr_target <= r_output_addr_target + CONV_OUTPUT_SIZE;
         end
       end
 
       if ((st_input_current == UPDATE_ADDRESS) && w_input_last_input) begin
         if (r_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_OUT - 1)) begin
-          r_addr_pointer_output <= NADDR'((r_channel_counter_output + 1) * OUTPUT_CHANNEL_STRIDE);
-          r_addr_pointer_output_target <= NADDR'((r_channel_counter_output + 1) * OUTPUT_CHANNEL_STRIDE) + (OUTPUT_CHANNEL_STRIDE - OUTPUT_WINDOW_COLUMN_STRIDE - 1);
+          r_output_addr <= NADDR'((r_channel_counter_output + 1) * OUTPUT_CHANNEL_STRIDE);
+          r_output_addr_target <= NADDR'((r_channel_counter_output + 1) * OUTPUT_CHANNEL_STRIDE) + (OUTPUT_CHANNEL_STRIDE - OUTPUT_WINDOW_COLUMN_STRIDE - 1);
         end else begin
-          r_addr_pointer_output <= NADDR'(r_channel_counter_output * OUTPUT_CHANNEL_STRIDE);
-          r_addr_pointer_output_target <= NADDR'(r_channel_counter_output * OUTPUT_CHANNEL_STRIDE) + (OUTPUT_CHANNEL_STRIDE - OUTPUT_WINDOW_COLUMN_STRIDE - 1);
+          r_output_addr <= NADDR'(r_channel_counter_output * OUTPUT_CHANNEL_STRIDE);
+          r_output_addr_target <= NADDR'(r_channel_counter_output * OUTPUT_CHANNEL_STRIDE) + (OUTPUT_CHANNEL_STRIDE - OUTPUT_WINDOW_COLUMN_STRIDE - 1);
         end
       end
     end
   end
 
   assign p_output_data_write = r_output_write[r_output_write_count] + r_output_read[r_output_write_count];
-  assign p_output_addr = (st_output_current == READ_OUTPUT) ? r_addr_pointer_output + NADDR'(r_output_read_count) : r_addr_pointer_output + NADDR'(r_output_write_count);  // p_input_addr mux
+  assign p_output_addr = (st_output_current == READ_OUTPUT) ? r_output_addr + NADDR'(r_output_read_count) : r_output_addr + NADDR'(r_output_write_count);  // p_input_addr mux
+  assign p_output_en = ((st_output_current == READ_OUTPUT) || (st_output_current == WRITE_OUTPUT)) ? '1 : '0;
+  assign p_output_wr = (st_output_current == WRITE_OUTPUT) ? '1 : '0;
 
 
 endmodule

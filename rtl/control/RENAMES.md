@@ -25,13 +25,13 @@ This document records the naming migration applied to the `rtl/control` block to
 | -------------------------- | ------------------------------ |
 | `NB_IFMAP`                 | `N_CHANNEL_IN`                 |
 | `NB_OFMAP`                 | `N_CHANNEL_OUT`                |
-| `SZ_KERNEL`                | `KERNEL_SIZE`                  |
+| `SZ_KERNEL`                | `CONV_KERNEL_SIZE`             |
 | `NB_LINES`                 | `FEAT_INPUT_SIZE`              |
 | `NB_COLUMNS`               | `FEAT_INPUT_WIDTH`             |
 | `ADDR_W`                   | `NADDR`                        |
-| `NB_MULTIPS`               | `CONV_MULTIPLY_STEPS`          |
-| `A1_SIZE`                  | `CONV_OUTPUT_SIZE`               |
-| `C1_SIZE`                  | `CONV_INPUT_SIZE`                 |
+| `NB_MULTIPS`               | `STATE_MULT`                   |
+| `A1_SIZE`                  | `CONV_OUTPUT_SIZE`             |
+| `C1_SIZE`                  | `CONV_INPUT_SIZE`              |
 | `M1_SIZE`                  | `HADAMARD_SIZE`                |
 | `NMULT`                    | `NUM_MULT`                     |
 | `SMULT`                    | `STATE_MULT`                   |
@@ -91,7 +91,7 @@ This document records the naming migration applied to the `rtl/control` block to
 | `nextVrd`           | `w_next_feat_input`        |
 | `w_next_feat_input` | `w_input_feat_next`        |
 | `ce`                | `w_feat_input_write_en`    |
-| `w_feat_input_write_en` | `w_input_feat_write_en` |
+| `w_feat_input_write_en` | `w_input_feat_en`       |
 | `ce_w`              | `w_weight_write_en`        |
 | `weightReg`         | `weight_reg`               |
 | `weight_reg`        | `r_input_weight`           |
@@ -106,11 +106,11 @@ This document records the naming migration applied to the `rtl/control` block to
 | `r_addr_pointer_kernel` | `r_input_addr_kernel`   |
 | `current_IFchannel` | `r_channel_counter_input`  |
 | `current_OFchannel` | `r_channel_counter_output` |
-| `cnt_convolutions`  | `r_window_counter_input`   |
+| `cnt_convolutions`  | `r_input_window_counter_col` |
 | `cnt_horiz_convs`   | `r_window_counter_row`     |
-| `base_VRd`          | `w_base_feat_input`        |
-| `cnt_col`           | `r_addr_count_input`       |
-| `cnt_weight`        | `r_addr_count_kernel`      |
+| `base_VRd`          | `w_input_base_feat`        |
+| `cnt_col`           | `r_input_addr_count`       |
+| `cnt_weight`        | `r_input_addr_count_kernel`|
 | `weight_done`       | `w_weight_done`            |
 | `end_write_results` | `w_write_done`             |
 | `w_weight_done`     | `w_input_weight_done`      |
