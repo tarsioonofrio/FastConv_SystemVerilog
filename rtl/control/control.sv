@@ -577,11 +577,13 @@ module Control
         end
       end
 
-      if (st_input_current == UPDATE_ADDRESS && w_input_last_input) begin
+      if ((st_input_current == UPDATE_ADDRESS) && w_input_last_input) begin
         if (r_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_OUT - 1)) begin
           r_addr_pointer_output <= NADDR'((r_channel_counter_output + 1) * OUTPUT_CHANNEL_STRIDE);
+          r_addr_pointer_output_target <= NADDR'((r_channel_counter_output + 1) * OUTPUT_CHANNEL_STRIDE) + (OUTPUT_CHANNEL_STRIDE - OUTPUT_WINDOW_COLUMN_STRIDE - 1);
         end else begin
           r_addr_pointer_output <= NADDR'(r_channel_counter_output * OUTPUT_CHANNEL_STRIDE);
+          r_addr_pointer_output_target <= NADDR'(r_channel_counter_output * OUTPUT_CHANNEL_STRIDE) + (OUTPUT_CHANNEL_STRIDE - OUTPUT_WINDOW_COLUMN_STRIDE - 1);
         end
       end
     end
