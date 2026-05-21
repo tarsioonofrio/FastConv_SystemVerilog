@@ -618,6 +618,7 @@ module Control
       default: w_output_addr_offset_write = NADDR'(2 * OUTPUT_ROW_STRIDE + 2);
     endcase
   end
+
   assign p_output_data_write = r_output_write[r_output_write_count] + r_output_read[r_output_write_count];
   assign p_output_addr = (st_output_current == READ_OUTPUT) ? r_output_addr + w_output_addr_offset_read : r_output_addr + w_output_addr_offset_write;  // p_input_addr mux
   assign p_output_en = ((st_output_current == READ_OUTPUT) || (st_output_current == WRITE_OUTPUT)) ? '1 : '0;
