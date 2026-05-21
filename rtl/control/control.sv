@@ -13,8 +13,8 @@ module Control
     parameter int unsigned NADDR               = 18,  // bits to p_input_addr the memory
     parameter int unsigned NBITS               = 20,
     parameter int unsigned QUANT               = 8,
-    parameter int unsigned CONV_OUTPUT_SIZE      = 3,
-    parameter int unsigned CONV_INPUT_SIZE        = 5,
+    parameter int unsigned CONV_OUTPUT_SIZE    = 3,
+    parameter int unsigned CONV_INPUT_SIZE     = 5,
     parameter int unsigned HADAMARD_SIZE       = 6,
     parameter int unsigned NUM_MULT            = 6,
     parameter int unsigned STATE_MULT          = 6
@@ -38,19 +38,11 @@ module Control
   );
 
   logic [NBITS-1:0] r_input_feat[(CONV_INPUT_SIZE * CONV_INPUT_SIZE) - 1:0];  // input feature register bank
-  logic [NBITS-1:0] r_conv_input[(CONV_INPUT_SIZE * CONV_INPUT_SIZE) - 1:0];  // convolution input register bank
   logic [NBITS-1:0] w_input_feat_next[(CONV_INPUT_SIZE * CONV_INPUT_SIZE) - 1:0];  // next values for feature shift bank
-  logic [(CONV_INPUT_SIZE * CONV_INPUT_SIZE) - 1:0] w_input_feat_en;  // write-enable per feature register
-  logic w_conv_end, w_input_last_line, w_input_last_input, w_input_last_output;
-  logic [3:0] r_output_read_count, r_output_write_count;
   logic [NADDR-1:0] r_input_addr_feat, r_input_addr_kernel, r_output_addr;
   logic [NADDR-1:0] r_input_window_row;
-
-  localparam CHANNEL_INPUT_COUNTER_WIDTH = $clog2(N_CHANNEL_IN) + 1;
-  logic [CHANNEL_INPUT_COUNTER_WIDTH-1:0] r_channel_counter_input;
-
-  localparam CHANNEL_OUTPUT_COUNTER_WIDTH = $clog2(N_CHANNEL_OUT) + 1;
-  logic [CHANNEL_OUTPUT_COUNTER_WIDTH-1:0] r_channel_counter_output;
+  logic [(CONV_INPUT_SIZE * CONV_INPUT_SIZE) - 1:0] w_input_feat_en;  // write-enable per feature register
+  logic w_input_last_line, w_input_last_input, w_input_last_output;
 
   localparam WINDOW_COUNT_PER_LINE = FEAT_INPUT_SIZE / 3;  // assuming output 3x3
   localparam WINDOW_COUNT_PER_COLUMN = FEAT_INPUT_WIDTH / 3;
@@ -65,6 +57,12 @@ module Control
   localparam ADDR_INPUT_COUNTER_WIDTH = $clog2(WINDOW_COUNT_PER_COLUMN) + 1;
   logic [ADDR_INPUT_COUNTER_WIDTH-1:0] w_input_base_feat, r_input_addr_count;
 
+  localparam CHANNEL_INPUT_COUNTER_WIDTH = $clog2(N_CHANNEL_IN) + 1;
+  logic [CHANNEL_INPUT_COUNTER_WIDTH-1:0] r_channel_counter_input;
+
+  localparam CHANNEL_OUTPUT_COUNTER_WIDTH = $clog2(N_CHANNEL_OUT) + 1;
+  logic [CHANNEL_OUTPUT_COUNTER_WIDTH-1:0] r_channel_counter_output;
+
   // REGISTER BANK FOR THE WEIGHTS ////////////////////////////////////////////
   localparam int WEIGHT_CYCLES = HADAMARD_SIZE * HADAMARD_SIZE;
   localparam int WEIGHT_WIDTH = $clog2(WEIGHT_CYCLES)+1;
@@ -76,12 +74,21 @@ module Control
   logic [NBITS-1:0] r_conv_temp [HADAMARD_SIZE*HADAMARD_SIZE-1:0];
   logic [NBITS-1:0] w_conv_transform [HADAMARD_SIZE*HADAMARD_SIZE-1:0];
   logic [NBITS-1:0] w_conv_inverse [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
-  logic [NBITS-1:0] r_output_write [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
-  logic [NBITS-1:0] r_output_read [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
+  logic [NBITS-1:0] r_conv_input[(CONV_INPUT_SIZE * CONV_INPUT_SIZE) - 1:0];  // convolution input register bank
+  logic signed [NBITS-1+QUANT:0] w_conv_product [NUM_MULT-1:0];  // QUANT more bits for the multipliers
   logic [$clog2(STATE_MULT-1):0] r_conv_idx_in;
   logic [$clog2(STATE_MULT*NUM_MULT-1):0] r_conv_idx_out[NUM_MULT-1:0];
-  logic signed [NBITS-1+QUANT:0] product [NUM_MULT-1:0];  // QUANT more bits for the multipliers
-  // logic r_end;
+  logic w_conv_end;
+
+  logic [3:0] r_output_read_count, r_output_write_count;
+  logic [NBITS-1:0] r_output_write [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
+  logic [NBITS-1:0] r_output_read [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
+
+  logic [NADDR-1:0] r_output_addr_target;
+  logic [NADDR-1:0] r_output_addr_offset_read;
+  logic [NADDR-1:0] r_output_addr_offset_write;
+  logic [NADDR-1:0] w_output_addr_offset_read;
+  logic [NADDR-1:0] w_output_addr_offset_write;
 
 
   // -------------------------------------------------------------------------
@@ -430,7 +437,7 @@ module Control
         HADAMARD: begin
           r_conv_idx_in <= r_conv_idx_in + 1;
           for (int i = 0; i < NUM_MULT; i++) begin
-            r_conv_temp[r_conv_idx_out[i]] <= product[i];
+            r_conv_temp[r_conv_idx_out[i]] <= w_conv_product[i];
           end
         end
         INVERSE: begin
@@ -463,9 +470,9 @@ module Control
         .NBITS(NBITS)
       )
       multip(
-        .register_input(r_conv_temp[r_conv_idx_out[i]]),
-        .weight_input(r_input_weight[r_conv_idx_out[i]]),
-        .product(product[i])
+        .feature(r_conv_temp[r_conv_idx_out[i]]),
+        .weight(r_input_weight[r_conv_idx_out[i]]),
+        .product(w_conv_product[i])
       );
     end
   endgenerate
@@ -492,7 +499,6 @@ module Control
 
   always_comb begin: OUTPUT_NEXT_STATE_BLOCK
     st_output_next = st_output_current;  // default
-
     priority case (st_output_current)
       WAIT_OUTPUT:
         if (st_input_current == UPDATE_ADDRESS)
@@ -557,28 +563,22 @@ module Control
     end
   end
 
-  localparam int OUTPUT_CHANNEL_STRIDE = (FEAT_INPUT_SIZE - 2) * (FEAT_INPUT_WIDTH - 2);
-  localparam int OUTPUT_WINDOW_COLUMN_STRIDE = (FEAT_INPUT_SIZE - 2) * CONV_OUTPUT_SIZE;
-  localparam int OUTPUT_WINDOW_LINE_WRAP = ((FEAT_INPUT_SIZE - 2) * CONV_OUTPUT_SIZE * (WINDOW_COUNT_PER_LINE - 1)) - CONV_OUTPUT_SIZE;
-  localparam int OUTPUT_ROW_STRIDE = (FEAT_INPUT_SIZE - 2);
-  localparam int OUTPUT_TILE_WRAP_STEP = (2 * OUTPUT_ROW_STRIDE) - 1;
-
-  logic [NADDR-1:0] r_output_addr_target;
-  logic [NADDR-1:0] r_output_addr_offset_read;
-  logic [NADDR-1:0] r_output_addr_offset_write;
-  logic [NADDR-1:0] w_output_addr_offset_read;
-  logic [NADDR-1:0] w_output_addr_offset_write;
+  localparam int OUTPUT_FEATURE_SIZE = (FEAT_INPUT_SIZE - 2) * (FEAT_INPUT_WIDTH - 2);
+  localparam int OUTPUT_WINDOW_COLUMN_STEP = (FEAT_INPUT_SIZE - 2) * CONV_OUTPUT_SIZE;
+  localparam int OUTPUT_WINDOW_LINE_JUMP = ((FEAT_INPUT_SIZE - 2) * CONV_OUTPUT_SIZE * (WINDOW_COUNT_PER_LINE - 1)) - CONV_OUTPUT_SIZE;
+  localparam int OUTPUT_ROW_STEP = (FEAT_INPUT_SIZE - 2);
+  localparam int OUTPUT_TILE_JUMP_STEP = (2 * OUTPUT_ROW_STEP) - 1;
 
   always_ff @(posedge clk or posedge reset) begin: OUTPUT_ADDR_POINTER_BLOCK
     if (reset) begin
       r_output_addr <= '0;
-      r_output_addr_target <= OUTPUT_CHANNEL_STRIDE - OUTPUT_WINDOW_COLUMN_STRIDE - 1;
+      r_output_addr_target <= OUTPUT_FEATURE_SIZE - OUTPUT_WINDOW_COLUMN_STEP - 1;
     end else begin
       if (st_output_current == WRITE_OUTPUT && r_output_write_count == 8 && !w_input_last_output) begin
         if (r_output_addr < r_output_addr_target)
-          r_output_addr <= r_output_addr + NADDR'(OUTPUT_WINDOW_COLUMN_STRIDE);
+          r_output_addr <= r_output_addr + NADDR'(OUTPUT_WINDOW_COLUMN_STEP);
         else begin
-          r_output_addr <= r_output_addr - NADDR'(OUTPUT_WINDOW_LINE_WRAP);
+          r_output_addr <= r_output_addr - NADDR'(OUTPUT_WINDOW_LINE_JUMP);
           r_output_addr_target <= r_output_addr_target + CONV_OUTPUT_SIZE;
         end
       end
@@ -586,11 +586,11 @@ module Control
       if ((st_input_current == UPDATE_ADDRESS) && w_input_last_input) begin
         if ((r_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_OUT - 1)) &&
             (r_channel_counter_output < CHANNEL_OUTPUT_COUNTER_WIDTH'(N_CHANNEL_OUT - 1))) begin
-          r_output_addr <= NADDR'((r_channel_counter_output + 1) * OUTPUT_CHANNEL_STRIDE);
-          r_output_addr_target <= NADDR'((r_channel_counter_output + 1) * OUTPUT_CHANNEL_STRIDE) + (OUTPUT_CHANNEL_STRIDE - OUTPUT_WINDOW_COLUMN_STRIDE - 1);
+          r_output_addr <= NADDR'((r_channel_counter_output + 1) * OUTPUT_FEATURE_SIZE);
+          r_output_addr_target <= NADDR'((r_channel_counter_output + 1) * OUTPUT_FEATURE_SIZE) + (OUTPUT_FEATURE_SIZE - OUTPUT_WINDOW_COLUMN_STEP - 1);
         end else begin
-          r_output_addr <= NADDR'(r_channel_counter_output * OUTPUT_CHANNEL_STRIDE);
-          r_output_addr_target <= NADDR'(r_channel_counter_output * OUTPUT_CHANNEL_STRIDE) + (OUTPUT_CHANNEL_STRIDE - OUTPUT_WINDOW_COLUMN_STRIDE - 1);
+          r_output_addr <= NADDR'(r_channel_counter_output * OUTPUT_FEATURE_SIZE);
+          r_output_addr_target <= NADDR'(r_channel_counter_output * OUTPUT_FEATURE_SIZE) + (OUTPUT_FEATURE_SIZE - OUTPUT_WINDOW_COLUMN_STEP - 1);
         end
       end
     end
@@ -608,9 +608,9 @@ module Control
         if (r_output_read_count == 8)
           r_output_addr_offset_read <= '0;
         else if ((r_output_read_count == 2) || (r_output_read_count == 5))
-          r_output_addr_offset_read <= r_output_addr_offset_read - NADDR'(OUTPUT_TILE_WRAP_STEP);
+          r_output_addr_offset_read <= r_output_addr_offset_read - NADDR'(OUTPUT_TILE_JUMP_STEP);
         else
-          r_output_addr_offset_read <= r_output_addr_offset_read + NADDR'(OUTPUT_ROW_STRIDE);
+          r_output_addr_offset_read <= r_output_addr_offset_read + NADDR'(OUTPUT_ROW_STEP);
       end
 
       if (st_output_current != WRITE_OUTPUT) begin
@@ -620,9 +620,9 @@ module Control
         if (r_output_write_count == 8)
           r_output_addr_offset_write <= '0;
         else if ((r_output_write_count == 2) || (r_output_write_count == 5))
-          r_output_addr_offset_write <= r_output_addr_offset_write - NADDR'(OUTPUT_TILE_WRAP_STEP);
+          r_output_addr_offset_write <= r_output_addr_offset_write - NADDR'(OUTPUT_TILE_JUMP_STEP);
         else
-          r_output_addr_offset_write <= r_output_addr_offset_write + NADDR'(OUTPUT_ROW_STRIDE);
+          r_output_addr_offset_write <= r_output_addr_offset_write + NADDR'(OUTPUT_ROW_STEP);
       end
     end
   end
