@@ -561,8 +561,11 @@ module Control
   localparam int OUTPUT_WINDOW_COLUMN_STRIDE = (FEAT_INPUT_SIZE - 2) * CONV_OUTPUT_SIZE;
   localparam int OUTPUT_WINDOW_LINE_WRAP = ((FEAT_INPUT_SIZE - 2) * CONV_OUTPUT_SIZE * (WINDOW_COUNT_PER_LINE - 1)) - CONV_OUTPUT_SIZE;
   localparam int OUTPUT_ROW_STRIDE = (FEAT_INPUT_SIZE - 2);
+  localparam int OUTPUT_OFFSET_WRAP = (2 * OUTPUT_ROW_STRIDE) - 1;
 
   logic [NADDR-1:0] r_output_addr_target;
+  logic [NADDR-1:0] r_output_addr_offset_read;
+  logic [NADDR-1:0] r_output_addr_offset_write;
   logic [NADDR-1:0] w_output_addr_offset_read;
   logic [NADDR-1:0] w_output_addr_offset_write;
 
@@ -593,31 +596,36 @@ module Control
     end
   end
 
-  always_comb begin: OUTPUT_ADDR_OFFSET_BLOCK
-    case (r_output_read_count)
-      0: w_output_addr_offset_read = '0;
-      1: w_output_addr_offset_read = NADDR'(OUTPUT_ROW_STRIDE);
-      2: w_output_addr_offset_read = NADDR'(2 * OUTPUT_ROW_STRIDE);
-      3: w_output_addr_offset_read = NADDR'(1);
-      4: w_output_addr_offset_read = NADDR'(OUTPUT_ROW_STRIDE + 1);
-      5: w_output_addr_offset_read = NADDR'(2 * OUTPUT_ROW_STRIDE + 1);
-      6: w_output_addr_offset_read = NADDR'(2);
-      7: w_output_addr_offset_read = NADDR'(OUTPUT_ROW_STRIDE + 2);
-      default: w_output_addr_offset_read = NADDR'(2 * OUTPUT_ROW_STRIDE + 2);
-    endcase
+  always_ff @(posedge clk or posedge reset) begin: OUTPUT_ADDR_OFFSET_BLOCK
+    if (reset) begin
+      r_output_addr_offset_read <= '0;
+      r_output_addr_offset_write <= '0;
+    end else begin
+      if (st_output_current == RESET_OUTPUT || st_output_current == WAIT_OUTPUT) begin
+        r_output_addr_offset_read <= '0;
+      end else if (st_output_current == READ_OUTPUT) begin
+        if (r_output_read_count == 0)
+          r_output_addr_offset_read <= '0;
+        else if (r_output_read_count == 3 || r_output_read_count == 6)
+          r_output_addr_offset_read <= r_output_addr_offset_read - NADDR'(OUTPUT_OFFSET_WRAP);
+        else
+          r_output_addr_offset_read <= r_output_addr_offset_read + NADDR'(OUTPUT_ROW_STRIDE);
+      end
 
-    case (r_output_write_count)
-      0: w_output_addr_offset_write = '0;
-      1: w_output_addr_offset_write = NADDR'(OUTPUT_ROW_STRIDE);
-      2: w_output_addr_offset_write = NADDR'(2 * OUTPUT_ROW_STRIDE);
-      3: w_output_addr_offset_write = NADDR'(1);
-      4: w_output_addr_offset_write = NADDR'(OUTPUT_ROW_STRIDE + 1);
-      5: w_output_addr_offset_write = NADDR'(2 * OUTPUT_ROW_STRIDE + 1);
-      6: w_output_addr_offset_write = NADDR'(2);
-      7: w_output_addr_offset_write = NADDR'(OUTPUT_ROW_STRIDE + 2);
-      default: w_output_addr_offset_write = NADDR'(2 * OUTPUT_ROW_STRIDE + 2);
-    endcase
+      if (st_output_current == RESET_OUTPUT || st_output_current == WAIT_OUTPUT) begin
+        r_output_addr_offset_write <= '0;
+      end else if (st_output_current == WRITE_OUTPUT) begin
+        if (r_output_write_count == 0)
+          r_output_addr_offset_write <= '0;
+        else if (r_output_write_count == 3 || r_output_write_count == 6)
+          r_output_addr_offset_write <= r_output_addr_offset_write - NADDR'(OUTPUT_OFFSET_WRAP);
+        else
+          r_output_addr_offset_write <= r_output_addr_offset_write + NADDR'(OUTPUT_ROW_STRIDE);
+      end
+    end
   end
+  assign w_output_addr_offset_read = r_output_addr_offset_read;
+  assign w_output_addr_offset_write = r_output_addr_offset_write;
 
   assign p_output_data_write = r_output_write[r_output_write_count] + r_output_read[r_output_write_count];
   assign p_output_addr = (st_output_current == READ_OUTPUT) ? r_output_addr + w_output_addr_offset_read : r_output_addr + w_output_addr_offset_write;  // p_input_addr mux
