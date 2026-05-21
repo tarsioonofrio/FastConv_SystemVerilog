@@ -561,7 +561,7 @@ module Control
   localparam int OUTPUT_WINDOW_COLUMN_STRIDE = (FEAT_INPUT_SIZE - 2) * CONV_OUTPUT_SIZE;
   localparam int OUTPUT_WINDOW_LINE_WRAP = ((FEAT_INPUT_SIZE - 2) * CONV_OUTPUT_SIZE * (WINDOW_COUNT_PER_LINE - 1)) - CONV_OUTPUT_SIZE;
   localparam int OUTPUT_ROW_STRIDE = (FEAT_INPUT_SIZE - 2);
-  localparam int OUTPUT_OFFSET_WRAP = (2 * OUTPUT_ROW_STRIDE) - 1;
+  localparam int OUTPUT_TILE_WRAP_STEP = (2 * OUTPUT_ROW_STRIDE) - 1;
 
   logic [NADDR-1:0] r_output_addr_target;
   logic [NADDR-1:0] r_output_addr_offset_read;
@@ -601,24 +601,26 @@ module Control
       r_output_addr_offset_read <= '0;
       r_output_addr_offset_write <= '0;
     end else begin
-      if (st_output_current == RESET_OUTPUT || st_output_current == WAIT_OUTPUT) begin
+      if (st_output_current != READ_OUTPUT) begin
         r_output_addr_offset_read <= '0;
-      end else if (st_output_current == READ_OUTPUT) begin
-        if (r_output_read_count == 0)
+      end else begin
+        // Prepare offset for next READ cycle without lookup table.
+        if (r_output_read_count == 8)
           r_output_addr_offset_read <= '0;
-        else if (r_output_read_count == 3 || r_output_read_count == 6)
-          r_output_addr_offset_read <= r_output_addr_offset_read - NADDR'(OUTPUT_OFFSET_WRAP);
+        else if ((r_output_read_count == 2) || (r_output_read_count == 5))
+          r_output_addr_offset_read <= r_output_addr_offset_read - NADDR'(OUTPUT_TILE_WRAP_STEP);
         else
           r_output_addr_offset_read <= r_output_addr_offset_read + NADDR'(OUTPUT_ROW_STRIDE);
       end
 
-      if (st_output_current == RESET_OUTPUT || st_output_current == WAIT_OUTPUT) begin
+      if (st_output_current != WRITE_OUTPUT) begin
         r_output_addr_offset_write <= '0;
-      end else if (st_output_current == WRITE_OUTPUT) begin
-        if (r_output_write_count == 0)
+      end else begin
+        // Prepare offset for next WRITE cycle without lookup table.
+        if (r_output_write_count == 8)
           r_output_addr_offset_write <= '0;
-        else if (r_output_write_count == 3 || r_output_write_count == 6)
-          r_output_addr_offset_write <= r_output_addr_offset_write - NADDR'(OUTPUT_OFFSET_WRAP);
+        else if ((r_output_write_count == 2) || (r_output_write_count == 5))
+          r_output_addr_offset_write <= r_output_addr_offset_write - NADDR'(OUTPUT_TILE_WRAP_STEP);
         else
           r_output_addr_offset_write <= r_output_addr_offset_write + NADDR'(OUTPUT_ROW_STRIDE);
       end
