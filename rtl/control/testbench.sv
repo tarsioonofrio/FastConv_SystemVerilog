@@ -33,8 +33,12 @@ module tb;
   logic p_output_valid;
   int input_addr_idx;
   int conv_inverse_check_idx;
+  int output_error_count;
+  logic [NBITS-1:0] output_bank [0:FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE * N_CHANNEL_OUT - 1];
   logic in_inverse_d;
   localparam logic [1:0] ST_CONV_INVERSE = 2'b11;
+  localparam int OUTPUT_TILES_PER_AXIS = (FEAT_OUTPUT_SIZE + CONV_OUTPUT_SIZE - 1) / CONV_OUTPUT_SIZE;
+  localparam int OUTPUT_CHANNEL_STRIDE = FEAT_OUTPUT_SIZE * CONV_OUTPUT_SIZE * OUTPUT_TILES_PER_AXIS;
 
   function automatic int f_transposed_index(input int idx);
     int row_idx;
@@ -98,7 +102,9 @@ module tb;
   always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
       conv_inverse_check_idx <= 0;
+      output_error_count <= 0;
       in_inverse_d <= 1'b0;
+      output_bank <= '{default: '0};
     end else begin
       in_inverse_d <= (dut.st_conv_current == ST_CONV_INVERSE);
 
@@ -117,6 +123,36 @@ module tb;
         //   $display("ERROR: conv_inverse_check_idx overflow idx=%0d time=%0t", conv_inverse_check_idx, $realtime);
         // end
         conv_inverse_check_idx <= conv_inverse_check_idx + 1;
+      end
+
+      if (p_output_en && p_output_wr) begin
+        int output_channel;
+        int addr_in_channel;
+        int row_in_channel;
+        int col_in_channel;
+        int output_linear_idx;
+        logic [NBITS-1:0] expected_out;
+
+        output_bank[p_output_addr] <= p_output_data_write;
+        output_channel = int'(p_output_addr) / OUTPUT_CHANNEL_STRIDE;
+        addr_in_channel = int'(p_output_addr) % OUTPUT_CHANNEL_STRIDE;
+        row_in_channel = addr_in_channel / FEAT_OUTPUT_SIZE;
+        col_in_channel = addr_in_channel % FEAT_OUTPUT_SIZE;
+
+        if (output_channel < N_CHANNEL_OUT && row_in_channel < FEAT_OUTPUT_SIZE && col_in_channel < FEAT_OUTPUT_SIZE) begin
+          output_linear_idx = output_channel * FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE + row_in_channel * FEAT_OUTPUT_SIZE + col_in_channel;
+          expected_out = NBITS'(const_feat_out[row_in_channel][col_in_channel]);
+          if ($signed(expected_out) != $signed(p_output_data_write)) begin
+            output_error_count <= output_error_count + 1;
+            $display("ERROR WRITE: t=%0t addr=%0d ch=%0d row=%0d col=%0d exp=%0d got=%0d",
+                     $realtime, p_output_addr, output_channel, row_in_channel, col_in_channel,
+                     $signed(expected_out), $signed(p_output_data_write));
+          end
+        end else begin
+          output_error_count <= output_error_count + 1;
+          $display("ERROR WRITE ADDR OOB: t=%0t addr=%0d ch=%0d row=%0d col=%0d",
+                   $realtime, p_output_addr, output_channel, row_in_channel, col_in_channel);
+        end
       end
     end
   end
@@ -144,6 +180,7 @@ module tb;
     #200;
 
     $display("Simulacao finalizada em %0t", $realtime);
+    $display("Total de erros de escrita de output: %0d", output_error_count);
     $finish;
   end
 
