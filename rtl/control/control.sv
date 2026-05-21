@@ -626,13 +626,12 @@ module Control
       end
     end
   end
+
   assign w_output_addr_offset_read = r_output_addr_offset_read;
   assign w_output_addr_offset_write = r_output_addr_offset_write;
-
   assign p_output_data_write = r_output_write[r_output_write_count] + r_output_read[r_output_write_count];
   assign p_output_addr = (st_output_current == READ_OUTPUT) ? r_output_addr + w_output_addr_offset_read : r_output_addr + w_output_addr_offset_write;  // p_input_addr mux
   assign p_output_en = ((st_output_current == READ_OUTPUT) || (st_output_current == WRITE_OUTPUT)) ? '1 : '0;
   assign p_output_wr = (st_output_current == WRITE_OUTPUT && !w_input_last_output) ? '1 : '0;
-
 
 endmodule
