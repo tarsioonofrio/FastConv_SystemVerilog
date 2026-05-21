@@ -34,21 +34,11 @@ module tb;
   int input_addr_idx;
   int conv_inverse_check_idx;
   int output_error_count;
-  logic [NBITS-1:0] output_bank [0:FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE * N_CHANNEL_OUT - 1];
+  logic [NBITS-1:0] output_bank [0:FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT - 1];
   logic in_inverse_d;
   localparam logic [1:0] ST_CONV_INVERSE = 2'b11;
   localparam int OUTPUT_TILES_PER_AXIS = (FEAT_OUTPUT_SIZE + CONV_OUTPUT_SIZE - 1) / CONV_OUTPUT_SIZE;
   localparam int OUTPUT_CHANNEL_STRIDE = FEAT_OUTPUT_SIZE * CONV_OUTPUT_SIZE * OUTPUT_TILES_PER_AXIS;
-
-  function automatic int f_transposed_index(input int idx);
-    int row_idx;
-    int col_idx;
-    begin
-      row_idx = idx / CONV_OUTPUT_SIZE;
-      col_idx = idx % CONV_OUTPUT_SIZE;
-      f_transposed_index = col_idx * CONV_OUTPUT_SIZE + row_idx;
-    end
-  endfunction
 
   // Reads directly from the dataset package memory image.
   always_comb begin
@@ -111,11 +101,9 @@ module tb;
       if ((dut.st_conv_current == ST_CONV_INVERSE) && !in_inverse_d) begin
         if (conv_inverse_check_idx < $size(const_feat_out_batch)) begin
           for (int k = 0; k < CONV_OUTPUT_SIZE * CONV_OUTPUT_SIZE; k++) begin
-            int t_idx;
-            t_idx = f_transposed_index(k);
-            if ($signed(dut.w_conv_inverse[k]) != $signed(const_feat_out_batch[conv_inverse_check_idx][t_idx])) begin
+            if ($signed(dut.w_conv_inverse[k]) != $signed(const_feat_out_batch[conv_inverse_check_idx][k])) begin
               $display("ERROR INVERSE[%0d] idx=%0d expected=%0d got=%0d time=%0t",
-                       k, conv_inverse_check_idx, const_feat_out_batch[conv_inverse_check_idx][t_idx], $signed(dut.w_conv_inverse[k]), $realtime);
+                       k, conv_inverse_check_idx, const_feat_out_batch[conv_inverse_check_idx][k], $signed(dut.w_conv_inverse[k]), $realtime);
             end
           end
         end
@@ -144,9 +132,9 @@ module tb;
           expected_out = NBITS'(const_feat_out[row_in_channel][col_in_channel]);
           if ($signed(expected_out) != $signed(p_output_data_write)) begin
             output_error_count <= output_error_count + 1;
-            $display("ERROR WRITE: t=%0t addr=%0d ch=%0d row=%0d col=%0d exp=%0d got=%0d",
-                     $realtime, p_output_addr, output_channel, row_in_channel, col_in_channel,
-                     $signed(expected_out), $signed(p_output_data_write));
+            // $display("ERROR WRITE: t=%0t addr=%0d ch=%0d row=%0d col=%0d exp=%0d got=%0d",
+            //          $realtime, p_output_addr, output_channel, row_in_channel, col_in_channel,
+            //          $signed(expected_out), $signed(p_output_data_write));
           end
         end else begin
           output_error_count <= output_error_count + 1;
