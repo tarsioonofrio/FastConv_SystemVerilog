@@ -107,9 +107,9 @@ module tb;
             end
           end
         end
-        // else begin
-        //   $display("ERROR: conv_inverse_check_idx overflow idx=%0d time=%0t", conv_inverse_check_idx, $realtime);
-        // end
+        else begin
+          $display("ERROR: conv_inverse_check_idx overflow idx=%0d time=%0t", conv_inverse_check_idx, $realtime);
+        end
         conv_inverse_check_idx <= conv_inverse_check_idx + 1;
       end
 
@@ -132,9 +132,9 @@ module tb;
           expected_out = NBITS'(const_feat_out[row_in_channel][col_in_channel]);
           if ($signed(expected_out) != $signed(p_output_data_write)) begin
             output_error_count <= output_error_count + 1;
-            // $display("ERROR WRITE: t=%0t addr=%0d ch=%0d row=%0d col=%0d exp=%0d got=%0d",
-            //          $realtime, p_output_addr, output_channel, row_in_channel, col_in_channel,
-            //          $signed(expected_out), $signed(p_output_data_write));
+            $display("ERROR WRITE: t=%0t addr=%0d ch=%0d row=%0d col=%0d exp=%0d got=%0d",
+                     $realtime, p_output_addr, output_channel, row_in_channel, col_in_channel,
+                     $signed(expected_out), $signed(p_output_data_write));
           end
         end else begin
           output_error_count <= output_error_count + 1;
