@@ -58,6 +58,14 @@ add wave -noupdate -radix decimal /tb/p_output_addr
 add wave -noupdate -radix decimal /tb/p_output_data_write
 add wave -noupdate -radix decimal /tb/p_output_data_read
 add wave -noupdate /tb/p_output_valid
+add wave -noupdate -radix decimal /tb/dut/r_output_addr
+add wave -noupdate -radix decimal /tb/dut/r_output_addr_target
+add wave -noupdate -radix decimal /tb/dut/r_output_addr_offset_read
+add wave -noupdate -radix decimal /tb/dut/r_output_addr_offset_write
+add wave -noupdate -radix decimal /tb/dut/w_output_addr_offset_read
+add wave -noupdate -radix decimal /tb/dut/w_output_addr_offset_write
+add wave -noupdate -radix decimal /tb/dut/OUTPUT_ROW_STRIDE
+add wave -noupdate -radix decimal /tb/dut/OUTPUT_TILE_WRAP_STEP
 add wave -noupdate -divider {MEMORY WRITE}
 add wave -noupdate /tb/dut/st_output_current
 add wave -noupdate /tb/dut/st_output_next

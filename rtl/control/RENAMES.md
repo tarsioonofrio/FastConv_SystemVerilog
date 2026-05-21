@@ -153,5 +153,13 @@ Examples intentionally kept:
 
 ## 10. Wave Script Compatibility
 
-- `wave.do` was cleaned to run in ModelSim batch mode (`vsim -c`).
-- GUI-only commands such as `configure wave`, `WaveRestoreCursors`, and `WaveRestoreZoom` were removed.
+- `wave.do` includes output-address debug probes for the sequential offset path:
+  - `r_output_addr`
+  - `r_output_addr_target`
+  - `r_output_addr_offset_read`
+  - `r_output_addr_offset_write`
+  - `w_output_addr_offset_read`
+  - `w_output_addr_offset_write`
+  - `OUTPUT_ROW_STRIDE`
+  - `OUTPUT_TILE_WRAP_STEP`
+- In batch mode (`vsim -c`), GUI-only commands may still print warnings, but they do not block simulation execution.
