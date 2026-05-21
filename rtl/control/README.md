@@ -48,6 +48,7 @@ The main control module is implemented in `control.sv`.
 - Weight streaming is controlled by `READ_WEIGHTS`, `r_input_addr_count_kernel`, and `w_weight_write_en`, writing `r_input_weight[0:WEIGHT_CYCLES-1]`.
 - Writeback progression is guarded by `w_conv_end`, `r_output_read_count`, and `r_output_write_count` so every 3x3 output tile is sequenced before the next channel/window.
 - Output base addressing is tracked by `r_addr_pointer_output`, advancing by output-window column stride and wrapping to the next row at line end.
+- Output tile offseting (inside each 3x3 write/read burst) is generated in `OUTPUT_ADDR_OFFSET_BLOCK` with `always_ff` registers (`r_output_addr_offset_read`/`r_output_addr_offset_write`) using incremental stride/wrap steps, without lookup `case`, function calls, division, or modulo.
 
 Use this module as a reference guide to understand control flow for address generation, convolution triggering, and output writeback in the FastConv controller.
 
