@@ -58,17 +58,17 @@ module Control
   logic [ADDR_INPUT_COUNTER_WIDTH-1:0] w_input_base_feat, r_input_addr_count;
 
   localparam CHANNEL_INPUT_COUNTER_WIDTH = $clog2(N_CHANNEL_IN) + 1;
-  logic [CHANNEL_INPUT_COUNTER_WIDTH-1:0] r_channel_counter_input;
+  logic [CHANNEL_INPUT_COUNTER_WIDTH-1:0] r_input_channel_counter_input;
 
   localparam CHANNEL_OUTPUT_COUNTER_WIDTH = $clog2(N_CHANNEL_OUT) + 1;
-  logic [CHANNEL_OUTPUT_COUNTER_WIDTH-1:0] r_channel_counter_output;
+  logic [CHANNEL_OUTPUT_COUNTER_WIDTH-1:0] r_input_channel_counter_output;
 
   // REGISTER BANK FOR THE WEIGHTS ////////////////////////////////////////////
   localparam int WEIGHT_CYCLES = HADAMARD_SIZE * HADAMARD_SIZE;
   localparam int WEIGHT_WIDTH = $clog2(WEIGHT_CYCLES)+1;
   logic [NBITS-1:0] r_input_weight[WEIGHT_CYCLES-1:0];
   logic [WEIGHT_CYCLES-1:0] w_input_weight_en;
-  logic [WEIGHT_WIDTH-1:0] r_input_addr_count_kernel;
+  logic [WEIGHT_WIDTH-1:0] r_input_count_kernel;
   logic w_input_weight_done, w_input_write_done;
 
   logic [NBITS-1:0] r_conv_temp [HADAMARD_SIZE*HADAMARD_SIZE-1:0];
@@ -140,18 +140,18 @@ module Control
       r_input_addr_feat <= r_input_addr_feat + NADDR'(FEAT_INPUT_WIDTH);    // change internal p_input_addr in the state transition or in the TRANSFER state (CAUTION: PE)
 
     else if (st_input_current == NEXT_ROW && !w_input_last_input) begin  // when change the line, the read pointer moves 'r_input_window_row'
-      r_input_addr_feat <= r_input_window_row + NADDR'(r_channel_counter_input * FEAT_INPUT_SIZE * FEAT_INPUT_WIDTH);  // restart for the first line
+      r_input_addr_feat <= r_input_window_row + NADDR'(r_input_channel_counter_input * FEAT_INPUT_SIZE * FEAT_INPUT_WIDTH);  // restart for the first line
       r_input_window_row <= r_input_window_row + 3;
     end else if (st_input_current == UPDATE_ADDRESS && w_input_last_input) begin
       r_input_addr_feat <= r_input_addr_feat - NADDR'(FEAT_INPUT_WIDTH) + NADDR'(HADAMARD_SIZE) - 1;   // adjust the pointer to the next IFMAP
       r_input_window_row <= 3;
 
-      if (r_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN-1) ) begin               // change the IFMAP
+      if (r_input_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN-1) ) begin               // change the IFMAP
         r_input_addr_feat <= 0;
         `ifdef SIMULATION
             $display(
                 "RESETANDO PARA O CANAL 0 - DEU A VOLTA NOS IFMAPS time=%0t %d (%0d) st_input_current = %s",
-                $time, r_channel_counter_input, N_CHANNEL_IN, st_input_current.name()
+                $time, r_input_channel_counter_input, N_CHANNEL_IN, st_input_current.name()
             );
         `endif
       end
@@ -202,11 +202,11 @@ module Control
     endcase
   end
 
-  assign w_input_weight_done = (r_input_addr_count_kernel == WEIGHT_WIDTH'(WEIGHT_CYCLES - 1));
+  assign w_input_weight_done = (r_input_count_kernel == WEIGHT_WIDTH'(WEIGHT_CYCLES - 1));
   assign w_input_write_done = r_output_write_count == 0 || r_output_write_count == 8;  // compare to zero for the first write test or the last value (8) in the next convolutions
   assign w_input_last_line = (r_input_window_counter_row == WINDOW_ROW_COUNTER_WIDTH'(WINDOW_COUNT_PER_LINE));
   assign w_input_last_input = (r_input_window_counter_col == WINDOW_COUNTER_WIDTH'(WINDOW_COUNT_PER_CHANNEL));
-  assign w_input_last_output = (r_channel_counter_output == CHANNEL_OUTPUT_COUNTER_WIDTH'(N_CHANNEL_OUT));
+  assign w_input_last_output = (r_input_channel_counter_output == CHANNEL_OUTPUT_COUNTER_WIDTH'(N_CHANNEL_OUT));
 
   assign p_end = ((st_output_next == WAIT_OUTPUT && w_input_last_output));  // output to signalize the end of the convolution process
 
@@ -238,27 +238,27 @@ module Control
 
 
   // SET OF FIVE CONTROL REGISTERS:
-  // r_channel_counter_input: number of the current IFMAP channel being read
-  // r_channel_counter_output: number of the current OFMAP channel being processed
+  // r_input_channel_counter_input: number of the current IFMAP channel being read
+  // r_input_channel_counter_output: number of the current OFMAP channel being processed
   // r_input_window_counter_col:  number of convolutions in a given IFMAP channel
   // r_input_window_counter_row :  number of horizontal convolutions in a given IFMAP channel - detect the last line
-  // r_input_addr_count_kernel:        number of weights read from memory
+  // r_input_count_kernel:        number of weights read from memory
   always_ff @(posedge clk or posedge reset) begin: INPUT_CONTROL_COUNTERS_BLOCK
     if (reset) begin
-      r_channel_counter_input    <= '1;  // p_start with all bits in '1' - IFchannel must be {0,1,2}
-      r_channel_counter_output   <= 0;
-      r_input_addr_count_kernel  <= 0;
-      r_input_window_counter_col <= 0;
-      r_input_window_counter_row <= 0;
+      r_input_count_kernel           <= 0;
+      r_input_window_counter_col     <= 0;
+      r_input_window_counter_row     <= 0;
+      r_input_channel_counter_input  <= '1;  // p_start with all bits in '1' - IFchannel must be {0,1,2}
+      r_input_channel_counter_output <= 0;
     end else begin
       if (st_input_current == UPDATE_ADDRESS) begin
-        if (r_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1)) begin
-          r_channel_counter_input  <= '0;
-          r_channel_counter_output <= r_channel_counter_output + 1;
+        if (r_input_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1)) begin
+          r_input_channel_counter_input  <= '0;
+          r_input_channel_counter_output <= r_input_channel_counter_output + 1;
         end else begin
-          r_channel_counter_input <= r_channel_counter_input + 1;
+          r_input_channel_counter_input <= r_input_channel_counter_input + 1;
         end
-        r_input_addr_count_kernel  <= 0;
+        r_input_count_kernel       <= 0;
         r_input_window_counter_col <= 0;  // reset counters
         r_input_window_counter_row <= 0;
       end
@@ -273,7 +273,7 @@ module Control
       end
 
       if (st_input_current == READ_WEIGHTS) begin
-        r_input_addr_count_kernel <= r_input_addr_count_kernel + 1;
+        r_input_count_kernel <= r_input_count_kernel + 1;
       end
     end
   end
@@ -323,7 +323,7 @@ module Control
   always_comb begin: WEIGHT_WE_BLOCK
     w_input_weight_en = '0;
     if (st_input_current == READ_WEIGHTS)
-      w_input_weight_en[r_input_addr_count_kernel] = 1'b1;
+      w_input_weight_en[r_input_count_kernel] = 1'b1;
   end
 
   always_ff @(posedge clk or posedge reset) begin: WEIGHT_REG_BLOCK
@@ -513,9 +513,9 @@ module Control
         if (w_conv_end && r_output_read_count == 8)
           st_output_next = WRITE_OUTPUT;
       WRITE_OUTPUT:
-        if (r_channel_counter_input == 0 && r_output_write_count == 8)
+        if (r_input_channel_counter_input == 0 && r_output_write_count == 8)
           st_output_next = RESET_OUTPUT;
-        else if (r_channel_counter_input > 0 && r_output_write_count == 8)
+        else if (r_input_channel_counter_input > 0 && r_output_write_count == 8)
           st_output_next = READ_OUTPUT;
         else if (w_input_last_output)
           st_output_next = WAIT_OUTPUT;  //end processing
@@ -589,14 +589,14 @@ module Control
           r_output_addr <= r_output_addr - NADDR'(OUTPUT_WINDOW_LINE_JUMP);
           r_output_addr_target <= r_output_addr_target + CONV_OUTPUT_SIZE;
         end else if (r_output_addr > r_output_addr_target_channel) begin
-          if ((r_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1)) &&
-              (r_channel_counter_output < CHANNEL_OUTPUT_COUNTER_WIDTH'(N_CHANNEL_OUT - 1))) begin
-            r_output_addr <= NADDR'((r_channel_counter_output + 1'b1) * OUTPUT_FEATURE_SIZE);
-            r_output_addr_target <= NADDR'((r_channel_counter_output + 1'b1) * OUTPUT_FEATURE_SIZE) + (OUTPUT_FEATURE_SIZE - OUTPUT_WINDOW_COLUMN_STEP - 1);
+          if ((r_input_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1)) &&
+              (r_input_channel_counter_output < CHANNEL_OUTPUT_COUNTER_WIDTH'(N_CHANNEL_OUT - 1))) begin
+            r_output_addr <= NADDR'((r_input_channel_counter_output + 1'b1) * OUTPUT_FEATURE_SIZE);
+            r_output_addr_target <= NADDR'((r_input_channel_counter_output + 1'b1) * OUTPUT_FEATURE_SIZE) + (OUTPUT_FEATURE_SIZE - OUTPUT_WINDOW_COLUMN_STEP - 1);
             r_output_addr_target_channel <= r_output_addr_target_channel + OUTPUT_CHANNEL_STEP;
           end else begin
-            r_output_addr <= NADDR'(r_channel_counter_output * OUTPUT_FEATURE_SIZE);
-            r_output_addr_target <= NADDR'(r_channel_counter_output * OUTPUT_FEATURE_SIZE) + (OUTPUT_FEATURE_SIZE - OUTPUT_WINDOW_COLUMN_STEP - 1);
+            r_output_addr <= NADDR'(r_input_channel_counter_output * OUTPUT_FEATURE_SIZE);
+            r_output_addr_target <= NADDR'(r_input_channel_counter_output * OUTPUT_FEATURE_SIZE) + (OUTPUT_FEATURE_SIZE - OUTPUT_WINDOW_COLUMN_STEP - 1);
             r_output_addr_target_channel <= r_output_addr_target_channel - OUTPUT_CHANNEL_STEP;
           end
         end

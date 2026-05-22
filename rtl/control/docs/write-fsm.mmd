@@ -2,7 +2,7 @@ flowchart TB
     WW(["WAIT_WRITE"]) -->|"st_read_curr==AP"| Z(["RESET9"])
     Z -->|"w_conv_end && r_output_read_count==8"| WR(["WRITE_OUTPUT"])
     R(["READ_OUTPUT"]) -->|"w_conv_end && r_output_read_count==8"| WR
-    WR -->|"r_channel_counter_input==0 && r_output_write_count==8"| Z
-    WR -->|"r_channel_counter_input>0 && r_output_write_count==8"| R
+    WR -->|"r_input_channel_counter_input==0 && r_output_write_count==8"| Z
+    WR -->|"r_input_channel_counter_input>0 && r_output_write_count==8"| R
     WR -->|"last_output"| WW
     WR -->|"otherwise"| WR
