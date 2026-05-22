@@ -557,6 +557,8 @@ module Control
       if (st_output_current == RESET_OUTPUT) begin
         r_output_write <= '{default: '0};
         r_output_read <= '{default: '0};
+      end else if (st_output_current == READ_OUTPUT) begin
+        r_output_read[r_output_read_count] <= p_output_data_read;
       end
       if (w_conv_end)
         r_output_write <= w_conv_inverse;
@@ -574,7 +576,8 @@ module Control
       r_output_addr <= '0;
       r_output_addr_target <= OUTPUT_FEATURE_SIZE - OUTPUT_WINDOW_COLUMN_STEP - 1;
     end else begin
-      if (st_output_current == WRITE_OUTPUT && r_output_write_count == 8 && !w_input_last_output) begin
+      if (st_output_current == WRITE_OUTPUT && r_output_write_count == 8 && !w_input_last_output &&
+          st_input_current != READ_WEIGHTS && st_input_current != READ_IN_10A && st_input_current != READ_IN_10B) begin
         if (r_output_addr < r_output_addr_target)
           r_output_addr <= r_output_addr + NADDR'(OUTPUT_WINDOW_COLUMN_STEP);
         else begin
