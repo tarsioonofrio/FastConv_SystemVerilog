@@ -104,13 +104,13 @@ This document records the naming migration applied to the `rtl/control` block to
 | `r_window_row_step` | `r_input_window_row`       |
 | `weight_address`    | `r_addr_pointer_kernel`    |
 | `r_addr_pointer_kernel` | `r_input_addr_kernel`   |
-| `current_IFchannel` | `r_channel_counter_input`  |
-| `current_OFchannel` | `r_channel_counter_output` |
+| `current_IFchannel` | `r_input_channel_counter_input`  |
+| `current_OFchannel` | `r_input_channel_counter_output` |
 | `cnt_convolutions`  | `r_input_window_counter_col` |
 | `cnt_horiz_convs`   | `r_window_counter_row`     |
 | `base_VRd`          | `w_input_base_feat`        |
 | `cnt_col`           | `r_input_addr_count`       |
-| `cnt_weight`        | `r_input_addr_count_kernel`|
+| `cnt_weight`        | `r_input_count_kernel`|
 | `weight_done`       | `w_weight_done`            |
 | `end_write_results` | `w_write_done`             |
 | `w_weight_done`     | `w_input_weight_done`      |
