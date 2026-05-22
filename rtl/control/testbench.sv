@@ -49,7 +49,7 @@ module tb;
       p_input_data = '0;
   end
   assign p_input_valid = 1'b1;
-  assign p_output_data_read = '0;
+  // assign p_output_data_read = '0;
   assign p_output_valid = 1'b1;
 
   // Instanciação do Módulo (DUT)
@@ -111,6 +111,10 @@ module tb;
           $display("ERROR: conv_inverse_check_idx overflow idx=%0d time=%0t", conv_inverse_check_idx, $realtime);
         end
         conv_inverse_check_idx <= conv_inverse_check_idx + 1;
+      end
+
+      if (p_output_en) begin
+        p_output_data_read <= output_bank[p_output_addr];
       end
 
       if (p_output_en && p_output_wr) begin
