@@ -45,7 +45,7 @@ The main control module is implemented in `control.sv`.
 
 - The controller is partitioned into three FSMs: input/addressing (`st_input_current`), convolution micro-sequencing (`st_conv_current`), and writeback (`st_output_current`).
 - Input-window storage is implemented with `r_input_feat[0:24]` plus `r_conv_input[0:24]`, with row-shift behavior controlled by `w_input_feat_en` in state `TRANSFER`.
-- Weight streaming is controlled by `READ_WEIGHTS`, `r_input_addr_count_kernel`, and `w_weight_write_en`, writing `r_input_weight[0:WEIGHT_CYCLES-1]`.
+- Weight streaming is controlled by `READ_WEIGHTS`, `r_input_count_kernel`, and `w_weight_write_en`, writing `r_input_weight[0:WEIGHT_CYCLES-1]`.
 - Writeback progression is guarded by `w_conv_end`, `r_output_read_count`, and `r_output_write_count` so every 3x3 output tile is sequenced before the next channel/window.
 - Output base addressing is tracked by `r_addr_pointer_output`, advancing by output-window column stride and wrapping to the next row at line end.
 - Output tile offseting (inside each 3x3 write/read burst) is generated in `OUTPUT_ADDR_OFFSET_BLOCK` with `always_ff` registers (`r_output_addr_offset_read`/`r_output_addr_offset_write`) using incremental stride/wrap steps, without lookup `case`, function calls, division, or modulo.
@@ -90,7 +90,7 @@ Key registers in this process:
 - `r_input_addr_count`: inner 0..4 read counter used in all `READ_IN_*` states.
 - `r_input_window_counter_col`: increments in `TRANSFER` and resets in `UPDATE_ADDRESS`; tracks total windows processed in the current IFMAP channel.
 - `r_input_window_counter_row`: increments in `TRANSFER`, resets in `NEXT_ROW`/`UPDATE_ADDRESS`; tracks windows in the current row sweep.
-- `r_input_addr_count_kernel`: increments in `READ_WEIGHTS`; tracks weight-read index inside one kernel load.
+- `r_input_count_kernel`: increments in `READ_WEIGHTS`; tracks weight-read index inside one kernel load.
 - `w_input_base_feat`: write-base selector used to place incoming samples in `r_input_feat`.
 - Address generation uses base + row/column offsets with `FEAT_INPUT_WIDTH` as line stride.
 
@@ -133,8 +133,8 @@ flowchart TB
 **Purpose**: sequence zero/read/write phases for 3x3 result tiles.
 
 - `WAIT_WRITE`: idle/write-wait state before activation.
-- `RESET9`: initialization phase when `r_channel_counter_input==0`.
-- `READ_OUTPUT`: read-back phase when accumulating channels (`r_channel_counter_input>0`).
+- `RESET9`: initialization phase when `r_input_channel_counter_input==0`.
+- `READ_OUTPUT`: read-back phase when accumulating channels (`r_input_channel_counter_input>0`).
 - `WRITE_OUTPUT`: write 9 outputs and branch by channel/OFMAP completion.
 
 ```mermaid
@@ -142,8 +142,8 @@ flowchart TB
     WW(["WAIT_WRITE"]) -->|"st_input_current==UPDATE_ADDRESS"| Z(["RESET_OUTPUT"])
     Z -->|"w_conv_end && r_output_read_count==8"| WR(["WRITE_OUTPUT"])
     R(["READ_OUTPUT"]) -->|"w_conv_end && r_output_read_count==8"| WR
-    WR -->|"r_channel_counter_input==0 && r_output_write_count==8"| Z
-    WR -->|"r_channel_counter_input>0 && r_output_write_count==8"| R
+    WR -->|"r_input_channel_counter_input==0 && r_output_write_count==8"| Z
+    WR -->|"r_input_channel_counter_input>0 && r_output_write_count==8"| R
     WR -->|"w_input_last_output"| WW
     WR -->|"otherwise"| WR
 ```

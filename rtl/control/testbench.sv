@@ -146,7 +146,7 @@ module tb;
           output_linear_idx = output_channel * FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE + row_in_channel * FEAT_OUTPUT_SIZE + col_in_channel;
           expected_out = NBITS'(const_feat_out[row_in_channel][col_in_channel]);
           // Golden check only when accumulation over input channels is complete.
-          if (dut.r_channel_counter_input == dut.CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1)) begin
+          if (dut.r_input_channel_counter_input == dut.CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1)) begin
             if ($signed(expected_out) != $signed(p_output_data_write)) begin
               output_error_count <= output_error_count + 1;
               $display("ERROR WRITE GOLDEN: t=%0t addr=%0d ch=%0d row=%0d col=%0d exp=%0d got=%0d",
