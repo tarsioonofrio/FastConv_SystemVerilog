@@ -541,10 +541,12 @@ module Control
           r_output_write_count <= 8;
       end else if (st_output_current == RESET_OUTPUT || st_output_current == READ_OUTPUT) begin
         r_output_write_count <= 0;
-        if (r_output_read_count < 8)
-          r_output_read_count <= r_output_read_count + 1;
-        else
-          r_output_read_count <= 8;
+        if (p_output_valid) begin
+          if (r_output_read_count < 8)
+            r_output_read_count <= r_output_read_count + 1;
+          else
+            r_output_read_count <= 8;
+        end
       end
     end
   end
@@ -557,7 +559,7 @@ module Control
       if (st_output_current == RESET_OUTPUT) begin
         r_output_write <= '{default: '0};
         r_output_read <= '{default: '0};
-      end else if (st_output_current == READ_OUTPUT) begin
+      end else if ((st_output_current == RESET_OUTPUT || st_output_current == READ_OUTPUT) && p_output_valid) begin
         r_output_read[r_output_read_count] <= p_output_data_read;
       end
       if (w_conv_end)
@@ -570,7 +572,6 @@ module Control
   localparam int OUTPUT_WINDOW_LINE_JUMP = ((FEAT_INPUT_SIZE - 2) * CONV_OUTPUT_SIZE * (WINDOW_COUNT_PER_LINE - 1)) - CONV_OUTPUT_SIZE;
   localparam int OUTPUT_ROW_STEP = (FEAT_INPUT_SIZE - 2);
   localparam int OUTPUT_TILE_JUMP_STEP = (2 * OUTPUT_ROW_STEP) - 1;
-
   always_ff @(posedge clk or posedge reset) begin: OUTPUT_ADDR_POINTER_BLOCK
     if (reset) begin
       r_output_addr <= '0;
@@ -587,10 +588,10 @@ module Control
       end
 
       if ((st_input_current == UPDATE_ADDRESS) && w_input_last_input) begin
-        if ((r_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_OUT - 1)) &&
+        if ((r_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1)) &&
             (r_channel_counter_output < CHANNEL_OUTPUT_COUNTER_WIDTH'(N_CHANNEL_OUT - 1))) begin
-          r_output_addr <= NADDR'((r_channel_counter_output + 1) * OUTPUT_FEATURE_SIZE);
-          r_output_addr_target <= NADDR'((r_channel_counter_output + 1) * OUTPUT_FEATURE_SIZE) + (OUTPUT_FEATURE_SIZE - OUTPUT_WINDOW_COLUMN_STEP - 1);
+          r_output_addr <= NADDR'((r_channel_counter_output + 1'b1) * OUTPUT_FEATURE_SIZE);
+          r_output_addr_target <= NADDR'((r_channel_counter_output + 1'b1) * OUTPUT_FEATURE_SIZE) + (OUTPUT_FEATURE_SIZE - OUTPUT_WINDOW_COLUMN_STEP - 1);
         end else begin
           r_output_addr <= NADDR'(r_channel_counter_output * OUTPUT_FEATURE_SIZE);
           r_output_addr_target <= NADDR'(r_channel_counter_output * OUTPUT_FEATURE_SIZE) + (OUTPUT_FEATURE_SIZE - OUTPUT_WINDOW_COLUMN_STEP - 1);
