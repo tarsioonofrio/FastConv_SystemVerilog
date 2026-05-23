@@ -65,6 +65,10 @@ add wave -noupdate -radix unsigned /tb/dut/r_output_channel_counter_output
 add wave -noupdate /tb/dut/w_output_last_line
 add wave -noupdate /tb/dut/w_output_last_window
 add wave -noupdate /tb/dut/w_output_last_input_channel
+add wave -noupdate /tb/dut/w_output_last_output_channel
+add wave -noupdate /tb/dut/w_output_last_window_in_channel
+add wave -noupdate /tb/dut/w_output_last_input
+add wave -noupdate /tb/dut/w_output_last_output
 add wave -noupdate -radix decimal /tb/dut/r_output_addr
 add wave -noupdate -radix decimal /tb/dut/r_output_addr_offset_read
 add wave -noupdate -radix decimal /tb/dut/r_output_addr_offset_write
