@@ -39,7 +39,7 @@ module Control
 
   logic [NBITS-1:0] r_input_feat[(CONV_INPUT_SIZE * CONV_INPUT_SIZE) - 1:0];  // input feature register bank
   logic [NBITS-1:0] w_input_feat_next[(CONV_INPUT_SIZE * CONV_INPUT_SIZE) - 1:0];  // next values for feature shift bank
-  logic [NADDR-1:0] r_input_addr_feat, r_input_addr_kernel, r_output_addr;
+  logic [NADDR-1:0] r_input_addr_feat, r_input_addr_kernel;
   logic [NADDR-1:0] r_input_window_row;
   logic [(CONV_INPUT_SIZE * CONV_INPUT_SIZE) - 1:0] w_input_feat_en;  // write-enable per feature register
   logic w_input_last_line, w_input_last_input, w_input_last_output;
@@ -83,6 +83,7 @@ module Control
   logic [3:0] r_output_read_count, r_output_write_count;
   logic [NBITS-1:0] r_output_write [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
   logic [NBITS-1:0] r_output_read [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
+  logic [NADDR-1:0] r_output_addr;
 
   logic [WINDOW_COUNTER_WIDTH-1:0] r_output_window_counter_col;
   logic [WINDOW_ROW_COUNTER_WIDTH-1:0] r_output_window_counter_row;
