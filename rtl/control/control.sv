@@ -84,12 +84,10 @@ module Control
   logic [NBITS-1:0] r_output_write [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
   logic [NBITS-1:0] r_output_read [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
 
-  localparam OUTPUT_WINDOW_COLUMN_COUNTER_WIDTH = $clog2(WINDOW_COUNT_PER_COLUMN) + 1;
-  logic [OUTPUT_WINDOW_COLUMN_COUNTER_WIDTH-1:0] r_output_window_counter_col;
-  localparam OUTPUT_WINDOW_ROW_COUNTER_WIDTH = $clog2(WINDOW_COUNT_PER_LINE) + 1;
-  logic [OUTPUT_WINDOW_ROW_COUNTER_WIDTH-1:0] r_output_window_counter_row;
-  logic [OUTPUT_WINDOW_COLUMN_COUNTER_WIDTH-1:0] r_output_window_ctrl_col;
-  logic [OUTPUT_WINDOW_ROW_COUNTER_WIDTH-1:0] r_output_window_ctrl_row;
+  logic [WINDOW_COUNTER_WIDTH-1:0] r_output_window_counter_col;
+  logic [WINDOW_ROW_COUNTER_WIDTH-1:0] r_output_window_counter_row;
+  logic [WINDOW_COUNTER_WIDTH-1:0] r_output_window_ctrl_col;
+  logic [WINDOW_ROW_COUNTER_WIDTH-1:0] r_output_window_ctrl_row;
   logic [CHANNEL_INPUT_COUNTER_WIDTH-1:0] r_output_channel_counter_input;
   logic [CHANNEL_OUTPUT_COUNTER_WIDTH-1:0] r_output_channel_counter_output;
   logic w_output_last_line, w_output_last_window, w_output_last_input_channel, w_output_last_output_channel;
@@ -535,25 +533,25 @@ module Control
           st_output_next = WRITE_OUTPUT;
       WRITE_OUTPUT:
         if (r_output_write_count == 8) begin
-          if (w_input_last_output)
-            st_output_next = WAIT_OUTPUT;      // global termination from input traversal
-          else if (!w_output_last_input_channel)
-            st_output_next = READ_OUTPUT;      // accumulate next input channel
-          else if (!w_output_last_input)
+          if (r_input_channel_counter_input == 0)
             st_output_next = RESET_OUTPUT;     // next window, same output channel
+          else if (r_input_channel_counter_input > 0)
+            st_output_next = READ_OUTPUT;      // accumulate next input channel
           else if (w_output_last_input)
-            st_output_next = WAIT_OUTPUT;      // end processing
-          else
             st_output_next = ADDRESS_OUTPUT;   // change output channel only
-        end else begin
-          st_output_next = WRITE_OUTPUT;
+          else if (w_input_last_output)
+            st_output_next = WAIT_OUTPUT;      // global termination from input traversal
+          // else if (w_output_last_input)
+          //   st_output_next = WAIT_OUTPUT;      // end processing
+            // end else begin
+            //   st_output_next = WRITE_OUTPUT;
         end
       default:
         st_output_next = WAIT_OUTPUT;
     endcase
   end
 
-  assign w_output_last_window = (r_output_window_ctrl_col == OUTPUT_WINDOW_COLUMN_COUNTER_WIDTH'(WINDOW_COUNT_PER_COLUMN - 1));
+  assign w_output_last_window = (r_output_window_ctrl_col == WINDOW_COUNTER_WIDTH'(WINDOW_COUNTER_WIDTH - 1));
   assign w_output_last_input_channel = (r_output_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1));
   assign w_output_last_output_channel = (r_output_channel_counter_output == CHANNEL_OUTPUT_COUNTER_WIDTH'(N_CHANNEL_OUT - 1));
 
@@ -585,7 +583,7 @@ module Control
     end else if (st_output_current == WRITE_OUTPUT && r_output_write_count == 8 && st_output_next == RESET_OUTPUT) begin
       // Window update only (same output channel):
       // row is the fast counter and resets on each line change; col advances on row wrap.
-      if (r_output_window_ctrl_row == OUTPUT_WINDOW_ROW_COUNTER_WIDTH'(WINDOW_COUNT_PER_LINE - 1)) begin
+      if (r_output_window_counter_row == WINDOW_ROW_COUNTER_WIDTH'(WINDOW_COUNT_PER_LINE - 1)) begin
         r_output_window_counter_col <= r_output_window_counter_col + 1'b1;
         r_output_window_counter_row <= '0;
         // r_output_window_ctrl_row <= '0;
