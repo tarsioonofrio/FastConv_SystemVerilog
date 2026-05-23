@@ -88,6 +88,8 @@ module Control
   logic [OUTPUT_WINDOW_COLUMN_COUNTER_WIDTH-1:0] r_output_window_counter_col;
   localparam OUTPUT_WINDOW_ROW_COUNTER_WIDTH = $clog2(WINDOW_COUNT_PER_LINE) + 1;
   logic [OUTPUT_WINDOW_ROW_COUNTER_WIDTH-1:0] r_output_window_counter_row;
+  logic [OUTPUT_WINDOW_COLUMN_COUNTER_WIDTH-1:0] r_output_window_ctrl_col;
+  logic [OUTPUT_WINDOW_ROW_COUNTER_WIDTH-1:0] r_output_window_ctrl_row;
   logic [CHANNEL_INPUT_COUNTER_WIDTH-1:0] r_output_channel_counter_input;
   logic [CHANNEL_OUTPUT_COUNTER_WIDTH-1:0] r_output_channel_counter_output;
   logic w_output_last_line, w_output_last_window, w_output_last_input_channel, w_output_last_output_channel;
@@ -536,9 +538,9 @@ module Control
             st_output_next = WAIT_OUTPUT;      // global termination from input traversal
           else if (!w_output_last_input_channel)
             st_output_next = READ_OUTPUT;      // accumulate next input channel
-          else if (!w_output_last_window_in_channel)
+          else if (!w_output_last_input)
             st_output_next = RESET_OUTPUT;     // next window, same output channel
-          else if (w_output_last_output_channel)
+          else if (w_output_last_input)
             st_output_next = WAIT_OUTPUT;      // end processing
           else
             st_output_next = ADDRESS_OUTPUT;   // change output channel only
@@ -550,12 +552,11 @@ module Control
     endcase
   end
 
-  assign w_output_last_window_in_channel = (w_output_last_line && w_output_last_window);
-  assign w_output_last_line = (r_output_window_counter_row == OUTPUT_WINDOW_ROW_COUNTER_WIDTH'(WINDOW_COUNT_PER_LINE - 1));
-  assign w_output_last_window = (r_output_window_counter_col == OUTPUT_WINDOW_COLUMN_COUNTER_WIDTH'(WINDOW_COUNT_PER_COLUMN - 1));
+  assign w_output_last_window = (r_output_window_ctrl_col == OUTPUT_WINDOW_COLUMN_COUNTER_WIDTH'(WINDOW_COUNT_PER_COLUMN - 1));
   assign w_output_last_input_channel = (r_output_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1));
   assign w_output_last_output_channel = (r_output_channel_counter_output == CHANNEL_OUTPUT_COUNTER_WIDTH'(N_CHANNEL_OUT - 1));
 
+  assign w_output_last_line = (r_output_window_counter_row == WINDOW_ROW_COUNTER_WIDTH'(WINDOW_COUNT_PER_LINE - 1));
   assign w_output_last_input = (r_output_window_counter_col == WINDOW_COUNTER_WIDTH'(WINDOW_COUNT_PER_CHANNEL));
   assign w_output_last_output = (r_output_channel_counter_output == CHANNEL_OUTPUT_COUNTER_WIDTH'(N_CHANNEL_OUT));
 
@@ -578,18 +579,27 @@ module Control
     if (reset) begin
       r_output_window_counter_col <= '0;
       r_output_window_counter_row <= '0;
+      r_output_window_ctrl_col <= '0;
+      r_output_window_ctrl_row <= '0;
     end else if (st_output_current == WRITE_OUTPUT && r_output_write_count == 8 && st_output_next == RESET_OUTPUT) begin
-      // Window update only (same output channel): col runs first, row wraps after col end.
-      if (w_output_last_window) begin
-        r_output_window_counter_col <= '0;
-        r_output_window_counter_row <= r_output_window_counter_row + 1'b1;
+      // Window update only (same output channel):
+      // row is the fast counter and resets on each line change; col advances on row wrap.
+      if (r_output_window_ctrl_row == OUTPUT_WINDOW_ROW_COUNTER_WIDTH'(WINDOW_COUNT_PER_LINE - 1)) begin
+        r_output_window_counter_row <= '0;
+        r_output_window_counter_col <= r_output_window_counter_col + 1'b1;
+        r_output_window_ctrl_row <= '0;
+        r_output_window_ctrl_col <= r_output_window_ctrl_col + 1'b1;
       end else begin
         r_output_window_counter_col <= r_output_window_counter_col + 1'b1;
+        r_output_window_counter_row <= r_output_window_counter_row + 1'b1;
+        r_output_window_ctrl_row <= r_output_window_ctrl_row + 1'b1;
       end
     end else if (st_output_current == ADDRESS_OUTPUT) begin
       // New output channel starts from first window
       r_output_window_counter_col <= '0;
       r_output_window_counter_row <= '0;
+      r_output_window_ctrl_col <= '0;
+      r_output_window_ctrl_row <= '0;
     end
   end
 
