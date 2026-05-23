@@ -534,9 +534,9 @@ module Control
           st_output_next = WRITE_OUTPUT;
       WRITE_OUTPUT:
         if (r_output_write_count == 8) begin
-          if (r_input_channel_counter_input == 0)
+          if ((r_input_channel_counter_input == 0) && !w_output_last_input)
             st_output_next = RESET_OUTPUT;     // next window, same output channel
-          else if (r_input_channel_counter_input > 0)
+          else if ((r_input_channel_counter_input > 0) && !w_output_last_input)
             st_output_next = READ_OUTPUT;      // accumulate next input channel
           else if (w_output_last_input)
             st_output_next = ADDRESS_OUTPUT;   // change output channel only
@@ -556,8 +556,8 @@ module Control
   assign w_output_last_input_channel = (r_output_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1));
   assign w_output_last_output_channel = (r_output_channel_counter_output == CHANNEL_OUTPUT_COUNTER_WIDTH'(N_CHANNEL_OUT - 1));
 
-  assign w_output_last_line = (r_output_window_counter_row == WINDOW_ROW_COUNTER_WIDTH'(WINDOW_COUNT_PER_LINE - 1));
-  assign w_output_last_input = (r_output_window_counter_col == WINDOW_COUNTER_WIDTH'(WINDOW_COUNT_PER_CHANNEL));
+  assign w_output_last_line = (r_output_window_counter_row == WINDOW_ROW_COUNTER_WIDTH'(WINDOW_COUNT_PER_LINE));
+  assign w_output_last_input = (r_output_window_counter_col == WINDOW_COUNTER_WIDTH'(WINDOW_COUNT_PER_CHANNEL - 1));
   assign w_output_last_output = (r_output_channel_counter_output == CHANNEL_OUTPUT_COUNTER_WIDTH'(N_CHANNEL_OUT));
 
   always_ff @(posedge clk or posedge reset) begin: OUTPUT_CONTROL_COUNTERS_BLOCK
