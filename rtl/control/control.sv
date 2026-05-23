@@ -579,12 +579,12 @@ module Control
       r_output_window_counter_col <= '0;
       r_output_window_counter_row <= '0;
     end else if (st_output_current == WRITE_OUTPUT && r_output_write_count == 8 && st_output_next == RESET_OUTPUT) begin
-      // Window update only (same output channel)
-      if (w_output_last_line) begin
-        r_output_window_counter_row <= '0;
-        r_output_window_counter_col <= r_output_window_counter_col + 1'b1;
-      end else begin
+      // Window update only (same output channel): col runs first, row wraps after col end.
+      if (w_output_last_window) begin
+        r_output_window_counter_col <= '0;
         r_output_window_counter_row <= r_output_window_counter_row + 1'b1;
+      end else begin
+        r_output_window_counter_col <= r_output_window_counter_col + 1'b1;
       end
     end else if (st_output_current == ADDRESS_OUTPUT) begin
       // New output channel starts from first window
