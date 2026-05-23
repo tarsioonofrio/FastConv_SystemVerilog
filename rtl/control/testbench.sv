@@ -15,7 +15,7 @@ module tb;
   localparam int unsigned INPUT_MEMORY_SIZE = N_CHANNEL_IN*FEAT_INPUT_SIZE*FEAT_INPUT_WIDTH + N_CHANNEL_OUT*N_CHANNEL_IN*HADAMARD_SIZE*HADAMARD_SIZE;
 
   localparam int unsigned INPUT_MEMORY_INIT_SIZE = 1083;
-  localparam int unsigned NADDR     = $clog2(INPUT_MEMORY_SIZE);
+  localparam int unsigned NADDR     = 16;
 
   // Sinais de interface
   logic clk;
