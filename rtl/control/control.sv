@@ -502,6 +502,7 @@ module Control
 
   logic w_output_last_input;
   logic w_output_last_output;
+  logic w_output_last_window_in_channel;
 
 
   always_ff @(posedge clk or posedge reset) begin: OUTPUT_STATE_REG_BLOCK
@@ -518,36 +519,37 @@ module Control
         else
           st_output_next = WAIT_OUTPUT;
       ADDRESS_OUTPUT:
-        if (r_output_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1))
+        // if (r_output_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1))
           st_output_next = RESET_OUTPUT;
-        else
-          st_output_next = READ_OUTPUT;
+        // else
+          // st_output_next = READ_OUTPUT;
       RESET_OUTPUT:
-        if (w_conv_end && r_output_read_count == 8)
+        if (w_conv_end)
           st_output_next = WRITE_OUTPUT;
       READ_OUTPUT:
         if (w_conv_end && r_output_read_count == 8)
           st_output_next = WRITE_OUTPUT;
       WRITE_OUTPUT:
-      // if (w_output_last_output_channel && w_output_last_input_channel
-      // && w_output_last_line && w_output_last_window
-      // && r_output_write_count == 8)
-
-        if (r_output_channel_counter_input == 0 && r_output_write_count == 8)
-          st_output_next = RESET_OUTPUT;
-        else if (r_output_channel_counter_input > 0 && r_output_write_count == 8)
-          st_output_next = READ_OUTPUT;
-        else if (w_output_last_input)
-          st_output_next = ADDRESS_OUTPUT;
-        else if (w_input_last_output)
-          st_output_next = WAIT_OUTPUT;  //end processing
-        else
+        if (r_output_write_count == 8) begin
+          if (w_input_last_output)
+            st_output_next = WAIT_OUTPUT;      // global termination from input traversal
+          else if (!w_output_last_input_channel)
+            st_output_next = READ_OUTPUT;      // accumulate next input channel
+          else if (!w_output_last_window_in_channel)
+            st_output_next = RESET_OUTPUT;     // next window, same output channel
+          else if (w_output_last_output_channel)
+            st_output_next = WAIT_OUTPUT;      // end processing
+          else
+            st_output_next = ADDRESS_OUTPUT;   // change output channel only
+        end else begin
           st_output_next = WRITE_OUTPUT;
+        end
       default:
         st_output_next = WAIT_OUTPUT;
     endcase
   end
 
+  assign w_output_last_window_in_channel = (w_output_last_line && w_output_last_window);
   assign w_output_last_line = (r_output_window_counter_row == OUTPUT_WINDOW_ROW_COUNTER_WIDTH'(WINDOW_COUNT_PER_LINE - 1));
   assign w_output_last_window = (r_output_window_counter_col == OUTPUT_WINDOW_COLUMN_COUNTER_WIDTH'(WINDOW_COUNT_PER_COLUMN - 1));
   assign w_output_last_input_channel = (r_output_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1));
