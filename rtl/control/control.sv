@@ -95,6 +95,9 @@ module Control
   logic [NADDR-1:0] w_output_addr_offset_read;
   logic [NADDR-1:0] w_output_addr_offset_write;
   logic [NADDR-1:0] r_output_addr_next;
+  logic [NADDR-1:0] r_output_addr_channel_base;
+  logic [NADDR-1:0] r_output_addr_col_base;
+  logic [NADDR-1:0] r_output_addr_row_base;
 
 
   // -------------------------------------------------------------------------
@@ -670,12 +673,35 @@ module Control
     if (reset) begin
       r_output_addr <= '0;
       r_output_addr_next <= 3;
+      r_output_addr_channel_base <= '0;
+      r_output_addr_col_base <= '0;
+      r_output_addr_row_base <= '0;
     end else begin
-      r_output_addr <= NADDR'(
-        r_output_channel_counter_output * OUTPUT_FEATURE_SIZE +
-        r_output_window_counter_col * CONV_OUTPUT_SIZE +
-        r_output_window_counter_row * OUTPUT_WINDOW_COLUMN_STEP
-      );
+      // Update address bases only when a full output window write is completed
+      // for all input channels.
+      if (st_output_current == WRITE_OUTPUT && r_output_write_count == 8 &&
+          r_output_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1)) begin
+        if (w_output_last_line) begin
+          r_output_addr_row_base <= '0;
+          if (w_output_last_window) begin
+            r_output_addr_col_base <= '0;
+            if (!w_output_last_output_channel)
+              r_output_addr_channel_base <= r_output_addr_channel_base + NADDR'(OUTPUT_FEATURE_SIZE);
+          end else begin
+            r_output_addr_col_base <= r_output_addr_col_base + NADDR'(CONV_OUTPUT_SIZE);
+          end
+        end else begin
+          r_output_addr_row_base <= r_output_addr_row_base + NADDR'(OUTPUT_WINDOW_COLUMN_STEP);
+        end
+      end
+
+      if (st_output_current == ADDRESS_OUTPUT) begin
+        // New channel starts at first window position.
+        r_output_addr_col_base <= '0;
+        r_output_addr_row_base <= '0;
+      end
+
+      r_output_addr <= r_output_addr_channel_base + r_output_addr_col_base + r_output_addr_row_base;
     end
   end
 
