@@ -102,7 +102,7 @@ module Control
   // -------------------------------------------------------------------------
   typedef enum logic [3:0] {
     WAIT_INPUT,
-    UPDATE_ADDRESS,
+    ADDRESS_INPUT,
     READ_WEIGHTS,
     READ_IN_10A,
     READ_IN_10B,
@@ -125,7 +125,7 @@ module Control
 
   typedef enum logic [2:0] {
     WAIT_OUTPUT,
-    UPDATE_ADDRESS_OUTPUT,
+    ADDRESS_OUTPUT,
     RESET_OUTPUT,
     READ_OUTPUT,
     WRITE_OUTPUT
@@ -148,7 +148,7 @@ module Control
     else if (st_input_current == NEXT_ROW && !w_input_last_input) begin  // when change the line, the read pointer moves 'r_input_window_row'
       r_input_addr_feat <= r_input_window_row + NADDR'(r_input_channel_counter_input * FEAT_INPUT_SIZE * FEAT_INPUT_WIDTH);  // restart for the first line
       r_input_window_row <= r_input_window_row + 3;
-    end else if (st_input_current == UPDATE_ADDRESS && w_input_last_input) begin
+    end else if (st_input_current == ADDRESS_INPUT && w_input_last_input) begin
       r_input_addr_feat <= r_input_addr_feat - NADDR'(FEAT_INPUT_WIDTH) + NADDR'(HADAMARD_SIZE) - 1;   // adjust the pointer to the next IFMAP
       r_input_window_row <= 3;
 
@@ -167,7 +167,7 @@ module Control
   always_ff @(posedge clk or posedge reset) begin: WEIGHT_ADDR_POINTER_BLOCK
     if (reset)
       r_input_addr_kernel <= 0;
-    else if (st_input_current == WAIT_INPUT && st_input_next == UPDATE_ADDRESS)    // initializes only ONCE the weight p_input_addr (after the IFMAPs in the memory) (CAUTION: PE)
+    else if (st_input_current == WAIT_INPUT && st_input_next == ADDRESS_INPUT)    // initializes only ONCE the weight p_input_addr (after the IFMAPs in the memory) (CAUTION: PE)
       r_input_addr_kernel <= NADDR'(N_CHANNEL_IN * FEAT_INPUT_SIZE * FEAT_INPUT_WIDTH);
     else if (st_input_current == READ_WEIGHTS)
       r_input_addr_kernel <= r_input_addr_kernel + 1;  // next weight
@@ -186,8 +186,8 @@ module Control
   always_comb begin: INPUT_NEXT_STATE_BLOCK
     st_input_next = st_input_current;
     priority case (st_input_current)
-      WAIT_INPUT: if (p_start) st_input_next = UPDATE_ADDRESS;
-      UPDATE_ADDRESS: st_input_next = READ_WEIGHTS;
+      WAIT_INPUT: if (p_start) st_input_next = ADDRESS_INPUT;
+      ADDRESS_INPUT: st_input_next = READ_WEIGHTS;
       READ_WEIGHTS:
         if (w_input_weight_done) st_input_next = READ_IN_10A;
         else if (w_input_last_output) st_input_next = WAIT_INPUT;  //end processing
@@ -202,7 +202,7 @@ module Control
           else if (w_input_write_done) st_input_next = READ_IN_15A;
         else st_input_next = HOLD_WRITE;
       NEXT_ROW:
-        if (w_input_last_input) st_input_next = UPDATE_ADDRESS;
+        if (w_input_last_input) st_input_next = ADDRESS_INPUT;
         else st_input_next = READ_IN_10A;
       default: st_input_next = WAIT_INPUT;
     endcase
@@ -257,7 +257,7 @@ module Control
       r_input_channel_counter_input  <= '1;  // p_start with all bits in '1' - IFchannel must be {0,1,2}
       r_input_channel_counter_output <= 0;
     end else begin
-      if (st_input_current == UPDATE_ADDRESS) begin
+      if (st_input_current == ADDRESS_INPUT) begin
         if (r_input_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1)) begin
           r_input_channel_counter_input  <= '0;
           r_input_channel_counter_output <= r_input_channel_counter_output + 1;
@@ -513,11 +513,11 @@ module Control
     st_output_next = st_output_current;  // default
     priority case (st_output_current)
       WAIT_OUTPUT:
-        if (st_input_current == UPDATE_ADDRESS)
-          st_output_next = UPDATE_ADDRESS_OUTPUT;     // updates output addressing counters
+        if (st_input_current == ADDRESS_INPUT)
+          st_output_next = ADDRESS_OUTPUT;     // updates output addressing counters
         else
           st_output_next = WAIT_OUTPUT;
-      UPDATE_ADDRESS_OUTPUT:
+      ADDRESS_OUTPUT:
         if (r_output_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1))
           st_output_next = RESET_OUTPUT;
         else
@@ -538,7 +538,7 @@ module Control
         else if (r_output_channel_counter_input > 0 && r_output_write_count == 8)
           st_output_next = READ_OUTPUT;
         else if (w_output_last_input)
-          st_output_next = UPDATE_ADDRESS_OUTPUT;
+          st_output_next = ADDRESS_OUTPUT;
         else if (w_input_last_output)
           st_output_next = WAIT_OUTPUT;  //end processing
         else
@@ -562,7 +562,7 @@ module Control
       r_output_channel_counter_output <= '0;
       r_output_window_counter_col     <= '0;
       r_output_window_counter_row     <= '0;
-    end else if (st_output_current == UPDATE_ADDRESS_OUTPUT) begin
+    end else if (st_output_current == ADDRESS_OUTPUT) begin
       if (r_output_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1)) begin
         r_output_channel_counter_input <= '0;
         r_output_channel_counter_output <= r_output_channel_counter_output + 1;
@@ -637,7 +637,7 @@ module Control
   always_ff @(posedge clk or posedge reset) begin: OUTPUT_ADDR_POINTER_BLOCK
     if (reset) begin
       r_output_addr <= '0;
-    end else if (st_output_current == UPDATE_ADDRESS_OUTPUT) begin
+    end else if (st_output_current == ADDRESS_OUTPUT) begin
       r_output_addr <= NADDR'(
           r_output_channel_counter_output * OUTPUT_FEATURE_SIZE +
           r_output_window_counter_row * OUTPUT_WINDOW_ROW_STEP +
