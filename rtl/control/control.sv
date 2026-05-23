@@ -563,29 +563,33 @@ module Control
     if (reset) begin
       r_output_channel_counter_input  <= CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1);
       r_output_channel_counter_output <= '0;
-      r_output_window_counter_col     <= '0;
-      r_output_window_counter_row     <= '0;
     end else if (st_output_current == ADDRESS_OUTPUT) begin
+      // Channel update only (no window update here)
       if (r_output_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1)) begin
         r_output_channel_counter_input <= '0;
-        r_output_channel_counter_output <= r_output_channel_counter_output + 1;
+        if (!w_output_last_output_channel)
+          r_output_channel_counter_output <= r_output_channel_counter_output + 1'b1;
       end else
         r_output_channel_counter_input <= r_output_channel_counter_input + 1'b1;
+    end
+  end
 
-      if (w_output_last_input_channel) begin
-        if (w_output_last_window) begin
-          r_output_window_counter_col <= '0;
-          if (w_output_last_line) begin
-            r_output_window_counter_row <= '0;
-            if (!w_output_last_output_channel)
-              r_output_channel_counter_output <= r_output_channel_counter_output + 1'b1;
-          end else begin
-            r_output_window_counter_row <= r_output_window_counter_row + 1'b1;
-          end
-        end else begin
-          r_output_window_counter_col <= r_output_window_counter_col + 1'b1;
-        end
+  always_ff @(posedge clk or posedge reset) begin: OUTPUT_WINDOW_COUNTERS_BLOCK
+    if (reset) begin
+      r_output_window_counter_col <= '0;
+      r_output_window_counter_row <= '0;
+    end else if (st_output_current == WRITE_OUTPUT && r_output_write_count == 8 && st_output_next == RESET_OUTPUT) begin
+      // Window update only (same output channel)
+      if (w_output_last_line) begin
+        r_output_window_counter_row <= '0;
+        r_output_window_counter_col <= r_output_window_counter_col + 1'b1;
+      end else begin
+        r_output_window_counter_row <= r_output_window_counter_row + 1'b1;
       end
+    end else if (st_output_current == ADDRESS_OUTPUT) begin
+      // New output channel starts from first window
+      r_output_window_counter_col <= '0;
+      r_output_window_counter_row <= '0;
     end
   end
 
