@@ -660,16 +660,16 @@ module Control
           r_output_addr_target <= r_output_addr_target + CONV_OUTPUT_SIZE;
         end
       end else if (st_output_current == ADDRESS_OUTPUT) begin
-        if (r_input_channel_counter_output == CHANNEL_OUTPUT_COUNTER_WIDTH'(0)) begin
+        if (r_output_channel_counter_output == CHANNEL_OUTPUT_COUNTER_WIDTH'(0)) begin
           r_output_addr <= '0;
           r_output_addr_target <= OUTPUT_FEATURE_SIZE - OUTPUT_WINDOW_COLUMN_STEP - 1;
-        end else if ((r_input_channel_counter_output == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_OUT - 1)) &&
-            (r_input_channel_counter_output < CHANNEL_OUTPUT_COUNTER_WIDTH'(N_CHANNEL_OUT - 1))) begin
-          r_output_addr <= NADDR'((r_input_channel_counter_output) * OUTPUT_FEATURE_SIZE);
-          r_output_addr_target <= NADDR'((r_input_channel_counter_output) * OUTPUT_FEATURE_SIZE) + (OUTPUT_FEATURE_SIZE - OUTPUT_WINDOW_COLUMN_STEP - 1);
+        end else if ((r_output_channel_counter_output == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_OUT - 1)) &&
+            (r_output_channel_counter_output < CHANNEL_OUTPUT_COUNTER_WIDTH'(N_CHANNEL_OUT - 1))) begin
+              r_output_addr <= NADDR'((r_output_channel_counter_output+1) * OUTPUT_FEATURE_SIZE);
+              r_output_addr_target <= NADDR'((r_output_channel_counter_output+1) * OUTPUT_FEATURE_SIZE) + (OUTPUT_FEATURE_SIZE - OUTPUT_WINDOW_COLUMN_STEP - 1);
         end else begin
-          r_output_addr <= NADDR'((r_input_channel_counter_output-1) * OUTPUT_FEATURE_SIZE);
-          r_output_addr_target <= NADDR'((r_input_channel_counter_output-1) * OUTPUT_FEATURE_SIZE) + (OUTPUT_FEATURE_SIZE - OUTPUT_WINDOW_COLUMN_STEP - 1);
+          r_output_addr <= NADDR'((r_output_channel_counter_output) * OUTPUT_FEATURE_SIZE);
+          r_output_addr_target <= NADDR'((r_output_channel_counter_output) * OUTPUT_FEATURE_SIZE) + (OUTPUT_FEATURE_SIZE - OUTPUT_WINDOW_COLUMN_STEP - 1);
         end
       end
     end
