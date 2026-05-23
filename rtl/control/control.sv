@@ -499,6 +499,11 @@ module Control
   // ----------------------------------------------------------------------------------------------------
   // -------  PART 4 - OUTPUT FSM AND READ/WRITE COUNTER -------------------------------------------------
   // ----------------------------------------------------------------------------------------------------
+
+  logic w_output_last_input;
+  logic w_output_last_output;
+
+
   always_ff @(posedge clk or posedge reset) begin: OUTPUT_STATE_REG_BLOCK
     if (reset) st_output_current <= WAIT_OUTPUT;
     else st_output_current <= st_output_next;
@@ -513,7 +518,7 @@ module Control
         else
           st_output_next = WAIT_OUTPUT;
       UPDATE_ADDRESS_OUTPUT:
-        if (r_output_channel_counter_input == 0)
+        if (r_output_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1))
           st_output_next = RESET_OUTPUT;
         else
           st_output_next = READ_OUTPUT;
@@ -524,10 +529,18 @@ module Control
         if (w_conv_end && r_output_read_count == 8)
           st_output_next = WRITE_OUTPUT;
       WRITE_OUTPUT:
-        if (w_output_last_output_channel && w_output_last_input_channel && w_output_last_line && w_output_last_window && r_output_write_count == 8)
-          st_output_next = WAIT_OUTPUT;  //end processing
-        else if (r_output_write_count == 8)
+      // if (w_output_last_output_channel && w_output_last_input_channel
+      // && w_output_last_line && w_output_last_window
+      // && r_output_write_count == 8)
+
+        if (r_output_channel_counter_input == 0 && r_output_write_count == 8)
+          st_output_next = RESET_OUTPUT;
+        else if (r_output_channel_counter_input > 0 && r_output_write_count == 8)
+          st_output_next = READ_OUTPUT;
+        else if (w_output_last_input)
           st_output_next = UPDATE_ADDRESS_OUTPUT;
+        else if (w_input_last_output)
+          st_output_next = WAIT_OUTPUT;  //end processing
         else
           st_output_next = WRITE_OUTPUT;
       default:
@@ -540,16 +553,20 @@ module Control
   assign w_output_last_input_channel = (r_output_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1));
   assign w_output_last_output_channel = (r_output_channel_counter_output == CHANNEL_OUTPUT_COUNTER_WIDTH'(N_CHANNEL_OUT - 1));
 
+  assign w_output_last_input = (r_output_window_counter_col == WINDOW_COUNTER_WIDTH'(WINDOW_COUNT_PER_CHANNEL));
+  assign w_output_last_output = (r_output_channel_counter_output == CHANNEL_OUTPUT_COUNTER_WIDTH'(N_CHANNEL_OUT));
+
   always_ff @(posedge clk or posedge reset) begin: OUTPUT_CONTROL_COUNTERS_BLOCK
     if (reset) begin
-      r_output_channel_counter_input  <= '1;
+      r_output_channel_counter_input  <= CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1);
       r_output_channel_counter_output <= '0;
       r_output_window_counter_col     <= '0;
       r_output_window_counter_row     <= '0;
     end else if (st_output_current == UPDATE_ADDRESS_OUTPUT) begin
-      if (r_output_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1))
+      if (r_output_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1)) begin
         r_output_channel_counter_input <= '0;
-      else
+        r_output_channel_counter_output <= r_output_channel_counter_output + 1;
+      end else
         r_output_channel_counter_input <= r_output_channel_counter_input + 1'b1;
 
       if (w_output_last_input_channel) begin
@@ -603,7 +620,7 @@ module Control
       if (st_output_current == RESET_OUTPUT) begin
         // r_output_write <= '{default: '0};
         r_output_read <= '{default: '0};
-      end else if ((st_output_current == RESET_OUTPUT || st_output_current == READ_OUTPUT) && p_output_valid) begin
+      end else if ((st_output_current == READ_OUTPUT) && p_output_valid) begin
         r_output_read[r_output_read_count] <= p_output_data_read;
       end
       if (w_conv_end)
