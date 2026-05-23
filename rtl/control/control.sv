@@ -87,8 +87,6 @@ module Control
 
   logic [WINDOW_COUNTER_WIDTH-1:0] r_output_window_counter_col;
   logic [WINDOW_ROW_COUNTER_WIDTH-1:0] r_output_window_counter_row;
-  logic [WINDOW_COUNTER_WIDTH-1:0] r_output_window_ctrl_col;
-  logic [WINDOW_ROW_COUNTER_WIDTH-1:0] r_output_window_ctrl_row;
   logic [CHANNEL_INPUT_COUNTER_WIDTH-1:0] r_output_channel_counter_input;
   logic [CHANNEL_OUTPUT_COUNTER_WIDTH-1:0] r_output_channel_counter_output;
   logic w_output_last_line, w_output_last_window, w_output_last_input_channel, w_output_last_output_channel;
@@ -526,9 +524,9 @@ module Control
           st_output_next = WRITE_OUTPUT;
       WRITE_OUTPUT:
         if (r_output_write_count == 8) begin
-          if ((r_input_channel_counter_input == 0) && !w_output_last_input)
+          if ((r_output_channel_counter_input == 0) && !w_output_last_input)
             st_output_next = RESET_OUTPUT;     // next window, same output channel
-          else if ((r_input_channel_counter_input > 0) && !w_output_last_input)
+          else if ((r_output_channel_counter_input > 0) && !w_output_last_input)
             st_output_next = READ_OUTPUT;      // accumulate next input channel
           else if (w_output_last_input)
             st_output_next = ADDRESS_OUTPUT;   // change output channel only
@@ -546,26 +544,28 @@ module Control
     endcase
   end
 
-  assign w_output_last_window = (r_output_window_ctrl_col == WINDOW_COUNTER_WIDTH'(WINDOW_COUNTER_WIDTH - 1));
+  assign w_output_last_window = (r_output_window_counter_col == WINDOW_COUNTER_WIDTH'(WINDOW_COUNT_PER_COLUMN - 1));
   assign w_output_last_input_channel = (r_output_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1));
   assign w_output_last_output_channel = (r_output_channel_counter_output == CHANNEL_OUTPUT_COUNTER_WIDTH'(N_CHANNEL_OUT - 1));
 
   assign w_output_last_line = (r_output_window_counter_row == WINDOW_ROW_COUNTER_WIDTH'(WINDOW_COUNT_PER_LINE - 1));
-  assign w_output_last_input = (r_output_window_counter_col == WINDOW_COUNTER_WIDTH'(WINDOW_COUNT_PER_CHANNEL - 1));
+  assign w_output_last_window_in_channel = (w_output_last_line && w_output_last_window);
+  assign w_output_last_input = w_output_last_window_in_channel;
   assign w_output_last_output = (r_output_channel_counter_output == CHANNEL_OUTPUT_COUNTER_WIDTH'(N_CHANNEL_OUT));
 
   always_ff @(posedge clk or posedge reset) begin: OUTPUT_CONTROL_COUNTERS_BLOCK
     if (reset) begin
-      r_output_channel_counter_input  <= CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1);
+      r_output_channel_counter_input  <= '0;
       r_output_channel_counter_output <= '0;
-    end else if (st_output_current == ADDRESS_OUTPUT) begin
-      // Channel update only (no window update here)
-      if (r_output_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1)) begin
+    end else if (st_output_current == WRITE_OUTPUT && r_output_write_count == 8) begin
+      if (r_output_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1))
         r_output_channel_counter_input <= '0;
-        if (!w_output_last_output_channel)
-          r_output_channel_counter_output <= r_output_channel_counter_output + 1'b1;
-      end else
+      else
         r_output_channel_counter_input <= r_output_channel_counter_input + 1'b1;
+
+      if ((r_output_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1)) &&
+          w_output_last_window_in_channel && !w_output_last_output_channel)
+        r_output_channel_counter_output <= r_output_channel_counter_output + 1'b1;
     end
   end
 
@@ -573,14 +573,16 @@ module Control
     if (reset) begin
       r_output_window_counter_col <= '0;
       r_output_window_counter_row <= '0;
-    end else if (st_output_current == WRITE_OUTPUT && r_output_write_count == 8 && st_output_next == RESET_OUTPUT) begin
-      // Window update only (same output channel):
-      // row is the fast counter and resets on each line change; col advances on row wrap.
-      if (r_output_window_counter_row == WINDOW_ROW_COUNTER_WIDTH'(WINDOW_COUNT_PER_LINE - 1)) begin
-        r_output_window_counter_col <= r_output_window_counter_col + 1'b1;
+    end else if (st_output_current == WRITE_OUTPUT && r_output_write_count == 8 &&
+                 r_output_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1)) begin
+      // Advance window only after accumulating all input channels for this output window.
+      if (w_output_last_line) begin
         r_output_window_counter_row <= '0;
+        if (w_output_last_window)
+          r_output_window_counter_col <= '0;
+        else
+          r_output_window_counter_col <= r_output_window_counter_col + 1'b1;
       end else begin
-        r_output_window_counter_col <= r_output_window_counter_col + 1'b1;
         r_output_window_counter_row <= r_output_window_counter_row + 1'b1;
       end
     end else if (st_output_current == ADDRESS_OUTPUT) begin
@@ -668,25 +670,12 @@ module Control
     if (reset) begin
       r_output_addr <= '0;
       r_output_addr_next <= 3;
-    end
-    else if (st_output_current == WRITE_OUTPUT && r_output_write_count == 8 && !w_input_last_output)
-      r_output_addr <= r_output_addr + NADDR'(FEAT_INPUT_WIDTH - 2)*3;    // change internal p_input_addr in the state transition or in the TRANSFER state (CAUTION: PE)
-      else if (st_output_current == WRITE_OUTPUT && w_output_last_line ) begin  // when change the line, the read pointer moves 'r_output_addr_next'
-        r_output_addr <= r_output_addr_next + NADDR'(r_output_channel_counter_output * (FEAT_INPUT_SIZE - 2) * (FEAT_INPUT_WIDTH - 2));  // restart for the first line
-        r_output_addr_next <= r_output_addr_next + 3;
-    end else if (st_output_current == ADDRESS_OUTPUT && w_output_last_input) begin
-      r_output_addr <= r_output_addr - NADDR'(FEAT_INPUT_WIDTH - 2) + NADDR'(HADAMARD_SIZE) - 1;   // adjust the pointer to the next IFMAP
-      r_output_addr_next <= 3;
-
-      if (r_output_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN-1) ) begin               // change the IFMAP
-        r_output_addr <= 0;
-        `ifdef SIMULATION
-            $display(
-                "RESETANDO PARA O CANAL 0 - DEU A VOLTA NOS IFMAPS time=%0t %d (%0d) st_output_current = %s",
-                $time, r_input_channel_counter_input, N_CHANNEL_IN, st_input_current.name()
-            );
-        `endif
-      end
+    end else begin
+      r_output_addr <= NADDR'(
+        r_output_channel_counter_output * OUTPUT_FEATURE_SIZE +
+        r_output_window_counter_col * CONV_OUTPUT_SIZE +
+        r_output_window_counter_row * OUTPUT_WINDOW_COLUMN_STEP
+      );
     end
   end
 
