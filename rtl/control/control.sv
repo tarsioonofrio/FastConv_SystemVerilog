@@ -518,15 +518,7 @@ module Control
     st_output_next = st_output_current;  // default
     priority case (st_output_current)
       WAIT_OUTPUT:
-        if (st_input_current == ADDRESS_INPUT)
-          st_output_next = ADDRESS_OUTPUT;     // updates output addressing counters
-        else
-          st_output_next = WAIT_OUTPUT;
-      ADDRESS_OUTPUT:
-        // if (r_output_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1))
-          st_output_next = RESET_OUTPUT;
-        // else
-          // st_output_next = READ_OUTPUT;
+        st_output_next = RESET_OUTPUT;
       RESET_OUTPUT:
         if (w_conv_end)
           st_output_next = WRITE_OUTPUT;
@@ -548,6 +540,8 @@ module Control
             // end else begin
             //   st_output_next = WRITE_OUTPUT;
         end
+      ADDRESS_OUTPUT:
+          st_output_next = RESET_OUTPUT;
       default:
         st_output_next = WAIT_OUTPUT;
     endcase
@@ -669,7 +663,7 @@ module Control
         if (r_input_channel_counter_output == CHANNEL_OUTPUT_COUNTER_WIDTH'(0)) begin
           r_output_addr <= '0;
           r_output_addr_target <= OUTPUT_FEATURE_SIZE - OUTPUT_WINDOW_COLUMN_STEP - 1;
-        end else if ((r_input_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_OUT - 1)) &&
+        end else if ((r_input_channel_counter_output == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_OUT - 1)) &&
             (r_input_channel_counter_output < CHANNEL_OUTPUT_COUNTER_WIDTH'(N_CHANNEL_OUT - 1))) begin
           r_output_addr <= NADDR'((r_input_channel_counter_output) * OUTPUT_FEATURE_SIZE);
           r_output_addr_target <= NADDR'((r_input_channel_counter_output) * OUTPUT_FEATURE_SIZE) + (OUTPUT_FEATURE_SIZE - OUTPUT_WINDOW_COLUMN_STEP - 1);
