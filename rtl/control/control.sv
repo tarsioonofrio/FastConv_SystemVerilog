@@ -40,7 +40,7 @@ module Control
   logic [NBITS-1:0] r_input_feat[(CONV_INPUT_SIZE * CONV_INPUT_SIZE) - 1:0];  // input feature register bank
   logic [NBITS-1:0] w_input_feat_next[(CONV_INPUT_SIZE * CONV_INPUT_SIZE) - 1:0];  // next values for feature shift bank
   logic [NADDR-1:0] r_input_addr_feat, r_input_addr_kernel;
-  logic [NADDR-1:0] r_input_window_row;
+  logic [NADDR-1:0] r_input_window_next;
   logic [(CONV_INPUT_SIZE * CONV_INPUT_SIZE) - 1:0] w_input_feat_en;  // write-enable per feature register
   logic w_input_last_line, w_input_last_input, w_input_last_output;
 
@@ -96,7 +96,7 @@ module Control
   logic [NADDR-1:0] r_output_addr_offset_write;
   logic [NADDR-1:0] w_output_addr_offset_read;
   logic [NADDR-1:0] w_output_addr_offset_write;
-  logic [NADDR-1:0] r_output_addr_target;
+  logic [NADDR-1:0] r_output_addr_next;
 
 
   // -------------------------------------------------------------------------
@@ -142,17 +142,16 @@ module Control
   always_ff @(posedge clk or posedge reset) begin: INPUT_ADDR_POINTER_BLOCK
     if (reset) begin
       r_input_addr_feat <= '0;
-      r_input_window_row <= 3;
+      r_input_window_next <= 3;
     end
     else if ((st_input_current == READ_IN_10A && st_input_next == READ_IN_10B) || (st_input_current == READ_IN_10B && st_input_next == READ_IN_15A) || (st_input_current == READ_IN_15A && st_input_next == READ_IN_15B) || (st_input_current == READ_IN_15B && st_input_next == READ_IN_15C) || st_input_current == TRANSFER)
       r_input_addr_feat <= r_input_addr_feat + NADDR'(FEAT_INPUT_WIDTH);    // change internal p_input_addr in the state transition or in the TRANSFER state (CAUTION: PE)
-
-    else if (st_input_current == NEXT_ROW && !w_input_last_input) begin  // when change the line, the read pointer moves 'r_input_window_row'
-      r_input_addr_feat <= r_input_window_row + NADDR'(r_input_channel_counter_input * FEAT_INPUT_SIZE * FEAT_INPUT_WIDTH);  // restart for the first line
-      r_input_window_row <= r_input_window_row + 3;
+    else if (st_input_current == NEXT_ROW && !w_input_last_input) begin  // when change the line, the read pointer moves 'r_input_window_next'
+      r_input_addr_feat <= r_input_window_next + NADDR'(r_input_channel_counter_input * FEAT_INPUT_SIZE * FEAT_INPUT_WIDTH);  // restart for the first line
+      r_input_window_next <= r_input_window_next + 3;
     end else if (st_input_current == ADDRESS_INPUT && w_input_last_input) begin
       r_input_addr_feat <= r_input_addr_feat - NADDR'(FEAT_INPUT_WIDTH) + NADDR'(HADAMARD_SIZE) - 1;   // adjust the pointer to the next IFMAP
-      r_input_window_row <= 3;
+      r_input_window_next <= 3;
 
       if (r_input_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN-1) ) begin               // change the IFMAP
         r_input_addr_feat <= 0;
@@ -551,7 +550,7 @@ module Control
   assign w_output_last_input_channel = (r_output_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1));
   assign w_output_last_output_channel = (r_output_channel_counter_output == CHANNEL_OUTPUT_COUNTER_WIDTH'(N_CHANNEL_OUT - 1));
 
-  assign w_output_last_line = (r_output_window_counter_row == WINDOW_ROW_COUNTER_WIDTH'(WINDOW_COUNT_PER_LINE));
+  assign w_output_last_line = (r_output_window_counter_row == WINDOW_ROW_COUNTER_WIDTH'(WINDOW_COUNT_PER_LINE - 1));
   assign w_output_last_input = (r_output_window_counter_col == WINDOW_COUNTER_WIDTH'(WINDOW_COUNT_PER_CHANNEL - 1));
   assign w_output_last_output = (r_output_channel_counter_output == CHANNEL_OUTPUT_COUNTER_WIDTH'(N_CHANNEL_OUT));
 
@@ -640,27 +639,53 @@ module Control
   localparam int OUTPUT_WINDOW_ROW_STEP = CONV_OUTPUT_SIZE * OUTPUT_ROW_STEP;
   localparam int OUTPUT_WINDOW_LINE_JUMP = ((FEAT_INPUT_SIZE - 2) * CONV_OUTPUT_SIZE * (WINDOW_COUNT_PER_LINE - 1)) - CONV_OUTPUT_SIZE;
 
+  // always_ff @(posedge clk or posedge reset) begin: OUTPUT_ADDR_POINTER_BLOCK
+  //   if (reset) begin
+  //     r_output_addr <= '0;
+  //     r_output_addr_target <= OUTPUT_FEATURE_SIZE - OUTPUT_WINDOW_COLUMN_STEP - 1;
+  //   end else begin
+  //     if (st_output_current == WRITE_OUTPUT && r_output_write_count == 8 && !w_input_last_output) begin
+  //       if (r_output_addr < r_output_addr_target)
+  //         r_output_addr <= r_output_addr + NADDR'(OUTPUT_WINDOW_COLUMN_STEP);
+  //       else begin
+  //         r_output_addr <= r_output_addr - NADDR'(OUTPUT_WINDOW_LINE_JUMP);
+  //         r_output_addr_target <= r_output_addr_target + CONV_OUTPUT_SIZE;
+  //       end
+  //     end else if (st_output_current == ADDRESS_OUTPUT) begin
+  //       if ((r_input_channel_counter_output == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_OUT - 1)) &&
+  //           (r_input_channel_counter_output < CHANNEL_OUTPUT_COUNTER_WIDTH'(N_CHANNEL_OUT - 1))) begin
+  //             r_output_addr <= NADDR'((r_input_channel_counter_output+1) * OUTPUT_FEATURE_SIZE);
+  //             r_output_addr_target <= NADDR'((r_input_channel_counter_output+1) * OUTPUT_FEATURE_SIZE) + (OUTPUT_FEATURE_SIZE - OUTPUT_WINDOW_COLUMN_STEP - 1);
+  //       end else begin
+  //         r_output_addr <= NADDR'((r_input_channel_counter_output) * OUTPUT_FEATURE_SIZE);
+  //         r_output_addr_target <= NADDR'((r_input_channel_counter_output) * OUTPUT_FEATURE_SIZE) + (OUTPUT_FEATURE_SIZE - OUTPUT_WINDOW_COLUMN_STEP - 1);
+  //       end
+  //     end
+  //   end
+  // end
+
   always_ff @(posedge clk or posedge reset) begin: OUTPUT_ADDR_POINTER_BLOCK
     if (reset) begin
       r_output_addr <= '0;
-      r_output_addr_target <= OUTPUT_FEATURE_SIZE - OUTPUT_WINDOW_COLUMN_STEP - 1;
-    end else begin
-      if (st_output_current == WRITE_OUTPUT && r_output_write_count == 8 && !w_input_last_output) begin
-        if (r_output_addr < r_output_addr_target)
-          r_output_addr <= r_output_addr + NADDR'(OUTPUT_WINDOW_COLUMN_STEP);
-        else begin
-          r_output_addr <= r_output_addr - NADDR'(OUTPUT_WINDOW_LINE_JUMP);
-          r_output_addr_target <= r_output_addr_target + CONV_OUTPUT_SIZE;
-        end
-      end else if (st_output_current == ADDRESS_OUTPUT) begin
-        if ((r_input_channel_counter_output == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_OUT - 1)) &&
-            (r_input_channel_counter_output < CHANNEL_OUTPUT_COUNTER_WIDTH'(N_CHANNEL_OUT - 1))) begin
-              r_output_addr <= NADDR'((r_input_channel_counter_output+1) * OUTPUT_FEATURE_SIZE);
-              r_output_addr_target <= NADDR'((r_input_channel_counter_output+1) * OUTPUT_FEATURE_SIZE) + (OUTPUT_FEATURE_SIZE - OUTPUT_WINDOW_COLUMN_STEP - 1);
-        end else begin
-          r_output_addr <= NADDR'((r_input_channel_counter_output) * OUTPUT_FEATURE_SIZE);
-          r_output_addr_target <= NADDR'((r_input_channel_counter_output) * OUTPUT_FEATURE_SIZE) + (OUTPUT_FEATURE_SIZE - OUTPUT_WINDOW_COLUMN_STEP - 1);
-        end
+      r_output_addr_next <= 3;
+    end
+    else if (st_output_current == WRITE_OUTPUT && r_output_write_count == 8 && !w_input_last_output)
+      r_output_addr <= r_output_addr + NADDR'(FEAT_INPUT_WIDTH - 2)*3;    // change internal p_input_addr in the state transition or in the TRANSFER state (CAUTION: PE)
+      else if (st_output_current == WRITE_OUTPUT && w_output_last_line ) begin  // when change the line, the read pointer moves 'r_output_addr_next'
+        r_output_addr <= r_output_addr_next + NADDR'(r_output_channel_counter_output * (FEAT_INPUT_SIZE - 2) * (FEAT_INPUT_WIDTH - 2));  // restart for the first line
+        r_output_addr_next <= r_output_addr_next + 3;
+    end else if (st_output_current == ADDRESS_OUTPUT && w_output_last_input) begin
+      r_output_addr <= r_output_addr - NADDR'(FEAT_INPUT_WIDTH - 2) + NADDR'(HADAMARD_SIZE) - 1;   // adjust the pointer to the next IFMAP
+      r_output_addr_next <= 3;
+
+      if (r_output_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN-1) ) begin               // change the IFMAP
+        r_output_addr <= 0;
+        `ifdef SIMULATION
+            $display(
+                "RESETANDO PARA O CANAL 0 - DEU A VOLTA NOS IFMAPS time=%0t %d (%0d) st_output_current = %s",
+                $time, r_input_channel_counter_input, N_CHANNEL_IN, st_input_current.name()
+            );
+        `endif
       end
     end
   end
