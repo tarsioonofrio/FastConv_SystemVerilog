@@ -47,7 +47,7 @@ vlog -work work $define_flags -svinputport=relaxed ./control.sv
 vlog -work work $define_flags -svinputport=relaxed ./testbench.sv
 # to show FSM
 # vsim -voptargs=+acc -t ps -fsmdebug -coverage -debugDB work.tb
-vsim -voptargs=+acc=lprn -t ps work.tb
+vsim -voptargs=+acc=lprn -debugDB -t ps work.tb
 # vsim -voptargs=+acc -t ps work.tb
 set StdArithNoWarnings 1
 set StdVitalGlitchNoWarnings 1
@@ -104,6 +104,10 @@ proc dump_constants_auto {scope sv_file} {
 
 set CONTROL_SV "${GIT_ROOT}/rtl/control/control.sv"
 dump_constants_auto sim:/tb/dut $CONTROL_SV
+
+# Source-level breakpoints in Control output address logic.
+# bp "$CONTROL_SV" 671
+# bp "$CONTROL_SV" 674
 
 do wave.do
 do mem.do

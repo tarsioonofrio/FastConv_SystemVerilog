@@ -665,9 +665,7 @@ module Control
           r_output_addr <= r_output_addr - NADDR'(OUTPUT_WINDOW_LINE_JUMP);
           r_output_addr_target <= r_output_addr_target + CONV_OUTPUT_SIZE;
         end
-      end
-
-      if ((st_input_current == ADDRESS_OUTPUT) && w_input_last_input) begin
+      end else if ((st_output_current == ADDRESS_OUTPUT)) begin
         if ((r_input_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_OUT - 1)) &&
             (r_input_channel_counter_output < CHANNEL_OUTPUT_COUNTER_WIDTH'(N_CHANNEL_OUT - 1))) begin
           r_output_addr <= NADDR'((r_input_channel_counter_output + 1) * OUTPUT_FEATURE_SIZE);
