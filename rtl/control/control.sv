@@ -216,7 +216,8 @@ module Control
   assign w_input_last_input = (r_input_window_counter_col == WINDOW_COUNTER_WIDTH'(WINDOW_COUNT_PER_CHANNEL));
   assign w_input_last_output = (r_input_channel_counter_output == CHANNEL_OUTPUT_COUNTER_WIDTH'(N_CHANNEL_OUT));
 
-  assign p_end = ((st_output_next == WAIT_OUTPUT && w_input_last_output));  // output to signalize the end of the convolution process
+  // TODO change to st_output_next == WAIT_OUTPUT
+  assign p_end = ((st_input_next == WAIT_INPUT && w_input_last_output));  // output to signalize the end of the convolution process
 
   // -------------------------------------------------------------------------
   // READING REGISTERS
