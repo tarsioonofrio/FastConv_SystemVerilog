@@ -84,8 +84,13 @@ module Control
   logic [NBITS-1:0] r_output_write [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
   logic [NBITS-1:0] r_output_read [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
 
-  logic [NADDR-1:0] r_output_addr_target;
-  logic [NADDR-1:0] r_output_addr_target_channel;
+  localparam OUTPUT_WINDOW_COLUMN_COUNTER_WIDTH = $clog2(WINDOW_COUNT_PER_COLUMN) + 1;
+  logic [OUTPUT_WINDOW_COLUMN_COUNTER_WIDTH-1:0] r_output_window_counter_col;
+  localparam OUTPUT_WINDOW_ROW_COUNTER_WIDTH = $clog2(WINDOW_COUNT_PER_LINE) + 1;
+  logic [OUTPUT_WINDOW_ROW_COUNTER_WIDTH-1:0] r_output_window_counter_row;
+  logic [CHANNEL_INPUT_COUNTER_WIDTH-1:0] r_output_channel_counter_input;
+  logic [CHANNEL_OUTPUT_COUNTER_WIDTH-1:0] r_output_channel_counter_output;
+  logic w_output_last_line, w_output_last_window, w_output_last_input_channel, w_output_last_output_channel;
   logic [NADDR-1:0] r_output_addr_offset_read;
   logic [NADDR-1:0] r_output_addr_offset_write;
   logic [NADDR-1:0] w_output_addr_offset_read;
@@ -120,6 +125,7 @@ module Control
 
   typedef enum logic [2:0] {
     WAIT_OUTPUT,
+    UPDATE_ADDRESS_OUTPUT,
     RESET_OUTPUT,
     READ_OUTPUT,
     WRITE_OUTPUT
@@ -503,9 +509,14 @@ module Control
     priority case (st_output_current)
       WAIT_OUTPUT:
         if (st_input_current == UPDATE_ADDRESS)
-          st_output_next = RESET_OUTPUT;     // wait p_start reading the IFMAPs to p_start writing the results
+          st_output_next = UPDATE_ADDRESS_OUTPUT;     // updates output addressing counters
         else
           st_output_next = WAIT_OUTPUT;
+      UPDATE_ADDRESS_OUTPUT:
+        if (r_output_channel_counter_input == 0)
+          st_output_next = RESET_OUTPUT;
+        else
+          st_output_next = READ_OUTPUT;
       RESET_OUTPUT:
         if (w_conv_end && r_output_read_count == 8)
           st_output_next = WRITE_OUTPUT;
@@ -513,17 +524,49 @@ module Control
         if (w_conv_end && r_output_read_count == 8)
           st_output_next = WRITE_OUTPUT;
       WRITE_OUTPUT:
-        if (r_input_channel_counter_input == 0 && r_output_write_count == 8)
-          st_output_next = RESET_OUTPUT;
-        else if (r_input_channel_counter_input > 0 && r_output_write_count == 8)
-          st_output_next = READ_OUTPUT;
-        else if (w_input_last_output)
+        if (w_output_last_output_channel && w_output_last_input_channel && w_output_last_line && w_output_last_window && r_output_write_count == 8)
           st_output_next = WAIT_OUTPUT;  //end processing
+        else if (r_output_write_count == 8)
+          st_output_next = UPDATE_ADDRESS_OUTPUT;
         else
           st_output_next = WRITE_OUTPUT;
       default:
         st_output_next = WAIT_OUTPUT;
     endcase
+  end
+
+  assign w_output_last_line = (r_output_window_counter_row == OUTPUT_WINDOW_ROW_COUNTER_WIDTH'(WINDOW_COUNT_PER_LINE - 1));
+  assign w_output_last_window = (r_output_window_counter_col == OUTPUT_WINDOW_COLUMN_COUNTER_WIDTH'(WINDOW_COUNT_PER_COLUMN - 1));
+  assign w_output_last_input_channel = (r_output_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1));
+  assign w_output_last_output_channel = (r_output_channel_counter_output == CHANNEL_OUTPUT_COUNTER_WIDTH'(N_CHANNEL_OUT - 1));
+
+  always_ff @(posedge clk or posedge reset) begin: OUTPUT_CONTROL_COUNTERS_BLOCK
+    if (reset) begin
+      r_output_channel_counter_input  <= '1;
+      r_output_channel_counter_output <= '0;
+      r_output_window_counter_col     <= '0;
+      r_output_window_counter_row     <= '0;
+    end else if (st_output_current == UPDATE_ADDRESS_OUTPUT) begin
+      if (r_output_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1))
+        r_output_channel_counter_input <= '0;
+      else
+        r_output_channel_counter_input <= r_output_channel_counter_input + 1'b1;
+
+      if (w_output_last_input_channel) begin
+        if (w_output_last_window) begin
+          r_output_window_counter_col <= '0;
+          if (w_output_last_line) begin
+            r_output_window_counter_row <= '0;
+            if (!w_output_last_output_channel)
+              r_output_channel_counter_output <= r_output_channel_counter_output + 1'b1;
+          end else begin
+            r_output_window_counter_row <= r_output_window_counter_row + 1'b1;
+          end
+        end else begin
+          r_output_window_counter_col <= r_output_window_counter_col + 1'b1;
+        end
+      end
+    end
   end
 
   // -------------------------------------------------------------------------
@@ -570,37 +613,19 @@ module Control
 
   localparam int OUTPUT_FEATURE_SIZE = (FEAT_INPUT_SIZE - 2) * (FEAT_INPUT_WIDTH - 2);
   localparam int OUTPUT_WINDOW_COLUMN_STEP = (FEAT_INPUT_SIZE - 2) * CONV_OUTPUT_SIZE;
-  localparam int OUTPUT_WINDOW_LINE_JUMP = ((FEAT_INPUT_SIZE - 2) * CONV_OUTPUT_SIZE * (WINDOW_COUNT_PER_LINE - 1)) - CONV_OUTPUT_SIZE;
   localparam int OUTPUT_ROW_STEP = (FEAT_INPUT_SIZE - 2);
   localparam int OUTPUT_TILE_JUMP_STEP = (2 * OUTPUT_ROW_STEP) - 1;
-  localparam int OUTPUT_CHANNEL_STEP = FEAT_INPUT_SIZE * (CONV_OUTPUT_SIZE - 1) + CONV_OUTPUT_SIZE;
+  localparam int OUTPUT_WINDOW_ROW_STEP = CONV_OUTPUT_SIZE * OUTPUT_ROW_STEP;
+
   always_ff @(posedge clk or posedge reset) begin: OUTPUT_ADDR_POINTER_BLOCK
     if (reset) begin
       r_output_addr <= '0;
-      r_output_addr_target <= OUTPUT_FEATURE_SIZE - OUTPUT_WINDOW_COLUMN_STEP - 1;
-      r_output_addr_target_channel <= OUTPUT_FEATURE_SIZE - OUTPUT_CHANNEL_STEP;
-    end else begin
-      if (st_output_current == WRITE_OUTPUT && r_output_write_count == 8 && !w_input_last_output
-        && st_input_current != READ_WEIGHTS && st_input_current != READ_IN_10A && st_input_current != READ_IN_10B
-      ) begin
-        if ((r_output_addr <= r_output_addr_target_channel) && (r_output_addr <= r_output_addr_target))
-          r_output_addr <= r_output_addr + NADDR'(OUTPUT_WINDOW_COLUMN_STEP);
-        else if ((r_output_addr <= r_output_addr_target_channel) && (r_output_addr > r_output_addr_target)) begin
-          r_output_addr <= r_output_addr - NADDR'(OUTPUT_WINDOW_LINE_JUMP);
-          r_output_addr_target <= r_output_addr_target + CONV_OUTPUT_SIZE;
-        end else if (r_output_addr > r_output_addr_target_channel) begin
-          if ((r_input_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1)) &&
-              (r_input_channel_counter_output < CHANNEL_OUTPUT_COUNTER_WIDTH'(N_CHANNEL_OUT - 1))) begin
-            r_output_addr <= NADDR'((r_input_channel_counter_output + 1'b1) * OUTPUT_FEATURE_SIZE);
-            r_output_addr_target <= NADDR'((r_input_channel_counter_output + 1'b1) * OUTPUT_FEATURE_SIZE) + (OUTPUT_FEATURE_SIZE - OUTPUT_WINDOW_COLUMN_STEP - 1);
-            r_output_addr_target_channel <= r_output_addr_target_channel + OUTPUT_CHANNEL_STEP;
-          end else begin
-            r_output_addr <= NADDR'(r_input_channel_counter_output * OUTPUT_FEATURE_SIZE);
-            r_output_addr_target <= NADDR'(r_input_channel_counter_output * OUTPUT_FEATURE_SIZE) + (OUTPUT_FEATURE_SIZE - OUTPUT_WINDOW_COLUMN_STEP - 1);
-            r_output_addr_target_channel <= r_output_addr_target_channel - OUTPUT_CHANNEL_STEP;
-          end
-        end
-      end
+    end else if (st_output_current == UPDATE_ADDRESS_OUTPUT) begin
+      r_output_addr <= NADDR'(
+          r_output_channel_counter_output * OUTPUT_FEATURE_SIZE +
+          r_output_window_counter_row * OUTPUT_WINDOW_ROW_STEP +
+          r_output_window_counter_col * CONV_OUTPUT_SIZE
+      );
     end
   end
 
