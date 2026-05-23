@@ -679,6 +679,7 @@ module Control
       end
     end
   end
+
   always_ff @(posedge clk or posedge reset) begin: OUTPUT_ADDR_OFFSET_BLOCK
     if (reset) begin
       r_output_addr_offset_read <= '0;
