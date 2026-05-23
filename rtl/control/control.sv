@@ -95,6 +95,7 @@ module Control
   logic [NADDR-1:0] r_output_addr_offset_write;
   logic [NADDR-1:0] w_output_addr_offset_read;
   logic [NADDR-1:0] w_output_addr_offset_write;
+  logic [NADDR-1:0] r_output_addr_target;
 
 
   // -------------------------------------------------------------------------
@@ -635,19 +636,34 @@ module Control
   localparam int OUTPUT_ROW_STEP = (FEAT_INPUT_SIZE - 2);
   localparam int OUTPUT_TILE_JUMP_STEP = (2 * OUTPUT_ROW_STEP) - 1;
   localparam int OUTPUT_WINDOW_ROW_STEP = CONV_OUTPUT_SIZE * OUTPUT_ROW_STEP;
+  localparam int OUTPUT_WINDOW_LINE_JUMP = ((FEAT_INPUT_SIZE - 2) * CONV_OUTPUT_SIZE * (WINDOW_COUNT_PER_LINE - 1)) - CONV_OUTPUT_SIZE;
 
   always_ff @(posedge clk or posedge reset) begin: OUTPUT_ADDR_POINTER_BLOCK
     if (reset) begin
       r_output_addr <= '0;
-    end else if (st_output_current == ADDRESS_OUTPUT) begin
-      r_output_addr <= NADDR'(
-          r_output_channel_counter_output * OUTPUT_FEATURE_SIZE +
-          r_output_window_counter_row * OUTPUT_WINDOW_ROW_STEP +
-          r_output_window_counter_col * CONV_OUTPUT_SIZE
-      );
+      r_output_addr_target <= OUTPUT_FEATURE_SIZE - OUTPUT_WINDOW_COLUMN_STEP - 1;
+    end else begin
+      if (st_output_current == WRITE_OUTPUT && r_output_write_count == 8 && !w_input_last_output) begin
+        if (r_output_addr < r_output_addr_target)
+          r_output_addr <= r_output_addr + NADDR'(OUTPUT_WINDOW_COLUMN_STEP);
+        else begin
+          r_output_addr <= r_output_addr - NADDR'(OUTPUT_WINDOW_LINE_JUMP);
+          r_output_addr_target <= r_output_addr_target + CONV_OUTPUT_SIZE;
+        end
+      end
+
+      if ((st_input_current == ADDRESS_OUTPUT) && w_input_last_input) begin
+        if ((r_input_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_OUT - 1)) &&
+            (r_input_channel_counter_output < CHANNEL_OUTPUT_COUNTER_WIDTH'(N_CHANNEL_OUT - 1))) begin
+          r_output_addr <= NADDR'((r_input_channel_counter_output + 1) * OUTPUT_FEATURE_SIZE);
+          r_output_addr_target <= NADDR'((r_input_channel_counter_output + 1) * OUTPUT_FEATURE_SIZE) + (OUTPUT_FEATURE_SIZE - OUTPUT_WINDOW_COLUMN_STEP - 1);
+        end else begin
+          r_output_addr <= NADDR'(r_input_channel_counter_output * OUTPUT_FEATURE_SIZE);
+          r_output_addr_target <= NADDR'(r_input_channel_counter_output * OUTPUT_FEATURE_SIZE) + (OUTPUT_FEATURE_SIZE - OUTPUT_WINDOW_COLUMN_STEP - 1);
+        end
+      end
     end
   end
-
   always_ff @(posedge clk or posedge reset) begin: OUTPUT_ADDR_OFFSET_BLOCK
     if (reset) begin
       r_output_addr_offset_read <= '0;
