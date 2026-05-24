@@ -35,7 +35,6 @@ module tb;
   int conv_inverse_check_idx;
   int output_error_count;
   logic [NBITS-1:0] output_bank [0:FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT - 1];
-  logic [NBITS-1:0] const_feat_out_linear [0:FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE - 1];
   logic in_inverse_d;
   localparam logic [1:0] ST_CONV_INVERSE = 2'b11;
   localparam int OUTPUT_TILES_PER_AXIS = (FEAT_OUTPUT_SIZE + CONV_OUTPUT_SIZE - 1) / CONV_OUTPUT_SIZE;
@@ -141,7 +140,7 @@ module tb;
         output_linear_idx = output_channel * FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE + addr_in_channel;
 
         if (output_channel < N_CHANNEL_OUT && addr_in_channel < FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE) begin
-          expected_out = const_feat_out_linear[addr_in_channel];
+          expected_out = NBITS'(const_feat_out[addr_in_channel]);
           // Golden check only when accumulation over input channels is complete.
           if (dut.r_input_channel_counter_input == dut.CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1)) begin
             if ($signed(expected_out) != $signed(p_output_data_write)) begin
@@ -164,13 +163,6 @@ module tb;
   initial begin
     $dumpfile("dump.vcd");
     $dumpvars(0, tb);
-
-    // Build linearized golden OFMAP for direct indexed access.
-    for (int row = 0; row < FEAT_OUTPUT_SIZE; row++) begin
-      for (int col = 0; col < FEAT_OUTPUT_SIZE; col++) begin
-        const_feat_out_linear[row * FEAT_OUTPUT_SIZE + col] = NBITS'(const_feat_out[row][col]);
-      end
-    end
 
     // Reset inicial (Ativo alto conforme código fonte)
     reset = 1;
