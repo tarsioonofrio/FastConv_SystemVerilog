@@ -49,7 +49,7 @@ module Control
   localparam WINDOW_COUNT_PER_CHANNEL = WINDOW_COUNT_PER_LINE * WINDOW_COUNT_PER_COLUMN;
 
   localparam WINDOW_COUNTER_WIDTH = $clog2(WINDOW_COUNT_PER_LINE * WINDOW_COUNT_PER_COLUMN);
-  logic [WINDOW_COUNTER_WIDTH-1:0] r_input_window_counter_col;
+  logic [WINDOW_COUNTER_WIDTH-1:0] r_input_window_counter_acc;
 
   localparam WINDOW_ROW_COUNTER_WIDTH = $clog2(WINDOW_COUNT_PER_LINE) + 1;
   logic [WINDOW_ROW_COUNTER_WIDTH-1:0] r_input_window_counter_row;
@@ -87,6 +87,7 @@ module Control
 
   logic [WINDOW_COUNTER_WIDTH-1:0] r_output_window_counter_col;
   logic [WINDOW_ROW_COUNTER_WIDTH-1:0] r_output_window_counter_row;
+  logic [WINDOW_COUNTER_WIDTH-1:0] r_output_window_counter_acc;
   logic [CHANNEL_INPUT_COUNTER_WIDTH-1:0] r_output_channel_counter_input;
   logic [CHANNEL_OUTPUT_COUNTER_WIDTH-1:0] r_output_channel_counter_output;
   logic w_output_last_line, w_output_last_window, w_output_last_input_channel, w_output_last_output_channel;
@@ -214,7 +215,7 @@ module Control
   assign w_input_write_done = r_output_write_count == 0 || r_output_write_count == 8;  // compare to zero for the first write test or the last value (8) in the next convolutions
 
   assign w_input_last_line = (r_input_window_counter_row == WINDOW_ROW_COUNTER_WIDTH'(WINDOW_COUNT_PER_LINE));
-  assign w_input_last_input = (r_input_window_counter_col == WINDOW_COUNTER_WIDTH'(WINDOW_COUNT_PER_CHANNEL));
+  assign w_input_last_input = (r_input_window_counter_acc == WINDOW_COUNTER_WIDTH'(WINDOW_COUNT_PER_CHANNEL));
   assign w_input_last_output = (r_input_channel_counter_output == CHANNEL_OUTPUT_COUNTER_WIDTH'(N_CHANNEL_OUT));
 
   // TODO change to st_output_next == WAIT_OUTPUT
@@ -250,13 +251,13 @@ module Control
   // SET OF FIVE CONTROL REGISTERS:
   // r_input_channel_counter_input: number of the current IFMAP channel being read
   // r_input_channel_counter_output: number of the current OFMAP channel being processed
-  // r_input_window_counter_col:  number of convolutions in a given IFMAP channel
+  // r_input_window_counter_acc: number of convolutions in a given IFMAP channel
   // r_input_window_counter_row :  number of horizontal convolutions in a given IFMAP channel - detect the last line
   // r_input_count_kernel:        number of weights read from memory
   always_ff @(posedge clk or posedge reset) begin: INPUT_CONTROL_COUNTERS_BLOCK
     if (reset) begin
       r_input_count_kernel           <= 0;
-      r_input_window_counter_col     <= 0;
+      r_input_window_counter_acc     <= 0;
       r_input_window_counter_row     <= 0;
       r_input_channel_counter_input  <= '1;  // p_start with all bits in '1' - IFchannel must be {0,1,2}
       r_input_channel_counter_output <= 0;
@@ -269,7 +270,7 @@ module Control
           r_input_channel_counter_input <= r_input_channel_counter_input + 1;
         end
         r_input_count_kernel       <= 0;
-        r_input_window_counter_col <= 0;  // reset counters
+        r_input_window_counter_acc <= 0;  // reset counters
         r_input_window_counter_row <= 0;
       end
 
@@ -278,7 +279,7 @@ module Control
       end
 
       if (st_input_current == TRANSFER) begin
-        r_input_window_counter_col <= r_input_window_counter_col + 1;
+        r_input_window_counter_acc <= r_input_window_counter_acc + 1;
         r_input_window_counter_row <= r_input_window_counter_row + 1;
       end
 
@@ -553,7 +554,7 @@ module Control
 
   assign w_output_last_line = (r_output_window_counter_row == WINDOW_ROW_COUNTER_WIDTH'(WINDOW_COUNT_PER_LINE - 1));
   assign w_output_last_window_in_channel = (w_output_last_line && w_output_last_window);
-  assign w_output_last_input = w_output_last_window_in_channel;
+  assign w_output_last_input = (r_output_window_counter_acc == WINDOW_COUNTER_WIDTH'(WINDOW_COUNT_PER_CHANNEL));
   assign w_output_last_output = (r_output_channel_counter_output == CHANNEL_OUTPUT_COUNTER_WIDTH'(N_CHANNEL_OUT));
 
   always_ff @(posedge clk or posedge reset) begin: OUTPUT_CONTROL_COUNTERS_BLOCK
@@ -574,11 +575,13 @@ module Control
 
   always_ff @(posedge clk or posedge reset) begin: OUTPUT_WINDOW_COUNTERS_BLOCK
     if (reset) begin
+      r_output_window_counter_acc <= '0;
       r_output_window_counter_col <= '0;
       r_output_window_counter_row <= '0;
     end else if (st_output_current == WRITE_OUTPUT && r_output_write_count == 8 &&
                  r_output_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1)) begin
       // Advance window only after accumulating all input channels for this output window.
+      r_output_window_counter_acc <= r_output_window_counter_acc + 1'b1;
       if (w_output_last_line) begin
         r_output_window_counter_row <= '0;
         if (w_output_last_window)
@@ -590,6 +593,7 @@ module Control
       end
     end else if (st_output_current == ADDRESS_OUTPUT) begin
       // New output channel starts from first window
+      r_output_window_counter_acc <= '0;
       r_output_window_counter_col <= '0;
       r_output_window_counter_row <= '0;
     end
