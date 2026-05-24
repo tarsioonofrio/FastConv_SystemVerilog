@@ -35,6 +35,7 @@ module tb;
   int conv_inverse_check_idx;
   int output_error_count;
   logic [NBITS-1:0] output_bank [0:FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT - 1];
+  logic [NBITS-1:0] const_feat_out_linear [0:FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE - 1];
   logic in_inverse_d;
   localparam logic [1:0] ST_CONV_INVERSE = 2'b11;
   localparam int OUTPUT_TILES_PER_AXIS = (FEAT_OUTPUT_SIZE + CONV_OUTPUT_SIZE - 1) / CONV_OUTPUT_SIZE;
@@ -121,8 +122,6 @@ module tb;
       if (p_output_en && p_output_wr) begin
         int output_channel;
         int addr_in_channel;
-        int row_in_channel;
-        int col_in_channel;
         int output_linear_idx;
         logic signed [NBITS-1:0] expected_accum;
         logic [NBITS-1:0] expected_out;
@@ -139,25 +138,23 @@ module tb;
         output_bank[p_output_addr] <= p_output_data_write;
         output_channel = int'(p_output_addr) / OUTPUT_CHANNEL_STRIDE;
         addr_in_channel = int'(p_output_addr) % OUTPUT_CHANNEL_STRIDE;
-        row_in_channel = addr_in_channel / FEAT_OUTPUT_SIZE;
-        col_in_channel = addr_in_channel % FEAT_OUTPUT_SIZE;
+        output_linear_idx = output_channel * FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE + addr_in_channel;
 
-        if (output_channel < N_CHANNEL_OUT && row_in_channel < FEAT_OUTPUT_SIZE && col_in_channel < FEAT_OUTPUT_SIZE) begin
-          output_linear_idx = output_channel * FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE + row_in_channel * FEAT_OUTPUT_SIZE + col_in_channel;
-          expected_out = NBITS'(const_feat_out[row_in_channel][col_in_channel]);
+        if (output_channel < N_CHANNEL_OUT && addr_in_channel < FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE) begin
+          expected_out = const_feat_out_linear[addr_in_channel];
           // Golden check only when accumulation over input channels is complete.
           if (dut.r_input_channel_counter_input == dut.CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1)) begin
             if ($signed(expected_out) != $signed(p_output_data_write)) begin
               output_error_count <= output_error_count + 1;
-              $display("ERROR WRITE GOLDEN: t=%0t addr=%0d ch=%0d row=%0d col=%0d exp=%0d got=%0d",
-                       $realtime, p_output_addr, output_channel, row_in_channel, col_in_channel,
+              $display("ERROR WRITE GOLDEN: t=%0t addr=%0d ch=%0d off=%0d exp=%0d got=%0d",
+                       $realtime, p_output_addr, output_channel, addr_in_channel,
                        $signed(expected_out), $signed(p_output_data_write));
             end
           end
         end else begin
           output_error_count <= output_error_count + 1;
-          $display("ERROR WRITE ADDR OOB: t=%0t addr=%0d ch=%0d row=%0d col=%0d",
-                   $realtime, p_output_addr, output_channel, row_in_channel, col_in_channel);
+          $display("ERROR WRITE ADDR OOB: t=%0t addr=%0d ch=%0d off=%0d",
+                   $realtime, p_output_addr, output_channel, addr_in_channel);
         end
       end
     end
@@ -167,6 +164,13 @@ module tb;
   initial begin
     $dumpfile("dump.vcd");
     $dumpvars(0, tb);
+
+    // Build linearized golden OFMAP for direct indexed access.
+    for (int row = 0; row < FEAT_OUTPUT_SIZE; row++) begin
+      for (int col = 0; col < FEAT_OUTPUT_SIZE; col++) begin
+        const_feat_out_linear[row * FEAT_OUTPUT_SIZE + col] = NBITS'(const_feat_out[row][col]);
+      end
+    end
 
     // Reset inicial (Ativo alto conforme código fonte)
     reset = 1;
