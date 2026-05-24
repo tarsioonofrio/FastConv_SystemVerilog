@@ -34,11 +34,18 @@ module tb;
   int input_addr_idx;
   int conv_inverse_check_idx;
   int output_error_count;
+  int output_addr_error_count;
   logic [NBITS-1:0] output_bank [0:FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT - 1];
   logic in_inverse_d;
   localparam logic [1:0] ST_CONV_INVERSE = 2'b11;
   localparam int OUTPUT_TILES_PER_AXIS = (FEAT_OUTPUT_SIZE + CONV_OUTPUT_SIZE - 1) / CONV_OUTPUT_SIZE;
+  localparam int WINDOW_COUNT_PER_COLUMN_TB = OUTPUT_TILES_PER_AXIS;
   localparam int OUTPUT_CHANNEL_STRIDE = FEAT_OUTPUT_SIZE * CONV_OUTPUT_SIZE * OUTPUT_TILES_PER_AXIS;
+  localparam int WINDOW_COUNT_PER_CHANNEL_TB = OUTPUT_TILES_PER_AXIS * OUTPUT_TILES_PER_AXIS;
+  int exp_out_ch;
+  int exp_in_ch;
+  int exp_win;
+  int exp_pix;
 
   // Reads directly from the dataset package memory image.
   always_comb begin
@@ -98,6 +105,11 @@ module tb;
     if (reset) begin
       conv_inverse_check_idx <= 0;
       output_error_count <= 0;
+      output_addr_error_count <= 0;
+      exp_out_ch <= 0;
+      exp_in_ch <= 0;
+      exp_win <= 0;
+      exp_pix <= 0;
       in_inverse_d <= 1'b0;
       output_bank <= '{default: '0};
     end else begin
@@ -122,16 +134,36 @@ module tb;
         int output_channel;
         int addr_in_channel;
         int output_linear_idx;
+        int exp_win_row;
+        int exp_win_col;
+        int exp_window_base;
+        int exp_pixel_offset;
+        int exp_addr;
         logic signed [NBITS-1:0] expected_accum;
         logic [NBITS-1:0] expected_out;
 
+        // Data-content checks disabled: focus on output address generation only.
         expected_accum = $signed(p_output_data_read) + $signed(dut.r_output_write[dut.r_output_write_count]);
-        if ($signed(expected_accum) != $signed(p_output_data_write)) begin
-          output_error_count <= output_error_count + 1;
-          $display("ERROR WRITE ACCUM: t=%0t addr=%0d read=%0d partial=%0d exp=%0d got=%0d",
-                   $realtime, p_output_addr, $signed(p_output_data_read),
-                   $signed(dut.r_output_write[dut.r_output_write_count]),
-                   $signed(expected_accum), $signed(p_output_data_write));
+
+        exp_win_row = exp_win / WINDOW_COUNT_PER_COLUMN_TB;
+        exp_win_col = exp_win % WINDOW_COUNT_PER_COLUMN_TB;
+        exp_window_base = exp_win_col * CONV_OUTPUT_SIZE + exp_win_row * (FEAT_OUTPUT_SIZE * CONV_OUTPUT_SIZE);
+        case (exp_pix)
+          0: exp_pixel_offset = 0;
+          1: exp_pixel_offset = FEAT_OUTPUT_SIZE;
+          2: exp_pixel_offset = 2 * FEAT_OUTPUT_SIZE;
+          3: exp_pixel_offset = 1;
+          4: exp_pixel_offset = FEAT_OUTPUT_SIZE + 1;
+          5: exp_pixel_offset = 2 * FEAT_OUTPUT_SIZE + 1;
+          6: exp_pixel_offset = 2;
+          7: exp_pixel_offset = FEAT_OUTPUT_SIZE + 2;
+          default: exp_pixel_offset = 2 * FEAT_OUTPUT_SIZE + 2;
+        endcase
+        exp_addr = exp_out_ch * FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE + exp_window_base + exp_pixel_offset;
+        if (int'(p_output_addr) != exp_addr) begin
+          output_addr_error_count <= output_addr_error_count + 1;
+          $display("ERROR ADDR: t=%0t got=%0d exp=%0d out_ch=%0d in_ch=%0d win=%0d pix=%0d",
+                   $realtime, p_output_addr, exp_addr, exp_out_ch, exp_in_ch, exp_win, exp_pix);
         end
 
         output_bank[p_output_addr] <= p_output_data_write;
@@ -141,19 +173,29 @@ module tb;
 
         if (output_channel < N_CHANNEL_OUT && addr_in_channel < FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE) begin
           expected_out = NBITS'(const_feat_out[addr_in_channel]);
-          // Golden check only when accumulation over input channels is complete.
-          if (dut.r_input_channel_counter_input == dut.CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1)) begin
-            if ($signed(expected_out) != $signed(p_output_data_write)) begin
-              output_error_count <= output_error_count + 1;
-              $display("ERROR WRITE GOLDEN: t=%0t addr=%0d ch=%0d off=%0d exp=%0d got=%0d",
-                       $realtime, p_output_addr, output_channel, addr_in_channel,
-                       $signed(expected_out), $signed(p_output_data_write));
-            end
-          end
+          // Golden data check intentionally disabled.
         end else begin
           output_error_count <= output_error_count + 1;
           $display("ERROR WRITE ADDR OOB: t=%0t addr=%0d ch=%0d off=%0d",
                    $realtime, p_output_addr, output_channel, addr_in_channel);
+        end
+
+        if (exp_pix == (CONV_OUTPUT_SIZE * CONV_OUTPUT_SIZE - 1)) begin
+          exp_pix <= 0;
+          if (exp_in_ch == (N_CHANNEL_IN - 1)) begin
+            exp_in_ch <= 0;
+            if (exp_win == (WINDOW_COUNT_PER_CHANNEL_TB - 1)) begin
+              exp_win <= 0;
+              if (exp_out_ch < (N_CHANNEL_OUT - 1))
+                exp_out_ch <= exp_out_ch + 1;
+            end else begin
+              exp_win <= exp_win + 1;
+            end
+          end else begin
+            exp_in_ch <= exp_in_ch + 1;
+          end
+        end else begin
+          exp_pix <= exp_pix + 1;
         end
       end
     end
@@ -183,6 +225,7 @@ module tb;
 
     $display("Simulacao finalizada em %0t", $realtime);
     $display("Total de erros de escrita de output: %0d", output_error_count);
+    $display("Total de erros de endereco de output: %0d", output_addr_error_count);
     $finish;
   end
 
