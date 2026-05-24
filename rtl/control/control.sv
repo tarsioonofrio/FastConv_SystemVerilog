@@ -507,12 +507,24 @@ module Control
   logic w_output_last_input;
   logic w_output_last_output;
   logic w_output_last_window_in_channel;
+  logic w_output_write_done;
+  logic w_output_input_ch_wrap;
+  logic w_output_row_wrap;
+  logic w_output_col_wrap;
 
 
   always_ff @(posedge clk or posedge reset) begin: OUTPUT_STATE_REG_BLOCK
     if (reset) st_output_current <= WAIT_OUTPUT;
     else st_output_current <= st_output_next;
   end
+
+  assign w_output_write_done = (st_output_current == WRITE_OUTPUT) && (r_output_write_count == 8);
+  assign w_output_input_ch_wrap =
+      w_output_write_done && (r_output_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1));
+  assign w_output_row_wrap =
+      w_output_input_ch_wrap && (r_output_window_counter_row == WINDOW_ROW_COUNTER_WIDTH'(WINDOW_COUNT_PER_LINE - 1));
+  assign w_output_col_wrap =
+      w_output_row_wrap && (r_output_window_counter_col == WINDOW_COUNTER_WIDTH'(WINDOW_COUNT_PER_COLUMN - 1));
 
   always_comb begin: OUTPUT_NEXT_STATE_BLOCK
     st_output_next = st_output_current;  // default
@@ -526,19 +538,15 @@ module Control
         if (w_conv_end && r_output_read_count == 8)
           st_output_next = WRITE_OUTPUT;
       WRITE_OUTPUT:
-        if (r_output_write_count == 8) begin
-          if ((r_output_channel_counter_input == 0) && !w_output_last_input)
-            st_output_next = RESET_OUTPUT;     // next window, same output channel
-          else if ((r_output_channel_counter_input > 0) && !w_output_last_input)
+        if (w_output_write_done) begin
+          if (!w_output_input_ch_wrap)
             st_output_next = READ_OUTPUT;      // accumulate next input channel
-          else if (w_output_last_input)
+          else if (!w_output_col_wrap)
+            st_output_next = RESET_OUTPUT;     // next window, same output channel
+          else if (!w_output_last_output_channel)
             st_output_next = ADDRESS_OUTPUT;   // change output channel only
-          else if (w_input_last_output)
-            st_output_next = WAIT_OUTPUT;      // global termination from input traversal
-          // else if (w_output_last_input)
-          //   st_output_next = WAIT_OUTPUT;      // end processing
-            // end else begin
-            //   st_output_next = WRITE_OUTPUT;
+          else
+            st_output_next = WAIT_OUTPUT;      // end processing
         end
       ADDRESS_OUTPUT:
           st_output_next = RESET_OUTPUT;
@@ -560,16 +568,14 @@ module Control
     if (reset) begin
       r_output_channel_counter_input  <= '0;
       r_output_channel_counter_output <= '0;
-    end else if (st_output_current == ADDRESS_OUTPUT) begin
-      if (r_output_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1)) begin
+    end else if (w_output_write_done) begin
+      if (r_output_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1))
         r_output_channel_counter_input <= '0;
-        r_output_channel_counter_output <= r_output_channel_counter_output + 1'b1;
-      end else
+      else
         r_output_channel_counter_input <= r_output_channel_counter_input + 1'b1;
 
-      // if ((r_output_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1)) &&
-      //     w_output_last_window_in_channel && !w_output_last_output_channel)
-      //   r_output_channel_counter_output <= r_output_channel_counter_output + 1'b1;
+      if (w_output_col_wrap && !w_output_last_output_channel)
+        r_output_channel_counter_output <= r_output_channel_counter_output + 1'b1;
     end
   end
 
@@ -577,22 +583,17 @@ module Control
     if (reset) begin
       r_output_window_counter_col <= '0;
       r_output_window_counter_row <= '0;
-    end else if (st_output_current == WRITE_OUTPUT && r_output_write_count == 8 &&
-                 r_output_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1)) begin
+    end else if (w_output_input_ch_wrap) begin
       // Advance window only after accumulating all input channels for this output window.
-      if (w_output_last_line) begin
+      if (w_output_row_wrap) begin
         r_output_window_counter_row <= '0;
-        if (w_output_last_window)
+        if (w_output_col_wrap)
           r_output_window_counter_col <= '0;
         else
           r_output_window_counter_col <= r_output_window_counter_col + 1'b1;
       end else begin
         r_output_window_counter_row <= r_output_window_counter_row + 1'b1;
       end
-    end else if (st_output_current == ADDRESS_OUTPUT) begin
-      // New output channel starts from first window
-      r_output_window_counter_col <= '0;
-      r_output_window_counter_row <= '0;
     end
   end
 
