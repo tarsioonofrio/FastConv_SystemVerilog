@@ -553,9 +553,9 @@ module Control
   assign w_output_last_output_channel = (r_output_channel_counter_output == CHANNEL_OUTPUT_COUNTER_WIDTH'(N_CHANNEL_OUT - 1));
 
   assign w_output_last_line = (r_output_window_counter_row == WINDOW_ROW_COUNTER_WIDTH'(WINDOW_COUNT_PER_LINE - 1));
-  assign w_output_last_window_in_channel = (w_output_last_line && w_output_last_window);
-  assign w_output_last_input = (r_output_window_counter_acc == WINDOW_COUNTER_WIDTH'(WINDOW_COUNT_PER_CHANNEL));
+  assign w_output_last_input = (r_output_window_counter_acc == WINDOW_COUNT_PER_CHANNEL'(WINDOW_COUNT_PER_CHANNEL));
   assign w_output_last_output = (r_output_channel_counter_output == CHANNEL_OUTPUT_COUNTER_WIDTH'(N_CHANNEL_OUT));
+  assign w_output_last_window_in_channel = (w_output_last_line && w_output_last_window);
 
   always_ff @(posedge clk or posedge reset) begin: OUTPUT_CONTROL_COUNTERS_BLOCK
     if (reset) begin
