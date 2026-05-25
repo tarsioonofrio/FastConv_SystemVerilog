@@ -657,15 +657,13 @@ module Control
       r_output_addr_col_base <= '0;
       r_output_addr_row_base <= '0;
     end else begin
-      // Update address bases only when a full output window write is completed
-      // for all input channels.
-      if (st_output_current == WRITE_OUTPUT && r_output_write_count == 8 &&
-          r_output_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1)) begin
+      // Update address on every completed output window write.
+      if (st_output_current == WRITE_OUTPUT && r_output_write_count == 8) begin
         if (w_output_last_line) begin
           r_output_addr_row_base <= '0;
           if (w_output_last_window) begin
             r_output_addr_col_base <= '0;
-            if (!w_output_last_output_channel)
+            if (w_output_last_input && !w_output_last_output_channel)
               r_output_addr_channel_base <= r_output_addr_channel_base + NADDR'(OUTPUT_FEATURE_SIZE);
           end else begin
             r_output_addr_col_base <= r_output_addr_col_base + NADDR'(CONV_OUTPUT_SIZE);
