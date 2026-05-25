@@ -38,7 +38,9 @@ module tb;
   logic in_inverse_d;
   localparam logic [1:0] ST_CONV_INVERSE = 2'b11;
   localparam int OUTPUT_TILES_PER_AXIS = (FEAT_OUTPUT_SIZE + CONV_OUTPUT_SIZE - 1) / CONV_OUTPUT_SIZE;
+  localparam int WINDOW_COUNT_PER_COLUMN_TB = OUTPUT_TILES_PER_AXIS;
   localparam int OUTPUT_CHANNEL_STRIDE = FEAT_OUTPUT_SIZE * CONV_OUTPUT_SIZE * OUTPUT_TILES_PER_AXIS;
+  localparam int WINDOW_COUNT_PER_CHANNEL_TB = OUTPUT_TILES_PER_AXIS * OUTPUT_TILES_PER_AXIS;
 
   // Reads directly from the dataset package memory image.
   always_comb begin
@@ -107,8 +109,8 @@ module tb;
         if (conv_inverse_check_idx < $size(const_feat_out_batch)) begin
           for (int k = 0; k < CONV_OUTPUT_SIZE * CONV_OUTPUT_SIZE; k++) begin
             if ($signed(dut.w_conv_inverse[k]) != $signed(const_feat_out_batch[conv_inverse_check_idx][k])) begin
-              // $display("ERROR INVERSE[%0d] idx=%0d expected=%0d got=%0d time=%0t",
-              //          k, conv_inverse_check_idx, const_feat_out_batch[conv_inverse_check_idx][k], $signed(dut.w_conv_inverse[k]), $realtime);
+              $display("ERROR INVERSE[%0d] idx=%0d expected=%0d got=%0d time=%0t",
+                       k, conv_inverse_check_idx, const_feat_out_batch[conv_inverse_check_idx][k], $signed(dut.w_conv_inverse[k]), $realtime);
             end
           end
         end
@@ -121,43 +123,30 @@ module tb;
       if (p_output_en && p_output_wr) begin
         int output_channel;
         int addr_in_channel;
-        int row_in_channel;
-        int col_in_channel;
         int output_linear_idx;
         logic signed [NBITS-1:0] expected_accum;
         logic [NBITS-1:0] expected_out;
 
         expected_accum = $signed(p_output_data_read) + $signed(dut.r_output_write[dut.r_output_write_count]);
-        if ($signed(expected_accum) != $signed(p_output_data_write)) begin
-          output_error_count <= output_error_count + 1;
-          $display("ERROR WRITE ACCUM: t=%0t addr=%0d read=%0d partial=%0d exp=%0d got=%0d",
-                   $realtime, p_output_addr, $signed(p_output_data_read),
-                   $signed(dut.r_output_write[dut.r_output_write_count]),
-                   $signed(expected_accum), $signed(p_output_data_write));
-        end
 
         output_bank[p_output_addr] <= p_output_data_write;
         output_channel = int'(p_output_addr) / OUTPUT_CHANNEL_STRIDE;
         addr_in_channel = int'(p_output_addr) % OUTPUT_CHANNEL_STRIDE;
-        row_in_channel = addr_in_channel / FEAT_OUTPUT_SIZE;
-        col_in_channel = addr_in_channel % FEAT_OUTPUT_SIZE;
+        output_linear_idx = output_channel * FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE + addr_in_channel;
 
-        if (output_channel < N_CHANNEL_OUT && row_in_channel < FEAT_OUTPUT_SIZE && col_in_channel < FEAT_OUTPUT_SIZE) begin
-          output_linear_idx = output_channel * FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE + row_in_channel * FEAT_OUTPUT_SIZE + col_in_channel;
-          expected_out = NBITS'(const_feat_out[row_in_channel][col_in_channel]);
-          // Golden check only when accumulation over input channels is complete.
-          if (dut.r_input_channel_counter_input == dut.CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1)) begin
-            if ($signed(expected_out) != $signed(p_output_data_write)) begin
-              output_error_count <= output_error_count + 1;
-              $display("ERROR WRITE GOLDEN: t=%0t addr=%0d ch=%0d row=%0d col=%0d exp=%0d got=%0d",
-                       $realtime, p_output_addr, output_channel, row_in_channel, col_in_channel,
-                       $signed(expected_out), $signed(p_output_data_write));
-            end
+        if (output_channel < N_CHANNEL_OUT && addr_in_channel < FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE) begin
+          expected_out = NBITS'(const_feat_out[addr_in_channel]);
+          if ($signed(p_output_data_write) != $signed(expected_out)) begin
+            output_error_count <= output_error_count + 1;
+            $display("ERROR WRITE GOLDEN: t=%0t addr=%0d ch=%0d off=%0d got=%0d exp=%0d accum_exp=%0d read=%0d inv=%0d",
+                     $realtime, p_output_addr, output_channel, addr_in_channel, $signed(p_output_data_write),
+                     $signed(expected_out), expected_accum, $signed(p_output_data_read),
+                     $signed(dut.r_output_write[dut.r_output_write_count]));
           end
         end else begin
           output_error_count <= output_error_count + 1;
-          $display("ERROR WRITE ADDR OOB: t=%0t addr=%0d ch=%0d row=%0d col=%0d",
-                   $realtime, p_output_addr, output_channel, row_in_channel, col_in_channel);
+          $display("ERROR WRITE ADDR OOB: t=%0t addr=%0d ch=%0d off=%0d",
+                   $realtime, p_output_addr, output_channel, addr_in_channel);
         end
       end
     end
