@@ -528,9 +528,9 @@ module Control
           st_output_next = WRITE_OUTPUT;
       WRITE_OUTPUT:
         if (r_output_write_count == 8) begin
-          if ((r_output_channel_counter_input == 0) && !w_output_last_input)
+          if ((r_output_channel_counter_output == 0) && !w_output_last_input)
             st_output_next = RESET_OUTPUT;     // next window, same output channel
-          else if ((r_output_channel_counter_input > 0) && !w_output_last_input)
+          else if ((r_output_channel_counter_output > 0) && !w_output_last_input)
             st_output_next = READ_OUTPUT;      // accumulate next input channel
           else if (w_output_last_input)
             st_output_next = ADDRESS_OUTPUT;   // change output channel only
@@ -568,8 +568,12 @@ module Control
         r_output_channel_counter_input <= r_output_channel_counter_input + 1'b1;
 
       if ((r_output_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1)) &&
-          w_output_last_window_in_channel && !w_output_last_output_channel)
-        r_output_channel_counter_output <= r_output_channel_counter_output + 1'b1;
+          w_output_last_window_in_channel) begin
+        if (w_output_last_output_channel)
+          r_output_channel_counter_output <= '0;
+        else
+          r_output_channel_counter_output <= r_output_channel_counter_output + 1'b1;
+      end
     end
   end
 
