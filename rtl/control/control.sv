@@ -542,7 +542,10 @@ module Control
             //   st_output_next = WRITE_OUTPUT;
         end
       ADDRESS_OUTPUT:
-          st_output_next = RESET_OUTPUT;
+        if ((r_output_channel_counter_input == 0))
+          st_output_next = WRITE_OUTPUT;     // next window, same output channel
+        else if ((r_output_channel_counter_input > 0))
+          st_output_next = READ_OUTPUT;      // accumulate next input channel
       default:
         st_output_next = WAIT_OUTPUT;
     endcase
