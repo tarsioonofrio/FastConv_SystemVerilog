@@ -660,17 +660,23 @@ module Control
       r_output_addr_col_base <= '0;
       r_output_addr_row_base <= '0;
     end else begin
-      // Update address on every completed output window write.
+      // Address generation for output map:
+      // - slide window every completed WRITE_OUTPUT window
+      // - when one input-channel pass finishes, restart window scan at channel base
+      // - when last input channel finishes, advance to next output channel base
       if (st_output_current == WRITE_OUTPUT && r_output_write_count == 8) begin
-        if (w_output_last_line) begin
+        if (w_output_last_input) begin
+          r_output_addr_col_base <= '0;
           r_output_addr_row_base <= '0;
-          if (w_output_last_window) begin
+          if ((r_output_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1)) &&
+              !w_output_last_output_channel)
+            r_output_addr_channel_base <= r_output_addr_channel_base + NADDR'(OUTPUT_FEATURE_SIZE);
+        end else if (w_output_last_line) begin
+          r_output_addr_row_base <= '0;
+          if (w_output_last_window)
             r_output_addr_col_base <= '0;
-            if (w_output_last_input && !w_output_last_output_channel)
-              r_output_addr_channel_base <= r_output_addr_channel_base + NADDR'(OUTPUT_FEATURE_SIZE);
-          end else begin
+          else
             r_output_addr_col_base <= r_output_addr_col_base + NADDR'(CONV_OUTPUT_SIZE);
-          end
         end else begin
           r_output_addr_row_base <= r_output_addr_row_base + NADDR'(OUTPUT_WINDOW_COLUMN_STEP);
         end
