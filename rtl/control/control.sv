@@ -562,10 +562,12 @@ module Control
       r_output_channel_counter_input  <= '0;
       r_output_channel_counter_output <= '0;
     end else if (st_output_current == WRITE_OUTPUT && r_output_write_count == 8) begin
-      if (r_output_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1))
-        r_output_channel_counter_input <= '0;
-      else
-        r_output_channel_counter_input <= r_output_channel_counter_input + 1'b1;
+      if (w_output_last_input) begin
+        if (r_output_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1))
+          r_output_channel_counter_input <= '0;
+        else
+          r_output_channel_counter_input <= r_output_channel_counter_input + 1'b1;
+      end
 
       if ((r_output_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1)) &&
           w_output_last_window_in_channel && !w_output_last_output_channel)
