@@ -547,10 +547,10 @@ module Control
             //   st_output_next = WRITE_OUTPUT;
         end
       NEXT_ROW_OUTPUT:
-        if ((r_output_channel_counter_input == 0))
-          st_output_next = RESET_OUTPUT;     // next window, same output channel
-        else if (w_output_last_input_channel)
+        if (w_output_last_window)
           st_output_next = ADDRESS_OUTPUT;      // accumulate next input channel
+        else if ((r_output_channel_counter_input == 0))
+          st_output_next = RESET_OUTPUT;     // next window, same output channel
         else if ((r_output_channel_counter_input > 0))
           st_output_next = READ_OUTPUT;      // accumulate next input channel
       ADDRESS_OUTPUT:
