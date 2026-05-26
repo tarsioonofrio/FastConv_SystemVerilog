@@ -95,9 +95,9 @@ module Control
   logic [NADDR-1:0] r_output_addr_offset_write;
   logic [NADDR-1:0] w_output_addr_offset_read;
   logic [NADDR-1:0] w_output_addr_offset_write;
-  logic [NADDR-1:0] r_output_addr_channel_base;
-  logic [NADDR-1:0] r_output_addr_col_base;
-  logic [NADDR-1:0] r_output_addr_row_base;
+  logic [NADDR-1:0] r_output_addr_channel;
+  logic [NADDR-1:0] r_output_addr_col;
+  logic [NADDR-1:0] r_output_addr_row;
 
 
   // -------------------------------------------------------------------------
@@ -642,9 +642,9 @@ module Control
 
   always_ff @(posedge clk or posedge reset) begin: OUTPUT_ADDR_POINTER_BLOCK
     if (reset) begin
-      r_output_addr_channel_base <= '0;
-      r_output_addr_col_base <= '0;
-      r_output_addr_row_base <= '0;
+      r_output_addr_channel <= '0;
+      r_output_addr_col <= '0;
+      r_output_addr_row <= '0;
     end else begin
       // Address generation for output map:
       // - slide window every completed WRITE_OUTPUT window
@@ -652,24 +652,24 @@ module Control
       // - when last input channel finishes, advance to next output channel base
       if (st_output_current == WRITE_OUTPUT && r_output_write_count == 8) begin
         if (w_output_last_window_acc) begin
-          r_output_addr_col_base <= '0;
-          r_output_addr_row_base <= '0;
+          r_output_addr_col <= '0;
+          r_output_addr_row <= '0;
           if (w_output_last_channel_input && !w_output_last_channel_output)
-            r_output_addr_channel_base <= r_output_addr_channel_base + NADDR'(FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
+            r_output_addr_channel <= r_output_addr_channel + NADDR'(FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
         end else if (w_output_last_window_row) begin
-          r_output_addr_row_base <= '0;
+          r_output_addr_row <= '0;
           if (w_output_last_window_col)
-            r_output_addr_col_base <= '0;
+            r_output_addr_col <= '0;
           else
-            r_output_addr_col_base <= r_output_addr_col_base + NADDR'(CONV_OUTPUT_SIZE);
+            r_output_addr_col <= r_output_addr_col + NADDR'(CONV_OUTPUT_SIZE);
         end else begin
-          r_output_addr_row_base <= r_output_addr_row_base + NADDR'(FEAT_OUTPUT_SIZE * CONV_OUTPUT_SIZE);
+          r_output_addr_row <= r_output_addr_row + NADDR'(FEAT_OUTPUT_SIZE * CONV_OUTPUT_SIZE);
         end
       end
       if (st_output_current == ADDRESS_OUTPUT) begin
         // New channel starts at first window position.
-        r_output_addr_col_base <= '0;
-        r_output_addr_row_base <= '0;
+        r_output_addr_col <= '0;
+        r_output_addr_row <= '0;
       end
     end
   end
@@ -707,7 +707,7 @@ module Control
     end
   end
 
-  assign w_output_addr = r_output_addr_channel_base + r_output_addr_col_base + r_output_addr_row_base;
+  assign w_output_addr = r_output_addr_channel + r_output_addr_col + r_output_addr_row;
   assign p_output_data_write = r_output_write[r_output_write_count] + r_output_read[r_output_write_count];
   assign p_output_addr = (st_output_current == READ_OUTPUT) ? w_output_addr + r_output_addr_offset_read : w_output_addr + r_output_addr_offset_write;  // p_input_addr mux
   assign p_output_en = (((st_output_current == READ_OUTPUT) && r_output_read_count < 8) || (st_output_current == WRITE_OUTPUT)) ? '1 : '0;
