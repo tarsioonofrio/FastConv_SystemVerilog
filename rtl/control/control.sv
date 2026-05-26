@@ -507,7 +507,6 @@ module Control
   // ----------------------------------------------------------------------------------------------------
 
   logic w_output_last_window_acc;
-  logic w_output_last_window_in_channel;
 
 
   always_ff @(posedge clk or posedge reset) begin: OUTPUT_STATE_REG_BLOCK
@@ -564,20 +563,19 @@ module Control
     endcase
   end
 
-  assign w_output_last_window_col = (r_output_window_counter_col == WINDOW_COUNTER_WIDTH'(WINDOW_COUNT_PER_COLUMN - 1));
   assign w_output_last_input_channel = (r_output_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1));
   assign w_output_last_output_channel = (r_output_channel_counter_output == CHANNEL_OUTPUT_COUNTER_WIDTH'(N_CHANNEL_OUT - 1));
 
+  assign w_output_last_window_col = (r_output_window_counter_col == WINDOW_COUNTER_WIDTH'(WINDOW_COUNT_PER_COLUMN - 1));
   assign w_output_last_window_row = (r_output_window_counter_row == WINDOW_ROW_COUNTER_WIDTH'(WINDOW_COUNT_PER_LINE - 1));
   assign w_output_last_window_acc = (r_output_window_counter_acc == WINDOW_COUNT_PER_CHANNEL'(WINDOW_COUNT_PER_CHANNEL - 1));
-  // assign w_output_last_window_in_channel = (w_output_last_window_row && w_output_last_window_col);
 
   always_ff @(posedge clk or posedge reset) begin: OUTPUT_CONTROL_COUNTERS_BLOCK
     if (reset) begin
       r_output_channel_counter_input  <= '0;
       r_output_channel_counter_output <= '0;
     end else if (st_output_current == ADDRESS_OUTPUT) begin
-      if (r_output_channel_counter_input == CHANNEL_OUTPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1))  begin
+      if (w_output_last_input_channel)  begin
         r_output_channel_counter_input <= '0;
         r_output_channel_counter_output <= r_output_channel_counter_output + 1'b1;
       end else
@@ -669,8 +667,7 @@ module Control
         if (w_output_last_window_acc) begin
           r_output_addr_col_base <= '0;
           r_output_addr_row_base <= '0;
-          if ((r_output_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1)) &&
-              !w_output_last_output_channel)
+          if (w_output_last_input_channel && !w_output_last_output_channel)
             r_output_addr_channel_base <= r_output_addr_channel_base + NADDR'(OUTPUT_FEATURE_SIZE);
         end else if (w_output_last_window_row) begin
           r_output_addr_row_base <= '0;

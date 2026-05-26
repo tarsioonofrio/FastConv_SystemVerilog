@@ -88,7 +88,7 @@ Key registers in this process:
 
 - `st_input_current`, `st_input_next`: input FSM state/current-next.
 - `r_input_addr_count`: inner 0..4 read counter used in all `READ_IN_*` states.
-- `r_input_window_counter_col`: increments in `TRANSFER` and resets in `UPDATE_ADDRESS`; tracks total windows processed in the current IFMAP channel.
+- `r_input_window_counter_acc`: increments in `TRANSFER` and resets in `ADDRESS_INPUT`; tracks total windows processed in the current IFMAP channel.
 - `r_input_window_counter_row`: increments in `TRANSFER`, resets in `NEXT_ROW`/`UPDATE_ADDRESS`; tracks windows in the current row sweep.
 - `r_input_count_kernel`: increments in `READ_WEIGHTS`; tracks weight-read index inside one kernel load.
 - `w_input_base_feat`: write-base selector used to place incoming samples in `r_input_feat`.
@@ -98,7 +98,7 @@ Key registers in this process:
 flowchart TB
     W(["WAIT"]) -->|"p_start"| AP(["AP"]) --> RW(["READ_WEIGHTS"])
     RW -->|"w_input_weight_done"| READ_IN_10A(["READ_IN_10A"])
-    RW -->|"w_input_last_output"| W
+    RW -->|"w_input_last_output_channel"| W
     READ_IN_10A -->|"r_input_addr_count==4"| READ_IN_10B(["READ_IN_10B"])
     READ_IN_10B -->|"r_input_addr_count==4"| READ_IN_15A(["READ_IN_15A"])
     READ_IN_15A -->|"r_input_addr_count==4"| READ_IN_15B(["READ_IN_15B"])
@@ -107,8 +107,8 @@ flowchart TB
     X --> HW(["HOLD_WRITE"])
     HW -->|"w_input_write_done && !w_input_last_line"| READ_IN_15A
     HW -->|"w_input_write_done && w_input_last_line"| NR(["NEXT_ROW"])
-    NR -->|"w_input_last_input"| AP
-    NR -->|"!w_input_last_input"| READ_IN_10A
+    NR -->|"w_input_last_input_acc"| AP
+    NR -->|"!w_input_last_input_acc"| READ_IN_10A
 ```
 
 ### Convolution Micro-FSM (`st_conv_current`)
@@ -144,6 +144,6 @@ flowchart TB
     R(["READ_OUTPUT"]) -->|"w_conv_end && r_output_read_count==8"| WR
     WR -->|"r_input_channel_counter_input==0 && r_output_write_count==8"| Z
     WR -->|"r_input_channel_counter_input>0 && r_output_write_count==8"| R
-    WR -->|"w_input_last_output"| WW
+    WR -->|"w_input_last_output_channel"| WW
     WR -->|"otherwise"| WR
 ```
