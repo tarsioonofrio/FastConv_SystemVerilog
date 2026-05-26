@@ -18,7 +18,7 @@ add wave -noupdate -color purple -radix unsigned /tb/dut/r_input_addr_count
 add wave -noupdate -divider {INPUT CHANNEL COUNTERS}
 add wave -noupdate -color purple -radix unsigned /tb/dut/r_input_channel_counter_input
 add wave -noupdate -color purple -radix unsigned /tb/dut/r_input_channel_counter_output
-add wave -noupdate -color purple -radix unsigned /tb/dut/r_input_window_counter_acc
+add wave -noupdate -color purple -radix unsigned /tb/dut/r_input_window_counter_col
 add wave -noupdate -color purple -radix unsigned /tb/dut/r_input_window_counter_acc
 add wave -noupdate -color purple -radix decimal /tb/dut/r_input_count_kernel
 add wave -noupdate -color purple -radix decimal /tb/dut/w_input_write_done
@@ -63,17 +63,18 @@ add wave -noupdate -radix unsigned /tb/dut/r_output_window_counter_row
 add wave -noupdate -radix unsigned /tb/dut/r_output_window_counter_acc
 add wave -noupdate -radix unsigned /tb/dut/r_output_channel_counter_input
 add wave -noupdate -radix unsigned /tb/dut/r_output_channel_counter_output
-add wave -noupdate /tb/dut/w_output_last_line
-add wave -noupdate /tb/dut/w_output_last_input
-add wave -noupdate /tb/dut/w_output_last_window
-add wave -noupdate /tb/dut/w_output_last_input_channel
+add wave -noupdate /tb/dut/w_output_last_window_row
+add wave -noupdate /tb/dut/w_output_last_window_col
+add wave -noupdate /tb/dut/w_output_last_window_acc
+add wave -noupdate /tb/dut/w_output_last_channel_input
+add wave -noupdate /tb/dut/w_output_last_channel_output
 add wave -noupdate /tb/dut/st_output_current
 add wave -noupdate -radix unsigned -childformat {{{/tb/p_output_addr[15]} -radix unsigned} {{/tb/p_output_addr[14]} -radix unsigned} {{/tb/p_output_addr[13]} -radix unsigned} {{/tb/p_output_addr[12]} -radix unsigned} {{/tb/p_output_addr[11]} -radix unsigned} {{/tb/p_output_addr[10]} -radix decimal} {{/tb/p_output_addr[9]} -radix decimal} {{/tb/p_output_addr[8]} -radix decimal} {{/tb/p_output_addr[7]} -radix decimal} {{/tb/p_output_addr[6]} -radix decimal} {{/tb/p_output_addr[5]} -radix decimal} {{/tb/p_output_addr[4]} -radix decimal} {{/tb/p_output_addr[3]} -radix decimal} {{/tb/p_output_addr[2]} -radix decimal} {{/tb/p_output_addr[1]} -radix decimal} {{/tb/p_output_addr[0]} -radix decimal}} -subitemconfig {{/tb/p_output_addr[15]} {-height 16 -radix unsigned} {/tb/p_output_addr[14]} {-height 16 -radix unsigned} {/tb/p_output_addr[13]} {-height 16 -radix unsigned} {/tb/p_output_addr[12]} {-height 16 -radix unsigned} {/tb/p_output_addr[11]} {-height 16 -radix unsigned} {/tb/p_output_addr[10]} {-height 16 -radix decimal} {/tb/p_output_addr[9]} {-height 16 -radix decimal} {/tb/p_output_addr[8]} {-height 16 -radix decimal} {/tb/p_output_addr[7]} {-height 16 -radix decimal} {/tb/p_output_addr[6]} {-height 16 -radix decimal} {/tb/p_output_addr[5]} {-height 16 -radix decimal} {/tb/p_output_addr[4]} {-height 16 -radix decimal} {/tb/p_output_addr[3]} {-height 16 -radix decimal} {/tb/p_output_addr[2]} {-height 16 -radix decimal} {/tb/p_output_addr[1]} {-height 16 -radix decimal} {/tb/p_output_addr[0]} {-height 16 -radix decimal}} /tb/p_output_addr
 add wave -noupdate -radix unsigned /tb/dut/r_output_addr
 add wave -noupdate -radix unsigned /tb/dut/w_output_addr
-add wave -noupdate -radix unsigned /tb/dut/r_output_addr_channel_base
-add wave -noupdate -radix unsigned /tb/dut/r_output_addr_col_base
-add wave -noupdate -radix unsigned /tb/dut/r_output_addr_row_base
+add wave -noupdate -radix unsigned /tb/dut/r_output_addr_channel
+add wave -noupdate -radix unsigned /tb/dut/r_output_addr_col
+add wave -noupdate -radix unsigned /tb/dut/r_output_addr_row
 add wave -noupdate -radix decimal /tb/dut/r_output_addr_offset_read
 add wave -noupdate -radix decimal /tb/dut/r_output_addr_offset_write
 add wave -noupdate -radix decimal /tb/dut/w_output_addr_offset_read
