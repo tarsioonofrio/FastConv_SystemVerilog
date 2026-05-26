@@ -106,7 +106,7 @@ This document records the naming migration applied to the `rtl/control` block to
 | `r_addr_pointer_kernel` | `r_input_addr_kernel`   |
 | `current_IFchannel` | `r_input_channel_counter_input`  |
 | `current_OFchannel` | `r_input_channel_counter_output` |
-| `cnt_convolutions`  | `r_input_window_counter_col` |
+| `cnt_convolutions`  | `r_input_window_counter_acc` |
 | `cnt_horiz_convs`   | `r_window_counter_row`     |
 | `base_VRd`          | `w_input_base_feat`        |
 | `cnt_col`           | `r_input_addr_count`       |
@@ -116,8 +116,8 @@ This document records the naming migration applied to the `rtl/control` block to
 | `w_weight_done`     | `w_input_weight_done`      |
 | `w_write_done`      | `w_input_write_done`       |
 | `last_line`         | `w_input_last_line`        |
-| `last_input`        | `w_input_last_input`       |
-| `last_output`       | `w_input_last_output`      |
+| `last_input`        | `w_input_last_input_acc`       |
+| `last_output`       | `w_input_last_output_channel`      |
 | `cnt_multip`        | `r_conv_multiply_count`    |
 
 ## 7. Testbench Naming
@@ -148,8 +148,8 @@ As requested, the migration did not rename `*_last_*` naming to `*_is_last_*`.
 Examples intentionally kept:
 
 - `w_input_last_line`
-- `w_input_last_input`
-- `w_input_last_output`
+- `w_input_last_input_acc`
+- `w_input_last_output_channel`
 
 ## 10. Wave Script Compatibility
 
