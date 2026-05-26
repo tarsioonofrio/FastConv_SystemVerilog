@@ -96,7 +96,6 @@ module Control
   logic [NADDR-1:0] r_output_addr_offset_write;
   logic [NADDR-1:0] w_output_addr_offset_read;
   logic [NADDR-1:0] w_output_addr_offset_write;
-  logic [NADDR-1:0] r_output_addr_next;
   logic [NADDR-1:0] r_output_addr_channel_base;
   logic [NADDR-1:0] r_output_addr_col_base;
   logic [NADDR-1:0] r_output_addr_row_base;
@@ -508,26 +507,13 @@ module Control
   // ----------------------------------------------------------------------------------------------------
 
   logic w_output_last_input;
-  logic w_output_last_output;
   logic w_output_last_window_in_channel;
-  logic w_output_write_done;
-  logic w_output_input_ch_wrap;
-  logic w_output_row_wrap;
-  logic w_output_col_wrap;
 
 
   always_ff @(posedge clk or posedge reset) begin: OUTPUT_STATE_REG_BLOCK
     if (reset) st_output_current <= WAIT_OUTPUT;
     else st_output_current <= st_output_next;
   end
-
-  assign w_output_write_done = (st_output_current == WRITE_OUTPUT) && (r_output_write_count == 8);
-  assign w_output_input_ch_wrap =
-      w_output_write_done && (r_output_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1));
-  assign w_output_row_wrap =
-      w_output_input_ch_wrap && (r_output_window_counter_row == WINDOW_ROW_COUNTER_WIDTH'(WINDOW_COUNT_PER_LINE - 1));
-  assign w_output_col_wrap =
-      w_output_row_wrap && (r_output_window_counter_col == WINDOW_COUNTER_WIDTH'(WINDOW_COUNT_PER_COLUMN - 1));
 
   always_comb begin: OUTPUT_NEXT_STATE_BLOCK
     st_output_next = st_output_current;  // default
@@ -584,7 +570,6 @@ module Control
 
   assign w_output_last_line = (r_output_window_counter_row == WINDOW_ROW_COUNTER_WIDTH'(WINDOW_COUNT_PER_LINE - 1));
   assign w_output_last_input = (r_output_window_counter_acc == WINDOW_COUNT_PER_CHANNEL'(WINDOW_COUNT_PER_CHANNEL - 1));
-  assign w_output_last_output = (r_output_channel_counter_output == CHANNEL_OUTPUT_COUNTER_WIDTH'(N_CHANNEL_OUT));
   assign w_output_last_window_in_channel = (w_output_last_line && w_output_last_window);
 
   always_ff @(posedge clk or posedge reset) begin: OUTPUT_CONTROL_COUNTERS_BLOCK
@@ -672,7 +657,6 @@ module Control
   always_ff @(posedge clk or posedge reset) begin: OUTPUT_ADDR_POINTER_BLOCK
     if (reset) begin
       r_output_addr <= '0;
-      r_output_addr_next <= 3;
       r_output_addr_channel_base <= '0;
       r_output_addr_col_base <= '0;
       r_output_addr_row_base <= '0;
