@@ -17,7 +17,7 @@ add wave -noupdate -radix decimal /tb/dut/w_input_base_feat
 add wave -noupdate -color purple -radix unsigned /tb/dut/r_input_addr_count
 add wave -noupdate -color purple -radix unsigned /tb/dut/r_input_channel_counter_input
 add wave -noupdate -color purple -radix unsigned /tb/dut/r_input_channel_counter_output
-add wave -noupdate -color purple -radix unsigned /tb/dut/r_input_window_counter_row
+add wave -noupdate -color purple -radix unsigned /tb/dut/r_input_window_counter_col
 add wave -noupdate -color purple -radix unsigned /tb/dut/r_input_window_counter_acc
 add wave -noupdate -color purple -radix decimal /tb/dut/r_input_count_kernel
 add wave -noupdate -color purple -radix decimal /tb/dut/w_input_write_done
