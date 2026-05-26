@@ -52,7 +52,7 @@ module Control
   logic [WINDOW_COUNTER_WIDTH-1:0] r_input_window_counter_acc;
 
   localparam WINDOW_ROW_COUNTER_WIDTH = $clog2(WINDOW_COUNT_PER_LINE) + 1;
-  logic [WINDOW_ROW_COUNTER_WIDTH-1:0] r_input_window_counter_row;
+  logic [WINDOW_ROW_COUNTER_WIDTH-1:0] r_input_window_counter_col;
 
   localparam ADDR_INPUT_COUNTER_WIDTH = $clog2(WINDOW_COUNT_PER_COLUMN) + 1;
   logic [ADDR_INPUT_COUNTER_WIDTH-1:0] w_input_base_feat, r_input_addr_count;
@@ -84,6 +84,7 @@ module Control
   logic [NBITS-1:0] r_output_write [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
   logic [NBITS-1:0] r_output_read [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
   logic [NADDR-1:0] r_output_addr;
+  logic [NADDR-1:0] w_output_addr;
 
   logic [WINDOW_COUNTER_WIDTH-1:0] r_output_window_counter_col;
   logic [WINDOW_ROW_COUNTER_WIDTH-1:0] r_output_window_counter_row;
@@ -115,7 +116,7 @@ module Control
     READ_IN_15C,
     HOLD_WRITE,
     TRANSFER,
-    NEXT_ROW
+    NEXT_ROW_INPUT
   } type_st_input;
   type_st_input st_input_current, st_input_next;
 
@@ -131,8 +132,9 @@ module Control
     WAIT_OUTPUT,
     ADDRESS_OUTPUT,
     RESET_OUTPUT,
+    WRITE_OUTPUT,
     READ_OUTPUT,
-    WRITE_OUTPUT
+    NEXT_ROW_OUTPUT
   } type_st_output;
   type_st_output st_output_current, st_output_next;
 
@@ -148,7 +150,7 @@ module Control
     end
     else if ((st_input_current == READ_IN_10A && st_input_next == READ_IN_10B) || (st_input_current == READ_IN_10B && st_input_next == READ_IN_15A) || (st_input_current == READ_IN_15A && st_input_next == READ_IN_15B) || (st_input_current == READ_IN_15B && st_input_next == READ_IN_15C) || st_input_current == TRANSFER)
       r_input_addr_feat <= r_input_addr_feat + NADDR'(FEAT_INPUT_WIDTH);    // change internal p_input_addr in the state transition or in the TRANSFER state (CAUTION: PE)
-    else if (st_input_current == NEXT_ROW && !w_input_last_input) begin  // when change the line, the read pointer moves 'r_input_window_next'
+    else if (st_input_current == NEXT_ROW_INPUT && !w_input_last_input) begin  // when change the line, the read pointer moves 'r_input_window_next'
       r_input_addr_feat <= r_input_window_next + NADDR'(r_input_channel_counter_input * FEAT_INPUT_SIZE * FEAT_INPUT_WIDTH);  // restart for the first line
       r_input_window_next <= r_input_window_next + 3;
     end else if (st_input_current == ADDRESS_INPUT && w_input_last_input) begin
@@ -201,10 +203,10 @@ module Control
       READ_IN_15C: if (r_input_addr_count == 4) st_input_next = TRANSFER;
       TRANSFER: st_input_next = HOLD_WRITE;  // p_start the convolution
       HOLD_WRITE:
-        if (w_input_last_line && w_input_write_done) st_input_next = NEXT_ROW;
+        if (w_input_last_line && w_input_write_done) st_input_next = NEXT_ROW_INPUT;
           else if (w_input_write_done) st_input_next = READ_IN_15A;
         else st_input_next = HOLD_WRITE;
-      NEXT_ROW:
+      NEXT_ROW_INPUT:
         if (w_input_last_input) st_input_next = ADDRESS_INPUT;
         else st_input_next = READ_IN_10A;
       default: st_input_next = WAIT_INPUT;
@@ -214,7 +216,7 @@ module Control
   assign w_input_weight_done = (r_input_count_kernel == WEIGHT_WIDTH'(WEIGHT_CYCLES - 1));
   assign w_input_write_done = r_output_write_count == 0 || r_output_write_count == 8;  // compare to zero for the first write test or the last value (8) in the next convolutions
 
-  assign w_input_last_line = (r_input_window_counter_row == WINDOW_ROW_COUNTER_WIDTH'(WINDOW_COUNT_PER_LINE));
+  assign w_input_last_line = (r_input_window_counter_col == WINDOW_ROW_COUNTER_WIDTH'(WINDOW_COUNT_PER_LINE));
   assign w_input_last_input = (r_input_window_counter_acc == WINDOW_COUNTER_WIDTH'(WINDOW_COUNT_PER_CHANNEL));
   assign w_input_last_output = (r_input_channel_counter_output == CHANNEL_OUTPUT_COUNTER_WIDTH'(N_CHANNEL_OUT));
 
@@ -252,13 +254,13 @@ module Control
   // r_input_channel_counter_input: number of the current IFMAP channel being read
   // r_input_channel_counter_output: number of the current OFMAP channel being processed
   // r_input_window_counter_acc: number of convolutions in a given IFMAP channel
-  // r_input_window_counter_row :  number of horizontal convolutions in a given IFMAP channel - detect the last line
+  // r_input_window_counter_col :  number of horizontal convolutions in a given IFMAP channel - detect the last line
   // r_input_count_kernel:        number of weights read from memory
   always_ff @(posedge clk or posedge reset) begin: INPUT_CONTROL_COUNTERS_BLOCK
     if (reset) begin
       r_input_count_kernel           <= 0;
       r_input_window_counter_acc     <= 0;
-      r_input_window_counter_row     <= 0;
+      r_input_window_counter_col     <= 0;
       r_input_channel_counter_input  <= '1;  // p_start with all bits in '1' - IFchannel must be {0,1,2}
       r_input_channel_counter_output <= 0;
     end else begin
@@ -271,16 +273,16 @@ module Control
         end
         r_input_count_kernel       <= 0;
         r_input_window_counter_acc <= 0;  // reset counters
-        r_input_window_counter_row <= 0;
+        r_input_window_counter_col <= 0;
       end
 
-      if (st_input_current == NEXT_ROW) begin
-        r_input_window_counter_row <= 0;
+      if (st_input_current == NEXT_ROW_INPUT) begin
+        r_input_window_counter_col <= 0;
       end
 
       if (st_input_current == TRANSFER) begin
         r_input_window_counter_acc <= r_input_window_counter_acc + 1;
-        r_input_window_counter_row <= r_input_window_counter_row + 1;
+        r_input_window_counter_col <= r_input_window_counter_col + 1;
       end
 
       if (st_input_current == READ_WEIGHTS) begin
@@ -531,7 +533,8 @@ module Control
     st_output_next = st_output_current;  // default
     priority case (st_output_current)
       WAIT_OUTPUT:
-        st_output_next = RESET_OUTPUT;
+        if (st_input_current == ADDRESS_INPUT)
+          st_output_next = RESET_OUTPUT;
       RESET_OUTPUT:
         if (w_conv_end)
           st_output_next = WRITE_OUTPUT;
@@ -539,18 +542,37 @@ module Control
         if (w_conv_end && r_output_read_count == 8)
           st_output_next = WRITE_OUTPUT;
       WRITE_OUTPUT:
-        if (w_output_write_done) begin
-          if (!w_output_input_ch_wrap)
+        if (r_output_write_count == 8) begin
+          if (((r_output_channel_counter_input) > 0) && !w_output_last_line)
             st_output_next = READ_OUTPUT;      // accumulate next input channel
-          else if (!w_output_col_wrap)
-            st_output_next = RESET_OUTPUT;     // next window, same output channel
-          else if (!w_output_last_output_channel)
-            st_output_next = ADDRESS_OUTPUT;   // change output channel only
           else
-            st_output_next = WAIT_OUTPUT;      // end processing
+          if ((r_output_channel_counter_input) == 0 && !w_output_last_line)
+            st_output_next = RESET_OUTPUT;     // next window, same output channel
+          else
+          if (w_input_last_output)
+            st_output_next = WAIT_OUTPUT;      // global termination from input traversal
+          else
+          if (w_output_last_line)
+            st_output_next = NEXT_ROW_OUTPUT;   // change output channel only
+          // else if (w_output_last_input)
+          //   st_output_next = WAIT_OUTPUT;      // end processing
+            // end else begin
+            //   st_output_next = WRITE_OUTPUT;
         end
+      NEXT_ROW_OUTPUT:
+      // I need to use r_input_channel_counter because output version have delay
+        if (w_output_last_window)
+          st_output_next = ADDRESS_OUTPUT;      // accumulate next input channel
+        else if (((r_input_channel_counter_input) == 0))
+          st_output_next = RESET_OUTPUT;     // next window, same output channel
+        else if (((r_input_channel_counter_input) > 0))
+          st_output_next = READ_OUTPUT;      // accumulate next input channel
       ADDRESS_OUTPUT:
-          st_output_next = RESET_OUTPUT;
+        // if (st_input_current != READ_WEIGHTS)
+          if (((r_input_channel_counter_input) == 0))
+            st_output_next = RESET_OUTPUT;     // next window, same output channel
+          else if (((r_input_channel_counter_input) > 0))
+            st_output_next = READ_OUTPUT;      // accumulate next input channel
       default:
         st_output_next = WAIT_OUTPUT;
     endcase
@@ -569,16 +591,12 @@ module Control
     if (reset) begin
       r_output_channel_counter_input  <= '0;
       r_output_channel_counter_output <= '0;
-    end else if (st_output_current == WRITE_OUTPUT && r_output_write_count == 8) begin
-      if (w_output_last_input) begin
-        if (r_output_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1))
-          r_output_channel_counter_input <= '0;
-        else
-          r_output_channel_counter_input <= r_output_channel_counter_input + 1'b1;
-      end
-
-      if (w_output_col_wrap && !w_output_last_output_channel)
+    end else if (st_output_current == ADDRESS_OUTPUT) begin
+      if (r_output_channel_counter_input == CHANNEL_OUTPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1))  begin
+        r_output_channel_counter_input <= '0;
         r_output_channel_counter_output <= r_output_channel_counter_output + 1'b1;
+      end else
+        r_output_channel_counter_input <= r_output_channel_counter_input + 1'b1;
     end
   end
 
@@ -590,15 +608,10 @@ module Control
     end else if (st_output_current == WRITE_OUTPUT && r_output_write_count == 8) begin
       // Advance window only after accumulating all input channels for this output window.
       r_output_window_counter_acc <= r_output_window_counter_acc + 1'b1;
-      if (w_output_last_line) begin
-        r_output_window_counter_row <= '0;
-        if (w_output_col_wrap)
-          r_output_window_counter_col <= '0;
-        else
-          r_output_window_counter_col <= r_output_window_counter_col + 1'b1;
-      end else begin
-        r_output_window_counter_row <= r_output_window_counter_row + 1'b1;
-      end
+      r_output_window_counter_row <= r_output_window_counter_row + 1'b1;
+    end else if (st_output_current == NEXT_ROW_OUTPUT) begin
+      r_output_window_counter_col <= r_output_window_counter_col + 1'b1;
+      r_output_window_counter_row <= 0;
     end else if (st_output_current == ADDRESS_OUTPUT) begin
       // New output channel starts from first windowessa linha serve pra que? [@control.sv (582:583)](file:///home/tarsio/gaph/FastConv_SystemVerilog/rtl/control/control.sv#L582:583)
       r_output_window_counter_acc <= '0;
@@ -664,22 +677,27 @@ module Control
       r_output_addr_col_base <= '0;
       r_output_addr_row_base <= '0;
     end else begin
-      // Update address on every completed output window write.
+      // Address generation for output map:
+      // - slide window every completed WRITE_OUTPUT window
+      // - when one input-channel pass finishes, restart window scan at channel base
+      // - when last input channel finishes, advance to next output channel base
       if (st_output_current == WRITE_OUTPUT && r_output_write_count == 8) begin
-        if (w_output_last_line) begin
+        if (w_output_last_input) begin
+          r_output_addr_col_base <= '0;
           r_output_addr_row_base <= '0;
-          if (w_output_last_window) begin
+          if ((r_output_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1)) &&
+              !w_output_last_output_channel)
+            r_output_addr_channel_base <= r_output_addr_channel_base + NADDR'(OUTPUT_FEATURE_SIZE);
+        end else if (w_output_last_line) begin
+          r_output_addr_row_base <= '0;
+          if (w_output_last_window)
             r_output_addr_col_base <= '0;
-            if (w_output_last_input && !w_output_last_output_channel)
-              r_output_addr_channel_base <= r_output_addr_channel_base + NADDR'(OUTPUT_FEATURE_SIZE);
-          end else begin
+          else
             r_output_addr_col_base <= r_output_addr_col_base + NADDR'(CONV_OUTPUT_SIZE);
-          end
         end else begin
           r_output_addr_row_base <= r_output_addr_row_base + NADDR'(OUTPUT_WINDOW_COLUMN_STEP);
         end
       end
-
       if (st_output_current == ADDRESS_OUTPUT) begin
         // New channel starts at first window position.
         r_output_addr_col_base <= '0;
@@ -700,8 +718,9 @@ module Control
       end else begin
         // Prepare offset for next READ cycle without lookup table.
         if (r_output_read_count == 8)
-          r_output_addr_offset_read <= '0;
-        else if ((r_output_read_count == 2) || (r_output_read_count == 5))
+          r_output_addr_offset_read <= r_output_addr_offset_read;
+        else
+        if ((r_output_read_count == 2) || (r_output_read_count == 5))
           r_output_addr_offset_read <= r_output_addr_offset_read - NADDR'(OUTPUT_TILE_JUMP_STEP);
         else
           r_output_addr_offset_read <= r_output_addr_offset_read + NADDR'(OUTPUT_ROW_STEP);
@@ -712,8 +731,9 @@ module Control
       end else begin
         // Prepare offset for next WRITE cycle without lookup table.
         if (r_output_write_count == 8)
-          r_output_addr_offset_write <= '0;
-        else if ((r_output_write_count == 2) || (r_output_write_count == 5))
+          r_output_addr_offset_write <= r_output_addr_offset_write;
+        else
+        if ((r_output_write_count == 2) || (r_output_write_count == 5))
           r_output_addr_offset_write <= r_output_addr_offset_write - NADDR'(OUTPUT_TILE_JUMP_STEP);
         else
           r_output_addr_offset_write <= r_output_addr_offset_write + NADDR'(OUTPUT_ROW_STEP);
@@ -721,11 +741,12 @@ module Control
     end
   end
 
+  assign w_output_addr = r_output_addr_channel_base + r_output_addr_col_base + r_output_addr_row_base;
   assign w_output_addr_offset_read = r_output_addr_offset_read;
   assign w_output_addr_offset_write = r_output_addr_offset_write;
   assign p_output_data_write = r_output_write[r_output_write_count] + r_output_read[r_output_write_count];
-  assign p_output_addr = (st_output_current == READ_OUTPUT) ? r_output_addr + w_output_addr_offset_read : r_output_addr + w_output_addr_offset_write;  // p_input_addr mux
-  assign p_output_en = ((st_output_current == READ_OUTPUT) || (st_output_current == WRITE_OUTPUT)) ? '1 : '0;
+  assign p_output_addr = (st_output_current == READ_OUTPUT) ? w_output_addr + w_output_addr_offset_read : w_output_addr + w_output_addr_offset_write;  // p_input_addr mux
+  assign p_output_en = (((st_output_current == READ_OUTPUT) && r_output_read_count < 8) || (st_output_current == WRITE_OUTPUT)) ? '1 : '0;
   assign p_output_wr = (st_output_current == WRITE_OUTPUT && !w_input_last_output) ? '1 : '0;
 
 endmodule
