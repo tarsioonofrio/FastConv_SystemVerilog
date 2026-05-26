@@ -39,10 +39,13 @@ module Control
 
   logic [NBITS-1:0] r_input_feat[(CONV_INPUT_SIZE * CONV_INPUT_SIZE) - 1:0];  // input feature register bank
   logic [NBITS-1:0] w_input_feat_next[(CONV_INPUT_SIZE * CONV_INPUT_SIZE) - 1:0];  // next values for feature shift bank
-  logic [NADDR-1:0] r_input_addr_feat, r_input_addr_kernel;
+  logic [NADDR-1:0] r_input_addr_feat;
+  logic [NADDR-1:0] r_input_addr_kernel;
   logic [NADDR-1:0] r_input_window_next;
   logic [(CONV_INPUT_SIZE * CONV_INPUT_SIZE) - 1:0] w_input_feat_en;  // write-enable per feature register
-  logic w_input_last_window_col, w_input_last_window_acc, w_input_last_channel_output;
+  logic w_input_last_window_col;
+  logic w_input_last_window_acc;
+  logic w_input_last_channel_output;
 
   localparam WINDOW_COUNT_PER_LINE = FEAT_INPUT_SIZE / 3;  // assuming output 3x3
   localparam WINDOW_COUNT_PER_COLUMN = FEAT_INPUT_WIDTH / 3;
@@ -55,7 +58,8 @@ module Control
   logic [WINDOW_ROW_COUNTER_WIDTH-1:0] r_input_window_counter_col;
 
   localparam ADDR_INPUT_COUNTER_WIDTH = $clog2(WINDOW_COUNT_PER_COLUMN) + 1;
-  logic [ADDR_INPUT_COUNTER_WIDTH-1:0] w_input_base_feat, r_input_addr_count;
+  logic [ADDR_INPUT_COUNTER_WIDTH-1:0] w_input_base_feat;
+  logic [ADDR_INPUT_COUNTER_WIDTH-1:0] r_input_addr_count;
 
   localparam CHANNEL_INPUT_COUNTER_WIDTH = $clog2(N_CHANNEL_IN) + 1;
   logic [CHANNEL_INPUT_COUNTER_WIDTH-1:0] r_input_channel_counter_input;
@@ -69,7 +73,8 @@ module Control
   logic [NBITS-1:0] r_input_weight[WEIGHT_CYCLES-1:0];
   logic [WEIGHT_CYCLES-1:0] w_input_weight_en;
   logic [WEIGHT_WIDTH-1:0] r_input_count_kernel;
-  logic w_input_weight_done, w_input_write_done;
+  logic w_input_weight_done;
+  logic w_input_write_done;
 
   logic [NBITS-1:0] r_conv_temp [HADAMARD_SIZE*HADAMARD_SIZE-1:0];
   logic [NBITS-1:0] w_conv_transform [HADAMARD_SIZE*HADAMARD_SIZE-1:0];
@@ -80,7 +85,8 @@ module Control
   logic [$clog2(STATE_MULT*NUM_MULT-1):0] r_conv_idx_out[NUM_MULT-1:0];
   logic w_conv_end;
 
-  logic [3:0] r_output_read_count, r_output_write_count;
+  logic [3:0] r_output_read_count;
+  logic [3:0] r_output_write_count;
   logic [NBITS-1:0] r_output_write [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
   logic [NBITS-1:0] r_output_read [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
   logic [NADDR-1:0] w_output_addr;
@@ -90,7 +96,6 @@ module Control
   logic [WINDOW_COUNTER_WIDTH-1:0] r_output_window_counter_acc;
   logic [CHANNEL_INPUT_COUNTER_WIDTH-1:0] r_output_channel_counter_input;
   logic [CHANNEL_OUTPUT_COUNTER_WIDTH-1:0] r_output_channel_counter_output;
-  logic w_output_last_window_row, w_output_last_window_col, w_output_last_channel_input, w_output_last_channel_output;
   logic [NADDR-1:0] r_output_addr_offset_read;
   logic [NADDR-1:0] r_output_addr_offset_write;
   logic [NADDR-1:0] w_output_addr_offset_read;
@@ -98,6 +103,11 @@ module Control
   logic [NADDR-1:0] r_output_addr_channel;
   logic [NADDR-1:0] r_output_addr_col;
   logic [NADDR-1:0] r_output_addr_row;
+  logic w_output_last_window_row;
+  logic w_output_last_window_col;
+  logic w_output_last_channel_input;
+  logic w_output_last_channel_output;
+  logic w_output_last_window_acc;
 
 
   // -------------------------------------------------------------------------
@@ -116,7 +126,8 @@ module Control
     TRANSFER,
     NEXT_ROW_INPUT
   } type_st_input;
-  type_st_input st_input_current, st_input_next;
+  type_st_input st_input_current;
+  type_st_input st_input_next;
 
   typedef enum logic [1:0] {
     WAIT_CONV,
@@ -124,7 +135,8 @@ module Control
     HADAMARD,
     INVERSE
   } type_st_conv;
-  type_st_conv st_conv_current, st_conv_next;
+  type_st_conv st_conv_current;
+  type_st_conv st_conv_next;
 
   typedef enum logic [2:0] {
     WAIT_OUTPUT,
@@ -134,7 +146,8 @@ module Control
     READ_OUTPUT,
     NEXT_ROW_OUTPUT
   } type_st_output;
-  type_st_output st_output_current, st_output_next;
+  type_st_output st_output_current;
+  type_st_output st_output_next;
 
   // ----------------------------------------------------------------------------------------------------
   // -------  PART 1 - ADDRESS TO ACCESS THE IFMAP AND WEIGHT MEMORY ------------------------------------
@@ -505,7 +518,6 @@ module Control
   // -------  PART 4 - OUTPUT FSM AND READ/WRITE COUNTER -------------------------------------------------
   // ----------------------------------------------------------------------------------------------------
 
-  logic w_output_last_window_acc;
 
 
   always_ff @(posedge clk or posedge reset) begin: OUTPUT_STATE_REG_BLOCK
