@@ -529,19 +529,12 @@ module Control
         if (r_output_write_count == 8) begin
           if (((r_output_channel_counter_input) > 0) && !w_output_last_window_row)
             st_output_next = READ_OUTPUT;      // accumulate next input channel
-          else
-          if ((r_output_channel_counter_input) == 0 && !w_output_last_window_row)
+          else if ((r_output_channel_counter_input) == 0 && !w_output_last_window_row)
             st_output_next = RESET_OUTPUT;     // next window, same output channel
-          else
-          if (w_input_last_output_channel)
+          else if (w_input_last_output_channel)
             st_output_next = WAIT_OUTPUT;      // global termination from input traversal
-          else
-          if (w_output_last_window_row)
+          else if (w_output_last_window_row)
             st_output_next = NEXT_ROW_OUTPUT;   // change output channel only
-          // else if (w_output_last_window_acc)
-          //   st_output_next = WAIT_OUTPUT;      // end processing
-            // end else begin
-            //   st_output_next = WRITE_OUTPUT;
         end
       NEXT_ROW_OUTPUT:
       // I need to use r_input_channel_counter because output version have delay
