@@ -530,10 +530,10 @@ module Control
           st_output_next = WRITE_OUTPUT;
       WRITE_OUTPUT:
         if (r_output_write_count == 8) begin
-          if ((r_output_channel_counter_input > 0) && !w_output_last_line)
+          if (((r_output_channel_counter_input) > 0) && !w_output_last_line)
             st_output_next = READ_OUTPUT;      // accumulate next input channel
           else
-          if ((r_output_channel_counter_input == 0) && !w_output_last_line)
+          if ((r_output_channel_counter_input) == 0 && !w_output_last_line)
             st_output_next = RESET_OUTPUT;     // next window, same output channel
           else
           if (w_input_last_output)
@@ -549,15 +549,15 @@ module Control
       NEXT_ROW_OUTPUT:
         if (w_output_last_window)
           st_output_next = ADDRESS_OUTPUT;      // accumulate next input channel
-        else if ((r_output_channel_counter_input == 0))
+        else if (((r_output_channel_counter_input - 1) == 0))
           st_output_next = RESET_OUTPUT;     // next window, same output channel
-        else if ((r_output_channel_counter_input > 0))
+        else if (((r_output_channel_counter_input - 1) > 0))
           st_output_next = READ_OUTPUT;      // accumulate next input channel
       ADDRESS_OUTPUT:
-        if (st_input_current != READ_WEIGHTS)
-          if ((r_output_channel_counter_input == 0))
+        // if (st_input_current != READ_WEIGHTS)
+          if (((r_output_channel_counter_input - 1) == 0))
             st_output_next = RESET_OUTPUT;     // next window, same output channel
-          else if ((r_output_channel_counter_input > 0))
+          else if (((r_output_channel_counter_input - 1) > 0))
             st_output_next = READ_OUTPUT;      // accumulate next input channel
       default:
         st_output_next = WAIT_OUTPUT;
@@ -578,9 +578,9 @@ module Control
       r_output_channel_counter_input  <= '0;
       r_output_channel_counter_output <= '0;
     end else if (st_output_current == ADDRESS_OUTPUT) begin
-      if (r_output_channel_counter_input == CHANNEL_OUTPUT_COUNTER_WIDTH'(N_CHANNEL_OUT - 1))  begin
+      if (r_output_channel_counter_input == CHANNEL_OUTPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1))  begin
         r_output_channel_counter_input <= '0;
-        r_output_channel_counter_input <= r_output_channel_counter_input + 1'b1;
+        r_output_channel_counter_output <= r_output_channel_counter_output + 1'b1;
       end else
         r_output_channel_counter_input <= r_output_channel_counter_input + 1'b1;
     end
