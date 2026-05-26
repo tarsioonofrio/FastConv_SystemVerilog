@@ -155,11 +155,11 @@ Examples intentionally kept:
 
 - `wave.do` includes output-address debug probes for the sequential offset path:
   - `r_output_addr`
-  - `r_output_addr_target`
+  - `r_output_addr_channel`
+  - `r_output_addr_col`
+  - `r_output_addr_row`
   - `r_output_addr_offset_read`
   - `r_output_addr_offset_write`
-  - `w_output_addr_offset_read`
-  - `w_output_addr_offset_write`
-  - `OUTPUT_ROW_STRIDE`
-  - `OUTPUT_TILE_WRAP_STEP`
+  - `FEAT_OUTPUT_SIZE`
+  - `OUTPUT_RETURN_COLUMN`
 - In batch mode (`vsim -c`), GUI-only commands may still print warnings, but they do not block simulation execution.

@@ -89,7 +89,7 @@ Key registers in this process:
 - `st_input_current`, `st_input_next`: input FSM state/current-next.
 - `r_input_addr_count`: inner 0..4 read counter used in all `READ_IN_*` states.
 - `r_input_window_counter_acc`: increments in `TRANSFER` and resets in `ADDRESS_INPUT`; tracks total windows processed in the current IFMAP channel.
-- `r_input_window_counter_row`: increments in `TRANSFER`, resets in `NEXT_ROW`/`UPDATE_ADDRESS`; tracks windows in the current row sweep.
+- `r_input_window_counter_col`: increments in `TRANSFER`, resets in `NEXT_ROW_INPUT`/`ADDRESS_INPUT`; tracks windows in the current row sweep.
 - `r_input_count_kernel`: increments in `READ_WEIGHTS`; tracks weight-read index inside one kernel load.
 - `w_input_base_feat`: write-base selector used to place incoming samples in `r_input_feat`.
 - Address generation uses base + row/column offsets with `FEAT_INPUT_WIDTH` as line stride.
@@ -105,8 +105,8 @@ flowchart TB
     READ_IN_15B -->|"r_input_addr_count==4"| READ_IN_15C(["READ_IN_15C"])
     READ_IN_15C -->|"r_input_addr_count==4"| X(["TRANSFER"])
     X --> HW(["HOLD_WRITE"])
-    HW -->|"w_input_write_done && !w_input_last_line"| READ_IN_15A
-    HW -->|"w_input_write_done && w_input_last_line"| NR(["NEXT_ROW"])
+    HW -->|"w_input_write_done && !w_input_last_window_col"| READ_IN_15A
+    HW -->|"w_input_write_done && w_input_last_window_col"| NR(["NEXT_ROW"])
     NR -->|"w_input_last_input_acc"| AP
     NR -->|"!w_input_last_input_acc"| READ_IN_10A
 ```
@@ -139,7 +139,7 @@ flowchart TB
 
 ```mermaid
 flowchart TB
-    WW(["WAIT_WRITE"]) -->|"st_input_current==UPDATE_ADDRESS"| Z(["RESET_OUTPUT"])
+    WW(["WAIT_WRITE"]) -->|"st_input_current==ADDRESS_INPUT"| Z(["RESET_OUTPUT"])
     Z -->|"w_conv_end && r_output_read_count==8"| WR(["WRITE_OUTPUT"])
     R(["READ_OUTPUT"]) -->|"w_conv_end && r_output_read_count==8"| WR
     WR -->|"r_input_channel_counter_input==0 && r_output_write_count==8"| Z
