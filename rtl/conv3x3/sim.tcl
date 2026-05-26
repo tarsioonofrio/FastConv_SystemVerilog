@@ -13,9 +13,9 @@ set ROM 1
 # set DATA data/ifn9/sim/sim-032-3-1-seq/pack_data.sv
 # set DATA data/ifn9/sim/sim-032-2-2-seq/pack_data.sv
 set DATA data/ifn9/sim/sim-032-3-3-seq/pack_data.sv
-set PARAM rtl/pack-param/ifn9/pack_param.sv
-set MUX rtl/mux-mult/ifn9/mux_mult_06.sv
-set MULT rtl/mult-matrices/ifn9/mult_matrices_csa.sv
+set PARAM pack-param/ifn9/pack_param.sv
+set MUX mux-mult/ifn9/mux_mult_06.sv
+set MULT mult-matrices/ifn9/mult_matrices_csa.sv
 
 set define_flags ""
 append define_flags "+define+NADDR=$NADDR "
@@ -32,12 +32,13 @@ vmap work work
 
 # Read the file_list.txt file and execute vlog commands for each line, passing defines
 set GIT_ROOT [exec git rev-parse --show-toplevel]
+
 set file_list [list \
   "${GIT_ROOT}/${DATA}" \
-  "${GIT_ROOT}/${PARAM}" \
-  "${GIT_ROOT}/${MUX}" \
+  "[pwd]/${PARAM}" \
+  "[pwd]/${MUX}" \
   "${GIT_ROOT}/rtl/csa/csa_lib.sv" \
-  "${GIT_ROOT}/${MULT}" \
+  "[pwd]/${MULT}" \
   "${GIT_ROOT}/rtl/mem/mem.sv" \
   "${GIT_ROOT}/rtl/multip/multip.sv" \
 ]
