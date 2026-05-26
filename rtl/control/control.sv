@@ -548,17 +548,18 @@ module Control
             //   st_output_next = WRITE_OUTPUT;
         end
       NEXT_ROW_OUTPUT:
+      // I need to use r_input_channel_counter because output version have delay
         if (w_output_last_window)
           st_output_next = ADDRESS_OUTPUT;      // accumulate next input channel
-        else if (((r_output_channel_counter_input) == 0))
+        else if (((r_input_channel_counter_input) == 0))
           st_output_next = RESET_OUTPUT;     // next window, same output channel
-        else if (((r_output_channel_counter_input) > 0))
+        else if (((r_input_channel_counter_input) > 0))
           st_output_next = READ_OUTPUT;      // accumulate next input channel
       ADDRESS_OUTPUT:
         // if (st_input_current != READ_WEIGHTS)
-          if (((r_output_channel_counter_input - 1) == 0))
+          if (((r_input_channel_counter_input) == 0))
             st_output_next = RESET_OUTPUT;     // next window, same output channel
-          else if (((r_output_channel_counter_input - 1) > 0))
+          else if (((r_input_channel_counter_input) > 0))
             st_output_next = READ_OUTPUT;      // accumulate next input channel
       default:
         st_output_next = WAIT_OUTPUT;
