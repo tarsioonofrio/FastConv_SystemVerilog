@@ -84,6 +84,7 @@ module Control
   logic [NBITS-1:0] r_output_write [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
   logic [NBITS-1:0] r_output_read [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
   logic [NADDR-1:0] r_output_addr;
+  logic [NADDR-1:0] w_output_addr;
 
   logic [WINDOW_COUNTER_WIDTH-1:0] r_output_window_counter_col;
   logic [WINDOW_ROW_COUNTER_WIDTH-1:0] r_output_window_counter_row;
@@ -549,9 +550,9 @@ module Control
       NEXT_ROW_OUTPUT:
         if (w_output_last_window)
           st_output_next = ADDRESS_OUTPUT;      // accumulate next input channel
-        else if (((r_output_channel_counter_input - 1) == 0))
+        else if (((r_output_channel_counter_input) == 0))
           st_output_next = RESET_OUTPUT;     // next window, same output channel
-        else if (((r_output_channel_counter_input - 1) > 0))
+        else if (((r_output_channel_counter_input) > 0))
           st_output_next = READ_OUTPUT;      // accumulate next input channel
       ADDRESS_OUTPUT:
         // if (st_input_current != READ_WEIGHTS)
@@ -684,7 +685,6 @@ module Control
           r_output_addr_row_base <= r_output_addr_row_base + NADDR'(OUTPUT_WINDOW_COLUMN_STEP);
         end
       end
-
       if (st_output_current == ADDRESS_OUTPUT) begin
         // New channel starts at first window position.
         r_output_addr_col_base <= '0;
@@ -705,8 +705,9 @@ module Control
       end else begin
         // Prepare offset for next READ cycle without lookup table.
         if (r_output_read_count == 8)
-          r_output_addr_offset_read <= '0;
-        else if ((r_output_read_count == 2) || (r_output_read_count == 5))
+          r_output_addr_offset_read <= r_output_addr_offset_read;
+        else
+        if ((r_output_read_count == 2) || (r_output_read_count == 5))
           r_output_addr_offset_read <= r_output_addr_offset_read - NADDR'(OUTPUT_TILE_JUMP_STEP);
         else
           r_output_addr_offset_read <= r_output_addr_offset_read + NADDR'(OUTPUT_ROW_STEP);
@@ -717,8 +718,9 @@ module Control
       end else begin
         // Prepare offset for next WRITE cycle without lookup table.
         if (r_output_write_count == 8)
-          r_output_addr_offset_write <= '0;
-        else if ((r_output_write_count == 2) || (r_output_write_count == 5))
+          r_output_addr_offset_write <= r_output_addr_offset_write;
+        else
+        if ((r_output_write_count == 2) || (r_output_write_count == 5))
           r_output_addr_offset_write <= r_output_addr_offset_write - NADDR'(OUTPUT_TILE_JUMP_STEP);
         else
           r_output_addr_offset_write <= r_output_addr_offset_write + NADDR'(OUTPUT_ROW_STEP);
@@ -726,11 +728,12 @@ module Control
     end
   end
 
+  assign w_output_addr = r_output_addr_channel_base + r_output_addr_col_base + r_output_addr_row_base;
   assign w_output_addr_offset_read = r_output_addr_offset_read;
   assign w_output_addr_offset_write = r_output_addr_offset_write;
   assign p_output_data_write = r_output_write[r_output_write_count] + r_output_read[r_output_write_count];
-  assign p_output_addr = (st_output_current == READ_OUTPUT) ? r_output_addr + w_output_addr_offset_read : r_output_addr + w_output_addr_offset_write;  // p_input_addr mux
-  assign p_output_en = ((st_output_current == READ_OUTPUT) || (st_output_current == WRITE_OUTPUT)) ? '1 : '0;
+  assign p_output_addr = (st_output_current == READ_OUTPUT) ? w_output_addr + w_output_addr_offset_read : w_output_addr + w_output_addr_offset_write;  // p_input_addr mux
+  assign p_output_en = (((st_output_current == READ_OUTPUT) && r_output_read_count < 8) || (st_output_current == WRITE_OUTPUT)) ? '1 : '0;
   assign p_output_wr = (st_output_current == WRITE_OUTPUT && !w_input_last_output) ? '1 : '0;
 
 endmodule
