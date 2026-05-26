@@ -10,6 +10,7 @@ set ROM 1
 # set DATA data/ifn9/sim/sim-032-1-1-seq/pack_data.sv
 # set DATA data/ifn9/sim/sim-032-1-3-seq/pack_data.sv
 # set DATA data/ifn9/sim/sim-032-2-1-seq/pack_data.sv
+# set DATA data/ifn9/sim/sim-032-3-1-seq/pack_data.sv
 # set DATA data/ifn9/sim/sim-032-2-2-seq/pack_data.sv
 set DATA data/ifn9/sim/sim-032-3-3-seq/pack_data.sv
 set PARAM rtl/pack-param/ifn9/pack_param.sv
