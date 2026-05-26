@@ -135,13 +135,16 @@ module tb;
         output_linear_idx = output_channel * FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE + addr_in_channel;
 
         if (output_channel < N_CHANNEL_OUT && addr_in_channel < FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE) begin
-          expected_out = NBITS'(const_feat_out[addr_in_channel]);
-          if ($signed(p_output_data_write) != $signed(expected_out)) begin
-            output_error_count <= output_error_count + 1;
-            $display("ERROR WRITE GOLDEN: t=%0t addr=%0d ch=%0d off=%0d got=%0d exp=%0d accum_exp=%0d read=%0d inv=%0d",
-                     $realtime, p_output_addr, output_channel, addr_in_channel, $signed(p_output_data_write),
-                     $signed(expected_out), expected_accum, $signed(p_output_data_read),
-                     $signed(dut.r_output_write[dut.r_output_write_count]));
+          // Golden compare only on final accumulation write (last input channel).
+          if (dut.r_output_channel_counter_input == (N_CHANNEL_IN - 1)) begin
+            expected_out = NBITS'(const_feat_out[addr_in_channel]);
+            if ($signed(p_output_data_write) != $signed(expected_out)) begin
+              output_error_count <= output_error_count + 1;
+              $display("ERROR WRITE GOLDEN: t=%0t addr=%0d ch=%0d off=%0d got=%0d exp=%0d accum_exp=%0d read=%0d inv=%0d",
+                       $realtime, p_output_addr, output_channel, addr_in_channel, $signed(p_output_data_write),
+                       $signed(expected_out), expected_accum, $signed(p_output_data_read),
+                       $signed(dut.r_output_write[dut.r_output_write_count]));
+            end
           end
         end else begin
           output_error_count <= output_error_count + 1;
