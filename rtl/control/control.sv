@@ -42,7 +42,7 @@ module Control
   logic [NADDR-1:0] r_input_addr_feat, r_input_addr_kernel;
   logic [NADDR-1:0] r_input_window_next;
   logic [(CONV_INPUT_SIZE * CONV_INPUT_SIZE) - 1:0] w_input_feat_en;  // write-enable per feature register
-  logic w_input_last_line, w_input_last_input, w_input_last_output;
+  logic w_input_last_window_col, w_input_last_input_acc, w_input_last_output_channel;
 
   localparam WINDOW_COUNT_PER_LINE = FEAT_INPUT_SIZE / 3;  // assuming output 3x3
   localparam WINDOW_COUNT_PER_COLUMN = FEAT_INPUT_WIDTH / 3;
@@ -149,10 +149,10 @@ module Control
     end
     else if ((st_input_current == READ_IN_10A && st_input_next == READ_IN_10B) || (st_input_current == READ_IN_10B && st_input_next == READ_IN_15A) || (st_input_current == READ_IN_15A && st_input_next == READ_IN_15B) || (st_input_current == READ_IN_15B && st_input_next == READ_IN_15C) || st_input_current == TRANSFER)
       r_input_addr_feat <= r_input_addr_feat + NADDR'(FEAT_INPUT_WIDTH);    // change internal p_input_addr in the state transition or in the TRANSFER state (CAUTION: PE)
-    else if (st_input_current == NEXT_ROW_INPUT && !w_input_last_input) begin  // when change the line, the read pointer moves 'r_input_window_next'
+    else if (st_input_current == NEXT_ROW_INPUT && !w_input_last_input_acc) begin  // when change the line, the read pointer moves 'r_input_window_next'
       r_input_addr_feat <= r_input_window_next + NADDR'(r_input_channel_counter_input * FEAT_INPUT_SIZE * FEAT_INPUT_WIDTH);  // restart for the first line
       r_input_window_next <= r_input_window_next + 3;
-    end else if (st_input_current == ADDRESS_INPUT && w_input_last_input) begin
+    end else if (st_input_current == ADDRESS_INPUT && w_input_last_input_acc) begin
       r_input_addr_feat <= r_input_addr_feat - NADDR'(FEAT_INPUT_WIDTH) + NADDR'(HADAMARD_SIZE) - 1;   // adjust the pointer to the next IFMAP
       r_input_window_next <= 3;
 
@@ -194,7 +194,7 @@ module Control
       ADDRESS_INPUT: st_input_next = READ_WEIGHTS;
       READ_WEIGHTS:
         if (w_input_weight_done) st_input_next = READ_IN_10A;
-        else if (w_input_last_output) st_input_next = WAIT_INPUT;  //end processing
+        else if (w_input_last_output_channel) st_input_next = WAIT_INPUT;  //end processing
       READ_IN_10A: if (r_input_addr_count == 4) st_input_next = READ_IN_10B;  // read 5*5 values
       READ_IN_10B: if (r_input_addr_count == 4) st_input_next = READ_IN_15A;
       READ_IN_15A: if (r_input_addr_count == 4) st_input_next = READ_IN_15B;
@@ -202,11 +202,11 @@ module Control
       READ_IN_15C: if (r_input_addr_count == 4) st_input_next = TRANSFER;
       TRANSFER: st_input_next = HOLD_WRITE;  // p_start the convolution
       HOLD_WRITE:
-        if (w_input_last_line && w_input_write_done) st_input_next = NEXT_ROW_INPUT;
+        if (w_input_last_window_col && w_input_write_done) st_input_next = NEXT_ROW_INPUT;
           else if (w_input_write_done) st_input_next = READ_IN_15A;
         else st_input_next = HOLD_WRITE;
       NEXT_ROW_INPUT:
-        if (w_input_last_input) st_input_next = ADDRESS_INPUT;
+        if (w_input_last_input_acc) st_input_next = ADDRESS_INPUT;
         else st_input_next = READ_IN_10A;
       default: st_input_next = WAIT_INPUT;
     endcase
@@ -215,12 +215,12 @@ module Control
   assign w_input_weight_done = (r_input_count_kernel == WEIGHT_WIDTH'(WEIGHT_CYCLES - 1));
   assign w_input_write_done = r_output_write_count == 0 || r_output_write_count == 8;  // compare to zero for the first write test or the last value (8) in the next convolutions
 
-  assign w_input_last_line = (r_input_window_counter_col == WINDOW_ROW_COUNTER_WIDTH'(WINDOW_COUNT_PER_LINE));
-  assign w_input_last_input = (r_input_window_counter_acc == WINDOW_COUNTER_WIDTH'(WINDOW_COUNT_PER_CHANNEL));
-  assign w_input_last_output = (r_input_channel_counter_output == CHANNEL_OUTPUT_COUNTER_WIDTH'(N_CHANNEL_OUT));
+  assign w_input_last_window_col = (r_input_window_counter_col == WINDOW_ROW_COUNTER_WIDTH'(WINDOW_COUNT_PER_LINE));
+  assign w_input_last_input_acc = (r_input_window_counter_acc == WINDOW_COUNTER_WIDTH'(WINDOW_COUNT_PER_CHANNEL));
+  assign w_input_last_output_channel = (r_input_channel_counter_output == CHANNEL_OUTPUT_COUNTER_WIDTH'(N_CHANNEL_OUT));
 
   // TODO change to st_output_next == WAIT_OUTPUT
-  assign p_end = ((st_input_next == WAIT_INPUT && w_input_last_output));  // output to signalize the end of the convolution process
+  assign p_end = ((st_input_next == WAIT_INPUT && w_input_last_output_channel));  // output to signalize the end of the convolution process
 
   // -------------------------------------------------------------------------
   // READING REGISTERS
@@ -535,7 +535,7 @@ module Control
           if ((r_output_channel_counter_input) == 0 && !w_output_last_window_row)
             st_output_next = RESET_OUTPUT;     // next window, same output channel
           else
-          if (w_input_last_output)
+          if (w_input_last_output_channel)
             st_output_next = WAIT_OUTPUT;      // global termination from input traversal
           else
           if (w_output_last_window_row)
@@ -731,6 +731,6 @@ module Control
   assign p_output_data_write = r_output_write[r_output_write_count] + r_output_read[r_output_write_count];
   assign p_output_addr = (st_output_current == READ_OUTPUT) ? w_output_addr + w_output_addr_offset_read : w_output_addr + w_output_addr_offset_write;  // p_input_addr mux
   assign p_output_en = (((st_output_current == READ_OUTPUT) && r_output_read_count < 8) || (st_output_current == WRITE_OUTPUT)) ? '1 : '0;
-  assign p_output_wr = (st_output_current == WRITE_OUTPUT && !w_input_last_output) ? '1 : '0;
+  assign p_output_wr = (st_output_current == WRITE_OUTPUT && !w_input_last_output_channel) ? '1 : '0;
 
 endmodule
