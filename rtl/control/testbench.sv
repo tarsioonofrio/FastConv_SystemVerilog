@@ -14,7 +14,6 @@ module tb;
 
   localparam int unsigned INPUT_MEMORY_SIZE = N_CHANNEL_IN*FEAT_INPUT_SIZE*FEAT_INPUT_WIDTH + N_CHANNEL_OUT*N_CHANNEL_IN*HADAMARD_SIZE*HADAMARD_SIZE;
 
-  localparam int unsigned INPUT_MEMORY_INIT_SIZE = 1083;
   localparam int unsigned NADDR     = 16;
 
   // Sinais de interface
@@ -123,7 +122,6 @@ module tb;
       if (p_output_en && p_output_wr) begin
         int output_channel;
         int addr_in_channel;
-        int output_linear_idx;
         logic signed [NBITS-1:0] expected_accum;
         logic [NBITS-1:0] expected_out;
 
@@ -132,8 +130,6 @@ module tb;
         output_bank[p_output_addr] <= p_output_data_write;
         output_channel = int'(p_output_addr) / OUTPUT_CHANNEL_STRIDE;
         addr_in_channel = int'(p_output_addr) % OUTPUT_CHANNEL_STRIDE;
-        output_linear_idx = output_channel * FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE + addr_in_channel;
-
         if (addr_in_channel < FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE) begin
           // Golden compare only on final accumulation write (last input channel).
           if (dut.r_output_channel_counter_input == (N_CHANNEL_IN - 1)) begin
