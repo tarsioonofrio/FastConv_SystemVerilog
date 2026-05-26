@@ -83,7 +83,6 @@ module Control
   logic [3:0] r_output_read_count, r_output_write_count;
   logic [NBITS-1:0] r_output_write [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
   logic [NBITS-1:0] r_output_read [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
-  logic [NADDR-1:0] r_output_addr;
   logic [NADDR-1:0] w_output_addr;
 
   logic [WINDOW_COUNTER_WIDTH-1:0] r_output_window_counter_col;
@@ -645,16 +644,11 @@ module Control
     end
   end
 
-  localparam int OUTPUT_FEATURE_SIZE = (FEAT_INPUT_SIZE - 2) * (FEAT_INPUT_WIDTH - 2);
-  localparam int OUTPUT_WINDOW_COLUMN_STEP = (FEAT_INPUT_SIZE - 2) * CONV_OUTPUT_SIZE;
-  localparam int OUTPUT_ROW_STEP = (FEAT_INPUT_SIZE - 2);
-  localparam int OUTPUT_TILE_JUMP_STEP = (2 * OUTPUT_ROW_STEP) - 1;
-  localparam int OUTPUT_WINDOW_ROW_STEP = CONV_OUTPUT_SIZE * OUTPUT_ROW_STEP;
-  localparam int OUTPUT_WINDOW_LINE_JUMP = ((FEAT_INPUT_SIZE - 2) * CONV_OUTPUT_SIZE * (WINDOW_COUNT_PER_LINE - 1)) - CONV_OUTPUT_SIZE;
+  localparam int FEAT_OUTPUT_SIZE = (FEAT_INPUT_SIZE - 2);
+  localparam int OUTPUT_RETURN_COLUMN = 2 * FEAT_OUTPUT_SIZE - 1;
 
   always_ff @(posedge clk or posedge reset) begin: OUTPUT_ADDR_POINTER_BLOCK
     if (reset) begin
-      r_output_addr <= '0;
       r_output_addr_channel_base <= '0;
       r_output_addr_col_base <= '0;
       r_output_addr_row_base <= '0;
@@ -668,7 +662,7 @@ module Control
           r_output_addr_col_base <= '0;
           r_output_addr_row_base <= '0;
           if (w_output_last_input_channel && !w_output_last_output_channel)
-            r_output_addr_channel_base <= r_output_addr_channel_base + NADDR'(OUTPUT_FEATURE_SIZE);
+            r_output_addr_channel_base <= r_output_addr_channel_base + NADDR'(FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
         end else if (w_output_last_window_row) begin
           r_output_addr_row_base <= '0;
           if (w_output_last_window_col)
@@ -676,7 +670,7 @@ module Control
           else
             r_output_addr_col_base <= r_output_addr_col_base + NADDR'(CONV_OUTPUT_SIZE);
         end else begin
-          r_output_addr_row_base <= r_output_addr_row_base + NADDR'(OUTPUT_WINDOW_COLUMN_STEP);
+          r_output_addr_row_base <= r_output_addr_row_base + NADDR'(FEAT_OUTPUT_SIZE * CONV_OUTPUT_SIZE);
         end
       end
       if (st_output_current == ADDRESS_OUTPUT) begin
@@ -684,8 +678,6 @@ module Control
         r_output_addr_col_base <= '0;
         r_output_addr_row_base <= '0;
       end
-
-      r_output_addr <= r_output_addr_channel_base + r_output_addr_col_base + r_output_addr_row_base;
     end
   end
 
@@ -702,9 +694,9 @@ module Control
           r_output_addr_offset_read <= r_output_addr_offset_read;
         else
         if ((r_output_read_count == 2) || (r_output_read_count == 5))
-          r_output_addr_offset_read <= r_output_addr_offset_read - NADDR'(OUTPUT_TILE_JUMP_STEP);
+          r_output_addr_offset_read <= r_output_addr_offset_read - NADDR'(OUTPUT_RETURN_COLUMN);
         else
-          r_output_addr_offset_read <= r_output_addr_offset_read + NADDR'(OUTPUT_ROW_STEP);
+          r_output_addr_offset_read <= r_output_addr_offset_read + NADDR'(FEAT_OUTPUT_SIZE);
       end
 
       if (st_output_current != WRITE_OUTPUT) begin
@@ -715,18 +707,16 @@ module Control
           r_output_addr_offset_write <= r_output_addr_offset_write;
         else
         if ((r_output_write_count == 2) || (r_output_write_count == 5))
-          r_output_addr_offset_write <= r_output_addr_offset_write - NADDR'(OUTPUT_TILE_JUMP_STEP);
+          r_output_addr_offset_write <= r_output_addr_offset_write - NADDR'(OUTPUT_RETURN_COLUMN);
         else
-          r_output_addr_offset_write <= r_output_addr_offset_write + NADDR'(OUTPUT_ROW_STEP);
+          r_output_addr_offset_write <= r_output_addr_offset_write + NADDR'(FEAT_OUTPUT_SIZE);
       end
     end
   end
 
   assign w_output_addr = r_output_addr_channel_base + r_output_addr_col_base + r_output_addr_row_base;
-  assign w_output_addr_offset_read = r_output_addr_offset_read;
-  assign w_output_addr_offset_write = r_output_addr_offset_write;
   assign p_output_data_write = r_output_write[r_output_write_count] + r_output_read[r_output_write_count];
-  assign p_output_addr = (st_output_current == READ_OUTPUT) ? w_output_addr + w_output_addr_offset_read : w_output_addr + w_output_addr_offset_write;  // p_input_addr mux
+  assign p_output_addr = (st_output_current == READ_OUTPUT) ? w_output_addr + r_output_addr_offset_read : w_output_addr + r_output_addr_offset_write;  // p_input_addr mux
   assign p_output_en = (((st_output_current == READ_OUTPUT) && r_output_read_count < 8) || (st_output_current == WRITE_OUTPUT)) ? '1 : '0;
   assign p_output_wr = (st_output_current == WRITE_OUTPUT && !w_input_last_output_channel) ? '1 : '0;
 
