@@ -34,13 +34,13 @@ vmap work work
 set GIT_ROOT [exec git rev-parse --show-toplevel]
 
 set file_list [list \
-  "${GIT_ROOT}/${DATA}" \
-  "[pwd]/${PARAM}" \
-  "[pwd]/${MUX}" \
-  "${GIT_ROOT}/rtl/csa/csa_lib.sv" \
-  "[pwd]/${MULT}" \
-  "${GIT_ROOT}/rtl/mem/mem.sv" \
-  "${GIT_ROOT}/rtl/multip/multip.sv" \
+  "${DATA}" \
+  "${PARAM}" \
+  "${MUX}" \
+  "../../rtl/csa/csa_lib.sv" \
+  "${MULT}" \
+  "../../rtl/mem/mem.sv" \
+  "../../rtl/multip/multip.sv" \
 ]
 
 vlog -work work $define_flags -svinputport=relaxed {*}$file_list
