@@ -11,6 +11,8 @@ module tb;
   localparam int unsigned FEAT_INPUT_WIDTH = FEAT_INPUT_SIZE;
   // localparam int unsigned CONV_MULTIPLY_STEPS = 6;
   localparam int unsigned NBITS = 20;
+  localparam int unsigned LATENCY = 1;
+  localparam int unsigned ROM = 1;
 
   localparam int unsigned INPUT_MEMORY_SIZE = N_CHANNEL_IN*FEAT_INPUT_SIZE*FEAT_INPUT_WIDTH + N_CHANNEL_OUT*N_CHANNEL_IN*HADAMARD_SIZE*HADAMARD_SIZE;
 
@@ -44,19 +46,12 @@ module tb;
   // Reads directly from the dataset package memory image.
   always_comb begin
     input_addr_idx = int'(p_input_addr);
-    if (input_addr_idx < INPUT_MEMORY_SIZE)
+    if (input_addr_idx < $size(const_data))
       p_input_data = NBITS'(const_data[input_addr_idx]);
     else
       p_input_data = '0;
   end
-  always_comb begin
-    if (int'(p_output_addr) < $size(output_bank))
-      p_output_data_read = output_bank[p_output_addr];
-    else
-      p_output_data_read = '0;
-  end
-  assign p_input_valid = 1'b1;
-  assign p_output_valid = 1'b1;
+  assign p_input_valid = p_input_en;
 
   // Instanciação do Módulo (DUT)
   Control #(
@@ -88,6 +83,22 @@ module tb;
     .p_output_data_read(p_output_data_read),
     .p_output_valid(p_output_valid),
     .p_end(p_end)
+  );
+
+  Memory #(
+    .NADDR(NADDR),
+    .NBITS(NBITS),
+    .LATENCY(LATENCY),
+    .ROM(0)
+  ) memory_write (
+    .clk(clk),
+    .reset(reset),
+    .chip_en(p_output_en),
+    .wr_en(p_output_wr),
+    .address(p_output_addr),
+    .data_in(p_output_data_write),
+    .data_out(p_output_data_read),
+    .data_valid(p_output_valid)
   );
 
   // Gerador de Clock: 100MHz -> Período de 10ns
