@@ -13,6 +13,7 @@ set ROM 1
 # set DATA data/ifn9/sim/sim-032-3-1-seq/pack_data.sv
 # set DATA data/ifn9/sim/sim-032-2-2-seq/pack_data.sv
 set DATA data/ifn9/sim/sim-032-3-3-seq/pack_data.sv
+# set DATA data/ifn9/sim/sim-254-3-3-seq/pack_data.sv
 set PARAM pack-param/ifn9/pack_param.sv
 set MUX mux-mult/ifn9/mux_mult_06.sv
 set MULT mult-matrices/ifn9/mult_matrices_csa.sv
@@ -31,16 +32,15 @@ vlib work
 vmap work work
 
 # Read the file_list.txt file and execute vlog commands for each line, passing defines
-set GIT_ROOT [exec git rev-parse --show-toplevel]
 
 set file_list [list \
   "${DATA}" \
   "${PARAM}" \
   "${MUX}" \
-  "../../rtl/csa/csa_lib.sv" \
+  "../csa/csa_lib.sv" \
   "${MULT}" \
-  "../../rtl/mem/mem.sv" \
-  "../../rtl/multip/multip.sv" \
+  "../mem/mem.sv" \
+  "../multip/multip.sv" \
 ]
 
 vlog -work work $define_flags -svinputport=relaxed {*}$file_list
@@ -105,8 +105,7 @@ proc dump_constants_auto {scope sv_file} {
   echo ""
 }
 
-set CONTROL_SV "${GIT_ROOT}/rtl/control/control.sv"
-dump_constants_auto sim:/tb/dut $CONTROL_SV
+dump_constants_auto sim:/tb/dut conv.sv
 
 # Source-level breakpoints in Control output address logic.
 # bp "$CONTROL_SV" 671
@@ -116,5 +115,5 @@ do wave.do
 do mem.do
 
 # run 31000  ns
-run 200000ns
+run 20000000ns
 # coverage report -output report.txt -srcfile=* -assert -directive -cvg -codeAll
