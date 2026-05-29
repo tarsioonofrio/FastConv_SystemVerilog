@@ -723,6 +723,7 @@ module Control
   assign p_output_data_write = r_output_write[r_output_write_count] + r_output_read[r_output_write_count];
   assign p_output_addr = (st_output_current == READ_OUTPUT) ? w_output_addr + r_output_addr_offset_read : w_output_addr + r_output_addr_offset_write;  // p_input_addr mux
   assign p_output_en = (((st_output_current == READ_OUTPUT) && r_output_read_count < 8) || (st_output_current == WRITE_OUTPUT)) ? '1 : '0;
-  assign p_output_wr = (st_output_current == WRITE_OUTPUT && !w_input_last_channel_output) ? '1 : '0;
+  // Keep write enabled for every WRITE_OUTPUT beat, including the final window/channel.
+  assign p_output_wr = (st_output_current == WRITE_OUTPUT) ? '1 : '0;
 
 endmodule
