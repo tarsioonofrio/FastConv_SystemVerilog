@@ -133,7 +133,7 @@ module tb;
         if (addr_in_channel < FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE) begin
           // Golden compare only on final accumulation write (last input channel).
           if (dut.r_output_channel_counter_input == (N_CHANNEL_IN - 1)) begin
-            expected_out = NBITS'(const_feat_out[addr_in_channel]);
+            expected_out = NBITS'(const_feat_out[p_output_addr]);
             if ($signed(p_output_data_write) != $signed(expected_out)) begin
               output_error_count <= output_error_count + 1;
               $display("ERROR WRITE GOLDEN: t=%0t addr=%0d ch=%0d off=%0d got=%0d exp=%0d accum_exp=%0d read=%0d inv=%0d",
