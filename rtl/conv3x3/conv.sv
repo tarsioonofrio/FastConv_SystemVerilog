@@ -56,7 +56,6 @@ module Control
 
   localparam WINDOW_COUNT_PER_LINE = FEAT_INPUT_SIZE / 3;  // assuming output 3x3
   localparam WINDOW_COUNT_PER_COLUMN = FEAT_INPUT_WIDTH / 3;
-  localparam WINDOW_COUNT_PER_CHANNEL = WINDOW_COUNT_PER_LINE * WINDOW_COUNT_PER_COLUMN;
 
   localparam WINDOW_COUNTER_WIDTH = f_width_min1(WINDOW_COUNT_PER_LINE * WINDOW_COUNT_PER_COLUMN);
   logic [WINDOW_COUNTER_WIDTH-1:0] r_input_window_counter_acc;
@@ -101,7 +100,6 @@ module Control
   logic [NADDR-1:0] w_output_addr;
 
   localparam FEAT_OUTPUT_SIZE = (FEAT_INPUT_SIZE - 2);
-  localparam OUTPUT_RETURN_COLUMN = 2 * FEAT_OUTPUT_SIZE - 1;
   logic [WINDOW_COUNTER_WIDTH-1:0] r_output_window_counter_col;
   logic [WINDOW_ROW_COUNTER_WIDTH-1:0] r_output_window_counter_row;
   logic [WINDOW_COUNTER_WIDTH-1:0] r_output_window_counter_acc;
@@ -246,7 +244,7 @@ module Control
   assign w_input_write_done = r_output_write_count == 0 || r_output_write_count == 8;  // compare to zero for the first write test or the last value (8) in the next convolutions
 
   assign w_input_last_window_col = (r_input_window_counter_col == WINDOW_ROW_COUNTER_WIDTH'(WINDOW_COUNT_PER_LINE));
-  assign w_input_last_window_acc = (r_input_window_counter_acc == WINDOW_COUNTER_WIDTH'(WINDOW_COUNT_PER_CHANNEL));
+  assign w_input_last_window_acc = (r_input_window_counter_acc == WINDOW_COUNTER_WIDTH'(WINDOW_COUNT_PER_LINE * WINDOW_COUNT_PER_COLUMN));
   assign w_input_last_channel_output = (r_input_channel_counter_output == CHANNEL_OUTPUT_COUNTER_WIDTH'(N_CHANNEL_OUT));
 
   // TODO change to st_output_next == WAIT_OUTPUT
@@ -382,8 +380,7 @@ module Control
   // ----------------------------------------------------------------------------------------------------
   // -------  PART 3 - CONVOLUTION CONTROL AND CONVOLUTION MODULES --------------------------------------
   // ----------------------------------------------------------------------------------------------------
-  localparam CONV_MULTIPLY_COUNTER_WIDTH = $clog2(STATE_MULT) + 1;
-  logic [CONV_MULTIPLY_COUNTER_WIDTH-1:0] r_conv_multiply_count;
+  logic [(f_width_min1(STATE_MULT + 1))-1:0] r_conv_multiply_count;
 
   always_ff @(posedge clk or posedge reset) begin: CONV_STATE_REG_BLOCK
     if (reset)
@@ -403,7 +400,7 @@ module Control
       TRANSFORM:
         st_conv_next = HADAMARD;
       HADAMARD: begin
-        if (r_conv_multiply_count == CONV_MULTIPLY_COUNTER_WIDTH'(STATE_MULT - 1)) begin
+        if (r_conv_multiply_count == $bits(r_conv_multiply_count)'(STATE_MULT - 1)) begin
           st_conv_next = INVERSE;
         end
       end
@@ -590,7 +587,7 @@ module Control
 
   assign w_output_last_window_col = (r_output_window_counter_col == WINDOW_COUNTER_WIDTH'(WINDOW_COUNT_PER_COLUMN - 1));
   assign w_output_last_window_row = (r_output_window_counter_row == WINDOW_ROW_COUNTER_WIDTH'(WINDOW_COUNT_PER_LINE - 1));
-  assign w_output_last_window_acc = (r_output_window_counter_acc == WINDOW_COUNT_PER_CHANNEL'(WINDOW_COUNT_PER_CHANNEL - 1));
+  assign w_output_last_window_acc = (r_output_window_counter_acc == $bits(r_output_window_counter_acc)'((WINDOW_COUNT_PER_LINE * WINDOW_COUNT_PER_COLUMN) - 1));
 
   always_ff @(posedge clk or posedge reset) begin: OUTPUT_CONTROL_COUNTERS_BLOCK
     if (reset) begin
@@ -714,7 +711,7 @@ module Control
           r_output_addr_offset_read <= r_output_addr_offset_read;
         else
         if ((r_output_read_count == (CONV_OUTPUT_SIZE - 1)) || (r_output_read_count == ((2 * CONV_OUTPUT_SIZE) - 1)))
-          r_output_addr_offset_read <= r_output_addr_offset_read - OUTPUT_ADDR_OFFSET_WIDTH'(OUTPUT_RETURN_COLUMN);
+          r_output_addr_offset_read <= r_output_addr_offset_read - OUTPUT_ADDR_OFFSET_WIDTH'((2 * FEAT_OUTPUT_SIZE) - 1);
         else
           r_output_addr_offset_read <= r_output_addr_offset_read + OUTPUT_ADDR_OFFSET_WIDTH'(FEAT_OUTPUT_SIZE);
       end
@@ -727,7 +724,7 @@ module Control
           r_output_addr_offset_write <= r_output_addr_offset_write;
         else
         if ((r_output_write_count == (CONV_OUTPUT_SIZE - 1)) || (r_output_write_count == ((2 * CONV_OUTPUT_SIZE) - 1)))
-          r_output_addr_offset_write <= r_output_addr_offset_write - OUTPUT_ADDR_OFFSET_WIDTH'(OUTPUT_RETURN_COLUMN);
+          r_output_addr_offset_write <= r_output_addr_offset_write - OUTPUT_ADDR_OFFSET_WIDTH'((2 * FEAT_OUTPUT_SIZE) - 1);
         else
           r_output_addr_offset_write <= r_output_addr_offset_write + OUTPUT_ADDR_OFFSET_WIDTH'(FEAT_OUTPUT_SIZE);
       end
