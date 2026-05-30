@@ -37,6 +37,13 @@ module Control
     input  logic p_output_valid                    // Read-valid flag from the output RAM
   );
 
+  function automatic int f_width_min1(input int x);
+    if (x <= 1)
+      f_width_min1 = 1;
+    else
+      f_width_min1 = $clog2(x);
+  endfunction
+
   logic [NBITS-1:0] r_input_feat[(CONV_INPUT_SIZE * CONV_INPUT_SIZE) - 1:0];  // input feature register bank
   logic [NBITS-1:0] w_input_feat_next[(CONV_INPUT_SIZE * CONV_INPUT_SIZE) - 1:0];  // next values for feature shift bank
   logic [NADDR-1:0] r_input_addr_feat;
@@ -49,27 +56,26 @@ module Control
 
   localparam WINDOW_COUNT_PER_LINE = FEAT_INPUT_SIZE / 3;  // assuming output 3x3
   localparam WINDOW_COUNT_PER_COLUMN = FEAT_INPUT_WIDTH / 3;
-  localparam WINDOW_COUNT_PER_CHANNEL = WINDOW_COUNT_PER_LINE * WINDOW_COUNT_PER_COLUMN;
 
-  localparam WINDOW_COUNTER_WIDTH = $clog2(WINDOW_COUNT_PER_LINE * WINDOW_COUNT_PER_COLUMN);
+  localparam WINDOW_COUNTER_WIDTH = f_width_min1(WINDOW_COUNT_PER_LINE * WINDOW_COUNT_PER_COLUMN);
   logic [WINDOW_COUNTER_WIDTH-1:0] r_input_window_counter_acc;
 
-  localparam WINDOW_ROW_COUNTER_WIDTH = $clog2(WINDOW_COUNT_PER_LINE) + 1;
+  localparam WINDOW_ROW_COUNTER_WIDTH = f_width_min1(WINDOW_COUNT_PER_LINE + 1);
   logic [WINDOW_ROW_COUNTER_WIDTH-1:0] r_input_window_counter_col;
 
-  localparam ADDR_INPUT_COUNTER_WIDTH = $clog2(WINDOW_COUNT_PER_COLUMN) + 1;
+  localparam ADDR_INPUT_COUNTER_WIDTH = f_width_min1(WINDOW_COUNT_PER_COLUMN + 1);
   logic [ADDR_INPUT_COUNTER_WIDTH-1:0] w_input_base_feat;
   logic [ADDR_INPUT_COUNTER_WIDTH-1:0] r_input_addr_count;
 
-  localparam CHANNEL_INPUT_COUNTER_WIDTH = $clog2(N_CHANNEL_IN) + 1;
+  localparam CHANNEL_INPUT_COUNTER_WIDTH = f_width_min1(N_CHANNEL_IN + 1);
   logic [CHANNEL_INPUT_COUNTER_WIDTH-1:0] r_input_channel_counter_input;
 
-  localparam CHANNEL_OUTPUT_COUNTER_WIDTH = $clog2(N_CHANNEL_OUT) + 1;
+  localparam CHANNEL_OUTPUT_COUNTER_WIDTH = f_width_min1(N_CHANNEL_OUT + 1);
   logic [CHANNEL_OUTPUT_COUNTER_WIDTH-1:0] r_input_channel_counter_output;
 
   // REGISTER BANK FOR THE WEIGHTS ////////////////////////////////////////////
-  localparam int WEIGHT_CYCLES = HADAMARD_SIZE * HADAMARD_SIZE;
-  localparam int WEIGHT_WIDTH = $clog2(WEIGHT_CYCLES)+1;
+  localparam WEIGHT_CYCLES = HADAMARD_SIZE * HADAMARD_SIZE;
+  localparam WEIGHT_WIDTH = f_width_min1(WEIGHT_CYCLES + 1);
   logic [NBITS-1:0] r_input_weight[WEIGHT_CYCLES-1:0];
   logic [WEIGHT_CYCLES-1:0] w_input_weight_en;
   logic [WEIGHT_WIDTH-1:0] r_input_count_kernel;
@@ -81,28 +87,38 @@ module Control
   logic [NBITS-1:0] w_conv_inverse [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
   logic [NBITS-1:0] r_conv_input[(CONV_INPUT_SIZE * CONV_INPUT_SIZE) - 1:0];  // convolution input register bank
   logic signed [NBITS-1+QUANT:0] w_conv_product [NUM_MULT-1:0];  // QUANT more bits for the multipliers
-  logic [$clog2(STATE_MULT-1):0] r_conv_idx_in;
-  logic [$clog2(STATE_MULT*NUM_MULT-1):0] r_conv_idx_out[NUM_MULT-1:0];
+  logic [(f_width_min1(STATE_MULT - 1) + 1)-1:0] r_conv_idx_in;
+  logic [(f_width_min1((STATE_MULT * NUM_MULT) - 1) + 1)-1:0] r_conv_idx_out[NUM_MULT-1:0];
   logic w_conv_end;
 
-  logic [3:0] r_output_read_count;
-  logic [3:0] r_output_write_count;
+  localparam OUTPUT_RW_COUNT_MAX = (CONV_OUTPUT_SIZE * CONV_OUTPUT_SIZE) - 1;
+  localparam OUTPUT_RW_COUNT_WIDTH = f_width_min1(CONV_OUTPUT_SIZE * CONV_OUTPUT_SIZE);
+  logic [OUTPUT_RW_COUNT_WIDTH-1:0] r_output_read_count;
+  logic [OUTPUT_RW_COUNT_WIDTH-1:0] r_output_write_count;
   logic [NBITS-1:0] r_output_write [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
   logic [NBITS-1:0] r_output_read [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
   logic [NADDR-1:0] w_output_addr;
 
+  localparam FEAT_OUTPUT_SIZE = (FEAT_INPUT_SIZE - 2);
   logic [WINDOW_COUNTER_WIDTH-1:0] r_output_window_counter_col;
   logic [WINDOW_ROW_COUNTER_WIDTH-1:0] r_output_window_counter_row;
   logic [WINDOW_COUNTER_WIDTH-1:0] r_output_window_counter_acc;
   logic [CHANNEL_INPUT_COUNTER_WIDTH-1:0] r_output_channel_counter_input;
   logic [CHANNEL_OUTPUT_COUNTER_WIDTH-1:0] r_output_channel_counter_output;
-  logic [NADDR-1:0] r_output_addr_offset_read;
-  logic [NADDR-1:0] r_output_addr_offset_write;
-  logic [NADDR-1:0] w_output_addr_offset_read;
-  logic [NADDR-1:0] w_output_addr_offset_write;
-  logic [NADDR-1:0] r_output_addr_channel;
-  logic [NADDR-1:0] r_output_addr_col;
-  logic [NADDR-1:0] r_output_addr_row;
+
+  localparam OUTPUT_ADDR_OFFSET_WIDTH = f_width_min1((2 * FEAT_OUTPUT_SIZE) + 2);
+  logic [OUTPUT_ADDR_OFFSET_WIDTH-1:0] r_output_addr_offset_read;
+  logic [OUTPUT_ADDR_OFFSET_WIDTH-1:0] r_output_addr_offset_write;
+
+  localparam OUTPUT_ADDR_CHANNEL_WIDTH = f_width_min1(N_CHANNEL_OUT * FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
+  logic [OUTPUT_ADDR_CHANNEL_WIDTH-1:0] r_output_addr_channel;
+
+  localparam OUTPUT_ADDR_COL_WIDTH = f_width_min1(FEAT_OUTPUT_SIZE);
+  logic [OUTPUT_ADDR_COL_WIDTH-1:0] r_output_addr_col;
+
+  localparam OUTPUT_ADDR_ROW_WIDTH = f_width_min1(FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
+  logic [OUTPUT_ADDR_ROW_WIDTH-1:0] r_output_addr_row;
+
   logic w_output_last_window_row;
   logic w_output_last_window_col;
   logic w_output_last_channel_input;
@@ -157,16 +173,16 @@ module Control
   always_ff @(posedge clk or posedge reset) begin: INPUT_ADDR_POINTER_BLOCK
     if (reset) begin
       r_input_addr_feat <= '0;
-      r_input_window_next <= 3;
+      r_input_window_next <= CONV_OUTPUT_SIZE;
     end
     else if ((st_input_current == READ_IN_10A && st_input_next == READ_IN_10B) || (st_input_current == READ_IN_10B && st_input_next == READ_IN_15A) || (st_input_current == READ_IN_15A && st_input_next == READ_IN_15B) || (st_input_current == READ_IN_15B && st_input_next == READ_IN_15C) || st_input_current == TRANSFER)
       r_input_addr_feat <= r_input_addr_feat + NADDR'(FEAT_INPUT_WIDTH);    // change internal p_input_addr in the state transition or in the TRANSFER state (CAUTION: PE)
     else if (st_input_current == NEXT_ROW_INPUT && !w_input_last_window_acc) begin  // when change the line, the read pointer moves 'r_input_window_next'
       r_input_addr_feat <= r_input_window_next + NADDR'(r_input_channel_counter_input * FEAT_INPUT_SIZE * FEAT_INPUT_WIDTH);  // restart for the first line
-      r_input_window_next <= r_input_window_next + 3;
+      r_input_window_next <= r_input_window_next + CONV_OUTPUT_SIZE;
     end else if (st_input_current == ADDRESS_INPUT && w_input_last_window_acc) begin
       r_input_addr_feat <= r_input_addr_feat - NADDR'(FEAT_INPUT_WIDTH) + NADDR'(HADAMARD_SIZE) - 1;   // adjust the pointer to the next IFMAP
-      r_input_window_next <= 3;
+      r_input_window_next <= CONV_OUTPUT_SIZE;
 
       if (r_input_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN-1) ) begin               // change the IFMAP
         r_input_addr_feat <= 0;
@@ -207,11 +223,11 @@ module Control
       READ_WEIGHTS:
         if (w_input_weight_done) st_input_next = READ_IN_10A;
         else if (w_input_last_channel_output) st_input_next = WAIT_INPUT;  //end processing
-      READ_IN_10A: if (r_input_addr_count == 4) st_input_next = READ_IN_10B;  // read 5*5 values
-      READ_IN_10B: if (r_input_addr_count == 4) st_input_next = READ_IN_15A;
-      READ_IN_15A: if (r_input_addr_count == 4) st_input_next = READ_IN_15B;
-      READ_IN_15B: if (r_input_addr_count == 4) st_input_next = READ_IN_15C;
-      READ_IN_15C: if (r_input_addr_count == 4) st_input_next = TRANSFER;
+      READ_IN_10A: if (r_input_addr_count == (CONV_INPUT_SIZE - 1)) st_input_next = READ_IN_10B;  // read 5*5 values
+      READ_IN_10B: if (r_input_addr_count == (CONV_INPUT_SIZE - 1)) st_input_next = READ_IN_15A;
+      READ_IN_15A: if (r_input_addr_count == (CONV_INPUT_SIZE - 1)) st_input_next = READ_IN_15B;
+      READ_IN_15B: if (r_input_addr_count == (CONV_INPUT_SIZE - 1)) st_input_next = READ_IN_15C;
+      READ_IN_15C: if (r_input_addr_count == (CONV_INPUT_SIZE - 1)) st_input_next = TRANSFER;
       TRANSFER: st_input_next = HOLD_WRITE;  // p_start the convolution
       HOLD_WRITE:
         if (w_input_last_window_col && w_input_write_done) st_input_next = NEXT_ROW_INPUT;
@@ -228,7 +244,7 @@ module Control
   assign w_input_write_done = r_output_write_count == 0 || r_output_write_count == 8;  // compare to zero for the first write test or the last value (8) in the next convolutions
 
   assign w_input_last_window_col = (r_input_window_counter_col == WINDOW_ROW_COUNTER_WIDTH'(WINDOW_COUNT_PER_LINE));
-  assign w_input_last_window_acc = (r_input_window_counter_acc == WINDOW_COUNTER_WIDTH'(WINDOW_COUNT_PER_CHANNEL));
+  assign w_input_last_window_acc = (r_input_window_counter_acc == WINDOW_COUNTER_WIDTH'(WINDOW_COUNT_PER_LINE * WINDOW_COUNT_PER_COLUMN));
   assign w_input_last_channel_output = (r_input_channel_counter_output == CHANNEL_OUTPUT_COUNTER_WIDTH'(N_CHANNEL_OUT));
 
   // TODO change to st_output_next == WAIT_OUTPUT
@@ -246,7 +262,7 @@ module Control
         r_input_addr_count <= 0;
       end
       else if (st_input_current inside {READ_IN_10A, READ_IN_10B, READ_IN_15A, READ_IN_15B, READ_IN_15C}) begin
-        if (r_input_addr_count == 4)
+        if (r_input_addr_count == (CONV_INPUT_SIZE - 1))
           r_input_addr_count <= 0;
         else
           r_input_addr_count <= r_input_addr_count + 1;
@@ -306,7 +322,7 @@ module Control
   // READING REGISTER BANK
   // -------------------------------------------------------------------------
   always_comb begin: INPUT_SHIFT_DATA_BLOCK
-    for (int unsigned i = 0; i < 25; i++)  // connection between register outputs to register inputs
+    for (int unsigned i = 0; i < (CONV_INPUT_SIZE * CONV_INPUT_SIZE); i++)  // connection between register outputs to register inputs
     w_input_feat_next[i] = p_input_data;
 
     w_input_feat_next[0]  = (st_input_current == READ_IN_10A) ? p_input_data : r_input_feat[3];     // makes the shifts - minimize muxes
@@ -335,10 +351,10 @@ module Control
 
   always_ff @(posedge clk or posedge reset) begin: INPUT_FEATURE_REG_BLOCK  // initializes and write into the register bank and convolution register bank
     if (reset)
-      for (int unsigned i = 0; i < 25; i++)
+      for (int unsigned i = 0; i < (CONV_INPUT_SIZE * CONV_INPUT_SIZE); i++)
         r_input_feat[i] <= '0;
     else
-      for (int unsigned i = 0; i < 25; i++)
+      for (int unsigned i = 0; i < (CONV_INPUT_SIZE * CONV_INPUT_SIZE); i++)
         if (w_input_feat_en[i])
           r_input_feat[i] <= w_input_feat_next[i];
   end
@@ -364,8 +380,7 @@ module Control
   // ----------------------------------------------------------------------------------------------------
   // -------  PART 3 - CONVOLUTION CONTROL AND CONVOLUTION MODULES --------------------------------------
   // ----------------------------------------------------------------------------------------------------
-  localparam CONV_MULTIPLY_COUNTER_WIDTH = $clog2(STATE_MULT) + 1;
-  logic [CONV_MULTIPLY_COUNTER_WIDTH-1:0] r_conv_multiply_count;
+  logic [(f_width_min1(STATE_MULT + 1))-1:0] r_conv_multiply_count;
 
   always_ff @(posedge clk or posedge reset) begin: CONV_STATE_REG_BLOCK
     if (reset)
@@ -385,7 +400,7 @@ module Control
       TRANSFORM:
         st_conv_next = HADAMARD;
       HADAMARD: begin
-        if (r_conv_multiply_count == CONV_MULTIPLY_COUNTER_WIDTH'(STATE_MULT - 1)) begin
+        if (r_conv_multiply_count == $bits(r_conv_multiply_count)'(STATE_MULT - 1)) begin
           st_conv_next = INVERSE;
         end
       end
@@ -404,11 +419,11 @@ module Control
 
   always_ff @(posedge clk or posedge reset) begin: CONV_INPUT_REG_BLOCK  // register bank for the convolution
     if (reset)
-      for (int unsigned i = 0; i < 25; i++)
+      for (int unsigned i = 0; i < (CONV_INPUT_SIZE * CONV_INPUT_SIZE); i++)
         r_conv_input[i] <= '0;
     else begin
       if (st_input_current == TRANSFER) begin  // fill the convolution register bank
-        for (int unsigned i = 0; i < 25; i++)
+        for (int unsigned i = 0; i < (CONV_INPUT_SIZE * CONV_INPUT_SIZE); i++)
           r_conv_input[i] <= r_input_feat[i];
           `ifdef SIMULATION
             curr_time = $time;  // debug
@@ -535,10 +550,10 @@ module Control
         if (w_conv_end)
           st_output_next = WRITE_OUTPUT;
       READ_OUTPUT:
-        if (w_conv_end && r_output_read_count == 8)
+        if (w_conv_end && r_output_read_count == OUTPUT_RW_COUNT_WIDTH'(OUTPUT_RW_COUNT_MAX))
           st_output_next = WRITE_OUTPUT;
       WRITE_OUTPUT:
-        if (r_output_write_count == 8) begin
+        if (r_output_write_count == OUTPUT_RW_COUNT_WIDTH'(OUTPUT_RW_COUNT_MAX)) begin
           if (((r_output_channel_counter_input) > 0) && !w_output_last_window_row)
             st_output_next = READ_OUTPUT;      // accumulate next input channel
           else if ((r_output_channel_counter_input) == 0 && !w_output_last_window_row)
@@ -572,7 +587,7 @@ module Control
 
   assign w_output_last_window_col = (r_output_window_counter_col == WINDOW_COUNTER_WIDTH'(WINDOW_COUNT_PER_COLUMN - 1));
   assign w_output_last_window_row = (r_output_window_counter_row == WINDOW_ROW_COUNTER_WIDTH'(WINDOW_COUNT_PER_LINE - 1));
-  assign w_output_last_window_acc = (r_output_window_counter_acc == WINDOW_COUNT_PER_CHANNEL'(WINDOW_COUNT_PER_CHANNEL - 1));
+  assign w_output_last_window_acc = (r_output_window_counter_acc == $bits(r_output_window_counter_acc)'((WINDOW_COUNT_PER_LINE * WINDOW_COUNT_PER_COLUMN) - 1));
 
   always_ff @(posedge clk or posedge reset) begin: OUTPUT_CONTROL_COUNTERS_BLOCK
     if (reset) begin
@@ -592,7 +607,7 @@ module Control
       r_output_window_counter_acc <= '0;
       r_output_window_counter_col <= '0;
       r_output_window_counter_row <= '0;
-    end else if (st_output_current == WRITE_OUTPUT && r_output_write_count == 8) begin
+    end else if (st_output_current == WRITE_OUTPUT && r_output_write_count == OUTPUT_RW_COUNT_WIDTH'(OUTPUT_RW_COUNT_MAX)) begin
       // Advance window only after accumulating all input channels for this output window.
       r_output_window_counter_acc <= r_output_window_counter_acc + 1'b1;
       r_output_window_counter_row <= r_output_window_counter_row + 1'b1;
@@ -617,17 +632,17 @@ module Control
     end else begin
       if (st_output_current == WRITE_OUTPUT) begin
         r_output_read_count <= 0;
-        if (r_output_write_count < 8)
+        if (r_output_write_count < OUTPUT_RW_COUNT_WIDTH'(OUTPUT_RW_COUNT_MAX))
           r_output_write_count <= r_output_write_count + 1;
         else
-          r_output_write_count <= 8;
+          r_output_write_count <= OUTPUT_RW_COUNT_WIDTH'(OUTPUT_RW_COUNT_MAX);
       end else if (st_output_current == RESET_OUTPUT || st_output_current == READ_OUTPUT) begin
         r_output_write_count <= 0;
         if (p_output_valid) begin
-          if (r_output_read_count < 8)
+          if (r_output_read_count < OUTPUT_RW_COUNT_WIDTH'(OUTPUT_RW_COUNT_MAX))
             r_output_read_count <= r_output_read_count + 1;
           else
-            r_output_read_count <= 8;
+            r_output_read_count <= OUTPUT_RW_COUNT_WIDTH'(OUTPUT_RW_COUNT_MAX);
         end
       end
     end
@@ -649,9 +664,6 @@ module Control
     end
   end
 
-  localparam int FEAT_OUTPUT_SIZE = (FEAT_INPUT_SIZE - 2);
-  localparam int OUTPUT_RETURN_COLUMN = 2 * FEAT_OUTPUT_SIZE - 1;
-
   always_ff @(posedge clk or posedge reset) begin: OUTPUT_ADDR_POINTER_BLOCK
     if (reset) begin
       r_output_addr_channel <= '0;
@@ -662,20 +674,20 @@ module Control
       // - slide win299dow every completed WRITE_OUTPUT window
       // - when one input-channel pass finishes, restart window scan at channel base
       // - when last input channel finishes, advance to next output channel base
-      if (st_output_current == WRITE_OUTPUT && r_output_write_count == 8) begin
+      if (st_output_current == WRITE_OUTPUT && r_output_write_count == OUTPUT_RW_COUNT_WIDTH'(OUTPUT_RW_COUNT_MAX)) begin
         if (w_output_last_window_acc) begin
           r_output_addr_col <= '0;
           r_output_addr_row <= '0;
           if (w_output_last_channel_input && !w_output_last_channel_output)
-            r_output_addr_channel <= r_output_addr_channel + NADDR'(FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
+            r_output_addr_channel <= r_output_addr_channel + OUTPUT_ADDR_CHANNEL_WIDTH'(FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
         end else if (w_output_last_window_row) begin
           r_output_addr_row <= '0;
           if (w_output_last_window_col)
             r_output_addr_col <= '0;
           else
-            r_output_addr_col <= r_output_addr_col + NADDR'(CONV_OUTPUT_SIZE);
+            r_output_addr_col <= r_output_addr_col + OUTPUT_ADDR_COL_WIDTH'(CONV_OUTPUT_SIZE);
         end else begin
-          r_output_addr_row <= r_output_addr_row + NADDR'(FEAT_OUTPUT_SIZE * CONV_OUTPUT_SIZE);
+          r_output_addr_row <= r_output_addr_row + OUTPUT_ADDR_ROW_WIDTH'(FEAT_OUTPUT_SIZE * CONV_OUTPUT_SIZE);
         end
       end
       if (st_output_current == ADDRESS_OUTPUT) begin
@@ -695,34 +707,38 @@ module Control
         r_output_addr_offset_read <= '0;
       end else begin
         // Prepare offset for next READ cycle without lookup table.
-        if (r_output_read_count == 8)
+        if (r_output_read_count == OUTPUT_RW_COUNT_WIDTH'(OUTPUT_RW_COUNT_MAX))
           r_output_addr_offset_read <= r_output_addr_offset_read;
         else
-        if ((r_output_read_count == 2) || (r_output_read_count == 5))
-          r_output_addr_offset_read <= r_output_addr_offset_read - NADDR'(OUTPUT_RETURN_COLUMN);
+        if ((r_output_read_count == (CONV_OUTPUT_SIZE - 1)) || (r_output_read_count == ((2 * CONV_OUTPUT_SIZE) - 1)))
+          r_output_addr_offset_read <= r_output_addr_offset_read - OUTPUT_ADDR_OFFSET_WIDTH'((2 * FEAT_OUTPUT_SIZE) - 1);
         else
-          r_output_addr_offset_read <= r_output_addr_offset_read + NADDR'(FEAT_OUTPUT_SIZE);
+          r_output_addr_offset_read <= r_output_addr_offset_read + OUTPUT_ADDR_OFFSET_WIDTH'(FEAT_OUTPUT_SIZE);
       end
 
       if (st_output_current != WRITE_OUTPUT) begin
         r_output_addr_offset_write <= '0;
       end else begin
         // Prepare offset for next WRITE cycle without lookup table.
-        if (r_output_write_count == 8)
+        if (r_output_write_count == OUTPUT_RW_COUNT_WIDTH'(OUTPUT_RW_COUNT_MAX))
           r_output_addr_offset_write <= r_output_addr_offset_write;
         else
-        if ((r_output_write_count == 2) || (r_output_write_count == 5))
-          r_output_addr_offset_write <= r_output_addr_offset_write - NADDR'(OUTPUT_RETURN_COLUMN);
+        if ((r_output_write_count == (CONV_OUTPUT_SIZE - 1)) || (r_output_write_count == ((2 * CONV_OUTPUT_SIZE) - 1)))
+          r_output_addr_offset_write <= r_output_addr_offset_write - OUTPUT_ADDR_OFFSET_WIDTH'((2 * FEAT_OUTPUT_SIZE) - 1);
         else
-          r_output_addr_offset_write <= r_output_addr_offset_write + NADDR'(FEAT_OUTPUT_SIZE);
+          r_output_addr_offset_write <= r_output_addr_offset_write + OUTPUT_ADDR_OFFSET_WIDTH'(FEAT_OUTPUT_SIZE);
       end
     end
   end
 
-  assign w_output_addr = r_output_addr_channel + r_output_addr_col + r_output_addr_row;
+  assign w_output_addr = NADDR'(r_output_addr_channel) + NADDR'(r_output_addr_col) + NADDR'(r_output_addr_row);
   assign p_output_data_write = r_output_write[r_output_write_count] + r_output_read[r_output_write_count];
-  assign p_output_addr = (st_output_current == READ_OUTPUT) ? w_output_addr + r_output_addr_offset_read : w_output_addr + r_output_addr_offset_write;  // p_input_addr mux
-  assign p_output_en = (((st_output_current == READ_OUTPUT) && r_output_read_count < 8) || (st_output_current == WRITE_OUTPUT)) ? '1 : '0;
-  assign p_output_wr = (st_output_current == WRITE_OUTPUT && !w_input_last_channel_output) ? '1 : '0;
+  assign p_output_addr = (st_output_current == READ_OUTPUT) ?
+    (w_output_addr + NADDR'(r_output_addr_offset_read)) :
+    (w_output_addr + NADDR'(r_output_addr_offset_write));  // p_input_addr mux
+  // Keep read enabled through index 8 so the 9th output element is fetched.
+  assign p_output_en = (((st_output_current == READ_OUTPUT) && r_output_read_count <= OUTPUT_RW_COUNT_WIDTH'(OUTPUT_RW_COUNT_MAX)) || (st_output_current == WRITE_OUTPUT)) ? '1 : '0;
+  // Keep write enabled for every WRITE_OUTPUT beat, including the final window/channel.
+  assign p_output_wr = (st_output_current == WRITE_OUTPUT) ? '1 : '0;
 
 endmodule
