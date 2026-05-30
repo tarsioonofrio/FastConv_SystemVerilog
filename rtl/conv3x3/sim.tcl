@@ -1,0 +1,119 @@
+# Centralized compile-time defines set directly in this script.
+# Add more entries here if other packages/modules require them.
+
+set NADDR 14
+set NBITS 16
+set LATENCY 1
+set ROM 1
+# set QUANT 8
+
+# set DATA data/ifn9/sim/sim-032-1-1-seq/pack_data.sv
+# set DATA data/ifn9/sim/sim-032-1-3-seq/pack_data.sv
+# set DATA data/ifn9/sim/sim-032-2-1-seq/pack_data.sv
+# set DATA data/ifn9/sim/sim-032-3-1-seq/pack_data.sv
+# set DATA data/ifn9/sim/sim-032-2-2-seq/pack_data.sv
+set DATA data/ifn9/sim/sim-032-3-3-seq/pack_data.sv
+# set DATA data/ifn9/sim/sim-254-3-3-seq/pack_data.sv
+set PARAM pack-param/ifn9/pack_param.sv
+set MUX mux-mult/ifn9/mux_mult_06.sv
+set MULT mult-matrices/ifn9/mult_matrices_csa.sv
+
+set define_flags ""
+append define_flags "+define+NADDR=$NADDR "
+append define_flags "+define+NBITS=$NBITS "
+append define_flags "+define+LATENCY=$LATENCY "
+append define_flags "+define+ROM=$ROM "
+# append define_flags "+define+QUANT=$QUANT "
+
+
+file delete {*}[glob -nocomplain wlf*]
+if {[file isdirectory work]} { vdel -all -lib work }
+vlib work
+vmap work work
+
+# Read the file_list.txt file and execute vlog commands for each line, passing defines
+
+set file_list [list \
+  "${DATA}" \
+  "${PARAM}" \
+  "${MUX}" \
+  "../csa/csa_lib.sv" \
+  "${MULT}" \
+  "../mem/mem.sv" \
+  "../multip/multip.sv" \
+]
+
+vlog -work work $define_flags -svinputport=relaxed {*}$file_list
+
+# vlog -work work +define+SIMULATION $define_flags -svinputport=relaxed ./control.sv
+vlog -work work $define_flags -svinputport=relaxed ./conv.sv
+vlog -work work $define_flags -svinputport=relaxed ./testbench.sv
+# to show FSM
+# vsim -voptargs=+acc -t ps -fsmdebug -coverage -debugDB work.tb
+vsim -voptargs=+acc=lprn -debugDB -t ps work.tb
+# vsim -voptargs=+acc -t ps work.tb
+set StdArithNoWarnings 1
+set StdVitalGlitchNoWarnings 1
+
+# Generic constant dump (parameters/localparams) from DUT scope without manual list.
+# Extract names directly from the SV source (parameter/localparam declarations),
+# then try to examine each symbol under the DUT scope.
+proc get_constant_names_from_sv {sv_file} {
+  if {![file exists $sv_file]} {
+    return {}
+  }
+  set fh [open $sv_file r]
+  set txt [read $fh]
+  close $fh
+
+  set names {}
+  foreach line [split $txt "\n"] {
+    set s [string trim $line]
+    if {[regexp {^(parameter|localparam)\M} $s]} {
+      # Match last identifier before '='
+      if {[regexp {([A-Za-z_][A-Za-z0-9_]*)\s*=} $s -> n]} {
+        lappend names $n
+      }
+    }
+  }
+  # unique + sorted
+  return [lsort -unique $names]
+}
+
+proc dump_constants_auto {scope sv_file} {
+  echo ""
+  echo "=== DUT PARAMETERS / LOCALPARAMS ==="
+  set const_names [get_constant_names_from_sv $sv_file]
+  if {[llength $const_names] == 0} {
+    echo "<no parameter/localparam names found in ${sv_file}>"
+  } else {
+    set found 0
+    foreach n $const_names {
+      set p "${scope}/${n}"
+      if {[catch {set v [examine $p]}]} {
+        echo [format "%-36s = <unreadable>" $n]
+      } else {
+        set found 1
+        echo [format "%-36s = %s" $n $v]
+      }
+    }
+    if {!$found} {
+      echo "<no readable constants under ${scope}>"
+    }
+  }
+  echo "===================================="
+  echo ""
+}
+
+dump_constants_auto sim:/tb/dut conv.sv
+
+# Source-level breakpoints in Control output address logic.
+# bp "$CONTROL_SV" 671
+# bp "$CONTROL_SV" 674
+
+do wave.do
+do mem.do
+
+# run 31000  ns
+run 20000000ns
+# coverage report -output report.txt -srcfile=* -assert -directive -cvg -codeAll
