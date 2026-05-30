@@ -27,14 +27,15 @@ module tb;
   logic p_input_en;
   logic [NADDR-1:0] p_input_addr;
   logic [19:0] p_input_data;
+  logic [NBITS-1:0] p_input_data_write;
   logic p_input_valid;
+  logic p_input_valid_mem;
   logic p_output_en;
   logic p_output_wr;
   logic [NADDR-1:0] p_output_addr;
   logic [NBITS-1:0] p_output_data_write;
   logic [NBITS-1:0] p_output_data_read;
   logic p_output_valid;
-  int input_addr_idx;
   int conv_inverse_check_idx;
   int output_error_count;
   logic [NBITS-1:0] output_bank [0:FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT - 1];
@@ -45,15 +46,7 @@ module tb;
   localparam int OUTPUT_CHANNEL_STRIDE = FEAT_OUTPUT_SIZE * CONV_OUTPUT_SIZE * OUTPUT_TILES_PER_AXIS;
   localparam int WINDOW_COUNT_PER_CHANNEL_TB = OUTPUT_TILES_PER_AXIS * OUTPUT_TILES_PER_AXIS;
 
-  // Reads directly from the dataset package memory image.
-  always_comb begin
-    input_addr_idx = int'(p_input_addr);
-    if (input_addr_idx < $size(const_data))
-      p_input_data = NBITS'(const_data[input_addr_idx]);
-    else
-      p_input_data = '0;
-  end
-  assign p_input_valid = p_input_en;
+  assign p_input_data_write = '0;
 
   // Instanciação do Módulo (DUT)
   Control #(
@@ -92,7 +85,7 @@ module tb;
     .NBITS(NBITS),
     .LATENCY(LATENCY),
     .ROM(0)
-  ) memory_write (
+  ) memory_output (
     .clk(clk),
     .reset(reset),
     .chip_en(p_output_en),
@@ -102,6 +95,33 @@ module tb;
     .data_out(p_output_data_read),
     .data_valid(p_output_valid)
   );
+
+  Memory #(
+    .NADDR(NADDR),
+    .NBITS(NBITS),
+    .LATENCY(LATENCY),
+    .ROM(0)
+  ) memory_input (
+    .clk(clk),
+    .reset(reset),
+    .chip_en(1'b1),
+    .wr_en(1'b0),
+    .address(p_input_addr),
+    .data_in(p_input_data_write),
+    .data_out(p_input_data),
+    .data_valid(p_input_valid_mem)
+  );
+
+  assign p_input_valid = p_input_en;
+
+  task automatic t_preload_input_memory;
+    for (int i = 0; i < (1 << NADDR); i++) begin
+      memory_input.data[i] = '0;
+    end
+    for (int i = 0; i < $size(const_data); i++) begin
+      memory_input.data[i] = NBITS'(const_data[i]);
+    end
+  endtask
 
   // Gerador de Clock: 100MHz -> Período de 10ns
   initial clk = 0;
@@ -175,6 +195,7 @@ module tb;
 
     // Mantém reset por 20 ns
     #20 reset = 0;
+    t_preload_input_memory();
 
     #80 p_start = 1;
     #10 p_start = 0;
