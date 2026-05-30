@@ -50,6 +50,15 @@ The main control module is implemented in `control.sv`.
 - Output base addressing is tracked by `r_addr_pointer_output`, advancing by output-window column stride and wrapping to the next row at line end.
 - Output tile offseting (inside each 3x3 write/read burst) is generated in `OUTPUT_ADDR_OFFSET_BLOCK` with `always_ff` registers (`r_output_addr_offset_read`/`r_output_addr_offset_write`) using incremental stride/wrap steps, without lookup `case`, function calls, division, or modulo.
 
+### Recent RTL Updates
+
+- Input testbench memory now uses `Memory` with `ROM=1`, reading dataset samples from `pack_data::const_data`.
+- `p_output_wr` stays asserted for every `WRITE_OUTPUT` beat, including the last output window.
+- `p_output_en` keeps read active through the last output element of each 3x3 writeback burst.
+- Width calculations were standardized with helper function `f_width_min1(x)` in `conv.sv` for safer `$clog2` usage when `x<=1`.
+- Output address internals (`r_output_addr_offset_*`, `r_output_addr_channel`, `r_output_addr_col`, `r_output_addr_row`) were narrowed with dedicated width localparams.
+- Output read/write counters are parameterized by `CONV_OUTPUT_SIZE` (`OUTPUT_RW_COUNT_MAX`, `OUTPUT_RW_COUNT_WIDTH`) instead of fixed constants.
+
 Use this module as a reference guide to understand control flow for address generation, convolution triggering, and output writeback in the FastConv controller.
 
 ## Waveform Script
