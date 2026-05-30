@@ -32,10 +32,7 @@ module Memory #(
       data_out = data[address];
     else if (ROM == 1 && chip_en == 1'b1) begin
       // Prefer explicit ROM parameters when provided; otherwise use dataset package.
-      if (CONST_DATA_SIZE > 0)
-        data_out = (address < CONST_DATA_SIZE) ? CONST_DATA[address] : '0;
-      else
-        data_out = (address < $size(pack_data::const_data)) ? NBITS'(pack_data::const_data[address]) : '0;
+      data_out = (address < $size(pack_data::const_data)) ? NBITS'(pack_data::const_data[address]) : '0;
     end else
       data_out = '{default: '0};
   end
