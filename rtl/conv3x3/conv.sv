@@ -37,6 +37,13 @@ module Control
     input  logic p_output_valid                    // Read-valid flag from the output RAM
   );
 
+  function automatic int f_width_min1(input int x);
+    if (x <= 1)
+      f_width_min1 = 1;
+    else
+      f_width_min1 = $clog2(x);
+  endfunction
+
   logic [NBITS-1:0] r_input_feat[(CONV_INPUT_SIZE * CONV_INPUT_SIZE) - 1:0];  // input feature register bank
   logic [NBITS-1:0] w_input_feat_next[(CONV_INPUT_SIZE * CONV_INPUT_SIZE) - 1:0];  // next values for feature shift bank
   logic [NADDR-1:0] r_input_addr_feat;
@@ -51,25 +58,25 @@ module Control
   localparam WINDOW_COUNT_PER_COLUMN = FEAT_INPUT_WIDTH / 3;
   localparam WINDOW_COUNT_PER_CHANNEL = WINDOW_COUNT_PER_LINE * WINDOW_COUNT_PER_COLUMN;
 
-  localparam WINDOW_COUNTER_WIDTH = $clog2(WINDOW_COUNT_PER_LINE * WINDOW_COUNT_PER_COLUMN);
+  localparam WINDOW_COUNTER_WIDTH = f_width_min1(WINDOW_COUNT_PER_LINE * WINDOW_COUNT_PER_COLUMN);
   logic [WINDOW_COUNTER_WIDTH-1:0] r_input_window_counter_acc;
 
-  localparam WINDOW_ROW_COUNTER_WIDTH = $clog2(WINDOW_COUNT_PER_LINE) + 1;
+  localparam WINDOW_ROW_COUNTER_WIDTH = f_width_min1(WINDOW_COUNT_PER_LINE + 1);
   logic [WINDOW_ROW_COUNTER_WIDTH-1:0] r_input_window_counter_col;
 
-  localparam ADDR_INPUT_COUNTER_WIDTH = $clog2(WINDOW_COUNT_PER_COLUMN) + 1;
+  localparam ADDR_INPUT_COUNTER_WIDTH = f_width_min1(WINDOW_COUNT_PER_COLUMN + 1);
   logic [ADDR_INPUT_COUNTER_WIDTH-1:0] w_input_base_feat;
   logic [ADDR_INPUT_COUNTER_WIDTH-1:0] r_input_addr_count;
 
-  localparam CHANNEL_INPUT_COUNTER_WIDTH = $clog2(N_CHANNEL_IN) + 1;
+  localparam CHANNEL_INPUT_COUNTER_WIDTH = f_width_min1(N_CHANNEL_IN + 1);
   logic [CHANNEL_INPUT_COUNTER_WIDTH-1:0] r_input_channel_counter_input;
 
-  localparam CHANNEL_OUTPUT_COUNTER_WIDTH = $clog2(N_CHANNEL_OUT) + 1;
+  localparam CHANNEL_OUTPUT_COUNTER_WIDTH = f_width_min1(N_CHANNEL_OUT + 1);
   logic [CHANNEL_OUTPUT_COUNTER_WIDTH-1:0] r_input_channel_counter_output;
 
   // REGISTER BANK FOR THE WEIGHTS ////////////////////////////////////////////
   localparam WEIGHT_CYCLES = HADAMARD_SIZE * HADAMARD_SIZE;
-  localparam WEIGHT_WIDTH = $clog2(WEIGHT_CYCLES)+1;
+  localparam WEIGHT_WIDTH = f_width_min1(WEIGHT_CYCLES + 1);
   logic [NBITS-1:0] r_input_weight[WEIGHT_CYCLES-1:0];
   logic [WEIGHT_CYCLES-1:0] w_input_weight_en;
   logic [WEIGHT_WIDTH-1:0] r_input_count_kernel;
@@ -81,12 +88,14 @@ module Control
   logic [NBITS-1:0] w_conv_inverse [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
   logic [NBITS-1:0] r_conv_input[(CONV_INPUT_SIZE * CONV_INPUT_SIZE) - 1:0];  // convolution input register bank
   logic signed [NBITS-1+QUANT:0] w_conv_product [NUM_MULT-1:0];  // QUANT more bits for the multipliers
-  logic [$clog2(STATE_MULT-1):0] r_conv_idx_in;
-  logic [$clog2(STATE_MULT*NUM_MULT-1):0] r_conv_idx_out[NUM_MULT-1:0];
+  localparam CONV_IDX_INPUT_WIDTH = f_width_min1(STATE_MULT - 1) + 1;
+  localparam CONV_IDX_OUTPUT_WIDTH = f_width_min1((STATE_MULT * NUM_MULT) - 1) + 1;
+  logic [CONV_IDX_INPUT_WIDTH-1:0] r_conv_idx_in;
+  logic [CONV_IDX_OUTPUT_WIDTH-1:0] r_conv_idx_out[NUM_MULT-1:0];
   logic w_conv_end;
 
   localparam OUTPUT_RW_COUNT_MAX = (CONV_OUTPUT_SIZE * CONV_OUTPUT_SIZE) - 1;
-  localparam OUTPUT_RW_COUNT_WIDTH = ((CONV_OUTPUT_SIZE * CONV_OUTPUT_SIZE) <= 1) ? 1 : $clog2(CONV_OUTPUT_SIZE * CONV_OUTPUT_SIZE);
+  localparam OUTPUT_RW_COUNT_WIDTH = f_width_min1(CONV_OUTPUT_SIZE * CONV_OUTPUT_SIZE);
   logic [OUTPUT_RW_COUNT_WIDTH-1:0] r_output_read_count;
   logic [OUTPUT_RW_COUNT_WIDTH-1:0] r_output_write_count;
   logic [NBITS-1:0] r_output_write [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
@@ -101,17 +110,17 @@ module Control
   logic [CHANNEL_INPUT_COUNTER_WIDTH-1:0] r_output_channel_counter_input;
   logic [CHANNEL_OUTPUT_COUNTER_WIDTH-1:0] r_output_channel_counter_output;
 
-  localparam OUTPUT_ADDR_OFFSET_WIDTH = (((2 * FEAT_OUTPUT_SIZE) + 2) <= 1) ? 1 : $clog2((2 * FEAT_OUTPUT_SIZE) + 2);
+  localparam OUTPUT_ADDR_OFFSET_WIDTH = f_width_min1((2 * FEAT_OUTPUT_SIZE) + 2);
   logic [OUTPUT_ADDR_OFFSET_WIDTH-1:0] r_output_addr_offset_read;
   logic [OUTPUT_ADDR_OFFSET_WIDTH-1:0] r_output_addr_offset_write;
 
-  localparam OUTPUT_ADDR_CHANNEL_WIDTH = ((N_CHANNEL_OUT * FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE) <= 1) ? 1 : $clog2(N_CHANNEL_OUT * FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
+  localparam OUTPUT_ADDR_CHANNEL_WIDTH = f_width_min1(N_CHANNEL_OUT * FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
   logic [OUTPUT_ADDR_CHANNEL_WIDTH-1:0] r_output_addr_channel;
 
-  localparam OUTPUT_ADDR_COL_WIDTH = (FEAT_OUTPUT_SIZE <= 1) ? 1 : $clog2(FEAT_OUTPUT_SIZE);
+  localparam OUTPUT_ADDR_COL_WIDTH = f_width_min1(FEAT_OUTPUT_SIZE);
   logic [OUTPUT_ADDR_COL_WIDTH-1:0] r_output_addr_col;
 
-  localparam OUTPUT_ADDR_ROW_WIDTH = ((FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE) <= 1) ? 1 : $clog2(FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
+  localparam OUTPUT_ADDR_ROW_WIDTH = f_width_min1(FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
   logic [OUTPUT_ADDR_ROW_WIDTH-1:0] r_output_addr_row;
 
   logic w_output_last_window_row;
