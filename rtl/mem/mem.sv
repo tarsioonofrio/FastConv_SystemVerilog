@@ -2,9 +2,7 @@ module Memory #(
     parameter int NADDR   = 16,
     parameter int NBITS   = 20,
     parameter int LATENCY = 1,
-    parameter int ROM     = 0,
-    parameter int CONST_DATA_SIZE = 0,
-    parameter int CONST_DATA[] = '{0}
+    parameter int ROM     = 0
   )
   (
     input  logic            clk, reset, chip_en, wr_en,
@@ -32,9 +30,13 @@ module Memory #(
   always_comb begin
     if (ROM == 0 && chip_en == 1'b1)
       data_out = data[address];
-    else if (ROM == 1 && chip_en == 1'b1)
-      data_out = (address < CONST_DATA_SIZE) ? CONST_DATA[address] : '0;
-    else
+    else if (ROM == 1 && chip_en == 1'b1) begin
+      // Prefer explicit ROM parameters when provided; otherwise use dataset package.
+      if (CONST_DATA_SIZE > 0)
+        data_out = (address < CONST_DATA_SIZE) ? CONST_DATA[address] : '0;
+      else
+        data_out = (address < $size(pack_data::const_data)) ? NBITS'(pack_data::const_data[address]) : '0;
+    end else
       data_out = '{default: '0};
   end
 

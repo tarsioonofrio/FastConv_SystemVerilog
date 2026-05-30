@@ -100,7 +100,7 @@ module tb;
     .NADDR(NADDR),
     .NBITS(NBITS),
     .LATENCY(LATENCY),
-    .ROM(0)
+    .ROM(ROM)
   ) memory_input (
     .clk(clk),
     .reset(reset),
@@ -113,15 +113,6 @@ module tb;
   );
 
   assign p_input_valid = p_input_en;
-
-  task automatic t_preload_input_memory;
-    for (int i = 0; i < (1 << NADDR); i++) begin
-      memory_input.data[i] = '0;
-    end
-    for (int i = 0; i < $size(const_data); i++) begin
-      memory_input.data[i] = NBITS'(const_data[i]);
-    end
-  endtask
 
   // Gerador de Clock: 100MHz -> Período de 10ns
   initial clk = 0;
@@ -195,7 +186,6 @@ module tb;
 
     // Mantém reset por 20 ns
     #20 reset = 0;
-    t_preload_input_memory();
 
     #80 p_start = 1;
     #10 p_start = 0;
