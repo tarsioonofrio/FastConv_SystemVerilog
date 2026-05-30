@@ -8,7 +8,7 @@ module Memory #(
   )
   (
     input  logic            clk, reset, chip_en, wr_en,
-    input  logic[NADDR-1:0] address,
+    input  logic [NADDR-1:0] address,
     input  logic [NBITS-1:0] data_in,
     output logic [NBITS-1:0] data_out,
     output logic            data_valid
