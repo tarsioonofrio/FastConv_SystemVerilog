@@ -4,6 +4,10 @@
 
 FastConv is an optimized 2D convolution architecture (Toom-Cook and variants) described in SystemVerilog. The repository includes synthesizable RTL, test data packages, automation scripts, and synthesis materials used to explore different window and channel configurations. Use it as a foundation to understand the complete pipeline: hardware generation, functional simulation, and timing/power closure.
 
+## Dissertation Reference
+
+The Git tag `dissertation` points to the commit hash that contains the exact code version used in the dissertation.
+
 ## Repository Structure
 
 - `rtl/`: SystemVerilog modules organized by function (control, memories, multipliers, muxes, complete systems). Each subfolder contains a `README.md` describing the module and its ports.
