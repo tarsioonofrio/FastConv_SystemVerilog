@@ -12,6 +12,13 @@ Imports `data`, `pack_def`, and `pack_typedef` to gain access to initialization 
 | `NBITS` | `int` | Width of each stored element. |
 | `LATENCY` | `int` | Number of cycles between enabling a read and the data becoming valid. |
 | `ROM` | `int` | When `1`, drives the output from the constant dataset instead of the writable array. |
+| `CONST_DATA_SIZE` | `int` | Optional explicit size of a constant ROM vector. |
+| `CONST_DATA[]` | `int[]` | Optional explicit constant ROM vector. |
+
+When `ROM==1`:
+
+- If `CONST_DATA_SIZE > 0`, the module uses `CONST_DATA`/`CONST_DATA_SIZE`.
+- Otherwise, it falls back to `pack_data::const_data`.
 
 ### Ports
 | Port | Direction | Type | Description |
