@@ -1,25 +1,21 @@
-module Memory
-    import pack_def::*;
-    import pack_data::*;
-    import pack_typedef::*;
-#(
+module Memory #(
     parameter int NADDR   = 16,
     parameter int NBITS   = 20,
     parameter int LATENCY = 1,
     parameter int ROM     = 0
   )
   (
-    input  logic            clk, reset, chip_en, wr_en,
-    input  logic[NADDR-1:0] address,
-    input  logic_vector     data_in,
-    output logic_vector     data_out,
-    output logic            data_valid
+    input  logic             clk, reset, chip_en, wr_en,
+    input  logic [NADDR-1:0] address,
+    input  logic [NBITS-1:0] data_in,
+    output logic [NBITS-1:0] data_out,
+    output logic             data_valid
   );
 
   timeunit 1ns;
   timeprecision 1ps;
 
-  logic_vector data[0:2**NADDR-1];
+  logic [NBITS-1:0] data[0:2**NADDR-1];
 
   int r_cycles_latency;
 
@@ -34,9 +30,10 @@ module Memory
   always_comb begin
     if (ROM == 0 && chip_en == 1'b1)
       data_out = data[address];
-    else if (ROM == 1 && chip_en == 1'b1)
-      data_out = $signed(const_data[address]);
-    else
+    else if (ROM == 1 && chip_en == 1'b1) begin
+      // Prefer explicit ROM parameters when provided; otherwise use dataset package.
+      data_out = (address < $size(pack_data::const_data)) ? NBITS'(pack_data::const_data[address]) : '0;
+    end else
       data_out = '{default: '0};
   end
 

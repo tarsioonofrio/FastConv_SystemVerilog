@@ -1,0 +1,23 @@
+Cadence Genus(TM) Synthesis Solution.
+Copyright 2022 Cadence Design Systems, Inc. All rights reserved worldwide.
+Cadence and the Cadence logo are registered trademarks and Genus is a trademark
+of Cadence Design Systems, Inc. in the United States and other countries.
+
+[11:58:10.503681] Configured Lic search path (20.02-s004): 5280@paxos.inf.pucrs.br
+
+Version: 21.12-s068_1, built Fri Mar 04 09:12:46 PST 2022
+Options: -files logical_synthesis.tcl 
+Date:    Mon Apr 06 11:58:10 2026
+Host:    paxos.inf.pucrs.br (x86_64 w/Linux 4.18.0-553.83.1.el8_10.x86_64) (14cores*28cpus*1physical cpu*Intel(R) Core(TM) i9-7940X CPU @ 3.10GHz 19712KB) (131170908KB)
+PID:     65
+OS:      Rocky Linux release 8.10 (Green Obsidian)
+
+Checking out license: Genus_Synthesis
+License 'Genus_Synthesis' (main version: 21.1, alternate version: 21.1) checkout failed.
+Checking out license: Virtuoso_Digital_Implem
+License 'Virtuoso_Digital_Implem' (main version: 21.1, alternate version: 21.1) checkout failed.
+Checking out license: Virtuoso_Digital_Implem_XL
+License 'Virtuoso_Digital_Implem_XL' (main version: 21.1, alternate version: 21.1) checkout failed.
+Cannot obtain 'Genus_Synthesis' license.
+Failed on application-specific initialization
+Abnormal exit.
