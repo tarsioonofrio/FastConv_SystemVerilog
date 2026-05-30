@@ -168,16 +168,16 @@ module Control
   always_ff @(posedge clk or posedge reset) begin: INPUT_ADDR_POINTER_BLOCK
     if (reset) begin
       r_input_addr_feat <= '0;
-      r_input_window_next <= 3;
+      r_input_window_next <= CONV_OUTPUT_SIZE;
     end
     else if ((st_input_current == READ_IN_10A && st_input_next == READ_IN_10B) || (st_input_current == READ_IN_10B && st_input_next == READ_IN_15A) || (st_input_current == READ_IN_15A && st_input_next == READ_IN_15B) || (st_input_current == READ_IN_15B && st_input_next == READ_IN_15C) || st_input_current == TRANSFER)
       r_input_addr_feat <= r_input_addr_feat + NADDR'(FEAT_INPUT_WIDTH);    // change internal p_input_addr in the state transition or in the TRANSFER state (CAUTION: PE)
     else if (st_input_current == NEXT_ROW_INPUT && !w_input_last_window_acc) begin  // when change the line, the read pointer moves 'r_input_window_next'
       r_input_addr_feat <= r_input_window_next + NADDR'(r_input_channel_counter_input * FEAT_INPUT_SIZE * FEAT_INPUT_WIDTH);  // restart for the first line
-      r_input_window_next <= r_input_window_next + 3;
+      r_input_window_next <= r_input_window_next + CONV_OUTPUT_SIZE;
     end else if (st_input_current == ADDRESS_INPUT && w_input_last_window_acc) begin
       r_input_addr_feat <= r_input_addr_feat - NADDR'(FEAT_INPUT_WIDTH) + NADDR'(HADAMARD_SIZE) - 1;   // adjust the pointer to the next IFMAP
-      r_input_window_next <= 3;
+      r_input_window_next <= CONV_OUTPUT_SIZE;
 
       if (r_input_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN-1) ) begin               // change the IFMAP
         r_input_addr_feat <= 0;
@@ -218,11 +218,11 @@ module Control
       READ_WEIGHTS:
         if (w_input_weight_done) st_input_next = READ_IN_10A;
         else if (w_input_last_channel_output) st_input_next = WAIT_INPUT;  //end processing
-      READ_IN_10A: if (r_input_addr_count == 4) st_input_next = READ_IN_10B;  // read 5*5 values
-      READ_IN_10B: if (r_input_addr_count == 4) st_input_next = READ_IN_15A;
-      READ_IN_15A: if (r_input_addr_count == 4) st_input_next = READ_IN_15B;
-      READ_IN_15B: if (r_input_addr_count == 4) st_input_next = READ_IN_15C;
-      READ_IN_15C: if (r_input_addr_count == 4) st_input_next = TRANSFER;
+      READ_IN_10A: if (r_input_addr_count == (CONV_INPUT_SIZE - 1)) st_input_next = READ_IN_10B;  // read 5*5 values
+      READ_IN_10B: if (r_input_addr_count == (CONV_INPUT_SIZE - 1)) st_input_next = READ_IN_15A;
+      READ_IN_15A: if (r_input_addr_count == (CONV_INPUT_SIZE - 1)) st_input_next = READ_IN_15B;
+      READ_IN_15B: if (r_input_addr_count == (CONV_INPUT_SIZE - 1)) st_input_next = READ_IN_15C;
+      READ_IN_15C: if (r_input_addr_count == (CONV_INPUT_SIZE - 1)) st_input_next = TRANSFER;
       TRANSFER: st_input_next = HOLD_WRITE;  // p_start the convolution
       HOLD_WRITE:
         if (w_input_last_window_col && w_input_write_done) st_input_next = NEXT_ROW_INPUT;
@@ -257,7 +257,7 @@ module Control
         r_input_addr_count <= 0;
       end
       else if (st_input_current inside {READ_IN_10A, READ_IN_10B, READ_IN_15A, READ_IN_15B, READ_IN_15C}) begin
-        if (r_input_addr_count == 4)
+        if (r_input_addr_count == (CONV_INPUT_SIZE - 1))
           r_input_addr_count <= 0;
         else
           r_input_addr_count <= r_input_addr_count + 1;
@@ -317,7 +317,7 @@ module Control
   // READING REGISTER BANK
   // -------------------------------------------------------------------------
   always_comb begin: INPUT_SHIFT_DATA_BLOCK
-    for (int unsigned i = 0; i < 25; i++)  // connection between register outputs to register inputs
+    for (int unsigned i = 0; i < (CONV_INPUT_SIZE * CONV_INPUT_SIZE); i++)  // connection between register outputs to register inputs
     w_input_feat_next[i] = p_input_data;
 
     w_input_feat_next[0]  = (st_input_current == READ_IN_10A) ? p_input_data : r_input_feat[3];     // makes the shifts - minimize muxes
@@ -346,10 +346,10 @@ module Control
 
   always_ff @(posedge clk or posedge reset) begin: INPUT_FEATURE_REG_BLOCK  // initializes and write into the register bank and convolution register bank
     if (reset)
-      for (int unsigned i = 0; i < 25; i++)
+      for (int unsigned i = 0; i < (CONV_INPUT_SIZE * CONV_INPUT_SIZE); i++)
         r_input_feat[i] <= '0;
     else
-      for (int unsigned i = 0; i < 25; i++)
+      for (int unsigned i = 0; i < (CONV_INPUT_SIZE * CONV_INPUT_SIZE); i++)
         if (w_input_feat_en[i])
           r_input_feat[i] <= w_input_feat_next[i];
   end
@@ -415,11 +415,11 @@ module Control
 
   always_ff @(posedge clk or posedge reset) begin: CONV_INPUT_REG_BLOCK  // register bank for the convolution
     if (reset)
-      for (int unsigned i = 0; i < 25; i++)
+      for (int unsigned i = 0; i < (CONV_INPUT_SIZE * CONV_INPUT_SIZE); i++)
         r_conv_input[i] <= '0;
     else begin
       if (st_input_current == TRANSFER) begin  // fill the convolution register bank
-        for (int unsigned i = 0; i < 25; i++)
+        for (int unsigned i = 0; i < (CONV_INPUT_SIZE * CONV_INPUT_SIZE); i++)
           r_conv_input[i] <= r_input_feat[i];
           `ifdef SIMULATION
             curr_time = $time;  // debug
@@ -706,7 +706,7 @@ module Control
         if (r_output_read_count == OUTPUT_RW_COUNT_WIDTH'(OUTPUT_RW_COUNT_MAX))
           r_output_addr_offset_read <= r_output_addr_offset_read;
         else
-        if ((r_output_read_count == 2) || (r_output_read_count == 5))
+        if ((r_output_read_count == (CONV_OUTPUT_SIZE - 1)) || (r_output_read_count == ((2 * CONV_OUTPUT_SIZE) - 1)))
           r_output_addr_offset_read <= r_output_addr_offset_read - OUTPUT_ADDR_OFFSET_WIDTH'(OUTPUT_RETURN_COLUMN);
         else
           r_output_addr_offset_read <= r_output_addr_offset_read + OUTPUT_ADDR_OFFSET_WIDTH'(FEAT_OUTPUT_SIZE);
@@ -719,7 +719,7 @@ module Control
         if (r_output_write_count == OUTPUT_RW_COUNT_WIDTH'(OUTPUT_RW_COUNT_MAX))
           r_output_addr_offset_write <= r_output_addr_offset_write;
         else
-        if ((r_output_write_count == 2) || (r_output_write_count == 5))
+        if ((r_output_write_count == (CONV_OUTPUT_SIZE - 1)) || (r_output_write_count == ((2 * CONV_OUTPUT_SIZE) - 1)))
           r_output_addr_offset_write <= r_output_addr_offset_write - OUTPUT_ADDR_OFFSET_WIDTH'(OUTPUT_RETURN_COLUMN);
         else
           r_output_addr_offset_write <= r_output_addr_offset_write + OUTPUT_ADDR_OFFSET_WIDTH'(FEAT_OUTPUT_SIZE);
