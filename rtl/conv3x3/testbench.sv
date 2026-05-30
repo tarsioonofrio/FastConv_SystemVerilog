@@ -11,10 +11,14 @@ module tb;
   localparam int unsigned FEAT_INPUT_WIDTH = FEAT_INPUT_SIZE;
   // localparam int unsigned CONV_MULTIPLY_STEPS = 6;
   localparam int unsigned NBITS = 20;
+  localparam int unsigned LATENCY = 1;
+  localparam int unsigned ROM = 1;
 
-  localparam int unsigned INPUT_MEMORY_SIZE = N_CHANNEL_IN*FEAT_INPUT_SIZE*FEAT_INPUT_WIDTH + N_CHANNEL_OUT*N_CHANNEL_IN*HADAMARD_SIZE*HADAMARD_SIZE;
-
-  localparam int unsigned NADDR     = 20;
+  localparam int unsigned INPUT_MEMORY_SIZE  = N_CHANNEL_IN*FEAT_INPUT_SIZE*FEAT_INPUT_WIDTH + N_CHANNEL_OUT*N_CHANNEL_IN*HADAMARD_SIZE*HADAMARD_SIZE;
+  localparam int unsigned OUTPUT_MEMORY_SIZE = FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT - 1;
+  localparam int unsigned INPUT_ADDR_WIDTH   = $clog2(INPUT_MEMORY_SIZE);
+  localparam int unsigned OUTPUT_ADDR_WIDTH  = $clog2(OUTPUT_MEMORY_SIZE);
+  localparam int unsigned NADDR              = (INPUT_ADDR_WIDTH > OUTPUT_ADDR_WIDTH) ? INPUT_ADDR_WIDTH : OUTPUT_ADDR_WIDTH;
 
   // Sinais de interface
   logic clk;
@@ -23,14 +27,15 @@ module tb;
   logic p_input_en;
   logic [NADDR-1:0] p_input_addr;
   logic [19:0] p_input_data;
+  logic [NBITS-1:0] p_input_data_write;
   logic p_input_valid;
+  logic p_input_valid_mem;
   logic p_output_en;
   logic p_output_wr;
   logic [NADDR-1:0] p_output_addr;
   logic [NBITS-1:0] p_output_data_write;
   logic [NBITS-1:0] p_output_data_read;
   logic p_output_valid;
-  int input_addr_idx;
   int conv_inverse_check_idx;
   int output_error_count;
   logic [NBITS-1:0] output_bank [0:FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT - 1];
@@ -41,22 +46,7 @@ module tb;
   localparam int OUTPUT_CHANNEL_STRIDE = FEAT_OUTPUT_SIZE * CONV_OUTPUT_SIZE * OUTPUT_TILES_PER_AXIS;
   localparam int WINDOW_COUNT_PER_CHANNEL_TB = OUTPUT_TILES_PER_AXIS * OUTPUT_TILES_PER_AXIS;
 
-  // Reads directly from the dataset package memory image.
-  always_comb begin
-    input_addr_idx = int'(p_input_addr);
-    if (input_addr_idx < INPUT_MEMORY_SIZE)
-      p_input_data = NBITS'(const_data[input_addr_idx]);
-    else
-      p_input_data = '0;
-  end
-  always_comb begin
-    if (int'(p_output_addr) < $size(output_bank))
-      p_output_data_read = output_bank[p_output_addr];
-    else
-      p_output_data_read = '0;
-  end
-  assign p_input_valid = 1'b1;
-  assign p_output_valid = 1'b1;
+  assign p_input_data_write = '0;
 
   // Instanciação do Módulo (DUT)
   Control #(
@@ -89,6 +79,40 @@ module tb;
     .p_output_valid(p_output_valid),
     .p_end(p_end)
   );
+
+  Memory #(
+    .NADDR(NADDR),
+    .NBITS(NBITS),
+    .LATENCY(LATENCY),
+    .ROM(0)
+  ) memory_output (
+    .clk(clk),
+    .reset(reset),
+    .chip_en(p_output_en),
+    .wr_en(p_output_wr),
+    .address(p_output_addr),
+    .data_in(p_output_data_write),
+    .data_out(p_output_data_read),
+    .data_valid(p_output_valid)
+  );
+
+  Memory #(
+    .NADDR(NADDR),
+    .NBITS(NBITS),
+    .LATENCY(LATENCY),
+    .ROM(ROM)
+  ) memory_input (
+    .clk(clk),
+    .reset(reset),
+    .chip_en(1'b1),
+    .wr_en(1'b0),
+    .address(p_input_addr),
+    .data_in(p_input_data_write),
+    .data_out(p_input_data),
+    .data_valid(p_input_valid_mem)
+  );
+
+  assign p_input_valid = p_input_en;
 
   // Gerador de Clock: 100MHz -> Período de 10ns
   initial clk = 0;
