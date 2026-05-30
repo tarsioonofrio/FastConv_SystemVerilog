@@ -88,10 +88,8 @@ module Control
   logic [NBITS-1:0] w_conv_inverse [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
   logic [NBITS-1:0] r_conv_input[(CONV_INPUT_SIZE * CONV_INPUT_SIZE) - 1:0];  // convolution input register bank
   logic signed [NBITS-1+QUANT:0] w_conv_product [NUM_MULT-1:0];  // QUANT more bits for the multipliers
-  localparam CONV_IDX_INPUT_WIDTH = f_width_min1(STATE_MULT - 1) + 1;
-  localparam CONV_IDX_OUTPUT_WIDTH = f_width_min1((STATE_MULT * NUM_MULT) - 1) + 1;
-  logic [CONV_IDX_INPUT_WIDTH-1:0] r_conv_idx_in;
-  logic [CONV_IDX_OUTPUT_WIDTH-1:0] r_conv_idx_out[NUM_MULT-1:0];
+  logic [(f_width_min1(STATE_MULT - 1) + 1)-1:0] r_conv_idx_in;
+  logic [(f_width_min1((STATE_MULT * NUM_MULT) - 1) + 1)-1:0] r_conv_idx_out[NUM_MULT-1:0];
   logic w_conv_end;
 
   localparam OUTPUT_RW_COUNT_MAX = (CONV_OUTPUT_SIZE * CONV_OUTPUT_SIZE) - 1;
