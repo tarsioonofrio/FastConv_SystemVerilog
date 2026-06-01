@@ -73,8 +73,6 @@ add wave -noupdate -radix unsigned /tb/dut/r_output_addr_col
 add wave -noupdate -radix unsigned /tb/dut/r_output_addr_row
 add wave -noupdate -radix decimal /tb/dut/r_output_addr_offset_read
 add wave -noupdate -radix decimal /tb/dut/r_output_addr_offset_write
-add wave -noupdate -radix decimal /tb/dut/w_output_addr_offset_read
-add wave -noupdate -radix decimal /tb/dut/w_output_addr_offset_write
 add wave -noupdate -divider {MEMORY WRITE}
 add wave -noupdate /tb/dut/st_output_current
 add wave -noupdate /tb/dut/st_output_next
