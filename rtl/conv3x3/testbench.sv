@@ -49,7 +49,7 @@ module tb;
   assign p_input_data_write = '0;
 
   // Instanciação do Módulo (DUT)
-  Control #(
+  Conv #(
     .N_CHANNEL_IN(N_CHANNEL_IN),
     .N_CHANNEL_OUT(N_CHANNEL_OUT),
     .FEAT_INPUT_SIZE(FEAT_INPUT_SIZE),
