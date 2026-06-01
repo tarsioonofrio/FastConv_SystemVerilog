@@ -139,6 +139,7 @@ module Control
     READ_IN_15B,
     READ_IN_15C,
     HOLD_WRITE,
+    CONV_INPUT,
     TRANSFER,
     NEXT_ROW_INPUT
   } type_st_input;
@@ -227,7 +228,8 @@ module Control
       READ_IN_10B: if (r_input_addr_count == (CONV_INPUT_SIZE - 1)) st_input_next = READ_IN_15A;
       READ_IN_15A: if (r_input_addr_count == (CONV_INPUT_SIZE - 1)) st_input_next = READ_IN_15B;
       READ_IN_15B: if (r_input_addr_count == (CONV_INPUT_SIZE - 1)) st_input_next = READ_IN_15C;
-      READ_IN_15C: if (r_input_addr_count == (CONV_INPUT_SIZE - 1)) st_input_next = TRANSFER;
+      READ_IN_15C: if (r_input_addr_count == (CONV_INPUT_SIZE - 1)) st_input_next = CONV_INPUT;
+      CONV_INPUT: st_input_next = TRANSFER;
       TRANSFER: st_input_next = HOLD_WRITE;  // p_start the convolution
       HOLD_WRITE:
         if (w_input_last_window_col && w_input_write_done) st_input_next = NEXT_ROW_INPUT;
@@ -393,7 +395,7 @@ module Control
     // st_conv_next = st_conv_current;  // default
     priority case (st_conv_current)
       WAIT_CONV: begin
-        if (st_input_current == TRANSFER) begin
+        if (st_input_current == CONV_INPUT) begin
           st_conv_next = TRANSFORM;  // starts the convolution after moving data to the convolution register bank
         end
       end
@@ -413,26 +415,26 @@ module Control
   // -------------------------------------------------------------------------
   // CONVOLUTION REGISTER BANK AND CONVOLUTION REGISTERS:  w_conv_end  -- r_conv_multiply_count
   // -------------------------------------------------------------------------
-`ifdef SIMULATION
-  time prev_time, curr_time;  // debug
-`endif
+// `ifdef SIMULATION
+//   time prev_time, curr_time;  // debug
+// `endif
 
-  always_ff @(posedge clk or posedge reset) begin: CONV_INPUT_REG_BLOCK  // register bank for the convolution
-    if (reset)
-      for (int unsigned i = 0; i < (CONV_INPUT_SIZE * CONV_INPUT_SIZE); i++)
-        r_conv_input[i] <= '0;
-    else begin
-      if (st_input_current == TRANSFER) begin  // fill the convolution register bank
-        for (int unsigned i = 0; i < (CONV_INPUT_SIZE * CONV_INPUT_SIZE); i++)
-          r_conv_input[i] <= r_input_feat[i];
-          `ifdef SIMULATION
-            curr_time = $time;  // debug
-            $display("current time = %0t | previous time = %0t | diff = %0t", curr_time, prev_time, (curr_time - prev_time));
-            prev_time <= curr_time;
-          `endif
-      end
-    end
-  end
+  // always_ff @(posedge clk or posedge reset) begin: CONV_INPUT_REG_BLOCK  // register bank for the convolution
+  //   if (reset)
+  //     for (int unsigned i = 0; i < (CONV_INPUT_SIZE * CONV_INPUT_SIZE); i++)
+  //       r_conv_input[i] <= '0;
+  //   else begin
+  //     if (st_input_current == TRANSFER) begin  // fill the convolution register bank
+  //       for (int unsigned i = 0; i < (CONV_INPUT_SIZE * CONV_INPUT_SIZE); i++)
+  //         r_conv_input[i] <= r_input_feat[i];
+  //         `ifdef SIMULATION
+  //           curr_time = $time;  // debug
+  //           $display("current time = %0t | previous time = %0t | diff = %0t", curr_time, prev_time, (curr_time - prev_time));
+  //           prev_time <= curr_time;
+  //         `endif
+  //     end
+  //   end
+  // end
 
   always_ff @(posedge clk or posedge reset) begin: CONV_END_FLAG_BLOCK
     if (reset)
@@ -494,7 +496,7 @@ module Control
     .HADAMARD_SIZE(HADAMARD_SIZE)
   ) trf (
       // .pin (r_conv_input[C1_SIZE*C1_SIZE-1:0]),
-      .pin (r_conv_input),
+      .pin (r_input_feat),
       .pout(w_conv_transform)
   );
 
