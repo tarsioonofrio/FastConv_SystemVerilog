@@ -3,7 +3,7 @@
 */
 `timescale 1ns / 1ps
 
-module Control
+module Conv
   #(
     parameter int unsigned N_CHANNEL_IN        = 3,
     parameter int unsigned N_CHANNEL_OUT       = 3,
@@ -392,7 +392,7 @@ module Control
   end
 
   always_comb begin: CONV_NEXT_STATE_BLOCK
-    // st_conv_next = st_conv_current;  // default
+    st_conv_next = st_conv_current;  // default prevents latch inference
     priority case (st_conv_current)
       WAIT_CONV: begin
         if (st_input_current == CONV_INPUT) begin
