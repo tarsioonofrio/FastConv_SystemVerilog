@@ -104,7 +104,7 @@ module tb;
   ) memory_input (
     .clk(clk),
     .reset(reset),
-    .chip_en(p_input_en),
+    .chip_en(1'b1),
     .wr_en(1'b0),
     .address(p_input_addr),
     .data_in(p_input_data_write),
