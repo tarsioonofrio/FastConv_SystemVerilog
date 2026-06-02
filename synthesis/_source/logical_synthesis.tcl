@@ -60,6 +60,14 @@ puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 	# Applying the constraints
 	init_design
 
+	if {[info exists DEBUG_PRESERVE_CONV_DATAPATH] && $DEBUG_PRESERVE_CONV_DATAPATH} {
+		puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+		puts "Debug: preserve Conv datapath observability"
+		puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+		set_db delete_unloaded_insts false
+		set_db optimize_constant_0_flops false
+	}
+
 
 puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 puts "Synthesis - mapping and optimization"

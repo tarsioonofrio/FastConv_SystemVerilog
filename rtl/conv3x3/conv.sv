@@ -34,7 +34,8 @@ module Conv
     output logic [NADDR-1:0] p_output_addr,        // Address issued to the output RAM
     output logic [NBITS-1:0] p_output_data_write,  // Data driven into the output RAM on writes
     input  logic [NBITS-1:0] p_output_data_read,   // Data captured from the output RAM on reads
-    input  logic p_output_valid                    // Read-valid flag from the output RAM
+    input  logic p_output_valid,                   // Read-valid flag from the output RAM
+    output logic [NBITS-1:0] debug_conv_out        // Temporary synthesis observability hook
   );
 
   function automatic int f_width_min1(input int x);
@@ -169,6 +170,9 @@ module Conv
   // ----------------------------------------------------------------------------------------------------
   // -------  PART 1 - ADDRESS TO ACCESS THE IFMAP AND WEIGHT MEMORY ------------------------------------
   // ----------------------------------------------------------------------------------------------------
+
+  assign p_input_en = (st_input_current == READ_WEIGHTS) ||
+                      (st_input_current inside {READ_IN_10A, READ_IN_10B, READ_IN_15A, READ_IN_15B, READ_IN_15C});
   assign p_input_addr = (st_input_current == READ_WEIGHTS) ? r_input_addr_kernel : r_input_addr_feat + NADDR'(r_input_addr_count);  // p_input_addr mux
 
   always_ff @(posedge clk or posedge reset) begin: INPUT_ADDR_POINTER_BLOCK
@@ -734,6 +738,7 @@ module Conv
   end
 
   assign w_output_addr = NADDR'(r_output_addr_channel) + NADDR'(r_output_addr_col) + NADDR'(r_output_addr_row);
+  assign debug_conv_out = w_conv_inverse[0];
   assign p_output_data_write = r_output_write[r_output_write_count] + r_output_read[r_output_write_count];
   assign p_output_addr = (st_output_current == READ_OUTPUT) ?
     (w_output_addr + NADDR'(r_output_addr_offset_read)) :
