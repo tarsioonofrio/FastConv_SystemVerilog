@@ -51,6 +51,7 @@ module Conv
   logic [NADDR-1:0] r_input_addr_kernel;
   logic [NADDR-1:0] r_input_window_next;
   logic [(CONV_INPUT_SIZE * CONV_INPUT_SIZE) - 1:0] w_input_feat_en;  // write-enable per feature register
+  logic w_input_feat_write_valid;
   logic w_input_last_window_col;
   logic w_input_last_window_acc;
   logic w_input_last_channel_output;
@@ -354,13 +355,15 @@ module Conv
     endcase
   end
 
+  assign w_input_feat_write_valid = (st_input_current == TRANSFER) || p_input_valid;
+
   always_ff @(posedge clk or posedge reset) begin: INPUT_FEATURE_REG_BLOCK  // initializes and write into the register bank and convolution register bank
     if (reset)
       for (int unsigned i = 0; i < (CONV_INPUT_SIZE * CONV_INPUT_SIZE); i++)
         r_input_feat[i] <= '0;
     else
       for (int unsigned i = 0; i < (CONV_INPUT_SIZE * CONV_INPUT_SIZE); i++)
-        if (w_input_feat_en[i] && p_input_valid)
+        if (w_input_feat_en[i] && w_input_feat_write_valid)
           r_input_feat[i] <= w_input_feat_next[i];
   end
 
