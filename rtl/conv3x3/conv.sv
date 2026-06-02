@@ -360,7 +360,7 @@ module Conv
         r_input_feat[i] <= '0;
     else
       for (int unsigned i = 0; i < (CONV_INPUT_SIZE * CONV_INPUT_SIZE); i++)
-        if (w_input_feat_en[i])
+        if (w_input_feat_en[i] && p_input_valid)
           r_input_feat[i] <= w_input_feat_next[i];
   end
 
