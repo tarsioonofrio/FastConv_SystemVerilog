@@ -679,7 +679,7 @@ module Conv
       r_output_addr_row <= '0;
     end else begin
       // Address generation for output map:
-      // - slide win299dow every completed WRITE_OUTPUT window
+      // - slide window every completed WRITE_OUTPUT window
       // - when one input-channel pass finishes, restart window scan at channel base
       // - when last input channel finishes, advance to next output channel base
       if (st_output_current == WRITE_OUTPUT && r_output_write_count == OUTPUT_RW_COUNT_WIDTH'(OUTPUT_RW_COUNT_MAX)) begin
