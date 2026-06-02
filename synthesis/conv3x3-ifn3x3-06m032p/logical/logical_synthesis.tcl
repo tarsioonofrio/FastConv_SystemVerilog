@@ -40,4 +40,6 @@ if {[file exists $defines_file]} {
     close $fp_def
 }
 
+set DEBUG_PRESERVE_CONV_DATAPATH true
+
 source ${GIT_ROOT}/synthesis/_source/logical_synthesis.tcl
