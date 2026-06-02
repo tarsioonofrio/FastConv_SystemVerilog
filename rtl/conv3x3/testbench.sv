@@ -36,6 +36,7 @@ module tb;
   logic [NBITS-1:0] p_output_data_write;
   logic [NBITS-1:0] p_output_data_read;
   logic p_output_valid;
+  logic [NBITS-1:0] debug_conv_out;
   int conv_inverse_check_idx;
   int output_error_count;
   logic [NBITS-1:0] output_bank [0:FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT - 1];
@@ -77,7 +78,8 @@ module tb;
     .p_output_data_write(p_output_data_write),
     .p_output_data_read(p_output_data_read),
     .p_output_valid(p_output_valid),
-    .p_end(p_end)
+    .p_end(p_end),
+    .debug_conv_out(debug_conv_out)
   );
 
   Memory #(
@@ -104,7 +106,7 @@ module tb;
   ) memory_input (
     .clk(clk),
     .reset(reset),
-    .chip_en(1'b1),
+    .chip_en(p_input_en),
     .wr_en(1'b0),
     .address(p_input_addr),
     .data_in(p_input_data_write),
