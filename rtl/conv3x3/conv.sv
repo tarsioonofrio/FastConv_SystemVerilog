@@ -623,7 +623,7 @@ module Conv
       r_output_window_counter_col <= r_output_window_counter_col + 1'b1;
       r_output_window_counter_row <= 0;
     end else if (st_output_current == ADDRESS_OUTPUT) begin
-      // New output channel starts from first windowessa linha serve pra que? [@control.sv (582:583)](file:///home/tarsio/gaph/FastConv_SystemVerilog/rtl/control/control.sv#L582:583)
+      // New output channel starts from first window
       r_output_window_counter_acc <= '0;
       r_output_window_counter_col <= '0;
       r_output_window_counter_row <= '0;
