@@ -1,5 +1,5 @@
-/*
-   CONVOLUTION CONTROLLER  - (V0 - FERNANDO MORAES)  - 24/ABRIL
+/*/*
+   CONVOLUTION CONTROLLER  - 03/junho
 */
 `timescale 1ns / 1ps
 
@@ -7,10 +7,9 @@ module Conv
   #(
     parameter int unsigned N_CHANNEL_IN        = 3,
     parameter int unsigned N_CHANNEL_OUT       = 3,
-    // parameter int unsigned KERNEL_SIZE         = 6,
-    parameter int unsigned FEAT_INPUT_SIZE     = 32,
-    parameter int unsigned FEAT_INPUT_WIDTH    = 32,
-    parameter int unsigned NADDR               = 16,  // bits to p_input_addr the memory
+    parameter int unsigned FEAT_INPUT_SIZE     = 17,
+    parameter int unsigned FEAT_INPUT_WIDTH    = 8,
+    parameter int unsigned NADDR               = 18,  // bits to p_input_addr the memory
     parameter int unsigned NBITS               = 20,
     parameter int unsigned QUANT               = 8,
     parameter int unsigned CONV_OUTPUT_SIZE    = 3,
@@ -50,7 +49,6 @@ module Conv
   logic [NADDR-1:0] r_input_addr_kernel;
   logic [NADDR-1:0] r_input_window_next;
   logic [(CONV_INPUT_SIZE * CONV_INPUT_SIZE) - 1:0] w_input_feat_en;  // write-enable per feature register
-  logic w_input_feat_write_valid;
   logic w_input_last_window_col;
   logic w_input_last_window_acc;
   logic w_input_last_channel_output;
@@ -64,11 +62,9 @@ module Conv
   localparam WINDOW_ROW_COUNTER_WIDTH = f_width_min1(WINDOW_COUNT_PER_LINE + 1);
   logic [WINDOW_ROW_COUNTER_WIDTH-1:0] r_input_window_counter_col;
 
-  localparam ADDR_INPUT_COUNTER_WIDTH = f_width_min1(CONV_INPUT_SIZE);
-  localparam INPUT_FEAT_INDEX_WIDTH = f_width_min1(CONV_INPUT_SIZE * CONV_INPUT_SIZE);
+  localparam ADDR_INPUT_COUNTER_WIDTH = f_width_min1(WINDOW_COUNT_PER_COLUMN + 1);
   logic [ADDR_INPUT_COUNTER_WIDTH-1:0] w_input_base_feat;
   logic [ADDR_INPUT_COUNTER_WIDTH-1:0] r_input_addr_count;
-  logic [INPUT_FEAT_INDEX_WIDTH-1:0] w_input_feat_wr_index;
 
   localparam CHANNEL_INPUT_COUNTER_WIDTH = f_width_min1(N_CHANNEL_IN + 1);
   logic [CHANNEL_INPUT_COUNTER_WIDTH-1:0] r_input_channel_counter_input;
@@ -172,8 +168,6 @@ module Conv
   // ----------------------------------------------------------------------------------------------------
   // -------  PART 1 - ADDRESS TO ACCESS THE IFMAP AND WEIGHT MEMORY ------------------------------------
   // ----------------------------------------------------------------------------------------------------
-
-  assign p_input_en   = (st_input_current inside {READ_WEIGHTS, READ_IN_10A, READ_IN_10B, READ_IN_15A, READ_IN_15B, READ_IN_15C});
   assign p_input_addr = (st_input_current == READ_WEIGHTS) ? r_input_addr_kernel : r_input_addr_feat + NADDR'(r_input_addr_count);  // p_input_addr mux
 
   always_ff @(posedge clk or posedge reset) begin: INPUT_ADDR_POINTER_BLOCK
@@ -254,9 +248,8 @@ module Conv
   assign w_input_last_window_acc = (r_input_window_counter_acc == WINDOW_COUNTER_WIDTH'(WINDOW_COUNT_PER_LINE * WINDOW_COUNT_PER_COLUMN));
   assign w_input_last_channel_output = (r_input_channel_counter_output == CHANNEL_OUTPUT_COUNTER_WIDTH'(N_CHANNEL_OUT));
 
-  assign p_end = (st_output_current == WRITE_OUTPUT) &&
-                 (r_output_write_count == OUTPUT_RW_COUNT_WIDTH'(OUTPUT_RW_COUNT_MAX)) &&
-                 w_input_last_channel_output;  // Signal completion only after the final output write.
+  // TODO change to st_output_next == WAIT_OUTPUT
+  assign p_end = ((st_input_next == WAIT_INPUT && w_input_last_channel_output));  // output to signalize the end of the convolution process
 
   // -------------------------------------------------------------------------
   // READING REGISTERS
@@ -345,15 +338,11 @@ module Conv
     w_input_feat_next[21] = (st_input_current == READ_IN_10B) ? p_input_data : r_input_feat[24];
   end
 
-  assign w_input_feat_wr_index = INPUT_FEAT_INDEX_WIDTH'(w_input_base_feat) +
-                                 (INPUT_FEAT_INDEX_WIDTH'(r_input_addr_count) *
-                                  INPUT_FEAT_INDEX_WIDTH'(CONV_INPUT_SIZE));
-
   always_comb begin: INPUT_SHIFT_WE_BLOCK  // 'w_input_feat_en' to write into the register bank r_input_feat
     w_input_feat_en = '0;
     case (st_input_current)
       READ_IN_10A, READ_IN_10B, READ_IN_15A, READ_IN_15B, READ_IN_15C:
-        w_input_feat_en[w_input_feat_wr_index] = 1'b1;
+        w_input_feat_en[w_input_base_feat + r_input_addr_count * 5] = 1'b1;
       TRANSFER:
         w_input_feat_en = 25'b0001100011000110001100011;  // make the shift
       default:
@@ -361,15 +350,13 @@ module Conv
     endcase
   end
 
-  assign w_input_feat_write_valid = (st_input_current == TRANSFER) || p_input_valid;
-
   always_ff @(posedge clk or posedge reset) begin: INPUT_FEATURE_REG_BLOCK  // initializes and write into the register bank and convolution register bank
     if (reset)
       for (int unsigned i = 0; i < (CONV_INPUT_SIZE * CONV_INPUT_SIZE); i++)
         r_input_feat[i] <= '0;
     else
       for (int unsigned i = 0; i < (CONV_INPUT_SIZE * CONV_INPUT_SIZE); i++)
-        if (w_input_feat_en[i] && w_input_feat_write_valid)
+        if (w_input_feat_en[i])
           r_input_feat[i] <= w_input_feat_next[i];
   end
 
@@ -385,9 +372,20 @@ module Conv
       for (int unsigned i = 0; i < WEIGHT_CYCLES; i++)
         r_input_weight[i] <= '0;
     end else begin
+
+    if (st_conv_current == HADAMARD) begin         //  transforma os pesos em um fila circular   (moraes)
+      for (int unsigned i = 0; i < (WEIGHT_CYCLES-HADAMARD_SIZE); i++) begin
+        r_input_weight[i] <= r_input_weight[i + HADAMARD_SIZE];
+      end
+      for (int unsigned i = (WEIGHT_CYCLES-HADAMARD_SIZE); i < WEIGHT_CYCLES; i++) begin
+        r_input_weight[i] <= r_input_weight[i - (WEIGHT_CYCLES-HADAMARD_SIZE)];
+      end
+
+     end else begin        // Normal write
       for (int unsigned i = 0; i < WEIGHT_CYCLES; i++)
         if (w_input_weight_en[i])
           r_input_weight[i] <= p_input_data;
+    end
     end
   end
 
@@ -404,7 +402,7 @@ module Conv
   end
 
   always_comb begin: CONV_NEXT_STATE_BLOCK
-    st_conv_next = st_conv_current;  // default prevents latch inference
+    // st_conv_next = st_conv_current;  // default
     priority case (st_conv_current)
       WAIT_CONV: begin
         if (st_input_current == CONV_INPUT) begin
@@ -427,26 +425,6 @@ module Conv
   // -------------------------------------------------------------------------
   // CONVOLUTION REGISTER BANK AND CONVOLUTION REGISTERS:  w_conv_end  -- r_conv_multiply_count
   // -------------------------------------------------------------------------
-// `ifdef SIMULATION
-//   time prev_time, curr_time;  // debug
-// `endif
-
-  // always_ff @(posedge clk or posedge reset) begin: CONV_INPUT_REG_BLOCK  // register bank for the convolution
-  //   if (reset)
-  //     for (int unsigned i = 0; i < (CONV_INPUT_SIZE * CONV_INPUT_SIZE); i++)
-  //       r_conv_input[i] <= '0;
-  //   else begin
-  //     if (st_input_current == TRANSFER) begin  // fill the convolution register bank
-  //       for (int unsigned i = 0; i < (CONV_INPUT_SIZE * CONV_INPUT_SIZE); i++)
-  //         r_conv_input[i] <= r_input_feat[i];
-  //         `ifdef SIMULATION
-  //           curr_time = $time;  // debug
-  //           $display("current time = %0t | previous time = %0t | diff = %0t", curr_time, prev_time, (curr_time - prev_time));
-  //           prev_time <= curr_time;
-  //         `endif
-  //     end
-  //   end
-  // end
 
   always_ff @(posedge clk or posedge reset) begin: CONV_END_FLAG_BLOCK
     if (reset)
@@ -473,32 +451,31 @@ module Conv
   end
 
 
-  always_ff @(posedge clk) begin: CONV_DATAPATH_BLOCK
+  always_ff @(posedge clk) begin: CONV_DATAPATH_BLOCK    // new - moraes
     if (reset) begin
-      r_conv_idx_in <= 1'b0;
       r_conv_temp <= '{default: '0};
     end else begin
+
       unique case (st_conv_current)
-        WAIT_CONV: begin
-          r_conv_idx_in <= 1'b0;
-          // if (p_start) begin
-          //   r_conv_temp[C1_SIZE*C1_SIZE-1:0] <= r_conv_input;
-          // end
-        end
-        TRANSFORM: begin
-          r_conv_temp <= w_conv_transform;
-        end
-        HADAMARD: begin
-          r_conv_idx_in <= r_conv_idx_in + 1;
-          for (int i = 0; i < NUM_MULT; i++) begin
-            r_conv_temp[r_conv_idx_out[i]] <= w_conv_product[i];
-          end
-        end
-        INVERSE: begin
-        end
+
+           TRANSFORM:    r_conv_temp <= w_conv_transform;
+
+           HADAMARD: begin      // shifts e entra a multiplicação na parte mais significativa
+
+              for (int unsigned i = 0; i < (WEIGHT_CYCLES-HADAMARD_SIZE); i++)
+                  r_conv_temp[i] <= r_conv_temp[i + HADAMARD_SIZE];
+              for (int unsigned i = (WEIGHT_CYCLES-HADAMARD_SIZE); i < WEIGHT_CYCLES; i++)
+                  r_conv_temp[i] <= w_conv_product[i];
+
+           end
+
+          default: begin
+                    end
       endcase
+
+      end
     end
-  end
+
 
   // Instance of matrix multiplier "C"
   Transform #(
@@ -518,14 +495,14 @@ module Conv
   );
 
   generate
-    for (genvar i = 0; i < NUM_MULT; i++) begin : MULTIP_BLOCK
+    for (genvar i = 0; i < NUM_MULT; i++) begin : MULTIP_BLOCK    /// moraes - só os 6 primeiros indices
       Multip #(
         .QUANT(QUANT),
         .NBITS(NBITS)
       )
       multip(
-        .feature(r_conv_temp[r_conv_idx_out[i]]),
-        .weight(r_input_weight[r_conv_idx_out[i]]),
+        .feature(r_conv_temp[i]),
+        .weight(r_input_weight[i]),
         .product(w_conv_product[i])
       );
     end
@@ -629,7 +606,7 @@ module Conv
       r_output_window_counter_col <= r_output_window_counter_col + 1'b1;
       r_output_window_counter_row <= 0;
     end else if (st_output_current == ADDRESS_OUTPUT) begin
-      // New output channel starts from first window
+      // New output channel starts from first windowessa linha serve pra que? [@control.sv (582:583)](file:///home/tarsio/gaph/FastConv_SystemVerilog/rtl/control/control.sv#L582:583)
       r_output_window_counter_acc <= '0;
       r_output_window_counter_col <= '0;
       r_output_window_counter_row <= '0;
@@ -685,7 +662,7 @@ module Conv
       r_output_addr_row <= '0;
     end else begin
       // Address generation for output map:
-      // - slide window every completed WRITE_OUTPUT window
+      // - slide win299dow every completed WRITE_OUTPUT window
       // - when one input-channel pass finishes, restart window scan at channel base
       // - when last input channel finishes, advance to next output channel base
       if (st_output_current == WRITE_OUTPUT && r_output_write_count == OUTPUT_RW_COUNT_WIDTH'(OUTPUT_RW_COUNT_MAX)) begin

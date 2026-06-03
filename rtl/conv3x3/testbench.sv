@@ -78,8 +78,7 @@ module tb;
     .p_output_data_write(p_output_data_write),
     .p_output_data_read(p_output_data_read),
     .p_output_valid(p_output_valid),
-    .p_end(p_end),
-    .debug_conv_out(debug_conv_out)
+    .p_end(p_end)
   );
 
   Memory #(
