@@ -490,7 +490,7 @@ module Conv
           for (int unsigned i = 0; i < (WEIGHT_CYCLES-HADAMARD_SIZE); i++)
             r_conv_temp[i] <= r_conv_temp[i + HADAMARD_SIZE];
           for (int unsigned i = (WEIGHT_CYCLES-HADAMARD_SIZE); i < WEIGHT_CYCLES; i++)
-            r_conv_temp[i] <= w_conv_product[i];
+            r_conv_temp[i] <= w_conv_product[i - (WEIGHT_CYCLES-HADAMARD_SIZE)];
           end
           default: begin end
       endcase
