@@ -86,8 +86,6 @@ module Conv
   logic [NBITS-1:0] w_conv_inverse [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
   logic [NBITS-1:0] r_conv_input[(CONV_INPUT_SIZE * CONV_INPUT_SIZE) - 1:0];  // convolution input register bank
   logic signed [NBITS-1+QUANT:0] w_conv_product [NUM_MULT-1:0];  // QUANT more bits for the multipliers
-  logic [(f_width_min1(STATE_MULT - 1) + 1)-1:0] r_conv_idx_in;
-  logic [(f_width_min1((STATE_MULT * NUM_MULT) - 1) + 1)-1:0] r_conv_idx_out[NUM_MULT-1:0];
   logic w_conv_end;
 
   localparam OUTPUT_RW_COUNT_MAX = (CONV_OUTPUT_SIZE * CONV_OUTPUT_SIZE) - 1;
@@ -487,11 +485,6 @@ module Conv
       // .pin (r_conv_input[C1_SIZE*C1_SIZE-1:0]),
       .pin (r_input_feat),
       .pout(w_conv_transform)
-  );
-
-  MuxMult mux_mult(
-    .idx_in(r_conv_idx_in),
-    .idx_out(r_conv_idx_out)
   );
 
   generate
