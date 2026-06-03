@@ -8,9 +8,9 @@ module Conv
     parameter int unsigned N_CHANNEL_IN        = 3,
     parameter int unsigned N_CHANNEL_OUT       = 3,
     // parameter int unsigned KERNEL_SIZE         = 6,
-    parameter int unsigned FEAT_INPUT_SIZE     = 17,
-    parameter int unsigned FEAT_INPUT_WIDTH    = 8,
-    parameter int unsigned NADDR               = 18,  // bits to p_input_addr the memory
+    parameter int unsigned FEAT_INPUT_SIZE     = 32,
+    parameter int unsigned FEAT_INPUT_WIDTH    = 32,
+    parameter int unsigned NADDR               = 16,  // bits to p_input_addr the memory
     parameter int unsigned NBITS               = 20,
     parameter int unsigned QUANT               = 8,
     parameter int unsigned CONV_OUTPUT_SIZE    = 3,
@@ -34,8 +34,7 @@ module Conv
     output logic [NADDR-1:0] p_output_addr,        // Address issued to the output RAM
     output logic [NBITS-1:0] p_output_data_write,  // Data driven into the output RAM on writes
     input  logic [NBITS-1:0] p_output_data_read,   // Data captured from the output RAM on reads
-    input  logic p_output_valid,                   // Read-valid flag from the output RAM
-    output logic [NBITS-1:0] debug_conv_out        // Temporary synthesis observability hook
+    input  logic p_output_valid                    // Read-valid flag from the output RAM
   );
 
   function automatic int f_width_min1(input int x);
@@ -65,9 +64,11 @@ module Conv
   localparam WINDOW_ROW_COUNTER_WIDTH = f_width_min1(WINDOW_COUNT_PER_LINE + 1);
   logic [WINDOW_ROW_COUNTER_WIDTH-1:0] r_input_window_counter_col;
 
-  localparam ADDR_INPUT_COUNTER_WIDTH = f_width_min1(WINDOW_COUNT_PER_COLUMN + 1);
+  localparam ADDR_INPUT_COUNTER_WIDTH = f_width_min1(CONV_INPUT_SIZE);
+  localparam INPUT_FEAT_INDEX_WIDTH = f_width_min1(CONV_INPUT_SIZE * CONV_INPUT_SIZE);
   logic [ADDR_INPUT_COUNTER_WIDTH-1:0] w_input_base_feat;
   logic [ADDR_INPUT_COUNTER_WIDTH-1:0] r_input_addr_count;
+  logic [INPUT_FEAT_INDEX_WIDTH-1:0] w_input_feat_wr_index;
 
   localparam CHANNEL_INPUT_COUNTER_WIDTH = f_width_min1(N_CHANNEL_IN + 1);
   logic [CHANNEL_INPUT_COUNTER_WIDTH-1:0] r_input_channel_counter_input;
@@ -253,8 +254,9 @@ module Conv
   assign w_input_last_window_acc = (r_input_window_counter_acc == WINDOW_COUNTER_WIDTH'(WINDOW_COUNT_PER_LINE * WINDOW_COUNT_PER_COLUMN));
   assign w_input_last_channel_output = (r_input_channel_counter_output == CHANNEL_OUTPUT_COUNTER_WIDTH'(N_CHANNEL_OUT));
 
-  // TODO change to st_output_next == WAIT_OUTPUT
-  assign p_end = ((st_input_next == WAIT_INPUT && w_input_last_channel_output));  // output to signalize the end of the convolution process
+  assign p_end = (st_output_current == WRITE_OUTPUT) &&
+                 (r_output_write_count == OUTPUT_RW_COUNT_WIDTH'(OUTPUT_RW_COUNT_MAX)) &&
+                 w_input_last_channel_output;  // Signal completion only after the final output write.
 
   // -------------------------------------------------------------------------
   // READING REGISTERS
@@ -343,11 +345,15 @@ module Conv
     w_input_feat_next[21] = (st_input_current == READ_IN_10B) ? p_input_data : r_input_feat[24];
   end
 
+  assign w_input_feat_wr_index = INPUT_FEAT_INDEX_WIDTH'(w_input_base_feat) +
+                                 (INPUT_FEAT_INDEX_WIDTH'(r_input_addr_count) *
+                                  INPUT_FEAT_INDEX_WIDTH'(CONV_INPUT_SIZE));
+
   always_comb begin: INPUT_SHIFT_WE_BLOCK  // 'w_input_feat_en' to write into the register bank r_input_feat
     w_input_feat_en = '0;
     case (st_input_current)
       READ_IN_10A, READ_IN_10B, READ_IN_15A, READ_IN_15B, READ_IN_15C:
-        w_input_feat_en[w_input_base_feat + r_input_addr_count * 5] = 1'b1;
+        w_input_feat_en[w_input_feat_wr_index] = 1'b1;
       TRANSFER:
         w_input_feat_en = 25'b0001100011000110001100011;  // make the shift
       default:
@@ -740,7 +746,6 @@ module Conv
   end
 
   assign w_output_addr = NADDR'(r_output_addr_channel) + NADDR'(r_output_addr_col) + NADDR'(r_output_addr_row);
-  assign debug_conv_out = w_conv_inverse[0];
   assign p_output_data_write = r_output_write[r_output_write_count] + r_output_read[r_output_write_count];
   assign p_output_addr = (st_output_current == READ_OUTPUT) ?
     (w_output_addr + NADDR'(r_output_addr_offset_read)) :
