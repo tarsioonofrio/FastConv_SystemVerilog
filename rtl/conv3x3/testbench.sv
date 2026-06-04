@@ -49,7 +49,7 @@ module tb;
   assign p_input_data_write = '0;
 
   // Instanciação do Módulo (DUT)
-  Control #(
+  Conv #(
     .N_CHANNEL_IN(N_CHANNEL_IN),
     .N_CHANNEL_OUT(N_CHANNEL_OUT),
     .FEAT_INPUT_SIZE(FEAT_INPUT_SIZE),
@@ -104,15 +104,15 @@ module tb;
   ) memory_input (
     .clk(clk),
     .reset(reset),
-    .chip_en(1'b1),
+    .chip_en(p_input_en),
     .wr_en(1'b0),
     .address(p_input_addr),
     .data_in(p_input_data_write),
     .data_out(p_input_data),
-    .data_valid(p_input_valid_mem)
+    .data_valid(p_input_valid)
   );
 
-  assign p_input_valid = p_input_en;
+  // assign p_input_valid = p_input_en;
 
   // Gerador de Clock: 100MHz -> Período de 10ns
   initial clk = 0;
