@@ -4,7 +4,7 @@ module Multip #(
 ) (
     input logic [NBITS-1:0] feature,
     input logic [NBITS-1:0] weight,
-    output logic signed [NBITS-1+QUANT:0] product
+    output logic signed [NBITS-1:0] product
 );
   timeunit 1ns;
   timeprecision 1ps;

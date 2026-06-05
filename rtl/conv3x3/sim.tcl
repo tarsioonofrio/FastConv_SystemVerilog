@@ -14,8 +14,8 @@ set LATENCY 1
 set DATA data/ifn9/sim/sim-032-3-3-seq/pack_data.sv
 # set DATA data/ifn9/sim/sim-254-3-3-seq/pack_data.sv
 set PARAM pack-param/ifn9/pack_param.sv
-set MUX mux-mult/ifn9/mux_mult_06.sv
-set MULT mult-matrices/ifn9/mult_matrices_csa.sv
+#set MUX mux-mult/ifn9/mux_mult_06.sv
+set MULT mult-matrices/ifn9/mult_matrices.sv
 
 set define_flags ""
 append define_flags "+define+NADDR=$NADDR "
@@ -33,8 +33,6 @@ vmap work work
 set file_list [list \
   "${DATA}" \
   "${PARAM}" \
-  "${MUX}" \
-  "../csa/csa_lib.sv" \
   "${MULT}" \
   "../mem/mem.sv" \
   "../multip/multip.sv" \
