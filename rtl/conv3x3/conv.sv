@@ -1,5 +1,5 @@
 /*
-   CONVOLUTION CONTROLLER  - (V0 - FERNANDO MORAES)  - 24/ABRIL
+   CONVOLUTION CONTROLLER  - moraes - 5/6/2024 - Cell count:  11908
 */
 `timescale 1ns / 1ps
 
@@ -7,7 +7,6 @@ module Conv
   #(
     parameter int unsigned N_CHANNEL_IN        = 3,
     parameter int unsigned N_CHANNEL_OUT       = 3,
-    // parameter int unsigned KERNEL_SIZE         = 6,
     parameter int unsigned FEAT_INPUT_SIZE     = 32,
     parameter int unsigned FEAT_INPUT_WIDTH    = 32,
     parameter int unsigned NADDR               = 16,  // bits to p_input_addr the memory
@@ -89,9 +88,7 @@ module Conv
   logic [NBITS-1:0] w_conv_transform [HADAMARD_SIZE*HADAMARD_SIZE-1:0];
   logic [NBITS-1:0] w_conv_inverse [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
   logic [NBITS-1:0] r_conv_input[(CONV_INPUT_SIZE * CONV_INPUT_SIZE) - 1:0];  // convolution input register bank
-  logic signed [NBITS-1+QUANT:0] w_conv_product [NUM_MULT-1:0];  // QUANT more bits for the multipliers
-  logic [(f_width_min1(STATE_MULT - 1) + 1)-1:0] r_conv_idx_in;
-  logic [(f_width_min1((STATE_MULT * NUM_MULT) - 1) + 1)-1:0] r_conv_idx_out[NUM_MULT-1:0];
+  logic signed [NBITS-1:0] w_conv_product [NUM_MULT-1:0];  // QUANT more bits for the multipliers
   logic w_conv_end;
 
   localparam OUTPUT_RW_COUNT_MAX = (CONV_OUTPUT_SIZE * CONV_OUTPUT_SIZE) - 1;
@@ -127,7 +124,6 @@ module Conv
   logic w_output_last_channel_input;
   logic w_output_last_channel_output;
   logic w_output_last_window_acc;
-
 
   // -------------------------------------------------------------------------
   // FSM STATES DECLARION
@@ -284,7 +280,6 @@ module Conv
                              (st_input_current == READ_IN_15B) ? 3 :
                              (st_input_current == READ_IN_15C) ? 4 :  0;
 
-
   // SET OF FIVE CONTROL REGISTERS:
   // r_input_channel_counter_input: number of the current IFMAP channel being read
   // r_input_channel_counter_output: number of the current OFMAP channel being processed
@@ -345,9 +340,9 @@ module Conv
     w_input_feat_next[21] = (st_input_current == READ_IN_10B) ? p_input_data : r_input_feat[24];
   end
 
-  assign w_input_feat_wr_index = INPUT_FEAT_INDEX_WIDTH'(w_input_base_feat) +
-                                 (INPUT_FEAT_INDEX_WIDTH'(r_input_addr_count) *
-                                  INPUT_FEAT_INDEX_WIDTH'(CONV_INPUT_SIZE));
+   //  w_input_feat_wr_index = base + row * 5 (moraes - usei shift e soma para multiplicar por 5) (moraes)
+   assign w_input_feat_wr_index =  INPUT_FEAT_INDEX_WIDTH'(w_input_base_feat) +
+                                  (INPUT_FEAT_INDEX_WIDTH'(r_input_addr_count) << 2) + INPUT_FEAT_INDEX_WIDTH'(r_input_addr_count);
 
   always_comb begin: INPUT_SHIFT_WE_BLOCK  // 'w_input_feat_en' to write into the register bank r_input_feat
     w_input_feat_en = '0;
@@ -380,21 +375,14 @@ module Conv
       w_input_weight_en[r_input_count_kernel] = 1'b1;
   end
 
-  always_ff @(posedge clk or posedge reset) begin: WEIGHT_REG_BLOCK
+  // MEMORY:  banco de pesos 'r_input_weight' ou recebe os pesos ou rotacina circularmente (moraes) - explicitamente um mux 2x1 em cada entrada
+  always_ff @(posedge clk or posedge reset) begin : WEIGHT_REG_BLOCK
     if (reset) begin
-      for (int unsigned i = 0; i < WEIGHT_CYCLES; i++)
-        r_input_weight[i] <= '0;
-    end else if (st_conv_current == HADAMARD) begin         //  transform weights into a circular queue
-      for (int unsigned i = 0; i < (WEIGHT_CYCLES-HADAMARD_SIZE); i++) begin
-        r_input_weight[i] <= r_input_weight[i + HADAMARD_SIZE];
-      end
-      for (int unsigned i = (WEIGHT_CYCLES-HADAMARD_SIZE); i < WEIGHT_CYCLES; i++) begin
-        r_input_weight[i] <= r_input_weight[i - (WEIGHT_CYCLES-HADAMARD_SIZE)];
-      end
+        r_input_weight <= '{default: '0};
     end else begin
-      for (int unsigned i = 0; i < WEIGHT_CYCLES; i++)
-        if (w_input_weight_en[i])
-          r_input_weight[i] <= p_input_data;
+      for (int unsigned i = 0; i < WEIGHT_CYCLES; i++) 
+        if ((st_conv_current == HADAMARD) || w_input_weight_en[i]) 
+          r_input_weight[i] <= (st_conv_current == HADAMARD) ?  r_input_weight[(i + HADAMARD_SIZE) % WEIGHT_CYCLES] : p_input_data;
     end
   end
 
@@ -434,27 +422,6 @@ module Conv
   // -------------------------------------------------------------------------
   // CONVOLUTION REGISTER BANK AND CONVOLUTION REGISTERS:  w_conv_end  -- r_conv_multiply_count
   // -------------------------------------------------------------------------
-// `ifdef SIMULATION
-//   time prev_time, curr_time;  // debug
-// `endif
-
-  // always_ff @(posedge clk or posedge reset) begin: CONV_INPUT_REG_BLOCK  // register bank for the convolution
-  //   if (reset)
-  //     for (int unsigned i = 0; i < (CONV_INPUT_SIZE * CONV_INPUT_SIZE); i++)
-  //       r_conv_input[i] <= '0;
-  //   else begin
-  //     if (st_input_current == TRANSFER) begin  // fill the convolution register bank
-  //       for (int unsigned i = 0; i < (CONV_INPUT_SIZE * CONV_INPUT_SIZE); i++)
-  //         r_conv_input[i] <= r_input_feat[i];
-  //         `ifdef SIMULATION
-  //           curr_time = $time;  // debug
-  //           $display("current time = %0t | previous time = %0t | diff = %0t", curr_time, prev_time, (curr_time - prev_time));
-  //           prev_time <= curr_time;
-  //         `endif
-  //     end
-  //   end
-  // end
-
   always_ff @(posedge clk or posedge reset) begin: CONV_END_FLAG_BLOCK
     if (reset)
       w_conv_end <= 0;
@@ -463,7 +430,6 @@ module Conv
         w_conv_end <= 1;
       else if (st_output_current == WRITE_OUTPUT)
         w_conv_end <= 0;
-        // else if (st_output_current == WRITE_OUTPUT || st_conv_current == WAIT_CONV) w_conv_end <= 0;
     end
   end
 
@@ -473,12 +439,12 @@ module Conv
     else begin
       if (st_conv_current == TRANSFORM)
           r_conv_multiply_count <= 0;
-      // if (st_conv_current == WAIT_CONV || st_conv_current == TRANSFORM) r_conv_multiply_count <= 0;
       else if (st_conv_current == HADAMARD)
         r_conv_multiply_count <= r_conv_multiply_count + 1;
     end
   end
 
+  // MEMORY: r_conv_temp recebe w_conv_transform ou no estado HADAMARD faz o shift e entra a multiplicação na parte mais significativa - explicitamente um mux 2x1 em cada entrada
   always_ff @(posedge clk) begin: CONV_DATAPATH_BLOCK
     if (reset) begin
       r_conv_temp <= '{default: '0};
@@ -497,21 +463,15 @@ module Conv
     end
   end
 
-     // Instance of matrix multiplier "C"
+  // Instance of matrix multiplier "C"
   Transform #(
     .NBITS(NBITS),
     .CONV_OUTPUT_SIZE(CONV_OUTPUT_SIZE),
     .CONV_INPUT_SIZE(CONV_INPUT_SIZE),
     .HADAMARD_SIZE(HADAMARD_SIZE)
   ) trf (
-      // .pin (r_conv_input[C1_SIZE*C1_SIZE-1:0]),
       .pin (r_input_feat),
       .pout(w_conv_transform)
-  );
-
-  MuxMult mux_mult(
-    .idx_in(r_conv_idx_in),
-    .idx_out(r_conv_idx_out)
   );
 
   generate
@@ -539,12 +499,9 @@ module Conv
       .pout(w_conv_inverse)
   );
 
-
   // ----------------------------------------------------------------------------------------------------
   // -------  PART 4 - OUTPUT FSM AND READ/WRITE COUNTER -------------------------------------------------
   // ----------------------------------------------------------------------------------------------------
-
-
 
   always_ff @(posedge clk or posedge reset) begin: OUTPUT_STATE_REG_BLOCK
     if (reset) st_output_current <= WAIT_OUTPUT;
@@ -659,13 +616,13 @@ module Conv
     end
   end
 
+  // MEMORY: OUTPUT REGISTERS 
   always_ff @(posedge clk) begin: OUTPUT_DATA_BLOCK
     if (reset) begin
       r_output_write <= '{default: '0};
       r_output_read <= '{default: '0};
     end else begin
       if (st_output_current == RESET_OUTPUT) begin
-        // r_output_write <= '{default: '0};
         r_output_read <= '{default: '0};
       end else if ((st_output_current == READ_OUTPUT) && p_output_valid) begin
         r_output_read[r_output_read_count] <= p_output_data_read;
