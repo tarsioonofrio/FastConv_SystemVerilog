@@ -3,7 +3,9 @@
 module tb;
   import pack_data::*;
   import pack_param::*;
-  import pack_mux_mult::*;
+
+  parameter int NUM_MULT = 6;     // moraes - estava em um package
+  parameter int STATE_MULT = 6;
 
   // Parâmetros do DUT
 
