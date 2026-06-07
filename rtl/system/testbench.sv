@@ -39,6 +39,7 @@ module tb;
   int mem_input_reads;
   int mem_output_reads;
   int mem_output_writes;
+  int error_count = 0;
   logic count_cycles;
 
   // Clock generation (10ns period)
@@ -46,7 +47,7 @@ module tb;
   always #5 clk = ~clk;
 
   // Counters for cycles and memory transactions.
-  always_ff @(posedge clk) begin
+  always @(posedge clk) begin
     if (reset) begin
       cycle_count <= 0;
       mem_input_reads <= 0;
@@ -198,24 +199,21 @@ module tb;
     t_end = $realtime;
 
     total_out_rows = FEAT_OUTPUT_SIZE * N_CHANNEL_OUT;
-
-    force w_output_en = 1'b1;
-    force w_output_wr = 1'b0;
-    @(posedge clk);
     for (i = 0; i < total_out_rows; i++) begin
       for (j = 0; j < FEAT_OUTPUT_SIZE; j++) begin
-        force w_output_addr = i * FEAT_OUTPUT_SIZE + j;
-        @(posedge clk);
-        wait(w_output_valid);
-        if ($signed(const_feat_out[i][j]) != $signed(w_output_data_read)) begin
-          $display("Time %0t | const_feat_out[%0d][%0d] = %0d | Output = %0d", $time, i, j, const_feat_out[i][j], w_output_data_read);
+        logic_vector expected_out;
+        logic_vector actual_out;
+
+        expected_out = logic_vector'(const_feat_out[i][j]);
+        actual_out = memory_write.data[i * FEAT_OUTPUT_SIZE + j];
+        if ($signed(expected_out) != $signed(actual_out)) begin
+          error_count++;
+          $display("Time %0t | const_feat_out[%0d][%0d] = %0d | Output memory = %0d",
+                   $time, i, j, const_feat_out[i][j], $signed(actual_out));
           $display("=== ERROR - End simulation ====");
         end
       end
     end
-    release w_output_addr;
-    release w_output_en;
-    release w_output_wr;
 
     t_total = t_end - t_start;
     time_fd = $fopen("sim.log", "w");
@@ -227,7 +225,10 @@ module tb;
       $fdisplay(time_fd, "Memory output writes: %0d", mem_output_writes);
       $fclose(time_fd);
     end
-    $display("=== No errors - End simulation ===");
+    if (error_count == 0)
+      $display("=== No errors - End simulation ===");
+    else
+      $display("=== ERROR - End simulation: %0d mismatches ====", error_count);
     $display("\n*** TIME %0f ***\n", $realtime);
     $display("\n*** TOTAL CYCLES %0d ***\n", cycle_count);
     $display("\n*** MEM INPUT READS %0d ***\n", mem_input_reads);
