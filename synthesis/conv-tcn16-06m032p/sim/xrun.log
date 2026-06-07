@@ -1,5 +1,5 @@
 xrun(64): 23.03-s003: (c) Copyright 1995-2023 Cadence Design Systems, Inc.
-TOOL:	xrun(64)	23.03-s003: Started on Jan 27, 2026 at 23:55:33 -03
+TOOL:	xrun(64)	23.03-s003: Started on Jun 07, 2026 at 00:59:38 -03
 xrun
 	-f args.txt
 		-smartorder
@@ -10,15 +10,15 @@ xrun
 		-sdf_cmd_file sdf_cmd.cmd
 		-timescale 1ns/1ps
 		/pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v
-	/sim/tarsio/FastConv_SystemVerilog/data/tcn16/sim/sim-032-1-1-normal/pack_data.sv
-	/sim/tarsio/FastConv_SystemVerilog/rtl/pack-def/pack_def.sv
-	/sim/tarsio/FastConv_SystemVerilog/rtl/pack-param/tcn16/pack_param.sv
-	/sim/tarsio/FastConv_SystemVerilog/rtl/pack-typedef/pack_typedef.sv
-	/sim/tarsio/FastConv_SystemVerilog/rtl/csa/csa_lib.sv
-	/sim/tarsio/FastConv_SystemVerilog/rtl/mux-mult/tcn16/mux_mult_06.sv
-	/sim/tarsio/FastConv_SystemVerilog/rtl/mult-matrices/tcn16/mult_matrices.sv
-	/sim/tarsio/FastConv_SystemVerilog/rtl/mem/mem.sv
-	/sim/tarsio/FastConv_SystemVerilog/rtl/conv-mux/testbench-synth-tc.sv
+	/sim/tarsio/FastConv_SystemVerilog-old/data/tcn16/sim/sim-032-1-1-normal/pack_data.sv
+	/sim/tarsio/FastConv_SystemVerilog-old/rtl/pack-def/pack_def.sv
+	/sim/tarsio/FastConv_SystemVerilog-old/rtl/pack-param/tcn16/pack_param.sv
+	/sim/tarsio/FastConv_SystemVerilog-old/rtl/pack-typedef/pack_typedef.sv
+	/sim/tarsio/FastConv_SystemVerilog-old/rtl/csa/csa_lib.sv
+	/sim/tarsio/FastConv_SystemVerilog-old/rtl/mux-mult/tcn16/mux_mult_06.sv
+	/sim/tarsio/FastConv_SystemVerilog-old/rtl/mult-matrices/tcn16/mult_matrices.sv
+	/sim/tarsio/FastConv_SystemVerilog-old/rtl/mem/mem.sv
+	/sim/tarsio/FastConv_SystemVerilog-old/rtl/conv-mux/testbench-synth-tc16.sv
 	../logical/results/gate_level/conv_logic_mapped.v
 	-f ../list-define.txt
 		-define NADDR=16
@@ -2238,19 +2238,19 @@ file: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital
 		errors: 0, warnings: 0
 	primitive work.tsmc_xbuf:v
 		errors: 0, warnings: 0
-file: /sim/tarsio/FastConv_SystemVerilog/data/tcn16/sim/sim-032-1-1-normal/pack_data.sv
+file: /sim/tarsio/FastConv_SystemVerilog-old/data/tcn16/sim/sim-032-1-1-normal/pack_data.sv
 	package work.pack_data:sv
 		errors: 0, warnings: 0
-file: /sim/tarsio/FastConv_SystemVerilog/rtl/pack-def/pack_def.sv
+file: /sim/tarsio/FastConv_SystemVerilog-old/rtl/pack-def/pack_def.sv
 	package work.pack_def:sv
 		errors: 0, warnings: 0
-file: /sim/tarsio/FastConv_SystemVerilog/rtl/pack-param/tcn16/pack_param.sv
+file: /sim/tarsio/FastConv_SystemVerilog-old/rtl/pack-param/tcn16/pack_param.sv
 	package work.pack_param:sv
 		errors: 0, warnings: 0
-file: /sim/tarsio/FastConv_SystemVerilog/rtl/pack-typedef/pack_typedef.sv
+file: /sim/tarsio/FastConv_SystemVerilog-old/rtl/pack-typedef/pack_typedef.sv
 	package work.pack_typedef:sv
 		errors: 0, warnings: 0
-file: /sim/tarsio/FastConv_SystemVerilog/rtl/csa/csa_lib.sv
+file: /sim/tarsio/FastConv_SystemVerilog-old/rtl/csa/csa_lib.sv
 	module work.FA:sv
 		errors: 0, warnings: 0
 	module work.CSA_1:sv
@@ -2277,12 +2277,12 @@ file: /sim/tarsio/FastConv_SystemVerilog/rtl/csa/csa_lib.sv
 		errors: 0, warnings: 0
 	module work.CSA_18:sv
 		errors: 0, warnings: 0
-file: /sim/tarsio/FastConv_SystemVerilog/rtl/mux-mult/tcn16/mux_mult_06.sv
+file: /sim/tarsio/FastConv_SystemVerilog-old/rtl/mux-mult/tcn16/mux_mult_06.sv
 	package work.pack_mux_mult:sv
 		errors: 0, warnings: 0
 	module work.MuxMult:sv
 		errors: 0, warnings: 0
-file: /sim/tarsio/FastConv_SystemVerilog/rtl/mult-matrices/tcn16/mult_matrices.sv
+file: /sim/tarsio/FastConv_SystemVerilog-old/rtl/mult-matrices/tcn16/mult_matrices.sv
 	module work.Transform:sv
 		errors: 0, warnings: 0
 	module work.Inverse:sv
@@ -2295,10 +2295,10 @@ file: /sim/tarsio/FastConv_SystemVerilog/rtl/mult-matrices/tcn16/mult_matrices.s
 		errors: 0, warnings: 0
 	module work.MatrixA0:sv
 		errors: 0, warnings: 0
-file: /sim/tarsio/FastConv_SystemVerilog/rtl/mem/mem.sv
+file: /sim/tarsio/FastConv_SystemVerilog-old/rtl/mem/mem.sv
 	module work.Memory:sv
 		errors: 0, warnings: 0
-file: /sim/tarsio/FastConv_SystemVerilog/rtl/conv-mux/testbench-synth-tc.sv
+file: /sim/tarsio/FastConv_SystemVerilog-old/rtl/conv-mux/testbench-synth-tc16.sv
 	module work.tb:sv
 		errors: 0, warnings: 0
 file: ../logical/results/gate_level/conv_logic_mapped.v
@@ -2370,85 +2370,25 @@ file: ../logical/results/gate_level/conv_logic_mapped.v
 		errors: 0, warnings: 0
 	Elaborating the design hierarchy:
 		Caching library 'work' ....... Done
-  Conv dut (
-         |
-xmelab: *W,CUVWSP (/sim/tarsio/FastConv_SystemVerilog/rtl/conv-mux/testbench-synth-tc.sv,30|9): 7 output ports were not connected:
-xmelab: (../logical/results/gate_level/conv_logic_mapped.v,69543): p_output[9]
-xmelab: (../logical/results/gate_level/conv_logic_mapped.v,69543): p_output[10]
-xmelab: (../logical/results/gate_level/conv_logic_mapped.v,69543): p_output[11]
-xmelab: (../logical/results/gate_level/conv_logic_mapped.v,69543): p_output[12]
-xmelab: (../logical/results/gate_level/conv_logic_mapped.v,69544): p_output[13]
-xmelab: (../logical/results/gate_level/conv_logic_mapped.v,69544): p_output[14]
-xmelab: (../logical/results/gate_level/conv_logic_mapped.v,69544): p_output[15]
-
-  Conv dut (
-         |
-xmelab: *W,CUVWSI (/sim/tarsio/FastConv_SystemVerilog/rtl/conv-mux/testbench-synth-tc.sv,30|9): 22 input ports were not connected:
-xmelab: (../logical/results/gate_level/conv_logic_mapped.v,69529): p_input[25]
-xmelab: (../logical/results/gate_level/conv_logic_mapped.v,69529): p_input[26]
-xmelab: (../logical/results/gate_level/conv_logic_mapped.v,69529): p_input[27]
-xmelab: (../logical/results/gate_level/conv_logic_mapped.v,69529): p_input[28]
-xmelab: (../logical/results/gate_level/conv_logic_mapped.v,69530): p_input[29]
-xmelab: (../logical/results/gate_level/conv_logic_mapped.v,69530): p_input[30]
-xmelab: (../logical/results/gate_level/conv_logic_mapped.v,69530): p_input[31]
-xmelab: (../logical/results/gate_level/conv_logic_mapped.v,69530): p_input[32]
-xmelab: (../logical/results/gate_level/conv_logic_mapped.v,69531): p_input[33]
-xmelab: (../logical/results/gate_level/conv_logic_mapped.v,69531): p_input[34]
-xmelab: (../logical/results/gate_level/conv_logic_mapped.v,69531): p_input[35]
-xmelab: (../logical/results/gate_level/conv_logic_mapped.v,69538): p_weight[25]
-xmelab: (../logical/results/gate_level/conv_logic_mapped.v,69538): p_weight[26]
-xmelab: (../logical/results/gate_level/conv_logic_mapped.v,69538): p_weight[27]
-xmelab: (../logical/results/gate_level/conv_logic_mapped.v,69538): p_weight[28]
-xmelab: (../logical/results/gate_level/conv_logic_mapped.v,69539): p_weight[29]
-xmelab: (../logical/results/gate_level/conv_logic_mapped.v,69539): p_weight[30]
-xmelab: (../logical/results/gate_level/conv_logic_mapped.v,69539): p_weight[31]
-xmelab: (../logical/results/gate_level/conv_logic_mapped.v,69539): p_weight[32]
-xmelab: (../logical/results/gate_level/conv_logic_mapped.v,69540): p_weight[33]
-xmelab: (../logical/results/gate_level/conv_logic_mapped.v,69540): p_weight[34]
-xmelab: (../logical/results/gate_level/conv_logic_mapped.v,69540): p_weight[35]
-
 	Top level design units:
 		pack_def
 		pack_param
 		pack_typedef
-		$unit_0x077002d9
+		$unit_0x158a42d6
 		pack_data
 		pack_mux_mult
 		tb
-	Reading SDF file from location "../logical/results/gate_level/conv_analysis_view_0p90v_25c_captyp_nominal.sdf"
-	Compiled SDF file "conv_analysis_view_0p90v_25c_captyp_nominal.sdf.X" older than source SDF file "../logical/results/gate_level/conv_analysis_view_0p90v_25c_captyp_nominal.sdf".
-	Recompiling.
-	Writing compiled SDF file to "conv_analysis_view_0p90v_25c_captyp_nominal.sdf.X".
+xmelab: *W,FLFFNC: Uncompiled SDF file (../logical/results/gate_level/conv_analysis_view_0p90v_25c_captyp_nominal.sdf) not found, specified in SDF annotation command file sdf_cmd.cmd, line 3.
 xmelab: *W,FLFNOF: No SDF file specified, but annotation parameters were present, in SDF annotation command file sdf_cmd.cmd, line 6.
-	Annotating SDF timing data:
-		Compiled SDF file:     conv_analysis_view_0p90v_25c_captyp_nominal.sdf.X
-		Log file:              ./sdf_log.log
-		Backannotation scope:  tb.dut
-		Configuration file:    
-		MTM control:           
-		Scale factors:         
-		Scale type:            
-xmelab: *W,SDFNET: Unable to annotate to non-existent timing check (RECREM (posedge CDN) (COND D_SDFCHK (posedge CP)) (-18) (44)) of instance tb.dut.\current_state_reg[0]  of module DFCNQD1BWP30P140 <../logical/results/gate_level/conv_analysis_view_0p90v_25c_captyp_nominal.sdf, line 374384>.
-xmelab: *W,SDFNET: Unable to annotate to non-existent timing check (RECREM (posedge CDN) (COND D_SDFCHK (posedge CP)) (-19) (44)) of instance tb.dut.\current_state_reg[1]  of module DFCND1BWP30P140 <../logical/results/gate_level/conv_analysis_view_0p90v_25c_captyp_nominal.sdf, line 462697>.
-	Annotation completed with 0 Errors and 2 Warnings
-	SDF statistics: 
-		 No. of Pathdelays = 231445  	 No. of Disabled Pathdelays = 0        Annotated = 100.00% (231445/231445) 
-		 No. of Tchecks    = 4583    	 No. of Disabled Tchecks    = 0        Annotated = 32.56% (1492/4583) 
-				        Total(T) 	   Disabled(D) 	    Annotated(A)	  Percentage(A/(T-D))
-		 Path Delays	        231445	             0	            231445	                100.00
-		       $hold	             2	             0	                 0	                  0.00
-		      $width	          3049	             0	                 0	                  0.00
-		   $recovery	             2	             0	                 0	                  0.00
-		  $setuphold	          1530	             0	              1492	                 97.52
 	Building instance overlay tables: .................... Done
 	Generating native compiled code:
 		work.AOI221D2BWP30P140:v <0x22280f3a>
 			streams:   0, words:     0
-		work.DFQD4BWP30P140:v <0x2715bbec>
+		work.DFQD4BWP30P140:v <0x50045682>
 			streams:   0, words:     0
-		work.DFCND1BWP30P140:v <0x409868b6>
+		work.DFCND1BWP30P140:v <0x6c7054c5>
 			streams:   0, words:     0
-		work.DFD1BWP30P140:v <0x285844d3>
+		work.DFD1BWP30P140:v <0x4e1cec24>
 			streams:   0, words:     0
 		work.AOI222D1BWP30P140:v <0x0954e3fb>
 			streams:   0, words:     0
@@ -2456,13 +2396,13 @@ xmelab: *W,SDFNET: Unable to annotate to non-existent timing check (RECREM (pose
 			streams:   0, words:     0
 		work.OAI221D1BWP30P140:v <0x0c6b4821>
 			streams:   0, words:     0
-		work.DFKCNQD2BWP30P140:v <0x36454e10>
+		work.DFKCNQD2BWP30P140:v <0x6f42d1bf>
 			streams:   0, words:     0
-		work.DFQD1BWP30P140:v <0x2df5d436>
+		work.DFQD1BWP30P140:v <0x5ae43958>
 			streams:   0, words:     0
-		work.DFQD2BWP30P140:v <0x36d6a9c8>
+		work.DFQD2BWP30P140:v <0x41c744a6>
 			streams:   0, words:     0
-		work.DFCNQD1BWP30P140:v <0x734a5ad9>
+		work.DFCNQD1BWP30P140:v <0x2c028134>
 			streams:   0, words:     0
 		work.IAO22D4BWP30P140:v <0x55fe49b2>
 			streams:   0, words:     0
@@ -2528,17 +2468,13 @@ xmelab: *W,SDFNET: Unable to annotate to non-existent timing check (RECREM (pose
 			streams:   0, words:     0
 		work.XNR4D1BWP30P140:v <0x7a085748>
 			streams:   0, words:     0
-		work.XOR2OPTND2BWP30P140:v <0x1971ca81>
-			streams:   0, words:     0
 		work.OAI21D1BWP30P140:v <0x1c9ef0e7>
 			streams:   0, words:     0
 		work.XNR2OPTND2BWP30P140:v <0x5f53001f>
 			streams:   0, words:     0
+		work.XOR3UD1BWP30P140:v <0x00a2cf98>
+			streams:   0, words:     0
 		work.XOR3D1BWP30P140:v <0x01c2c7a0>
-			streams:   0, words:     0
-		work.FA1OPTCD2BWP30P140:v <0x64a8bf89>
-			streams:   0, words:     0
-		work.FA1D2BWP30P140:v <0x7285c8cd>
 			streams:   0, words:     0
 		work.XNR2D1BWP30P140:v <0x711f8d89>
 			streams:   0, words:     0
@@ -2548,27 +2484,33 @@ xmelab: *W,SDFNET: Unable to annotate to non-existent timing check (RECREM (pose
 			streams:   0, words:     0
 		work.XNR2OPTND4BWP30P140:v <0x4b4930e6>
 			streams:   0, words:     0
-		work.XNR2UD1BWP30P140:v <0x61c32a5b>
-			streams:   0, words:     0
-		work.HA1D1BWP30P140:v <0x0d112386>
-			streams:   0, words:     0
-		work.FA1D1BWP30P140:v <0x60708e4c>
-			streams:   0, words:     0
-		work.FA1OPTCD1BWP30P140:v <0x1cc4a315>
-			streams:   0, words:     0
 		work.OAI21D0P7BWP30P140:v <0x064334f0>
-			streams:   0, words:     0
-		work.XOR2UD1BWP30P140:v <0x667fe57a>
 			streams:   0, words:     0
 		work.OAI21OPTREPBD2BWP30P140:v <0x162a0c7b>
 			streams:   0, words:     0
-		work.XNR2D2BWP30P140:v <0x1b634ebd>
+		work.XOR2OPTND2BWP30P140:v <0x1971ca81>
+			streams:   0, words:     0
+		work.FA1OPTCD1BWP30P140:v <0x1cc4a315>
+			streams:   0, words:     0
+		work.HA1D1BWP30P140:v <0x0d112386>
 			streams:   0, words:     0
 		work.IAO21D0BWP30P140:v <0x29db4230>
 			streams:   0, words:     0
+		work.FA1D2BWP30P140:v <0x7285c8cd>
+			streams:   0, words:     0
 		work.IOA21D0BWP30P140:v <0x0fdb69d9>
 			streams:   0, words:     0
+		work.FA1D1BWP30P140:v <0x60708e4c>
+			streams:   0, words:     0
+		work.FA1OPTCD2BWP30P140:v <0x64a8bf89>
+			streams:   0, words:     0
+		work.XOR2UD1BWP30P140:v <0x667fe57a>
+			streams:   0, words:     0
 		work.OAI21OPTREPBD1BWP30P140:v <0x6dae7acc>
+			streams:   0, words:     0
+		work.XNR2UD1BWP30P140:v <0x61c32a5b>
+			streams:   0, words:     0
+		work.XNR2D2BWP30P140:v <0x1b634ebd>
 			streams:   0, words:     0
 		work.Inverse:v <0x32baba8e>
 			streams:   0, words:     0
@@ -2714,12 +2656,12 @@ xmelab: *W,SDFNET: Unable to annotate to non-existent timing check (RECREM (pose
 			streams:   0, words:     0
 		work.FA1D1BWP30P140:v <0x27e92d3f>
 			streams:   0, words:     0
-		work.CKLNQD1BWP30P140:v <0x1d60a4cf>
+		work.CKLNQD1BWP30P140:v <0x42287f22>
 			streams:   0, words:     0
-		work.Conv:v <0x43af4a98>
+		work.Conv:v <0x3b452959>
 			streams:   1, words:  1498
-		work.tb:sv <0x74754f6d>
-			streams:  75, words: 34451
+		work.tb:sv <0x7783a18f>
+			streams: 104, words: 42282
 		work.pack_param:sv <0x434c4b6e>
 			streams:   1, words:   708
 		work.pack_data:sv <0x756120f7>
@@ -2727,25 +2669,23 @@ xmelab: *W,SDFNET: Unable to annotate to non-existent timing check (RECREM (pose
 	Building instance specific data structures.
 	Loading native compiled code:     .................... Done
 	Design hierarchy summary:
-		                     Instances  Unique
-		Modules:                 21178     261
-		Verilog packages:            5       5
-		UDPs:                     3854       4
-		Primitives:              78204       6
-		Timing outputs:          27344     132
-		Registers:                 779      44
-		Scalar wires:            29457       -
-		Expanded wires:           1180      59
-		Vectored wires:             12       -
-		Always blocks:               2       2
-		Initial blocks:             14      14
-		Cont. assignments:           0       8
-		Pseudo assignments:         65       -
-		Timing checks:            6113    1513
-		Interconnect:            59977       2
-		Delayed tcheck signals:   1491     747
-		Compilation units:           1       1
-		Simulation timescale:      1ps
+		                   Instances  Unique
+		Modules:               21178     261
+		Verilog packages:          5       5
+		UDPs:                   3854       4
+		Primitives:            78204       6
+		Timing outputs:        27344     241
+		Registers:               779      44
+		Scalar wires:          29017       -
+		Expanded wires:         1760      88
+		Vectored wires:           12       -
+		Always blocks:             2       2
+		Initial blocks:           14      14
+		Cont. assignments:         0       8
+		Pseudo assignments:       94       -
+		Timing checks:          6113       -
+		Compilation units:         1       1
+		Simulation timescale:    1ps
 	Writing initial simulation snapshot: work.tb:sv
 Loading snapshot work.tb:sv .................... Done
 xcelium> source /soft64/cadence/ferramentas/XCELIUM2303/tools/xcelium/files/xmsimrc
@@ -2755,6 +2695,6 @@ xcelium> run
 *** TIME 7075.000000 ***
 
 Simulation complete via $finish(1) at time 7075 NS + 0
-/sim/tarsio/FastConv_SystemVerilog/rtl/conv-mux/testbench-synth-tc.sv:211     $finish;
+/sim/tarsio/FastConv_SystemVerilog-old/rtl/conv-mux/testbench-synth-tc16.sv:240     $finish;
 xcelium> exit
-TOOL:	xrun(64)	23.03-s003: Exiting on Jan 27, 2026 at 23:55:42 -03  (total: 00:00:09)
+TOOL:	xrun(64)	23.03-s003: Exiting on Jun 07, 2026 at 00:59:54 -03  (total: 00:00:16)
