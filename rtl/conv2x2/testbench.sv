@@ -5,48 +5,58 @@ module tb;
   import pack_param::*;
   import pack_mux_mult::*;
 
-  localparam int NBITS = 20;
-  localparam int NADDR = 13;
-  // One output map is allocated per output channel. The input-channel passes
-  // accumulate into the same addresses, so they do not increase this depth.
-  localparam int OUTPUT_SIZE = FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE * N_CHANNEL_OUT;
+  localparam int unsigned FEAT_INPUT_WIDTH = FEAT_INPUT_SIZE;
+  localparam int unsigned NBITS = 20;
+  localparam int unsigned LATENCY = 1;
+  localparam int unsigned ROM = 1;
 
-  logic clk = 1'b0;
-  logic reset = 1'b1;
-  logic p_start = 1'b0;
+  // Include the generated header, transformed weights and all feature maps.
+  localparam int unsigned INPUT_MEMORY_SIZE =
+      N_CHANNEL_IN * FEAT_INPUT_SIZE * FEAT_INPUT_WIDTH +
+      N_CHANNEL_OUT * N_CHANNEL_IN * HADAMARD_SIZE * HADAMARD_SIZE +
+      N_CHANNEL_IN * N_CHANNEL_OUT;
+  localparam int unsigned OUTPUT_MEMORY_SIZE =
+      FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE * N_CHANNEL_OUT;
+  localparam int unsigned INPUT_ADDR_WIDTH = $clog2(INPUT_MEMORY_SIZE);
+  localparam int unsigned OUTPUT_ADDR_WIDTH = $clog2(OUTPUT_MEMORY_SIZE);
+  localparam int unsigned NADDR =
+      (INPUT_ADDR_WIDTH > OUTPUT_ADDR_WIDTH) ? INPUT_ADDR_WIDTH : OUTPUT_ADDR_WIDTH;
+
+  localparam logic [1:0] ST_CONV_INVERSE = 2'b11;
+
+  logic clk;
+  logic reset;
+  logic p_start;
   logic p_end;
+
   logic p_input_en;
   logic [NADDR-1:0] p_input_addr;
   logic [NBITS-1:0] p_input_data;
+  logic [NBITS-1:0] p_input_data_write;
   logic p_input_valid;
+
   logic p_output_en;
   logic p_output_wr;
   logic [NADDR-1:0] p_output_addr;
   logic [NBITS-1:0] p_output_data_write;
   logic [NBITS-1:0] p_output_data_read;
   logic p_output_valid;
-  logic [NBITS-1:0] output_mem [0:OUTPUT_SIZE-1];
+
+  logic [NBITS-1:0] output_bank [0:OUTPUT_MEMORY_SIZE-1];
+  logic in_inverse_d;
+  int conv_inverse_check_idx;
+  int output_error_count;
+  int output_oob_count;
   int write_count;
-  int oob_count;
-  int cycles;
-  int value_errors;
-  bit saw_end;
+  int cycle_count;
 
-  always #5 clk = ~clk;
-
-  // Combinational ROM model used by this focused controller test.
-  assign p_input_data = (p_input_en && (p_input_addr < $size(const_data)))
-                      ? NBITS'(const_data[p_input_addr]) : '0;
-  assign p_input_valid = p_input_en;
-  assign p_output_data_read = (p_output_en && (p_output_addr < OUTPUT_SIZE))
-                            ? output_mem[p_output_addr] : '0;
-  assign p_output_valid = p_output_en;
+  assign p_input_data_write = '0;
 
   Conv #(
     .N_CHANNEL_IN(N_CHANNEL_IN),
     .N_CHANNEL_OUT(N_CHANNEL_OUT),
     .FEAT_INPUT_SIZE(FEAT_INPUT_SIZE),
-    .FEAT_INPUT_WIDTH(FEAT_INPUT_SIZE),
+    .FEAT_INPUT_WIDTH(FEAT_INPUT_WIDTH),
     .NADDR(NADDR),
     .NBITS(NBITS),
     .QUANT(QUANT_BITS),
@@ -56,75 +66,138 @@ module tb;
     .NUM_MULT(NUM_MULT),
     .STATE_MULT(STATE_MULT)
   ) dut (
-    .clk(clk), .reset(reset), .p_start(p_start), .p_end(p_end),
-    .p_input_en(p_input_en), .p_input_addr(p_input_addr),
-    .p_input_data(p_input_data), .p_input_valid(p_input_valid),
-    .p_output_en(p_output_en), .p_output_wr(p_output_wr),
-    .p_output_addr(p_output_addr), .p_output_data_write(p_output_data_write),
-    .p_output_data_read(p_output_data_read), .p_output_valid(p_output_valid)
+    .clk(clk),
+    .reset(reset),
+    .p_start(p_start),
+    .p_input_en(p_input_en),
+    .p_input_addr(p_input_addr),
+    .p_input_data(p_input_data),
+    .p_input_valid(p_input_valid),
+    .p_output_en(p_output_en),
+    .p_output_wr(p_output_wr),
+    .p_output_addr(p_output_addr),
+    .p_output_data_write(p_output_data_write),
+    .p_output_data_read(p_output_data_read),
+    .p_output_valid(p_output_valid),
+    .p_end(p_end)
   );
 
-  always_ff @(posedge clk) begin
+  Memory #(
+    .NADDR(NADDR),
+    .NBITS(NBITS),
+    .LATENCY(LATENCY),
+    .ROM(0)
+  ) memory_output (
+    .clk(clk),
+    .reset(reset),
+    .chip_en(p_output_en),
+    .wr_en(p_output_wr),
+    .address(p_output_addr),
+    .data_in(p_output_data_write),
+    .data_out(p_output_data_read),
+    .data_valid(p_output_valid)
+  );
+
+  Memory #(
+    .NADDR(NADDR),
+    .NBITS(NBITS),
+    .LATENCY(LATENCY),
+    .ROM(ROM)
+  ) memory_input (
+    .clk(clk),
+    .reset(reset),
+    .chip_en(p_input_en),
+    .wr_en(1'b0),
+    .address(p_input_addr),
+    .data_in(p_input_data_write),
+    .data_out(p_input_data),
+    .data_valid(p_input_valid)
+  );
+
+  initial clk = 1'b0;
+  always #5 clk = ~clk;
+
+  // Capture every output write and retain a testbench-side output image.
+  always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
-      output_mem <= '{default: '0};
+      output_bank <= '{default: '0};
       write_count <= 0;
-      oob_count <= 0;
-    end else if (p_output_en && p_output_wr) begin
-      if (p_output_addr < OUTPUT_SIZE)
-        output_mem[p_output_addr] <= p_output_data_write;
-      else begin
-        oob_count <= oob_count + 1;
-        if (oob_count < 8)
-          $display("OOB write addr=%0d data=%0d time=%0t", p_output_addr, $signed(p_output_data_write), $time);
+      output_oob_count <= 0;
+      cycle_count <= 0;
+    end else begin
+      cycle_count <= cycle_count + 1;
+      if (p_output_en && p_output_wr) begin
+        write_count <= write_count + 1;
+        if (p_output_addr < OUTPUT_MEMORY_SIZE)
+          output_bank[p_output_addr] <= p_output_data_write;
+        else begin
+          output_oob_count <= output_oob_count + 1;
+          if (output_oob_count < 8)
+            $display("ERROR WRITE ADDR OOB: time=%0t addr=%0d data=%0d",
+                     $realtime, p_output_addr, $signed(p_output_data_write));
+        end
+
+        // Check the final accumulation write as it leaves the DUT.
+        if (dut.r_output_channel_counter_input == (N_CHANNEL_IN - 1) &&
+            p_output_addr < OUTPUT_MEMORY_SIZE &&
+            $signed(p_output_data_write) !=
+            $signed(const_feat_out[p_output_addr / FEAT_OUTPUT_SIZE]
+                                        [p_output_addr % FEAT_OUTPUT_SIZE])) begin
+          output_error_count <= output_error_count + 1;
+          if (output_error_count < 8)
+            $display("ERROR WRITE GOLDEN: time=%0t addr=%0d got=%0d expected=%0d",
+                     $realtime, p_output_addr, $signed(p_output_data_write),
+                     $signed(const_feat_out[p_output_addr / FEAT_OUTPUT_SIZE]
+                                              [p_output_addr % FEAT_OUTPUT_SIZE]));
+        end
       end
-      write_count <= write_count + 1;
+    end
+  end
+
+  // Count inverse tiles while the final output value is checked at the write
+  // port below.  Each inverse is an input-channel partial sum; the generated
+  // output golden is the accumulation across all input channels.
+  always_ff @(posedge clk or posedge reset) begin
+    if (reset) begin
+      conv_inverse_check_idx <= 0;
+      in_inverse_d <= 1'b0;
+    end else begin
+      in_inverse_d <= (dut.st_conv_current == ST_CONV_INVERSE);
+      if ((dut.st_conv_current == ST_CONV_INVERSE) && !in_inverse_d)
+        conv_inverse_check_idx <= conv_inverse_check_idx + 1;
     end
   end
 
   initial begin
     $dumpfile("dump.vcd");
     $dumpvars(0, tb);
-    repeat (2) @(posedge clk);
-    reset <= 1'b0;
-    repeat (8) @(posedge clk);
-    p_start <= 1'b1;
-    @(posedge clk);
-    p_start <= 1'b0;
 
-    cycles = 0;
-    while (!p_end && cycles < 2_000_000) begin
-      @(posedge clk);
-      cycles++;
-    end
+    reset = 1'b1;
+    p_start = 1'b0;
+    #20 reset = 1'b0;
+    #80 p_start = 1'b1;
+    #10 p_start = 1'b0;
 
-    saw_end = p_end;
-    // Allow the final nonblocking output-memory counter update to settle.
-    #1;
+    if (p_end !== 1'b1)
+      @(posedge p_end);
+    #200;
 
-    if (!saw_end)
-      $fatal(1, "2x2 convolution timeout after %0d cycles", cycles);
-    if (oob_count != 0)
-      $fatal(1, "output address out of bounds: %0d", oob_count);
     if (write_count != N_CHANNEL_IN * N_CHANNEL_OUT * FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE)
       $fatal(1, "unexpected write count: got %0d", write_count);
-    value_errors = 0;
-    for (int ch = 0; ch < N_CHANNEL_OUT; ch++)
-      for (int row = 0; row < FEAT_OUTPUT_SIZE; row++)
-        for (int col = 0; col < FEAT_OUTPUT_SIZE; col++) begin
-          int expected;
-          int got;
-          expected = const_feat_out[ch * FEAT_OUTPUT_SIZE + row][col];
-          got = $signed(output_mem[ch * FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE +
-                                    row * FEAT_OUTPUT_SIZE + col]);
-          if (got != expected) begin
-            if (value_errors < 8)
-              $display("VALUE_MISMATCH addr=%0d got=%0d expected=%0d", ch * FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE + row * FEAT_OUTPUT_SIZE + col, got, expected);
-            value_errors++;
-          end
-        end
-    if (value_errors != 0)
-      $fatal(1, "numerical mismatch count: %0d", value_errors);
-    $display("2x2 smoke test passed: cycles=%0d writes=%0d", cycles, write_count);
+    if (output_oob_count != 0)
+      $fatal(1, "output address out of bounds: %0d", output_oob_count);
+    if (output_error_count != 0)
+      $fatal(1, "output golden mismatch count: %0d", output_error_count);
+    if (conv_inverse_check_idx !=
+        N_CHANNEL_IN * N_CHANNEL_OUT * FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE /
+        (CONV_OUTPUT_SIZE * CONV_OUTPUT_SIZE))
+      $fatal(1, "unexpected inverse count: got %0d expected %0d",
+             conv_inverse_check_idx,
+             N_CHANNEL_IN * N_CHANNEL_OUT * FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE /
+             (CONV_OUTPUT_SIZE * CONV_OUTPUT_SIZE));
+
+    $display("2x2 simulation passed: inverse_tiles=%0d cycles=%0d writes=%0d",
+             conv_inverse_check_idx, cycle_count, write_count);
     $finish;
   end
 endmodule
