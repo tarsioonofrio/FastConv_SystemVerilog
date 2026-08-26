@@ -19,6 +19,16 @@ make -C rtl/conv4x4 run
 make -C rtl/conv4x4 lint
 ```
 
+The ModelSim/QuestaSim-compatible support files are also provided:
+
+```bash
+cd rtl/conv4x4
+fish ./test.fish
+```
+
+`sim.tcl` compiles the TCN16 data package, parameter/multiplexer packages,
+matrix transforms, CSA/multiplier support, the tile core and this testbench.
+
 This directory does not use the 3x3/2x2 external feature-map memory protocol;
 the existing TCN16 synthesis flow is a direct tile interface (`p_input`,
 `p_weight`, `p_output`).
