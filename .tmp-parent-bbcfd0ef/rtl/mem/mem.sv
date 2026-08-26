@@ -1,0 +1,54 @@
+module Memory #(
+    parameter int NADDR   = 16,
+    parameter int NBITS   = 20,
+    parameter int LATENCY = 1,
+    parameter int ROM     = 0
+  )
+  (
+    input  logic             clk, reset, chip_en, wr_en,
+    input  logic [NADDR-1:0] address,
+    input  logic [NBITS-1:0] data_in,
+    output logic [NBITS-1:0] data_out,
+    output logic             data_valid
+  );
+
+  timeunit 1ns;
+  timeprecision 1ps;
+
+  logic [NBITS-1:0] data[0:2**NADDR-1];
+
+  int r_cycles_latency;
+
+  always_ff @(posedge clk) begin
+    if (reset)
+      data <= '{default: '0};
+    // else if (ROM == 0 && chip_en == 1'b1 && wr_en == 1'b1)
+    else if (chip_en == 1'b1 && wr_en == 1'b1 && ROM == 0)
+      data[address] <= data_in;
+  end
+
+  always_comb begin
+    if (ROM == 0 && chip_en == 1'b1)
+      data_out = data[address];
+    else if (ROM == 1 && chip_en == 1'b1) begin
+      // Prefer explicit ROM parameters when provided; otherwise use dataset package.
+      data_out = (address < $size(pack_data::const_data)) ? NBITS'(pack_data::const_data[address]) : '0;
+    end else
+      data_out = '{default: '0};
+  end
+
+  always_ff @(posedge clk) begin
+    if (reset || r_cycles_latency == 0)
+      r_cycles_latency <= LATENCY - 1;
+    else if (chip_en == 1'b1)
+      r_cycles_latency <= r_cycles_latency - 1;
+  end
+
+  always_comb begin
+    if (r_cycles_latency == 0 && chip_en == 1'b1)
+      data_valid = 1'b1;
+    else
+      data_valid = 1'b0;
+  end
+
+endmodule
