@@ -43,6 +43,8 @@ module Conv
       f_width_min1 = $clog2(x);
   endfunction
 
+  localparam FEAT_OUTPUT_SIZE = (FEAT_INPUT_SIZE - 2);
+
   logic [NBITS-1:0] r_input_feat[(CONV_INPUT_SIZE * CONV_INPUT_SIZE) - 1:0];  // input feature register bank
   logic [NBITS-1:0] w_input_feat_next[(CONV_INPUT_SIZE * CONV_INPUT_SIZE) - 1:0];  // next values for feature shift bank
   logic [NADDR-1:0] r_input_tile_base;
@@ -102,7 +104,6 @@ module Conv
   logic [NBITS-1:0] r_output_read [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
   logic [NADDR-1:0] w_output_addr;
 
-  localparam FEAT_OUTPUT_SIZE = (FEAT_INPUT_SIZE - 2);
   // The generated normal-form package stores one bias/header word per
   // input/output channel pair, then all transformed weights, then the feature
   // maps. Keep these bases explicit instead of assuming feature data starts at

@@ -37,7 +37,9 @@ The ModelSim/Questa flow is the project-standard wrapper:
 fish rtl/conv2x2/test.fish
 ```
 
-The testbench checks completion, output address bounds, the expected number of
-accumulation writes (`N_CHANNEL_IN * N_CHANNEL_OUT * 30 * 30`) and every value
+The testbench follows the system testbench pattern: it connects the DUT to an
+input ROM and output RAM through `Memory` with `LATENCY=1`, counts all inverse
+tiles, checks output address bounds, checks the expected number of accumulation
+writes (`N_CHANNEL_IN * N_CHANNEL_OUT * 30 * 30`) and compares final writes
 against `const_feat_out` from the selected generated package. It also produces
 `dump.vcd` for waveform inspection.
