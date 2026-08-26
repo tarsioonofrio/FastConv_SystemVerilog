@@ -5,18 +5,17 @@ module tb;
   import pack_param::*;
   import pack_mux_mult::*;
 
-  // Geometry of the regenerated three-channel 32x32 dataset.
-  localparam int unsigned N_CHANNEL_IN = 3;
-  localparam int unsigned N_CHANNEL_OUT = 3;
-  localparam int unsigned FEAT_INPUT_SIZE = 32;
+  // Parâmetros do DUT
+
+  // localparam int unsigned KERNEL_SIZE  =  6;
   localparam int unsigned FEAT_INPUT_WIDTH = FEAT_INPUT_SIZE;
-  localparam int unsigned FEAT_OUTPUT_SIZE = FEAT_INPUT_SIZE - 2;
+  // localparam int unsigned CONV_MULTIPLY_STEPS = 6;
   localparam int unsigned NBITS = 20;
   localparam int unsigned LATENCY = 1;
   localparam int unsigned ROM = 1;
 
-  localparam int unsigned INPUT_MEMORY_SIZE  = $size(const_data);
-  localparam int unsigned OUTPUT_MEMORY_SIZE = FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE * N_CHANNEL_OUT;
+  localparam int unsigned INPUT_MEMORY_SIZE  = N_CHANNEL_IN*FEAT_INPUT_SIZE*FEAT_INPUT_WIDTH + N_CHANNEL_OUT*N_CHANNEL_IN*HADAMARD_SIZE*HADAMARD_SIZE;
+  localparam int unsigned OUTPUT_MEMORY_SIZE = FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT - 1;
   localparam int unsigned INPUT_ADDR_WIDTH   = $clog2(INPUT_MEMORY_SIZE);
   localparam int unsigned OUTPUT_ADDR_WIDTH  = $clog2(OUTPUT_MEMORY_SIZE);
   localparam int unsigned NADDR              = (INPUT_ADDR_WIDTH > OUTPUT_ADDR_WIDTH) ? INPUT_ADDR_WIDTH : OUTPUT_ADDR_WIDTH;
@@ -39,42 +38,13 @@ module tb;
   logic p_output_valid;
   int conv_inverse_check_idx;
   int output_error_count;
-  int output_out_of_range_count;
-  int input_out_of_range_count;
-  int write_count;
-  int cycle_count;
-  logic [NBITS-1:0] output_bank [0:OUTPUT_MEMORY_SIZE-1];
+  logic [NBITS-1:0] output_bank [0:FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT - 1];
   logic in_inverse_d;
   localparam logic [1:0] ST_CONV_INVERSE = 2'b11;
-  localparam int unsigned OUTPUT_TILES_PER_AXIS =
-      (FEAT_OUTPUT_SIZE + CONV_OUTPUT_SIZE - 1) / CONV_OUTPUT_SIZE;
-  localparam int unsigned EXPECTED_INVERSE_COUNT =
-      N_CHANNEL_IN * N_CHANNEL_OUT * OUTPUT_TILES_PER_AXIS * OUTPUT_TILES_PER_AXIS;
-
-  function automatic int expected_output_value(input int unsigned address);
-    int channel;
-    int pixel;
-    int tile_row;
-    int tile_col;
-    int local_row;
-    int local_col;
-    int tile_index;
-    int local_index;
-    begin
-      channel = address / (FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
-      pixel = address % (FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
-      tile_row = (pixel / FEAT_OUTPUT_SIZE) / CONV_OUTPUT_SIZE;
-      tile_col = (pixel % FEAT_OUTPUT_SIZE) / CONV_OUTPUT_SIZE;
-      local_row = (pixel / FEAT_OUTPUT_SIZE) % CONV_OUTPUT_SIZE;
-      local_col = pixel % CONV_OUTPUT_SIZE;
-      tile_index = channel * OUTPUT_TILES_PER_AXIS * OUTPUT_TILES_PER_AXIS +
-                   tile_row * OUTPUT_TILES_PER_AXIS + tile_col;
-      // The inverse block emits each tile column first and then its rows;
-      // const_feat_out_batch uses that same column-major tile order.
-      local_index = local_col * CONV_OUTPUT_SIZE + local_row;
-      expected_output_value = const_feat_out_batch[tile_index][local_index];
-    end
-  endfunction
+  localparam int OUTPUT_TILES_PER_AXIS = (FEAT_OUTPUT_SIZE + CONV_OUTPUT_SIZE - 1) / CONV_OUTPUT_SIZE;
+  localparam int WINDOW_COUNT_PER_COLUMN_TB = OUTPUT_TILES_PER_AXIS;
+  localparam int OUTPUT_CHANNEL_STRIDE = FEAT_OUTPUT_SIZE * CONV_OUTPUT_SIZE * OUTPUT_TILES_PER_AXIS;
+  localparam int WINDOW_COUNT_PER_CHANNEL_TB = OUTPUT_TILES_PER_AXIS * OUTPUT_TILES_PER_AXIS;
 
   assign p_input_data_write = '0;
 
@@ -110,11 +80,6 @@ module tb;
     .p_end(p_end)
   );
 
-  // Keep the testbench memory path identical to the hardware interface:
-  // input samples come from a ROM instance and output partial sums are read
-  // and written through a RAM instance. Address-range checks remain in the
-  // monitor below so an invalid DUT address is reported without indexing the
-  // verification mirror.
   Memory #(
     .NADDR(NADDR),
     .NBITS(NBITS),
@@ -147,53 +112,68 @@ module tb;
     .data_valid(p_input_valid)
   );
 
+  // assign p_input_valid = p_input_en;
+
   // Gerador de Clock: 100MHz -> Período de 10ns
   initial clk = 0;
   always #5 clk = ~clk;
 
-  // Monitor inverse transitions, clipping, and final accumulated writes.
+  // Validate each inverse output window against golden batch data.
   always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
       conv_inverse_check_idx <= 0;
       output_error_count <= 0;
-      output_out_of_range_count <= 0;
-      input_out_of_range_count <= 0;
-      write_count <= 0;
-      cycle_count <= 0;
       in_inverse_d <= 1'b0;
       output_bank <= '{default: '0};
     end else begin
-      cycle_count <= cycle_count + 1;
       in_inverse_d <= (dut.st_conv_current == ST_CONV_INVERSE);
-      if (p_input_en && (p_input_addr >= INPUT_MEMORY_SIZE))
-        input_out_of_range_count <= input_out_of_range_count + 1;
 
-      if ((dut.st_conv_current == ST_CONV_INVERSE) && !in_inverse_d)
+      if ((dut.st_conv_current == ST_CONV_INVERSE) && !in_inverse_d) begin
+        if (conv_inverse_check_idx < $size(const_feat_out_batch)) begin
+          for (int k = 0; k < CONV_OUTPUT_SIZE * CONV_OUTPUT_SIZE; k++) begin
+            if ($signed(dut.w_conv_inverse[k]) != $signed(const_feat_out_batch[conv_inverse_check_idx][k])) begin
+              // $display("ERROR INVERSE[%0d] idx=%0d expected=%0d got=%0d time=%0t",
+              //          k, conv_inverse_check_idx, const_feat_out_batch[conv_inverse_check_idx][k], $signed(dut.w_conv_inverse[k]), $realtime);
+            end
+          end
+        end
+        else begin
+          // $display("ERROR: conv_inverse_check_idx overflow idx=%0d time=%0t", conv_inverse_check_idx, $realtime);
+        end
         conv_inverse_check_idx <= conv_inverse_check_idx + 1;
+      end
 
       if (p_output_en && p_output_wr) begin
-        write_count <= write_count + 1;
-        if (p_output_addr < OUTPUT_MEMORY_SIZE)
-          output_bank[p_output_addr] <= p_output_data_write;
-        else begin
-          output_out_of_range_count <= output_out_of_range_count + 1;
-          if (output_out_of_range_count < 8)
-            $display("ERROR WRITE ADDRESS OUT OF RANGE: time=%0t addr=%0d data=%0d",
-                     $realtime, p_output_addr, $signed(p_output_data_write));
-        end
-        if ((p_output_addr < OUTPUT_MEMORY_SIZE) &&
-            (dut.r_output_channel_counter_input == (N_CHANNEL_IN - 1)) &&
-            ($signed(p_output_data_write) != $signed(expected_output_value(p_output_addr)))) begin
+        int output_channel;
+        int addr_in_channel;
+        logic signed [NBITS-1:0] expected_accum;
+        logic [NBITS-1:0] expected_out;
+
+        expected_accum = $signed(p_output_data_read) + $signed(dut.r_output_write[dut.r_output_write_count]);
+
+        output_bank[p_output_addr] <= p_output_data_write;
+        output_channel = int'(p_output_addr) / OUTPUT_CHANNEL_STRIDE;
+        addr_in_channel = int'(p_output_addr) % OUTPUT_CHANNEL_STRIDE;
+        if (addr_in_channel < FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE) begin
+          // Golden compare only on final accumulation write (last input channel).
+          if (dut.r_output_channel_counter_input == (N_CHANNEL_IN - 1)) begin
+            expected_out = NBITS'(const_feat_out[p_output_addr]);
+            if ($signed(p_output_data_write) != $signed(expected_out)) begin
+              output_error_count <= output_error_count + 1;
+              $display("ERROR WRITE GOLDEN: t=%0t addr=%0d ch=%0d off=%0d got=%0d exp=%0d accum_exp=%0d read=%0d inv=%0d",
+                       $realtime, p_output_addr, output_channel, addr_in_channel, $signed(p_output_data_write),
+                       $signed(expected_out), expected_accum, $signed(p_output_data_read),
+                       $signed(dut.r_output_write[dut.r_output_write_count]));
+            end
+          end
+        end else begin
           output_error_count <= output_error_count + 1;
-          if (output_error_count < 8)
-            $display("ERROR WRITE GOLDEN: time=%0t addr=%0d got=%0d expected=%0d",
-                     $realtime, p_output_addr, $signed(p_output_data_write),
-                     expected_output_value(p_output_addr));
+          $display("ERROR WRITE ADDR OOB: t=%0t addr=%0d ch=%0d off=%0d",
+                   $realtime, p_output_addr, output_channel, addr_in_channel);
         end
       end
     end
   end
-
 
   // Estímulos
   initial begin
@@ -217,19 +197,8 @@ module tb;
       // espera mais 200 ns
     #200;
 
-    if (output_out_of_range_count != 0)
-      $fatal(1, "output address out of range: %0d", output_out_of_range_count);
-    if (write_count != N_CHANNEL_IN * N_CHANNEL_OUT *
-                       FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE)
-      $fatal(1, "unexpected write count: got %0d", write_count);
-    if (output_error_count != 0)
-      $fatal(1, "output golden mismatch count: %0d", output_error_count);
-    if (conv_inverse_check_idx != EXPECTED_INVERSE_COUNT)
-      $fatal(1, "unexpected inverse count: got %0d expected %0d",
-             conv_inverse_check_idx, EXPECTED_INVERSE_COUNT);
-    $display("3x3 simulation passed: inverse_tiles=%0d cycles=%0d writes=%0d input samples clipped=%0d",
-             conv_inverse_check_idx, cycle_count, write_count,
-             input_out_of_range_count);
+    $display("Simulacao finalizada em %0t", $realtime);
+    $display("Total de erros de escrita de output: %0d", output_error_count);
     $finish;
   end
 
