@@ -1,5 +1,5 @@
 /*
-   CONVOLUTION CONTROLLER - FastConv F(4x4, 3x3)
+   CONVOLUTION CONTROLLER  - (V0 - FERNANDO MORAES)  - 24/ABRIL
 */
 `timescale 1ns / 1ps
 
@@ -7,6 +7,7 @@ module Conv
   #(
     parameter int unsigned N_CHANNEL_IN        = 3,
     parameter int unsigned N_CHANNEL_OUT       = 3,
+    // parameter int unsigned KERNEL_SIZE         = 6,
     parameter int unsigned FEAT_INPUT_SIZE     = 32,
     parameter int unsigned FEAT_INPUT_WIDTH    = 32,
     parameter int unsigned NADDR               = 16,  // bits to p_input_addr the memory
@@ -43,26 +44,21 @@ module Conv
       f_width_min1 = $clog2(x);
   endfunction
 
-  localparam FEAT_OUTPUT_SIZE = (FEAT_INPUT_SIZE - 2);
-
   logic [NBITS-1:0] r_input_feat[(CONV_INPUT_SIZE * CONV_INPUT_SIZE) - 1:0];  // input feature register bank
   logic [NBITS-1:0] w_input_feat_next[(CONV_INPUT_SIZE * CONV_INPUT_SIZE) - 1:0];  // next values for feature shift bank
-  logic [NADDR-1:0] r_input_tile_base;
+  logic [NADDR-1:0] r_input_addr_feat;
   logic [NADDR-1:0] r_input_addr_kernel;
+  logic [NADDR-1:0] r_input_window_next;
   logic [(CONV_INPUT_SIZE * CONV_INPUT_SIZE) - 1:0] w_input_feat_en;  // write-enable per feature register
   logic w_input_feat_write_valid;
-  logic w_input_sample_in_bounds;
   logic w_input_last_window_col;
   logic w_input_last_window_acc;
   logic w_input_last_channel_output;
 
-  // The 4x4 Winograd tile advances four pixels.  The final row/column is
-  // retained as a padded tile because 30 is not divisible by four.
-  localparam WINDOW_COUNT_PER_LINE = (FEAT_OUTPUT_SIZE + CONV_OUTPUT_SIZE - 1) / CONV_OUTPUT_SIZE;
-  localparam WINDOW_COUNT_PER_COLUMN = (FEAT_OUTPUT_SIZE + CONV_OUTPUT_SIZE - 1) / CONV_OUTPUT_SIZE;
+  localparam WINDOW_COUNT_PER_LINE = (FEAT_INPUT_SIZE - 2 + CONV_OUTPUT_SIZE - 1) / CONV_OUTPUT_SIZE;
+  localparam WINDOW_COUNT_PER_COLUMN = (FEAT_INPUT_SIZE - 2 + CONV_OUTPUT_SIZE - 1) / CONV_OUTPUT_SIZE;
 
-  // Include the terminal count (64) in the counter width.
-  localparam WINDOW_COUNTER_WIDTH = f_width_min1((WINDOW_COUNT_PER_LINE * WINDOW_COUNT_PER_COLUMN) + 1);
+  localparam WINDOW_COUNTER_WIDTH = f_width_min1(WINDOW_COUNT_PER_LINE * WINDOW_COUNT_PER_COLUMN);
   logic [WINDOW_COUNTER_WIDTH-1:0] r_input_window_counter_acc;
 
   localparam WINDOW_ROW_COUNTER_WIDTH = f_width_min1(WINDOW_COUNT_PER_LINE + 1);
@@ -105,24 +101,16 @@ module Conv
   logic [NBITS-1:0] r_output_write [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
   logic [NBITS-1:0] r_output_read [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
   logic [NADDR-1:0] w_output_addr;
-  logic w_output_pixel_in_bounds;
-  logic [OUTPUT_RW_COUNT_WIDTH-1:0] w_output_element_count;
 
-  // The generated normal-form package stores one bias/header word per
-  // input/output channel pair, then all transformed weights, then the feature
-  // maps. Keep these bases explicit instead of assuming feature data starts at
-  // address zero.
-  localparam INPUT_HEADER_SIZE = N_CHANNEL_IN * N_CHANNEL_OUT;
-  localparam WEIGHT_MEMORY_BASE = INPUT_HEADER_SIZE;
-  localparam FEATURE_MEMORY_BASE = INPUT_HEADER_SIZE +
-                                   (N_CHANNEL_IN * N_CHANNEL_OUT * WEIGHT_CYCLES);
+  localparam FEAT_OUTPUT_SIZE = (FEAT_INPUT_SIZE - 2);
   logic [WINDOW_COUNTER_WIDTH-1:0] r_output_window_counter_col;
   logic [WINDOW_ROW_COUNTER_WIDTH-1:0] r_output_window_counter_row;
   logic [WINDOW_COUNTER_WIDTH-1:0] r_output_window_counter_acc;
   logic [CHANNEL_INPUT_COUNTER_WIDTH-1:0] r_output_channel_counter_input;
   logic [CHANNEL_OUTPUT_COUNTER_WIDTH-1:0] r_output_channel_counter_output;
 
-  localparam OUTPUT_ADDR_OFFSET_WIDTH = f_width_min1((CONV_OUTPUT_SIZE * FEAT_OUTPUT_SIZE) + CONV_OUTPUT_SIZE);
+  localparam OUTPUT_ADDR_OFFSET_WIDTH =
+      f_width_min1((CONV_OUTPUT_SIZE * FEAT_OUTPUT_SIZE) + CONV_OUTPUT_SIZE);
   logic [OUTPUT_ADDR_OFFSET_WIDTH-1:0] r_output_addr_offset_read;
   logic [OUTPUT_ADDR_OFFSET_WIDTH-1:0] r_output_addr_offset_write;
 
@@ -188,50 +176,41 @@ module Conv
   // ----------------------------------------------------------------------------------------------------
 
   assign p_input_en   = (st_input_current inside {READ_WEIGHTS, READ_IN_6A, READ_IN_6B, READ_IN_6C, READ_IN_6D, READ_IN_6E, READ_IN_6F});
-  assign p_input_addr = (st_input_current == READ_WEIGHTS) ? r_input_addr_kernel :
-                        r_input_tile_base +
-                        NADDR'(w_input_base_feat * FEAT_INPUT_WIDTH) +
-                        NADDR'(r_input_addr_count);  // row-major 6x6 tile address
+  assign p_input_addr = (st_input_current == READ_WEIGHTS) ? r_input_addr_kernel : r_input_addr_feat + NADDR'(r_input_addr_count);  // p_input_addr mux
 
-  // The final 6x6 tile can extend past the 32x32 feature map.  Preserve the
-  // controller structure and mask only those samples, rather than allowing a
-  // row-end address to alias the following row.
-  assign w_input_sample_in_bounds =
-      (((r_input_tile_base - NADDR'(FEATURE_MEMORY_BASE) -
-         NADDR'(r_input_channel_counter_input * FEAT_INPUT_SIZE * FEAT_INPUT_WIDTH)) %
-        FEAT_INPUT_WIDTH) + r_input_addr_count < FEAT_INPUT_WIDTH) &&
-      (((r_input_tile_base - NADDR'(FEATURE_MEMORY_BASE) -
-         NADDR'(r_input_channel_counter_input * FEAT_INPUT_SIZE * FEAT_INPUT_WIDTH)) /
-        FEAT_INPUT_WIDTH) + w_input_base_feat < FEAT_INPUT_SIZE);
+  always_ff @(posedge clk or posedge reset) begin: INPUT_ADDR_POINTER_BLOCK
+    if (reset) begin
+      r_input_addr_feat <= '0;
+      r_input_window_next <= CONV_OUTPUT_SIZE;
+    end
+    else if ((st_input_current == READ_IN_6A && st_input_next == READ_IN_6B) || (st_input_current == READ_IN_6B && st_input_next == READ_IN_6C) || (st_input_current == READ_IN_6C && st_input_next == READ_IN_6D) || (st_input_current == READ_IN_6D && st_input_next == READ_IN_6E) || (st_input_current == READ_IN_6E && st_input_next == READ_IN_6F) || st_input_current == TRANSFER)
+      r_input_addr_feat <= r_input_addr_feat + NADDR'(FEAT_INPUT_WIDTH);    // change internal p_input_addr in the state transition or in the TRANSFER state (CAUTION: PE)
+    else if (st_input_current == NEXT_ROW_INPUT && !w_input_last_window_acc) begin  // when change the line, the read pointer moves 'r_input_window_next'
+      r_input_addr_feat <= r_input_window_next + NADDR'(r_input_channel_counter_input * FEAT_INPUT_SIZE * FEAT_INPUT_WIDTH);  // restart for the first line
+      r_input_window_next <= r_input_window_next + CONV_OUTPUT_SIZE;
+    end else if (st_input_current == ADDRESS_INPUT && w_input_last_window_acc) begin
+      r_input_window_next <= CONV_OUTPUT_SIZE;
 
-  always_ff @(posedge clk or posedge reset) begin: INPUT_TILE_BASE_BLOCK
-    if (reset)
-      r_input_tile_base <= NADDR'(FEATURE_MEMORY_BASE);
-    else if (st_input_current == ADDRESS_INPUT && w_input_last_window_acc) begin
-      if (r_input_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1))
-        r_input_tile_base <= NADDR'(FEATURE_MEMORY_BASE);
-      else
-        r_input_tile_base <= NADDR'(FEATURE_MEMORY_BASE) +
-                             NADDR'((r_input_channel_counter_input + 1) *
+      if (r_input_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN-1) ) begin               // change the IFMAP
+        r_input_addr_feat <= 0;
+        `ifdef SIMULATION
+            $display(
+                "RESETANDO PARA O CANAL 0 - DEU A VOLTA NOS IFMAPS time=%0t %d (%0d) st_input_current = %s",
+                $time, r_input_channel_counter_input, N_CHANNEL_IN, st_input_current.name()
+            );
+        `endif
+      end else begin
+        r_input_addr_feat <= NADDR'((r_input_channel_counter_input + 1) *
                                     FEAT_INPUT_SIZE * FEAT_INPUT_WIDTH);
-    end else if (st_input_current == TRANSFER) begin
-      // The counter still denotes the tile being transferred at this edge.
-      // The last tile of a row is therefore WINDOW_COUNT_PER_LINE-1;
-      // w_input_last_window_col becomes true only after the counter update.
-      if (r_input_window_counter_col == WINDOW_ROW_COUNTER_WIDTH'(WINDOW_COUNT_PER_LINE - 1))
-        r_input_tile_base <= r_input_tile_base +
-                             NADDR'(CONV_OUTPUT_SIZE * FEAT_INPUT_WIDTH) -
-                             NADDR'(CONV_OUTPUT_SIZE * (WINDOW_COUNT_PER_LINE - 1));
-      else
-        r_input_tile_base <= r_input_tile_base + NADDR'(CONV_OUTPUT_SIZE);
+      end
     end
   end
 
   always_ff @(posedge clk or posedge reset) begin: WEIGHT_ADDR_POINTER_BLOCK
     if (reset)
       r_input_addr_kernel <= 0;
-    else if (st_input_current == WAIT_INPUT && st_input_next == ADDRESS_INPUT)
-      r_input_addr_kernel <= NADDR'(WEIGHT_MEMORY_BASE);
+    else if (st_input_current == WAIT_INPUT && st_input_next == ADDRESS_INPUT)    // initializes only ONCE the weight p_input_addr (after the IFMAPs in the memory) (CAUTION: PE)
+      r_input_addr_kernel <= NADDR'(N_CHANNEL_IN * FEAT_INPUT_SIZE * FEAT_INPUT_WIDTH);
     else if (st_input_current == READ_WEIGHTS)
       r_input_addr_kernel <= r_input_addr_kernel + 1;  // next weight
   end
@@ -254,7 +233,7 @@ module Conv
       READ_WEIGHTS:
         if (w_input_weight_done) st_input_next = READ_IN_6A;
         else if (w_input_last_channel_output) st_input_next = WAIT_INPUT;  //end processing
-      READ_IN_6A: if (r_input_addr_count == (CONV_INPUT_SIZE - 1)) st_input_next = READ_IN_6B;  // read one complete 6x6 tile row
+      READ_IN_6A: if (r_input_addr_count == (CONV_INPUT_SIZE - 1)) st_input_next = READ_IN_6B;  // read 5*5 values
       READ_IN_6B: if (r_input_addr_count == (CONV_INPUT_SIZE - 1)) st_input_next = READ_IN_6C;
       READ_IN_6C: if (r_input_addr_count == (CONV_INPUT_SIZE - 1)) st_input_next = READ_IN_6D;
       READ_IN_6D: if (r_input_addr_count == (CONV_INPUT_SIZE - 1)) st_input_next = READ_IN_6E;
@@ -264,7 +243,7 @@ module Conv
       TRANSFER: st_input_next = HOLD_WRITE;  // p_start the convolution
       HOLD_WRITE:
         if (w_input_last_window_col && w_input_write_done) st_input_next = NEXT_ROW_INPUT;
-          else if (w_input_write_done) st_input_next = READ_IN_6A;
+          else if (w_input_write_done) st_input_next = READ_IN_6C;
         else st_input_next = HOLD_WRITE;
       NEXT_ROW_INPUT:
         if (w_input_last_window_acc) st_input_next = ADDRESS_INPUT;
@@ -274,7 +253,8 @@ module Conv
   end
 
   assign w_input_weight_done = (r_input_count_kernel == WEIGHT_WIDTH'(WEIGHT_CYCLES - 1));
-  assign w_input_write_done = r_output_write_count == 0 || r_output_write_count == OUTPUT_RW_COUNT_MAX;  // compare to zero for the first write test or the last value (8) in the next convolutions
+  assign w_input_write_done = r_output_write_count == 0 ||
+                              r_output_write_count == OUTPUT_RW_COUNT_MAX;
 
   assign w_input_last_window_col = (r_input_window_counter_col == WINDOW_ROW_COUNTER_WIDTH'(WINDOW_COUNT_PER_LINE));
   assign w_input_last_window_acc = (r_input_window_counter_acc == WINDOW_COUNTER_WIDTH'(WINDOW_COUNT_PER_LINE * WINDOW_COUNT_PER_COLUMN));
@@ -358,11 +338,13 @@ module Conv
   // -------------------------------------------------------------------------
   always_comb begin: INPUT_SHIFT_DATA_BLOCK
     for (int unsigned i = 0; i < (CONV_INPUT_SIZE * CONV_INPUT_SIZE); i++)
-      w_input_feat_next[i] = w_input_sample_in_bounds ? p_input_data : '0;
+      w_input_feat_next[i] = p_input_data;
 
-    // During TRANSFER retain the rightmost two columns for the next 6x6 tile.
-    // Read states write complete rows; the transfer only shifts columns 4/5
-    // into columns 0/1 before the next four rows are fetched.
+    w_input_feat_next[0] = (st_input_current == READ_IN_6A) ? p_input_data : r_input_feat[4];
+    w_input_feat_next[1] = (st_input_current == READ_IN_6B) ? p_input_data : r_input_feat[5];
+    w_input_feat_next[6] = (st_input_current == READ_IN_6A) ? p_input_data : r_input_feat[10];
+    w_input_feat_next[7] = (st_input_current == READ_IN_6B) ? p_input_data : r_input_feat[11];
+
     if (st_input_current == TRANSFER) begin
       w_input_feat_next[0]  = r_input_feat[4];
       w_input_feat_next[1]  = r_input_feat[5];
@@ -379,11 +361,9 @@ module Conv
     end
   end
 
-  // The ROM is row-major: each read state supplies one complete row of the
-  // 6x6 tile, so samples are written contiguously in the feature bank.
-  assign w_input_feat_wr_index =
-      INPUT_FEAT_INDEX_WIDTH'(w_input_base_feat * CONV_INPUT_SIZE) +
-      INPUT_FEAT_INDEX_WIDTH'(r_input_addr_count);
+  assign w_input_feat_wr_index = INPUT_FEAT_INDEX_WIDTH'(w_input_base_feat) +
+                                 (INPUT_FEAT_INDEX_WIDTH'(r_input_addr_count) *
+                                  INPUT_FEAT_INDEX_WIDTH'(CONV_INPUT_SIZE));
 
   always_comb begin: INPUT_SHIFT_WE_BLOCK  // 'w_input_feat_en' to write into the register bank r_input_feat
     w_input_feat_en = '0;
@@ -391,7 +371,7 @@ module Conv
       READ_IN_6A, READ_IN_6B, READ_IN_6C, READ_IN_6D, READ_IN_6E, READ_IN_6F:
         w_input_feat_en[w_input_feat_wr_index] = 1'b1;
       TRANSFER:
-        w_input_feat_en = 36'b001100110011001100110011001100110011;  // make the shift
+        w_input_feat_en = 36'b000011000011000011000011000011000011;  // shift the six 4x4 columns
       default:
         w_input_feat_en = '0;
     endcase
@@ -421,8 +401,7 @@ module Conv
       for (int unsigned i = 0; i < WEIGHT_CYCLES; i++)
         r_input_weight[i] <= '0;
     end else if (st_input_current == READ_WEIGHTS) begin
-      // A new weight load has priority over the final HADAMARD rotation of
-      // the preceding window; both FSMs can overlap for one cycle.
+      // A new weight load has priority over the final HADAMARD rotation.
       for (int unsigned i = 0; i < WEIGHT_CYCLES; i++)
         if (w_input_weight_en[i])
           r_input_weight[i] <= p_input_data;
@@ -476,16 +455,26 @@ module Conv
   // -------------------------------------------------------------------------
   // CONVOLUTION REGISTER BANK AND CONVOLUTION REGISTERS:  w_conv_end  -- r_conv_multiply_count
   // -------------------------------------------------------------------------
-  // Snapshot each completed tile before the input loader starts overwriting
-  // r_input_feat for the next tile.  The transform/multiply pipeline overlaps
-  // input loading, so driving it directly from r_input_feat would corrupt an
-  // in-flight convolution halfway through its four Hadamard cycles.
-  always_ff @(posedge clk or posedge reset) begin: CONV_INPUT_REG_BLOCK
-    if (reset)
-      r_conv_input <= '{default: '0};
-    else if (st_input_current == CONV_INPUT)
-      r_conv_input <= r_input_feat;
-  end
+// `ifdef SIMULATION
+//   time prev_time, curr_time;  // debug
+// `endif
+
+  // always_ff @(posedge clk or posedge reset) begin: CONV_INPUT_REG_BLOCK  // register bank for the convolution
+  //   if (reset)
+  //     for (int unsigned i = 0; i < (CONV_INPUT_SIZE * CONV_INPUT_SIZE); i++)
+  //       r_conv_input[i] <= '0;
+  //   else begin
+  //     if (st_input_current == TRANSFER) begin  // fill the convolution register bank
+  //       for (int unsigned i = 0; i < (CONV_INPUT_SIZE * CONV_INPUT_SIZE); i++)
+  //         r_conv_input[i] <= r_input_feat[i];
+  //         `ifdef SIMULATION
+  //           curr_time = $time;  // debug
+  //           $display("current time = %0t | previous time = %0t | diff = %0t", curr_time, prev_time, (curr_time - prev_time));
+  //           prev_time <= curr_time;
+  //         `endif
+  //     end
+  //   end
+  // end
 
   always_ff @(posedge clk or posedge reset) begin: CONV_END_FLAG_BLOCK
     if (reset)
@@ -516,9 +505,8 @@ module Conv
       r_conv_temp <= '{default: '0};
     end else begin
       unique case (st_conv_current)
-        TRANSFORM:
-          r_conv_temp <= w_conv_transform;
-        HADAMARD: begin      // shift the accumulator and append the multiplier products
+        TRANSFORM: r_conv_temp <= w_conv_transform;
+        HADAMARD: begin      // shifts e entra a multiplicação na parte mais significativa
           for (int unsigned i = 0; i < (WEIGHT_CYCLES-NUM_MULT); i++)
             r_conv_temp[i] <= r_conv_temp[i + NUM_MULT];
           for (int unsigned i = (WEIGHT_CYCLES-NUM_MULT); i < WEIGHT_CYCLES; i++)
@@ -537,7 +525,7 @@ module Conv
     .HADAMARD_SIZE(HADAMARD_SIZE)
   ) trf (
       // .pin (r_conv_input[C1_SIZE*C1_SIZE-1:0]),
-      .pin (r_conv_input),
+      .pin (r_input_feat),
       .pout(w_conv_transform)
   );
 
@@ -650,8 +638,7 @@ module Conv
       r_output_window_counter_acc <= '0;
       r_output_window_counter_col <= '0;
       r_output_window_counter_row <= '0;
-    end else if (st_output_current == WRITE_OUTPUT &&
-                 r_output_write_count == OUTPUT_RW_COUNT_WIDTH'(OUTPUT_RW_COUNT_MAX)) begin
+    end else if (st_output_current == WRITE_OUTPUT && r_output_write_count == OUTPUT_RW_COUNT_WIDTH'(OUTPUT_RW_COUNT_MAX)) begin
       // Advance window only after accumulating all input channels for this output window.
       r_output_window_counter_acc <= r_output_window_counter_acc + 1'b1;
       r_output_window_counter_row <= r_output_window_counter_row + 1'b1;
@@ -718,23 +705,20 @@ module Conv
       // - slide window every completed WRITE_OUTPUT window
       // - when one input-channel pass finishes, restart window scan at channel base
       // - when last input channel finishes, advance to next output channel base
-      if (st_output_current == WRITE_OUTPUT &&
-          r_output_write_count == OUTPUT_RW_COUNT_WIDTH'(OUTPUT_RW_COUNT_MAX)) begin
+      if (st_output_current == WRITE_OUTPUT && r_output_write_count == OUTPUT_RW_COUNT_WIDTH'(OUTPUT_RW_COUNT_MAX)) begin
         if (w_output_last_window_acc) begin
           r_output_addr_col <= '0;
           r_output_addr_row <= '0;
           if (w_output_last_channel_input && !w_output_last_channel_output)
             r_output_addr_channel <= r_output_addr_channel + OUTPUT_ADDR_CHANNEL_WIDTH'(FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
         end else if (w_output_last_window_row) begin
-          // The input traversal is horizontal-tile first. Advance to the
-          // next output row only after the 15 tiles in the current row.
-          r_output_addr_col <= '0;
+          r_output_addr_row <= '0;
           if (w_output_last_window_col)
-            r_output_addr_row <= '0;
+            r_output_addr_col <= '0;
           else
-            r_output_addr_row <= r_output_addr_row + OUTPUT_ADDR_ROW_WIDTH'(CONV_OUTPUT_SIZE);
+            r_output_addr_col <= r_output_addr_col + OUTPUT_ADDR_COL_WIDTH'(CONV_OUTPUT_SIZE);
         end else begin
-          r_output_addr_col <= r_output_addr_col + OUTPUT_ADDR_COL_WIDTH'(CONV_OUTPUT_SIZE);
+          r_output_addr_row <= r_output_addr_row + OUTPUT_ADDR_ROW_WIDTH'(FEAT_OUTPUT_SIZE * CONV_OUTPUT_SIZE);
         end
       end
       if (st_output_current == ADDRESS_OUTPUT) begin
@@ -757,12 +741,10 @@ module Conv
         if (r_output_read_count == OUTPUT_RW_COUNT_WIDTH'(OUTPUT_RW_COUNT_MAX))
           r_output_addr_offset_read <= r_output_addr_offset_read;
         else
-        if (r_output_read_count == 0 ||
-            r_output_read_count == OUTPUT_RW_COUNT_WIDTH'(OUTPUT_RW_COUNT_MAX - 1))
-          r_output_addr_offset_read <= r_output_addr_offset_read + OUTPUT_ADDR_OFFSET_WIDTH'(1);
+        if ((r_output_read_count % CONV_OUTPUT_SIZE) == (CONV_OUTPUT_SIZE - 1))
+          r_output_addr_offset_read <= r_output_addr_offset_read - OUTPUT_ADDR_OFFSET_WIDTH'(((CONV_OUTPUT_SIZE - 1) * FEAT_OUTPUT_SIZE) - 1);
         else
-          r_output_addr_offset_read <= r_output_addr_offset_read +
-                                       OUTPUT_ADDR_OFFSET_WIDTH'(FEAT_OUTPUT_SIZE - 1);
+          r_output_addr_offset_read <= r_output_addr_offset_read + OUTPUT_ADDR_OFFSET_WIDTH'(FEAT_OUTPUT_SIZE);
       end
 
       if (st_output_current != WRITE_OUTPUT) begin
@@ -772,40 +754,22 @@ module Conv
         if (r_output_write_count == OUTPUT_RW_COUNT_WIDTH'(OUTPUT_RW_COUNT_MAX))
           r_output_addr_offset_write <= r_output_addr_offset_write;
         else
-        if (r_output_write_count == 0 ||
-            r_output_write_count == OUTPUT_RW_COUNT_WIDTH'(OUTPUT_RW_COUNT_MAX - 1))
-          r_output_addr_offset_write <= r_output_addr_offset_write + OUTPUT_ADDR_OFFSET_WIDTH'(1);
+        if ((r_output_write_count % CONV_OUTPUT_SIZE) == (CONV_OUTPUT_SIZE - 1))
+          r_output_addr_offset_write <= r_output_addr_offset_write - OUTPUT_ADDR_OFFSET_WIDTH'(((CONV_OUTPUT_SIZE - 1) * FEAT_OUTPUT_SIZE) - 1);
         else
-          r_output_addr_offset_write <= r_output_addr_offset_write +
-                                        OUTPUT_ADDR_OFFSET_WIDTH'(FEAT_OUTPUT_SIZE - 1);
+          r_output_addr_offset_write <= r_output_addr_offset_write + OUTPUT_ADDR_OFFSET_WIDTH'(FEAT_OUTPUT_SIZE);
       end
     end
   end
 
-  // The output counters describe the current tile row/column.  Generate the
-  // row-major address directly from the local 4x4 output index.  Invalid lanes
-  // in the padded border remain readable as zero but are not written.
-  assign w_output_addr =
-      NADDR'(r_output_channel_counter_output * FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE) +
-      NADDR'(r_output_window_counter_col * CONV_OUTPUT_SIZE * FEAT_OUTPUT_SIZE) +
-      NADDR'(r_output_window_counter_row * CONV_OUTPUT_SIZE);
-
-  assign w_output_element_count = (st_output_current == READ_OUTPUT) ?
-                                  r_output_read_count : r_output_write_count;
-
-  assign w_output_pixel_in_bounds =
-      ((r_output_window_counter_col * CONV_OUTPUT_SIZE) +
-       (w_output_element_count / CONV_OUTPUT_SIZE) < FEAT_OUTPUT_SIZE) &&
-      ((r_output_window_counter_row * CONV_OUTPUT_SIZE) +
-       (w_output_element_count % CONV_OUTPUT_SIZE) < FEAT_OUTPUT_SIZE);
-
-  assign p_output_data_write = r_output_write[r_output_write_count] +
-                               r_output_read[r_output_write_count];
-  assign p_output_addr = w_output_pixel_in_bounds ?
-      (w_output_addr + NADDR'((w_output_element_count / CONV_OUTPUT_SIZE) * FEAT_OUTPUT_SIZE +
-                              (w_output_element_count % CONV_OUTPUT_SIZE))) : '0;
-  assign p_output_en = (st_output_current == READ_OUTPUT) ||
-                       ((st_output_current == WRITE_OUTPUT) && w_output_pixel_in_bounds);
-  assign p_output_wr = (st_output_current == WRITE_OUTPUT) && w_output_pixel_in_bounds;
+  assign w_output_addr = NADDR'(r_output_addr_channel) + NADDR'(r_output_addr_col) + NADDR'(r_output_addr_row);
+  assign p_output_data_write = r_output_write[r_output_write_count] + r_output_read[r_output_write_count];
+  assign p_output_addr = (st_output_current == READ_OUTPUT) ?
+    (w_output_addr + NADDR'(r_output_addr_offset_read)) :
+    (w_output_addr + NADDR'(r_output_addr_offset_write));  // p_input_addr mux
+  // Keep read enabled through index 8 so the 9th output element is fetched.
+  assign p_output_en = (((st_output_current == READ_OUTPUT) && r_output_read_count <= OUTPUT_RW_COUNT_WIDTH'(OUTPUT_RW_COUNT_MAX)) || (st_output_current == WRITE_OUTPUT)) ? '1 : '0;
+  // Keep write enabled for every WRITE_OUTPUT beat, including the final window/channel.
+  assign p_output_wr = (st_output_current == WRITE_OUTPUT) ? '1 : '0;
 
 endmodule
