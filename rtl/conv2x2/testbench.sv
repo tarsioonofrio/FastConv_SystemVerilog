@@ -5,6 +5,7 @@ module tb;
   import pack_param::*;
   import pack_mux_mult::*;
 
+  // DUT and memory parameters.
   localparam int unsigned FEAT_INPUT_WIDTH = FEAT_INPUT_SIZE;
   localparam int unsigned NBITS = 20;
   localparam int unsigned LATENCY = 1;
@@ -23,6 +24,10 @@ module tb;
       (INPUT_ADDR_WIDTH > OUTPUT_ADDR_WIDTH) ? INPUT_ADDR_WIDTH : OUTPUT_ADDR_WIDTH;
 
   localparam logic [1:0] ST_CONV_INVERSE = 2'b11;
+  localparam int unsigned OUTPUT_TILES_PER_AXIS =
+      (FEAT_OUTPUT_SIZE + CONV_OUTPUT_SIZE - 1) / CONV_OUTPUT_SIZE;
+  localparam int unsigned EXPECTED_INVERSE_COUNT =
+      N_CHANNEL_IN * N_CHANNEL_OUT * OUTPUT_TILES_PER_AXIS * OUTPUT_TILES_PER_AXIS;
 
   logic clk;
   logic reset;
@@ -117,15 +122,23 @@ module tb;
   initial clk = 1'b0;
   always #5 clk = ~clk;
 
-  // Capture every output write and retain a testbench-side output image.
+  // Validate inverse transitions and retain a testbench-side output image.
   always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
+      conv_inverse_check_idx <= 0;
+      output_error_count <= 0;
+      in_inverse_d <= 1'b0;
       output_bank <= '{default: '0};
       write_count <= 0;
       output_oob_count <= 0;
       cycle_count <= 0;
     end else begin
       cycle_count <= cycle_count + 1;
+
+      in_inverse_d <= (dut.st_conv_current == ST_CONV_INVERSE);
+      if ((dut.st_conv_current == ST_CONV_INVERSE) && !in_inverse_d)
+        conv_inverse_check_idx <= conv_inverse_check_idx + 1;
+
       if (p_output_en && p_output_wr) begin
         write_count <= write_count + 1;
         if (p_output_addr < OUTPUT_MEMORY_SIZE)
@@ -154,20 +167,6 @@ module tb;
     end
   end
 
-  // Count inverse tiles while the final output value is checked at the write
-  // port below.  Each inverse is an input-channel partial sum; the generated
-  // output golden is the accumulation across all input channels.
-  always_ff @(posedge clk or posedge reset) begin
-    if (reset) begin
-      conv_inverse_check_idx <= 0;
-      in_inverse_d <= 1'b0;
-    end else begin
-      in_inverse_d <= (dut.st_conv_current == ST_CONV_INVERSE);
-      if ((dut.st_conv_current == ST_CONV_INVERSE) && !in_inverse_d)
-        conv_inverse_check_idx <= conv_inverse_check_idx + 1;
-    end
-  end
-
   initial begin
     $dumpfile("dump.vcd");
     $dumpvars(0, tb);
@@ -188,13 +187,10 @@ module tb;
       $fatal(1, "output address out of bounds: %0d", output_oob_count);
     if (output_error_count != 0)
       $fatal(1, "output golden mismatch count: %0d", output_error_count);
-    if (conv_inverse_check_idx !=
-        N_CHANNEL_IN * N_CHANNEL_OUT * FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE /
-        (CONV_OUTPUT_SIZE * CONV_OUTPUT_SIZE))
+    if (conv_inverse_check_idx != EXPECTED_INVERSE_COUNT)
       $fatal(1, "unexpected inverse count: got %0d expected %0d",
              conv_inverse_check_idx,
-             N_CHANNEL_IN * N_CHANNEL_OUT * FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE /
-             (CONV_OUTPUT_SIZE * CONV_OUTPUT_SIZE));
+             EXPECTED_INVERSE_COUNT);
 
     $display("2x2 simulation passed: inverse_tiles=%0d cycles=%0d writes=%0d",
              conv_inverse_check_idx, cycle_count, write_count);
