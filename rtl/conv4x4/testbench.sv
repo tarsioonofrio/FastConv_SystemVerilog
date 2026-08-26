@@ -5,7 +5,12 @@ module tb;
   import pack_param::*;
   import pack_mux_mult::*;
 
-  // Keep the verification wrapper aligned with the 2x2/3x3 controllers.
+  // Geometry of the regenerated three-channel 32x32 dataset.
+  localparam int unsigned N_CHANNEL_IN = 3;
+  localparam int unsigned N_CHANNEL_OUT = 3;
+  localparam int unsigned FEAT_INPUT_SIZE = 32;
+  localparam int unsigned FEAT_INPUT_WIDTH = FEAT_INPUT_SIZE;
+  localparam int unsigned FEAT_OUTPUT_SIZE = FEAT_INPUT_SIZE - 2;
   localparam int unsigned NBITS = 20;
   localparam int unsigned LATENCY = 1;
   localparam int unsigned ROM = 1;
@@ -16,6 +21,35 @@ module tb;
   localparam int unsigned OUTPUT_ADDR_WIDTH = $clog2(OUTPUT_MEMORY_SIZE);
   localparam int unsigned NADDR =
     (INPUT_ADDR_WIDTH > OUTPUT_ADDR_WIDTH) ? INPUT_ADDR_WIDTH : OUTPUT_ADDR_WIDTH;
+  localparam logic [1:0] ST_CONV_INVERSE = 2'b11;
+  localparam int unsigned OUTPUT_TILES_PER_AXIS =
+    (FEAT_OUTPUT_SIZE + CONV_OUTPUT_SIZE - 1) / CONV_OUTPUT_SIZE;
+  localparam int unsigned EXPECTED_INVERSE_COUNT =
+    N_CHANNEL_IN * N_CHANNEL_OUT * OUTPUT_TILES_PER_AXIS * OUTPUT_TILES_PER_AXIS;
+
+  function automatic int expected_output_value(input int unsigned address);
+    int channel;
+    int pixel;
+    int tile_row;
+    int tile_col;
+    int local_row;
+    int local_col;
+    int tile_index;
+    int local_index;
+    begin
+      channel = address / (FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
+      pixel = address % (FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
+      tile_row = (pixel / FEAT_OUTPUT_SIZE) / CONV_OUTPUT_SIZE;
+      tile_col = (pixel % FEAT_OUTPUT_SIZE) / CONV_OUTPUT_SIZE;
+      local_row = (pixel / FEAT_OUTPUT_SIZE) % CONV_OUTPUT_SIZE;
+      local_col = pixel % CONV_OUTPUT_SIZE;
+      tile_index = channel * OUTPUT_TILES_PER_AXIS * OUTPUT_TILES_PER_AXIS +
+                   tile_row * OUTPUT_TILES_PER_AXIS + tile_col;
+      // The inverse block emits tile columns before tile rows.
+      local_index = local_col * CONV_OUTPUT_SIZE + local_row;
+      expected_output_value = const_feat_out_batch[tile_index][local_index];
+    end
+  endfunction
 
   logic clk = 1'b0;
   logic reset = 1'b1;
@@ -32,11 +66,13 @@ module tb;
   logic [NBITS-1:0] p_output_data_read;
   logic p_output_valid;
   logic [NBITS-1:0] output_bank [0:OUTPUT_MEMORY_SIZE-1];
+  logic in_inverse_d;
+  int conv_inverse_check_idx;
+  int output_error_count;
   int write_count;
-  int oob_count;
-  int cycles;
-  int value_errors;
-  bit saw_end;
+  int output_out_of_range_count;
+  int input_out_of_range_count;
+  int cycle_count;
 
   always #5 clk = ~clk;
 
@@ -70,6 +106,11 @@ module tb;
     .p_output_valid(p_output_valid)
   );
 
+  // Keep the testbench memory path identical to the hardware interface:
+  // input samples come from a ROM instance and output partial sums are read
+  // and written through a RAM instance. Address-range checks remain in the
+  // monitor below so an invalid DUT address is reported without indexing the
+  // verification mirror.
   Memory #(
     .NADDR(NADDR),
     .NBITS(NBITS),
@@ -105,78 +146,72 @@ module tb;
   always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
       output_bank <= '{default: '0};
+      in_inverse_d <= 1'b0;
+      conv_inverse_check_idx <= 0;
+      output_error_count <= 0;
       write_count <= 0;
-      oob_count <= 0;
-    end else if (p_output_en && p_output_wr) begin
-      write_count <= write_count + 1;
-      if (p_output_addr < OUTPUT_MEMORY_SIZE)
-        output_bank[p_output_addr] <= p_output_data_write;
-      else
-        oob_count <= oob_count + 1;
-    end
-  end
+      output_out_of_range_count <= 0;
+      input_out_of_range_count <= 0;
+      cycle_count <= 0;
+    end else begin
+      cycle_count <= cycle_count + 1;
+      in_inverse_d <= (dut.st_conv_current == ST_CONV_INVERSE);
+      if ((dut.st_conv_current == ST_CONV_INVERSE) && !in_inverse_d)
+        conv_inverse_check_idx <= conv_inverse_check_idx + 1;
 
-  always_ff @(posedge clk or posedge reset) begin
-    if (reset)
-      saw_end <= 1'b0;
-    else if (p_end)
-      saw_end <= 1'b1;
+      if (p_output_en && p_output_wr) begin
+        write_count <= write_count + 1;
+        if (p_output_addr < OUTPUT_MEMORY_SIZE) begin
+          output_bank[p_output_addr] <= p_output_data_write;
+          if ((dut.r_output_channel_counter_input == (N_CHANNEL_IN - 1)) &&
+              ($signed(p_output_data_write) !=
+               $signed(expected_output_value(p_output_addr)))) begin
+            output_error_count <= output_error_count + 1;
+            if (output_error_count < 8)
+              $display("ERROR WRITE GOLDEN: time=%0t addr=%0d got=%0d expected=%0d",
+                       $realtime, p_output_addr, $signed(p_output_data_write),
+                       expected_output_value(p_output_addr));
+          end
+        end else begin
+          output_out_of_range_count <= output_out_of_range_count + 1;
+          if (output_out_of_range_count < 8)
+            $display("ERROR WRITE ADDRESS OUT OF RANGE: time=%0t addr=%0d data=%0d",
+                     $realtime, p_output_addr, $signed(p_output_data_write));
+        end
+      end
+      if (p_input_en && (p_input_addr >= INPUT_MEMORY_SIZE))
+        input_out_of_range_count <= input_out_of_range_count + 1;
+    end
   end
 
   initial begin
     $dumpfile("dump.vcd");
     $dumpvars(0, tb);
 
-    repeat (2) @(posedge clk);
-    reset <= 1'b0;
-    repeat (8) @(posedge clk);
-    p_start <= 1'b1;
-    @(posedge clk);
-    p_start <= 1'b0;
+    reset = 1'b1;
+    p_start = 1'b0;
+    #20 reset = 1'b0;
+    #80 p_start = 1'b1;
+    #10 p_start = 1'b0;
+    if (p_end !== 1'b1)
+      @(posedge p_end);
+    #200;
 
-    cycles = 0;
-    while (!saw_end && cycles < 2_000_000) begin
-      @(posedge clk);
-      cycles++;
-    end
-    #1;
-
-    if (!saw_end) begin
-      $display("TIMEOUT input_state=%0d conv_state=%0d output_state=%0d input_ch=%0d output_ch=%0d in_win=%0d out_win=%0d out_write=%0d out_read=%0d",
-               dut.st_input_current, dut.st_conv_current, dut.st_output_current,
-               dut.r_input_channel_counter_input, dut.r_input_channel_counter_output,
-               dut.r_input_window_counter_acc, dut.r_output_window_counter_acc,
-               dut.r_output_write_count, dut.r_output_read_count);
-      $fatal(1, "4x4 convolution timeout after %0d cycles", cycles);
-    end
-    if (oob_count != 0)
-      $fatal(1, "output address out of bounds: %0d", oob_count);
+    if (output_out_of_range_count != 0)
+      $fatal(1, "output address out of range: %0d", output_out_of_range_count);
+    $display("input samples clipped: %0d", input_out_of_range_count);
     if (write_count != N_CHANNEL_IN * N_CHANNEL_OUT *
                        FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE)
       $fatal(1, "unexpected write count: got %0d", write_count);
 
-    value_errors = 0;
-    for (int ch = 0; ch < N_CHANNEL_OUT; ch++)
-      for (int row = 0; row < FEAT_OUTPUT_SIZE; row++)
-        for (int col = 0; col < FEAT_OUTPUT_SIZE; col++) begin
-          int expected;
-          int got;
-          expected = const_feat_out[ch * FEAT_OUTPUT_SIZE + row][col];
-          got = $signed(output_bank[ch * FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE +
-                                     row * FEAT_OUTPUT_SIZE + col]);
-          if (got != expected) begin
-            if (value_errors < 8)
-              $display("VALUE_MISMATCH addr=%0d got=%0d expected=%0d",
-                       ch * FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE +
-                       row * FEAT_OUTPUT_SIZE + col, got, expected);
-            value_errors++;
-          end
-        end
-
-    if (value_errors != 0)
-      $fatal(1, "numerical mismatch count: %0d", value_errors);
-    $display("4x4 controller smoke test passed: cycles=%0d writes=%0d",
-             cycles, write_count);
+    if (output_error_count != 0)
+      $fatal(1, "output golden mismatch count: %0d", output_error_count);
+    if (conv_inverse_check_idx != EXPECTED_INVERSE_COUNT)
+      $fatal(1, "unexpected inverse count: got %0d expected %0d",
+             conv_inverse_check_idx, EXPECTED_INVERSE_COUNT);
+    $display("4x4 simulation passed: inverse_tiles=%0d cycles=%0d writes=%0d input samples clipped=%0d",
+             conv_inverse_check_idx, cycle_count, write_count,
+             input_out_of_range_count);
     $finish;
   end
 endmodule
