@@ -79,6 +79,12 @@ module Conv
   // REGISTER BANK FOR THE WEIGHTS ////////////////////////////////////////////
   localparam WEIGHT_CYCLES = HADAMARD_SIZE * HADAMARD_SIZE;
   localparam WEIGHT_WIDTH = f_width_min1(WEIGHT_CYCLES + 1);
+  // The generated package uses one header word per input/output channel pair,
+  // followed by transformed weights and then the row-major feature maps.
+  localparam INPUT_HEADER_SIZE = N_CHANNEL_IN * N_CHANNEL_OUT;
+  localparam WEIGHT_MEMORY_BASE = INPUT_HEADER_SIZE;
+  localparam FEATURE_MEMORY_BASE = INPUT_HEADER_SIZE +
+                                   (N_CHANNEL_IN * N_CHANNEL_OUT * WEIGHT_CYCLES);
   logic [NBITS-1:0] r_input_weight[WEIGHT_CYCLES-1:0];
   logic [WEIGHT_CYCLES-1:0] w_input_weight_en;
   logic [WEIGHT_WIDTH-1:0] r_input_count_kernel;
@@ -174,39 +180,39 @@ module Conv
   // ----------------------------------------------------------------------------------------------------
 
   assign p_input_en   = (st_input_current inside {READ_WEIGHTS, READ_IN_10A, READ_IN_10B, READ_IN_15A, READ_IN_15B, READ_IN_15C});
-  assign p_input_addr = (st_input_current == READ_WEIGHTS) ? r_input_addr_kernel : r_input_addr_feat + NADDR'(r_input_addr_count);  // p_input_addr mux
+  assign p_input_addr = (st_input_current == READ_WEIGHTS) ? r_input_addr_kernel :
+                        r_input_addr_feat + NADDR'(r_input_addr_count);
 
   always_ff @(posedge clk or posedge reset) begin: INPUT_ADDR_POINTER_BLOCK
     if (reset) begin
-      r_input_addr_feat <= '0;
+      r_input_addr_feat <= NADDR'(FEATURE_MEMORY_BASE);
       r_input_window_next <= CONV_OUTPUT_SIZE;
     end
-    else if ((st_input_current == READ_IN_10A && st_input_next == READ_IN_10B) || (st_input_current == READ_IN_10B && st_input_next == READ_IN_15A) || (st_input_current == READ_IN_15A && st_input_next == READ_IN_15B) || (st_input_current == READ_IN_15B && st_input_next == READ_IN_15C) || st_input_current == TRANSFER)
-      r_input_addr_feat <= r_input_addr_feat + NADDR'(FEAT_INPUT_WIDTH);    // change internal p_input_addr in the state transition or in the TRANSFER state (CAUTION: PE)
-    else if (st_input_current == NEXT_ROW_INPUT && !w_input_last_window_acc) begin  // when change the line, the read pointer moves 'r_input_window_next'
-      r_input_addr_feat <= r_input_window_next + NADDR'(r_input_channel_counter_input * FEAT_INPUT_SIZE * FEAT_INPUT_WIDTH);  // restart for the first line
+    else if ((st_input_current == READ_IN_10A && st_input_next == READ_IN_10B) ||
+             (st_input_current == READ_IN_10B && st_input_next == READ_IN_15A) ||
+             (st_input_current == READ_IN_15A && st_input_next == READ_IN_15B) ||
+             (st_input_current == READ_IN_15B && st_input_next == READ_IN_15C) ||
+             st_input_current == TRANSFER)
+      r_input_addr_feat <= r_input_addr_feat + NADDR'(FEAT_INPUT_WIDTH);
+    else if (st_input_current == NEXT_ROW_INPUT && !w_input_last_window_acc) begin
+      r_input_addr_feat <= NADDR'(FEATURE_MEMORY_BASE) +
+                           r_input_window_next +
+                           NADDR'(r_input_channel_counter_input * FEAT_INPUT_SIZE * FEAT_INPUT_WIDTH);
       r_input_window_next <= r_input_window_next + CONV_OUTPUT_SIZE;
     end else if (st_input_current == ADDRESS_INPUT && w_input_last_window_acc) begin
-      r_input_addr_feat <= r_input_addr_feat - NADDR'(FEAT_INPUT_WIDTH) + NADDR'(HADAMARD_SIZE) - 1;   // adjust the pointer to the next IFMAP
+      r_input_addr_feat <= r_input_addr_feat - NADDR'(FEAT_INPUT_WIDTH) + NADDR'(HADAMARD_SIZE) - 1;
       r_input_window_next <= CONV_OUTPUT_SIZE;
 
-      if (r_input_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN-1) ) begin               // change the IFMAP
-        r_input_addr_feat <= 0;
-        `ifdef SIMULATION
-            $display(
-                "RESETANDO PARA O CANAL 0 - DEU A VOLTA NOS IFMAPS time=%0t %d (%0d) st_input_current = %s",
-                $time, r_input_channel_counter_input, N_CHANNEL_IN, st_input_current.name()
-            );
-        `endif
-      end
+      if (r_input_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN-1))
+        r_input_addr_feat <= NADDR'(FEATURE_MEMORY_BASE);
     end
   end
 
   always_ff @(posedge clk or posedge reset) begin: WEIGHT_ADDR_POINTER_BLOCK
     if (reset)
       r_input_addr_kernel <= 0;
-    else if (st_input_current == WAIT_INPUT && st_input_next == ADDRESS_INPUT)    // initializes only ONCE the weight p_input_addr (after the IFMAPs in the memory) (CAUTION: PE)
-      r_input_addr_kernel <= NADDR'(N_CHANNEL_IN * FEAT_INPUT_SIZE * FEAT_INPUT_WIDTH);
+    else if (st_input_current == WAIT_INPUT && st_input_next == ADDRESS_INPUT)
+      r_input_addr_kernel <= NADDR'(WEIGHT_MEMORY_BASE);
     else if (st_input_current == READ_WEIGHTS)
       r_input_addr_kernel <= r_input_addr_kernel + 1;  // next weight
   end
@@ -384,17 +390,21 @@ module Conv
     if (reset) begin
       for (int unsigned i = 0; i < WEIGHT_CYCLES; i++)
         r_input_weight[i] <= '0;
-    end else if (st_conv_current == HADAMARD) begin         //  transform weights into a circular queue
-      for (int unsigned i = 0; i < (WEIGHT_CYCLES-HADAMARD_SIZE); i++) begin
-        r_input_weight[i] <= r_input_weight[i + HADAMARD_SIZE];
-      end
-      for (int unsigned i = (WEIGHT_CYCLES-HADAMARD_SIZE); i < WEIGHT_CYCLES; i++) begin
-        r_input_weight[i] <= r_input_weight[i - (WEIGHT_CYCLES-HADAMARD_SIZE)];
-      end
     end else begin
-      for (int unsigned i = 0; i < WEIGHT_CYCLES; i++)
+      for (int unsigned i = 0; i < WEIGHT_CYCLES; i++) begin
+        // A weight read has priority over the circular shift. The input
+        // controller may overlap READ_WEIGHTS with the final HADAMARD cycles
+        // of the previous tile; without this priority the first lanes of the
+        // new block retain stale weights.
         if (w_input_weight_en[i])
           r_input_weight[i] <= p_input_data;
+        else if (st_conv_current == HADAMARD && st_input_current != READ_WEIGHTS) begin
+          if (i < (WEIGHT_CYCLES-HADAMARD_SIZE))
+            r_input_weight[i] <= r_input_weight[i + HADAMARD_SIZE];
+          else
+            r_input_weight[i] <= r_input_weight[i - (WEIGHT_CYCLES-HADAMARD_SIZE)];
+        end
+      end
     end
   end
 
@@ -438,22 +448,14 @@ module Conv
 //   time prev_time, curr_time;  // debug
 // `endif
 
-  // always_ff @(posedge clk or posedge reset) begin: CONV_INPUT_REG_BLOCK  // register bank for the convolution
-  //   if (reset)
-  //     for (int unsigned i = 0; i < (CONV_INPUT_SIZE * CONV_INPUT_SIZE); i++)
-  //       r_conv_input[i] <= '0;
-  //   else begin
-  //     if (st_input_current == TRANSFER) begin  // fill the convolution register bank
-  //       for (int unsigned i = 0; i < (CONV_INPUT_SIZE * CONV_INPUT_SIZE); i++)
-  //         r_conv_input[i] <= r_input_feat[i];
-  //         `ifdef SIMULATION
-  //           curr_time = $time;  // debug
-  //           $display("current time = %0t | previous time = %0t | diff = %0t", curr_time, prev_time, (curr_time - prev_time));
-  //           prev_time <= curr_time;
-  //         `endif
-  //     end
-  //   end
-  // end
+  // Snapshot the completed tile before the input loader shifts r_input_feat
+  // for the next window. The transform pipeline overlaps that load.
+  always_ff @(posedge clk or posedge reset) begin: CONV_INPUT_REG_BLOCK
+    if (reset)
+      r_conv_input <= '{default: '0};
+    else if (st_input_current == CONV_INPUT)
+      r_conv_input <= r_input_feat;
+  end
 
   always_ff @(posedge clk or posedge reset) begin: CONV_END_FLAG_BLOCK
     if (reset)
@@ -505,7 +507,7 @@ module Conv
     .HADAMARD_SIZE(HADAMARD_SIZE)
   ) trf (
       // .pin (r_conv_input[C1_SIZE*C1_SIZE-1:0]),
-      .pin (r_input_feat),
+      .pin (r_conv_input),
       .pout(w_conv_transform)
   );
 
