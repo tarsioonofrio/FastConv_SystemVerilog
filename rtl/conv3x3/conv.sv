@@ -187,7 +187,7 @@ module Conv
       r_input_addr_feat <= r_input_window_next + NADDR'(r_input_channel_counter_input * FEAT_INPUT_SIZE * FEAT_INPUT_WIDTH);  // restart for the first line
       r_input_window_next <= r_input_window_next + CONV_OUTPUT_SIZE;
     end else if (st_input_current == ADDRESS_INPUT && w_input_last_window_acc) begin
-      r_input_addr_feat <= r_input_addr_feat - NADDR'(FEAT_INPUT_WIDTH) + NADDR'(HADAMARD_SIZE) - 1;   // adjust the pointer to the next IFMAP
+      r_input_addr_feat <= r_input_addr_feat - NADDR'(FEAT_INPUT_WIDTH) + NADDR'(CONV_INPUT_SIZE);   // adjust the pointer to the next IFMAP
       r_input_window_next <= CONV_OUTPUT_SIZE;
 
       if (r_input_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN-1) ) begin               // change the IFMAP
