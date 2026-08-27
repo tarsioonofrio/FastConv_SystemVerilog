@@ -17,9 +17,7 @@ module Conv
     parameter int unsigned CONV_INPUT_SIZE     = 4,
     parameter int unsigned HADAMARD_SIZE       = 4,
     parameter int unsigned NUM_MULT            = 4,
-    parameter int unsigned STATE_MULT          = 4,
-    // Compile-time selector for the row-streaming convolution datapath.
-    parameter bit STREAMING_CONV               = 1'b1
+    parameter int unsigned STATE_MULT          = 4
   ) (
     input  logic clk,
     input  logic reset,
@@ -88,19 +86,12 @@ module Conv
   logic w_input_weight_done;
   logic w_input_write_done;
 
-  logic [NBITS-1:0] r_conv_temp [HADAMARD_SIZE*HADAMARD_SIZE-1:0];
   logic [NBITS-1:0] w_conv_transform [HADAMARD_SIZE*HADAMARD_SIZE-1:0];
-  logic [NBITS-1:0] w_conv_inverse [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
-  logic [NBITS-1:0] w_conv_inverse_legacy [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
-  logic [NBITS-1:0] r_conv_input[(CONV_INPUT_SIZE * CONV_INPUT_SIZE) - 1:0];  // convolution input register bank
   logic signed [NBITS-1+QUANT:0] w_conv_product [NUM_MULT-1:0];  // QUANT more bits for the multipliers
-  logic [(f_width_min1(STATE_MULT - 1) + 1)-1:0] r_conv_idx_in;
-  logic [(f_width_min1((STATE_MULT * NUM_MULT) - 1) + 1)-1:0] r_conv_idx_out[NUM_MULT-1:0];
   logic w_conv_end;
   logic w_conv_input_release;
 
-  // Row-streaming state. The legacy r_conv_temp bank remains available only
-  // to the non-streaming generate branch for A/B comparison.
+  // Row-streaming state.
   localparam int ROW_INDEX_WIDTH = f_width_min1(HADAMARD_SIZE);
   logic [NBITS-1:0] r_d_row [HADAMARD_SIZE-1:0];
   logic [NBITS-1:0] r_s_row [HADAMARD_SIZE-1:0];
@@ -180,33 +171,6 @@ module Conv
   } type_st_conv;
   type_st_conv st_conv_current;
   type_st_conv st_conv_next;
-
-`ifdef STREAM_DEBUG_LEGACY
-  integer legacy_debug_had_count;
-  always_ff @(posedge clk) begin
-    if (reset) begin
-      legacy_debug_had_count <= 0;
-    end else if (st_conv_current == TRANSFORM) begin
-      $display("LEGACY TRANSFORM");
-      for (int unsigned d = 0; d < HADAMARD_SIZE*HADAMARD_SIZE; d++)
-        $write(" %0d", $signed(w_conv_transform[d]));
-      $write("\n");
-      legacy_debug_had_count <= 0;
-    end else if (st_conv_current == HADAMARD && legacy_debug_had_count < HADAMARD_SIZE) begin
-      $display("LEGACY HAD row=%0d", r_conv_multiply_count);
-      $write("  D:"); for (int unsigned d = 0; d < HADAMARD_SIZE; d++) $write(" %0d", $signed(r_conv_temp[d])); $write("\n");
-      $write("  G:"); for (int unsigned d = 0; d < HADAMARD_SIZE; d++) $write(" %0d", $signed(r_input_weight[d])); $write("\n");
-      $write("  P:"); for (int unsigned d = 0; d < HADAMARD_SIZE; d++) $write(" %0d", $signed(w_conv_product[d][NBITS-1:0])); $write("\n");
-      legacy_debug_had_count <= legacy_debug_had_count + 1;
-    end else if (st_conv_current == INVERSE && legacy_debug_had_count == HADAMARD_SIZE) begin
-      $display("LEGACY FINAL");
-      for (int unsigned d = 0; d < CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE; d++)
-        $write(" %0d", $signed(w_conv_inverse_legacy[d]));
-      $write("\n");
-      legacy_debug_had_count <= legacy_debug_had_count + 1;
-    end
-  end
-`endif
 
   typedef enum logic [2:0] {
     WAIT_OUTPUT,
@@ -307,7 +271,7 @@ module Conv
 
   // STREAM_FREEZE lifetime policy: the current feature tile remains stable
   // until the last transform row has been consumed by the Hadamard stage.
-  assign w_conv_input_release = !STREAMING_CONV ||
+  assign w_conv_input_release =
                                 (st_conv_current == INVERSE) ||
                                 ((st_conv_current == HADAMARD) &&
                                  (r_stream_row_idx == ROW_INDEX_WIDTH'(HADAMARD_SIZE - 1)));
@@ -396,7 +360,7 @@ module Conv
     w_input_feat_next[5] = (st_input_current == READ_IN_10B) ? p_input_data : r_input_feat[7];
 
     if (st_input_current == TRANSFER ||
-        (STREAMING_CONV && r_stream_transfer_pending && w_conv_input_release)) begin
+        (r_stream_transfer_pending && w_conv_input_release)) begin
       w_input_feat_next[0] = r_input_feat[2];
       w_input_feat_next[1] = r_input_feat[3];
       w_input_feat_next[4] = r_input_feat[6];
@@ -418,24 +382,23 @@ module Conv
       READ_IN_10A, READ_IN_10B, READ_IN_8C, READ_IN_8D:
         w_input_feat_en[w_input_feat_wr_index] = 1'b1;
       TRANSFER:
-        if (!STREAMING_CONV)
-          w_input_feat_en = 16'b0011001100110011;  // shift the four 2x2 columns
+        w_input_feat_en = 16'b0011001100110011;  // shift the four 2x2 columns
       default:
-        if (STREAMING_CONV && r_stream_transfer_pending && w_conv_input_release)
+        if (r_stream_transfer_pending && w_conv_input_release)
           w_input_feat_en = 16'b0011001100110011;
     endcase
   end
 
   assign w_input_feat_write_valid = (st_input_current == TRANSFER) ||
-                                    (STREAMING_CONV && r_stream_transfer_pending && w_conv_input_release) ||
+                                    (r_stream_transfer_pending && w_conv_input_release) ||
                                     p_input_valid;
 
   always_ff @(posedge clk or posedge reset) begin: STREAM_TRANSFER_PENDING_BLOCK
     if (reset)
       r_stream_transfer_pending <= 1'b0;
-    else if (STREAMING_CONV && st_input_current == TRANSFER)
+    else if (st_input_current == TRANSFER)
       r_stream_transfer_pending <= 1'b1;
-    else if (STREAMING_CONV && r_stream_transfer_pending && w_conv_input_release)
+    else if (r_stream_transfer_pending && w_conv_input_release)
       r_stream_transfer_pending <= 1'b0;
   end
 
@@ -519,23 +482,6 @@ module Conv
 //   time prev_time, curr_time;  // debug
 // `endif
 
-  // always_ff @(posedge clk or posedge reset) begin: CONV_INPUT_REG_BLOCK  // register bank for the convolution
-  //   if (reset)
-  //     for (int unsigned i = 0; i < (CONV_INPUT_SIZE * CONV_INPUT_SIZE); i++)
-  //       r_conv_input[i] <= '0;
-  //   else begin
-  //     if (st_input_current == TRANSFER) begin  // fill the convolution register bank
-  //       for (int unsigned i = 0; i < (CONV_INPUT_SIZE * CONV_INPUT_SIZE); i++)
-  //         r_conv_input[i] <= r_input_feat[i];
-  //         `ifdef SIMULATION
-  //           curr_time = $time;  // debug
-  //           $display("current time = %0t | previous time = %0t | diff = %0t", curr_time, prev_time, (curr_time - prev_time));
-  //           prev_time <= curr_time;
-  //         `endif
-  //     end
-  //   end
-  // end
-
   always_ff @(posedge clk or posedge reset) begin: CONV_END_FLAG_BLOCK
     if (reset)
       w_conv_end <= 0;
@@ -560,93 +506,71 @@ module Conv
     end
   end
 
-  generate
-    if (!STREAMING_CONV) begin : GEN_LEGACY_DATAPATH
-      always_ff @(posedge clk) begin: CONV_DATAPATH_BLOCK
-        if (reset) begin
-          r_conv_temp <= '{default: '0};
-        end else begin
-          unique case (st_conv_current)
-            TRANSFORM:
-              r_conv_temp <= w_conv_transform;
-            HADAMARD: begin
-              for (int unsigned i = 0; i < (WEIGHT_CYCLES-HADAMARD_SIZE); i++)
-                r_conv_temp[i] <= r_conv_temp[i + HADAMARD_SIZE];
-              for (int unsigned i = (WEIGHT_CYCLES-HADAMARD_SIZE); i < WEIGHT_CYCLES; i++)
-                r_conv_temp[i] <= w_conv_product[i - (WEIGHT_CYCLES-HADAMARD_SIZE)];
-            end
-            default: begin end
-          endcase
-        end
-      end
-    end else begin : GEN_STREAMING_DATAPATH
-      // Transform produces the complete combinational matrix, but only one
-      // row is registered at a time. The case keeps row addressing static.
-      always_ff @(posedge clk or posedge reset) begin: STREAMING_DATAPATH_BLOCK
-        if (reset) begin
-          r_d_row          <= '{default: '0};
-          r_s_row          <= '{default: '0};
+  // Transform produces the complete combinational matrix, but only one row
+  // is registered at a time. The case keeps row addressing static.
+  always_ff @(posedge clk or posedge reset) begin: STREAMING_DATAPATH_BLOCK
+    if (reset) begin
+      r_d_row          <= '{default: '0};
+      r_s_row          <= '{default: '0};
+      r_out_acc        <= '{default: '0};
+      r_stream_row_idx <= '0;
+      r_s_valid        <= 1'b0;
+`ifdef STREAM_DEBUG
+      stream_debug_had_count <= 0;
+`endif
+    end else begin
+      unique case (st_conv_current)
+        TRANSFORM: begin
+          for (int unsigned i = 0; i < HADAMARD_SIZE; i++)
+            r_d_row[i] <= w_conv_transform[i];
           r_out_acc        <= '{default: '0};
           r_stream_row_idx <= '0;
           r_s_valid        <= 1'b0;
 `ifdef STREAM_DEBUG
-          stream_debug_had_count <= 0;
+          $display("STREAM TRANSFORM");
+          for (int unsigned d = 0; d < HADAMARD_SIZE*HADAMARD_SIZE; d++)
+            $write(" %0d", $signed(w_conv_transform[d]));
+          $write("\n");
 `endif
-        end else begin
-          unique case (st_conv_current)
-            TRANSFORM: begin
-              for (int unsigned i = 0; i < HADAMARD_SIZE; i++)
-                r_d_row[i] <= w_conv_transform[i];
-              r_out_acc        <= '{default: '0};
-              r_stream_row_idx <= '0;
-              r_s_valid        <= 1'b0;
-`ifdef STREAM_DEBUG
-              $display("STREAM TRANSFORM");
-              for (int unsigned d = 0; d < HADAMARD_SIZE*HADAMARD_SIZE; d++)
-                $write(" %0d", $signed(w_conv_transform[d]));
-              $write("\n");
-`endif
-            end
-            HADAMARD: begin
-              if (r_s_valid)
-                r_out_acc <= w_stream_acc_next;
-              for (int unsigned i = 0; i < HADAMARD_SIZE; i++)
-                r_s_row[i] <= w_conv_product[i][NBITS-1:0];
-              r_s_valid <= 1'b1;
-              if (r_stream_row_idx < ROW_INDEX_WIDTH'(HADAMARD_SIZE - 1)) begin
-                unique case (r_stream_row_idx)
-                  0: for (int unsigned i = 0; i < HADAMARD_SIZE; i++) r_d_row[i] <= w_conv_transform[HADAMARD_SIZE + i];
-                  1: for (int unsigned i = 0; i < HADAMARD_SIZE; i++) r_d_row[i] <= w_conv_transform[(2 * HADAMARD_SIZE) + i];
-                  2: for (int unsigned i = 0; i < HADAMARD_SIZE; i++) r_d_row[i] <= w_conv_transform[(3 * HADAMARD_SIZE) + i];
-                  default: begin end
-                endcase
-              end
-              r_stream_row_idx <= r_stream_row_idx + 1'b1;
-`ifdef STREAM_DEBUG
-              if (stream_debug_had_count < HADAMARD_SIZE) begin
-                $display("STREAM HAD row=%0d", r_stream_row_idx);
-                $write("  D:"); for (int unsigned d = 0; d < HADAMARD_SIZE; d++) $write(" %0d", $signed(r_d_row[d])); $write("\n");
-                $write("  G:"); for (int unsigned d = 0; d < HADAMARD_SIZE; d++) $write(" %0d", $signed(r_input_weight[d])); $write("\n");
-                $write("  P:"); for (int unsigned d = 0; d < HADAMARD_SIZE; d++) $write(" %0d", $signed(w_conv_product[d][NBITS-1:0])); $write("\n");
-                stream_debug_had_count <= stream_debug_had_count + 1;
-              end
-`endif
-            end
-            INVERSE: begin
-`ifdef STREAM_DEBUG
-              $display("STREAM FINAL");
-              $write("  ACC:"); for (int unsigned d = 0; d < CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE; d++) $write(" %0d", $signed(r_out_acc[d])); $write("\n");
-              $write("  Slast:"); for (int unsigned d = 0; d < HADAMARD_SIZE; d++) $write(" %0d", $signed(r_s_row[d])); $write("\n");
-              $write("  SIG:"); for (int unsigned d = 0; d < CONV_OUTPUT_SIZE; d++) $write(" %0d", $signed(w_stream_sigma[d])); $write("\n");
-              $write("  OUT:"); for (int unsigned d = 0; d < CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE; d++) $write(" %0d", $signed(w_stream_final_output[d])); $write("\n");
-`endif
-            end
-            default: begin end
-          endcase
         end
-      end
+        HADAMARD: begin
+          if (r_s_valid)
+            r_out_acc <= w_stream_acc_next;
+          for (int unsigned i = 0; i < HADAMARD_SIZE; i++)
+            r_s_row[i] <= w_conv_product[i][NBITS-1:0];
+          r_s_valid <= 1'b1;
+          if (r_stream_row_idx < ROW_INDEX_WIDTH'(HADAMARD_SIZE - 1)) begin
+            unique case (r_stream_row_idx)
+              0: for (int unsigned i = 0; i < HADAMARD_SIZE; i++) r_d_row[i] <= w_conv_transform[HADAMARD_SIZE + i];
+              1: for (int unsigned i = 0; i < HADAMARD_SIZE; i++) r_d_row[i] <= w_conv_transform[(2 * HADAMARD_SIZE) + i];
+              2: for (int unsigned i = 0; i < HADAMARD_SIZE; i++) r_d_row[i] <= w_conv_transform[(3 * HADAMARD_SIZE) + i];
+              default: begin end
+            endcase
+          end
+          r_stream_row_idx <= r_stream_row_idx + 1'b1;
+`ifdef STREAM_DEBUG
+          if (stream_debug_had_count < HADAMARD_SIZE) begin
+            $display("STREAM HAD row=%0d", r_stream_row_idx);
+            $write("  D:"); for (int unsigned d = 0; d < HADAMARD_SIZE; d++) $write(" %0d", $signed(r_d_row[d])); $write("\n");
+            $write("  G:"); for (int unsigned d = 0; d < HADAMARD_SIZE; d++) $write(" %0d", $signed(r_input_weight[d])); $write("\n");
+            $write("  P:"); for (int unsigned d = 0; d < HADAMARD_SIZE; d++) $write(" %0d", $signed(w_conv_product[d][NBITS-1:0])); $write("\n");
+            stream_debug_had_count <= stream_debug_had_count + 1;
+          end
+`endif
+        end
+        INVERSE: begin
+`ifdef STREAM_DEBUG
+          $display("STREAM FINAL");
+          $write("  ACC:"); for (int unsigned d = 0; d < CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE; d++) $write(" %0d", $signed(r_out_acc[d])); $write("\n");
+          $write("  Slast:"); for (int unsigned d = 0; d < HADAMARD_SIZE; d++) $write(" %0d", $signed(r_s_row[d])); $write("\n");
+          $write("  SIG:"); for (int unsigned d = 0; d < CONV_OUTPUT_SIZE; d++) $write(" %0d", $signed(w_stream_sigma[d])); $write("\n");
+          $write("  OUT:"); for (int unsigned d = 0; d < CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE; d++) $write(" %0d", $signed(w_stream_final_output[d])); $write("\n");
+`endif
+        end
+        default: begin end
+      endcase
     end
-  endgenerate
+  end
 
      // Instance of matrix multiplier "C"
   Transform #(
@@ -655,19 +579,13 @@ module Conv
     .CONV_INPUT_SIZE(CONV_INPUT_SIZE),
     .HADAMARD_SIZE(HADAMARD_SIZE)
   ) trf (
-      // .pin (r_conv_input[C1_SIZE*C1_SIZE-1:0]),
       .pin (r_input_feat),
       .pout(w_conv_transform)
   );
 
-  MuxMult mux_mult(
-    .idx_in(r_conv_idx_in),
-    .idx_out(r_conv_idx_out)
-  );
-
   generate
     for (genvar i = 0; i < NUM_MULT; i++) begin : MULTIP_BLOCK    /// only the first 6 indices
-      assign w_conv_feature[i] = STREAMING_CONV ? r_d_row[i] : r_conv_temp[i];
+      assign w_conv_feature[i] = r_d_row[i];
       Multip #(
         .QUANT(QUANT),
         .NBITS(NBITS)
@@ -680,60 +598,36 @@ module Conv
     end
   endgenerate
 
-  // Legacy full-bank inverse is elaborated only for the legacy datapath.
   generate
-    if (!STREAMING_CONV) begin : GEN_LEGACY_INVERSE
-      Inverse #(
-        .NBITS(NBITS),
-        .CONV_OUTPUT_SIZE(CONV_OUTPUT_SIZE),
-        .CONV_INPUT_SIZE(CONV_INPUT_SIZE),
-        .HADAMARD_SIZE(HADAMARD_SIZE)
-      ) inv (
-          .pin (r_conv_temp),
-          .pout(w_conv_inverse_legacy)
-      );
+    InverseRow inverse_row(
+      .s_row(r_s_row),
+      .sigma(w_stream_sigma)
+    );
+    for (genvar j = 0; j < HADAMARD_SIZE; j++) begin : STREAM_PRODUCT_ROW_BLOCK
+      assign w_stream_product_row[j] = w_conv_product[j][NBITS-1:0];
     end
-  endgenerate
-
-  generate
-    if (STREAMING_CONV) begin : GEN_STREAMING_INVERSE
-      InverseRow inverse_row(
-        .s_row(r_s_row),
-        .sigma(w_stream_sigma)
-      );
-      for (genvar j = 0; j < HADAMARD_SIZE; j++) begin : STREAM_PRODUCT_ROW_BLOCK
-        assign w_stream_product_row[j] = w_conv_product[j][NBITS-1:0];
-      end
-      InverseRow inverse_row_current(
-        .s_row(w_stream_product_row),
-        .sigma(w_stream_sigma_current)
-      );
-      InverseRowAccumulate inverse_row_acc(
-        .row_idx(r_stream_row_idx - 1'b1),
-        .acc_in(r_out_acc),
-        .sigma(w_stream_sigma),
-        .acc_out(w_stream_acc_next)
-      );
-      InverseRowAccumulate inverse_row_finalize(
-        .row_idx(ROW_INDEX_WIDTH'(HADAMARD_SIZE - 1)),
-        .acc_in(r_out_acc),
-        .sigma(w_stream_sigma),
-        .acc_out(w_stream_final_output)
-      );
-      InverseRowAccumulate inverse_row_capture(
-        .row_idx(ROW_INDEX_WIDTH'(HADAMARD_SIZE - 1)),
-        .acc_in(w_stream_acc_next),
-        .sigma(w_stream_sigma_current),
-        .acc_out(w_stream_final_capture)
-      );
-    end
-  endgenerate
-
-  generate
-    if (STREAMING_CONV)
-      assign w_conv_inverse = w_stream_final_output;
-    else
-      assign w_conv_inverse = w_conv_inverse_legacy;
+    InverseRow inverse_row_current(
+      .s_row(w_stream_product_row),
+      .sigma(w_stream_sigma_current)
+    );
+    InverseRowAccumulate inverse_row_acc(
+      .row_idx(r_stream_row_idx - 1'b1),
+      .acc_in(r_out_acc),
+      .sigma(w_stream_sigma),
+      .acc_out(w_stream_acc_next)
+    );
+    InverseRowAccumulate inverse_row_finalize(
+      .row_idx(ROW_INDEX_WIDTH'(HADAMARD_SIZE - 1)),
+      .acc_in(r_out_acc),
+      .sigma(w_stream_sigma),
+      .acc_out(w_stream_final_output)
+    );
+    InverseRowAccumulate inverse_row_capture(
+      .row_idx(ROW_INDEX_WIDTH'(HADAMARD_SIZE - 1)),
+      .acc_in(w_stream_acc_next),
+      .sigma(w_stream_sigma_current),
+      .acc_out(w_stream_final_capture)
+    );
   endgenerate
 
 
@@ -867,10 +761,9 @@ module Conv
       end else if ((st_output_current == READ_OUTPUT) && p_output_valid) begin
         r_output_read[r_output_read_count] <= p_output_data_read;
       end
-      if ((!STREAMING_CONV && st_conv_current == INVERSE) ||
-          (STREAMING_CONV && st_conv_current == HADAMARD &&
-           r_stream_row_idx == ROW_INDEX_WIDTH'(HADAMARD_SIZE - 1)))
-        r_output_write <= STREAMING_CONV ? w_stream_final_capture : w_conv_inverse;
+      if (st_conv_current == HADAMARD &&
+          r_stream_row_idx == ROW_INDEX_WIDTH'(HADAMARD_SIZE - 1))
+        r_output_write <= w_stream_final_capture;
     end
   end
 

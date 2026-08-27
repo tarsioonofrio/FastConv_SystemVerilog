@@ -2,16 +2,16 @@
 
 module tb;
   // This directory is the dedicated 12-register-word streaming variant.
-  localparam bit STREAMING_CONV_MODE = 1'b1;
   import pack_data::*;
   import pack_param::*;
-  import pack_mux_mult::*;
 
   // Parameters and memory dimensions are imported from the generated package.
   localparam int unsigned FEAT_INPUT_WIDTH = FEAT_INPUT_SIZE;
   localparam int unsigned NBITS = 20;
   localparam int unsigned LATENCY = 1;
   localparam int unsigned ROM = 1;
+  localparam int unsigned NUM_MULT = 4;
+  localparam int unsigned STATE_MULT = 4;
   localparam int unsigned INPUT_MEMORY_SIZE = $size(const_data);
   localparam int unsigned OUTPUT_MEMORY_SIZE = FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE * N_CHANNEL_OUT;
   localparam int unsigned INPUT_ADDR_WIDTH = $clog2(INPUT_MEMORY_SIZE);
@@ -77,8 +77,7 @@ module tb;
     .CONV_INPUT_SIZE(CONV_INPUT_SIZE),
     .HADAMARD_SIZE(HADAMARD_SIZE),
     .NUM_MULT(NUM_MULT),
-    .STATE_MULT(STATE_MULT),
-    .STREAMING_CONV(STREAMING_CONV_MODE)
+    .STATE_MULT(STATE_MULT)
   ) dut (
     .clk(clk),
     .reset(reset),

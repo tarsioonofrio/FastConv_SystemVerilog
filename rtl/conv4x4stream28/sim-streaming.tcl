@@ -2,7 +2,6 @@
 
 set DATA ../conv4x4/data/tcn16/sim/sim-032-3-3-normal/pack_data.sv
 set PARAM pack-param/tcn16/pack_param.sv
-set MUX mux-mult/tcn16/mux_mult_06.sv
 set MATRICES mult-matrices/tcn16/mult_matrices.sv
 set PACK_DEF ../../contrib/rtl/pack-def/pack_def.sv
 set CSA ../csa/csa_lib.sv
@@ -17,7 +16,6 @@ set file_list [list \
   "${DATA}" \
   "${PACK_DEF}" \
   "${PARAM}" \
-  "${MUX}" \
   "${CSA}" \
   "${MULTIP}" \
   "${MATRICES}" \
