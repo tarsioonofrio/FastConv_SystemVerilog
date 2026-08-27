@@ -15,3 +15,8 @@ These consolidated reports facilitate design space exploration and decision-maki
 Use `scripts/report-all.py` to generate all report CSVs in one run. The CSV files can be imported into spreadsheet software or used as input to further automated analysis tools.
 
 Keep this folder updated with the latest aggregated metrics to maintain a comprehensive history of implemented experiments and synthesis configurations.
+
+The phase-1 streaming experiment is documented in
+`fastconv_streaming_phase1.md`. It records the bit-exact regressions, cycle
+counts, sequential-storage comparison, and the synthesis tools unavailable in
+the current environment.
