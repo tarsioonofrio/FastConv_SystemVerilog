@@ -5,14 +5,16 @@ PARAM = ../conv2x2/pack-param/tcn4/pack_param.sv
 MATRICES = mult-matrices/tcn4/mult_matrices.sv
 MEM = ../mem/mem.sv
 
-OBJDIR = obj_dir
+NUM_MULT ?= 4
+OBJDIR = obj_dir/num_mult_$(NUM_MULT)
 BIN = $(OBJDIR)/Vtb
 VERILATOR = verilator -j 0 -DSIMULATION --trace-fst --trace-max-array 4096 --top-module tb -Wno-fatal
+VERILATOR += -GNUM_MULT=$(NUM_MULT)
 
 all: $(BIN)
 
 $(BIN): $(SRC) $(TB) $(DATA) $(PARAM) $(MATRICES) $(MEM)
-	$(VERILATOR) --binary --exe $(DATA) $(PARAM) $(MEM) ../csa/csa_lib.sv ../multip/multip.sv $(MATRICES) $(SRC) $(TB) --build
+	$(VERILATOR) --binary --exe --Mdir $(OBJDIR) $(DATA) $(PARAM) $(MEM) ../csa/csa_lib.sv ../multip/multip.sv $(MATRICES) $(SRC) $(TB) --build
 
 lint:
 	$(VERILATOR) --timing --lint-only $(DATA) $(PARAM) $(MEM) ../csa/csa_lib.sv ../multip/multip.sv $(MATRICES) $(SRC) $(TB)
@@ -21,4 +23,4 @@ run: all
 	$(BIN)
 
 clean:
-	rm -rf $(OBJDIR) dump.fst dump.vcd
+	rm -rf obj_dir dump.fst dump.vcd
