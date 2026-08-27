@@ -1,6 +1,11 @@
 `timescale 1ns/1ps
 
 module tb;
+`ifdef STREAMING_CONV_TEST
+  localparam bit STREAMING_CONV_MODE = 1'b1;
+`else
+  localparam bit STREAMING_CONV_MODE = 1'b0;
+`endif
   import pack_data::*;
   import pack_param::*;
   import pack_mux_mult::*;
@@ -37,6 +42,8 @@ module tb;
   logic [NBITS-1:0] p_output_data_read;
   logic p_output_valid;
   int conv_inverse_check_idx;
+  int cycle_count;
+  int core_cycle_count;
   int output_error_count;
   logic [NBITS-1:0] output_bank [0:FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT - 1];
   logic in_inverse_d;
@@ -62,7 +69,8 @@ module tb;
     .CONV_INPUT_SIZE(CONV_INPUT_SIZE),
     .HADAMARD_SIZE(HADAMARD_SIZE),
     .NUM_MULT(NUM_MULT),
-    .STATE_MULT(STATE_MULT)
+    .STATE_MULT(STATE_MULT),
+    .STREAMING_CONV(STREAMING_CONV_MODE)
   ) dut (
     .clk(clk),
     .reset(reset),
@@ -122,10 +130,15 @@ module tb;
   always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
       conv_inverse_check_idx <= 0;
+      cycle_count <= 0;
+      core_cycle_count <= 0;
       output_error_count <= 0;
       in_inverse_d <= 1'b0;
       output_bank <= '{default: '0};
     end else begin
+      cycle_count <= cycle_count + 1;
+      if (dut.st_conv_current != 2'b00)
+        core_cycle_count <= core_cycle_count + 1;
       in_inverse_d <= (dut.st_conv_current == ST_CONV_INVERSE);
 
       if ((dut.st_conv_current == ST_CONV_INVERSE) && !in_inverse_d) begin
@@ -198,6 +211,9 @@ module tb;
     #200;
 
     $display("Simulacao finalizada em %0t", $realtime);
+    $display("Inversas verificadas: %0d", conv_inverse_check_idx);
+    $display("Ciclos de sistema: %0d", cycle_count);
+    $display("Ciclos ativos do core: %0d", core_cycle_count);
     $display("Total de erros de escrita de output: %0d", output_error_count);
     $finish;
   end
