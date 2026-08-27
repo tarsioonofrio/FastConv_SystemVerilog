@@ -1,6 +1,8 @@
 `timescale 1ns/1ps
 
-module tb;
+module tb #(
+  parameter int unsigned NUM_MULT = 4
+);
   // This directory is the dedicated 12-register-word streaming variant.
   import pack_data::*;
   import pack_param::*;
@@ -10,8 +12,6 @@ module tb;
   localparam int unsigned NBITS = 20;
   localparam int unsigned LATENCY = 1;
   localparam int unsigned ROM = 1;
-  localparam int unsigned NUM_MULT = 4;
-  localparam int unsigned STATE_MULT = 4;
   localparam int unsigned INPUT_MEMORY_SIZE = $size(const_data);
   localparam int unsigned OUTPUT_MEMORY_SIZE = FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE * N_CHANNEL_OUT;
   localparam int unsigned INPUT_ADDR_WIDTH = $clog2(INPUT_MEMORY_SIZE);
@@ -76,8 +76,7 @@ module tb;
     .CONV_OUTPUT_SIZE(CONV_OUTPUT_SIZE),
     .CONV_INPUT_SIZE(CONV_INPUT_SIZE),
     .HADAMARD_SIZE(HADAMARD_SIZE),
-    .NUM_MULT(NUM_MULT),
-    .STATE_MULT(STATE_MULT)
+    .NUM_MULT(NUM_MULT)
   ) dut (
     .clk(clk),
     .reset(reset),
