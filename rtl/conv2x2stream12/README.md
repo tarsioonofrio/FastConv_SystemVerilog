@@ -32,5 +32,18 @@ make NUM_MULT=8
 All three values must produce the same golden output; only the number of core
 active cycles changes.
 
+The fixed implementations are also available as separate source files in this
+directory. `conv2mac.sv`, `conv4mac.sv` and `conv8mac.sv` each declare the
+module `Conv` and contain only 2, 4 and 8 MAC instances respectively; their
+multiplier and inverse connections are written explicitly without `generate`
+or `genvar`. All three use the single shared `testbench.sv`; the `Makefile`
+selects the source file for each fixed target:
+
+```bash
+make run-conv2mac
+make run-conv4mac
+make run-conv8mac
+```
+
 The row-level unit test is in `streaming_row_testbench.sv` and compares the
 incremental inverse against the full `Inverse` reference.
