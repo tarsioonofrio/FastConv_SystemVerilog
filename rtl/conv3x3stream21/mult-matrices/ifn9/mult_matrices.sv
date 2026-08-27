@@ -32,6 +32,60 @@ module Transform #(
   );
 endmodule
 
+// Row-wise first inverse transform for the streaming IF3x3 datapath.
+module InverseRow #(
+    parameter int NBITS = 20,
+    parameter int HADAMARD_SIZE = 6,
+    parameter int CONV_OUTPUT_SIZE = 3
+  ) (
+    input logic [NBITS-1:0] s_row [HADAMARD_SIZE-1:0],
+    output logic [NBITS-1:0] sigma [CONV_OUTPUT_SIZE-1:0]
+  );
+  timeunit 1ns;
+  timeprecision 1ps;
+  assign sigma[0] = s_row[0] + s_row[3] + s_row[4];
+  assign sigma[1] = s_row[1] + s_row[3] + s_row[5];
+  assign sigma[2] = s_row[2] + s_row[4] + s_row[5];
+endmodule
+
+// Incremental second inverse transform for IF3x3.
+module InverseRowAccumulate #(
+    parameter int NBITS = 20,
+    parameter int HADAMARD_SIZE = 6,
+    parameter int CONV_OUTPUT_SIZE = 3,
+    parameter int ROW_INDEX_WIDTH = (HADAMARD_SIZE <= 1) ? 1 : $clog2(HADAMARD_SIZE)
+  ) (
+    input logic [ROW_INDEX_WIDTH-1:0] row_idx,
+    input logic [NBITS-1:0] acc_in [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0],
+    input logic [NBITS-1:0] sigma [CONV_OUTPUT_SIZE-1:0],
+    output logic [NBITS-1:0] acc_out [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0]
+  );
+  timeunit 1ns;
+  timeprecision 1ps;
+  always_comb begin
+    for (int unsigned i = 0; i < CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE; i++)
+      acc_out[i] = acc_in[i];
+    unique case (row_idx)
+      0: begin acc_out[0] = sigma[0]; acc_out[1] = sigma[1]; acc_out[2] = sigma[2]; end
+      1: begin acc_out[3] = sigma[0]; acc_out[4] = sigma[1]; acc_out[5] = sigma[2]; end
+      2: begin acc_out[6] = sigma[0]; acc_out[7] = sigma[1]; acc_out[8] = sigma[2]; end
+      3: begin
+        acc_out[0] = acc_in[0] + sigma[0]; acc_out[1] = acc_in[1] + sigma[1]; acc_out[2] = acc_in[2] + sigma[2];
+        acc_out[3] = acc_in[3] + sigma[0]; acc_out[4] = acc_in[4] + sigma[1]; acc_out[5] = acc_in[5] + sigma[2];
+      end
+      4: begin
+        acc_out[0] = acc_in[0] + sigma[0]; acc_out[1] = acc_in[1] + sigma[1]; acc_out[2] = acc_in[2] + sigma[2];
+        acc_out[6] = acc_in[6] + sigma[0]; acc_out[7] = acc_in[7] + sigma[1]; acc_out[8] = acc_in[8] + sigma[2];
+      end
+      5: begin
+        acc_out[3] = acc_in[3] + sigma[0]; acc_out[4] = acc_in[4] + sigma[1]; acc_out[5] = acc_in[5] + sigma[2];
+        acc_out[6] = acc_in[6] + sigma[0]; acc_out[7] = acc_in[7] + sigma[1]; acc_out[8] = acc_in[8] + sigma[2];
+      end
+      default: begin end
+    endcase
+  end
+endmodule
+
 module Inverse #(
     parameter int NBITS = 20,
     parameter int CONV_OUTPUT_SIZE = 3,

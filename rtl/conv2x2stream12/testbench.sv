@@ -1,6 +1,8 @@
 `timescale 1ns/1ps
 
 module tb;
+  // This directory is the dedicated 12-register-word streaming variant.
+  localparam bit STREAMING_CONV_MODE = 1'b1;
   import pack_data::*;
   import pack_param::*;
   import pack_mux_mult::*;
@@ -52,6 +54,7 @@ module tb;
   int input_out_of_range_count;
   int write_count;
   int cycle_count;
+  int core_cycle_count;
   logic [NBITS-1:0] output_bank [0:FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT - 1];
   logic in_inverse_d;
   assign p_input_data_write = '0;
@@ -74,7 +77,8 @@ module tb;
     .CONV_INPUT_SIZE(CONV_INPUT_SIZE),
     .HADAMARD_SIZE(HADAMARD_SIZE),
     .NUM_MULT(NUM_MULT),
-    .STATE_MULT(STATE_MULT)
+    .STATE_MULT(STATE_MULT),
+    .STREAMING_CONV(STREAMING_CONV_MODE)
   ) dut (
     .clk(clk),
     .reset(reset),
@@ -139,10 +143,13 @@ module tb;
       input_out_of_range_count <= 0;
       write_count <= 0;
       cycle_count <= 0;
+      core_cycle_count <= 0;
       in_inverse_d <= 1'b0;
       output_bank <= '{default: '0};
     end else begin
       cycle_count <= cycle_count + 1;
+      if (dut.st_conv_current != 2'b00)
+        core_cycle_count <= core_cycle_count + 1;
       in_inverse_d <= (dut.st_conv_current == ST_CONV_INVERSE);
       if ((dut.st_conv_current == ST_CONV_INVERSE) && !in_inverse_d)
         conv_inverse_check_idx <= conv_inverse_check_idx + 1;
@@ -199,6 +206,7 @@ module tb;
     $display("2x2 simulation passed: inverse_tiles=%0d cycles=%0d valid_writes=%0d input_samples_clipped=%0d invalid_output_beats=%0d",
              conv_inverse_check_idx, cycle_count, write_count,
              input_out_of_range_count, output_out_of_range_count);
+    $display("Core active cycles: %0d", core_cycle_count);
     $finish;
   end
 

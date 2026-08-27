@@ -7,10 +7,10 @@ Implementacao conservadora com `P = K1D`, selecionavel por
 
 | variante | modo | inversas | ciclos de sistema | ciclos ativos do core | erros |
 |---|---|---:|---:|---:|---:|
-| TC2x2 / tcn4 | legado | 2025 | 23677 | 12150 | 0 |
-| TC2x2 / tcn4 | streaming | 2025 | 29749 | 12150 | 0 |
-| IF3x3 / ifn9 | legado | 900 | 17564 | 7200 | 0 |
-| IF3x3 / ifn9 | streaming | 900 | 22059 | 7200 | 0 |
+| TC2x2 / tcn4 | baseline `conv2x2` | 2025 | 23677 | 12150 | 0 |
+| TC2x2 / tcn4 | `conv2x2stream12` | 2025 | 29749 | 12150 | 0 |
+| IF3x3 / ifn9 | baseline `conv3x3` | 900 | 17564 | 7200 | 0 |
+| IF3x3 / ifn9 | `conv3x3stream21` | 900 | 22059 | 7200 | 0 |
 
 Os quatro numeros foram obtidos pelos wrappers oficiais `test.fish` e
 `test-streaming.fish`, com ModelSim configurado por `modelsim-set-path`.
@@ -21,7 +21,7 @@ IF3x3 normal e IF3x3 CSA, alem do caso dirigido TC2x2 do plano.
 
 Palavras de 20 bits no estado transform-domain:
 
-| variante | legado (`r_conv_temp`) | streaming (`r_d_row + r_s_row + r_out_acc`) | delta |
+| variante | baseline (`r_conv_temp`) | streaming (`r_d_row + r_s_row + r_out_acc`) | delta |
 |---|---:|---:|---:|
 | TC2x2 | 16 | 12 | -4 palavras (-80 bits) |
 | IF3x3 | 36 | 21 | -15 palavras (-300 bits) |
@@ -42,5 +42,6 @@ sintetizados, timing, potencia, energia e top-5 caminhos criticos nao foram
 medidos. A generalizacao para `P` divisor de `K1D`, `PACKED_ROWS`, `P > K1D` e
 partial prefetch permanece para a Fase 2.
 
-O relatorio detalhado de armazenamento, operacoes e criterios de aceite esta
-em `tmp/fastconv_streaming_phase1_report.md`.
+O codigo das variantes fica em `rtl/conv2x2stream12/` e
+`rtl/conv3x3stream21/`; as pastas baseline `rtl/conv2x2/` e `rtl/conv3x3/`
+permanecem sem as alteracoes do streaming.
