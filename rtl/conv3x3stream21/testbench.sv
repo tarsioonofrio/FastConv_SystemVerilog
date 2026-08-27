@@ -2,10 +2,8 @@
 
 module tb;
   // This directory is the dedicated 21-register-word streaming variant.
-  localparam bit STREAMING_CONV_MODE = 1'b1;
   import pack_data::*;
   import pack_param::*;
-  import pack_mux_mult::*;
 
   // Parâmetros do DUT
 
@@ -15,6 +13,8 @@ module tb;
   localparam int unsigned NBITS = 20;
   localparam int unsigned LATENCY = 1;
   localparam int unsigned ROM = 1;
+  localparam int unsigned NUM_MULT = 6;
+  localparam int unsigned STATE_MULT = 6;
 
   localparam int unsigned INPUT_MEMORY_SIZE  = N_CHANNEL_IN*FEAT_INPUT_SIZE*FEAT_INPUT_WIDTH + N_CHANNEL_OUT*N_CHANNEL_IN*HADAMARD_SIZE*HADAMARD_SIZE;
   localparam int unsigned OUTPUT_MEMORY_SIZE = FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT - 1;
@@ -66,8 +66,7 @@ module tb;
     .CONV_INPUT_SIZE(CONV_INPUT_SIZE),
     .HADAMARD_SIZE(HADAMARD_SIZE),
     .NUM_MULT(NUM_MULT),
-    .STATE_MULT(STATE_MULT),
-    .STREAMING_CONV(STREAMING_CONV_MODE)
+    .STATE_MULT(STATE_MULT)
   ) dut (
     .clk(clk),
     .reset(reset),
@@ -141,9 +140,9 @@ module tb;
       if ((dut.st_conv_current == ST_CONV_INVERSE) && !in_inverse_d) begin
         if (conv_inverse_check_idx < $size(const_feat_out_batch)) begin
           for (int k = 0; k < CONV_OUTPUT_SIZE * CONV_OUTPUT_SIZE; k++) begin
-            if ($signed(dut.w_conv_inverse[k]) != $signed(const_feat_out_batch[conv_inverse_check_idx][k])) begin
+            if ($signed(dut.w_stream_final_output[k]) != $signed(const_feat_out_batch[conv_inverse_check_idx][k])) begin
               // $display("ERROR INVERSE[%0d] idx=%0d expected=%0d got=%0d time=%0t",
-              //          k, conv_inverse_check_idx, const_feat_out_batch[conv_inverse_check_idx][k], $signed(dut.w_conv_inverse[k]), $realtime);
+              //          k, conv_inverse_check_idx, const_feat_out_batch[conv_inverse_check_idx][k], $signed(dut.w_stream_final_output[k]), $realtime);
             end
           end
         end
