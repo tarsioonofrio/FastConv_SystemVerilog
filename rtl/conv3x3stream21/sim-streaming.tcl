@@ -1,6 +1,6 @@
-set DATA data/ifn9/sim/sim-032-3-3-normal/pack_data.sv
-set PARAM pack-param/ifn9/pack_param.sv
-set MUX mux-mult/ifn9/mux_mult_06.sv
+set DATA ../conv3x3/data/ifn9/sim/sim-032-3-3-normal/pack_data.sv
+set PARAM ../conv3x3/pack-param/ifn9/pack_param.sv
+set MUX ../conv3x3/mux-mult/ifn9/mux_mult_06.sv
 set MATRICES mult-matrices/ifn9/mult_matrices_csa.sv
 set DEFINES [list +define+NADDR=14 +define+NBITS=16 +define+LATENCY=1 +define+STREAMING_CONV_TEST]
 
