@@ -32,6 +32,54 @@ module Transform #(
   );
 endmodule
 
+// Row-wise first inverse transform for the streaming F(2x2, 3x3) datapath.
+module InverseRow #(
+    parameter int NBITS = 20,
+    parameter int HADAMARD_SIZE = 4,
+    parameter int CONV_OUTPUT_SIZE = 2
+  ) (
+    input  logic [NBITS-1:0] s_row [HADAMARD_SIZE-1:0],
+    output logic [NBITS-1:0] sigma [CONV_OUTPUT_SIZE-1:0]
+  );
+  timeunit 1ns;
+  timeprecision 1ps;
+  assign sigma[0] = s_row[0] + s_row[1] + s_row[2];
+  assign sigma[1] = s_row[1] + s_row[3] - s_row[2];
+endmodule
+
+// Incremental second inverse transform for F(2x2, 3x3).
+module InverseRowAccumulate #(
+    parameter int NBITS = 20,
+    parameter int HADAMARD_SIZE = 4,
+    parameter int CONV_OUTPUT_SIZE = 2,
+    parameter int ROW_INDEX_WIDTH = (HADAMARD_SIZE <= 1) ? 1 : $clog2(HADAMARD_SIZE)
+  ) (
+    input logic [ROW_INDEX_WIDTH-1:0] row_idx,
+    input logic [NBITS-1:0] acc_in [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0],
+    input logic [NBITS-1:0] sigma [CONV_OUTPUT_SIZE-1:0],
+    output logic [NBITS-1:0] acc_out [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0]
+  );
+  timeunit 1ns;
+  timeprecision 1ps;
+  always_comb begin
+    for (int unsigned i = 0; i < CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE; i++)
+      acc_out[i] = acc_in[i];
+    unique case (row_idx)
+      0: begin acc_out[0] = sigma[0]; acc_out[1] = sigma[1]; end
+      1: begin
+        acc_out[0] = acc_in[0] + sigma[0]; acc_out[1] = acc_in[1] + sigma[1];
+        acc_out[2] = sigma[0]; acc_out[3] = sigma[1];
+      end
+      2: begin
+        acc_out[0] = acc_in[0] + sigma[0]; acc_out[1] = acc_in[1] + sigma[1];
+        acc_out[2] = acc_in[2] - sigma[0]; acc_out[3] = acc_in[3] - sigma[1];
+      end
+      3: begin acc_out[2] = acc_in[2] + sigma[0]; acc_out[3] = acc_in[3] + sigma[1]; end
+      default: begin end
+    endcase
+  end
+endmodule
+
 module Inverse #(
     parameter int NBITS = 20,
     parameter int CONV_OUTPUT_SIZE = 2,
