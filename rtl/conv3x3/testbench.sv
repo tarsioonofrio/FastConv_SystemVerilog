@@ -127,8 +127,14 @@ module tb;
       output_bank <= '{default: '0};
     end else begin
       in_inverse_d <= (dut.st_conv_current == ST_CONV_INVERSE);
+      if (dut.st_conv_current == 2'b10 && conv_inverse_check_idx < 1)
+        $display("DBG BASE TC HAD row=%0d p=%0d,%0d,%0d,%0d,%0d", dut.r_conv_multiply_count, $signed(dut.w_conv_product[0]), $signed(dut.w_conv_product[1]), $signed(dut.w_conv_product[2]), $signed(dut.w_conv_product[3]), $signed(dut.w_conv_product[4]));
+      if (dut.st_conv_current == 2'b11 && !in_inverse_d && conv_inverse_check_idx < 1)
+        $display("DBG BASE TC INV got=%0d,%0d,%0d,%0d,%0d,%0d,%0d,%0d,%0d exp=%0d,%0d,%0d,%0d,%0d,%0d,%0d,%0d,%0d", $signed(dut.w_conv_inverse[0]), $signed(dut.w_conv_inverse[1]), $signed(dut.w_conv_inverse[2]), $signed(dut.w_conv_inverse[3]), $signed(dut.w_conv_inverse[4]), $signed(dut.w_conv_inverse[5]), $signed(dut.w_conv_inverse[6]), $signed(dut.w_conv_inverse[7]), $signed(dut.w_conv_inverse[8]), $signed(const_feat_out_batch[0][0]), $signed(const_feat_out_batch[0][1]), $signed(const_feat_out_batch[0][2]), $signed(const_feat_out_batch[0][3]), $signed(const_feat_out_batch[0][4]), $signed(const_feat_out_batch[0][5]), $signed(const_feat_out_batch[0][6]), $signed(const_feat_out_batch[0][7]), $signed(const_feat_out_batch[0][8]));
 
       if ((dut.st_conv_current == ST_CONV_INVERSE) && !in_inverse_d) begin
+        if (conv_inverse_check_idx < 1)
+          $display("BASE INV %0d,%0d,%0d,%0d,%0d,%0d,%0d,%0d,%0d", $signed(dut.w_conv_inverse[0]), $signed(dut.w_conv_inverse[1]), $signed(dut.w_conv_inverse[2]), $signed(dut.w_conv_inverse[3]), $signed(dut.w_conv_inverse[4]), $signed(dut.w_conv_inverse[5]), $signed(dut.w_conv_inverse[6]), $signed(dut.w_conv_inverse[7]), $signed(dut.w_conv_inverse[8]));
         if (conv_inverse_check_idx < $size(const_feat_out_batch)) begin
           for (int k = 0; k < CONV_OUTPUT_SIZE * CONV_OUTPUT_SIZE; k++) begin
             if ($signed(dut.w_conv_inverse[k]) != $signed(const_feat_out_batch[conv_inverse_check_idx][k])) begin
