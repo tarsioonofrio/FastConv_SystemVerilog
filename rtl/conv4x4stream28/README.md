@@ -4,8 +4,8 @@ This directory contains the isolated row-streaming implementation of the
 TCN16 `F(4x4, 3x3)` controller. The legacy baseline remains in
 `rtl/conv4x4/` and is not modified by this variant.
 
-The variant uses `mux_mult_06.sv`: six multipliers process one transformed
-row per Hadamard cycle (`P = K1D = 6`). The six transformed rows are consumed
+The variant uses six multipliers to process one transformed row per Hadamard
+cycle (`P = K1D = 6`). The six transformed rows are consumed
 over six cycles and the inverse transform accumulates one row contribution at
 a time. The core datapath therefore keeps 28 sample registers (`6` for the
 current transform row, `6` for the current product row and `16` output
@@ -33,7 +33,7 @@ fish ./test-streaming.fish
 ```
 
 The ModelSim runner reuses the baseline TCN16 data and parameters, while
-compiling the local six-lane mux and inverse-row matrix modules.
+compiling the streaming controller and inverse-row matrix modules.
 
 Validation status: Verilator lint and the standalone inverse-row equivalence
 test pass. The inherited end-to-end golden check currently reports mismatches
