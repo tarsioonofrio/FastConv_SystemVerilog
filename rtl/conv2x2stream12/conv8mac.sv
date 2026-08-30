@@ -82,6 +82,7 @@ module Conv
   // REGISTER BANK FOR THE WEIGHTS ////////////////////////////////////////////
   localparam WEIGHT_CYCLES = HADAMARD_SIZE * HADAMARD_SIZE;
   localparam STREAM_CYCLES = 2;
+  logic [(f_width_min1(STREAM_CYCLES + 1))-1:0] r_conv_multiply_count;
   localparam WEIGHT_WIDTH = f_width_min1(WEIGHT_CYCLES + 1);
   logic [NBITS-1:0] r_input_weight[WEIGHT_CYCLES-1:0];
   logic [WEIGHT_CYCLES-1:0] w_input_weight_en;
@@ -500,8 +501,6 @@ module Conv
   // ----------------------------------------------------------------------------------------------------
   // -------  PART 3 - CONVOLUTION CONTROL AND CONVOLUTION MODULES --------------------------------------
   // ----------------------------------------------------------------------------------------------------
-  logic [(f_width_min1(STREAM_CYCLES + 1))-1:0] r_conv_multiply_count;
-
   always_ff @(posedge clk or posedge reset) begin: CONV_STATE_REG_BLOCK
     if (reset)
       st_conv_current <= WAIT_CONV;
