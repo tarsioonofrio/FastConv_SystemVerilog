@@ -16,9 +16,8 @@ module tb;
   localparam int unsigned OUTPUT_ADDR_WIDTH = $clog2(OUTPUT_MEMORY_SIZE);
   localparam int unsigned NADDR = (INPUT_ADDR_WIDTH > OUTPUT_ADDR_WIDTH) ? INPUT_ADDR_WIDTH : OUTPUT_ADDR_WIDTH;
 
-  // localparam logic [1:0] ST_CONV_INVERSE = 2'b11;
   localparam int OUTPUT_TILES_PER_AXIS = (FEAT_OUTPUT_SIZE + CONV_OUTPUT_SIZE - 1) / CONV_OUTPUT_SIZE;
-  localparam int EXPECTED_INVERSE_COUNT = N_CHANNEL_IN * N_CHANNEL_OUT * OUTPUT_TILES_PER_AXIS * OUTPUT_TILES_PER_AXIS;
+  localparam int EXPECTED_CONV_COUNT = N_CHANNEL_IN * N_CHANNEL_OUT * OUTPUT_TILES_PER_AXIS * OUTPUT_TILES_PER_AXIS;
 
   // Sinais de interface
   logic clk;
@@ -46,14 +45,14 @@ module tb;
       expected_output_value = const_feat_out[address];
     end
   endfunction
-  int conv_inverse_check_idx;
+  int conv_check_idx;
   int output_error_count;
   int output_out_of_range_count;
   int input_out_of_range_count;
   int write_count;
   int cycle_count;
   logic [NBITS-1:0] output_bank [0:FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT - 1];
-  logic in_inverse_d;
+  // logic in_inverse_d;
   assign p_input_data_write = '0;
   assign input_sample_in_bounds = (CONV_OUTPUT_SIZE == 4) ?
       (((dut.r_input_addr_feat % FEAT_INPUT_WIDTH) + dut.r_input_addr_count < FEAT_INPUT_WIDTH) &&
@@ -133,19 +132,19 @@ module tb;
   // Validate inverse transitions and all valid writes through the Memory instances.
   always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
-      conv_inverse_check_idx <= 0;
+      conv_check_idx <= 0;
       output_error_count <= 0;
       output_out_of_range_count <= 0;
       input_out_of_range_count <= 0;
       write_count <= 0;
       cycle_count <= 0;
-      in_inverse_d <= 1'b0;
+      // in_inverse_d <= 1'b0;
       output_bank <= '{default: '0};
     end else begin
       cycle_count <= cycle_count + 1;
-      in_inverse_d <= (dut.st_conv_current == ST_CONV_INVERSE);
-      if ((dut.st_conv_current == ST_CONV_INVERSE) && !in_inverse_d)
-        conv_inverse_check_idx <= conv_inverse_check_idx + 1;
+      // in_inverse_d <= (dut.st_conv_current == ST_CONV_INVERSE);
+      if (dut.w_conv_end == 1'b1)
+        conv_check_idx <= conv_check_idx + 1;
       if (p_input_en && !input_sample_in_bounds)
         input_out_of_range_count <= input_out_of_range_count + 1;
       if (p_output_en && p_output_wr) begin
@@ -191,13 +190,13 @@ module tb;
 
     if (output_error_count != 0)
       $fatal(1, "output golden mismatch count: %0d", output_error_count);
-    if (conv_inverse_check_idx != EXPECTED_INVERSE_COUNT)
+    if (conv_check_idx != EXPECTED_CONV_COUNT)
       $fatal(1, "unexpected inverse count: got %0d expected %0d",
-             conv_inverse_check_idx, EXPECTED_INVERSE_COUNT);
+             conv_check_idx, EXPECTED_CONV_COUNT);
     if (write_count != N_CHANNEL_IN * N_CHANNEL_OUT * FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE)
       $fatal(1, "unexpected valid write count: got %0d", write_count);
     $display("2x2 simulation passed: inverse_tiles=%0d cycles=%0d valid_writes=%0d input_samples_clipped=%0d invalid_output_beats=%0d",
-             conv_inverse_check_idx, cycle_count, write_count,
+             conv_check_idx, cycle_count, write_count,
              input_out_of_range_count, output_out_of_range_count);
     $finish;
   end

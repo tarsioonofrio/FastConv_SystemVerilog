@@ -16,8 +16,8 @@ module Conv
     parameter int unsigned CONV_OUTPUT_SIZE    = 2,
     parameter int unsigned CONV_INPUT_SIZE     = 4,
     parameter int unsigned HADAMARD_SIZE       = 4,
-    parameter int unsigned NUM_MULT            = 1,
-    parameter int unsigned STATE_MULT          = 16
+    parameter int unsigned NUM_MULT            = 16,
+    parameter int unsigned STATE_MULT          = 1
   ) (
     input  logic clk,
     input  logic reset,
@@ -90,7 +90,7 @@ module Conv
   logic [NBITS-1:0] w_conv_inverse [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
   logic [NBITS-1:0] r_conv_input[(CONV_INPUT_SIZE * CONV_INPUT_SIZE) - 1:0];  // convolution input register bank
   logic signed [NBITS-1+QUANT:0] w_conv_product [NUM_MULT-1:0];  // QUANT more bits for the multipliers
-  logic [NBITS-1:0] w_conv_product_nbits [FULL_NUM_MULT-1:0];
+  logic [NBITS-1:0] w_conv_product_nbits [NUM_MULT-1:0];
   // logic [(f_width_min1(STATE_MULT - 1) + 1)-1:0] r_conv_idx_in;
   // logic [(f_width_min1((STATE_MULT * NUM_MULT) - 1) + 1)-1:0] r_conv_idx_out[NUM_MULT-1:0];
   logic w_conv_end;
@@ -395,6 +395,7 @@ module Conv
       for (int unsigned i = 0; i < WEIGHT_CYCLES; i++)
         if (w_input_weight_en[i])
           r_input_weight[i] <= p_input_data;
+    end
     // end else if (st_conv_current == HADAMARD) begin         // transform weights into a circular queue
     //   for (int unsigned i = 0; i < (WEIGHT_CYCLES-HADAMARD_SIZE); i++) begin
     //     r_input_weight[i] <= r_input_weight[i + HADAMARD_SIZE];
@@ -536,8 +537,8 @@ module Conv
         .weight(r_input_weight[i]),
         .product(w_conv_product[i])
       );
+      assign w_conv_product_nbits[i] = w_conv_product[i][NBITS-1:0];
     end
-    assign w_conv_product_nbits[i] = w_conv_product[i][NBITS-1:0];
   endgenerate
 
   // Instance of matrix multiplier "A"
