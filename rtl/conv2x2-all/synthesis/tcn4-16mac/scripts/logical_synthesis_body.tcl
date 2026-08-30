@@ -27,10 +27,12 @@ puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 puts "Load hdl files"
 puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 if {[llength $DEFINE_FLAGS] > 0} {
-    read_hdl -define {*}$DEFINE_FLAGS -sv {*}$HDL_FILES
+    set DEFINE_STRING [join $DEFINE_FLAGS " "]
+    read_hdl -define $DEFINE_STRING -sv {*}$HDL_FILES
 } else {
     read_hdl -sv {*}$HDL_FILES
 }
+
 
 puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 puts "Elaboration"
