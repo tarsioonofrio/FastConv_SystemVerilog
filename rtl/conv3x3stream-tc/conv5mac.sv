@@ -529,7 +529,6 @@ module Conv
                   1: for (int unsigned i = 0; i < HADAMARD_SIZE; i++) r_d_row[i] <= w_conv_transform[(2 * HADAMARD_SIZE) + i];
                   2: for (int unsigned i = 0; i < HADAMARD_SIZE; i++) r_d_row[i] <= w_conv_transform[(3 * HADAMARD_SIZE) + i];
                   3: for (int unsigned i = 0; i < HADAMARD_SIZE; i++) r_d_row[i] <= w_conv_transform[(4 * HADAMARD_SIZE) + i];
-                  4: for (int unsigned i = 0; i < HADAMARD_SIZE; i++) r_d_row[i] <= w_conv_transform[(5 * HADAMARD_SIZE) + i];
                   default: begin end
                 endcase
               end
