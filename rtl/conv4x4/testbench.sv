@@ -128,6 +128,10 @@ module tb;
   initial begin
     $dumpfile("dump.vcd");
     $dumpvars(0, tb);
+`ifdef XRUN
+    $shm_open("dut.shm");
+    $shm_probe(tb.dut, "ASM");
+`endif
     reset = 1;
     p_start = 0;
     #20 reset = 0;
