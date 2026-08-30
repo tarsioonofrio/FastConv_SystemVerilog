@@ -52,7 +52,7 @@ module tb;
   int write_count;
   int cycle_count;
   logic [NBITS-1:0] output_bank [0:FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT - 1];
-  // logic in_inverse_d;
+  logic conv_end_d;
   assign p_input_data_write = '0;
   assign input_sample_in_bounds = (CONV_OUTPUT_SIZE == 4) ?
       (((dut.r_input_addr_feat % FEAT_INPUT_WIDTH) + dut.r_input_addr_count < FEAT_INPUT_WIDTH) &&
@@ -129,7 +129,7 @@ module tb;
   initial clk = 0;
   always #5 clk = ~clk;
 
-  // Validate inverse transitions and all valid writes through the Memory instances.
+  // Validate one result event per input window and all valid writes.
   always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
       conv_check_idx <= 0;
@@ -138,12 +138,12 @@ module tb;
       input_out_of_range_count <= 0;
       write_count <= 0;
       cycle_count <= 0;
-      // in_inverse_d <= 1'b0;
+      conv_end_d <= 1'b0;
       output_bank <= '{default: '0};
     end else begin
       cycle_count <= cycle_count + 1;
-      // in_inverse_d <= (dut.st_conv_current == ST_CONV_INVERSE);
-      if (dut.w_conv_end == 1'b1)
+      conv_end_d <= dut.w_conv_end;
+      if (dut.w_conv_end && !conv_end_d)
         conv_check_idx <= conv_check_idx + 1;
       if (p_input_en && !input_sample_in_bounds)
         input_out_of_range_count <= input_out_of_range_count + 1;
