@@ -188,6 +188,10 @@ module tb #(
   initial begin
     $dumpfile("dump.vcd");
     $dumpvars(0, tb);
+`ifdef XRUN
+    $shm_open("dut.shm");
+    $shm_probe(tb.dut, "ASM");
+`endif
 
     // Reset inicial (Ativo alto conforme código fonte)
     reset = 1;
