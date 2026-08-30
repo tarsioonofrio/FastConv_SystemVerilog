@@ -1,28 +1,30 @@
+#!/usr/bin/env bash
+set -euo pipefail
 
-
-rm -rf dut.shm
-rm -rf xcelium.d
+SIM_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+CONFIG_ROOT="$(cd "$SIM_ROOT/.." && pwd)"
+GIT_ROOT="$(git -C "$CONFIG_ROOT" rev-parse --show-toplevel)"
 
 module purge
 module load xcelium > /dev/null 2>&1
 
-# Raiz do repo para prefixar cada entrada do list_file.txt
-GIT_ROOT=$(git rev-parse --show-toplevel)
+TB_ENTRY="$(awk 'NF && $1 !~ /^#/ {print $1; exit}' "$CONFIG_ROOT/testbench-file.txt")"
+if [[ -z "$TB_ENTRY" ]]; then
+    echo "testbench-file.txt is empty" >&2
+    exit 2
+fi
+if [[ "$TB_ENTRY" = /* ]]; then TB="$TB_ENTRY"; else TB="$GIT_ROOT/$TB_ENTRY"; fi
 
-# DATA_FILE="${GIT_ROOT}/data/ifn9/sim/sim-032/pack_data.sv"
+TOP_MODULE="$(awk 'NF && $1 !~ /^#/ {print $1; exit}' "$CONFIG_ROOT/top-module.txt")"
+TOP_MODULE="${TOP_MODULE:-system}"
+GATE="$CONFIG_ROOT/logical/results/gate_level/${TOP_MODULE}_logic_mapped.v"
 
-# Testbench e pack conforme usado no histórico
-TB=${GIT_ROOT}/rtl/system/testbench.sv
-GATE=../logical/results/gate_level/system_logic_mapped.v
-
-# Monta lista de arquivos (uma só linha, sem newline), prefixando GIT_ROOT
-files=""
+files=()
 while IFS= read -r line; do
-  files="$files$GIT_ROOT/$line "
-done < ../list-file.txt
+    line="${line##[[:space:]]}"
+    [[ -z "$line" || "$line" == \#* ]] && continue
+    if [[ "$line" = /* ]]; then files+=("$line"); else files+=("$GIT_ROOT/$line"); fi
+done < "$CONFIG_ROOT/list-file.txt"
 
-# Monta defines: prefixa -define em cada linha e junta em uma só linha
-# defines=$(sed 's/^/-define /' list_def.txt | tr '\n' ' ' | sed 's/ $//')
-
-# Chamada do xrun (mantendo args.txt como no histórico)
-xrun -f args.txt $files $TB $GATE -f ../list-define.txt -define GATE_LEVEL -define XRUN -run -exit
+xrun -f "$SIM_ROOT/args.txt" "${files[@]}" "$TB" "$GATE" \
+    -f "$CONFIG_ROOT/list-define.txt" -define GATE_LEVEL -define XRUN -run -exit
