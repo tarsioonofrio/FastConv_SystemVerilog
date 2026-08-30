@@ -16,8 +16,8 @@ module Conv
     parameter int unsigned CONV_OUTPUT_SIZE    = 2,
     parameter int unsigned CONV_INPUT_SIZE     = 4,
     parameter int unsigned HADAMARD_SIZE       = 4,
-    parameter int unsigned NUM_MULT            = 4,
-    parameter int unsigned STATE_MULT          = 4
+    parameter int unsigned NUM_MULT            = 1,
+    parameter int unsigned STATE_MULT          = 16
   ) (
     input  logic clk,
     input  logic reset,
@@ -85,13 +85,14 @@ module Conv
   logic w_input_weight_done;
   logic w_input_write_done;
 
-  logic [NBITS-1:0] r_conv_temp [HADAMARD_SIZE*HADAMARD_SIZE-1:0];
+  // logic [NBITS-1:0] r_conv_temp [HADAMARD_SIZE*HADAMARD_SIZE-1:0];
   logic [NBITS-1:0] w_conv_transform [HADAMARD_SIZE*HADAMARD_SIZE-1:0];
   logic [NBITS-1:0] w_conv_inverse [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
   logic [NBITS-1:0] r_conv_input[(CONV_INPUT_SIZE * CONV_INPUT_SIZE) - 1:0];  // convolution input register bank
   logic signed [NBITS-1+QUANT:0] w_conv_product [NUM_MULT-1:0];  // QUANT more bits for the multipliers
-  logic [(f_width_min1(STATE_MULT - 1) + 1)-1:0] r_conv_idx_in;
-  logic [(f_width_min1((STATE_MULT * NUM_MULT) - 1) + 1)-1:0] r_conv_idx_out[NUM_MULT-1:0];
+  logic [NBITS-1:0] w_conv_product_nbits [FULL_NUM_MULT-1:0];
+  // logic [(f_width_min1(STATE_MULT - 1) + 1)-1:0] r_conv_idx_in;
+  // logic [(f_width_min1((STATE_MULT * NUM_MULT) - 1) + 1)-1:0] r_conv_idx_out[NUM_MULT-1:0];
   logic w_conv_end;
 
   localparam OUTPUT_RW_COUNT_MAX = (CONV_OUTPUT_SIZE * CONV_OUTPUT_SIZE) - 1;
@@ -149,14 +150,14 @@ module Conv
   type_st_input st_input_current;
   type_st_input st_input_next;
 
-  typedef enum logic [1:0] {
-    WAIT_CONV,
-    TRANSFORM,
-    HADAMARD,
-    INVERSE
-  } type_st_conv;
-  type_st_conv st_conv_current;
-  type_st_conv st_conv_next;
+  // typedef enum logic [1:0] {
+  //   WAIT_CONV,
+  //   TRANSFORM,
+  //   HADAMARD,
+  //   INVERSE
+  // } type_st_conv;
+  // type_st_conv st_conv_current;
+  // type_st_conv st_conv_next;
 
   typedef enum logic [2:0] {
     WAIT_OUTPUT,
@@ -394,52 +395,52 @@ module Conv
       for (int unsigned i = 0; i < WEIGHT_CYCLES; i++)
         if (w_input_weight_en[i])
           r_input_weight[i] <= p_input_data;
-    end else if (st_conv_current == HADAMARD) begin         // transform weights into a circular queue
-      for (int unsigned i = 0; i < (WEIGHT_CYCLES-HADAMARD_SIZE); i++) begin
-        r_input_weight[i] <= r_input_weight[i + HADAMARD_SIZE];
-      end
-      for (int unsigned i = (WEIGHT_CYCLES-HADAMARD_SIZE); i < WEIGHT_CYCLES; i++) begin
-        r_input_weight[i] <= r_input_weight[i - (WEIGHT_CYCLES-HADAMARD_SIZE)];
-      end
-    end else begin
-      for (int unsigned i = 0; i < WEIGHT_CYCLES; i++)
-        if (w_input_weight_en[i])
-          r_input_weight[i] <= p_input_data;
-    end
+    // end else if (st_conv_current == HADAMARD) begin         // transform weights into a circular queue
+    //   for (int unsigned i = 0; i < (WEIGHT_CYCLES-HADAMARD_SIZE); i++) begin
+    //     r_input_weight[i] <= r_input_weight[i + HADAMARD_SIZE];
+    //   end
+    //   for (int unsigned i = (WEIGHT_CYCLES-HADAMARD_SIZE); i < WEIGHT_CYCLES; i++) begin
+    //     r_input_weight[i] <= r_input_weight[i - (WEIGHT_CYCLES-HADAMARD_SIZE)];
+    //   end
+    // end else begin
+    //   for (int unsigned i = 0; i < WEIGHT_CYCLES; i++)
+    //     if (w_input_weight_en[i])
+    //       r_input_weight[i] <= p_input_data;
+    // end
   end
 
   // ----------------------------------------------------------------------------------------------------
   // -------  PART 3 - CONVOLUTION CONTROL AND CONVOLUTION MODULES --------------------------------------
   // ----------------------------------------------------------------------------------------------------
-  logic [(f_width_min1(STATE_MULT + 1))-1:0] r_conv_multiply_count;
+  // logic [(f_width_min1(STATE_MULT + 1))-1:0] r_conv_multiply_count;
 
-  always_ff @(posedge clk or posedge reset) begin: CONV_STATE_REG_BLOCK
-    if (reset)
-      st_conv_current <= WAIT_CONV;
-    else
-      st_conv_current <= st_conv_next;
-  end
+  // always_ff @(posedge clk or posedge reset) begin: CONV_STATE_REG_BLOCK
+  //   if (reset)
+  //     st_conv_current <= WAIT_CONV;
+  //   else
+  //     st_conv_current <= st_conv_next;
+  // end
 
-  always_comb begin: CONV_NEXT_STATE_BLOCK
-    st_conv_next = st_conv_current;  // default prevents latch inference
-    priority case (st_conv_current)
-      WAIT_CONV: begin
-        if (st_input_current == CONV_INPUT) begin
-          st_conv_next = TRANSFORM;  // starts the convolution after moving data to the convolution register bank
-        end
-      end
-      TRANSFORM:
-        st_conv_next = HADAMARD;
-      HADAMARD: begin
-        if (r_conv_multiply_count == $bits(r_conv_multiply_count)'(STATE_MULT - 1)) begin
-          st_conv_next = INVERSE;
-        end
-      end
-      INVERSE:
-        st_conv_next = WAIT_CONV;
-      default: st_conv_next = WAIT_CONV;
-    endcase
-  end
+  // always_comb begin: CONV_NEXT_STATE_BLOCK
+  //   st_conv_next = st_conv_current;  // default prevents latch inference
+  //   priority case (st_conv_current)
+  //     WAIT_CONV: begin
+  //       if (st_input_current == CONV_INPUT) begin
+  //         st_conv_next = TRANSFORM;  // starts the convolution after moving data to the convolution register bank
+  //       end
+  //     end
+  //     TRANSFORM:
+  //       st_conv_next = HADAMARD;
+  //     HADAMARD: begin
+  //       if (r_conv_multiply_count == $bits(r_conv_multiply_count)'(STATE_MULT - 1)) begin
+  //         st_conv_next = INVERSE;
+  //       end
+  //     end
+  //     INVERSE:
+  //       st_conv_next = WAIT_CONV;
+  //     default: st_conv_next = WAIT_CONV;
+  //   endcase
+  // end
 
   // -------------------------------------------------------------------------
   // CONVOLUTION REGISTER BANK AND CONVOLUTION REGISTERS:  w_conv_end  -- r_conv_multiply_count
@@ -469,7 +470,7 @@ module Conv
     if (reset)
       w_conv_end <= 0;
     else begin
-      if (st_conv_next == INVERSE)  // *** CAUTION: PE
+      if (st_input_current == TRANSFER)  // *** CAUTION: PE
         w_conv_end <= 1;
       else if (st_output_current == WRITE_OUTPUT)
         w_conv_end <= 0;
@@ -477,35 +478,35 @@ module Conv
     end
   end
 
-  always_ff @(posedge clk or posedge reset) begin: CONV_MULTIPLY_COUNTER_BLOCK
-    if (reset)
-      r_conv_multiply_count <= 0;
-    else begin
-      if (st_conv_current == TRANSFORM)
-          r_conv_multiply_count <= 0;
-      // if (st_conv_current == WAIT_CONV || st_conv_current == TRANSFORM) r_conv_multiply_count <= 0;
-      else if (st_conv_current == HADAMARD)
-        r_conv_multiply_count <= r_conv_multiply_count + 1;
-    end
-  end
+  // always_ff @(posedge clk or posedge reset) begin: CONV_MULTIPLY_COUNTER_BLOCK
+  //   if (reset)
+  //     r_conv_multiply_count <= 0;
+  //   else begin
+  //     if (st_conv_current == TRANSFORM)
+  //         r_conv_multiply_count <= 0;
+  //     // if (st_conv_current == WAIT_CONV || st_conv_current == TRANSFORM) r_conv_multiply_count <= 0;
+  //     else if (st_conv_current == HADAMARD)
+  //       r_conv_multiply_count <= r_conv_multiply_count + 1;
+  //   end
+  // end
 
-  always_ff @(posedge clk) begin: CONV_DATAPATH_BLOCK
-    if (reset) begin
-      r_conv_temp <= '{default: '0};
-    end else begin
-      unique case (st_conv_current)
-        TRANSFORM:
-          r_conv_temp <= w_conv_transform;
-        HADAMARD: begin      // shifts e entra a multiplicação na parte mais significativa
-          for (int unsigned i = 0; i < (WEIGHT_CYCLES-HADAMARD_SIZE); i++)
-            r_conv_temp[i] <= r_conv_temp[i + HADAMARD_SIZE];
-          for (int unsigned i = (WEIGHT_CYCLES-HADAMARD_SIZE); i < WEIGHT_CYCLES; i++)
-            r_conv_temp[i] <= w_conv_product[i - (WEIGHT_CYCLES-HADAMARD_SIZE)];
-          end
-          default: begin end
-      endcase
-    end
-  end
+  // always_ff @(posedge clk) begin: CONV_DATAPATH_BLOCK
+  //   if (reset) begin
+  //     r_conv_temp <= '{default: '0};
+  //   end else begin
+  //     unique case (st_conv_current)
+  //       TRANSFORM:
+  //         r_conv_temp <= w_conv_transform;
+  //       HADAMARD: begin      // shifts e entra a multiplicação na parte mais significativa
+  //         for (int unsigned i = 0; i < (WEIGHT_CYCLES-HADAMARD_SIZE); i++)
+  //           r_conv_temp[i] <= r_conv_temp[i + HADAMARD_SIZE];
+  //         for (int unsigned i = (WEIGHT_CYCLES-HADAMARD_SIZE); i < WEIGHT_CYCLES; i++)
+  //           r_conv_temp[i] <= w_conv_product[i - (WEIGHT_CYCLES-HADAMARD_SIZE)];
+  //         end
+  //         default: begin end
+  //     endcase
+  //   end
+  // end
 
      // Instance of matrix multiplier "C"
   Transform #(
@@ -519,23 +520,24 @@ module Conv
       .pout(w_conv_transform)
   );
 
-  MuxMult mux_mult(
-    .idx_in(r_conv_idx_in),
-    .idx_out(r_conv_idx_out)
-  );
+  // MuxMult mux_mult(
+  //   .idx_in(r_conv_idx_in),
+  //   .idx_out(r_conv_idx_out)
+  // );
 
   generate
-    for (genvar i = 0; i < NUM_MULT; i++) begin : MULTIP_BLOCK    /// only the first 6 indices
+    for (genvar i = 0; i < 16; i++) begin : MULTIP_BLOCK    /// only the first 6 indices
       Multip #(
         .QUANT(QUANT),
         .NBITS(NBITS)
       )
       multip(
-        .feature(r_conv_temp[i]),
+        .feature(w_conv_transform[i]),
         .weight(r_input_weight[i]),
         .product(w_conv_product[i])
       );
     end
+    assign w_conv_product_nbits[i] = w_conv_product[i][NBITS-1:0];
   endgenerate
 
   // Instance of matrix multiplier "A"
@@ -545,7 +547,7 @@ module Conv
     .CONV_INPUT_SIZE(CONV_INPUT_SIZE),
     .HADAMARD_SIZE(HADAMARD_SIZE)
   ) inv (
-      .pin (r_conv_temp),
+      .pin (w_conv_product_nbits),
       .pout(w_conv_inverse)
   );
 
