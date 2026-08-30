@@ -28,7 +28,7 @@ The Git tag `dissertation` points to the commit hash that contains the exact cod
 
 ## Functional Simulation (ModelSim/QuestaSim)
 
-1. Choose appropriate data files and parameters in `data/<project>/` (by default, `rtl/system/list-file.txt` already points to the IFN9 set). Adjust the contents of `list-file.txt` and `list-def.txt` if you want to test another variant.
+1. Choose the configuration under the relevant `rtl/conv*/synthesis/` directory. Adjust its `list-file.txt`, `list-define.txt`, `top-module.txt`, and `testbench-file.txt` when testing another variant.
 2. Go to `rtl/system/` and run the TCL compile/simulate script:
    
    ```bash
