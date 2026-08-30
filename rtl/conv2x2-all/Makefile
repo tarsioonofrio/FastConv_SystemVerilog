@@ -3,7 +3,7 @@ SRC = $(SRCDIR)/conv.sv
 TB = $(SRCDIR)/testbench.sv
 DATA = $(SRCDIR)/data/tcn4/sim/sim-032-3-3-normal/pack_data.sv
 PARAM = $(SRCDIR)/pack-param/tcn4/pack_param.sv
-MUX = $(SRCDIR)/mux-mult/tcn4/mux_mult_04.sv
+MUX = $(SRCDIR)/mux-mult/tcn4/mux_mult_16.sv
 MATRICES = $(SRCDIR)/mult-matrices/tcn4/mult_matrices.sv
 MEM = ../mem/mem.sv
 
