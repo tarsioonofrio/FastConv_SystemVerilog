@@ -84,7 +84,7 @@ module Conv
   initial begin: STREAM_PARAMETER_CHECK_BLOCK
     if (HADAMARD_SIZE != 4 || WEIGHT_CYCLES != 16 ||
         !(NUM_MULT inside {2, 4, 8}) || (WEIGHT_CYCLES % NUM_MULT) != 0)
-      $fatal(1, "conv2x2stream12 requires NUM_MULT in {2,4,8} and a 4x4 Hadamard transform");
+      $fatal(1, "conv2x2stream4 requires NUM_MULT in {2,4,8} and a 4x4 Hadamard transform");
   end
 `endif
   localparam WEIGHT_WIDTH = f_width_min1(WEIGHT_CYCLES + 1);
