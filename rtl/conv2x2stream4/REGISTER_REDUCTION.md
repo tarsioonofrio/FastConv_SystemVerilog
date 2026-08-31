@@ -286,6 +286,13 @@ Genus (`Conv_...sdf`, respeitando maiusculas/minusculas). Se ele apontar para
 `conv_...sdf`, o Xcelium pode continuar a simulacao sem anotacao e emitir
 apenas um warning; isso nao e uma simulacao anotada valida.
 
+O runner de anotacao tambem nao deve compilar o `conv*.sv` comportamental junto
+com `Conv_logic_mapped.v`: o netlist ja contem a hierarquia mapeada e os
+modulos auxiliares. A lista da simulacao gate-level agora retém somente
+`pack_data.sv`, `pack_param.sv`, `mem.sv`, o testbench e o netlist. Isso evita
+que uma definicao duplicada de `Conv` seja escolhida silenciosamente pelo
+simulador.
+
 ## 9. Alteracao 4: tornar as tres configuracoes de sintese coerentes
 
 ### Motivacao
