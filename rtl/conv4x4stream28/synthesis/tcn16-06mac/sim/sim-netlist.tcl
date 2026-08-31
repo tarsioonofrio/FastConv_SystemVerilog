@@ -32,16 +32,6 @@ if {[file exists $defines_file]} {
     close $fp_def
 }
 
-set file_list [file join $CONFIG_ROOT list-file.txt]
-set fp [open $file_list r]
-while {[gets $fp line] >= 0} {
-    set line_trim [string trim $line]
-    if {$line_trim eq "" || [string match "#*" $line_trim]} { continue }
-    vlog -work work {*}$define_flags -svinputport=relaxed \
-        [resolve_project_file $line_trim $CONFIG_ROOT $GIT_ROOT]
-}
-close $fp
-
 set top_file [file join $CONFIG_ROOT top-module.txt]
 set top_module system
 if {[file exists $top_file]} {
@@ -55,6 +45,20 @@ if {[file exists $top_file]} {
     }
     close $fp_top
 }
+
+set file_list [file join $CONFIG_ROOT list-file.txt]
+set fp [open $file_list r]
+while {[gets $fp line] >= 0} {
+    set line_trim [string trim $line]
+    if {$line_trim eq "" || [string match "#*" $line_trim]} { continue }
+    # The mapped gate-level top is added below.  Exclude its RTL counterpart
+    # from list-file.txt so ModelSim elaborates one Conv hierarchy.
+    if {[file tail $line_trim] eq "${top_module}.sv"} { continue }
+    vlog -work work {*}$define_flags -svinputport=relaxed \
+        [resolve_project_file $line_trim $CONFIG_ROOT $GIT_ROOT]
+}
+close $fp
+
 set gate_file [file normalize [file join $CONFIG_ROOT logical results gate_level ${top_module}_logic_mapped.v]]
 if {![file exists $gate_file]} { error "Missing mapped netlist: $gate_file" }
 vlog -work work {*}$define_flags -svinputport=relaxed $gate_file
