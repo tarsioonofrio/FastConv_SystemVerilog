@@ -23,6 +23,12 @@ files=()
 while IFS= read -r line; do
     line="${line##[[:space:]]}"
     [[ -z "$line" || "$line" == \#* ]] && continue
+    # The mapped gate-level top is added below.  Do not compile the RTL top
+    # from list-file.txt as well, otherwise duplicate Conv definitions make
+    # Xcelium elaborate the wrong hierarchy for SDF back-annotation.
+    if [[ "$(basename "$line")" == "${TOP_MODULE}.sv" ]]; then
+        continue
+    fi
     if [[ "$line" = /* ]]; then files+=("$line"); else files+=("$GIT_ROOT/$line"); fi
 done < "$CONFIG_ROOT/list-file.txt"
 

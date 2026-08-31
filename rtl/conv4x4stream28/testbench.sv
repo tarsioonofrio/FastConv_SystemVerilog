@@ -105,7 +105,7 @@ module tb;
     .p_output_valid(p_output_valid), .p_end(p_end)
   );
 
-  Memory #(.NADDR(NADDR), .NBITS(NBITS), .LATENCY(LATENCY), .ROM(0)) memory_output (
+  StreamOutputMemory #(.NADDR(NADDR), .NBITS(NBITS), .LATENCY(LATENCY)) memory_output (
     .clk(clk), .reset(reset), .chip_en(p_output_en),
     .wr_en(p_output_wr && output_pixel_in_bounds(p_output_addr)),
     .address(p_output_addr), .data_in(p_output_data_write),
@@ -122,7 +122,14 @@ module tb;
   always #5 clk = ~clk;
 
   // Validate inverse transitions and all valid writes through the Memory instances.
+`ifdef GATE_LEVEL
+  // Back-annotated output paths settle after the active edge.  The gate-level
+  // scoreboard samples at the following falling edge, while RTL keeps the
+  // synchronous rising-edge model.
+  always @(negedge clk or posedge reset) begin
+`else
   always_ff @(posedge clk or posedge reset) begin
+`endif
     if (reset) begin
       conv_inverse_check_idx <= 0;
       output_error_count <= 0;
@@ -184,5 +191,59 @@ module tb;
              conv_inverse_check_idx, cycle_count, write_count,
              input_out_of_range_count, output_out_of_range_count);
     $finish;
+  end
+endmodule
+
+// Output-memory model used only by this testbench.  In gate-level simulation
+// the mapped Conv output data has a non-zero clock-to-output delay; sampling
+// writes on the falling edge avoids a zero-delay testbench race while keeping
+// the RTL path on the original rising-edge memory contract.
+module StreamOutputMemory #(
+    parameter int NADDR = 16,
+    parameter int NBITS = 20,
+    parameter int LATENCY = 1
+  ) (
+    input logic clk,
+    input logic reset,
+    input logic chip_en,
+    input logic wr_en,
+    input logic [NADDR-1:0] address,
+    input logic [NBITS-1:0] data_in,
+    output logic [NBITS-1:0] data_out,
+    output logic data_valid
+  );
+  timeunit 1ns;
+  timeprecision 1ps;
+
+  logic [NBITS-1:0] data [0:2**NADDR-1];
+  int r_cycles_latency;
+
+`ifdef GATE_LEVEL
+  always @(negedge clk) begin
+`else
+  always_ff @(posedge clk) begin
+`endif
+    if (reset)
+      data <= '{default: '0};
+    else if (chip_en && wr_en)
+      data[address] <= data_in;
+  end
+
+  always_comb begin
+    if (chip_en)
+      data_out = data[address];
+    else
+      data_out = '0;
+  end
+
+  always_ff @(posedge clk) begin
+    if (reset || r_cycles_latency == 0)
+      r_cycles_latency <= LATENCY - 1;
+    else if (chip_en)
+      r_cycles_latency <= r_cycles_latency - 1;
+  end
+
+  always_comb begin
+    data_valid = (r_cycles_latency == 0) && chip_en;
   end
 endmodule
