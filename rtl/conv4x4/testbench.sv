@@ -52,9 +52,13 @@ module tb;
   assign p_input_data_write = '0;
   // Remove the channel base before checking the physical feature-map bounds.
   assign input_channel_offset = dut.r_input_addr_feat % (FEAT_INPUT_SIZE * FEAT_INPUT_WIDTH);
+  // r_input_addr_feat already points at the row selected by the current
+  // READ_IN_6* state.  Do not add w_input_base_feat a second time here: that
+  // falsely clipped rows 4 and 5 of every 6x6 tile.
   assign input_sample_in_bounds = (CONV_OUTPUT_SIZE == 4) ?
       (((input_channel_offset % FEAT_INPUT_WIDTH) + dut.r_input_addr_count < FEAT_INPUT_WIDTH) &&
-       ((input_channel_offset / FEAT_INPUT_WIDTH) + dut.w_input_base_feat < FEAT_INPUT_SIZE)) : 1'b1;
+       ((input_channel_offset / FEAT_INPUT_WIDTH) < FEAT_INPUT_SIZE) &&
+       ((dut.r_input_addr_feat / (FEAT_INPUT_SIZE * FEAT_INPUT_WIDTH)) == dut.r_input_channel_counter_input)) : 1'b1;
   assign p_input_data = input_sample_in_bounds ? p_input_data_mem : '0;
 
   Conv #(
