@@ -91,6 +91,12 @@ module tb;
        ((dut.r_input_addr_feat / (FEAT_INPUT_SIZE * FEAT_INPUT_WIDTH)) == dut.r_input_channel_counter_input)) : 1'b1;
   assign p_input_data = input_sample_in_bounds ? p_input_data_mem : '0;
 
+  // RTL simulation uses the parameterized source module.  Gate-level
+  // simulation compiles only the mapped Conv netlist, whose interface is
+  // fixed and therefore must not receive parameter assignments.
+`ifdef GATE_LEVEL
+  Conv dut (
+`else
   Conv #(
     .N_CHANNEL_IN(N_CHANNEL_IN), .N_CHANNEL_OUT(N_CHANNEL_OUT),
     .FEAT_INPUT_SIZE(FEAT_INPUT_SIZE), .FEAT_INPUT_WIDTH(FEAT_INPUT_SIZE),
@@ -98,6 +104,7 @@ module tb;
     .CONV_OUTPUT_SIZE(CONV_OUTPUT_SIZE), .CONV_INPUT_SIZE(CONV_INPUT_SIZE),
     .HADAMARD_SIZE(HADAMARD_SIZE), .NUM_MULT(NUM_MULT), .STATE_MULT(STATE_MULT)
   ) dut (
+`endif
     .clk(clk), .reset(reset), .p_start(p_start), .p_input_en(p_input_en),
     .p_input_addr(p_input_addr), .p_input_data(p_input_data),
     .p_input_valid(p_input_valid), .p_output_en(p_output_en),
