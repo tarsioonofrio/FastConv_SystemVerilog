@@ -3,19 +3,19 @@ Copyright 2025 Cadence Design Systems, Inc. All rights reserved worldwide.
 Cadence and the Cadence logo are registered trademarks and Genus is a trademark
 of Cadence Design Systems, Inc. in the United States and other countries.
 
-[19:57:00.111537] Configured Lic search path (23.02-s006): 5280@paxos.inf.pucrs.br
+[14:18:07.111529] Configured Lic search path (23.02-s006): 5280@paxos.inf.pucrs.br
 
 Version: 23.14-s090_1, built Thu Feb 27 05:49:50 PST 2025
 Options: -files power.tcl 
-Date:    Sun Aug 30 19:57:00 2026
+Date:    Mon Aug 31 14:18:07 2026
 Host:    paxos.inf.pucrs.br (x86_64 w/Linux 4.18.0-553.155.1.el8_10.x86_64) (14cores*28cpus*1physical cpu*Intel(R) Core(TM) i9-7940X CPU @ 3.10GHz 19712KB) (131170900KB)
-PID:     2654802
+PID:     2806079
 OS:      Rocky Linux 8.10 (Green Obsidian)
 
 Checking out license: Genus_Synthesis
-[19:57:00.492025] Periodic Lic check successful
-[19:57:00.492035] Feature usage summary:
-[19:57:00.492040] Genus_Synthesis
+[14:18:07.140865] Periodic Lic check successful
+[14:18:07.140880] Feature usage summary:
+[14:18:07.140880] Genus_Synthesis
 
 
 
@@ -24,10 +24,10 @@ Checking out license: Genus_Synthesis
 
 
 
-Finished executable startup (0 seconds elapsed).
+Finished executable startup (1 second elapsed).
 
 Loading tool scripts...
-Finished loading tool scripts (16 seconds elapsed).
+Finished loading tool scripts (18 seconds elapsed).
 
 #@ Processing -files option
 @genus:root: 1> source power.tcl
@@ -51,7 +51,7 @@ Finished loading tool scripts (16 seconds elapsed).
 @file(power.tcl) 21: set DB_FILE [file normalize [file join $CONFIG_ROOT logical results gate_level ${TOP_MODULE}_logic_mapped.db]]
 @file(power.tcl) 22: set SHM [file normalize [file join $CONFIG_ROOT sim dut.shm]]
 @file(power.tcl) 24: source [file join $CONFIG_ROOT scripts power.tcl]
-Sourcing '/sim/tarsio/FastConv_SystemVerilog/rtl/conv4x4stream28/synthesis/tcn16-06mac/scripts/power.tcl' (Sun Aug 30 19:57:16 -03 2026)...
+Sourcing '/sim/tarsio/FastConv_SystemVerilog/rtl/conv4x4stream28/synthesis/tcn16-06mac/scripts/power.tcl' (Mon Aug 31 14:18:25 -03 2026)...
 #@ Begin verbose source /sim/tarsio/FastConv_SystemVerilog/rtl/conv4x4stream28/synthesis/tcn16-06mac/scripts/power.tcl
 @file(power.tcl) 5: set START_TIME 0ns
 @file(power.tcl) 6: set CONSTRAINTS_PATH [file join $CONFIG_ROOT scripts]
@@ -414,10 +414,10 @@ Warning : The variant range of wire parameters is too large. An example of wire 
   Setting attribute of root '/': 'interconnect_mode' = ple
 @file(power.tcl) 31: read_stimulus ${SHM} -dut_instance tb.dut -start ${START_TIME}
 Checking out license: Joules_Implementation_Opt
-[19:57:41.091539] Periodic Lic check successful
-[19:57:41.091555] Feature usage summary:
-[19:57:41.091560] Genus_Synthesis
-[19:57:41.091560] Joules_Implementation_Opt
+[14:18:51.386098] Periodic Lic check successful
+[14:18:51.910403] Feature usage summary:
+[14:18:51.910403] Genus_Synthesis
+[14:18:51.910408] Joules_Implementation_Opt
 
 Info   : STIM-0001 [StimInfo] read_stimulus effective options 
        : -file :
@@ -494,14 +494,14 @@ Primary Ports
   I/O                      0           0            0      0        N/A 
 Sequential Outputs                                                      
   Memory                   0           0            0      0        N/A 
-  Flop                  2806          12            0   2818     99.57% 
+  Flop                  2787          13            0   2800     99.53% 
   Latch                    0           0            0      0        N/A 
   Arch ICGC                0           0            0      0        N/A 
-  Inferred ICGC            0         113            0    113      0.00% 
-  Total ICGC               0         113            0    113      0.00% 
+  Inferred ICGC            0          76            0     76      0.00% 
+  Total ICGC               0          76            0     76      0.00% 
 Drivers                                                                 
-  Driver nets           4997       17303            0  22300     22.40% 
-  RTL Driver nets       4883       13031            0  17914     27.25% 
+  Driver nets           4978       16442            0  21420     23.23% 
+  RTL Driver nets       5596       12952            0  18548     30.17% 
 DFT                                                                     
   Input Ports              0           0            0      0        N/A 
   Flop Outputs             0           0            0      0        N/A 
@@ -537,9 +537,9 @@ Output file: /sim/tarsio/FastConv_SystemVerilog/rtl/conv4x4stream28/synthesis/tc
 @file(power.tcl) 33: exit
 
 Lic Summary:
-[19:57:43.145296] Cdslmd servers: paxos
-[19:57:43.145314] Feature usage summary:
-[19:57:43.145314] Genus_Synthesis
-[19:57:43.145315] Joules_Implementation_Opt
+[14:18:54.210018] Cdslmd servers: paxos
+[14:18:54.210040] Feature usage summary:
+[14:18:54.210040] Genus_Synthesis
+[14:18:54.210041] Joules_Implementation_Opt
 
 Normal exit.
