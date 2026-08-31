@@ -99,7 +99,6 @@ module Conv
   // for the TC2x2 transform (16 total Hadamard products).
   localparam int ROW_INDEX_WIDTH = f_width_min1(HADAMARD_SIZE);
   localparam int PRODUCT_INDEX_WIDTH = f_width_min1(WEIGHT_CYCLES);
-  logic [NBITS-1:0] r_d_row [HADAMARD_SIZE-1:0];
   logic [NBITS-1:0] r_out_acc [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
   logic [ROW_INDEX_WIDTH-1:0] r_stream_row_idx;
   logic [PRODUCT_INDEX_WIDTH-1:0] r_stream_product_idx;
@@ -565,7 +564,6 @@ module Conv
   // supported factors of the 16 Hadamard products.
   always_ff @(posedge clk or posedge reset) begin: STREAMING_DATAPATH_BLOCK
     if (reset) begin
-      r_d_row          <= '{default: '0};
       r_out_acc        <= '{default: '0};
       r_stream_row_idx <= '0;
       r_stream_product_idx <= '0;
@@ -575,10 +573,6 @@ module Conv
     end else begin
       unique case (st_conv_current)
         TRANSFORM: begin
-          r_d_row[0] <= w_conv_transform[0];
-          r_d_row[1] <= w_conv_transform[1];
-          r_d_row[2] <= w_conv_transform[2];
-          r_d_row[3] <= w_conv_transform[3];
           r_out_acc            <= '{default: '0};
           r_stream_row_idx     <= '0;
           r_stream_product_idx <= '0;
@@ -591,12 +585,6 @@ module Conv
         end
         HADAMARD: begin
           r_stream_product_idx <= r_stream_product_idx + PRODUCT_INDEX_WIDTH'(FIXED_NUM_MULT);
-          if (r_stream_product_idx == 0) begin
-            r_d_row[0] <= w_conv_transform[8];
-            r_d_row[1] <= w_conv_transform[9];
-            r_d_row[2] <= w_conv_transform[10];
-            r_d_row[3] <= w_conv_transform[11];
-          end
           r_out_acc        <= w_stream_acc_next;
           r_stream_row_idx <= r_stream_row_idx + 2;
 `ifdef STREAM_DEBUG
@@ -631,10 +619,13 @@ module Conv
       .pout(w_conv_transform)
   );
 
-  assign w_conv_feature[0] = r_d_row[0];
-  assign w_conv_feature[1] = r_d_row[1];
-  assign w_conv_feature[2] = r_d_row[2];
-  assign w_conv_feature[3] = r_d_row[3];
+  // Both rows are selected from the stable transform matrix using the
+  // product base held for the current Hadamard cycle. This removes the
+  // four-word row holding bank while preserving the 0/8 product schedule.
+  assign w_conv_feature[0] = w_conv_transform[r_stream_product_idx];
+  assign w_conv_feature[1] = w_conv_transform[r_stream_product_idx + 1'b1];
+  assign w_conv_feature[2] = w_conv_transform[r_stream_product_idx + 2'd2];
+  assign w_conv_feature[3] = w_conv_transform[r_stream_product_idx + 2'd3];
   assign w_conv_feature[4] = w_conv_transform[r_stream_product_idx + 4];
   assign w_conv_feature[5] = w_conv_transform[r_stream_product_idx + 5];
   assign w_conv_feature[6] = w_conv_transform[r_stream_product_idx + 6];
