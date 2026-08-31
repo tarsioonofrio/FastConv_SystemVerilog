@@ -680,9 +680,7 @@ module Conv
         r_output_read[r_output_read_count] <= p_output_data_read;
       end
       if (st_conv_current == INVERSE)
-        for (int unsigned i = 0; i < CONV_OUTPUT_SIZE * CONV_OUTPUT_SIZE; i++)
-          r_output_write[i] <= w_conv_inverse[(i % CONV_OUTPUT_SIZE) * CONV_OUTPUT_SIZE +
-                                              (i / CONV_OUTPUT_SIZE)];
+        r_output_write <= w_conv_inverse;
     end
   end
 
