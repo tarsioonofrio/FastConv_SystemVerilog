@@ -3,7 +3,7 @@
 module tb #(
   parameter int unsigned NUM_MULT = 4
 );
-  // This directory is the dedicated 12-register-word streaming variant.
+  // This directory is the dedicated Conv2x2stream4 streaming variant.
   import pack_data::*;
   import pack_param::*;
 
