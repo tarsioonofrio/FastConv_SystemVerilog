@@ -15,7 +15,14 @@ module tb;
   localparam int unsigned OUTPUT_MEMORY_SIZE = OUTPUT_PHYSICAL_SIZE * OUTPUT_PHYSICAL_SIZE * N_CHANNEL_OUT;
   localparam int unsigned INPUT_ADDR_WIDTH = $clog2(INPUT_MEMORY_SIZE);
   localparam int unsigned OUTPUT_ADDR_WIDTH = $clog2(OUTPUT_MEMORY_SIZE);
+`ifdef GATE_LEVEL
+  // The mapped netlist is synthesized with the fixed NADDR=16 interface.
+  // Keep the gate-level TB ports identical to that interface; RTL simulation
+  // continues to derive the smallest address width from the memories.
+  localparam int unsigned NADDR = 16;
+`else
   localparam int unsigned NADDR = (INPUT_ADDR_WIDTH > OUTPUT_ADDR_WIDTH) ? INPUT_ADDR_WIDTH : OUTPUT_ADDR_WIDTH;
+`endif
   localparam logic [1:0] ST_CONV_INVERSE = 2'b11;
   localparam int EXPECTED_INVERSE_COUNT = N_CHANNEL_IN * N_CHANNEL_OUT * OUTPUT_TILES_PER_AXIS * OUTPUT_TILES_PER_AXIS;
 
