@@ -57,10 +57,26 @@ module tb #(
   int core_cycle_count;
   logic [NBITS-1:0] output_bank [0:FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT - 1];
   logic in_inverse_d;
+  logic [1:0] input_base_feat;
   assign p_input_data_write = '0;
+`ifdef GATE_LEVEL
+  // Genus removes the RTL combinational alias w_input_base_feat. Recover the
+  // same four-state decode from the preserved input FSM state in the netlist.
+  always_comb begin
+    case (dut.st_input_current)
+      4'd3: input_base_feat = 2'd0; // READ_IN_10A
+      4'd4: input_base_feat = 2'd1; // READ_IN_10B
+      4'd5: input_base_feat = 2'd2; // READ_IN_8C
+      4'd6: input_base_feat = 2'd3; // READ_IN_8D
+      default: input_base_feat = 2'd0;
+    endcase
+  end
+`else
+  assign input_base_feat = dut.w_input_base_feat;
+`endif
   assign input_sample_in_bounds = (CONV_OUTPUT_SIZE == 4) ?
       (((dut.r_input_addr_feat % FEAT_INPUT_WIDTH) + dut.r_input_addr_count < FEAT_INPUT_WIDTH) &&
-       ((dut.r_input_addr_feat / FEAT_INPUT_WIDTH) + dut.w_input_base_feat < FEAT_INPUT_SIZE)) : 1'b1;
+       ((dut.r_input_addr_feat / FEAT_INPUT_WIDTH) + input_base_feat < FEAT_INPUT_SIZE)) : 1'b1;
   assign p_input_data = input_sample_in_bounds ? p_input_data_mem : '0;
 
   // The behavioral variants are parameterized, while a Genus gate-level
