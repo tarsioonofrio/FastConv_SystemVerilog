@@ -29,7 +29,7 @@ if {[file exists $top_file]} {
 }
 
 # Optional parameter overrides use one NAME=VALUE per line. They are useful
-# for parameterized streaming cores such as NUM_MULT=2 without changing RTL.
+# for the fixed streaming cores without changing RTL.
 set TOP_PARAMETERS [list]
 set parameters_file [file join $CONFIG_ROOT top-parameters.txt]
 if {[file exists $parameters_file]} {

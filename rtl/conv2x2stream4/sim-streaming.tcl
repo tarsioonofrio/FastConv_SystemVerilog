@@ -16,7 +16,7 @@ set file_list [list \
 ]
 
 vlog -work work {*}$DEFINES -svinputport=relaxed {*}$file_list
-vlog -work work {*}$DEFINES -svinputport=relaxed ./conv2mac.sv
+vlog -work work {*}$DEFINES -svinputport=relaxed ./conv4mac.sv
 vlog -work work {*}$DEFINES -svinputport=relaxed ./testbench.sv
 vsim -voptargs=+acc=lprn -t ps work.tb
 run 20000000ns
