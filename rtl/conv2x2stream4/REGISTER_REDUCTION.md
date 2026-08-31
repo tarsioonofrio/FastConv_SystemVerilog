@@ -82,7 +82,7 @@ InverseRowAccumulate inverse_row_acc(... w_stream_sigma_current ...);
 Para `conv8mac.sv`, o segundo caminho continua usando
 `w_stream_product_row_2` e `inverse_row_acc_second`.
 
-Esta remocao nao deve ser aplicada cegamente ao `conv.sv` generico. Na
+Esta remocao nao deve ser aplicada cegamente ao `conv2mac.sv` parametrizado. Na
 variante `NUM_MULT=2`, o vetor `r_s_row` conserva a primeira metade dos
 produtos enquanto a segunda metade e calculada no ciclo seguinte; nesse caso
 ele e funcional e precisa de outra transformacao arquitetural.
@@ -230,7 +230,7 @@ com relatorio de area/timing que mostre beneficio real.
 
 ## 7. Variante de 2 MACs
 
-O Makefile possui o alvo generico `run` e o `conv.sv` parametrizado para
+O Makefile possui o alvo generico `run` e o `conv2mac.sv` parametrizado para
 `NUM_MULT` em `{2,4,8}`. Os arquivos fixos `conv2mac.sv`, `conv4mac.sv` e
 `conv8mac.sv` nao sao todos mantidos nesta arvore; a validacao de 2 MACs usa o
 caminho generico com `-GNUM_MULT=2`.
@@ -298,7 +298,7 @@ simulador.
 ### Motivacao
 
 As tres variantes compartilham o mesmo fluxo Genus, mas a configuracao de
-`NUM_MULT=2` e parametrizada enquanto `conv4mac.sv` e `conv8mac.sv` ja sao
+`NUM_MULT=2` e parametrizada em `conv2mac.sv` enquanto `conv4mac.sv` e `conv8mac.sv` ja sao
 modulos fixos. O arquivo `top-parameters.txt` usa a forma legivel
 `NUM_MULT=2`; o comando `elaborate -parameters` do Genus, porem, exige uma
 lista Tcl de pares `{nome valor}`. Se somente uma configuracao fizer essa
@@ -336,7 +336,7 @@ artefatos locais deste diretorio:
 
 | Configuracao | Fonte do core | Parametro |
 | --- | --- | --- |
-| `tcn4-02mac` | `conv.sv` | `NUM_MULT=2` |
+| `tcn4-02mac` | `conv2mac.sv` | `NUM_MULT=2` |
 | `tcn4-04mac` | `conv4mac.sv` | fixo em 4 MACs |
 | `tcn4-08mac` | `conv8mac.sv` | fixo em 8 MACs |
 
@@ -351,7 +351,7 @@ Genus, simulacao anotada e power devem ser executados no Paxos a partir deste
 commit; os resultados antigos devem ser substituidos e identificados pelo
 commit do RTL usado.
 
-## 11. Campanha final apos o commit `f71dd2a2`
+## 11. Campanha gate-level anterior a remocao dos estados (`f71dd2a2`)
 
 Depois da correcao dos nomes SDF, foi executada uma campanha completa no
 Paxos. As tres sinteses usaram o mesmo commit de RTL (`e112a460`) e os mesmos
@@ -393,3 +393,69 @@ Os relatórios permanecem no Paxos em
 copiados ou regenerados quando uma nova alteração de RTL for feita; não se
 deve misturar esses números com os logs legados que apontavam para
 `conv2x2stream12`.
+
+## 12. Remocao dos estados TRANSFORM e INVERSE
+
+Depois da campanha gate-level anterior, a arquitetura stream foi simplificada
+para refletir o caminho real do datapath. O arquivo parametrizado `conv.sv` foi
+renomeado para `conv2mac.sv` e passou a representar explicitamente a variante
+de 2 MACs; `conv4mac.sv` e `conv8mac.sv` continuam sendo as variantes fixas.
+As listas de sintese, o Makefile e `sim-streaming.tcl` foram atualizados para
+nao depender de `conv.sv`.
+
+### Motivo arquitetural
+
+`Transform` continua sendo um modulo combinacional necessario: a matriz C
+inteira fica disponivel em `w_conv_transform` enquanto cada ciclo seleciona a
+faixa de produtos correspondente. O estado FSM `TRANSFORM`, porem, nao
+executava a matriz; ele apenas inseria um ciclo para inicializar acumuladores e
+indices. Essa inicializacao foi movida para `w_hadamard_start`, detectado na
+transicao em que a entrada termina e o primeiro ciclo HADAMARD comeca.
+
+O estado FSM `INVERSE` tambem nao executava uma inversa completa. O ultimo
+ciclo HADAMARD ja calcula `w_stream_acc_next`, grava `r_output_write` e pode
+gerar o termino da janela. O novo sinal `w_hadamard_last` substitui o antigo
+salto para `INVERSE` e aciona `w_conv_end` e `w_conv_input_release` diretamente.
+`InverseRow` e `InverseRowAccumulate` permanecem no caminho, pois sao as
+operacoes incrementais de A1 e A0 que reduzem a necessidade de registrar a
+matriz M x M inteira.
+
+### Mudancas de controle
+
+Antes, a sequencia era:
+
+```text
+WAIT_CONV -> TRANSFORM -> HADAMARD x N -> INVERSE -> WAIT_CONV
+```
+
+Agora ela e:
+
+```text
+WAIT_CONV -- w_hadamard_start --> HADAMARD x N -- w_hadamard_last --> WAIT_CONV
+```
+
+Nos tres cores, a enum passou de quatro estados para dois, reduzindo o
+registrador de estado de dois bits para um bit. O contador de produtos continua
+sendo inicializado antes do primeiro Hadamard, e o ultimo resultado continua
+sendo capturado no mesmo ciclo da ultima acumulacao. No `conv2mac.sv`, a carga
+inicial de `r_d_row` foi mantida no evento de inicio porque a variante de 2 MACs
+ainda usa esse banco para atravessar as duas metades de cada linha.
+
+### Verificacao RTL apos a remocao
+
+Os tres executaveis fixos passaram pelo mesmo `testbench.sv`, com golden,
+contagem de tiles e contagem de escritas:
+
+| Variante | Inverse tiles | Ciclos totais | Ciclos ativos | Escritas validas |
+| --- | ---: | ---: | ---: | ---: |
+| `conv2mac.sv` | 2.025 | 35.824 | 16.200 | 8.100 |
+| `conv4mac.sv` | 2.025 | 27.724 | 8.100 | 8.100 |
+| `conv8mac.sv` | 2.025 | 23.674 | 4.050 | 8.100 |
+
+Os resultados mostram a remocao dos dois ciclos de controle por janela sem
+alterar os dados: todos os golden checks passaram, nao houve escrita fora da
+faixa e cada variante manteve 2.025 tiles e 8.100 escritas. A sintese logica,
+a simulacao anotada e o power desta nova microarquitetura ainda devem ser
+executados como uma campanha unica no Paxos; os numeros da secao 11 pertencem
+ao RTL anterior a esta remocao de estados e nao devem ser usados como PPA
+final desta versao.
