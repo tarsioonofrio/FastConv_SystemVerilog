@@ -3,19 +3,19 @@ Copyright 2025 Cadence Design Systems, Inc. All rights reserved worldwide.
 Cadence and the Cadence logo are registered trademarks and Genus is a trademark
 of Cadence Design Systems, Inc. in the United States and other countries.
 
-[19:46:58.111625] Configured Lic search path (23.02-s006): 5280@paxos.inf.pucrs.br
+[13:41:35.111497] Configured Lic search path (23.02-s006): 5280@paxos.inf.pucrs.br
 
 Version: 23.14-s090_1, built Thu Feb 27 05:49:50 PST 2025
 Options: -files power.tcl 
-Date:    Sun Aug 30 19:46:58 2026
+Date:    Mon Aug 31 13:41:35 2026
 Host:    paxos.inf.pucrs.br (x86_64 w/Linux 4.18.0-553.155.1.el8_10.x86_64) (14cores*28cpus*1physical cpu*Intel(R) Core(TM) i9-7940X CPU @ 3.10GHz 19712KB) (131170900KB)
-PID:     2649623
+PID:     2781598
 OS:      Rocky Linux 8.10 (Green Obsidian)
 
 Checking out license: Genus_Synthesis
-[19:46:58.257168] Periodic Lic check successful
-[19:46:58.781466] Feature usage summary:
-[19:46:58.781467] Genus_Synthesis
+[13:41:35.141449] Periodic Lic check successful
+[13:41:35.141459] Feature usage summary:
+[13:41:35.141464] Genus_Synthesis
 
 
 
@@ -24,10 +24,10 @@ Checking out license: Genus_Synthesis
 
 
 
-Finished executable startup (0 seconds elapsed).
+Finished executable startup (1 second elapsed).
 
 Loading tool scripts...
-Finished loading tool scripts (18 seconds elapsed).
+Finished loading tool scripts (17 seconds elapsed).
 
 #@ Processing -files option
 @genus:root: 1> source power.tcl
@@ -51,7 +51,7 @@ Finished loading tool scripts (18 seconds elapsed).
 @file(power.tcl) 21: set DB_FILE [file normalize [file join $CONFIG_ROOT logical results gate_level ${TOP_MODULE}_logic_mapped.db]]
 @file(power.tcl) 22: set SHM [file normalize [file join $CONFIG_ROOT sim dut.shm]]
 @file(power.tcl) 24: source [file join $CONFIG_ROOT scripts power.tcl]
-Sourcing '/sim/tarsio/FastConv_SystemVerilog/rtl/conv4x4/synthesis/tcn16-18mac/scripts/power.tcl' (Sun Aug 30 19:47:16 -03 2026)...
+Sourcing '/sim/tarsio/FastConv_SystemVerilog/rtl/conv4x4/synthesis/tcn16-18mac/scripts/power.tcl' (Mon Aug 31 13:41:52 -03 2026)...
 #@ Begin verbose source /sim/tarsio/FastConv_SystemVerilog/rtl/conv4x4/synthesis/tcn16-18mac/scripts/power.tcl
 @file(power.tcl) 5: set START_TIME 0ns
 @file(power.tcl) 6: set CONSTRAINTS_PATH [file join $CONFIG_ROOT scripts]
@@ -414,10 +414,10 @@ Warning : The variant range of wire parameters is too large. An example of wire 
   Setting attribute of root '/': 'interconnect_mode' = ple
 @file(power.tcl) 31: read_stimulus ${SHM} -dut_instance tb.dut -start ${START_TIME}
 Checking out license: Joules_Implementation_Opt
-[19:47:42.196496] Periodic Lic check successful
-[19:47:42.196513] Feature usage summary:
-[19:47:42.196514] Genus_Synthesis
-[19:47:42.196515] Joules_Implementation_Opt
+[13:42:18.132200] Periodic Lic check successful
+[13:42:18.132216] Feature usage summary:
+[13:42:18.132216] Genus_Synthesis
+[13:42:18.132217] Joules_Implementation_Opt
 
 Info   : STIM-0001 [StimInfo] read_stimulus effective options 
        : -file :
@@ -435,53 +435,51 @@ Info   : STIM-0002 [StimInfo] Finished design hierarchy parsing.
 Info   : STIM-0010 [StimInfo] Total number of frames '1'
 Info   : STIM-0001 [StimInfo] Value Change Section Parsing Progress Report :   0%   1%   2%   3%   4%   5%   6%   7%   8%   9%  10%  11%  12%  13%  14%  15%  16%  17%  18%  19%  20%  21%  22%  23%  24%  25%  26%  27%  28%  29%  30%  31%  32%  33%  34%  35%  36%  37%  38%  39%  40%  41%  42%  43%  44%  45%  46%  47%  48%  49%  50%  51%  52%  53%  54%  55%  56%  57%  58%  59%  60%  61%  62%  63%  64%  65%  66%  67%  68%  69%  70%  71%  72%  73%  74%  75%  76%  77%  78%  79%  80%  81%  82%  83%  84%  85%  86%  87%  88%  89%  90%  91%  92%  93%  94%  95%  96%  97%  98%  99% 100%
 
-Info   : STIM-0012 [StimInfo] Simulation start = 0 ps, end = 171685000 ps.
+Info   : STIM-0012 [StimInfo] Simulation start = 0 ps, end = 192645343 ps.
 Info   : STIM-0002 Finished processing value changes, started storage.
-Warning: STIM-0551 [StimWarn] RTLStim2Gate is switched off for rtl level
-       : stimulus. This can lead to wrong annotation. It is recommended to run
-       : RTLStim2Gate command before read_stimulus command, if this is a rtl
-       : level stimuli
+Info   : STIM-0002 Stimulus has been identified as a gate level stimulus,
+       : switching on -allow_n_nets option..
 Info   : STIM-0007 [StimInfo] Stored stimulus information '/stim#1' in SDB.
 Warning : The asserted TCF on an undriven hierarchical pin will not be used for TCF propagation. [TUI-94]
-        : Asserting probability 0.50000 on undriven hierarchical pin soma[35].
+        : Asserting probability 0.50000 on undriven hierarchical pin soma[24].
 Warning : The asserted TCF on an undriven hierarchical pin will not be used for TCF propagation. [TUI-94]
-        : Asserting toggle rate 0.00000 on undriven hierarchical pin soma[35].
+        : Asserting toggle rate 0.00000 on undriven hierarchical pin soma[24].
 Warning : The asserted TCF on an undriven hierarchical pin will not be used for TCF propagation. [TUI-94]
-        : Asserting probability 0.50000 on undriven hierarchical pin soma[35].
+        : Asserting probability 0.50000 on undriven hierarchical pin soma[24].
 Warning : The asserted TCF on an undriven hierarchical pin will not be used for TCF propagation. [TUI-94]
-        : Asserting toggle rate 0.00000 on undriven hierarchical pin soma[35].
+        : Asserting toggle rate 0.00000 on undriven hierarchical pin soma[24].
 Warning : The asserted TCF on an undriven hierarchical pin will not be used for TCF propagation. [TUI-94]
-        : Asserting probability 0.50000 on undriven hierarchical pin soma[35].
+        : Asserting probability 0.50000 on undriven hierarchical pin soma[24].
 Warning : The asserted TCF on an undriven hierarchical pin will not be used for TCF propagation. [TUI-94]
-        : Asserting toggle rate 0.00000 on undriven hierarchical pin soma[35].
+        : Asserting toggle rate 0.00000 on undriven hierarchical pin soma[24].
 Warning : The asserted TCF on an undriven hierarchical pin will not be used for TCF propagation. [TUI-94]
-        : Asserting probability 0.50000 on undriven hierarchical pin soma[35].
+        : Asserting probability 0.50000 on undriven hierarchical pin soma[24].
 Warning : The asserted TCF on an undriven hierarchical pin will not be used for TCF propagation. [TUI-94]
-        : Asserting toggle rate 0.00000 on undriven hierarchical pin soma[35].
+        : Asserting toggle rate 0.00000 on undriven hierarchical pin soma[24].
 Warning : The asserted TCF on an undriven hierarchical pin will not be used for TCF propagation. [TUI-94]
-        : Asserting probability 0.50000 on undriven hierarchical pin soma[35].
+        : Asserting probability 0.50000 on undriven hierarchical pin soma[24].
 Warning : The asserted TCF on an undriven hierarchical pin will not be used for TCF propagation. [TUI-94]
-        : Asserting toggle rate 0.00000 on undriven hierarchical pin soma[35].
+        : Asserting toggle rate 0.00000 on undriven hierarchical pin soma[24].
 Warning : The asserted TCF on an undriven hierarchical pin will not be used for TCF propagation. [TUI-94]
-        : Asserting probability 0.50000 on undriven hierarchical pin soma[35].
+        : Asserting probability 0.50000 on undriven hierarchical pin soma[24].
 Warning : The asserted TCF on an undriven hierarchical pin will not be used for TCF propagation. [TUI-94]
-        : Asserting toggle rate 0.00000 on undriven hierarchical pin soma[35].
+        : Asserting toggle rate 0.00000 on undriven hierarchical pin soma[24].
 Warning : The asserted TCF on an undriven hierarchical pin will not be used for TCF propagation. [TUI-94]
-        : Asserting probability 0.50000 on undriven hierarchical pin soma[35].
+        : Asserting probability 0.50000 on undriven hierarchical pin soma[24].
 Warning : The asserted TCF on an undriven hierarchical pin will not be used for TCF propagation. [TUI-94]
-        : Asserting toggle rate 0.00000 on undriven hierarchical pin soma[35].
+        : Asserting toggle rate 0.00000 on undriven hierarchical pin soma[24].
 Warning : The asserted TCF on an undriven hierarchical pin will not be used for TCF propagation. [TUI-94]
-        : Asserting probability 0.50000 on undriven hierarchical pin soma[35].
+        : Asserting probability 0.50000 on undriven hierarchical pin soma[24].
 Warning : The asserted TCF on an undriven hierarchical pin will not be used for TCF propagation. [TUI-94]
-        : Asserting toggle rate 0.00000 on undriven hierarchical pin soma[35].
+        : Asserting toggle rate 0.00000 on undriven hierarchical pin soma[24].
 Warning : The asserted TCF on an undriven hierarchical pin will not be used for TCF propagation. [TUI-94]
-        : Asserting probability 0.50000 on undriven hierarchical pin soma[35].
+        : Asserting probability 0.50000 on undriven hierarchical pin soma[24].
 Warning : The asserted TCF on an undriven hierarchical pin will not be used for TCF propagation. [TUI-94]
-        : Asserting toggle rate 0.00000 on undriven hierarchical pin soma[35].
+        : Asserting toggle rate 0.00000 on undriven hierarchical pin soma[24].
 Warning : The asserted TCF on an undriven hierarchical pin will not be used for TCF propagation. [TUI-94]
-        : Asserting probability 0.50000 on undriven hierarchical pin soma[35].
+        : Asserting probability 0.50000 on undriven hierarchical pin soma[24].
 Warning : The asserted TCF on an undriven hierarchical pin will not be used for TCF propagation. [TUI-94]
-        : Asserting toggle rate 0.00000 on undriven hierarchical pin soma[35].
+        : Asserting toggle rate 0.00000 on undriven hierarchical pin soma[24].
 Warning : Maximum message print count reached. [MESG-11]
         : Maximum print count of '20' reached for message 'TUI-94'.
 --------------------------- Annotation Report ---------------------------
@@ -490,32 +488,31 @@ Object Type         Asserted  UnAsserted  Unconnected  Total  Asserted%
 -------------------------------------------------------------------------
 Primary Ports                                                           
   Inputs                  45           0            0     45    100.00% 
-  Outputs                 48           5            3     56     90.56% 
+  Outputs                 53           0            3     56    100.00% 
   I/O                      0           0            0      0        N/A 
 Sequential Outputs                                                      
   Memory                   0           0            0      0        N/A 
-  Flop                  2957          12            0   2969     99.59% 
+  Flop                  2959           0            0   2959    100.00% 
   Latch                    0           0            0      0        N/A 
   Arch ICGC                0           0            0      0        N/A 
-  Inferred ICGC            0         110            0    110      0.00% 
-  Total ICGC               0         110            0    110      0.00% 
+  Inferred ICGC          109           0            0    109    100.00% 
+  Total ICGC             109           0            0    109    100.00% 
 Drivers                                                                 
-  Driver nets           5626       26954           90  32670     17.26% 
-  RTL Driver nets       5517       23884           90  29491     18.76% 
+  Driver nets          32625           0            0  32625    100.00% 
+  RTL Driver nets      29448           0            0  29448    100.00% 
 DFT                                                                     
   Input Ports              0           0            0      0        N/A 
   Flop Outputs             0           0            0      0        N/A 
   Memory Outputs           0           0            0      0        N/A 
 -------------------------------------------------------------------------
 Info   : STIM-0013 [StimInfo] Completed successfully.
-       : Info=10, Warn=1, Error=0, Fatal=0
+       : Info=11, Warn=0, Error=0, Fatal=0
 Info: Removing all stims from SDB
 @file(power.tcl) 32: report_power -header -unit mW > [file join $POWER_ROOT power_evaluation.txt]
 Info    : Joules engine is used. [RPT-16]
         : Joules engine is being used for the command report_power.
 Info   : ACTP-0001 [ACTPInfo] Activity propagation started for stim#0 netlist
        : Conv
-Info   : ACTP-0009 [ACTPInfo] Activity Propagation Progress Report :   0%   1%   2%   3%   4%   5%   6%   7%   8%   9%  10%  11%  12%  13%  14%  15%  16%  17%  18%  19%  20%  21%  22%  23%  24%  25%  26%  27%  28%  29%  30%  31%  32%  33%  34%  35%  36%  37%  38%  39%  40%  41%  42%  43%  44%  45%  46%  47%  48%  49%  50%  51%  52%  53%  54%  55%  56%  57%  58%  59%  60%  61%  62%  63%  64%  65%  66%  67%  68%  69%  70%  71%  72%  73%  74%  75%  76%  77%  78%  79%  80%  81%  82%  83%  84%  85%  86%  87%  88%  89%  90%  91%  92%  93%  94%  95%  96%  97%  98%  99% 100%
 Info   : ACTP-0001 Activity propagation ended for stim#0
 Info   : PWRA-0001 [PwrInfo] compute_power effective options 
        : -mode : lp_asserted
@@ -537,9 +534,9 @@ Output file: /sim/tarsio/FastConv_SystemVerilog/rtl/conv4x4/synthesis/tcn16-18ma
 @file(power.tcl) 33: exit
 
 Lic Summary:
-[19:47:45.107467] Cdslmd servers: paxos
-[19:47:45.107489] Feature usage summary:
-[19:47:45.107490] Genus_Synthesis
-[19:47:45.107491] Joules_Implementation_Opt
+[13:42:23.327472] Cdslmd servers: paxos
+[13:42:23.327489] Feature usage summary:
+[13:42:23.327490] Genus_Synthesis
+[13:42:23.327490] Joules_Implementation_Opt
 
 Normal exit.
