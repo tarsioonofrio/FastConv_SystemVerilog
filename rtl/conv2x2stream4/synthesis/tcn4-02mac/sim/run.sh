@@ -19,11 +19,22 @@ TOP_MODULE="$(awk 'NF && $1 !~ /^#/ {print $1; exit}' "$CONFIG_ROOT/top-module.t
 TOP_MODULE="${TOP_MODULE:-system}"
 GATE="$CONFIG_ROOT/logical/results/gate_level/${TOP_MODULE}_logic_mapped.v"
 
+# The gate-level file already contains the mapped Conv hierarchy and all
+# generated helper modules (Multip, Transform, Matrix*, clock-gating cells).
+# Do not compile the behavioral core from list-file.txt alongside it: both
+# define Conv, and simulator duplicate-module resolution can silently select
+# the RTL instead of the netlist. Keep only the packages and RAM model needed
+# by the testbench, then add the gate netlist explicitly.
 files=()
 while IFS= read -r line; do
     line="${line##[[:space:]]}"
     [[ -z "$line" || "$line" == \#* ]] && continue
-    if [[ "$line" = /* ]]; then files+=("$line"); else files+=("$GIT_ROOT/$line"); fi
+    base="${line##*/}"
+    case "$base" in
+        pack_data.sv|pack_param.sv|mem.sv)
+            if [[ "$line" = /* ]]; then files+=("$line"); else files+=("$GIT_ROOT/$line"); fi
+            ;;
+    esac
 done < "$CONFIG_ROOT/list-file.txt"
 
 xrun -f "$SIM_ROOT/args.txt" "${files[@]}" "$TB" "$GATE" \
