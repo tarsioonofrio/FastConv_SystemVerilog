@@ -82,10 +82,10 @@ InverseRowAccumulate inverse_row_acc(... w_stream_sigma_current ...);
 Para `conv8mac.sv`, o segundo caminho continua usando
 `w_stream_product_row_2` e `inverse_row_acc_second`.
 
-Esta remocao nao deve ser aplicada cegamente ao `conv2mac.sv` parametrizado. Na
-variante `NUM_MULT=2`, o vetor `r_s_row` conserva a primeira metade dos
-produtos enquanto a segunda metade e calculada no ciclo seguinte; nesse caso
-ele e funcional e precisa de outra transformacao arquitetural.
+Na antiga variante parametrizada de 2 MACs, o vetor `r_s_row` conservava a
+primeira metade dos produtos enquanto a segunda metade era calculada no ciclo
+seguinte. Essa variante foi removida desta pasta; a observacao fica registrada
+apenas para explicar por que a reducao nao foi aplicada de forma mecanica.
 
 ### Reducao obtida
 
@@ -228,38 +228,17 @@ nao apenas o numero de declaracoes.
 Aceite somente com comparacao bit a bit das quatro saidas para cada janela e
 com relatorio de area/timing que mostre beneficio real.
 
-## 7. Variante de 2 MACs
+## 7. Variante de 2 MACs (historica e removida)
 
-O Makefile possui o alvo generico `run` e o `conv2mac.sv` parametrizado para
-`NUM_MULT` em `{2,4,8}`. Os arquivos fixos `conv2mac.sv`, `conv4mac.sv` e
-`conv8mac.sv` nao sao todos mantidos nesta arvore; a validacao de 2 MACs usa o
-caminho generico com `-GNUM_MULT=2`.
+A antiga variante parametrizada de 2 MACs foi validada durante o
+desenvolvimento, mas nao faz mais parte desta arvore. O arquivo
+`conv2mac.sv`, o alvo correspondente do Makefile e a configuracao de sintese
+`synthesis/tcn4-02mac` foram removidos para que nao exista uma fonte ou
+netlist obsoleto apresentado como configuracao suportada.
 
-Antes de declarar suporte validado a 2 MACs, deve-se:
-
-1. confirmar que o Makefile usa a fonte local, nao `conv2x2stream12`;
-2. executar `make NUM_MULT=2 run`;
-3. comparar a mesma golden output usada nos casos 4 e 8;
-4. atualizar as listas de sintese para apontarem para este diretorio.
-
-Resultado observado nesta etapa:
-
-```text
-NUM_MULT=2: inverse_tiles=2025 cycles=37849 valid_writes=8100
-             input_samples_clipped=0 invalid_output_beats=0
-Core active cycles: 20250
-```
-
-Os caminhos genericos `NUM_MULT=4` e `NUM_MULT=8` tambem passaram com,
-respectivamente, `cycles=29749`/`core=12150` e `cycles=25699`/`core=8100`.
-
-O Makefile foi tornado reproduzivel apos `make clean`: cada alvo cria seu
-diretorio `obj_dir` antes de chamar o Verilator. Sem isso, uma primeira
-execucao em uma arvore limpa falhava apenas por ausencia do diretorio de
-saida, antes de qualquer erro RTL.
-
-Os logs de sintese existentes nao servem como prova desta etapa porque as
-listas antigas apontam para `rtl/conv2x2stream12`.
+Os resultados antigos permanecem nas secoes de campanha historica somente
+para rastreabilidade; eles nao devem ser usados como resultados atuais da
+pasta `conv2x2stream4`.
 
 ## 8. Ordem de execucao recomendada
 
@@ -273,8 +252,7 @@ revertivel:
    prova temporal desta etapa);
 5. medir sintese da alternativa aprovada;
 6. somente entao estudar `r_out_acc` ou uma acumulacao dobrada;
-7. validar `NUM_MULT=2` e corrigir as listas de sintese;
-8. rodar simulacao anotada e power com netlist gerado a partir do commit
+7. rodar simulacao anotada e power com netlist gerado a partir do commit
    correspondente.
 
 Nenhuma alteracao deve ser promovida por area estimada em RTL. O resultado de
@@ -293,21 +271,18 @@ modulos auxiliares. A lista da simulacao gate-level agora retém somente
 que uma definicao duplicada de `Conv` seja escolhida silenciosamente pelo
 simulador.
 
-## 9. Alteracao 4: tornar as tres configuracoes de sintese coerentes
+## 9. Alteracao 4: tornar as configuracoes de sintese coerentes
 
 ### Motivacao
 
-As tres variantes compartilham o mesmo fluxo Genus, mas a configuracao de
-`NUM_MULT=2` e parametrizada em `conv2mac.sv` enquanto `conv4mac.sv` e `conv8mac.sv` ja sao
-modulos fixos. O arquivo `top-parameters.txt` usa a forma legivel
-`NUM_MULT=2`; o comando `elaborate -parameters` do Genus, porem, exige uma
-lista Tcl de pares `{nome valor}`. Se somente uma configuracao fizer essa
-conversao, o resultado dependera da variante e a sintese podera falhar antes
-de ler o RTL.
+As duas variantes mantidas compartilham o mesmo fluxo Genus e usam modulos
+fixos (`conv4mac.sv` e `conv8mac.sv`). O nome do topo e os caminhos das listas
+precisam continuar coerentes com o layout local para que a sintese nao leia
+fontes de outra pasta.
 
 ### Mudanca aplicada
 
-Os parsers locais de `tcn4-02mac`, `tcn4-04mac` e `tcn4-08mac` agora:
+Os parsers locais de `tcn4-04mac` e `tcn4-08mac` agora:
 
 - ignoram linhas vazias e comentarios;
 - convertem `NAME=VALUE` em `{NAME VALUE}` antes de `elaborate`;
@@ -317,7 +292,7 @@ Os parsers locais de `tcn4-02mac`, `tcn4-04mac` e `tcn4-08mac` agora:
 - leem o topo de `top-module.txt`, evitando o nome legado `system` quando o
   modulo real e `Conv`.
 
-A mesma correcao de origem foi aplicada ao caminho do testbench e aos tres
+A mesma correcao de origem foi aplicada ao caminho do testbench e às duas
 `list-file.txt`. Nenhuma sintese e considerada atualizada apenas por essa
 mudanca de script: a prova exige executar Genus depois que todas as alteracoes
 de RTL forem finalizadas.
@@ -325,18 +300,17 @@ de RTL forem finalizadas.
 ### Criterio de aceite
 
 - validacao textual de que todos os caminhos das listas existem;
-- `make NUM_MULT=2/4/8` continua passando no RTL;
-- uma unica campanha final de Genus para as tres configuracoes, seguida de
+- `make run-conv4mac` e `make run-conv8mac` passam no RTL;
+- uma campanha final de Genus para as duas configuracoes, seguida de
   simulacao anotada e power usando os artefatos dessa mesma campanha.
 
 ## 10. Configuracao de sintese por variante
 
-As tres configuracoes em `synthesis/tcn4-*mac` foram corrigidas para usar os
+As duas configuracoes em `synthesis/tcn4-*mac` foram corrigidas para usar os
 artefatos locais deste diretorio:
 
 | Configuracao | Fonte do core | Parametro |
 | --- | --- | --- |
-| `tcn4-02mac` | `conv2mac.sv` | `NUM_MULT=2` |
 | `tcn4-04mac` | `conv4mac.sv` | fixo em 4 MACs |
 | `tcn4-08mac` | `conv8mac.sv` | fixo em 8 MACs |
 
@@ -397,11 +371,10 @@ deve misturar esses números com os logs legados que apontavam para
 ## 12. Remocao dos estados TRANSFORM e INVERSE
 
 Depois da campanha gate-level anterior, a arquitetura stream foi simplificada
-para refletir o caminho real do datapath. O arquivo parametrizado `conv.sv` foi
-renomeado para `conv2mac.sv` e passou a representar explicitamente a variante
-de 2 MACs; `conv4mac.sv` e `conv8mac.sv` continuam sendo as variantes fixas.
-As listas de sintese, o Makefile e `sim-streaming.tcl` foram atualizados para
-nao depender de `conv.sv`.
+para refletir o caminho real do datapath. As variantes fixas `conv4mac.sv` e
+`conv8mac.sv` passaram a usar somente os estados necessarios. A antiga fonte de
+2 MACs e sua sintese foram removidas posteriormente; por isso os resultados de
+2 MACs nesta secao sao historicos, nao uma configuracao atual.
 
 ### Motivo arquitetural
 
@@ -434,12 +407,10 @@ Agora ela e:
 WAIT_CONV -- w_hadamard_start --> HADAMARD x N -- w_hadamard_last --> WAIT_CONV
 ```
 
-Nos tres cores, a enum passou de quatro estados para dois, reduzindo o
+Nos cores mantidos, a enum passou de quatro estados para dois, reduzindo o
 registrador de estado de dois bits para um bit. O contador de produtos continua
 sendo inicializado antes do primeiro Hadamard, e o ultimo resultado continua
-sendo capturado no mesmo ciclo da ultima acumulacao. No `conv2mac.sv`, a carga
-inicial de `r_d_row` foi mantida no evento de inicio porque a variante de 2 MACs
-ainda usa esse banco para atravessar as duas metades de cada linha.
+sendo capturado no mesmo ciclo da ultima acumulacao.
 
 ### Verificacao RTL apos a remocao
 
@@ -448,7 +419,6 @@ contagem de tiles e contagem de escritas:
 
 | Variante | Inverse tiles | Ciclos totais | Ciclos ativos | Escritas validas |
 | --- | ---: | ---: | ---: | ---: |
-| `conv2mac.sv` | 2.025 | 35.824 | 16.200 | 8.100 |
 | `conv4mac.sv` | 2.025 | 27.724 | 8.100 | 8.100 |
 | `conv8mac.sv` | 2.025 | 23.674 | 4.050 | 8.100 |
 
@@ -460,7 +430,6 @@ Os numeros abaixo substituem os da secao 11 para esta microarquitetura:
 
 | Variante | Celulas | Area total (um2) | Flip-flops | Slack nominal (ps) | Power total (mW) |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| `tcn4-02mac` | 5.384 | 9.312,026 | 1.107 | 225 | 0,660695 |
 | `tcn4-04mac` | 8.473 | 12.127,770 | 1.024 | 243 | 0,692382 |
 | `tcn4-08mac` | 11.818 | 16.855,605 | 1.023 | 206 | 0,918483 |
 
@@ -469,7 +438,6 @@ A anotada final usou os netlists desta mesma campanha e a biblioteca
 
 | Variante | SDF errors | SDF warnings | Inverse tiles | Ciclos totais | Ciclos ativos | Escritas validas |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| `tcn4-02mac` | 0 | 1.190 | 2.025 | 35.825 | 16.200 | 8.100 |
 | `tcn4-04mac` | 0 | 879 | 2.025 | 27.725 | 8.100 | 8.100 |
 | `tcn4-08mac` | 0 | 866 | 2.025 | 23.675 | 4.050 | 8.100 |
 
@@ -477,5 +445,5 @@ O power foi calculado pelo Joules a partir do `dut.shm` de cada anotada. Os
 warnings `SDFINF` continuam sendo informativos: nao houve erro de anotacao,
 mas algumas celulas nao possuem atraso individual associavel apos a
 otimizacao do Genus. A reducao do estado da convolucao tambem aparece no
-relatorio: foram sintetizados 1.107, 1.024 e 1.023 flip-flops nos cores de 2,
-4 e 8 MACs, respectivamente.
+relatorio: foram sintetizados 1.024 e 1.023 flip-flops nos cores mantidos de 4
+e 8 MACs, respectivamente.
