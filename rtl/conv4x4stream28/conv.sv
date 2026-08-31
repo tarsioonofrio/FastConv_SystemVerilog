@@ -59,7 +59,9 @@ module Conv
   localparam WINDOW_COUNT_PER_LINE = (FEAT_INPUT_SIZE - 2 + CONV_OUTPUT_SIZE - 1) / CONV_OUTPUT_SIZE;
   localparam WINDOW_COUNT_PER_COLUMN = (FEAT_INPUT_SIZE - 2 + CONV_OUTPUT_SIZE - 1) / CONV_OUTPUT_SIZE;
 
-  localparam WINDOW_COUNTER_WIDTH = f_width_min1(WINDOW_COUNT_PER_LINE * WINDOW_COUNT_PER_COLUMN);
+  // Include the terminal value (64) in the accumulator counter so the final
+  // tile is detected instead of aliasing to counter zero.
+  localparam WINDOW_COUNTER_WIDTH = f_width_min1((WINDOW_COUNT_PER_LINE * WINDOW_COUNT_PER_COLUMN) + 1);
   logic [WINDOW_COUNTER_WIDTH-1:0] r_input_window_counter_acc;
 
   localparam WINDOW_ROW_COUNTER_WIDTH = f_width_min1(WINDOW_COUNT_PER_LINE + 1);
@@ -114,6 +116,9 @@ module Conv
   logic [NADDR-1:0] w_output_addr;
 
   localparam FEAT_OUTPUT_SIZE = (FEAT_INPUT_SIZE - 2);
+  // Output memory uses a tile-aligned physical surface.  The testbench crops
+  // this surface back to the logical FEAT_OUTPUT_SIZE x FEAT_OUTPUT_SIZE map.
+  localparam OUTPUT_PHYSICAL_SIZE = WINDOW_COUNT_PER_LINE * CONV_OUTPUT_SIZE;
   logic [WINDOW_COUNTER_WIDTH-1:0] r_output_window_counter_col;
   logic [WINDOW_ROW_COUNTER_WIDTH-1:0] r_output_window_counter_row;
   logic [WINDOW_COUNTER_WIDTH-1:0] r_output_window_counter_acc;
@@ -121,17 +126,17 @@ module Conv
   logic [CHANNEL_OUTPUT_COUNTER_WIDTH-1:0] r_output_channel_counter_output;
 
   localparam OUTPUT_ADDR_OFFSET_WIDTH =
-      f_width_min1((CONV_OUTPUT_SIZE * FEAT_OUTPUT_SIZE) + CONV_OUTPUT_SIZE);
+      f_width_min1((CONV_OUTPUT_SIZE * OUTPUT_PHYSICAL_SIZE) + CONV_OUTPUT_SIZE);
   logic [OUTPUT_ADDR_OFFSET_WIDTH-1:0] r_output_addr_offset_read;
   logic [OUTPUT_ADDR_OFFSET_WIDTH-1:0] r_output_addr_offset_write;
 
-  localparam OUTPUT_ADDR_CHANNEL_WIDTH = f_width_min1(N_CHANNEL_OUT * FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
+  localparam OUTPUT_ADDR_CHANNEL_WIDTH = f_width_min1(N_CHANNEL_OUT * OUTPUT_PHYSICAL_SIZE * OUTPUT_PHYSICAL_SIZE);
   logic [OUTPUT_ADDR_CHANNEL_WIDTH-1:0] r_output_addr_channel;
 
-  localparam OUTPUT_ADDR_COL_WIDTH = f_width_min1(FEAT_OUTPUT_SIZE);
+  localparam OUTPUT_ADDR_COL_WIDTH = f_width_min1(OUTPUT_PHYSICAL_SIZE);
   logic [OUTPUT_ADDR_COL_WIDTH-1:0] r_output_addr_col;
 
-  localparam OUTPUT_ADDR_ROW_WIDTH = f_width_min1(FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
+  localparam OUTPUT_ADDR_ROW_WIDTH = f_width_min1(OUTPUT_PHYSICAL_SIZE * OUTPUT_PHYSICAL_SIZE);
   logic [OUTPUT_ADDR_ROW_WIDTH-1:0] r_output_addr_row;
 
   logic w_output_last_window_row;
@@ -285,6 +290,13 @@ module Conv
   always_ff @(posedge clk or posedge reset) begin: INPUT_READ_COUNTER_BLOCK
     if (reset) begin
       r_input_addr_count <= 0;
+    end else if (st_conv_current == HADAMARD) begin         // rotate transformed weights with each streamed feature row
+      for (int unsigned i = 0; i < (WEIGHT_CYCLES-NUM_MULT); i++) begin
+        r_input_weight[i] <= r_input_weight[i + NUM_MULT];
+      end
+      for (int unsigned i = (WEIGHT_CYCLES-NUM_MULT); i < WEIGHT_CYCLES; i++) begin
+        r_input_weight[i] <= r_input_weight[i - (WEIGHT_CYCLES-NUM_MULT)];
+      end
     end else begin
       if (st_input_current == READ_WEIGHTS) begin
         r_input_addr_count <= 0;
@@ -359,7 +371,8 @@ module Conv
     w_input_feat_next[6] = (st_input_current == READ_IN_6A) ? p_input_data : r_input_feat[10];
     w_input_feat_next[7] = (st_input_current == READ_IN_6B) ? p_input_data : r_input_feat[11];
 
-    if (st_input_current == TRANSFER) begin
+    if (st_input_current == TRANSFER ||
+        (r_stream_transfer_pending && w_conv_input_release)) begin
       w_input_feat_next[0]  = r_input_feat[4];
       w_input_feat_next[1]  = r_input_feat[5];
       w_input_feat_next[6]  = r_input_feat[10];
@@ -385,15 +398,16 @@ module Conv
       READ_IN_6A, READ_IN_6B, READ_IN_6C, READ_IN_6D, READ_IN_6E, READ_IN_6F:
         w_input_feat_en[w_input_feat_wr_index] = 1'b1;
       TRANSFER:
-        w_input_feat_en = 36'b000011000011000011000011000011000011;  // shift the six 4x4 columns
+        // Keep the completed tile intact for the transform snapshot.  The
+        // window shift is applied once when the inverse releases it.
+        w_input_feat_en = '0;
       default:
         if (r_stream_transfer_pending && w_conv_input_release)
           w_input_feat_en = 36'b000011000011000011000011000011000011;
     endcase
   end
 
-  assign w_input_feat_write_valid = (st_input_current == TRANSFER) ||
-                                    (r_stream_transfer_pending && w_conv_input_release) ||
+  assign w_input_feat_write_valid = (r_stream_transfer_pending && w_conv_input_release) ||
                                     p_input_valid;
 
   always_ff @(posedge clk or posedge reset) begin: STREAM_TRANSFER_PENDING_BLOCK
@@ -418,8 +432,14 @@ module Conv
   // Weight register bank with per-entry write-enable.
   always_comb begin: WEIGHT_WE_BLOCK
     w_input_weight_en = '0;
-    if (st_input_current == READ_WEIGHTS)
-      w_input_weight_en[r_input_count_kernel] = 1'b1;
+    if (st_input_current == READ_WEIGHTS) begin
+      // The generated transform matrix exposes each output column as a
+      // contiguous lane, while the packed weight stream is row-major.
+      for (int unsigned i = 0; i < WEIGHT_CYCLES; i++)
+        if (r_input_count_kernel == WEIGHT_WIDTH'(i))
+          w_input_weight_en[(i % HADAMARD_SIZE) * HADAMARD_SIZE +
+                            (i / HADAMARD_SIZE)] = 1'b1;
+    end
   end
 
   always_ff @(posedge clk or posedge reset) begin: WEIGHT_REG_BLOCK
@@ -431,13 +451,6 @@ module Conv
       for (int unsigned i = 0; i < WEIGHT_CYCLES; i++)
         if (w_input_weight_en[i])
           r_input_weight[i] <= p_input_data;
-    end else if (st_conv_current == HADAMARD) begin         // transform weights into a circular queue
-      for (int unsigned i = 0; i < (WEIGHT_CYCLES-NUM_MULT); i++) begin
-        r_input_weight[i] <= r_input_weight[i + NUM_MULT];
-      end
-      for (int unsigned i = (WEIGHT_CYCLES-NUM_MULT); i < WEIGHT_CYCLES; i++) begin
-        r_input_weight[i] <= r_input_weight[i - (WEIGHT_CYCLES-NUM_MULT)];
-      end
     end else begin
       for (int unsigned i = 0; i < WEIGHT_CYCLES; i++)
         if (w_input_weight_en[i])
@@ -481,10 +494,6 @@ module Conv
   // -------------------------------------------------------------------------
   // CONVOLUTION REGISTER BANK AND CONVOLUTION REGISTERS:  w_conv_end  -- r_conv_multiply_count
   // -------------------------------------------------------------------------
-// `ifdef SIMULATION
-//   time prev_time, curr_time;  // debug
-// `endif
-
   always_ff @(posedge clk or posedge reset) begin: CONV_END_FLAG_BLOCK
     if (reset)
       w_conv_end <= 0;
@@ -633,28 +642,26 @@ module Conv
       WRITE_OUTPUT:
         if (r_output_write_count == OUTPUT_RW_COUNT_WIDTH'(OUTPUT_RW_COUNT_MAX)) begin
           if (((r_output_channel_counter_input) > 0) && !w_output_last_window_row)
-            st_output_next = READ_OUTPUT;      // accumulate next input channel
+            st_output_next = READ_OUTPUT;
           else if ((r_output_channel_counter_input) == 0 && !w_output_last_window_row)
-            st_output_next = RESET_OUTPUT;     // next window, same output channel
+            st_output_next = RESET_OUTPUT;
           else if (w_input_last_channel_output)
-            st_output_next = WAIT_OUTPUT;      // global termination from input traversal
+            st_output_next = WAIT_OUTPUT;
           else if (w_output_last_window_row)
-            st_output_next = NEXT_ROW_OUTPUT;   // change output channel only
+            st_output_next = NEXT_ROW_OUTPUT;
         end
       NEXT_ROW_OUTPUT:
-      // I need to use r_input_channel_counter because output version have delay
         if (w_output_last_window_col)
-          st_output_next = ADDRESS_OUTPUT;      // accumulate next input channel
+          st_output_next = ADDRESS_OUTPUT;
         else if ((r_input_channel_counter_input) == 0)
-          st_output_next = RESET_OUTPUT;     // next window, same output channel
+          st_output_next = RESET_OUTPUT;
         else if ((r_input_channel_counter_input) > 0)
-          st_output_next = READ_OUTPUT;      // accumulate next input channel
+          st_output_next = READ_OUTPUT;
       ADDRESS_OUTPUT:
-        // if (st_input_current != READ_WEIGHTS)
-          if ((r_input_channel_counter_input) == 0)
-            st_output_next = RESET_OUTPUT;     // next window, same output channel
-          else if ((r_input_channel_counter_input) > 0)
-            st_output_next = READ_OUTPUT;      // accumulate next input channel
+        if ((r_input_channel_counter_input) == 0)
+          st_output_next = RESET_OUTPUT;
+        else if ((r_input_channel_counter_input) > 0)
+          st_output_next = READ_OUTPUT;
       default:
         st_output_next = WAIT_OUTPUT;
     endcase
@@ -672,7 +679,7 @@ module Conv
       r_output_channel_counter_input  <= '0;
       r_output_channel_counter_output <= '0;
     end else if (st_output_current == ADDRESS_OUTPUT) begin
-      if (w_output_last_channel_input)  begin
+      if (w_output_last_channel_input) begin
         r_output_channel_counter_input <= '0;
         r_output_channel_counter_output <= r_output_channel_counter_output + 1'b1;
       end else
@@ -686,14 +693,12 @@ module Conv
       r_output_window_counter_col <= '0;
       r_output_window_counter_row <= '0;
     end else if (st_output_current == WRITE_OUTPUT && r_output_write_count == OUTPUT_RW_COUNT_WIDTH'(OUTPUT_RW_COUNT_MAX)) begin
-      // Advance window only after accumulating all input channels for this output window.
       r_output_window_counter_acc <= r_output_window_counter_acc + 1'b1;
       r_output_window_counter_row <= r_output_window_counter_row + 1'b1;
     end else if (st_output_current == NEXT_ROW_OUTPUT) begin
       r_output_window_counter_col <= r_output_window_counter_col + 1'b1;
       r_output_window_counter_row <= 0;
     end else if (st_output_current == ADDRESS_OUTPUT) begin
-      // New output channel starts from first window
       r_output_window_counter_acc <= '0;
       r_output_window_counter_col <= '0;
       r_output_window_counter_row <= '0;
@@ -739,7 +744,9 @@ module Conv
       end
       if (st_conv_current == HADAMARD &&
           r_stream_row_idx == ROW_INDEX_WIDTH'(HADAMARD_SIZE - 1))
-        r_output_write <= w_stream_final_capture;
+        for (int unsigned i = 0; i < CONV_OUTPUT_SIZE * CONV_OUTPUT_SIZE; i++)
+          r_output_write[i] <= w_stream_final_capture[(i % CONV_OUTPUT_SIZE) * CONV_OUTPUT_SIZE +
+                                                      (i / CONV_OUTPUT_SIZE)];
     end
   end
 
@@ -758,7 +765,7 @@ module Conv
           r_output_addr_col <= '0;
           r_output_addr_row <= '0;
           if (w_output_last_channel_input && !w_output_last_channel_output)
-            r_output_addr_channel <= r_output_addr_channel + OUTPUT_ADDR_CHANNEL_WIDTH'(FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
+            r_output_addr_channel <= r_output_addr_channel + OUTPUT_ADDR_CHANNEL_WIDTH'(OUTPUT_PHYSICAL_SIZE * OUTPUT_PHYSICAL_SIZE);
         end else if (w_output_last_window_row) begin
           r_output_addr_row <= '0;
           if (w_output_last_window_col)
@@ -766,7 +773,7 @@ module Conv
           else
             r_output_addr_col <= r_output_addr_col + OUTPUT_ADDR_COL_WIDTH'(CONV_OUTPUT_SIZE);
         end else begin
-          r_output_addr_row <= r_output_addr_row + OUTPUT_ADDR_ROW_WIDTH'(FEAT_OUTPUT_SIZE * CONV_OUTPUT_SIZE);
+          r_output_addr_row <= r_output_addr_row + OUTPUT_ADDR_ROW_WIDTH'(OUTPUT_PHYSICAL_SIZE * CONV_OUTPUT_SIZE);
         end
       end
       if (st_output_current == ADDRESS_OUTPUT) begin
@@ -790,9 +797,9 @@ module Conv
           r_output_addr_offset_read <= r_output_addr_offset_read;
         else
         if ((r_output_read_count % CONV_OUTPUT_SIZE) == (CONV_OUTPUT_SIZE - 1))
-          r_output_addr_offset_read <= r_output_addr_offset_read - OUTPUT_ADDR_OFFSET_WIDTH'(((CONV_OUTPUT_SIZE - 1) * FEAT_OUTPUT_SIZE) - 1);
+          r_output_addr_offset_read <= r_output_addr_offset_read - OUTPUT_ADDR_OFFSET_WIDTH'(((CONV_OUTPUT_SIZE - 1) * OUTPUT_PHYSICAL_SIZE) - 1);
         else
-          r_output_addr_offset_read <= r_output_addr_offset_read + OUTPUT_ADDR_OFFSET_WIDTH'(FEAT_OUTPUT_SIZE);
+          r_output_addr_offset_read <= r_output_addr_offset_read + OUTPUT_ADDR_OFFSET_WIDTH'(OUTPUT_PHYSICAL_SIZE);
       end
 
       if (st_output_current != WRITE_OUTPUT) begin
@@ -803,9 +810,9 @@ module Conv
           r_output_addr_offset_write <= r_output_addr_offset_write;
         else
         if ((r_output_write_count % CONV_OUTPUT_SIZE) == (CONV_OUTPUT_SIZE - 1))
-          r_output_addr_offset_write <= r_output_addr_offset_write - OUTPUT_ADDR_OFFSET_WIDTH'(((CONV_OUTPUT_SIZE - 1) * FEAT_OUTPUT_SIZE) - 1);
+          r_output_addr_offset_write <= r_output_addr_offset_write - OUTPUT_ADDR_OFFSET_WIDTH'(((CONV_OUTPUT_SIZE - 1) * OUTPUT_PHYSICAL_SIZE) - 1);
         else
-          r_output_addr_offset_write <= r_output_addr_offset_write + OUTPUT_ADDR_OFFSET_WIDTH'(FEAT_OUTPUT_SIZE);
+          r_output_addr_offset_write <= r_output_addr_offset_write + OUTPUT_ADDR_OFFSET_WIDTH'(OUTPUT_PHYSICAL_SIZE);
       end
     end
   end
