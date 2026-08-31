@@ -151,19 +151,21 @@ O wrapper ModelSim `fish ./test-streaming.fish` nao iniciou neste ambiente e
 terminou com codigo 159 (SIGSYS do sandbox). Isso e uma limitacao da
 execucao local, nao uma falha funcional observada no Verilator.
 
-## 5. Alteracao 2 candidata: reduzir `r_d_row`
+## 5. Alteracao 2: reduzir `r_d_row`
 
-Esta alteracao **ainda nao foi aplicada**. `r_d_row` e diferente de
-`r_s_row`: ele segura a linha transformada entre a captura no estado
-`TRANSFORM`/`HADAMARD` e o ciclo em que os MACs a consomem.
+Esta alteracao foi aplicada primeiro em `conv4mac.sv` e depois em
+`conv8mac.sv`. `r_d_row` era diferente de `r_s_row`: ele segurava a linha
+transformada entre a captura no estado `TRANSFORM`/`HADAMARD` e o ciclo em que
+os MACs a consomem.
 
 ### Hipotese
 
-Substituir a linha armazenada por selecao combinacional de
-`w_conv_transform[r_stream_product_idx + offset]` pode eliminar quatro
-palavras, mas somente se o valor selecionado permanecer estavel durante todo
-o ciclo de multiplicacao e se a transicao de `r_stream_product_idx` nao mudar
-os operandos antes da captura de `w_stream_acc_next`.
+Substituimos a linha armazenada por selecao combinacional de
+`w_conv_transform[r_stream_product_idx + offset]`. O valor selecionado fica
+estavel durante o ciclo porque `r_stream_product_idx` so muda na borda de
+clock que encerra o grupo de Hadamard; nessa mesma borda os pesos ativos sao
+rotacionados. Assim, a nova linha e os novos pesos passam a valer juntos no
+ciclo seguinte.
 
 ### Prova obrigatoria antes de editar
 
@@ -175,9 +177,45 @@ os operandos antes da captura de `w_stream_acc_next`.
    congelada;
 5. somente depois rodar a regressao completa e, se disponivel, sintese.
 
-O caso `NUM_MULT=8` e especialmente sensivel porque quatro operandos ainda
-precisam permanecer registrados enquanto os outros quatro sao selecionados
-diretamente da transformada.
+No caso `NUM_MULT=4`, os quatro indices usados sao 0, 4, 8 e 12. No caso
+`NUM_MULT=8`, os grupos sao 0 e 8 e todos os oito operandos passam a ser
+selecionados diretamente da matriz transformada.
+
+### Mudanca aplicada
+
+- removida a declaracao e a inicializacao sequencial de `r_d_row` nos dois
+  arquivos;
+- removidas as atribuicoes de `w_conv_transform` para `r_d_row` nos estados
+  `TRANSFORM` e `HADAMARD`;
+- `w_conv_feature` agora usa diretamente os quatro indices da linha atual em
+  `conv4mac`;
+- `w_conv_feature[0..7]` usa os indices `r_stream_product_idx + offset` em
+  `conv8mac`.
+
+O acumulador, os pesos, os contadores e a ordem da inversa nao foram
+alterados.
+
+### Reducao obtida
+
+Cada variante removeu outras 4 palavras de 20 bits, ou 80 bits. Somando a
+Alteracao 1, cada arquivo fixo agora elimina 8 palavras (160 bits) em relacao
+ao estado original; os dois arquivos juntos eliminam 16 palavras (320 bits).
+Area, potencia e timing ainda precisam ser medidos com nova sintese.
+
+### Evidencia
+
+Os dois testes fixos continuam com os mesmos resultados da baseline:
+
+```text
+conv4mac: inverse_tiles=2025 cycles=29749 valid_writes=8100
+          input_samples_clipped=0 invalid_output_beats=0
+conv8mac: inverse_tiles=2025 cycles=25699 valid_writes=8100
+          input_samples_clipped=0 invalid_output_beats=0
+```
+
+Nenhum erro de golden output foi observado. Os avisos adicionais de largura
+nos indices constantes `2'd2` e `2'd3` nao alteram a elaboracao, mas devem ser
+limpos em uma etapa posterior para manter o lint silencioso.
 
 ## 6. Alteracao 3 candidata: reduzir `r_out_acc`
 
@@ -214,9 +252,10 @@ Cada item deve ser um commit separado ou uma unidade de trabalho facilmente
 revertivel:
 
 1. baseline atual: 4 e 8 MACs;
-2. remover `r_s_row` e o `InverseRow` de trace (aplicado neste commit);
+2. remover `r_s_row` e o `InverseRow` de trace (commit anterior);
 3. repetir baseline e registrar ciclos/saidas;
-4. provar e testar a alternativa sem `r_d_row`;
+4. remover `r_d_row` por selecao indexada (aplicado no working tree apos a
+   prova temporal desta etapa);
 5. medir sintese da alternativa aprovada;
 6. somente entao estudar `r_out_acc` ou uma acumulacao dobrada;
 7. validar `NUM_MULT=2` e corrigir as listas de sintese;
