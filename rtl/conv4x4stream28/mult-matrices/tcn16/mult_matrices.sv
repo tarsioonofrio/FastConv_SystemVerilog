@@ -31,7 +31,6 @@ module Transform #(
     .soma(pout)
   );
 endmodule
-
 // Computes the inverse transform contribution of one 6-element Hadamard row.
 module InverseRow #(
     parameter int NBITS = 20,
@@ -66,41 +65,41 @@ module InverseRowAccumulate #(
       acc_out[i] = acc_in[i];
     unique case (row_idx)
       0: for (int unsigned i = 0; i < CONV_OUTPUT_SIZE; i++)
-           acc_out[i] = acc_in[i] + sigma[i];
+           acc_out[i * CONV_OUTPUT_SIZE] = acc_in[i * CONV_OUTPUT_SIZE] + sigma[i];
       1: begin
         for (int unsigned i = 0; i < CONV_OUTPUT_SIZE; i++) begin
-          acc_out[i] = acc_in[i] + sigma[i];
-          acc_out[CONV_OUTPUT_SIZE + i] = acc_in[CONV_OUTPUT_SIZE + i] + sigma[i];
-          acc_out[2 * CONV_OUTPUT_SIZE + i] = acc_in[2 * CONV_OUTPUT_SIZE + i] + sigma[i];
-          acc_out[3 * CONV_OUTPUT_SIZE + i] = acc_in[3 * CONV_OUTPUT_SIZE + i] + sigma[i];
+          acc_out[i * CONV_OUTPUT_SIZE] = acc_in[i * CONV_OUTPUT_SIZE] + sigma[i];
+          acc_out[i * CONV_OUTPUT_SIZE + 1] = acc_in[i * CONV_OUTPUT_SIZE + 1] + sigma[i];
+          acc_out[i * CONV_OUTPUT_SIZE + 2] = acc_in[i * CONV_OUTPUT_SIZE + 2] + sigma[i];
+          acc_out[i * CONV_OUTPUT_SIZE + 3] = acc_in[i * CONV_OUTPUT_SIZE + 3] + sigma[i];
         end
       end
       2: begin
         for (int unsigned i = 0; i < CONV_OUTPUT_SIZE; i++) begin
-          acc_out[i] = acc_in[i] + sigma[i];
-          acc_out[CONV_OUTPUT_SIZE + i] = acc_in[CONV_OUTPUT_SIZE + i] - sigma[i];
-          acc_out[2 * CONV_OUTPUT_SIZE + i] = acc_in[2 * CONV_OUTPUT_SIZE + i] + sigma[i];
-          acc_out[3 * CONV_OUTPUT_SIZE + i] = acc_in[3 * CONV_OUTPUT_SIZE + i] - sigma[i];
+          acc_out[i * CONV_OUTPUT_SIZE] = acc_in[i * CONV_OUTPUT_SIZE] + sigma[i];
+          acc_out[i * CONV_OUTPUT_SIZE + 1] = acc_in[i * CONV_OUTPUT_SIZE + 1] - sigma[i];
+          acc_out[i * CONV_OUTPUT_SIZE + 2] = acc_in[i * CONV_OUTPUT_SIZE + 2] + sigma[i];
+          acc_out[i * CONV_OUTPUT_SIZE + 3] = acc_in[i * CONV_OUTPUT_SIZE + 3] - sigma[i];
         end
       end
       3: begin
         for (int unsigned i = 0; i < CONV_OUTPUT_SIZE; i++) begin
-          acc_out[i] = acc_in[i] + sigma[i];
-          acc_out[CONV_OUTPUT_SIZE + i] = acc_in[CONV_OUTPUT_SIZE + i] + (sigma[i] * 2);
-          acc_out[2 * CONV_OUTPUT_SIZE + i] = acc_in[2 * CONV_OUTPUT_SIZE + i] + (sigma[i] * 4);
-          acc_out[3 * CONV_OUTPUT_SIZE + i] = acc_in[3 * CONV_OUTPUT_SIZE + i] + (sigma[i] * 8);
+          acc_out[i * CONV_OUTPUT_SIZE] = acc_in[i * CONV_OUTPUT_SIZE] + sigma[i];
+          acc_out[i * CONV_OUTPUT_SIZE + 1] = acc_in[i * CONV_OUTPUT_SIZE + 1] + (sigma[i] * 2);
+          acc_out[i * CONV_OUTPUT_SIZE + 2] = acc_in[i * CONV_OUTPUT_SIZE + 2] + (sigma[i] * 4);
+          acc_out[i * CONV_OUTPUT_SIZE + 3] = acc_in[i * CONV_OUTPUT_SIZE + 3] + (sigma[i] * 8);
         end
       end
       4: begin
         for (int unsigned i = 0; i < CONV_OUTPUT_SIZE; i++) begin
-          acc_out[i] = acc_in[i] + sigma[i];
-          acc_out[CONV_OUTPUT_SIZE + i] = acc_in[CONV_OUTPUT_SIZE + i] - (sigma[i] * 2);
-          acc_out[2 * CONV_OUTPUT_SIZE + i] = acc_in[2 * CONV_OUTPUT_SIZE + i] + (sigma[i] * 4);
-          acc_out[3 * CONV_OUTPUT_SIZE + i] = acc_in[3 * CONV_OUTPUT_SIZE + i] - (sigma[i] * 8);
+          acc_out[i * CONV_OUTPUT_SIZE] = acc_in[i * CONV_OUTPUT_SIZE] + sigma[i];
+          acc_out[i * CONV_OUTPUT_SIZE + 1] = acc_in[i * CONV_OUTPUT_SIZE + 1] - (sigma[i] * 2);
+          acc_out[i * CONV_OUTPUT_SIZE + 2] = acc_in[i * CONV_OUTPUT_SIZE + 2] + (sigma[i] * 4);
+          acc_out[i * CONV_OUTPUT_SIZE + 3] = acc_in[i * CONV_OUTPUT_SIZE + 3] - (sigma[i] * 8);
         end
       end
       5: for (int unsigned i = 0; i < CONV_OUTPUT_SIZE; i++)
-           acc_out[3 * CONV_OUTPUT_SIZE + i] = acc_in[3 * CONV_OUTPUT_SIZE + i] + sigma[i];
+           acc_out[i * CONV_OUTPUT_SIZE + 3] = acc_in[i * CONV_OUTPUT_SIZE + 3] + sigma[i];
       default: begin end
     endcase
   end
@@ -292,19 +291,19 @@ module MatrixA0 #(
   timeprecision 1ps;
 
   assign soma[0] = P[0] + P[4] + P[8] + P[12] + P[16];
-  assign soma[1] = P[1] + P[5] + P[9] + P[13] + P[17];
-  assign soma[2] = P[2] + P[6] + P[10] + P[14] + P[18];
-  assign soma[3] = P[3] + P[7] + P[11] + P[15] + P[19];
-  assign soma[4] = P[4] + (P[12] * 2) - (P[8] + (P[16] * 2));
+  assign soma[1] = P[4] + (P[12] * 2) - (P[8] + (P[16] * 2));
+  assign soma[2] = P[4] + P[8] + (P[12] * 4) + (P[16] * 4);
+  assign soma[3] = P[4] + (P[12] * 8) + P[20] - (P[8] + (P[16] * 8));
+  assign soma[4] = P[1] + P[5] + P[9] + P[13] + P[17];
   assign soma[5] = P[5] + (P[13] * 2) - (P[9] + (P[17] * 2));
-  assign soma[6] = P[6] + (P[14] * 2) - (P[10] + (P[18] * 2));
-  assign soma[7] = P[7] + (P[15] * 2) - (P[11] + (P[19] * 2));
-  assign soma[8] = P[4] + P[8] + (P[12] * 4) + (P[16] * 4);
-  assign soma[9] = P[5] + P[9] + (P[13] * 4) + (P[17] * 4);
+  assign soma[6] = P[5] + P[9] + (P[13] * 4) + (P[17] * 4);
+  assign soma[7] = P[5] + (P[13] * 8) + P[21] - (P[9] + (P[17] * 8));
+  assign soma[8] = P[2] + P[6] + P[10] + P[14] + P[18];
+  assign soma[9] = P[6] + (P[14] * 2) - (P[10] + (P[18] * 2));
   assign soma[10] = P[6] + P[10] + (P[14] * 4) + (P[18] * 4);
-  assign soma[11] = P[7] + P[11] + (P[15] * 4) + (P[19] * 4);
-  assign soma[12] = P[4] + (P[12] * 8) + P[20] - (P[8] + (P[16] * 8));
-  assign soma[13] = P[5] + (P[13] * 8) + P[21] - (P[9] + (P[17] * 8));
-  assign soma[14] = P[6] + (P[14] * 8) + P[22] - (P[10] + (P[18] * 8));
+  assign soma[11] = P[6] + (P[14] * 8) + P[22] - (P[10] + (P[18] * 8));
+  assign soma[12] = P[3] + P[7] + P[11] + P[15] + P[19];
+  assign soma[13] = P[7] + (P[15] * 2) - (P[11] + (P[19] * 2));
+  assign soma[14] = P[7] + P[11] + (P[15] * 4) + (P[19] * 4);
   assign soma[15] = P[7] + (P[15] * 8) + P[23] - (P[11] + (P[19] * 8));
 endmodule

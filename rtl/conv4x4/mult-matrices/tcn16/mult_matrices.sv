@@ -218,19 +218,19 @@ module MatrixA0 #(
   timeprecision 1ps;
 
   assign soma[0] = P[0] + P[4] + P[8] + P[12] + P[16];
-  assign soma[1] = P[1] + P[5] + P[9] + P[13] + P[17];
-  assign soma[2] = P[2] + P[6] + P[10] + P[14] + P[18];
-  assign soma[3] = P[3] + P[7] + P[11] + P[15] + P[19];
-  assign soma[4] = P[4] + (P[12] * 2) - (P[8] + (P[16] * 2));
+  assign soma[1] = P[4] + (P[12] * 2) - (P[8] + (P[16] * 2));
+  assign soma[2] = P[4] + P[8] + (P[12] * 4) + (P[16] * 4);
+  assign soma[3] = P[4] + (P[12] * 8) + P[20] - (P[8] + (P[16] * 8));
+  assign soma[4] = P[1] + P[5] + P[9] + P[13] + P[17];
   assign soma[5] = P[5] + (P[13] * 2) - (P[9] + (P[17] * 2));
-  assign soma[6] = P[6] + (P[14] * 2) - (P[10] + (P[18] * 2));
-  assign soma[7] = P[7] + (P[15] * 2) - (P[11] + (P[19] * 2));
-  assign soma[8] = P[4] + P[8] + (P[12] * 4) + (P[16] * 4);
-  assign soma[9] = P[5] + P[9] + (P[13] * 4) + (P[17] * 4);
+  assign soma[6] = P[5] + P[9] + (P[13] * 4) + (P[17] * 4);
+  assign soma[7] = P[5] + (P[13] * 8) + P[21] - (P[9] + (P[17] * 8));
+  assign soma[8] = P[2] + P[6] + P[10] + P[14] + P[18];
+  assign soma[9] = P[6] + (P[14] * 2) - (P[10] + (P[18] * 2));
   assign soma[10] = P[6] + P[10] + (P[14] * 4) + (P[18] * 4);
-  assign soma[11] = P[7] + P[11] + (P[15] * 4) + (P[19] * 4);
-  assign soma[12] = P[4] + (P[12] * 8) + P[20] - (P[8] + (P[16] * 8));
-  assign soma[13] = P[5] + (P[13] * 8) + P[21] - (P[9] + (P[17] * 8));
-  assign soma[14] = P[6] + (P[14] * 8) + P[22] - (P[10] + (P[18] * 8));
+  assign soma[11] = P[6] + (P[14] * 8) + P[22] - (P[10] + (P[18] * 8));
+  assign soma[12] = P[3] + P[7] + P[11] + P[15] + P[19];
+  assign soma[13] = P[7] + (P[15] * 2) - (P[11] + (P[19] * 2));
+  assign soma[14] = P[7] + P[11] + (P[15] * 4) + (P[19] * 4);
   assign soma[15] = P[7] + (P[15] * 8) + P[23] - (P[11] + (P[19] * 8));
 endmodule
