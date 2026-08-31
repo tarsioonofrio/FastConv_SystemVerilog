@@ -1,7 +1,7 @@
 rtl/conv2x2/data/tcn4/sim/sim-032-3-3-normal/pack_data.sv
 rtl/conv2x2/pack-param/tcn4/pack_param.sv
-rtl/conv2x2stream12/mult-matrices/tcn4/mult_matrices.sv
+rtl/conv2x2stream4/mult-matrices/tcn4/mult_matrices.sv
 rtl/csa/csa_lib.sv
 rtl/multip/multip.sv
 rtl/mem/mem.sv
-rtl/conv2x2stream12/conv.sv
+rtl/conv2x2stream4/conv.sv
