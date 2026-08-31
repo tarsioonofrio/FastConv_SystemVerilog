@@ -18,7 +18,7 @@ baseline tree through the relative paths in
 Run the complete ModelSim/Questa regression with:
 
 ```bash
-fish rtl/conv2x2stream12/test-streaming.fish
+fish rtl/conv2x2stream4/test-streaming.fish
 ```
 
 For Verilator, select the factorization at elaboration time:
