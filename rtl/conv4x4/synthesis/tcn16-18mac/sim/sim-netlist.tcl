@@ -37,6 +37,9 @@ set fp [open $file_list r]
 while {[gets $fp line] >= 0} {
     set line_trim [string trim $line]
     if {$line_trim eq "" || [string match "#*" $line_trim]} { continue }
+    # The mapped gate-level top is added below.  Exclude its RTL counterpart
+    # from list-file.txt so Xcelium/ModelSim elaborate one Conv hierarchy.
+    if {[file tail $line_trim] eq "${top_module}.sv"} { continue }
     vlog -work work {*}$define_flags -svinputport=relaxed \
         [resolve_project_file $line_trim $CONFIG_ROOT $GIT_ROOT]
 }
