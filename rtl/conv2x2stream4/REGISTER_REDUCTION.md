@@ -454,8 +454,28 @@ contagem de tiles e contagem de escritas:
 
 Os resultados mostram a remocao dos dois ciclos de controle por janela sem
 alterar os dados: todos os golden checks passaram, nao houve escrita fora da
-faixa e cada variante manteve 2.025 tiles e 8.100 escritas. A sintese logica,
-a simulacao anotada e o power desta nova microarquitetura ainda devem ser
-executados como uma campanha unica no Paxos; os numeros da secao 11 pertencem
-ao RTL anterior a esta remocao de estados e nao devem ser usados como PPA
-final desta versao.
+faixa e cada variante manteve 2.025 tiles e 8.100 escritas. A campanha unica
+de Genus, anotada e Joules foi entao executada no Paxos a partir deste RTL.
+Os numeros abaixo substituem os da secao 11 para esta microarquitetura:
+
+| Variante | Celulas | Area total (um2) | Flip-flops | Slack nominal (ps) | Power total (mW) |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| `tcn4-02mac` | 5.384 | 9.312,026 | 1.107 | 225 | 0,660695 |
+| `tcn4-04mac` | 8.473 | 12.127,770 | 1.024 | 243 | 0,692382 |
+| `tcn4-08mac` | 11.818 | 16.855,605 | 1.023 | 206 | 0,918483 |
+
+A anotada final usou os netlists desta mesma campanha e a biblioteca
+`work_gate_final`, sem compilar o RTL comportamental junto com o netlist:
+
+| Variante | SDF errors | SDF warnings | Inverse tiles | Ciclos totais | Ciclos ativos | Escritas validas |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| `tcn4-02mac` | 0 | 1.190 | 2.025 | 35.825 | 16.200 | 8.100 |
+| `tcn4-04mac` | 0 | 879 | 2.025 | 27.725 | 8.100 | 8.100 |
+| `tcn4-08mac` | 0 | 866 | 2.025 | 23.675 | 4.050 | 8.100 |
+
+O power foi calculado pelo Joules a partir do `dut.shm` de cada anotada. Os
+warnings `SDFINF` continuam sendo informativos: nao houve erro de anotacao,
+mas algumas celulas nao possuem atraso individual associavel apos a
+otimizacao do Genus. A reducao do estado da convolucao tambem aparece no
+relatorio: foram sintetizados 1.107, 1.024 e 1.023 flip-flops nos cores de 2,
+4 e 8 MACs, respectivamente.
