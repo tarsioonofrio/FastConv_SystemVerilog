@@ -280,3 +280,25 @@ revertivel:
 Nenhuma alteracao deve ser promovida por area estimada em RTL. O resultado de
 cada etapa precisa conter a mudanca, a razao, os testes e o que ainda nao foi
 medido.
+
+## 9. Configuracao de sintese por variante
+
+As tres configuracoes em `synthesis/tcn4-*mac` foram corrigidas para usar os
+artefatos locais deste diretorio:
+
+| Configuracao | Fonte do core | Parametro |
+| --- | --- | --- |
+| `tcn4-02mac` | `conv.sv` | `NUM_MULT=2` |
+| `tcn4-04mac` | `conv4mac.sv` | fixo em 4 MACs |
+| `tcn4-08mac` | `conv8mac.sv` | fixo em 8 MACs |
+
+As listas anteriores apontavam para `rtl/conv2x2stream12`, de modo que os
+logs/registros de sintese que ja estavam no diretorio nao comprovavam a
+sintese do RTL desta pasta. Tambem foi corrigido o `testbench-file.txt` para o
+testbench compartilhado local e o nome de topo para `Conv`, respeitando
+maiusculas/minusculas do SystemVerilog.
+
+Essa etapa corrige a origem dos arquivos, mas ainda nao e uma nova sintese.
+Genus, simulacao anotada e power devem ser executados no Paxos a partir deste
+commit; os resultados antigos devem ser substituidos e identificados pelo
+commit do RTL usado.
