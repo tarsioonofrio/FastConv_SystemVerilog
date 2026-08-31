@@ -16,6 +16,7 @@ FIXED_COMMON = $(DATA) $(PARAM) $(MEM) ../csa/csa_lib.sv ../multip/multip.sv $(M
 all: $(BIN)
 
 $(BIN): $(SRC) $(TB) $(DATA) $(PARAM) $(MATRICES) $(MEM)
+	mkdir -p $(OBJDIR)
 	$(VERILATOR) --binary --exe --Mdir $(OBJDIR) $(DATA) $(PARAM) $(MEM) ../csa/csa_lib.sv ../multip/multip.sv $(MATRICES) $(SRC) $(TB) --build
 
 lint:
@@ -27,12 +28,15 @@ run: all
 .PHONY: conv2mac conv4mac conv8mac run-conv2mac run-conv4mac run-conv8mac
 
 conv2mac:
+	mkdir -p obj_dir/conv2mac
 	$(FIXED_VERILATOR) --binary --exe --top-module tb --Mdir obj_dir/conv2mac $(FIXED_COMMON) conv2mac.sv testbench.sv --build
 
 conv4mac:
+	mkdir -p obj_dir/conv4mac
 	$(FIXED_VERILATOR) --binary --exe --top-module tb --Mdir obj_dir/conv4mac $(FIXED_COMMON) conv4mac.sv testbench.sv --build
 
 conv8mac:
+	mkdir -p obj_dir/conv8mac
 	$(FIXED_VERILATOR) --binary --exe --top-module tb --Mdir obj_dir/conv8mac $(FIXED_COMMON) conv8mac.sv testbench.sv --build
 
 run-conv2mac: conv2mac
