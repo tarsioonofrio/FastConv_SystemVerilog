@@ -281,7 +281,43 @@ Nenhuma alteracao deve ser promovida por area estimada em RTL. O resultado de
 cada etapa precisa conter a mudanca, a razao, os testes e o que ainda nao foi
 medido.
 
-## 9. Configuracao de sintese por variante
+## 9. Alteracao 4: tornar as tres configuracoes de sintese coerentes
+
+### Motivacao
+
+As tres variantes compartilham o mesmo fluxo Genus, mas a configuracao de
+`NUM_MULT=2` e parametrizada enquanto `conv4mac.sv` e `conv8mac.sv` ja sao
+modulos fixos. O arquivo `top-parameters.txt` usa a forma legivel
+`NUM_MULT=2`; o comando `elaborate -parameters` do Genus, porem, exige uma
+lista Tcl de pares `{nome valor}`. Se somente uma configuracao fizer essa
+conversao, o resultado dependera da variante e a sintese podera falhar antes
+de ler o RTL.
+
+### Mudanca aplicada
+
+Os parsers locais de `tcn4-02mac`, `tcn4-04mac` e `tcn4-08mac` agora:
+
+- ignoram linhas vazias e comentarios;
+- convertem `NAME=VALUE` em `{NAME VALUE}` antes de `elaborate`;
+- preservam a possibilidade de uma linha ja estar no formato Tcl;
+- resolvem as listas de HDL a partir do diretorio da configuracao ou da raiz
+  do repositorio;
+- leem o topo de `top-module.txt`, evitando o nome legado `system` quando o
+  modulo real e `Conv`.
+
+A mesma correcao de origem foi aplicada ao caminho do testbench e aos tres
+`list-file.txt`. Nenhuma sintese e considerada atualizada apenas por essa
+mudanca de script: a prova exige executar Genus depois que todas as alteracoes
+de RTL forem finalizadas.
+
+### Criterio de aceite
+
+- validacao textual de que todos os caminhos das listas existem;
+- `make NUM_MULT=2/4/8` continua passando no RTL;
+- uma unica campanha final de Genus para as tres configuracoes, seguida de
+  simulacao anotada e power usando os artefatos dessa mesma campanha.
+
+## 10. Configuracao de sintese por variante
 
 As tres configuracoes em `synthesis/tcn4-*mac` foram corrigidas para usar os
 artefatos locais deste diretorio:
