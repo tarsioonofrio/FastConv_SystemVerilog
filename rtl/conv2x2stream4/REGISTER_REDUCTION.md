@@ -351,28 +351,42 @@ Genus, simulacao anotada e power devem ser executados no Paxos a partir deste
 commit; os resultados antigos devem ser substituidos e identificados pelo
 commit do RTL usado.
 
-## 11. Campanha final apos o commit `e112a460`
+## 11. Campanha final apos o commit `f71dd2a2`
 
 Depois da correcao dos nomes SDF, foi executada uma campanha completa no
-Paxos. As tres sinteses usaram o mesmo commit de RTL e os mesmos scripts
-locais desta arvore. Os valores abaixo sao os resultados efetivamente
+Paxos. As tres sinteses usaram o mesmo commit de RTL (`e112a460`) e os mesmos
+scripts locais desta arvore. O commit desta secao (`f71dd2a2`) altera somente o
+testbench e a biblioteca de trabalho da anotada; portanto nao foi necessario
+repetir a sintese logica. Os valores abaixo sao os resultados efetivamente
 gerados, nao estimativas baseadas na contagem de declaracoes SystemVerilog.
 
 | Variante | Celulas | Area total (um2) | Flip-flops | Slack nominal (ps) | Power total (mW) |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| `tcn4-02mac` | 5.391 | 9.309,779 | 1.111 | 235 | 0,432836 |
-| `tcn4-04mac` | 8.325 | 12.083,943 | 1.027 | 240 | 0,582515 |
-| `tcn4-08mac` | 11.628 | 16.780,670 | 1.025 | 242 | 0,774864 |
+| `tcn4-02mac` | 5.391 | 9.309,779 | 1.111 | 235 | 0,620796 |
+| `tcn4-04mac` | 8.325 | 12.083,943 | 1.027 | 240 | 0,653916 |
+| `tcn4-08mac` | 11.628 | 16.780,670 | 1.025 | 242 | 0,839179 |
 
 O slack e positivo no view nominal de 2 ns (`analysis_view_0p90v_25c_captyp_nominal`).
 O power foi calculado pelo Joules a partir do `dut.shm` da simulacao anotada,
-com o resultado consolidado em `power_evaluation.txt`. A simulacao anotada
-leu o SDF nominal correto e terminou com zero erros, mantendo 2.025 tiles e
-8.100 escritas validas em cada variante. O Xcelium reportou muitos warnings
-`SDFINF` de instancias removidas ou reescritas pelo Genus (7.436, 16.596 e
-23.202, respectivamente); por isso esses resultados comprovam a execucao e a
-equivalencia funcional do testbench, mas nao significam que cada atraso
-individual encontrou uma instancia homonima no netlist otimizado.
+com o resultado consolidado em `power_evaluation.txt`. A tabela abaixo registra
+a mesma campanha gate-level, agora compilada em bibliotecas Xcelium novas
+(`work_gate_clean`) e sem os modulos comportamentais `Conv` da lista RTL:
+
+| Variante | SDF errors | SDF warnings | Inverse tiles | Ciclos totais | Ciclos ativos | Escritas validas |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| `tcn4-02mac` | 0 | 1.194 | 2.025 | 37.850 | 20.250 | 8.100 |
+| `tcn4-04mac` | 0 | 1.107 | 2.025 | 29.750 | 12.150 | 8.100 |
+| `tcn4-08mac` | 0 | 1.108 | 2.025 | 25.700 | 8.100 | 8.100 |
+
+O Xcelium reportou warnings `SDFINF` de instancias sem atraso anotavel (por
+exemplo, celulas removidas ou reescritas pelo Genus), mas nenhum erro de SDF.
+Os warnings nao invalidam a equivalencia funcional, mas significam que nem
+todo atraso individual foi associado a uma instancia homonima no netlist.
+O uso de uma biblioteca de trabalho nova e a ausencia do RTL comportamental
+eliminam a contaminacao por modulos compilados de rodadas anteriores. A
+execucao de 2 MACs agora mostra 20.250 ciclos ativos, em vez dos 12.150 da
+rodada contaminada, confirmando que cada netlist esta sendo simulado de forma
+independente.
 
 Os relatórios permanecem no Paxos em
 `rtl/conv2x2stream4/synthesis/tcn4-*/{logical/results,power}`. Eles devem ser
