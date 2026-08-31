@@ -281,6 +281,11 @@ Nenhuma alteracao deve ser promovida por area estimada em RTL. O resultado de
 cada etapa precisa conter a mudanca, a razao, os testes e o que ainda nao foi
 medido.
 
+O comando `sdf_cmd.cmd` tambem precisa usar exatamente o nome produzido pelo
+Genus (`Conv_...sdf`, respeitando maiusculas/minusculas). Se ele apontar para
+`conv_...sdf`, o Xcelium pode continuar a simulacao sem anotacao e emitir
+apenas um warning; isso nao e uma simulacao anotada valida.
+
 ## 9. Alteracao 4: tornar as tres configuracoes de sintese coerentes
 
 ### Motivacao
