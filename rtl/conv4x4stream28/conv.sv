@@ -92,7 +92,6 @@ module Conv
   logic signed [NBITS-1+QUANT:0] w_conv_product [NUM_MULT-1:0];  // QUANT more bits for the multipliers
   logic w_conv_end;
   logic w_conv_input_release;
-  logic r_conv_input_release_pending;
 
   localparam int ROW_INDEX_WIDTH = f_width_min1(HADAMARD_SIZE);
   logic [NBITS-1:0] r_d_row [HADAMARD_SIZE-1:0];
@@ -115,8 +114,6 @@ module Conv
   logic [NBITS-1:0] r_output_write [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
   logic [NBITS-1:0] r_output_read [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
   logic [NADDR-1:0] w_output_addr;
-  // One completed inverse tile is held while the output port consumes it.
-  logic r_result_pending;
 
   localparam FEAT_OUTPUT_SIZE = (FEAT_INPUT_SIZE - 2);
   // Output memory uses a tile-aligned physical surface.  The testbench crops
@@ -258,11 +255,11 @@ module Conv
       READ_IN_6D: if (r_input_addr_count == (CONV_INPUT_SIZE - 1)) st_input_next = READ_IN_6E;
       READ_IN_6E: if (r_input_addr_count == (CONV_INPUT_SIZE - 1)) st_input_next = READ_IN_6F;
       READ_IN_6F: if (r_input_addr_count == (CONV_INPUT_SIZE - 1)) st_input_next = CONV_INPUT;
-      CONV_INPUT: if (!r_result_pending) st_input_next = TRANSFER;
+      CONV_INPUT: st_input_next = TRANSFER;
       TRANSFER: st_input_next = HOLD_WRITE;  // p_start the convolution
       HOLD_WRITE:
-        if ((w_conv_input_release || r_conv_input_release_pending) && w_input_last_window_col && w_input_write_done) st_input_next = NEXT_ROW_INPUT;
-          else if ((w_conv_input_release || r_conv_input_release_pending) && w_input_write_done) st_input_next = READ_IN_6C;
+        if (w_conv_input_release && w_input_last_window_col && w_input_write_done) st_input_next = NEXT_ROW_INPUT;
+          else if (w_conv_input_release && w_input_write_done) st_input_next = READ_IN_6C;
         else st_input_next = HOLD_WRITE;
       NEXT_ROW_INPUT:
         if (w_input_last_window_acc) st_input_next = ADDRESS_INPUT;
@@ -272,7 +269,8 @@ module Conv
   end
 
   assign w_input_weight_done = (r_input_count_kernel == WEIGHT_WIDTH'(WEIGHT_CYCLES - 1));
-  assign w_input_write_done = !r_result_pending;
+  assign w_input_write_done = r_output_write_count == 0 ||
+                              r_output_write_count == OUTPUT_RW_COUNT_MAX;
 
   assign w_input_last_window_col = (r_input_window_counter_col == WINDOW_ROW_COUNTER_WIDTH'(WINDOW_COUNT_PER_LINE));
   assign w_input_last_window_acc = (r_input_window_counter_acc == WINDOW_COUNTER_WIDTH'(WINDOW_COUNT_PER_LINE * WINDOW_COUNT_PER_COLUMN));
@@ -280,19 +278,6 @@ module Conv
   assign w_conv_input_release = st_conv_current == INVERSE ||
                                 (st_conv_current == HADAMARD &&
                                  r_stream_row_idx == ROW_INDEX_WIDTH'(HADAMARD_SIZE - 1));
-
-  // The convolution completion is a pulse, but output accumulation may still
-  // be busy.  Retain it until HOLD_WRITE can advance the input stream.
-  always_ff @(posedge clk or posedge reset) begin: CONV_INPUT_RELEASE_PENDING_BLOCK
-    if (reset)
-      r_conv_input_release_pending <= 1'b0;
-    else if (st_input_current != HOLD_WRITE)
-      r_conv_input_release_pending <= 1'b0;
-    else if (w_input_write_done && (w_conv_input_release || r_conv_input_release_pending))
-      r_conv_input_release_pending <= 1'b0;
-    else if (w_conv_input_release)
-      r_conv_input_release_pending <= 1'b1;
-  end
 
   assign p_end = (st_output_current == WRITE_OUTPUT) &&
                  (r_output_write_count == OUTPUT_RW_COUNT_WIDTH'(OUTPUT_RW_COUNT_MAX)) &&
@@ -489,7 +474,7 @@ module Conv
     st_conv_next = st_conv_current;  // default prevents latch inference
     priority case (st_conv_current)
       WAIT_CONV: begin
-        if (st_input_current == CONV_INPUT && !r_result_pending) begin
+        if (st_input_current == CONV_INPUT) begin
           st_conv_next = TRANSFORM;  // starts the convolution after moving data to the convolution register bank
         end
       end
@@ -519,17 +504,6 @@ module Conv
         w_conv_end <= 0;
         // else if (st_output_current == WRITE_OUTPUT || st_conv_current == WAIT_CONV) w_conv_end <= 0;
     end
-  end
-
-  always_ff @(posedge clk or posedge reset) begin: RESULT_PENDING_BLOCK
-    if (reset)
-      r_result_pending <= 1'b0;
-    else if (st_conv_current == HADAMARD &&
-             r_stream_row_idx == ROW_INDEX_WIDTH'(HADAMARD_SIZE - 1))
-      r_result_pending <= 1'b1;
-    else if (st_output_current == WRITE_OUTPUT &&
-             r_output_write_count == OUTPUT_RW_COUNT_WIDTH'(OUTPUT_RW_COUNT_MAX))
-      r_result_pending <= 1'b0;
   end
 
   always_ff @(posedge clk or posedge reset) begin: CONV_MULTIPLY_COUNTER_BLOCK

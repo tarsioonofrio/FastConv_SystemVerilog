@@ -103,9 +103,6 @@ module Conv
   logic [NBITS-1:0] r_output_write [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
   logic [NBITS-1:0] r_output_read [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
   logic [NADDR-1:0] w_output_addr;
-  // One inverse tile is held while the output port performs its read/modify
-  // write sequence.  This scalar replaces the former full result bank.
-  logic r_result_pending;
 
   localparam FEAT_OUTPUT_SIZE = (FEAT_INPUT_SIZE - 2);
   // Output memory uses a tile-aligned physical surface.  The testbench crops
@@ -247,7 +244,7 @@ module Conv
       READ_IN_6D: if (r_input_addr_count == (CONV_INPUT_SIZE - 1)) st_input_next = READ_IN_6E;
       READ_IN_6E: if (r_input_addr_count == (CONV_INPUT_SIZE - 1)) st_input_next = READ_IN_6F;
       READ_IN_6F: if (r_input_addr_count == (CONV_INPUT_SIZE - 1)) st_input_next = CONV_INPUT;
-      CONV_INPUT: if (!r_result_pending) st_input_next = TRANSFER;
+      CONV_INPUT: st_input_next = TRANSFER;
       TRANSFER: st_input_next = HOLD_WRITE;  // p_start the convolution
       HOLD_WRITE:
         if (w_input_last_window_col && w_input_write_done) st_input_next = NEXT_ROW_INPUT;
@@ -261,7 +258,12 @@ module Conv
   end
 
   assign w_input_weight_done = (r_input_count_kernel == WEIGHT_WIDTH'(WEIGHT_CYCLES - 1));
-  assign w_input_write_done = !r_result_pending;
+  // Release after the consumer has started the first tile or completed a
+  // later tile; releasing during RESET_OUTPUT would allow the first inverse
+  // result to be overwritten before its first write beat.
+  assign w_input_write_done = r_output_write_count == OUTPUT_RW_COUNT_MAX ||
+                              ((r_output_write_count == 0) &&
+                               (st_output_current == WRITE_OUTPUT));
 
   assign w_input_last_window_col = (r_input_window_counter_col == WINDOW_ROW_COUNTER_WIDTH'(WINDOW_COUNT_PER_LINE));
   assign w_input_last_window_acc = (r_input_window_counter_acc == WINDOW_COUNTER_WIDTH'(WINDOW_COUNT_PER_LINE * WINDOW_COUNT_PER_COLUMN));
@@ -448,7 +450,7 @@ module Conv
     st_conv_next = st_conv_current;  // default prevents latch inference
     priority case (st_conv_current)
       WAIT_CONV: begin
-        if (st_input_current == CONV_INPUT && !r_result_pending) begin
+        if (st_input_current == CONV_INPUT) begin
           st_conv_next = TRANSFORM;  // starts the convolution after moving data to the convolution register bank
         end
       end
@@ -478,16 +480,6 @@ module Conv
         w_conv_end <= 0;
         // else if (st_output_current == WRITE_OUTPUT || st_conv_current == WAIT_CONV) w_conv_end <= 0;
     end
-  end
-
-  always_ff @(posedge clk or posedge reset) begin: RESULT_PENDING_BLOCK
-    if (reset)
-      r_result_pending <= 1'b0;
-    else if (st_conv_current == INVERSE)
-      r_result_pending <= 1'b1;
-    else if (st_output_current == WRITE_OUTPUT &&
-             r_output_write_count == OUTPUT_RW_COUNT_WIDTH'(OUTPUT_RW_COUNT_MAX))
-      r_result_pending <= 1'b0;
   end
 
   always_ff @(posedge clk or posedge reset) begin: CONV_MULTIPLY_COUNTER_BLOCK
