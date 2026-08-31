@@ -16,7 +16,7 @@ module Conv
     parameter int unsigned CONV_OUTPUT_SIZE    = 2,
     parameter int unsigned CONV_INPUT_SIZE     = 4,
     parameter int unsigned HADAMARD_SIZE       = 4,
-    parameter int unsigned NUM_MULT            = 4
+    parameter int unsigned NUM_MULT            = 2
   ) (
     input  logic clk,
     input  logic reset,
@@ -97,6 +97,8 @@ module Conv
   logic [NBITS-1:0] w_conv_transform [HADAMARD_SIZE*HADAMARD_SIZE-1:0];
   logic signed [NBITS-1+QUANT:0] w_conv_product [NUM_MULT-1:0];  // QUANT more bits for the multipliers
   logic w_conv_end;
+  logic w_hadamard_start;
+  logic w_hadamard_last;
   logic w_conv_input_release;
 
   // Row-streaming state. NUM_MULT is restricted to divisors 2, 4 and 8
@@ -176,11 +178,9 @@ module Conv
   type_st_input st_input_current;
   type_st_input st_input_next;
 
-  typedef enum logic [1:0] {
+  typedef enum logic {
     WAIT_CONV,
-    TRANSFORM,
-    HADAMARD,
-    INVERSE
+    HADAMARD
   } type_st_conv;
   type_st_conv st_conv_current;
   type_st_conv st_conv_next;
@@ -284,10 +284,11 @@ module Conv
 
   // STREAM_FREEZE lifetime policy: the current feature tile remains stable
   // until the last transform row has been consumed by the Hadamard stage.
-  assign w_conv_input_release =
-                                (st_conv_current == INVERSE) ||
-                                ((st_conv_current == HADAMARD) &&
-                                 (r_conv_multiply_count == $bits(r_conv_multiply_count)'(STREAM_CYCLES - 1)));
+  assign w_hadamard_start = (st_conv_current == WAIT_CONV) &&
+                            (st_input_current == CONV_INPUT);
+  assign w_hadamard_last = (st_conv_current == HADAMARD) &&
+                           (r_conv_multiply_count == $bits(r_conv_multiply_count)'(STREAM_CYCLES - 1));
+  assign w_conv_input_release = w_hadamard_last;
 
   assign p_end = (st_output_current == WRITE_OUTPUT) &&
                  (r_output_write_count == OUTPUT_RW_COUNT_WIDTH'(OUTPUT_RW_COUNT_MAX)) &&
@@ -466,18 +467,14 @@ module Conv
     priority case (st_conv_current)
       WAIT_CONV: begin
         if (st_input_current == CONV_INPUT) begin
-          st_conv_next = TRANSFORM;  // starts the convolution after moving data to the convolution register bank
+          st_conv_next = HADAMARD;  // start streaming after the feature tile is complete
         end
       end
-      TRANSFORM:
-        st_conv_next = HADAMARD;
       HADAMARD: begin
         if (r_conv_multiply_count == $bits(r_conv_multiply_count)'(STREAM_CYCLES - 1)) begin
-          st_conv_next = INVERSE;
+          st_conv_next = WAIT_CONV;
         end
       end
-      INVERSE:
-        st_conv_next = WAIT_CONV;
       default: st_conv_next = WAIT_CONV;
     endcase
   end
@@ -493,7 +490,7 @@ module Conv
     if (reset)
       w_conv_end <= 0;
     else begin
-      if (st_conv_next == INVERSE)  // *** CAUTION: PE
+      if (w_hadamard_last)
         w_conv_end <= 1;
       else if (st_output_current == WRITE_OUTPUT)
         w_conv_end <= 0;
@@ -505,9 +502,8 @@ module Conv
     if (reset)
       r_conv_multiply_count <= 0;
     else begin
-      if (st_conv_current == TRANSFORM)
+      if (w_hadamard_start)
           r_conv_multiply_count <= 0;
-      // if (st_conv_current == WAIT_CONV || st_conv_current == TRANSFORM) r_conv_multiply_count <= 0;
       else if (st_conv_current == HADAMARD)
         r_conv_multiply_count <= r_conv_multiply_count + 1;
     end
@@ -527,22 +523,17 @@ module Conv
       stream_debug_had_count <= 0;
 `endif
     end else begin
-      unique case (st_conv_current)
-        TRANSFORM: begin
-          for (int unsigned i = 0; i < HADAMARD_SIZE; i++)
-            r_d_row[i] <= w_conv_transform[i];
-          r_s_row              <= '{default: '0};
-          r_out_acc            <= '{default: '0};
-          r_stream_row_idx     <= '0;
-          r_stream_product_idx <= '0;
+      if (w_hadamard_start) begin
+        for (int unsigned i = 0; i < HADAMARD_SIZE; i++)
+          r_d_row[i] <= w_conv_transform[i];
+        r_s_row              <= '{default: '0};
+        r_out_acc            <= '{default: '0};
+        r_stream_row_idx     <= '0;
+        r_stream_product_idx <= '0;
 `ifdef STREAM_DEBUG
-          $display("STREAM TRANSFORM");
-          for (int unsigned d = 0; d < HADAMARD_SIZE*HADAMARD_SIZE; d++)
-            $write(" %0d", $signed(w_conv_transform[d]));
-          $write("\n");
+        $display("STREAM START");
 `endif
-        end
-        HADAMARD: begin
+      end else if (st_conv_current == HADAMARD) begin
           r_stream_product_idx <= r_stream_product_idx + PRODUCT_INDEX_WIDTH'(NUM_MULT);
           if (NUM_MULT == 2) begin
             if (r_stream_product_idx == 0) begin
@@ -619,18 +610,7 @@ module Conv
           $write("  ACC_NEXT:"); for (int unsigned d = 0; d < CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE; d++) $write(" %0d", $signed(w_stream_acc_next[d])); $write("\n");
           stream_debug_had_count <= stream_debug_had_count + 1;
 `endif
-        end
-        INVERSE: begin
-`ifdef STREAM_DEBUG
-          $display("STREAM FINAL");
-          $write("  ACC:"); for (int unsigned d = 0; d < CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE; d++) $write(" %0d", $signed(r_out_acc[d])); $write("\n");
-          $write("  Slast:"); for (int unsigned d = 0; d < HADAMARD_SIZE; d++) $write(" %0d", $signed(r_s_row[d])); $write("\n");
-          $write("  SIG:"); for (int unsigned d = 0; d < CONV_OUTPUT_SIZE; d++) $write(" %0d", $signed(w_stream_sigma[d])); $write("\n");
-          $write("  OUT:"); for (int unsigned d = 0; d < CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE; d++) $write(" %0d", $signed(w_stream_final_output[d])); $write("\n");
-`endif
-        end
-        default: begin end
-      endcase
+      end
     end
   end
 
@@ -731,7 +711,7 @@ module Conv
         .acc_out(w_stream_acc_next)
       );
     end
-    assign w_stream_final_output = (st_conv_current == INVERSE) ? r_out_acc : w_stream_acc_next;
+    assign w_stream_final_output = w_stream_acc_next;
     assign w_stream_final_capture = w_stream_acc_next;
   endgenerate
 
