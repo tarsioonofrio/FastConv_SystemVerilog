@@ -230,18 +230,33 @@ com relatorio de area/timing que mostre beneficio real.
 
 ## 7. Variante de 2 MACs
 
-O Makefile possui o alvo `run-conv2mac`, e o indice Git contem um `conv.sv`
-generico parametrizado para `NUM_MULT` em `{2,4,8}`. No estado observado desta
-execucao, `conv2mac.sv` nao existe fisicamente no diretorio e o `conv.sv`
-generico estava ausente do working tree, embora estivesse no indice.
+O Makefile possui o alvo generico `run` e o `conv.sv` parametrizado para
+`NUM_MULT` em `{2,4,8}`. Os arquivos fixos `conv2mac.sv`, `conv4mac.sv` e
+`conv8mac.sv` nao sao todos mantidos nesta arvore; a validacao de 2 MACs usa o
+caminho generico com `-GNUM_MULT=2`.
 
 Antes de declarar suporte validado a 2 MACs, deve-se:
 
-1. restaurar ou gerar o arquivo fonte de forma controlada;
-2. confirmar que o Makefile usa a fonte local, nao `conv2x2stream12`;
-3. executar `make NUM_MULT=2`;
-4. comparar a mesma golden output usada nos casos 4 e 8;
-5. atualizar as listas de sintese para apontarem para este diretorio.
+1. confirmar que o Makefile usa a fonte local, nao `conv2x2stream12`;
+2. executar `make NUM_MULT=2 run`;
+3. comparar a mesma golden output usada nos casos 4 e 8;
+4. atualizar as listas de sintese para apontarem para este diretorio.
+
+Resultado observado nesta etapa:
+
+```text
+NUM_MULT=2: inverse_tiles=2025 cycles=37849 valid_writes=8100
+             input_samples_clipped=0 invalid_output_beats=0
+Core active cycles: 20250
+```
+
+Os caminhos genericos `NUM_MULT=4` e `NUM_MULT=8` tambem passaram com,
+respectivamente, `cycles=29749`/`core=12150` e `cycles=25699`/`core=8100`.
+
+O Makefile foi tornado reproduzivel apos `make clean`: cada alvo cria seu
+diretorio `obj_dir` antes de chamar o Verilator. Sem isso, uma primeira
+execucao em uma arvore limpa falhava apenas por ausencia do diretorio de
+saida, antes de qualquer erro RTL.
 
 Os logs de sintese existentes nao servem como prova desta etapa porque as
 listas antigas apontam para `rtl/conv2x2stream12`.
