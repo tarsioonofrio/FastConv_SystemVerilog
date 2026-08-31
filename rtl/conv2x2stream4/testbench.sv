@@ -63,7 +63,12 @@ module tb #(
        ((dut.r_input_addr_feat / FEAT_INPUT_WIDTH) + dut.w_input_base_feat < FEAT_INPUT_SIZE)) : 1'b1;
   assign p_input_data = input_sample_in_bounds ? p_input_data_mem : '0;
 
-  // Instanciação do Módulo (DUT)
+  // The behavioral variants are parameterized, while a Genus gate-level
+  // netlist is a fixed, parameter-free Conv module. Keep the same TB source
+  // for both flows, but do not pass RTL parameters to the mapped netlist.
+`ifdef GATE_LEVEL
+  Conv dut (
+`else
   Conv #(
     .N_CHANNEL_IN(N_CHANNEL_IN),
     .N_CHANNEL_OUT(N_CHANNEL_OUT),
@@ -78,6 +83,7 @@ module tb #(
     .HADAMARD_SIZE(HADAMARD_SIZE),
     .NUM_MULT(NUM_MULT)
   ) dut (
+`endif
     .clk(clk),
     .reset(reset),
     .p_start(p_start),
