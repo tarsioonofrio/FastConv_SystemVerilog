@@ -18,7 +18,6 @@ module tb #(
   localparam int unsigned OUTPUT_ADDR_WIDTH = $clog2(OUTPUT_MEMORY_SIZE);
   localparam int unsigned NADDR = (INPUT_ADDR_WIDTH > OUTPUT_ADDR_WIDTH) ? INPUT_ADDR_WIDTH : OUTPUT_ADDR_WIDTH;
 
-  localparam logic [1:0] ST_CONV_INVERSE = 2'b11;
   localparam int OUTPUT_TILES_PER_AXIS = (FEAT_OUTPUT_SIZE + CONV_OUTPUT_SIZE - 1) / CONV_OUTPUT_SIZE;
   localparam int EXPECTED_INVERSE_COUNT = N_CHANNEL_IN * N_CHANNEL_OUT * OUTPUT_TILES_PER_AXIS * OUTPUT_TILES_PER_AXIS;
 
@@ -56,7 +55,7 @@ module tb #(
   int cycle_count;
   int core_cycle_count;
   logic [NBITS-1:0] output_bank [0:FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT - 1];
-  logic in_inverse_d;
+  logic conv_end_d;
   logic [1:0] input_base_feat;
   assign p_input_data_write = '0;
 `ifdef GATE_LEVEL
@@ -164,14 +163,14 @@ module tb #(
       write_count <= 0;
       cycle_count <= 0;
       core_cycle_count <= 0;
-      in_inverse_d <= 1'b0;
+      conv_end_d <= 1'b0;
       output_bank <= '{default: '0};
     end else begin
       cycle_count <= cycle_count + 1;
-      if (dut.st_conv_current != 2'b00)
+      if (dut.st_conv_current != 1'b0)
         core_cycle_count <= core_cycle_count + 1;
-      in_inverse_d <= (dut.st_conv_current == ST_CONV_INVERSE);
-      if ((dut.st_conv_current == ST_CONV_INVERSE) && !in_inverse_d)
+      conv_end_d <= dut.w_conv_end;
+      if (dut.w_conv_end && !conv_end_d)
         conv_inverse_check_idx <= conv_inverse_check_idx + 1;
       if (p_input_en && !input_sample_in_bounds)
         input_out_of_range_count <= input_out_of_range_count + 1;

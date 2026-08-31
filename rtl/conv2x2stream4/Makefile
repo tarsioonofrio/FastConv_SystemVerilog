@@ -1,4 +1,4 @@
-SRC = conv.sv
+SRC = conv2mac.sv
 TB = testbench.sv
 DATA = ../conv2x2/data/tcn4/sim/sim-032-3-3-normal/pack_data.sv
 PARAM = ../conv2x2/pack-param/tcn4/pack_param.sv
@@ -29,7 +29,7 @@ run: all
 
 conv2mac:
 	mkdir -p obj_dir/conv2mac
-	$(FIXED_VERILATOR) --binary --exe --top-module tb --Mdir obj_dir/conv2mac $(FIXED_COMMON) conv2mac.sv testbench.sv --build
+	$(FIXED_VERILATOR) -GNUM_MULT=2 --binary --exe --top-module tb --Mdir obj_dir/conv2mac $(FIXED_COMMON) conv2mac.sv testbench.sv --build
 
 conv4mac:
 	mkdir -p obj_dir/conv4mac
