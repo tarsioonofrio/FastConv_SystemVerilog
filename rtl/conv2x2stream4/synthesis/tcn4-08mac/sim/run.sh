@@ -19,11 +19,19 @@ TOP_MODULE="$(awk 'NF && $1 !~ /^#/ {print $1; exit}' "$CONFIG_ROOT/top-module.t
 TOP_MODULE="${TOP_MODULE:-system}"
 GATE="$CONFIG_ROOT/logical/results/gate_level/${TOP_MODULE}_logic_mapped.v"
 
+# The gate-level file already contains the mapped Conv hierarchy and all
+# generated helper modules. Compile only packages/RAM plus the testbench to
+# avoid a duplicate behavioral Conv definition masking the netlist.
 files=()
 while IFS= read -r line; do
     line="${line##[[:space:]]}"
     [[ -z "$line" || "$line" == \#* ]] && continue
-    if [[ "$line" = /* ]]; then files+=("$line"); else files+=("$GIT_ROOT/$line"); fi
+    base="${line##*/}"
+    case "$base" in
+        pack_data.sv|pack_param.sv|mem.sv)
+            if [[ "$line" = /* ]]; then files+=("$line"); else files+=("$GIT_ROOT/$line"); fi
+            ;;
+    esac
 done < "$CONFIG_ROOT/list-file.txt"
 
 xrun -f "$SIM_ROOT/args.txt" "${files[@]}" "$TB" "$GATE" \
