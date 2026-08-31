@@ -20,6 +20,19 @@ make -C rtl/conv4x4 run
 make -C rtl/conv4x4 lint
 ```
 
+The same controller can be checked against the generated WPN16 configuration
+(`M=8`, 64 multiplications) without changing the testbench:
+
+```bash
+make -C rtl/conv4x4 clean
+make -C rtl/conv4x4 CONFIG=wpn16 NUM_MULT=64 run
+make -C rtl/conv4x4 CONFIG=wpn16 NUM_MULT=64 lint
+```
+
+The WPN16 matrix file in `mult-matrices/wpn16/` uses the current
+parameterized-array interface expected by `conv.sv`; the old packed-vector
+file is no longer used by this flow.
+
 The ModelSim/QuestaSim-compatible support files are also provided:
 
 ```bash
