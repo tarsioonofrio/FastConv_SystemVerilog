@@ -59,7 +59,9 @@ module Conv
   localparam WINDOW_COUNT_PER_LINE = (FEAT_INPUT_SIZE - 2 + CONV_OUTPUT_SIZE - 1) / CONV_OUTPUT_SIZE;
   localparam WINDOW_COUNT_PER_COLUMN = (FEAT_INPUT_SIZE - 2 + CONV_OUTPUT_SIZE - 1) / CONV_OUTPUT_SIZE;
 
-  localparam WINDOW_COUNTER_WIDTH = f_width_min1(WINDOW_COUNT_PER_LINE * WINDOW_COUNT_PER_COLUMN);
+  // Include the terminal value (64) in the accumulator counter so the final
+  // tile is detected instead of aliasing to counter zero.
+  localparam WINDOW_COUNTER_WIDTH = f_width_min1((WINDOW_COUNT_PER_LINE * WINDOW_COUNT_PER_COLUMN) + 1);
   logic [WINDOW_COUNTER_WIDTH-1:0] r_input_window_counter_acc;
 
   localparam WINDOW_ROW_COUNTER_WIDTH = f_width_min1(WINDOW_COUNT_PER_LINE + 1);
@@ -90,6 +92,20 @@ module Conv
   logic signed [NBITS-1+QUANT:0] w_conv_product [NUM_MULT-1:0];  // QUANT more bits for the multipliers
   logic w_conv_end;
   logic w_conv_input_release;
+  logic r_conv_input_release_pending;
+  logic [NBITS-1:0] r_conv_input[(CONV_INPUT_SIZE * CONV_INPUT_SIZE) - 1:0];
+
+  // Retain each completed streaming inverse until the output accumulator
+  // reaches the corresponding output/input-channel/tile tuple.
+  localparam RESULT_TILE_COUNT = WINDOW_COUNT_PER_LINE * WINDOW_COUNT_PER_COLUMN;
+  logic [NBITS-1:0] r_conv_result
+      [N_CHANNEL_OUT-1:0][RESULT_TILE_COUNT-1:0][N_CHANNEL_IN-1:0]
+      [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
+  logic r_conv_result_valid
+      [N_CHANNEL_OUT-1:0][RESULT_TILE_COUNT-1:0][N_CHANNEL_IN-1:0];
+  logic [CHANNEL_INPUT_COUNTER_WIDTH-1:0] r_result_capture_input;
+  logic [CHANNEL_OUTPUT_COUNTER_WIDTH-1:0] r_result_capture_output;
+  logic [WINDOW_COUNTER_WIDTH-1:0] r_result_capture_tile;
 
   localparam int ROW_INDEX_WIDTH = f_width_min1(HADAMARD_SIZE);
   logic [NBITS-1:0] r_d_row [HADAMARD_SIZE-1:0];
@@ -139,6 +155,7 @@ module Conv
   logic w_output_last_channel_input;
   logic w_output_last_channel_output;
   logic w_output_last_window_acc;
+  logic w_output_pixel_in_bounds;
 
 
   // -------------------------------------------------------------------------
@@ -253,8 +270,8 @@ module Conv
       CONV_INPUT: st_input_next = TRANSFER;
       TRANSFER: st_input_next = HOLD_WRITE;  // p_start the convolution
       HOLD_WRITE:
-        if (w_conv_input_release && w_input_last_window_col && w_input_write_done) st_input_next = NEXT_ROW_INPUT;
-          else if (w_conv_input_release && w_input_write_done) st_input_next = READ_IN_6C;
+        if ((w_conv_input_release || r_conv_input_release_pending) && w_input_last_window_col && w_input_write_done) st_input_next = NEXT_ROW_INPUT;
+          else if ((w_conv_input_release || r_conv_input_release_pending) && w_input_write_done) st_input_next = READ_IN_6C;
         else st_input_next = HOLD_WRITE;
       NEXT_ROW_INPUT:
         if (w_input_last_window_acc) st_input_next = ADDRESS_INPUT;
@@ -274,9 +291,23 @@ module Conv
                                 (st_conv_current == HADAMARD &&
                                  r_stream_row_idx == ROW_INDEX_WIDTH'(HADAMARD_SIZE - 1));
 
+  // The convolution completion is a pulse, but output accumulation may still
+  // be busy.  Retain it until HOLD_WRITE can advance the input stream.
+  always_ff @(posedge clk or posedge reset) begin: CONV_INPUT_RELEASE_PENDING_BLOCK
+    if (reset)
+      r_conv_input_release_pending <= 1'b0;
+    else if (st_input_current != HOLD_WRITE)
+      r_conv_input_release_pending <= 1'b0;
+    else if (w_input_write_done && (w_conv_input_release || r_conv_input_release_pending))
+      r_conv_input_release_pending <= 1'b0;
+    else if (w_conv_input_release)
+      r_conv_input_release_pending <= 1'b1;
+  end
+
   assign p_end = (st_output_current == WRITE_OUTPUT) &&
                  (r_output_write_count == OUTPUT_RW_COUNT_WIDTH'(OUTPUT_RW_COUNT_MAX)) &&
-                 w_input_last_channel_output;  // Signal completion only after the final output write.
+                 w_output_last_channel_input && w_output_last_window_acc &&
+                 w_output_last_channel_output;  // Signal completion after the final tuple.
 
   // -------------------------------------------------------------------------
   // READING REGISTERS
@@ -285,6 +316,13 @@ module Conv
   always_ff @(posedge clk or posedge reset) begin: INPUT_READ_COUNTER_BLOCK
     if (reset) begin
       r_input_addr_count <= 0;
+    end else if (st_conv_current == HADAMARD) begin         // rotate transformed weights with each streamed feature row
+      for (int unsigned i = 0; i < (WEIGHT_CYCLES-NUM_MULT); i++) begin
+        r_input_weight[i] <= r_input_weight[i + NUM_MULT];
+      end
+      for (int unsigned i = (WEIGHT_CYCLES-NUM_MULT); i < WEIGHT_CYCLES; i++) begin
+        r_input_weight[i] <= r_input_weight[i - (WEIGHT_CYCLES-NUM_MULT)];
+      end
     end else begin
       if (st_input_current == READ_WEIGHTS) begin
         r_input_addr_count <= 0;
@@ -359,7 +397,8 @@ module Conv
     w_input_feat_next[6] = (st_input_current == READ_IN_6A) ? p_input_data : r_input_feat[10];
     w_input_feat_next[7] = (st_input_current == READ_IN_6B) ? p_input_data : r_input_feat[11];
 
-    if (st_input_current == TRANSFER) begin
+    if (st_input_current == TRANSFER ||
+        (r_stream_transfer_pending && w_conv_input_release)) begin
       w_input_feat_next[0]  = r_input_feat[4];
       w_input_feat_next[1]  = r_input_feat[5];
       w_input_feat_next[6]  = r_input_feat[10];
@@ -385,15 +424,16 @@ module Conv
       READ_IN_6A, READ_IN_6B, READ_IN_6C, READ_IN_6D, READ_IN_6E, READ_IN_6F:
         w_input_feat_en[w_input_feat_wr_index] = 1'b1;
       TRANSFER:
-        w_input_feat_en = 36'b000011000011000011000011000011000011;  // shift the six 4x4 columns
+        // Keep the completed tile intact for the transform snapshot.  The
+        // window shift is applied once when the inverse releases it.
+        w_input_feat_en = '0;
       default:
         if (r_stream_transfer_pending && w_conv_input_release)
           w_input_feat_en = 36'b000011000011000011000011000011000011;
     endcase
   end
 
-  assign w_input_feat_write_valid = (st_input_current == TRANSFER) ||
-                                    (r_stream_transfer_pending && w_conv_input_release) ||
+  assign w_input_feat_write_valid = (r_stream_transfer_pending && w_conv_input_release) ||
                                     p_input_valid;
 
   always_ff @(posedge clk or posedge reset) begin: STREAM_TRANSFER_PENDING_BLOCK
@@ -418,8 +458,16 @@ module Conv
   // Weight register bank with per-entry write-enable.
   always_comb begin: WEIGHT_WE_BLOCK
     w_input_weight_en = '0;
-    if (st_input_current == READ_WEIGHTS)
-      w_input_weight_en[r_input_count_kernel] = 1'b1;
+    if (st_input_current == READ_WEIGHTS) begin
+      // Transform emits the Winograd domain in column-major order, while
+      // pack_data stores each transformed weight matrix row-major.  Store the
+      // sequential ROM stream at its transposed bank index so feature and
+      // weight lanes remain paired.
+      for (int unsigned i = 0; i < WEIGHT_CYCLES; i++)
+        if (r_input_count_kernel == WEIGHT_WIDTH'(i))
+          w_input_weight_en[(i % HADAMARD_SIZE) * HADAMARD_SIZE +
+                            (i / HADAMARD_SIZE)] = 1'b1;
+    end
   end
 
   always_ff @(posedge clk or posedge reset) begin: WEIGHT_REG_BLOCK
@@ -431,13 +479,6 @@ module Conv
       for (int unsigned i = 0; i < WEIGHT_CYCLES; i++)
         if (w_input_weight_en[i])
           r_input_weight[i] <= p_input_data;
-    end else if (st_conv_current == HADAMARD) begin         // transform weights into a circular queue
-      for (int unsigned i = 0; i < (WEIGHT_CYCLES-NUM_MULT); i++) begin
-        r_input_weight[i] <= r_input_weight[i + NUM_MULT];
-      end
-      for (int unsigned i = (WEIGHT_CYCLES-NUM_MULT); i < WEIGHT_CYCLES; i++) begin
-        r_input_weight[i] <= r_input_weight[i - (WEIGHT_CYCLES-NUM_MULT)];
-      end
     end else begin
       for (int unsigned i = 0; i < WEIGHT_CYCLES; i++)
         if (w_input_weight_en[i])
@@ -481,9 +522,15 @@ module Conv
   // -------------------------------------------------------------------------
   // CONVOLUTION REGISTER BANK AND CONVOLUTION REGISTERS:  w_conv_end  -- r_conv_multiply_count
   // -------------------------------------------------------------------------
-// `ifdef SIMULATION
-//   time prev_time, curr_time;  // debug
-// `endif
+  // Snapshot the completed tile before TRANSFER shifts the input bank.  The
+  // transform runs in the following cycle, so it must see the tile that
+  // triggered CONV_INPUT rather than the already-shifted window.
+  always_ff @(posedge clk or posedge reset) begin: CONV_INPUT_REG_BLOCK
+    if (reset)
+      r_conv_input <= '{default: '0};
+    else if (st_input_current == CONV_INPUT)
+      r_conv_input <= r_input_feat;
+  end
 
   always_ff @(posedge clk or posedge reset) begin: CONV_END_FLAG_BLOCK
     if (reset)
@@ -494,6 +541,41 @@ module Conv
       else if (st_output_current == WRITE_OUTPUT)
         w_conv_end <= 0;
         // else if (st_output_current == WRITE_OUTPUT || st_conv_current == WAIT_CONV) w_conv_end <= 0;
+    end
+  end
+
+  always_ff @(posedge clk or posedge reset) begin: CONV_RESULT_BUFFER_BLOCK
+    if (reset) begin
+      r_result_capture_input <= '0;
+      r_result_capture_output <= '0;
+      r_result_capture_tile <= '0;
+      for (int unsigned o = 0; o < N_CHANNEL_OUT; o++)
+        for (int unsigned t = 0; t < RESULT_TILE_COUNT; t++)
+          for (int unsigned c = 0; c < N_CHANNEL_IN; c++) begin
+            r_conv_result_valid[o][t][c] <= 1'b0;
+            for (int unsigned i = 0; i < CONV_OUTPUT_SIZE * CONV_OUTPUT_SIZE; i++)
+              r_conv_result[o][t][c][i] <= '0;
+          end
+    end else if (st_conv_current == HADAMARD &&
+                 r_stream_row_idx == ROW_INDEX_WIDTH'(HADAMARD_SIZE - 1)) begin
+      for (int unsigned i = 0; i < CONV_OUTPUT_SIZE * CONV_OUTPUT_SIZE; i++)
+        r_conv_result[r_result_capture_output]
+                     [r_result_capture_tile]
+                     [r_result_capture_input][i] <= w_stream_final_capture[i];
+      r_conv_result_valid[r_result_capture_output]
+                        [r_result_capture_tile]
+                        [r_result_capture_input] <= 1'b1;
+      if (r_result_capture_tile == WINDOW_COUNTER_WIDTH'(RESULT_TILE_COUNT - 1)) begin
+        r_result_capture_tile <= '0;
+        if (r_result_capture_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1)) begin
+          r_result_capture_input <= '0;
+          r_result_capture_output <= r_result_capture_output + 1'b1;
+        end else begin
+          r_result_capture_input <= r_result_capture_input + 1'b1;
+        end
+      end else begin
+        r_result_capture_tile <= r_result_capture_tile + 1'b1;
+      end
     end
   end
 
@@ -555,7 +637,7 @@ module Conv
     .CONV_INPUT_SIZE(CONV_INPUT_SIZE),
     .HADAMARD_SIZE(HADAMARD_SIZE)
   ) trf (
-      .pin (r_input_feat),
+      .pin (r_conv_input),
       .pout(w_conv_transform)
   );
 
@@ -625,36 +707,31 @@ module Conv
         if (st_input_current == ADDRESS_INPUT)
           st_output_next = RESET_OUTPUT;
       RESET_OUTPUT:
-        if (w_conv_end)
-          st_output_next = (r_output_channel_counter_input > 0) ? READ_OUTPUT : WRITE_OUTPUT;
+        if (r_conv_result_valid[r_output_channel_counter_output]
+                                      [r_output_window_counter_acc]
+                                      [r_output_channel_counter_input]) begin
+          if (r_output_channel_counter_input == 0)
+            st_output_next = WRITE_OUTPUT;
+          else
+            st_output_next = READ_OUTPUT;
+        end
       READ_OUTPUT:
-        if (w_conv_end && r_output_read_count == OUTPUT_RW_COUNT_WIDTH'(OUTPUT_RW_COUNT_MAX))
+        if (r_output_read_count == OUTPUT_RW_COUNT_WIDTH'(OUTPUT_RW_COUNT_MAX) &&
+            r_conv_result_valid[r_output_channel_counter_output]
+                               [r_output_window_counter_acc]
+                               [r_output_channel_counter_input])
           st_output_next = WRITE_OUTPUT;
       WRITE_OUTPUT:
         if (r_output_write_count == OUTPUT_RW_COUNT_WIDTH'(OUTPUT_RW_COUNT_MAX)) begin
-          if (((r_output_channel_counter_input) > 0) && !w_output_last_window_row)
-            st_output_next = READ_OUTPUT;      // accumulate next input channel
-          else if ((r_output_channel_counter_input) == 0 && !w_output_last_window_row)
-            st_output_next = RESET_OUTPUT;     // next window, same output channel
-          else if (w_input_last_channel_output)
-            st_output_next = WAIT_OUTPUT;      // global termination from input traversal
-          else if (w_output_last_window_row)
-            st_output_next = NEXT_ROW_OUTPUT;   // change output channel only
+          if (!w_output_last_channel_input)
+            st_output_next = READ_OUTPUT;
+          else if (!w_output_last_window_acc || !w_output_last_channel_output)
+            st_output_next = RESET_OUTPUT;
+          else
+            st_output_next = WAIT_OUTPUT;
         end
-      NEXT_ROW_OUTPUT:
-      // I need to use r_input_channel_counter because output version have delay
-        if (w_output_last_window_col)
-          st_output_next = ADDRESS_OUTPUT;      // accumulate next input channel
-        else if ((r_input_channel_counter_input) == 0)
-          st_output_next = RESET_OUTPUT;     // next window, same output channel
-        else if ((r_input_channel_counter_input) > 0)
-          st_output_next = READ_OUTPUT;      // accumulate next input channel
-      ADDRESS_OUTPUT:
-        // if (st_input_current != READ_WEIGHTS)
-          if ((r_input_channel_counter_input) == 0)
-            st_output_next = RESET_OUTPUT;     // next window, same output channel
-          else if ((r_input_channel_counter_input) > 0)
-            st_output_next = READ_OUTPUT;      // accumulate next input channel
+      NEXT_ROW_OUTPUT, ADDRESS_OUTPUT:
+        st_output_next = RESET_OUTPUT;
       default:
         st_output_next = WAIT_OUTPUT;
     endcase
@@ -671,10 +748,12 @@ module Conv
     if (reset) begin
       r_output_channel_counter_input  <= '0;
       r_output_channel_counter_output <= '0;
-    end else if (st_output_current == ADDRESS_OUTPUT) begin
-      if (w_output_last_channel_input)  begin
+    end else if (st_output_current == WRITE_OUTPUT &&
+                 r_output_write_count == OUTPUT_RW_COUNT_WIDTH'(OUTPUT_RW_COUNT_MAX)) begin
+      if (w_output_last_channel_input) begin
         r_output_channel_counter_input <= '0;
-        r_output_channel_counter_output <= r_output_channel_counter_output + 1'b1;
+        if (w_output_last_window_acc)
+          r_output_channel_counter_output <= r_output_channel_counter_output + 1'b1;
       end else
         r_output_channel_counter_input <= r_output_channel_counter_input + 1'b1;
     end
@@ -685,18 +764,17 @@ module Conv
       r_output_window_counter_acc <= '0;
       r_output_window_counter_col <= '0;
       r_output_window_counter_row <= '0;
-    end else if (st_output_current == WRITE_OUTPUT && r_output_write_count == OUTPUT_RW_COUNT_WIDTH'(OUTPUT_RW_COUNT_MAX)) begin
-      // Advance window only after accumulating all input channels for this output window.
-      r_output_window_counter_acc <= r_output_window_counter_acc + 1'b1;
-      r_output_window_counter_row <= r_output_window_counter_row + 1'b1;
-    end else if (st_output_current == NEXT_ROW_OUTPUT) begin
-      r_output_window_counter_col <= r_output_window_counter_col + 1'b1;
-      r_output_window_counter_row <= 0;
-    end else if (st_output_current == ADDRESS_OUTPUT) begin
-      // New output channel starts from first window
-      r_output_window_counter_acc <= '0;
-      r_output_window_counter_col <= '0;
-      r_output_window_counter_row <= '0;
+    end else if (st_output_current == WRITE_OUTPUT &&
+                 r_output_write_count == OUTPUT_RW_COUNT_WIDTH'(OUTPUT_RW_COUNT_MAX) &&
+                 w_output_last_channel_input) begin
+      if (w_output_last_window_acc) begin
+        r_output_window_counter_acc <= '0;
+        r_output_window_counter_col <= '0;
+        r_output_window_counter_row <= '0;
+      end else begin
+        r_output_window_counter_acc <= r_output_window_counter_acc + 1'b1;
+        r_output_window_counter_row <= r_output_window_counter_row + 1'b1;
+      end
     end
   end
 
@@ -737,9 +815,26 @@ module Conv
       end else if ((st_output_current == READ_OUTPUT) && p_output_valid) begin
         r_output_read[r_output_read_count] <= p_output_data_read;
       end
-      if (st_conv_current == HADAMARD &&
-          r_stream_row_idx == ROW_INDEX_WIDTH'(HADAMARD_SIZE - 1))
-        r_output_write <= w_stream_final_capture;
+      if (st_output_current == RESET_OUTPUT &&
+          r_output_channel_counter_input == 0) begin
+        for (int unsigned i = 0; i < CONV_OUTPUT_SIZE * CONV_OUTPUT_SIZE; i++)
+          r_output_write[i] <= r_conv_result[r_output_channel_counter_output]
+                                             [r_output_window_counter_acc]
+                                             [r_output_channel_counter_input]
+                                             [(i % CONV_OUTPUT_SIZE) * CONV_OUTPUT_SIZE +
+                                              (i / CONV_OUTPUT_SIZE)];
+      end else if (st_output_current == READ_OUTPUT && p_output_valid &&
+                   r_conv_result_valid[r_output_channel_counter_output]
+                                      [r_output_window_counter_acc]
+                                      [r_output_channel_counter_input] &&
+                   r_output_read_count == OUTPUT_RW_COUNT_WIDTH'(OUTPUT_RW_COUNT_MAX)) begin
+        for (int unsigned i = 0; i < CONV_OUTPUT_SIZE * CONV_OUTPUT_SIZE; i++)
+          r_output_write[i] <= r_conv_result[r_output_channel_counter_output]
+                                             [r_output_window_counter_acc]
+                                             [r_output_channel_counter_input]
+                                             [(i % CONV_OUTPUT_SIZE) * CONV_OUTPUT_SIZE +
+                                              (i / CONV_OUTPUT_SIZE)];
+      end
     end
   end
 
@@ -810,7 +905,20 @@ module Conv
     end
   end
 
-  assign w_output_addr = NADDR'(r_output_addr_channel) + NADDR'(r_output_addr_col) + NADDR'(r_output_addr_row);
+  always_comb begin
+    w_output_addr = NADDR'(r_output_channel_counter_output * FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE) +
+                    NADDR'((r_output_window_counter_acc % WINDOW_COUNT_PER_COLUMN) *
+                           CONV_OUTPUT_SIZE * FEAT_OUTPUT_SIZE) +
+                    NADDR'((r_output_window_counter_acc / WINDOW_COUNT_PER_COLUMN) *
+                           CONV_OUTPUT_SIZE);
+  end
+  always_comb begin
+    w_output_pixel_in_bounds =
+        (((r_output_window_counter_acc % WINDOW_COUNT_PER_COLUMN) * CONV_OUTPUT_SIZE) +
+         (r_output_write_count % CONV_OUTPUT_SIZE) < FEAT_OUTPUT_SIZE) &&
+        (((r_output_window_counter_acc / WINDOW_COUNT_PER_COLUMN) * CONV_OUTPUT_SIZE) +
+         (r_output_write_count / CONV_OUTPUT_SIZE) < FEAT_OUTPUT_SIZE);
+  end
   assign p_output_data_write = r_output_write[r_output_write_count] + r_output_read[r_output_write_count];
   assign p_output_addr = (st_output_current == READ_OUTPUT) ?
     (w_output_addr + NADDR'(r_output_addr_offset_read)) :
@@ -818,6 +926,6 @@ module Conv
   // Keep read enabled through index 8 so the 9th output element is fetched.
   assign p_output_en = (((st_output_current == READ_OUTPUT) && r_output_read_count <= OUTPUT_RW_COUNT_WIDTH'(OUTPUT_RW_COUNT_MAX)) || (st_output_current == WRITE_OUTPUT)) ? '1 : '0;
   // Keep write enabled for every WRITE_OUTPUT beat, including the final window/channel.
-  assign p_output_wr = (st_output_current == WRITE_OUTPUT) ? '1 : '0;
+  assign p_output_wr = (st_output_current == WRITE_OUTPUT && w_output_pixel_in_bounds) ? '1 : '0;
 
 endmodule
