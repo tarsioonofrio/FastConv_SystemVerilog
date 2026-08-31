@@ -56,7 +56,8 @@ module tb;
   assign input_channel_offset = dut.r_input_addr_feat % (FEAT_INPUT_SIZE * FEAT_INPUT_WIDTH);
   assign input_sample_in_bounds = (CONV_OUTPUT_SIZE == 4) ?
       (((input_channel_offset % FEAT_INPUT_WIDTH) + dut.r_input_addr_count < FEAT_INPUT_WIDTH) &&
-       ((input_channel_offset / FEAT_INPUT_WIDTH) + dut.w_input_base_feat < FEAT_INPUT_SIZE)) : 1'b1;
+       ((input_channel_offset / FEAT_INPUT_WIDTH) < FEAT_INPUT_SIZE) &&
+       ((dut.r_input_addr_feat / (FEAT_INPUT_SIZE * FEAT_INPUT_WIDTH)) == dut.r_input_channel_counter_input)) : 1'b1;
   assign p_input_data = input_sample_in_bounds ? p_input_data_mem : '0;
 
   Conv #(
