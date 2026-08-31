@@ -744,7 +744,9 @@ module Conv
       end
       if (st_conv_current == HADAMARD &&
           r_stream_row_idx == ROW_INDEX_WIDTH'(HADAMARD_SIZE - 1))
-        r_output_write <= w_stream_final_capture;
+        for (int unsigned i = 0; i < CONV_OUTPUT_SIZE * CONV_OUTPUT_SIZE; i++)
+          r_output_write[i] <= w_stream_final_capture[(i % CONV_OUTPUT_SIZE) * CONV_OUTPUT_SIZE +
+                                                      (i / CONV_OUTPUT_SIZE)];
     end
   end
 
