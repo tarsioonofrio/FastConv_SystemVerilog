@@ -370,7 +370,7 @@ O slack e positivo no view nominal de 2 ns (`analysis_view_0p90v_25c_captyp_nomi
 O power foi calculado pelo Joules a partir do `dut.shm` da simulacao anotada,
 com o resultado consolidado em `power_evaluation.txt`. A tabela abaixo registra
 a mesma campanha gate-level, agora compilada em bibliotecas Xcelium novas
-(`work_gate_clean`) e sem os modulos comportamentais `Conv` da lista RTL:
+(`work_gate_final`) e sem os modulos comportamentais `Conv` da lista RTL:
 
 | Variante | SDF errors | SDF warnings | Inverse tiles | Ciclos totais | Ciclos ativos | Escritas validas |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
