@@ -91,3 +91,5 @@ record; they are not part of any active build or synthesis list.
 
 The detailed register-reduction rationale remains in
 [`REGISTER_REDUCTION-stream4.md`](REGISTER_REDUCTION-stream4.md).
+The consolidated Conv2x2 PPA comparison, including the revalidated `stream4`
+results, is in [section 13 of that document](REGISTER_REDUCTION-stream4.md#13-comparativo-geral-das-variantes-conv2x2).
