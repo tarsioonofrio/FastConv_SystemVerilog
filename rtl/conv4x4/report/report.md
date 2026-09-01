@@ -93,9 +93,9 @@ _No rows._
 
 ## `register-budget.csv`
 
-| Project | architecture_mode | kernel_size | input_words | parameter_hadamard_words | product_words | output_words | total_estimated_words | source |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Conv4x4-tcn16-18mac | standard | 4 | 36 | 32 | 18 | 16 | 102 | architectural_formula |
+| Project | architecture_mode | kernel_size | input_words | h_register_words | h_register_signals | t_register_words | t_register_signals | mac_lanes | output_words | total_estimated_words | source |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Conv4x4-tcn16-18mac | standard | 4 | 36 | 36 | r_input_weight[36] | 36 | r_conv_temp[36] | 18 | 16 | 124 | rtl_r_declarations |
 
 ## `throughput.csv`
 

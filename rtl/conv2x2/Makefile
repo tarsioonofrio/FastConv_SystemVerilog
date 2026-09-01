@@ -21,21 +21,21 @@ all: std
 
 std:
 	$(VERILATOR) --binary --exe --Mdir obj_dir/std \
-	  $(COMMON) $(MUX) $(MATRICES_STD) conv-std-i16-p32-o4-m4.sv $(TB) --build
+	  $(COMMON) $(MUX) $(MATRICES_STD) conv-std-i16-h16-t16-o4-m4.sv $(TB) --build
 
 all16:
 	$(VERILATOR) --binary --exe --Mdir obj_dir/all16 \
-	  $(COMMON) $(MUX) $(MATRICES_STD) conv-all-i16-p16-o4-m16.sv $(TB) --build \
+	  $(COMMON) $(MUX) $(MATRICES_STD) conv-all-i16-h16-t0-o4-m16.sv $(TB) --build \
 	  -GNUM_MULT=16
 
 stream4-4mac:
 	$(VERILATOR) --binary --exe --Mdir obj_dir/stream4-4mac \
-	  $(COMMON) $(MATRICES_STREAM) conv-stream4-i16-p16-o4-m4.sv $(TB) --build \
+	  $(COMMON) $(MATRICES_STREAM) conv-stream4-i16-h16-t0-o4-m4.sv $(TB) --build \
 	  -GNUM_MULT=4
 
 stream4-8mac:
 	$(VERILATOR) --binary --exe --Mdir obj_dir/stream4-8mac \
-	  $(COMMON) $(MATRICES_STREAM) conv-stream4-i16-p16-o4-m8.sv $(TB) --build \
+	  $(COMMON) $(MATRICES_STREAM) conv-stream4-i16-h16-t0-o4-m8.sv $(TB) --build \
 	  -GNUM_MULT=8
 
 # The generic stream12-family implementation supports NUM_MULT=2, 4 and 8. Override
@@ -43,7 +43,7 @@ stream4-8mac:
 NUM_MULT ?= 4
 stream12:
 	$(VERILATOR) --binary --exe --Mdir obj_dir/stream12-$(NUM_MULT) \
-	  $(COMMON) $(MATRICES_STREAM) conv-stream12-generic-i16-p24-o4-m2-4-8.sv $(TB) --build \
+	  $(COMMON) $(MATRICES_STREAM) conv-stream12-generic-i16-h16-t8-o4-m2-4-8.sv $(TB) --build \
 	  -GNUM_MULT=$(NUM_MULT)
 
 run: run-std
@@ -59,11 +59,11 @@ run-stream12: stream12
 	obj_dir/stream12-$(NUM_MULT)/Vtb
 
 lint:
-	$(VERILATOR) --timing --lint-only $(COMMON) $(MUX) $(MATRICES_STD) conv-std-i16-p32-o4-m4.sv $(TB)
-	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STD) conv-all-i16-p16-o4-m16.sv $(TB)
-	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-stream4-i16-p16-o4-m4.sv $(TB)
-	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-stream4-i16-p16-o4-m8.sv $(TB)
-	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-stream12-generic-i16-p24-o4-m2-4-8.sv $(TB) \
+	$(VERILATOR) --timing --lint-only $(COMMON) $(MUX) $(MATRICES_STD) conv-std-i16-h16-t16-o4-m4.sv $(TB)
+	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STD) conv-all-i16-h16-t0-o4-m16.sv $(TB)
+	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-stream4-i16-h16-t0-o4-m4.sv $(TB)
+	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-stream4-i16-h16-t0-o4-m8.sv $(TB)
+	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-stream12-generic-i16-h16-t8-o4-m2-4-8.sv $(TB) \
 	  -GNUM_MULT=$(NUM_MULT)
 
 clean:

@@ -9,28 +9,48 @@ file is compiled separately because every file declares the top-level module
 
 | Source | Architecture | MAC configurations |
 | --- | --- | --- |
-| `conv-std-i16-p32-o4-m4.sv` | Conventional transform / Hadamard / full inverse path | Parameterized (`NUM_MULT`, default 4) |
-| `conv-all-i16-p16-o4-m16.sv` | Fully parallel path, all 16 Hadamard products in one cycle | Fixed 16 MACs |
-| `conv-stream4-i16-p16-o4-m4.sv` | Four-MAC streaming path using the 4-word register-reduction schedule | Fixed 4 MACs |
-| `conv-stream4-i16-p16-o4-m8.sv` | Eight-MAC streaming path using the 4-word schedule | Fixed 8 MACs |
-| `conv-stream12-generic-i16-p24-o4-m2-4-8.sv` | Generic streaming path from the `stream12` family | `NUM_MULT = 2`, `4` or `8` |
-| `conv-stream12-i16-p24-o4-m4.sv` / `conv-stream12-i16-p24-o4-m8.sv` | Fixed-MAC compatibility sources from the `stream12` family | Fixed 4 / 8 MACs |
+| `conv-std-i16-h16-t16-o4-m4.sv` | Conventional transform / Hadamard / full inverse path | Parameterized (`NUM_MULT`, default 4) |
+| `conv-all-i16-h16-t0-o4-m16.sv` | Fully parallel path, all 16 Hadamard products in one cycle | Fixed 16 MACs |
+| `conv-stream4-i16-h16-t0-o4-m4.sv` | Four-MAC streaming path using the 4-word register-reduction schedule | Fixed 4 MACs |
+| `conv-stream4-i16-h16-t0-o4-m8.sv` | Eight-MAC streaming path using the 4-word schedule | Fixed 8 MACs |
+| `conv-stream12-generic-i16-h16-t8-o4-m2-4-8.sv` | Generic streaming path from the `stream12` family | `NUM_MULT = 2`, `4` or `8` |
+| `conv-stream12-i16-h16-t8-o4-m4.sv` / `conv-stream12-i16-h16-t8-o4-m8.sv` | Fixed-MAC compatibility sources from the `stream12` family | Fixed 4 / 8 MACs |
 
 The filename fields are structural counts, not feature-map dimensions:
 
 - `i` is the number of registered input words;
-- `p` is the number of registered product-path words, including the retained
-  weight/transform/inverse-row storage used by the architecture;
+- `h` is the number of registered weight words (`r_input_weight`) only;
+- `t` is the number of registered transform/inverse words (`r_conv_temp`,
+  `r_transform_row`, and `r_inverse_row`);
 - `o` is the number of registered output words;
 - `m` is the number of physical MAC lanes active per Hadamard cycle.
 
+The RTL naming convention is intentionally used by this count: `r_*` denotes
+a state-holding register, while `w_*` denotes a combinational wire/next-value
+signal. Input and output banks are reported separately as `i` and `o`; control
+registers (counters, FSM state, and addresses) are not included in `h` or `t`.
+
+For the current 2x2 sources, the recount is:
+
+| Architecture | `h` | `t` | Registered banks included |
+| --- | ---: | ---: | --- |
+| standard, 4 MACs | 16 | 16 | `r_input_weight[16]` + `r_conv_temp[16]` |
+| all, 16 MACs | 16 | 0 | `r_input_weight[16]` |
+| stream4, 4 or 8 MACs | 16 | 0 | `r_input_weight[16]` |
+| stream4-rdrow, 4 MACs | 16 | 4 | `r_input_weight[16]` + `r_transform_row[4]` |
+| stream12, 2/4/8 MACs | 16 | 8 | `r_input_weight[16]` + `r_transform_row[4]` + `r_inverse_row[4]` |
+
+The output accumulator is part of the `o4` output bank, and all `w_conv_*`,
+`w_transform_*`, and `w_inverse_*` vectors remain wires; none of them is
+silently counted as storage.
+
 The generic source is the only intentional exception to a single `m` value:
-`conv-stream12-generic-i16-p24-o4-m2-4-8.sv` accepts `NUM_MULT` equal to 2, 4
+`conv-stream12-generic-i16-h16-t8-o4-m2-4-8.sv` accepts `NUM_MULT` equal to 2, 4
 or 8. The fixed sources use one concrete `m` value in their filename.
 
 The generic `stream12` source supports multiple MAC counts, while the concrete
 sources are named with their fixed MAC count. The `stream4` sources are
-`conv-stream4-i16-p16-o4-m4.sv` and `conv-stream4-i16-p16-o4-m8.sv`, so two files that both declare
+`conv-stream4-i16-h16-t0-o4-m4.sv` and `conv-stream4-i16-h16-t0-o4-m8.sv`, so two files that both declare
 `Conv` are never compiled in the same command.
 
 The conventional and fully-parallel variants use
@@ -78,8 +98,8 @@ For a streaming RTL run, set the source explicitly before invoking the shared
 script. For example:
 
 ```bash
-FASTCONV_STREAM_SOURCE=conv-stream4-i16-p16-o4-m4.sv fish test-streaming.fish
-FASTCONV_STREAM_SOURCE=conv-stream12-generic-i16-p24-o4-m2-4-8.sv fish test-streaming.fish
+FASTCONV_STREAM_SOURCE=conv-stream4-i16-h16-t0-o4-m4.sv fish test-streaming.fish
+FASTCONV_STREAM_SOURCE=conv-stream12-generic-i16-h16-t8-o4-m2-4-8.sv fish test-streaming.fish
 ```
 
 The row-level unit test is `streaming_row_testbench.sv`.

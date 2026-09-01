@@ -42,10 +42,16 @@ As tabelas analíticas geradas são `timing-summary.csv`, `area-hierarchy.csv`,
 `power-breakdown.csv`, `register-budget.csv`, `throughput.csv`,
 `energy-per-op.csv`, `mac-scaling.csv`, `pareto.csv`, `flow-status.csv` e
 `functional-quality.csv`. As três primeiras são extraídas dos relatórios de
-sintese; `register-budget.csv` é uma estimativa baseada nas dimensões da
-arquitetura (janelas Winograd 4x4, 5x5 e 6x6 para kernels 2x2, 3x3 e 4x4);
-as demais são derivações determinísticas de `merged.csv` ou dos
-resultados de qualidade disponíveis.
+sintese; `register-budget.csv` combina as dimensões das janelas Winograd
+(4x4, 5x5 e 6x6 para kernels 2x2, 3x3 e 4x4) com a contagem real dos bancos
+registrados no RTL; as demais são derivações determinísticas de `merged.csv` ou dos
+resultados de qualidade disponíveis. Em `register-budget.csv`, a coluna
+`h_register_words` é contada diretamente nas declarações de `r_input_weight`, e
+`t_register_words` nas declarações de bancos registrados de transformada/inversa
+(`r_conv_temp`, `r_transform_row` e `r_inverse_row`). Vetores `w_*`
+combinacionais e contadores de controle não entram nessas contagens. A coluna `mac_lanes` registra a quantidade
+de lanes MAC da arquitetura, mas não é somada ao armazenamento, pois os
+produtos são sinais `w_*` combinacionais.
 
 O script reconhece tanto os logs Xcelium atuais (`xrun.log`) quanto o marcador
 legado `Total execution time`. As tabelas antigas foram preservadas em

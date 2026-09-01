@@ -1734,6 +1734,96 @@ def kernel_size(project):
     return int(match.group(1)) if match else None
 
 
+def rtl_source_for_record(record):
+    """Return the canonical Conv source listed by a synthesis project."""
+    list_file = Path(record["root"]) / "list-file.txt"
+    if not list_file.exists():
+        return None
+    for raw_line in list_file.read_text(encoding="utf-8", errors="replace").splitlines():
+        value = raw_line.strip()
+        if not value or value.startswith("#") or not value.endswith(".sv"):
+            continue
+        candidate = Path(value)
+        if not candidate.is_absolute():
+            candidate = REPO_ROOT / candidate
+        if candidate.name.startswith("conv") and candidate.exists():
+            return candidate
+    return None
+
+
+def sv_constant_environment(source):
+    """Extract the simple integer parameters used by register-array ranges."""
+    text = Path(source).read_text(encoding="utf-8", errors="replace")
+    values = {}
+    declarations = re.findall(
+        r"^\s*(?:parameter|localparam)\s+(?:\w+\s+)*(\w+)\s*=\s*([^,;]+)",
+        text,
+        flags=re.MULTILINE,
+    )
+    for _ in range(len(declarations) + 1):
+        changed = False
+        for name, expression in declarations:
+            expression = re.sub(r"\b\w+'\s*\(", "(", expression)
+            expression = re.sub(r"\b[A-Za-z_][A-Za-z0-9_]*'\s*", "", expression)
+            expression = expression.replace("unsigned", "")
+            expression = re.sub(r"\b[A-Za-z_][A-Za-z0-9_]*\b", lambda m: str(values[m.group(0)]) if m.group(0) in values else m.group(0), expression)
+            if re.fullmatch(r"[0-9()+*\-/\s]+", expression):
+                try:
+                    value = int(eval(expression, {"__builtins__": {}}, {}))
+                except (ArithmeticError, SyntaxError, ValueError):
+                    continue
+                if values.get(name) != value:
+                    values[name] = value
+                    changed = True
+        if not changed:
+            break
+    return values
+
+
+def sv_range_words(range_expression, constants):
+    """Evaluate a packed array range such as ``N-1:0`` as a word count."""
+    bounds = range_expression.split(":", 1)
+    if len(bounds) != 2:
+        return None
+    evaluated = []
+    for bound in bounds:
+        expression = re.sub(
+            r"\b[A-Za-z_][A-Za-z0-9_]*\b",
+            lambda m: str(constants[m.group(0)]) if m.group(0) in constants else m.group(0),
+            bound,
+        )
+        if not re.fullmatch(r"[0-9()+*\-/\s]+", expression):
+            return None
+        try:
+            evaluated.append(int(eval(expression, {"__builtins__": {}}, {})))
+        except (ArithmeticError, SyntaxError, ValueError):
+            return None
+    return abs(evaluated[0] - evaluated[1]) + 1
+
+
+def parse_register_banks(source):
+    """Count registered weight (``h``) and transform/inverse (``t``) banks.
+
+    The RTL convention is explicit: ``r_*`` is state-holding and ``w_*`` is
+    combinational. Product and transform wires are therefore excluded.
+    """
+    if source is None:
+        return None, [], None, []
+    text = Path(source).read_text(encoding="utf-8", errors="replace")
+    constants = sv_constant_environment(source)
+    pattern = re.compile(
+        r"\blogic(?:\s+signed)?\s+\[[^\]]+\]\s+"
+        r"(r_(?:input_weight|conv_temp|transform_row|inverse_row))\s*\[([^\]]+)\]"
+    )
+    h_rows = []
+    t_rows = []
+    for signal, range_expression in pattern.findall(text):
+        words = sv_range_words(range_expression, constants)
+        if words is not None:
+            (h_rows if signal == "r_input_weight" else t_rows).append((signal, words))
+    return sum(words for _, words in h_rows), h_rows, sum(words for _, words in t_rows), t_rows
+
+
 def write_timing_summary(report_dir, records):
     rows = []
     for record in records:
@@ -1789,23 +1879,41 @@ def write_register_budget(report_dir, records):
         # Winograd input tile sizes used by the current generated matrices.
         transform_size = {2: 4, 3: 5, 4: 6}.get(k)
         name = project.lower()
-        if "stream12" in name:
-            mode, ph_words = "stream12", k * k + k
-        elif "stream4-rdrow" in name or "rdrow" in name:
-            mode, ph_words = "stream4-rdrow", k * k + k
-        elif "stream4" in name:
-            mode, ph_words = "stream4", k * k
-        elif "stream" in name:
-            mode, ph_words = "stream", k * k
+        source_path = rtl_source_for_record(record)
+        source_name = source_path.name.lower() if source_path else ""
+        if "stream12" in name or "stream12" in source_name:
+            mode = "stream12"
+        elif "stream4-rdrow" in name or "rdrow" in name or "rdrow" in source_name:
+            mode = "stream4-rdrow"
+        elif "stream4" in name or "stream4" in source_name:
+            mode = "stream4"
+        elif "stream" in name or "stream" in source_name:
+            mode = "stream"
+        elif "all" in name or "all" in source_name:
+            mode = "all"
         else:
-            mode, ph_words = "standard", 2 * k * k
+            mode = "standard"
         mult = parse_multipliers(project)
         mult_value = int(mult) if mult is not None else None
         input_words = transform_size * transform_size if transform_size else None
         output_words = k * k
-        total_words = input_words + ph_words + (mult_value or 0) + output_words if input_words is not None else None
-        rows.append({"Project": project, "architecture_mode": mode, "kernel_size": k, "input_words": input_words, "parameter_hadamard_words": ph_words, "product_words": mult_value, "output_words": output_words, "total_estimated_words": total_words, "source": "architectural_formula"})
-    columns = ["Project", "architecture_mode", "kernel_size", "input_words", "parameter_hadamard_words", "product_words", "output_words", "total_estimated_words", "source"]
+        h_words, h_signals, t_words, t_signals = parse_register_banks(source_path)
+        total_words = input_words + h_words + t_words + output_words if input_words is not None and h_words is not None and t_words is not None else None
+        rows.append({
+            "Project": project,
+            "architecture_mode": mode,
+            "kernel_size": k,
+            "input_words": input_words,
+            "h_register_words": h_words,
+            "h_register_signals": "; ".join(f"{signal}[{words}]" for signal, words in h_signals),
+            "t_register_words": t_words,
+            "t_register_signals": "; ".join(f"{signal}[{words}]" for signal, words in t_signals),
+            "mac_lanes": mult_value,
+            "output_words": output_words,
+            "total_estimated_words": total_words,
+            "source": "rtl_r_declarations",
+        })
+    columns = ["Project", "architecture_mode", "kernel_size", "input_words", "h_register_words", "h_register_signals", "t_register_words", "t_register_signals", "mac_lanes", "output_words", "total_estimated_words", "source"]
     pd.DataFrame(rows, columns=columns).sort_values("Project").to_csv(Path(report_dir) / "register-budget.csv", index=False)
 
 
