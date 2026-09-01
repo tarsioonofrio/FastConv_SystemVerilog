@@ -80,6 +80,12 @@ module tb #(
   assign p_input_data = input_sample_in_bounds ? p_input_data_mem : '0;
 
   // Instanciação do Módulo (DUT)
+`ifdef GATE_LEVEL
+  // A mapped gate-level module has no parameter list; its dimensions are
+  // already elaborated by synthesis. Keep the same instance name and ports
+  // so the checking logic and SDF command file remain unchanged.
+  Conv dut (
+`else
   Conv #(
     .N_CHANNEL_IN(N_CHANNEL_IN),
     .N_CHANNEL_OUT(N_CHANNEL_OUT),
@@ -94,6 +100,7 @@ module tb #(
     .HADAMARD_SIZE(HADAMARD_SIZE),
     .NUM_MULT(NUM_MULT)
   ) dut (
+`endif
     .clk(clk),
     .reset(reset),
     .p_start(p_start),
