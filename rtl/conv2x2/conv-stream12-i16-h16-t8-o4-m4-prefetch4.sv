@@ -286,8 +286,8 @@ module Conv
   assign w_input_last_channel_output = (r_input_channel_counter_output == CHANNEL_OUTPUT_COUNTER_WIDTH'(N_CHANNEL_OUT));
   assign w_input_prefetch_mode = (r_input_window_counter_col != '0);
 
-  // STREAM_FREEZE lifetime policy: the current feature tile remains stable
-  // until the last transform row has been consumed by the Hadamard stage.
+  // Release point for the current feature tile.  The prefetch bank may fill
+  // before this point, but the tile itself remains untouched until release.
   assign w_conv_input_release =
                                 (st_conv_current == INVERSE) ||
                                 ((st_conv_current == HADAMARD) &&
