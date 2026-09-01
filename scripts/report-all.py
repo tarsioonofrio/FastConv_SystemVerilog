@@ -1,4 +1,4 @@
-import glob
+import argparse
 import re
 from pathlib import Path
 
@@ -11,7 +11,9 @@ SYS_NAIVE_SIDE = 32
 SYS_NAIVE_DIR = (
     REPO_ROOT / ".." / "acc_dse_env" / "synthesis" / "convolution"
 ).resolve()
-CHAPTER7_DIR = (REPO_ROOT / ".." / "dissertation-doc" / "data" / "chap7").resolve()
+# Chapter-7 exports are kept inside this repository by default.  A different
+# destination can be selected explicitly with ``--chapter7-dir``.
+CHAPTER7_DIR = REPO_ROOT / "report" / "chapter7"
 
 
 def strip_project_prefix(name):
@@ -19,6 +21,13 @@ def strip_project_prefix(name):
 
 
 def format_project_name(name):
+    # Current synthesis projects are scoped by their RTL directory, for
+    # example ``conv2x2/stream4/tcn4-04mac``.  Keep that scope in the report
+    # key; otherwise configurations with the same tcn/ifn suffix collide.
+    if name.lower().startswith("conv"):
+        return "Conv" + name[4:]
+    if name.lower().startswith("sys"):
+        return "Sys" + name[3:]
     name = strip_project_prefix(name)
     if len(name) < 2:
         return name.upper()
@@ -26,11 +35,64 @@ def format_project_name(name):
 
 
 def project_name_from_report(path):
+    """Return the synthesis project directory containing a report file."""
     return Path(path).parent.parent.parent.parent.name
 
 
+def synthesis_projects():
+    """Yield current project directories under each RTL architecture.
+
+    Synthesis was moved from the repository-level ``synthesis/*`` layout to
+    ``rtl/conv*/synthesis/*``.  The architecture directory is part of the
+    identity so, for example, ``conv3x3/synthesis/ifn9-06mac`` and
+    ``conv3x3stream-if/synthesis/ifn9-06mac`` remain distinct rows.
+    """
+    for synthesis_root in sorted(Path(REPO_ROOT).glob("rtl/conv*/synthesis")):
+        architecture = synthesis_root.parent.name
+        # Some families add one grouping directory (for example
+        # ``conv2x2/synthesis/stream12/tcn4-04mac``), while others place the
+        # project directly below ``synthesis``.  ``list-file.txt`` is the
+        # common marker for an actual synthesis project.
+        for list_file in sorted(synthesis_root.rglob("list-file.txt")):
+            project_dir = list_file.parent
+            if any(part in EXCLUDED_PROJECTS for part in project_dir.relative_to(synthesis_root).parts):
+                continue
+            relative_parts = project_dir.relative_to(synthesis_root).parts
+            if not relative_parts:
+                continue
+            configuration = "-".join(relative_parts)
+            yield {
+                "architecture": architecture,
+                "configuration": configuration,
+                "root": project_dir,
+                "project": f"{architecture}-{configuration}",
+                "prefix": "conv-",
+            }
+
+
+def project_records(prefix):
+    """Return current synthesis records matching a report family."""
+    if prefix != "conv-":
+        return []
+    return list(synthesis_projects())
+
+
+def project_label(record):
+    if isinstance(record, dict):
+        return record["project"]
+    return str(record)
+
+
+def report_has_multiplier(report_dir, label):
+    path = Path(report_dir) / f"{label}-report-merged.csv"
+    if not path.exists():
+        return False
+    frame = pd.read_csv(path)
+    return "mult" in frame.columns and frame["mult"].notna().any()
+
+
 def parse_side(project):
-    match = re.search(r"m(\d+)p", project)
+    match = re.search(r"m(\d+)p", str(project), flags=re.IGNORECASE)
     if not match:
         return None
     return int(match.group(1))
@@ -41,8 +103,20 @@ def parse_time(path):
         content = handle.read()
     match = re.search(r"Total execution time:\s*([0-9.]+)", content)
     if not match:
+        # Xcelium gate-level logs report simulated workload time instead of
+        # the old ModelSim ``Total execution time`` marker.
+        match = re.search(
+            r"Simulation complete via .*? at time\s*([0-9.]+)\s*(PS|NS|US)",
+            content,
+            flags=re.IGNORECASE,
+        )
+    if not match:
         return None
-    return float(match.group(1))
+    value = float(match.group(1))
+    if len(match.groups()) > 1:
+        unit = match.group(2).upper()
+        value *= {"PS": 1e-3, "NS": 1.0, "US": 1e3}[unit]
+    return value
 
 
 def parse_cycles(path):
@@ -50,12 +124,22 @@ def parse_cycles(path):
         content = handle.read()
     match = re.search(r"Total cycles:\s*(\d+)", content)
     if not match:
+        # The 3x3 testbench emits ``Ciclos de sistema`` and may not emit the
+        # English marker used by the 2x2/4x4 testbenches.
+        match = re.search(r"Ciclos[^:]*:\s*(\d+)", content, flags=re.IGNORECASE)
+    if not match:
+        match = re.search(r"\bcycles\s*=\s*(\d+)", content, flags=re.IGNORECASE)
+    if not match:
         return None
     return int(match.group(1))
 
 
 def parse_multipliers(project):
-    match = re.search(r"-([0-9]+)m", project)
+    match = re.search(
+        r"(?:^|-)([0-9]+)(?:mac|m(?=\d+p|[-$]))",
+        str(project),
+        flags=re.IGNORECASE,
+    )
     if not match:
         return None
     return match.group(1)
@@ -68,6 +152,70 @@ def parse_extra(project):
     return match.group(1)
 
 
+def parse_side_from_content(content, project):
+    match = re.search(r"sim-(\d+)(?:-|/)", content, flags=re.IGNORECASE)
+    if match:
+        return int(match.group(1))
+    return parse_side(project)
+
+
+def report_lines(path):
+    return read_file(path)
+
+
+def parse_area_report(path):
+    """Parse the top-level area row without relying on fixed line numbers."""
+    for line in report_lines(path):
+        tokens = line.split()
+        if len(tokens) < 5 or tokens[0].lower() not in {"conv", "system", "convolution"}:
+            continue
+        try:
+            values = [float(value) for value in tokens[-4:]]
+        except ValueError:
+            continue
+        return {
+            "cell-count": int(values[0]),
+            "cell-area-um": values[1],
+            "net-area-um": values[2],
+            "total-area-um": values[3],
+        }
+    return None
+
+
+def parse_flop_count(path):
+    for line in report_lines(path):
+        match = re.search(r"Total Flip-flops\s+(\d+)", line, flags=re.IGNORECASE)
+        if match:
+            return int(match.group(1))
+    return None
+
+
+def parse_power_report(path):
+    """Parse category totals from Genus power_evaluation.txt."""
+    categories = {}
+    subtotal = None
+    expected = {"memory", "register", "latch", "logic", "bbox", "clock", "pad", "pm"}
+    for line in report_lines(path):
+        tokens = line.split()
+        if not tokens:
+            continue
+        category = tokens[0].lower()
+        if category in expected and len(tokens) >= 5:
+            try:
+                categories[category] = float(tokens[4])
+            except ValueError:
+                pass
+        elif category == "subtotal" and len(tokens) >= 5:
+            try:
+                subtotal = float(tokens[4])
+            except ValueError:
+                pass
+    if subtotal is None or len(categories) != len(expected):
+        return None
+    categories["Subtotal"] = subtotal
+    return categories
+
+
 def read_file(file_path):
     with open(file_path, "r") as handle:
         return handle.readlines()
@@ -75,7 +223,22 @@ def read_file(file_path):
 
 def add_name_mult_columns(df, project_col):
     df = df.copy()
-    df["nome"] = df[project_col].astype(str).str.split("-").str[0]
+    def design_name(project):
+        text = str(project)
+        parts = text.split("-")
+        config_index = next(
+            (
+                index
+                for index, part in enumerate(parts)
+                if re.fullmatch(r"(?:tcn|ifn)\d+", part, flags=re.IGNORECASE)
+            ),
+            None,
+        )
+        if config_index is not None and config_index > 0:
+            return "-".join(parts[:config_index])
+        return parts[0]
+
+    df["nome"] = df[project_col].map(design_name)
     df["mult"] = df[project_col].map(parse_multipliers)
     df["extra"] = df[project_col].map(parse_extra)
     df.loc[
@@ -86,20 +249,25 @@ def add_name_mult_columns(df, project_col):
 
 
 def write_report_time(report_dir, prefix):
-    path = (REPO_ROOT / "synthesis" / "*" / "sim.log").as_posix()
     rows = []
-    for file_path in glob.glob(path):
-        project = Path(file_path).parent.name
-        if not project.startswith(prefix):
+    for record in project_records(prefix):
+        sim_candidates = [
+            record["root"] / "sim" / "xrun.log",
+            record["root"] / "sim" / "sim.log",
+            record["root"] / "sim.log",
+        ]
+        sim_path = next((path for path in sim_candidates if path.exists()), None)
+        if sim_path is None:
             continue
-        if project in EXCLUDED_PROJECTS:
-            print(f"Skipping excluded project: {project}")
+        content = sim_path.read_text(encoding="utf-8", errors="replace")
+        project = project_label(record)
+        side = parse_side_from_content(content, project)
+        time_ns = parse_time(sim_path)
+        cycles = parse_cycles(sim_path)
+        if side is None or time_ns is None:
             continue
-        side = parse_side(project)
-        time_ns = parse_time(file_path)
-        cycles = parse_cycles(file_path)
-        if side is None or time_ns is None or cycles is None:
-            continue
+        if cycles is None:
+            print(f"Warning: no cycle marker found in {sim_path}")
         rows.append(
             {
                 "project": project,
@@ -125,7 +293,7 @@ def write_report_time(report_dir, prefix):
                 )
 
     if not rows:
-        raise SystemExit("No valid sim.log files found.")
+        raise SystemExit(f"No valid simulation logs found for prefix {prefix!r}.")
 
     df = pd.DataFrame(rows)
     df["project"] = df["project"].map(format_project_name)
@@ -139,18 +307,21 @@ def write_report_time(report_dir, prefix):
 
 
 def write_report_logical(report_dir, prefix):
-    path = (
-        REPO_ROOT
-        / "synthesis"
-        / "*"
-        / "logical"
-        / "results"
-        / "reports"
-        / "*_area.rpt"
-    )
-    all_files = glob.glob(path.as_posix())
-    report_area = {project_name_from_report(f): read_file(f) for f in all_files}
-    report_area = {k: v for k, v in report_area.items() if k.startswith(prefix)}
+    report_area = {}
+    report_clock = {}
+    for record in project_records(prefix):
+        reports_dir = record["root"] / "logical" / "results" / "reports"
+        area_paths = sorted(reports_dir.glob("*_area.rpt"))
+        clock_paths = sorted(reports_dir.glob("*_clock_gating.rpt"))
+        if area_paths:
+            area = parse_area_report(area_paths[0])
+            if area is not None:
+                report_area[project_label(record)] = area
+        if clock_paths:
+            flop_count = parse_flop_count(clock_paths[0])
+            if flop_count is not None:
+                report_clock[project_label(record)] = flop_count
+
     if prefix == "sys-":
         area_path = (
             SYS_NAIVE_DIR
@@ -160,36 +331,9 @@ def write_report_logical(report_dir, prefix):
             / "convolution_area.rpt"
         )
         if area_path.exists():
-            report_area[SYS_NAIVE_PROJECT] = read_file(area_path)
-    excluded_area = {k for k in report_area if k in EXCLUDED_PROJECTS}
-    for name in sorted(excluded_area):
-        print(f"Skipping excluded project: {name}")
-    report_area = {
-        k: v for k, v in report_area.items() if k not in EXCLUDED_PROJECTS
-    }
-
-    cell_count = {k: v[14].split()[1] for k, v in report_area.items()}
-    cell_area = {k: v[14].split()[2] for k, v in report_area.items()}
-    net_area = {k: v[14].split()[3] for k, v in report_area.items()}
-    total_area = {k: v[14].split()[4] for k, v in report_area.items()}
-
-    path = (
-        REPO_ROOT
-        / "synthesis"
-        / "*"
-        / "logical"
-        / "results"
-        / "reports"
-        / "*_clock_gating.rpt"
-    )
-    all_files = glob.glob(path.as_posix())
-    report_clock = {
-        project_name_from_report(f): read_file(f) for f in all_files
-    }
-    report_clock = {
-        k: v for k, v in report_clock.items() if k.startswith(prefix)
-    }
-    if prefix == "sys-":
+            area = parse_area_report(area_path)
+            if area is not None:
+                report_area[SYS_NAIVE_PROJECT] = area
         clock_path = (
             SYS_NAIVE_DIR
             / "logical"
@@ -198,40 +342,24 @@ def write_report_logical(report_dir, prefix):
             / "convolution_clock_gating.rpt"
         )
         if clock_path.exists():
-            report_clock[SYS_NAIVE_PROJECT] = read_file(clock_path)
-    excluded_clock = {k for k in report_clock if k in EXCLUDED_PROJECTS}
-    for name in sorted(excluded_clock):
-        print(f"Skipping excluded project: {name}")
-    report_clock = {
-        k: v for k, v in report_clock.items() if k not in EXCLUDED_PROJECTS
-    }
+            report_clock[SYS_NAIVE_PROJECT] = parse_flop_count(clock_path)
 
-    flop_count = {k: v[-4].split()[1] for k, v in report_clock.items()}
-
-    df = pd.DataFrame(
-        {
-            "cell-count": cell_count,
-            "cell-area-um": cell_area,
-            "net-area-um": net_area,
-            "total-area-um": total_area,
-            "flop-count": flop_count,
+    rows = []
+    for project, area in report_area.items():
+        if project not in report_clock:
+            continue
+        row = {
+            "Project": format_project_name(project),
+            "Cell Count": area["cell-count"],
+            "Cell Area um^2": area["cell-area-um"],
+            "Net Area um^2": area["net-area-um"],
+            "Total Area um^2": area["total-area-um"],
+            "Flop Count": report_clock[project],
         }
-    )
-
-    dft = df.T
-    dft.columns = [format_project_name(n) for n in dft.columns]
-    dft.sort_index(axis=1, inplace=True)
-
-    df = dft.T
-    df.columns = [
-        "Cell Count",
-        "Cell Area um^2",
-        "Net Area um^2",
-        "Total Area um^2",
-        "Flop Count",
-    ]
-
-    df.insert(0, "Project", [format_project_name(n) for n in df.index])
+        rows.append(row)
+    if not rows:
+        raise SystemExit(f"No valid logical reports found for prefix {prefix!r}.")
+    df = pd.DataFrame(rows)
     df = add_name_mult_columns(df, "Project")
     column_order = ["Project", "nome", "mult", "extra"]
     df = df[column_order + [c for c in df.columns if c not in column_order]]
@@ -242,24 +370,22 @@ def write_report_logical(report_dir, prefix):
 
 
 def write_report_power(report_dir, prefix):
-    path = REPO_ROOT / "synthesis" / "*" / "power" / "power_evaluation.txt"
-    all_files = glob.glob(path.as_posix())
-    filtered_files = []
-    for f in all_files:
-        name = Path(f).parent.parent.name
-        if not name.startswith(prefix):
-            continue
-        if name in EXCLUDED_PROJECTS:
-            print(f"Skipping excluded project: {name}")
-            continue
-        filtered_files.append(f)
+    reports = []
+    for record in project_records(prefix):
+        power_path = record["root"] / "power" / "power_evaluation.txt"
+        if power_path.exists():
+            parsed = parse_power_report(power_path)
+            if parsed is not None:
+                reports.append((project_label(record), parsed))
 
     if prefix == "sys-":
         power_path = SYS_NAIVE_DIR / "power" / "power_evaluation.txt"
         if power_path.exists():
-            filtered_files.append(power_path.as_posix())
+            parsed = parse_power_report(power_path)
+            if parsed is not None:
+                reports.append((SYS_NAIVE_PROJECT, parsed))
 
-    if not filtered_files:
+    if not reports:
         label = prefix.rstrip("-")
         columns = [
             "Project",
@@ -281,32 +407,8 @@ def write_report_power(report_dir, prefix):
         )
         return
 
-    file_names = [Path(f).parent.parent.name for f in filtered_files]
-    if prefix == "sys-":
-        file_names = [
-            SYS_NAIVE_PROJECT if name == "convolution" else name
-            for name in file_names
-        ]
-    report = [read_file(f) for f in filtered_files]
-    columns = report[0][15].split()[1:5]
-    indexes = [v.split()[0] for v in report[0][17:27] if "--" not in v]
-    data = [
-        [
-            [float(i) for i in vv.split()[1:5]]
-            for vv in v[16:27]
-            if "--" not in vv
-        ]
-        for v in report
-    ]
-
-    list_df = {
-        f: pd.DataFrame(columns=columns, index=indexes, data=list(d))
-        for f, d in zip(file_names, data)
-    }
-    df_total = pd.DataFrame({f: df["Total"] for f, df in list_df.items()}).T
-    df_total.insert(
-        0, "Project", [format_project_name(n) for n in df_total.index]
-    )
+    rows = [{"Project": format_project_name(name), **values} for name, values in reports]
+    df_total = pd.DataFrame(rows)
     df_total = add_name_mult_columns(df_total, "Project")
     column_order = ["Project", "nome", "mult", "extra"]
     df_total = df_total[
@@ -423,8 +525,7 @@ def write_chap7_conv_time(
     )
     df_pivot.sort_index(axis=0, inplace=True)
     df_pivot = df_pivot.reset_index()
-    output_dir = REPO_ROOT / ".." / "dissertation-doc" / "data" / "chap7"
-    output_dir = output_dir.resolve()
+    output_dir = CHAPTER7_DIR
     if not output_dir.exists():
         print(f"Skipping chap7 export, missing: {output_dir}")
         return
@@ -457,8 +558,7 @@ def write_chap7_conv_logical(
         df = df[
             df["extra"].isna() | (df["extra"].astype(str).str.strip() == "")
         ]
-    output_dir = REPO_ROOT / ".." / "dissertation-doc" / "data" / "chap7"
-    output_dir = output_dir.resolve()
+    output_dir = CHAPTER7_DIR
     if not output_dir.exists():
         print(f"Skipping chap7 logical export, missing: {output_dir}")
         return
@@ -602,8 +702,7 @@ def write_chap7_conv_power(
     df_pivot = df_power.pivot(index="mult", columns="nome", values="Subtotal")
     df_pivot.sort_index(axis=0, inplace=True)
     df_pivot = df_pivot.reset_index()
-    output_dir = REPO_ROOT / ".." / "dissertation-doc" / "data" / "chap7"
-    output_dir = output_dir.resolve()
+    output_dir = CHAPTER7_DIR
     if not output_dir.exists():
         print(f"Skipping chap7 power export, missing: {output_dir}")
         return
@@ -679,8 +778,7 @@ def write_chap7_conv_energy(
     df_pivot = df_energy.pivot(index="mult", columns="nome", values="energy_nj")
     df_pivot.sort_index(axis=0, inplace=True)
     df_pivot = df_pivot.reset_index()
-    output_dir = REPO_ROOT / ".." / "dissertation-doc" / "data" / "chap7"
-    output_dir = output_dir.resolve()
+    output_dir = CHAPTER7_DIR
     if not output_dir.exists():
         print(f"Skipping chap7 energy export, missing: {output_dir}")
         return
@@ -802,8 +900,7 @@ def write_chap7_conv_power_cycles(
         cell_area=("Cell Area um^2", merge_metric),
     )
     df = df.reset_index()
-    output_dir = REPO_ROOT / ".." / "dissertation-doc" / "data" / "chap7"
-    output_dir = output_dir.resolve()
+    output_dir = CHAPTER7_DIR
     if not output_dir.exists():
         print(f"Skipping chap7 power/cycles export, missing: {output_dir}")
         return
@@ -919,8 +1016,7 @@ def write_chap7_conv_metric_cycles(
         cell_area=("Cell Area um^2", merge_metric),
     )
     df = df.reset_index()
-    output_dir = REPO_ROOT / ".." / "dissertation-doc" / "data" / "chap7"
-    output_dir = output_dir.resolve()
+    output_dir = CHAPTER7_DIR
     if not output_dir.exists():
         print(
             f"Skipping chap7 {metric_name}/cycles export, missing: {output_dir}"
@@ -1014,8 +1110,7 @@ def write_chap7_conv_distance_4d(
         cell_area=("Cell Area um^2", merge_metric),
     )
     df = df.reset_index()
-    output_dir = REPO_ROOT / ".." / "dissertation-doc" / "data" / "chap7"
-    output_dir = output_dir.resolve()
+    output_dir = CHAPTER7_DIR
     if not output_dir.exists():
         print(f"Skipping chap7 4d distance export, missing: {output_dir}")
         return
@@ -1102,8 +1197,7 @@ def write_chap7_conv_distance_3d(
         cell_area=("Cell Area um^2", merge_metric),
     )
     df = df.reset_index()
-    output_dir = REPO_ROOT / ".." / "dissertation-doc" / "data" / "chap7"
-    output_dir = output_dir.resolve()
+    output_dir = CHAPTER7_DIR
     if not output_dir.exists():
         print(f"Skipping chap7 3d distance export, missing: {output_dir}")
         return
@@ -1183,8 +1277,7 @@ def write_chap7_conv_power_reg_logic(
         logic=("logic", merge_metric),
     )
     df = df.reset_index()
-    output_dir = REPO_ROOT / ".." / "dissertation-doc" / "data" / "chap7"
-    output_dir = output_dir.resolve()
+    output_dir = CHAPTER7_DIR
     if not output_dir.exists():
         print(f"Skipping chap7 power reg/logic export, missing: {output_dir}")
         return
@@ -1281,8 +1374,7 @@ def write_chap7_conv_tc9(report_dir, prefix="conv"):
     )
 
     df = logical.join(power, how="outer").reset_index()
-    output_dir = REPO_ROOT / ".." / "dissertation-doc" / "data" / "chap7"
-    output_dir = output_dir.resolve()
+    output_dir = CHAPTER7_DIR
     if not output_dir.exists():
         print(f"Skipping chap7 tc9 export, missing: {output_dir}")
         return
@@ -1311,7 +1403,11 @@ def write_ratio_tables(report_dir):
         print(f"Skipping ratio export, missing: {CHAPTER7_DIR}")
         return
     for label in ("conv", "sys"):
-        df = pd.read_csv(report_dir / f"{label}-report-merged.csv")
+        source = report_dir / f"{label}-report-merged.csv"
+        if not source.exists():
+            print(f"Skipping {label} ratio export, missing: {source}")
+            continue
+        df = pd.read_csv(source)
         required = {"cycles", "Cell Area um^2", "Subtotal", "energy_nj"}
         missing = required - set(df.columns)
         if missing:
@@ -1421,137 +1517,167 @@ def write_naive_energy_tables(report_dir, baselines):
 
 
 def main():
-    report_dir = Path(__file__).resolve().parent.parent / "report"
-    for prefix in ("sys-", "conv-"):
+    parser = argparse.ArgumentParser(
+        description="Collect current RTL-local synthesis reports into CSV tables."
+    )
+    parser.add_argument(
+        "--report-dir",
+        default=str(REPO_ROOT / "report"),
+        help="Directory for generated report tables (default: report/).",
+    )
+    parser.add_argument(
+        "--chapter7-dir",
+        default=None,
+        help="Optional directory for chapter-7 derived tables.",
+    )
+    args = parser.parse_args()
+    report_dir = Path(args.report_dir).resolve()
+    report_dir.mkdir(parents=True, exist_ok=True)
+    global CHAPTER7_DIR
+    if args.chapter7_dir:
+        CHAPTER7_DIR = Path(args.chapter7_dir).resolve()
+    CHAPTER7_DIR.mkdir(parents=True, exist_ok=True)
+
+    prefixes = []
+    if project_records("conv-"):
+        prefixes.append("conv-")
+    if SYS_NAIVE_DIR.exists() or project_records("sys-"):
+        prefixes.append("sys-")
+
+    for prefix in prefixes:
         write_report_time(report_dir, prefix)
         write_report_logical(report_dir, prefix)
         write_report_power(report_dir, prefix)
         write_report_merge(report_dir, prefix)
-    write_chap7_conv_time(report_dir, prefix="conv", drop_names_with_k=True)
-    write_chap7_conv_logical(report_dir, prefix="conv", drop_names_with_k=True)
-    write_chap7_conv_power(report_dir, prefix="conv", drop_names_with_k=True)
-    write_chap7_conv_energy(report_dir, prefix="conv", drop_names_with_k=True)
-    write_chap7_conv_power_cycles(
-        report_dir,
-        prefix="conv",
-        drop_names_with_k=True,
-        expand_base_rows=False,
-    )
-    write_chap7_conv_distance_4d(
-        report_dir,
-        prefix="conv",
-        drop_names_with_k=True,
-        expand_base_rows=False,
-    )
-    write_chap7_conv_distance_3d(
-        report_dir,
-        prefix="conv",
-        drop_names_with_k=True,
-        expand_base_rows=False,
-    )
-    write_chap7_conv_metric_cycles(
-        report_dir,
-        metric_col="Cell Area um^2",
-        output_suffix="cell-area-cycles",
-        metric_name="cell_area",
-        prefix="conv",
-        drop_names_with_k=True,
-        expand_base_rows=False,
-    )
-    write_chap7_conv_metric_cycles(
-        report_dir,
-        metric_col="Subtotal",
-        output_suffix="power-cycles",
-        metric_name="power",
-        prefix="conv",
-        drop_names_with_k=True,
-        expand_base_rows=False,
-    )
-    write_chap7_conv_metric_cycles(
-        report_dir,
-        metric_col="energy_nj",
-        output_suffix="energy-cycles",
-        metric_name="energy",
-        prefix="conv",
-        drop_names_with_k=True,
-        expand_base_rows=False,
-    )
-    write_chap7_conv_power_reg_logic(
-        report_dir,
-        prefix="conv",
-        drop_names_with_k=True,
-        expand_base_rows=False,
-    )
-    write_chap7_conv_tc9(report_dir, prefix="conv")
+    if "conv-" in prefixes:
+        write_chap7_conv_time(report_dir, prefix="conv", drop_names_with_k=True)
+        write_chap7_conv_logical(report_dir, prefix="conv", drop_names_with_k=True)
+        write_chap7_conv_power(report_dir, prefix="conv", drop_names_with_k=True)
+        write_chap7_conv_energy(report_dir, prefix="conv", drop_names_with_k=True)
+        write_chap7_conv_power_cycles(
+            report_dir,
+            prefix="conv",
+            drop_names_with_k=True,
+            expand_base_rows=False,
+        )
+        write_chap7_conv_distance_4d(
+            report_dir,
+            prefix="conv",
+            drop_names_with_k=True,
+            expand_base_rows=False,
+        )
+        write_chap7_conv_distance_3d(
+            report_dir,
+            prefix="conv",
+            drop_names_with_k=True,
+            expand_base_rows=False,
+        )
+        write_chap7_conv_metric_cycles(
+            report_dir,
+            metric_col="Cell Area um^2",
+            output_suffix="cell-area-cycles",
+            metric_name="cell_area",
+            prefix="conv",
+            drop_names_with_k=True,
+            expand_base_rows=False,
+        )
+        write_chap7_conv_metric_cycles(
+            report_dir,
+            metric_col="Subtotal",
+            output_suffix="power-cycles",
+            metric_name="power",
+            prefix="conv",
+            drop_names_with_k=True,
+            expand_base_rows=False,
+        )
+        write_chap7_conv_metric_cycles(
+            report_dir,
+            metric_col="energy_nj",
+            output_suffix="energy-cycles",
+            metric_name="energy",
+            prefix="conv",
+            drop_names_with_k=True,
+            expand_base_rows=False,
+        )
+        write_chap7_conv_power_reg_logic(
+            report_dir,
+            prefix="conv",
+            drop_names_with_k=True,
+            expand_base_rows=False,
+        )
+        write_chap7_conv_tc9(report_dir, prefix="conv")
 
-    write_chap7_conv_time(report_dir, prefix="sys", merge_extra_into_name=True)
-    write_chap7_conv_logical(
-        report_dir, prefix="sys", merge_extra_into_name=True
-    )
-    write_chap7_conv_power(report_dir, prefix="sys", merge_extra_into_name=True)
-    write_chap7_conv_energy(
-        report_dir, prefix="sys", merge_extra_into_name=True
-    )
-    write_chap7_conv_power_cycles(
-        report_dir,
-        prefix="sys",
-        merge_extra_into_name=True,
-        drop_names_with_k=False,
-        expand_base_rows=False,
-    )
-    write_chap7_conv_distance_4d(
-        report_dir,
-        prefix="sys",
-        merge_extra_into_name=True,
-        drop_names_with_k=False,
-        expand_base_rows=False,
-    )
-    write_chap7_conv_distance_3d(
-        report_dir,
-        prefix="sys",
-        merge_extra_into_name=True,
-        drop_names_with_k=False,
-        expand_base_rows=False,
-    )
-    write_chap7_conv_metric_cycles(
-        report_dir,
-        metric_col="Cell Area um^2",
-        output_suffix="cell-area-cycles",
-        metric_name="cell_area",
-        prefix="sys",
-        merge_extra_into_name=True,
-        drop_names_with_k=False,
-        expand_base_rows=False,
-    )
-    write_chap7_conv_metric_cycles(
-        report_dir,
-        metric_col="Subtotal",
-        output_suffix="power-cycles",
-        metric_name="power",
-        prefix="sys",
-        merge_extra_into_name=True,
-        drop_names_with_k=False,
-        expand_base_rows=False,
-    )
-    write_chap7_conv_metric_cycles(
-        report_dir,
-        metric_col="energy_nj",
-        output_suffix="energy-cycles",
-        metric_name="energy",
-        prefix="sys",
-        merge_extra_into_name=True,
-        drop_names_with_k=True,
-        expand_base_rows=False,
-    )
-    write_chap7_conv_power_reg_logic(
-        report_dir,
-        prefix="sys",
-        merge_extra_into_name=True,
-        drop_names_with_k=False,
-        expand_base_rows=False,
-    )
+    if "sys-" in prefixes and report_has_multiplier(report_dir, "sys"):
+        write_chap7_conv_time(report_dir, prefix="sys", merge_extra_into_name=True)
+        write_chap7_conv_logical(
+            report_dir, prefix="sys", merge_extra_into_name=True
+        )
+        write_chap7_conv_power(report_dir, prefix="sys", merge_extra_into_name=True)
+        write_chap7_conv_energy(
+            report_dir, prefix="sys", merge_extra_into_name=True
+        )
+        write_chap7_conv_power_cycles(
+            report_dir,
+            prefix="sys",
+            merge_extra_into_name=True,
+            drop_names_with_k=False,
+            expand_base_rows=False,
+        )
+        write_chap7_conv_distance_4d(
+            report_dir,
+            prefix="sys",
+            merge_extra_into_name=True,
+            drop_names_with_k=False,
+            expand_base_rows=False,
+        )
+        write_chap7_conv_distance_3d(
+            report_dir,
+            prefix="sys",
+            merge_extra_into_name=True,
+            drop_names_with_k=False,
+            expand_base_rows=False,
+        )
+        write_chap7_conv_metric_cycles(
+            report_dir,
+            metric_col="Cell Area um^2",
+            output_suffix="cell-area-cycles",
+            metric_name="cell_area",
+            prefix="sys",
+            merge_extra_into_name=True,
+            drop_names_with_k=False,
+            expand_base_rows=False,
+        )
+        write_chap7_conv_metric_cycles(
+            report_dir,
+            metric_col="Subtotal",
+            output_suffix="power-cycles",
+            metric_name="power",
+            prefix="sys",
+            merge_extra_into_name=True,
+            drop_names_with_k=False,
+            expand_base_rows=False,
+        )
+        write_chap7_conv_metric_cycles(
+            report_dir,
+            metric_col="energy_nj",
+            output_suffix="energy-cycles",
+            metric_name="energy",
+            prefix="sys",
+            merge_extra_into_name=True,
+            drop_names_with_k=True,
+            expand_base_rows=False,
+        )
+        write_chap7_conv_power_reg_logic(
+            report_dir,
+            prefix="sys",
+            merge_extra_into_name=True,
+            drop_names_with_k=False,
+            expand_base_rows=False,
+        )
+
     write_ratio_tables(report_dir)
-    write_naive_energy_tables(report_dir, ["naive", "TCn9-05m032p-bus"])
+    if "sys-" in prefixes:
+        write_naive_energy_tables(report_dir, ["naive", "TCn9-05m032p-bus"])
 
 
 if __name__ == "__main__":
