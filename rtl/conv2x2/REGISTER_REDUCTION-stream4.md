@@ -12,8 +12,8 @@ As variantes fixas sao:
 
 | Arquivo | MACs por ciclo | Linhas inversas consumidas por ciclo |
 | --- | ---: | ---: |
-| `conv4mac.sv` | 4 | 1 |
-| `conv8mac.sv` | 8 | 2 |
+| `conv4mac-stream4.sv` | 4 | 1 |
+| `conv8mac-stream4.sv` | 8 | 2 |
 
 O contrato funcional que nao pode mudar durante a reducao e:
 
@@ -51,7 +51,7 @@ armazenadas e nao devem ser contados como registradores.
 
 ### Motivacao
 
-Nos arquivos fixos `conv4mac.sv` e `conv8mac.sv`, `r_s_row` recebia
+Nos arquivos fixos `conv4mac-stream4.sv` e `conv8mac-stream4.sv`, `r_s_row` recebia
 `w_stream_product_row` ou `w_stream_product_row_2`. A unica leitura era uma
 instancia adicional de `InverseRow`, cujo resultado (`w_stream_sigma`) era
 impresso no bloco `STREAM_DEBUG`. A saida real usa as instancias
@@ -79,7 +79,7 @@ InverseRow inverse_row_current(... w_stream_product_row ...);
 InverseRowAccumulate inverse_row_acc(... w_stream_sigma_current ...);
 ```
 
-Para `conv8mac.sv`, o segundo caminho continua usando
+Para `conv8mac-stream4.sv`, o segundo caminho continua usando
 `w_stream_product_row_2` e `inverse_row_acc_second`.
 
 Na antiga variante parametrizada de 2 MACs, o vetor `r_s_row` conservava a
@@ -153,8 +153,8 @@ execucao local, nao uma falha funcional observada no Verilator.
 
 ## 5. Alteracao 2: reduzir `r_d_row`
 
-Esta alteracao foi aplicada primeiro em `conv4mac.sv` e depois em
-`conv8mac.sv`. `r_d_row` era diferente de `r_s_row`: ele segurava a linha
+Esta alteracao foi aplicada primeiro em `conv4mac-stream4.sv` e depois em
+`conv8mac-stream4.sv`. `r_d_row` era diferente de `r_s_row`: ele segurava a linha
 transformada entre a captura no estado `TRANSFORM`/`HADAMARD` e o ciclo em que
 os MACs a consomem.
 
@@ -238,7 +238,7 @@ netlist obsoleto apresentado como configuracao suportada.
 
 Os resultados antigos permanecem nas secoes de campanha historica somente
 para rastreabilidade; eles nao devem ser usados como resultados atuais da
-pasta `conv2x2stream4`.
+pasta `conv2x2`.
 
 ## 8. Ordem de execucao recomendada
 
@@ -276,13 +276,13 @@ simulador.
 ### Motivacao
 
 As duas variantes mantidas compartilham o mesmo fluxo Genus e usam modulos
-fixos (`conv4mac.sv` e `conv8mac.sv`). O nome do topo e os caminhos das listas
+fixos (`conv4mac-stream4.sv` e `conv8mac-stream4.sv`). O nome do topo e os caminhos das listas
 precisam continuar coerentes com o layout local para que a sintese nao leia
 fontes de outra pasta.
 
 ### Mudanca aplicada
 
-Os parsers locais de `tcn4-04mac` e `tcn4-08mac` agora:
+Os parsers locais de `stream4/tcn4-04mac` e `stream4/tcn4-08mac` agora:
 
 - ignoram linhas vazias e comentarios;
 - convertem `NAME=VALUE` em `{NAME VALUE}` antes de `elaborate`;
@@ -311,10 +311,10 @@ artefatos locais deste diretorio:
 
 | Configuracao | Fonte do core | Parametro |
 | --- | --- | --- |
-| `tcn4-04mac` | `conv4mac.sv` | fixo em 4 MACs |
-| `tcn4-08mac` | `conv8mac.sv` | fixo em 8 MACs |
+| `stream4/tcn4-04mac` | `conv4mac-stream4.sv` | fixo em 4 MACs |
+| `stream4/tcn4-08mac` | `conv8mac-stream4.sv` | fixo em 8 MACs |
 
-As listas anteriores apontavam para `rtl/conv2x2stream12`, de modo que os
+As listas anteriores apontavam para `rtl/conv2x2/synthesis/stream12`, de modo que os
 logs/registros de sintese que ja estavam no diretorio nao comprovavam a
 sintese do RTL desta pasta. Tambem foi corrigido o `testbench-file.txt` para o
 testbench compartilhado local e o nome de topo para `Conv`, respeitando
@@ -337,8 +337,8 @@ gerados, nao estimativas baseadas na contagem de declaracoes SystemVerilog.
 | Variante | Celulas | Area total (um2) | Flip-flops | Slack nominal (ps) | Power total (mW) |
 | --- | ---: | ---: | ---: | ---: | ---: |
 | `tcn4-02mac` | 5.391 | 9.309,779 | 1.111 | 235 | 0,620796 |
-| `tcn4-04mac` | 8.325 | 12.083,943 | 1.027 | 240 | 0,653916 |
-| `tcn4-08mac` | 11.628 | 16.780,670 | 1.025 | 242 | 0,839179 |
+| `stream4/tcn4-04mac` | 8.325 | 12.083,943 | 1.027 | 240 | 0,653916 |
+| `stream4/tcn4-08mac` | 11.628 | 16.780,670 | 1.025 | 242 | 0,839179 |
 
 O slack e positivo no view nominal de 2 ns (`analysis_view_0p90v_25c_captyp_nominal`).
 O power foi calculado pelo Joules a partir do `dut.shm` da simulacao anotada,
@@ -349,8 +349,8 @@ a mesma campanha gate-level, agora compilada em bibliotecas Xcelium novas
 | Variante | SDF errors | SDF warnings | Inverse tiles | Ciclos totais | Ciclos ativos | Escritas validas |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
 | `tcn4-02mac` | 0 | 1.194 | 2.025 | 37.850 | 20.250 | 8.100 |
-| `tcn4-04mac` | 0 | 1.107 | 2.025 | 29.750 | 12.150 | 8.100 |
-| `tcn4-08mac` | 0 | 1.108 | 2.025 | 25.700 | 8.100 | 8.100 |
+| `stream4/tcn4-04mac` | 0 | 1.107 | 2.025 | 29.750 | 12.150 | 8.100 |
+| `stream4/tcn4-08mac` | 0 | 1.108 | 2.025 | 25.700 | 8.100 | 8.100 |
 
 O Xcelium reportou warnings `SDFINF` de instancias sem atraso anotavel (por
 exemplo, celulas removidas ou reescritas pelo Genus), mas nenhum erro de SDF.
@@ -363,16 +363,16 @@ rodada contaminada, confirmando que cada netlist esta sendo simulado de forma
 independente.
 
 Os relatórios permanecem no Paxos em
-`rtl/conv2x2stream4/synthesis/tcn4-*/{logical/results,power}`. Eles devem ser
+`rtl/conv2x2/synthesis/tcn4-*/{logical/results,power}`. Eles devem ser
 copiados ou regenerados quando uma nova alteração de RTL for feita; não se
 deve misturar esses números com os logs legados que apontavam para
-`conv2x2stream12`.
+`conv2x2/synthesis/stream12`.
 
 ## 12. Remocao dos estados TRANSFORM e INVERSE
 
 Depois da campanha gate-level anterior, a arquitetura stream foi simplificada
-para refletir o caminho real do datapath. As variantes fixas `conv4mac.sv` e
-`conv8mac.sv` passaram a usar somente os estados necessarios. A antiga fonte de
+para refletir o caminho real do datapath. As variantes fixas `conv4mac-stream4.sv` e
+`conv8mac-stream4.sv` passaram a usar somente os estados necessarios. A antiga fonte de
 2 MACs e sua sintese foram removidas posteriormente; por isso os resultados de
 2 MACs nesta secao sao historicos, nao uma configuracao atual.
 
@@ -419,8 +419,8 @@ contagem de tiles e contagem de escritas:
 
 | Variante | Inverse tiles | Ciclos totais | Ciclos ativos | Escritas validas |
 | --- | ---: | ---: | ---: | ---: |
-| `conv4mac.sv` | 2.025 | 27.724 | 8.100 | 8.100 |
-| `conv8mac.sv` | 2.025 | 23.674 | 4.050 | 8.100 |
+| `conv4mac-stream4.sv` | 2.025 | 27.724 | 8.100 | 8.100 |
+| `conv8mac-stream4.sv` | 2.025 | 23.674 | 4.050 | 8.100 |
 
 Os resultados mostram a remocao dos dois ciclos de controle por janela sem
 alterar os dados: todos os golden checks passaram, nao houve escrita fora da
@@ -430,16 +430,16 @@ Os numeros abaixo substituem os da secao 11 para esta microarquitetura:
 
 | Variante | Celulas | Area total (um2) | Flip-flops | Slack nominal (ps) | Power total (mW) |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| `tcn4-04mac` | 8.473 | 12.127,770 | 1.024 | 243 | 0,692382 |
-| `tcn4-08mac` | 11.818 | 16.855,605 | 1.023 | 206 | 0,918483 |
+| `stream4/tcn4-04mac` | 8.473 | 12.127,770 | 1.024 | 243 | 0,692382 |
+| `stream4/tcn4-08mac` | 11.818 | 16.855,605 | 1.023 | 206 | 0,918483 |
 
 A anotada final usou os netlists desta mesma campanha e a biblioteca
 `work_gate_final`, sem compilar o RTL comportamental junto com o netlist:
 
 | Variante | SDF errors | SDF warnings | Inverse tiles | Ciclos totais | Ciclos ativos | Escritas validas |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| `tcn4-04mac` | 0 | 879 | 2.025 | 27.725 | 8.100 | 8.100 |
-| `tcn4-08mac` | 0 | 866 | 2.025 | 23.675 | 4.050 | 8.100 |
+| `stream4/tcn4-04mac` | 0 | 879 | 2.025 | 27.725 | 8.100 | 8.100 |
+| `stream4/tcn4-08mac` | 0 | 866 | 2.025 | 23.675 | 4.050 | 8.100 |
 
 O power foi calculado pelo Joules a partir do `dut.shm` de cada anotada. Os
 warnings `SDFINF` continuam sendo informativos: nao houve erro de anotacao,
