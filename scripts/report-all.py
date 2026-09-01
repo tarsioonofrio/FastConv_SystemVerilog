@@ -11,9 +11,15 @@ SYS_NAIVE_SIDE = 32
 SYS_NAIVE_DIR = (
     REPO_ROOT / ".." / "acc_dse_env" / "synthesis" / "convolution"
 ).resolve()
-# Chapter-7 exports are kept inside this repository by default.  A different
-# destination can be selected explicitly with ``--chapter7-dir``.
+# Legacy derived-table helpers below are retained for historical compatibility;
+# the active collector does not invoke them.
 CHAPTER7_DIR = REPO_ROOT / "report" / "chapter7"
+
+
+def table_path(report_dir, output_label, suffix):
+    """Return a report path without forcing an architecture prefix."""
+    filename = f"{output_label}-{suffix}" if output_label else suffix
+    return Path(report_dir) / filename
 
 
 def strip_project_prefix(name):
@@ -70,11 +76,14 @@ def synthesis_projects():
             }
 
 
-def project_records(prefix):
+def project_records(prefix, architecture=None):
     """Return current synthesis records matching a report family."""
     if prefix != "conv-":
         return []
-    return list(synthesis_projects())
+    records = list(synthesis_projects())
+    if architecture is not None:
+        records = [r for r in records if r["architecture"] == architecture]
+    return records
 
 
 def project_label(record):
@@ -248,9 +257,11 @@ def add_name_mult_columns(df, project_col):
     return df
 
 
-def write_report_time(report_dir, prefix):
+def write_report_time(report_dir, prefix, records=None, output_label=None):
+    if records is None:
+        records = project_records(prefix)
     rows = []
-    for record in project_records(prefix):
+    for record in records:
         sim_candidates = [
             record["root"] / "sim" / "xrun.log",
             record["root"] / "sim" / "sim.log",
@@ -292,24 +303,24 @@ def write_report_time(report_dir, prefix):
                     }
                 )
 
-    if not rows:
-        raise SystemExit(f"No valid simulation logs found for prefix {prefix!r}.")
-
-    df = pd.DataFrame(rows)
+    df = pd.DataFrame(rows, columns=["project", "side", "time/ns", "cycles"])
     df["project"] = df["project"].map(format_project_name)
     df = add_name_mult_columns(df, "project")
     column_order = ["project", "nome", "mult", "side", "extra"]
     df = df[column_order + [c for c in df.columns if c not in column_order]]
     df.sort_values(by=["project"], inplace=True)
     df.reset_index(drop=True, inplace=True)
-    label = prefix.rstrip("-")
-    df.to_csv(report_dir / f"{label}-report-time.csv", index=False)
+    label = prefix.rstrip("-") if output_label is None else output_label
+    filename = "time.csv" if output_label == "" else f"{label}-report-time.csv"
+    df.to_csv(Path(report_dir) / filename, index=False)
 
 
-def write_report_logical(report_dir, prefix):
+def write_report_logical(report_dir, prefix, records=None, output_label=None):
+    if records is None:
+        records = project_records(prefix)
     report_area = {}
     report_clock = {}
-    for record in project_records(prefix):
+    for record in records:
         reports_dir = record["root"] / "logical" / "results" / "reports"
         area_paths = sorted(reports_dir.glob("*_area.rpt"))
         clock_paths = sorted(reports_dir.glob("*_clock_gating.rpt"))
@@ -357,21 +368,25 @@ def write_report_logical(report_dir, prefix):
             "Flop Count": report_clock[project],
         }
         rows.append(row)
-    if not rows:
-        raise SystemExit(f"No valid logical reports found for prefix {prefix!r}.")
-    df = pd.DataFrame(rows)
+    df = pd.DataFrame(rows, columns=[
+        "Project", "Cell Count", "Cell Area um^2", "Net Area um^2",
+        "Total Area um^2", "Flop Count",
+    ])
     df = add_name_mult_columns(df, "Project")
     column_order = ["Project", "nome", "mult", "extra"]
     df = df[column_order + [c for c in df.columns if c not in column_order]]
     df.sort_values(by=["Project"], inplace=True)
     df.reset_index(drop=True, inplace=True)
-    label = prefix.rstrip("-")
-    df.to_csv(report_dir / f"{label}-report-logical.csv", index=False)
+    label = prefix.rstrip("-") if output_label is None else output_label
+    filename = "logical.csv" if output_label == "" else f"{label}-report-logical.csv"
+    df.to_csv(Path(report_dir) / filename, index=False)
 
 
-def write_report_power(report_dir, prefix):
+def write_report_power(report_dir, prefix, records=None, output_label=None):
+    if records is None:
+        records = project_records(prefix)
     reports = []
-    for record in project_records(prefix):
+    for record in records:
         power_path = record["root"] / "power" / "power_evaluation.txt"
         if power_path.exists():
             parsed = parse_power_report(power_path)
@@ -386,7 +401,7 @@ def write_report_power(report_dir, prefix):
                 reports.append((SYS_NAIVE_PROJECT, parsed))
 
     if not reports:
-        label = prefix.rstrip("-")
+        label = prefix.rstrip("-") if output_label is None else output_label
         columns = [
             "Project",
             "nome",
@@ -403,7 +418,7 @@ def write_report_power(report_dir, prefix):
             "Subtotal",
         ]
         pd.DataFrame(columns=columns).to_csv(
-            report_dir / f"{label}-report-power.csv", index=False
+            Path(report_dir) / ("power.csv" if output_label == "" else f"{label}-report-power.csv"), index=False
         )
         return
 
@@ -416,20 +431,28 @@ def write_report_power(report_dir, prefix):
     ]
     df_total.sort_values(by=["Project"], inplace=True)
     df_total.reset_index(drop=True, inplace=True)
-    label = prefix.rstrip("-")
-    df_total.to_csv(report_dir / f"{label}-report-power.csv", index=False)
+    label = prefix.rstrip("-") if output_label is None else output_label
+    filename = "power.csv" if output_label == "" else f"{label}-report-power.csv"
+    df_total.to_csv(Path(report_dir) / filename, index=False)
 
 
-def write_report_merge(report_dir, prefix):
-    label = prefix.rstrip("-")
-    df_time = pd.read_csv(report_dir / f"{label}-report-time.csv")
-    df_logical = pd.read_csv(report_dir / f"{label}-report-logical.csv")
-    df_power = pd.read_csv(report_dir / f"{label}-report-power.csv")
+def write_report_merge(report_dir, prefix, output_label=None):
+    label = prefix.rstrip("-") if output_label is None else output_label
+    stem = "" if output_label == "" else label
+    df_time = pd.read_csv(table_path(report_dir, stem, "time.csv" if stem == "" else "report-time.csv"))
+    df_logical = pd.read_csv(table_path(report_dir, stem, "logical.csv" if stem == "" else "report-logical.csv"))
+    df_power = pd.read_csv(table_path(report_dir, stem, "power.csv" if stem == "" else "report-power.csv"))
 
     df_time = df_time.rename(
         columns={"project": "Project", "time/ns": "time_ns", "cycles": "cycles"}
     )
 
+    # The three source tables all carry the human-readable name and multiplier.
+    # Keep the time table as the identity source and merge only measurements from
+    # logical/power, avoiding nome_x/nome_y duplicates in the final report.
+    shared = {"nome", "mult", "extra"}
+    df_logical = df_logical.drop(columns=shared - {"Project"}, errors="ignore")
+    df_power = df_power.drop(columns=shared - {"Project"}, errors="ignore")
     df = df_time.merge(df_logical, on="Project", how="left")
     df = df.merge(df_power, on="Project", how="left")
 
@@ -455,7 +478,7 @@ def write_report_merge(report_dir, prefix):
     df.sort_values(by=["Project"], inplace=True)
     df.reset_index(drop=True, inplace=True)
 
-    df.to_csv(report_dir / f"{label}-report-merged.csv", index=False)
+    df.to_csv(table_path(report_dir, stem, "merged.csv" if stem == "" else "report-merged.csv"), index=False)
 
 
 def write_chap7_conv_time(
@@ -1516,6 +1539,383 @@ def write_naive_energy_tables(report_dir, baselines):
         print(f"Wrote {txt_path}")
 
 
+def _first_existing(paths):
+    return next((Path(path) for path in paths if Path(path).exists()), None)
+
+
+def parse_naive_record(synthesis_dir):
+    """Read one naive synthesis project supplied explicitly by the user."""
+    root = Path(synthesis_dir).expanduser().resolve()
+    if not root.is_dir():
+        raise SystemExit(f"Naive synthesis directory does not exist: {root}")
+
+    sim_path = _first_existing([
+        root / "sim.txt",
+        root / "sim" / "xrun.log",
+        root / "sim" / "sim.log",
+        root / "xrun.log",
+    ])
+    if sim_path is None:
+        candidates = sorted(root.rglob("xrun.log"))
+        sim_path = candidates[0] if candidates else None
+    if sim_path is None:
+        raise SystemExit(f"No simulation log found below naive directory: {root}")
+    content = sim_path.read_text(encoding="utf-8", errors="replace")
+
+    reports_dir = root / "logical" / "results" / "reports"
+    area_paths = sorted(reports_dir.glob("*_area.rpt"))
+    if not area_paths:
+        area_paths = sorted(root.rglob("*_area.rpt"))
+    clock_paths = sorted(reports_dir.glob("*_clock_gating.rpt"))
+    if not clock_paths:
+        clock_paths = sorted(root.rglob("*_clock_gating.rpt"))
+    power_path = root / "power" / "power_evaluation.txt"
+    if not power_path.exists():
+        power_candidates = sorted(root.rglob("power_evaluation.txt"))
+        power_path = power_candidates[0] if power_candidates else None
+
+    area = parse_area_report(area_paths[0]) if area_paths else None
+    flop_count = parse_flop_count(clock_paths[0]) if clock_paths else None
+    power = parse_power_report(power_path) if power_path else None
+    time_ns = parse_time(sim_path)
+    cycles = parse_cycles(sim_path)
+    if area is None or flop_count is None or power is None:
+        raise SystemExit(
+            "Naive synthesis directory is missing a complete area, clock-gating "
+            "or power report. Expected logical/results/reports/* and power/"
+            f"power_evaluation.txt below {root}."
+        )
+    return {
+        "project": "naive",
+        "side": parse_side_from_content(content, root.name) or SYS_NAIVE_SIDE,
+        "time_ns": time_ns,
+        "cycles": cycles,
+        "Cell Area um^2": area["cell-area-um"],
+        "Cell Count": area["cell-count"],
+        "Net Area um^2": area["net-area-um"],
+        "Total Area um^2": area["total-area-um"],
+        "Flop Count": flop_count,
+        **power,
+    }
+
+
+def write_ratio_table(report_dir, naive, output_name="ratio-naive.csv"):
+    """Write ratios against an explicitly supplied naive synthesis record."""
+    source = Path(report_dir) / "merged.csv"
+    if not source.exists():
+        print(f"Skipping ratio export, missing: {source}")
+        return
+    df = pd.read_csv(source)
+    required = {"cycles", "Cell Area um^2", "Subtotal", "energy_nj"}
+    if not required.issubset(df.columns):
+        print(f"Skipping ratio export, missing columns: {required - set(df.columns)}")
+        return
+
+    base = {
+        "cycles": naive.get("cycles"),
+        "Cell Area um^2": naive.get("Cell Area um^2"),
+        "Subtotal": naive.get("Subtotal"),
+    }
+    base_time = naive.get("time_ns")
+    if base["Subtotal"] is not None and base_time is not None:
+        base["energy_nj"] = float(base["Subtotal"]) * float(base_time) / 1000.0
+    else:
+        base["energy_nj"] = None
+
+    def ratio(value, reference):
+        value = pd.to_numeric(value, errors="coerce")
+        if reference in (None, 0):
+            return pd.Series(pd.NA, index=value.index, dtype="Float64")
+        return (100 * (1 - value / float(reference))).round(2)
+
+    out = df.copy()
+    for column in required:
+        out[column] = pd.to_numeric(out[column], errors="coerce")
+    out["ratio_cycles"] = ratio(out["cycles"], base["cycles"])
+    out["ratio_cell_area"] = ratio(out["Cell Area um^2"], base["Cell Area um^2"])
+    out["ratio_power"] = ratio(out["Subtotal"], base["Subtotal"])
+    out["ratio_energy"] = ratio(out["energy_nj"], base["energy_nj"])
+    out["naive_cycles"] = base["cycles"]
+    out["naive_cell_area"] = base["Cell Area um^2"]
+    out["naive_power"] = base["Subtotal"]
+    out["naive_energy_nj"] = base["energy_nj"]
+    columns = [
+        "Project", "nome", "extra", "mult", "cycles", "Cell Area um^2",
+        "Subtotal", "energy_nj", "naive_cycles", "naive_cell_area",
+        "naive_power", "naive_energy_nj", "ratio_cycles", "ratio_cell_area",
+        "ratio_power", "ratio_energy",
+    ]
+    out = out[[column for column in columns if column in out.columns]]
+    out.sort_values(by=["nome", "mult", "extra"], inplace=True)
+    out.to_csv(Path(report_dir) / output_name, index=False)
+
+
+def write_markdown_report(report_dir, title=None, include_children=False, extra_dirs=None):
+    """Render every CSV in a report directory as one human-readable Markdown file."""
+    report_dir = Path(report_dir)
+    csv_paths = sorted(report_dir.glob("*.csv"))
+    if include_children:
+        csv_paths.extend(sorted(report_dir.glob("chapter7/*.csv")))
+    for extra_dir in extra_dirs or []:
+        extra_dir = Path(extra_dir)
+        if extra_dir != report_dir:
+            csv_paths.extend(sorted(extra_dir.glob("*.csv")))
+    csv_paths = sorted({path.resolve(): path for path in csv_paths}.values(), key=lambda path: str(path))
+    lines = [f"# {title or report_dir.name}", "", "Generated by `scripts/report-all.py`.", ""]
+    if not csv_paths:
+        lines.append("No CSV tables were generated.")
+    for path in csv_paths:
+        frame = pd.read_csv(path)
+        try:
+            relative = path.relative_to(report_dir).as_posix()
+        except ValueError:
+            relative = f"{path.parent.name}/{path.name}"
+        lines.extend([f"## `{relative}`", ""])
+        if frame.empty:
+            lines.append("_No rows._")
+        else:
+            try:
+                lines.append(frame.to_markdown(index=False))
+            except (ImportError, ValueError):
+                headers = [str(column) for column in frame.columns]
+                lines.append("| " + " | ".join(headers) + " |")
+                lines.append("| " + " | ".join(["---"] * len(headers)) + " |")
+                for row in frame.itertuples(index=False, name=None):
+                    lines.append("| " + " | ".join(str(value) for value in row) + " |")
+        lines.append("")
+    (report_dir / "report.md").write_text("\n".join(lines), encoding="utf-8")
+
+
+def parse_timing_summary(path):
+    content = Path(path).read_text(encoding="utf-8", errors="replace")
+    margin_match = re.search(r"Path\s+1:.*?\((-?[0-9.]+)\s*ps\)", content, re.IGNORECASE)
+    delay_match = re.search(r"Data\s+Path:\s*-?\s*([0-9.]+)", content, re.IGNORECASE)
+    slack_match = re.search(r"Slack:=\s*(-?[0-9.]+)", content, re.IGNORECASE)
+    required_match = re.search(r"Required\s+Time:=\s*([0-9.]+)", content, re.IGNORECASE)
+    view_match = re.search(r"View:\s*(\S+)", content)
+    return {
+        # The parenthesized value after ``Path 1`` is a path margin/slack in
+        # Genus reports; the actual data-path delay is reported separately.
+        "reported_margin_ps": float(margin_match.group(1)) if margin_match else None,
+        "data_path_ps": float(delay_match.group(1)) if delay_match else None,
+        "slack_ps": float(slack_match.group(1)) if slack_match else None,
+        "required_time_ps": float(required_match.group(1)) if required_match else None,
+        "view": view_match.group(1) if view_match else Path(path).stem,
+    }
+
+
+def parse_area_hierarchy(path):
+    rows = []
+    for line in report_lines(path):
+        tokens = line.split()
+        if len(tokens) < 5:
+            continue
+        try:
+            values = [float(value) for value in tokens[-4:]]
+        except ValueError:
+            continue
+        prefix = tokens[:-4]
+        if not prefix:
+            continue
+        module = prefix[-1]
+        rows.append({
+            "instance": " ".join(prefix[:-1]) or module,
+            "module": module,
+            "cell_count": int(values[0]),
+            "cell_area_um2": values[1],
+            "net_area_um2": values[2],
+            "total_area_um2": values[3],
+        })
+    return rows
+
+
+def kernel_size(project):
+    match = re.search(r"conv(\d)x\d", str(project), re.IGNORECASE)
+    return int(match.group(1)) if match else None
+
+
+def write_timing_summary(report_dir, records):
+    rows = []
+    for record in records:
+        timing_dir = record["root"] / "logical" / "results" / "reports"
+        summaries = [parse_timing_summary(path) for path in sorted(timing_dir.glob("*_timing_setup*.rpt"))]
+        summaries = [item for item in summaries if item["slack_ps"] is not None]
+        if summaries:
+            selected = min(summaries, key=lambda item: item["slack_ps"])
+            rows.append({"Project": format_project_name(project_label(record)), **selected})
+    columns = ["Project", "view", "data_path_ps", "required_time_ps", "slack_ps", "reported_margin_ps"]
+    pd.DataFrame(rows, columns=columns).sort_values("Project").to_csv(Path(report_dir) / "timing-summary.csv", index=False)
+
+
+def write_area_hierarchy(report_dir, records):
+    rows = []
+    for record in records:
+        area_paths = sorted((record["root"] / "logical" / "results" / "reports").glob("*_area.rpt"))
+        if not area_paths:
+            continue
+        for item in parse_area_hierarchy(area_paths[0]):
+            rows.append({"Project": format_project_name(project_label(record)), **item})
+    columns = ["Project", "instance", "module", "cell_count", "cell_area_um2", "net_area_um2", "total_area_um2"]
+    df = pd.DataFrame(rows, columns=columns)
+    if not df.empty:
+        df["area_percent"] = (100 * df["total_area_um2"] / df.groupby("Project")["total_area_um2"].transform("max")).round(3)
+    df.to_csv(Path(report_dir) / "area-hierarchy.csv", index=False)
+
+
+def write_power_breakdown(report_dir):
+    source = Path(report_dir) / "power.csv"
+    columns = ["Project", "category", "power_mW", "percent_of_subtotal"]
+    if not source.exists():
+        pd.DataFrame(columns=columns).to_csv(Path(report_dir) / "power-breakdown.csv", index=False)
+        return
+    df = pd.read_csv(source)
+    categories = ["memory", "register", "latch", "logic", "bbox", "clock", "pad", "pm"]
+    rows = []
+    for _, row in df.iterrows():
+        subtotal = pd.to_numeric(row.get("Subtotal"), errors="coerce")
+        for category in categories:
+            value = pd.to_numeric(row.get(category), errors="coerce")
+            rows.append({"Project": row.get("Project", ""), "category": category, "power_mW": value, "percent_of_subtotal": (100 * value / subtotal) if pd.notna(value) and pd.notna(subtotal) and subtotal else None})
+    pd.DataFrame(rows, columns=columns).to_csv(Path(report_dir) / "power-breakdown.csv", index=False)
+
+
+def write_register_budget(report_dir, records):
+    rows = []
+    for record in records:
+        project = format_project_name(project_label(record))
+        k = kernel_size(project)
+        if k is None:
+            continue
+        # Winograd input tile sizes used by the current generated matrices.
+        transform_size = {2: 4, 3: 5, 4: 6}.get(k)
+        name = project.lower()
+        if "stream12" in name:
+            mode, ph_words = "stream12", k * k + k
+        elif "stream4-rdrow" in name or "rdrow" in name:
+            mode, ph_words = "stream4-rdrow", k * k + k
+        elif "stream4" in name:
+            mode, ph_words = "stream4", k * k
+        elif "stream" in name:
+            mode, ph_words = "stream", k * k
+        else:
+            mode, ph_words = "standard", 2 * k * k
+        mult = parse_multipliers(project)
+        mult_value = int(mult) if mult is not None else None
+        input_words = transform_size * transform_size if transform_size else None
+        output_words = k * k
+        total_words = input_words + ph_words + (mult_value or 0) + output_words if input_words is not None else None
+        rows.append({"Project": project, "architecture_mode": mode, "kernel_size": k, "input_words": input_words, "parameter_hadamard_words": ph_words, "product_words": mult_value, "output_words": output_words, "total_estimated_words": total_words, "source": "architectural_formula"})
+    columns = ["Project", "architecture_mode", "kernel_size", "input_words", "parameter_hadamard_words", "product_words", "output_words", "total_estimated_words", "source"]
+    pd.DataFrame(rows, columns=columns).sort_values("Project").to_csv(Path(report_dir) / "register-budget.csv", index=False)
+
+
+def write_throughput_and_energy(report_dir):
+    source = Path(report_dir) / "merged.csv"
+    throughput_columns = ["Project", "nome", "mult", "side", "kernel_size", "output_side", "output_pixels", "cycles", "time_ns", "pixels_per_cycle", "macs_per_cycle"]
+    energy_columns = ["Project", "energy_nj", "energy_per_pixel_nj", "energy_per_mac_nj", "energy_per_cycle_nj"]
+    if not source.exists():
+        pd.DataFrame(columns=throughput_columns).to_csv(Path(report_dir) / "throughput.csv", index=False)
+        pd.DataFrame(columns=energy_columns).to_csv(Path(report_dir) / "energy-per-op.csv", index=False)
+        return
+    df = pd.read_csv(source)
+    df["kernel_size"] = df["Project"].map(kernel_size)
+    df["output_side"] = (pd.to_numeric(df["side"], errors="coerce") - df["kernel_size"] + 1).clip(lower=0)
+    df["output_pixels"] = df["output_side"] ** 2
+    df["cycles"] = pd.to_numeric(df["cycles"], errors="coerce")
+    df["time_ns"] = pd.to_numeric(df["time_ns"], errors="coerce")
+    df["mult_num"] = pd.to_numeric(df["mult"], errors="coerce")
+    df["pixels_per_cycle"] = df["output_pixels"] / df["cycles"]
+    df["macs_per_cycle"] = df["output_pixels"] * df["mult_num"] / df["cycles"]
+    df[throughput_columns].to_csv(Path(report_dir) / "throughput.csv", index=False)
+    energy = df[["Project", "energy_nj", "output_pixels", "mult_num", "cycles"]].copy()
+    energy["energy_per_pixel_nj"] = energy["energy_nj"] / energy["output_pixels"]
+    energy["energy_per_mac_nj"] = energy["energy_nj"] / (energy["output_pixels"] * energy["mult_num"])
+    energy["energy_per_cycle_nj"] = energy["energy_nj"] / energy["cycles"]
+    energy[energy_columns].to_csv(Path(report_dir) / "energy-per-op.csv", index=False)
+
+
+def write_pareto(report_dir):
+    source = Path(report_dir) / "merged.csv"
+    columns = ["Project", "area_um2", "power_mW", "energy_nj", "cycles", "pareto_optimal"]
+    if not source.exists():
+        pd.DataFrame(columns=columns).to_csv(Path(report_dir) / "pareto.csv", index=False)
+        return
+    df = pd.read_csv(source)
+    out = pd.DataFrame({"Project": df["Project"], "area_um2": pd.to_numeric(df.get("Total Area um^2"), errors="coerce"), "power_mW": pd.to_numeric(df.get("Subtotal"), errors="coerce"), "energy_nj": pd.to_numeric(df.get("energy_nj"), errors="coerce"), "cycles": pd.to_numeric(df.get("cycles"), errors="coerce")})
+    objectives = ["area_um2", "power_mW", "energy_nj", "cycles"]
+    out["pareto_optimal"] = False
+    valid = out.dropna(subset=objectives)
+    for index, candidate in valid.iterrows():
+        dominates = ((valid[objectives] <= candidate[objectives]).all(axis=1) & (valid[objectives] < candidate[objectives]).any(axis=1)).any()
+        out.loc[index, "pareto_optimal"] = not dominates
+    out.to_csv(Path(report_dir) / "pareto.csv", index=False)
+
+
+def write_mac_scaling(report_dir):
+    source = Path(report_dir) / "merged.csv"
+    columns = ["nome", "mult", "Project", "cycles", "Total Area um^2", "Subtotal", "energy_nj", "delta_cycles", "delta_area_um2", "delta_power_mW", "delta_energy_nj"]
+    if not source.exists():
+        pd.DataFrame(columns=columns).to_csv(Path(report_dir) / "mac-scaling.csv", index=False)
+        return
+    df = pd.read_csv(source)
+    for column in ["mult", "cycles", "Total Area um^2", "Subtotal", "energy_nj"]:
+        df[column] = pd.to_numeric(df.get(column), errors="coerce")
+    df = df.sort_values(["nome", "mult"])
+    for column, delta in [("cycles", "delta_cycles"), ("Total Area um^2", "delta_area_um2"), ("Subtotal", "delta_power_mW"), ("energy_nj", "delta_energy_nj")]:
+        df[delta] = df.groupby("nome")[column].diff()
+    df[columns].to_csv(Path(report_dir) / "mac-scaling.csv", index=False)
+
+
+def write_flow_status(report_dir, records):
+    rows = []
+    for record in records:
+        root = record["root"]
+        reports = root / "logical" / "results" / "reports"
+        sim = any((root / candidate).exists() for candidate in ["sim/xrun.log", "sim/sim.log", "sim.log"])
+        area = any(reports.glob("*_area.rpt"))
+        clock = any(reports.glob("*_clock_gating.rpt"))
+        power = (root / "power" / "power_evaluation.txt").exists()
+        gate_level = root / "logical" / "results" / "gate_level"
+        netlist = any(gate_level.glob("*_logic_mapped.v"))
+        sdf = any(gate_level.glob("*.sdf"))
+        rows.append({"Project": format_project_name(project_label(record)), "simulation_log": sim, "logical_area": area, "flop_report": clock, "power_report": power, "mapped_netlist": netlist, "sdf": sdf, "complete": all([sim, area, clock, power, netlist, sdf])})
+    pd.DataFrame(rows).to_csv(Path(report_dir) / "flow-status.csv", index=False)
+
+
+def write_functional_quality(report_dir):
+    source = Path(report_dir) / "metrics-sim-032-normal.csv"
+    columns = ["dataset", "count", "mae", "rmse", "max_abs", "max_rel", "mismatch_rate"]
+    if source.exists():
+        pd.read_csv(source).to_csv(Path(report_dir) / "functional-quality.csv", index=False)
+    else:
+        pd.DataFrame(columns=columns).to_csv(Path(report_dir) / "functional-quality.csv", index=False)
+
+
+def write_derived_tables(report_dir, records):
+    write_timing_summary(report_dir, records)
+    write_area_hierarchy(report_dir, records)
+    write_power_breakdown(report_dir)
+    write_register_budget(report_dir, records)
+    write_throughput_and_energy(report_dir)
+    write_pareto(report_dir)
+    write_mac_scaling(report_dir)
+    write_flow_status(report_dir, records)
+    write_functional_quality(report_dir)
+
+
+def write_report_set(report_dir, records, title=None, naive=None):
+    report_dir = Path(report_dir)
+    report_dir.mkdir(parents=True, exist_ok=True)
+    write_report_time(report_dir, "conv-", records=records, output_label="")
+    write_report_logical(report_dir, "conv-", records=records, output_label="")
+    write_report_power(report_dir, "conv-", records=records, output_label="")
+    write_report_merge(report_dir, "conv-", output_label="")
+    if naive is not None:
+        write_ratio_table(report_dir, naive)
+    write_derived_tables(report_dir, records)
+    write_markdown_report(report_dir, title=title, include_children=False)
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Collect current RTL-local synthesis reports into CSV tables."
@@ -1526,158 +1926,39 @@ def main():
         help="Directory for generated report tables (default: report/).",
     )
     parser.add_argument(
-        "--chapter7-dir",
+        "--naive-synthesis-dir",
         default=None,
-        help="Optional directory for chapter-7 derived tables.",
+        help="Optional naive synthesis project. Enables a separate ratio table.",
     )
     args = parser.parse_args()
     report_dir = Path(args.report_dir).resolve()
     report_dir.mkdir(parents=True, exist_ok=True)
-    global CHAPTER7_DIR
-    if args.chapter7_dir:
-        CHAPTER7_DIR = Path(args.chapter7_dir).resolve()
-    CHAPTER7_DIR.mkdir(parents=True, exist_ok=True)
-
-    prefixes = []
-    if project_records("conv-"):
-        prefixes.append("conv-")
-    if SYS_NAIVE_DIR.exists() or project_records("sys-"):
-        prefixes.append("sys-")
-
-    for prefix in prefixes:
-        write_report_time(report_dir, prefix)
-        write_report_logical(report_dir, prefix)
-        write_report_power(report_dir, prefix)
-        write_report_merge(report_dir, prefix)
-    if "conv-" in prefixes:
-        write_chap7_conv_time(report_dir, prefix="conv", drop_names_with_k=True)
-        write_chap7_conv_logical(report_dir, prefix="conv", drop_names_with_k=True)
-        write_chap7_conv_power(report_dir, prefix="conv", drop_names_with_k=True)
-        write_chap7_conv_energy(report_dir, prefix="conv", drop_names_with_k=True)
-        write_chap7_conv_power_cycles(
-            report_dir,
-            prefix="conv",
-            drop_names_with_k=True,
-            expand_base_rows=False,
+    records = project_records("conv-")
+    if not records:
+        raise SystemExit("No synthesis projects found below rtl/conv*/synthesis.")
+    naive = parse_naive_record(args.naive_synthesis_dir) if args.naive_synthesis_dir else None
+    write_report_set(
+        report_dir,
+        records,
+        title="All convolution architectures",
+        naive=naive,
+    )
+    by_architecture = {}
+    for record in records:
+        by_architecture.setdefault(record["architecture"], []).append(record)
+    for architecture, architecture_records in sorted(by_architecture.items()):
+        architecture_report = REPO_ROOT / "rtl" / architecture / "report"
+        write_report_set(
+            architecture_report,
+            architecture_records,
+            title=f"{architecture} convolution architectures",
+            naive=naive,
         )
-        write_chap7_conv_distance_4d(
-            report_dir,
-            prefix="conv",
-            drop_names_with_k=True,
-            expand_base_rows=False,
-        )
-        write_chap7_conv_distance_3d(
-            report_dir,
-            prefix="conv",
-            drop_names_with_k=True,
-            expand_base_rows=False,
-        )
-        write_chap7_conv_metric_cycles(
-            report_dir,
-            metric_col="Cell Area um^2",
-            output_suffix="cell-area-cycles",
-            metric_name="cell_area",
-            prefix="conv",
-            drop_names_with_k=True,
-            expand_base_rows=False,
-        )
-        write_chap7_conv_metric_cycles(
-            report_dir,
-            metric_col="Subtotal",
-            output_suffix="power-cycles",
-            metric_name="power",
-            prefix="conv",
-            drop_names_with_k=True,
-            expand_base_rows=False,
-        )
-        write_chap7_conv_metric_cycles(
-            report_dir,
-            metric_col="energy_nj",
-            output_suffix="energy-cycles",
-            metric_name="energy",
-            prefix="conv",
-            drop_names_with_k=True,
-            expand_base_rows=False,
-        )
-        write_chap7_conv_power_reg_logic(
-            report_dir,
-            prefix="conv",
-            drop_names_with_k=True,
-            expand_base_rows=False,
-        )
-        write_chap7_conv_tc9(report_dir, prefix="conv")
-
-    if "sys-" in prefixes and report_has_multiplier(report_dir, "sys"):
-        write_chap7_conv_time(report_dir, prefix="sys", merge_extra_into_name=True)
-        write_chap7_conv_logical(
-            report_dir, prefix="sys", merge_extra_into_name=True
-        )
-        write_chap7_conv_power(report_dir, prefix="sys", merge_extra_into_name=True)
-        write_chap7_conv_energy(
-            report_dir, prefix="sys", merge_extra_into_name=True
-        )
-        write_chap7_conv_power_cycles(
-            report_dir,
-            prefix="sys",
-            merge_extra_into_name=True,
-            drop_names_with_k=False,
-            expand_base_rows=False,
-        )
-        write_chap7_conv_distance_4d(
-            report_dir,
-            prefix="sys",
-            merge_extra_into_name=True,
-            drop_names_with_k=False,
-            expand_base_rows=False,
-        )
-        write_chap7_conv_distance_3d(
-            report_dir,
-            prefix="sys",
-            merge_extra_into_name=True,
-            drop_names_with_k=False,
-            expand_base_rows=False,
-        )
-        write_chap7_conv_metric_cycles(
-            report_dir,
-            metric_col="Cell Area um^2",
-            output_suffix="cell-area-cycles",
-            metric_name="cell_area",
-            prefix="sys",
-            merge_extra_into_name=True,
-            drop_names_with_k=False,
-            expand_base_rows=False,
-        )
-        write_chap7_conv_metric_cycles(
-            report_dir,
-            metric_col="Subtotal",
-            output_suffix="power-cycles",
-            metric_name="power",
-            prefix="sys",
-            merge_extra_into_name=True,
-            drop_names_with_k=False,
-            expand_base_rows=False,
-        )
-        write_chap7_conv_metric_cycles(
-            report_dir,
-            metric_col="energy_nj",
-            output_suffix="energy-cycles",
-            metric_name="energy",
-            prefix="sys",
-            merge_extra_into_name=True,
-            drop_names_with_k=True,
-            expand_base_rows=False,
-        )
-        write_chap7_conv_power_reg_logic(
-            report_dir,
-            prefix="sys",
-            merge_extra_into_name=True,
-            drop_names_with_k=False,
-            expand_base_rows=False,
-        )
-
-    write_ratio_tables(report_dir)
-    if "sys-" in prefixes:
-        write_naive_energy_tables(report_dir, ["naive", "TCn9-05m032p-bus"])
+    write_markdown_report(
+        report_dir,
+        title="All convolution tables",
+        include_children=False,
+    )
 
 
 if __name__ == "__main__":

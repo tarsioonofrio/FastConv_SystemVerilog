@@ -1,0 +1,9 @@
+Project,nome,mult,extra,Cell Count,Cell Area um^2,Net Area um^2,Total Area um^2,Flop Count
+Conv2x2-stream12-tcn4-02mac,Conv2x2-stream12,02,,6483,8034.138,2978.228,11012.366,1107
+Conv2x2-stream12-tcn4-04mac,Conv2x2-stream12,04,,6478,8033.382,2976.96,11010.342,1107
+Conv2x2-stream12-tcn4-08mac,Conv2x2-stream12,08,,10394,11183.886,4689.775,15873.661,1105
+Conv2x2-stream4-tcn4-04mac,Conv2x2-stream4,04,,8473,8467.074,3660.696,12127.77,1024
+Conv2x2-stream4-tcn4-04mac-rdrow,Conv2x2-stream4,04,,6515,7875.882,2982.102,10857.984,1024
+Conv2x2-stream4-tcn4-08mac,Conv2x2-stream4,08,,11818,11700.99,5154.615,16855.605,1023
+Conv2x2-tcn4-04mac,Conv2x2,04,,6613,8806.896,3211.029,12017.925,1264
+Conv2x2-tcn4-16mac,Conv2x2,16,,15200,16096.374,7033.262,23129.636,1019

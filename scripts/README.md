@@ -2,13 +2,13 @@
 
 Os arquivos desta pasta encadeiam tarefas recorrentes do fluxo FastConv:
 
-- `build-sim.sh`: inicializa um projeto `fast-conv` 2D, executa as fases de build, bind e quantização, roda simulações randômicas para múltiplos tamanhos e limpa artefatos temporários.
-- `multiple-do.sh`: varre cada diretório informado, executa `vsim -do sim.do` com diferentes datasets (`file-032` até `file-512`), salva `run.txt` e copia `sim_summary.txt` para cada pasta de saída.
-- `multiple-make.sh`: invoca `make` sequencialmente para cada arquivo de dados de simulação, facilitando a recompilação em lote.
-- `multiple-power-eval.sh`: percorre projetos `tcn*`, roda a síntese lógica (`genus -f run_logical_synthesis.tcl`), simulação pós-layout (`xrun`) e avaliação de potência (`genus -f run_power.tcl`).
-- `multiple-synth.sh`: executa apenas a síntese lógica para cada diretório listado, removendo relatórios antigos antes de chamar o Genus.
-- `multiple-time-arch.sh`: chama `time-arch.py` para cada pasta recebida e gera as tabelas de tempo correspondentes.
-- `report-all.py`: descobre os projetos em `rtl/conv*/synthesis/*`, lê os logs de simulação anotada (`sim/xrun.log`) e os relatórios Genus de área, registradores e potência, produzindo as tabelas consolidadas em `report/`. Use `--report-dir` para outro destino e `--chapter7-dir` para exportar as tabelas derivadas do capítulo 7.
+- `build-sim.sh`: ainda pode inicializar um projeto novo no `fast-conv`, gerar datasets e executar simulações exploratórias. Ele não é o coletor nem o fluxo oficial das arquiteturas já versionadas.
+- `multiple-do.sh`: auxiliar legado para árvores que possuem `sim.do` e datasets `file-*`; não acompanha o layout atual `rtl/conv*/data` nem o wrapper oficial `test.fish`.
+- `multiple-make.sh`: auxiliar legado para projetos com `Makefile` e os caminhos antigos `data/sim/file-*`; não é necessário para as sínteses atuais.
+- `multiple-power-eval.sh`: fluxo legado, dependente da estrutura `sintese/`, `simSDF/` e módulos de ambiente; não deve ser usado com `rtl/conv*/synthesis/`.
+- `multiple-synth.sh`: fluxo legado para `sintese/`; as sínteses atuais são executadas pelos scripts `logical/*.tcl` dentro de cada projeto.
+- `multiple-time-arch.sh` e `time-arch.py`: geram a tabela antiga baseada em `src/<projeto>/data/sim_summary.txt`; foram substituídos pelo `time.csv` produzido por `report-all.py`.
+- `report-all.py`: descobre somente os projetos em `rtl/conv*/synthesis/`, lê os logs de simulação anotada (`sim/xrun.log`) e os relatórios Genus de área, registradores e potência. Gera tabelas sem prefixos artificiais (`time.csv`, `logical.csv`, `power.csv`, `merged.csv` e tabelas analíticas) e `report.md` em `report/`, além de um conjunto isolado em `rtl/conv*/report/` para cada arquitetura. Nenhuma tabela `sys-*` é gerada. Use `--report-dir` para outro destino global e `--naive-synthesis-dir PATH` para habilitar explicitamente a tabela separada de razões contra uma síntese naive.
 - `time-arch.py`: busca `sim_summary.txt` nas pastas de resultados e monta `time.csv` com o tempo de simulação por tamanho.
 - `metrics.py`: calcula MAE/RMSE dos datasets de simulação quantizada e grava os resultados em `report/` (ou no diretório informado por `--report-dir`).
 - `test-do.bat.sh`: suíte Bats que garante a disponibilidade do ModelSim e roda `vsim` em cada subpasta contendo `sim.do`.
@@ -24,6 +24,28 @@ repositório:
 ```bash
 /home/tarsio/gaph/fast-convolution-rtl/.venv/bin/python scripts/report-all.py
 ```
+
+Para comparar com uma implementação naive, informe a pasta do projeto de
+síntese (ela deve conter os resultados `logical/`, `power/` e um log de
+simulação):
+
+```bash
+/home/tarsio/gaph/fast-convolution-rtl/.venv/bin/python scripts/report-all.py \
+  --naive-synthesis-dir /caminho/para/synthesis/naive
+```
+
+Sem essa opção, nenhuma razão contra naive é calculada. O Markdown global
+inclui todas as tabelas CSV agregadas e analíticas; cada
+`rtl/conv*/report/report.md` contém somente a arquitetura daquela pasta.
+
+As tabelas analíticas geradas são `timing-summary.csv`, `area-hierarchy.csv`,
+`power-breakdown.csv`, `register-budget.csv`, `throughput.csv`,
+`energy-per-op.csv`, `mac-scaling.csv`, `pareto.csv`, `flow-status.csv` e
+`functional-quality.csv`. As três primeiras são extraídas dos relatórios de
+sintese; `register-budget.csv` é uma estimativa baseada nas dimensões da
+arquitetura (janelas Winograd 4x4, 5x5 e 6x6 para kernels 2x2, 3x3 e 4x4);
+as demais são derivações determinísticas de `merged.csv` ou dos
+resultados de qualidade disponíveis.
 
 O script reconhece tanto os logs Xcelium atuais (`xrun.log`) quanto o marcador
 legado `Total execution time`. As tabelas antigas foram preservadas em

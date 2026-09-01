@@ -1,0 +1,2 @@
+Project,nome,mult,side,kernel_size,output_side,output_pixels,cycles,time_ns,pixels_per_cycle,macs_per_cycle
+Conv3x3stream-tc-tcn9-05mac,Conv3x3stream-tc,5,32,3,30,900,21060,210625.0,0.042735042735042736,0.21367521367521367
