@@ -13,9 +13,9 @@ TB = testbench.sv
 VERILATOR = verilator -j 0 -DSIMULATION --trace-fst --trace-max-array 4096 \
             --top-module tb -Wno-fatal
 
-.PHONY: all std all16 stream4-4mac stream4-8mac stream12 \
+.PHONY: all std all16 stream4-4mac stream4-8mac stream12 stream12-prefetch4 \
         run run-std run-all16 run-stream4-4mac run-stream4-8mac \
-        run-stream12 lint clean
+        run-stream12 run-stream12-prefetch4 lint clean
 
 all: std
 
@@ -57,6 +57,15 @@ run-stream4-8mac: stream4-8mac
 	obj_dir/stream4-8mac/Vtb
 run-stream12: stream12
 	obj_dir/stream12-$(NUM_MULT)/Vtb
+
+# Four-word prefetch variant: overlaps the first new column with the current
+# convolution and retains the shared testbench/data contract.
+stream12-prefetch4:
+	$(VERILATOR) --binary --exe --Mdir obj_dir/stream12-prefetch4 \
+	  $(COMMON) $(MATRICES_STREAM) conv-stream12-i16-h16-t8-o4-m4-prefetch4.sv $(TB) --build
+
+run-stream12-prefetch4: stream12-prefetch4
+	obj_dir/stream12-prefetch4/Vtb
 
 lint:
 	$(VERILATOR) --timing --lint-only $(COMMON) $(MUX) $(MATRICES_STD) conv-std-i16-h16-t16-o4-m4.sv $(TB)
