@@ -27,9 +27,9 @@ def strip_project_prefix(name):
 
 
 def format_project_name(name):
-    # Current synthesis projects are scoped by their RTL directory, for
-    # example ``conv2x2/stream4/tcn4-04mac``.  Keep that scope in the report
-    # key; otherwise configurations with the same tcn/ifn suffix collide.
+    # Current synthesis projects are scoped by their RTL directory and each
+    # project is a direct child of its architecture's synthesis directory.
+    # Keep that scope in the report key so configurations remain distinct.
     if name.lower().startswith("conv"):
         return "Conv" + name[4:]
     if name.lower().startswith("sys"):
@@ -55,12 +55,14 @@ def synthesis_projects():
     """
     for synthesis_root in sorted(Path(REPO_ROOT).glob("rtl/conv*/synthesis")):
         architecture = synthesis_root.parent.name
-        # Some families add one grouping directory (for example
-        # ``conv2x2/synthesis/stream12/tcn4-04mac``), while others place the
-        # project directly below ``synthesis``.  ``list-file.txt`` is the
-        # common marker for an actual synthesis project.
+        # ``list-file.txt`` is the common marker for an actual synthesis
+        # project. The active layout keeps each project directly below
+        # ``synthesis``. Ignore nested migration/legacy trees so they cannot
+        # reappear in current tables.
         for list_file in sorted(synthesis_root.rglob("list-file.txt")):
             project_dir = list_file.parent
+            if project_dir.parent != synthesis_root:
+                continue
             if any(part in EXCLUDED_PROJECTS for part in project_dir.relative_to(synthesis_root).parts):
                 continue
             relative_parts = project_dir.relative_to(synthesis_root).parts
@@ -144,11 +146,12 @@ def parse_cycles(path):
 
 
 def parse_multipliers(project):
-    match = re.search(
-        r"(?:^|-)([0-9]+)(?:mac|m(?=\d+p|[-$]))",
-        str(project),
-        flags=re.IGNORECASE,
-    )
+    # Accept both the legacy ``tcn4-04mac`` spelling and the canonical RTL
+    # spelling ``...-m4`` (including ``m2-4-8`` generic configurations).
+    match = re.search(r"(?:^|-)([0-9]+)mac(?:-|$)", str(project), flags=re.IGNORECASE)
+    if match:
+        return match.group(1)
+    match = re.search(r"(?:^|-)m([0-9]+)(?:-|$)", str(project), flags=re.IGNORECASE)
     if not match:
         return None
     return match.group(1)

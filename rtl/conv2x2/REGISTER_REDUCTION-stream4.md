@@ -5,6 +5,12 @@ streaming e a motivacao de cada uma. A finalidade e permitir que cada etapa
 seja aplicada e validada isoladamente, sem confundir reducao de registradores
 com uma mudanca funcional no algoritmo Winograd/Toom-Cook.
 
+As referencias a `tcn4-*`, `stream4/*` e `stream12/*` nas secoes historicas
+preservam os nomes usados nas campanhas originais. A arvore ativa foi
+achatada: cada resultado de sintese agora fica diretamente em
+`synthesis/<nome-do-arquivo-rtl-sem-.sv>/`, conforme a lista atual em
+`README.md`.
+
 ## 1. Escopo e contrato congelado
 
 O diretorio implementa F(2x2, 3x3), com matriz Hadamard 4x4 e 16 produtos.

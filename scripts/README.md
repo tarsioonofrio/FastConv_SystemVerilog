@@ -17,8 +17,9 @@ Use estes scripts para automatizar execuções em lote e consolidar os relatóri
 
 ## Relatórios consolidados
 
-As sínteses atuais ficam dentro de cada arquitetura RTL, por exemplo
-`rtl/conv2x2/synthesis/stream4/tcn4-04mac/`. Para regenerar as tabelas do
+As sínteses atuais ficam dentro de cada arquitetura RTL, com uma pasta direta
+por arquivo RTL, por exemplo
+`rtl/conv2x2/synthesis/conv-stream4-i16-h16-t0-o4-m4/`. Para regenerar as tabelas do
 repositório:
 
 ```bash

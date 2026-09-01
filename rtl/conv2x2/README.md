@@ -109,12 +109,16 @@ The row-level unit test is `streaming_row_testbench.sv`.
 
 ## Synthesis configurations
 
-All project-local synthesis configurations are under `synthesis/`:
+All project-local synthesis configurations are under `synthesis/`. Each
+configuration has one direct directory whose name matches the RTL source:
 
-- `synthesis/tcn4-04mac/` — conventional 4-MAC baseline;
-- `synthesis/tcn4-16mac/` — fully parallel 16-MAC architecture;
-- `synthesis/stream4/tcn4-04mac/` and `tcn4-08mac/` — fixed 4-word stream;
-- `synthesis/stream12/tcn4-02mac/`, `tcn4-04mac/` and `tcn4-08mac/` — generic/fixed sources from the `stream12` family.
+- `synthesis/conv-std-i16-h16-t16-o4-m4/` — conventional 4-MAC baseline;
+- `synthesis/conv-all-i16-h16-t0-o4-m16/` — fully parallel 16-MAC architecture;
+- `synthesis/conv-stream4-i16-h16-t0-o4-m4/` and `...-m8/` — fixed stream;
+- `synthesis/conv-stream4-i16-h16-t4-o4-m4/` — stream with a registered transform row;
+- `synthesis/conv-stream12-generic-i16-h16-t8-o4-m2-4-8/` — generic 2/4/8-MAC stream;
+- `synthesis/conv-stream12-i16-h16-t8-o4-m4/`, `...-m8/` and
+  `...-m4-prefetch4/` — current stream12 implementations.
 
 Each configuration keeps its own `list-file.txt`, `list-define.txt`,
 `top-module.txt`, logical, power and annotated-simulation scripts. The lists
@@ -122,8 +126,8 @@ refer only to the canonical files in this directory, so synthesis no longer
 depends on the former top-level `conv2x2-all`, `conv2x2stream4` or
 `conv2x2stream12` directories.
 
-The previous directory layouts are preserved under `archive/` as a migration
-record; they are not part of any active build or synthesis list.
+The previous nested directory layouts were removed from the active tree. The
+`list-file.txt` in each project points to the matching canonical RTL source.
 
 The detailed register-reduction rationale remains in
 [`REGISTER_REDUCTION-stream4.md`](REGISTER_REDUCTION-stream4.md).
