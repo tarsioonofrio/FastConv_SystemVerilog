@@ -56,7 +56,7 @@ The Git tag `dissertation` points to the commit hash that contains the exact cod
    genus -f run_power.tcl
    ```
 4. Post-synthesis simulation can be done with the wrapper `sim/run-sim.sh`, which calls Xcelium (`xrun`) using the mapped netlist and the same synthesis files/defines.
-5. Consolidate current RTL-local metrics with `scripts/report-all.py`, which reads only `rtl/conv*/synthesis/`, produces aggregate CSV/Markdown tables in `report/`, and writes a scoped report under each `rtl/conv*/report/`. Historical consolidated tables are kept in `report/legacy/`. Ratios against a naive synthesis are generated only when `--naive-synthesis-dir PATH` is supplied.
+5. Consolidate current RTL-local metrics with `scripts/report.py`, which reads only `rtl/conv*/synthesis/`, produces aggregate CSV/Markdown tables in `report/`, and writes a scoped report under each `rtl/conv*/report/`. Historical consolidated tables are kept in `report/legacy/`. Ratios against a naive synthesis are generated only when `--naive-synthesis-dir PATH` is supplied.
 
 ## Next Steps
 

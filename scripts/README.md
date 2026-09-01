@@ -7,8 +7,8 @@ Os arquivos desta pasta encadeiam tarefas recorrentes do fluxo FastConv:
 - `multiple-make.sh`: auxiliar legado para projetos com `Makefile` e os caminhos antigos `data/sim/file-*`; não é necessário para as sínteses atuais.
 - `multiple-power-eval.sh`: fluxo legado, dependente da estrutura `sintese/`, `simSDF/` e módulos de ambiente; não deve ser usado com `rtl/conv*/synthesis/`.
 - `multiple-synth.sh`: fluxo legado para `sintese/`; as sínteses atuais são executadas pelos scripts `logical/*.tcl` dentro de cada projeto.
-- `multiple-time-arch.sh` e `time-arch.py`: geram a tabela antiga baseada em `src/<projeto>/data/sim_summary.txt`; foram substituídos pelo `time.csv` produzido por `report-all.py`.
-- `report-all.py`: descobre somente os projetos em `rtl/conv*/synthesis/`, lê os logs de simulação anotada (`sim/xrun.log`) e os relatórios Genus de área, registradores e potência. Gera tabelas sem prefixos artificiais (`time.csv`, `logical.csv`, `power.csv`, `merged.csv` e tabelas analíticas) e `report.md` em `report/`, além de um conjunto isolado em `rtl/conv*/report/` para cada arquitetura. Nenhuma tabela `sys-*` é gerada. Use `--report-dir` para outro destino global e `--naive-synthesis-dir PATH` para habilitar explicitamente a tabela separada de razões contra uma síntese naive.
+- `multiple-time-arch.sh` e `time-arch.py`: geram a tabela antiga baseada em `src/<projeto>/data/sim_summary.txt`; foram substituídos pelo `time.csv` produzido por `report.py`.
+- `report.py`: descobre somente os projetos em `rtl/conv*/synthesis/`, lê os logs de simulação anotada (`sim/xrun.log`) e os relatórios Genus de área, registradores e potência. Gera tabelas sem prefixos artificiais (`time.csv`, `logical.csv`, `power.csv`, `merged.csv` e tabelas analíticas) e `report.md` em `report/`, além de um conjunto isolado em `rtl/conv*/report/` para cada arquitetura. Nenhuma tabela `sys-*` é gerada. Use `--report-dir` para outro destino global e `--naive-synthesis-dir PATH` para habilitar explicitamente a tabela separada de razões contra uma síntese naive.
 - `time-arch.py`: busca `sim_summary.txt` nas pastas de resultados e monta `time.csv` com o tempo de simulação por tamanho.
 - `metrics.py`: calcula MAE/RMSE dos datasets de simulação quantizada e grava os resultados em `report/` (ou no diretório informado por `--report-dir`).
 - `test-do.bat.sh`: suíte Bats que garante a disponibilidade do ModelSim e roda `vsim` em cada subpasta contendo `sim.do`.
@@ -23,7 +23,7 @@ por arquivo RTL, por exemplo
 repositório:
 
 ```bash
-/home/tarsio/gaph/fast-convolution-rtl/.venv/bin/python scripts/report-all.py
+/home/tarsio/gaph/fast-convolution-rtl/.venv/bin/python scripts/report.py
 ```
 
 Para comparar com uma implementação naive, informe a pasta do projeto de
@@ -31,7 +31,7 @@ síntese (ela deve conter os resultados `logical/`, `power/` e um log de
 simulação):
 
 ```bash
-/home/tarsio/gaph/fast-convolution-rtl/.venv/bin/python scripts/report-all.py \
+/home/tarsio/gaph/fast-convolution-rtl/.venv/bin/python scripts/report.py \
   --naive-synthesis-dir /caminho/para/synthesis/naive
 ```
 

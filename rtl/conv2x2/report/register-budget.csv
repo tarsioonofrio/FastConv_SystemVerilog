@@ -3,8 +3,8 @@ Conv2x2-conv-all-i16-h16-t0-o4-m16,all,2,16,16,r_input_weight[16],0,,16,4,36,rtl
 Conv2x2-conv-std-i16-h16-t16-o4-m4,standard,2,16,16,r_input_weight[16],16,r_conv_temp[16],4,4,52,rtl_r_declarations
 Conv2x2-conv-stream12-generic-i16-h16-t8-o4-m2-4-8,stream12,2,16,16,r_input_weight[16],8,r_transform_row[4]; r_inverse_row[4],2,4,44,rtl_r_declarations
 Conv2x2-conv-stream12-i16-h16-t8-o4-m4,stream12,2,16,16,r_input_weight[16],8,r_transform_row[4]; r_inverse_row[4],4,4,44,rtl_r_declarations
-Conv2x2-conv-stream12-i16-h16-t8-o4-m4-prefetch4,stream12,2,16,16,r_input_weight[16],8,r_transform_row[4]; r_inverse_row[4],4,4,44,rtl_r_declarations
 Conv2x2-conv-stream12-i16-h16-t8-o4-m8,stream12,2,16,16,r_input_weight[16],8,r_transform_row[4]; r_inverse_row[4],8,4,44,rtl_r_declarations
+Conv2x2-conv-stream12-i20-h16-t8-o4-m4-prefetch4,stream12,2,16,16,r_input_weight[16],8,r_transform_row[4]; r_inverse_row[4],4,4,44,rtl_r_declarations
 Conv2x2-conv-stream4-i16-h16-t0-o4-m4,stream4,2,16,16,r_input_weight[16],0,,4,4,36,rtl_r_declarations
 Conv2x2-conv-stream4-i16-h16-t0-o4-m8,stream4,2,16,16,r_input_weight[16],0,,8,4,36,rtl_r_declarations
 Conv2x2-conv-stream4-i16-h16-t4-o4-m4,stream4,2,16,16,r_input_weight[16],4,r_transform_row[4],4,4,40,rtl_r_declarations
