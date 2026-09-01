@@ -16,6 +16,7 @@ module Conv
     parameter int unsigned CONV_OUTPUT_SIZE    = 2,
     parameter int unsigned CONV_INPUT_SIZE     = 4,
     parameter int unsigned HADAMARD_SIZE       = 4,
+    // Compatibility parameter for the shared testbench; hardware stays fixed at four MACs.
     parameter int unsigned NUM_MULT            = 4
   ) (
     input  logic clk,
@@ -35,6 +36,8 @@ module Conv
     input  logic [NBITS-1:0] p_output_data_read,   // Data captured from the output RAM on reads
     input  logic p_output_valid                    // Read-valid flag from the output RAM
   );
+
+  localparam int unsigned FIXED_NUM_MULT = 4;
 
   function automatic int f_width_min1(input int x);
     if (x <= 1)
@@ -78,15 +81,8 @@ module Conv
 
   // REGISTER BANK FOR THE WEIGHTS ////////////////////////////////////////////
   localparam WEIGHT_CYCLES = HADAMARD_SIZE * HADAMARD_SIZE;
-  localparam STREAM_CYCLES = WEIGHT_CYCLES / NUM_MULT;
+  localparam STREAM_CYCLES = 4;
   logic [(f_width_min1(STREAM_CYCLES + 1))-1:0] r_conv_multiply_count;
-`ifndef SYNTHESIS
-  initial begin: STREAM_PARAMETER_CHECK_BLOCK
-    if (HADAMARD_SIZE != 4 || WEIGHT_CYCLES != 16 ||
-        !(NUM_MULT inside {2, 4, 8}) || (WEIGHT_CYCLES % NUM_MULT) != 0)
-      $fatal(1, "convXmac-stream12 requires NUM_MULT in {2,4,8} and a 4x4 Hadamard transform");
-  end
-`endif
   localparam WEIGHT_WIDTH = f_width_min1(WEIGHT_CYCLES + 1);
   logic [NBITS-1:0] r_input_weight[WEIGHT_CYCLES-1:0];
   logic [WEIGHT_CYCLES-1:0] w_input_weight_en;
@@ -95,29 +91,26 @@ module Conv
   logic w_input_write_done;
 
   logic [NBITS-1:0] w_conv_transform [HADAMARD_SIZE*HADAMARD_SIZE-1:0];
-  logic signed [NBITS-1+QUANT:0] w_conv_product [NUM_MULT-1:0];  // QUANT more bits for the multipliers
+  logic signed [NBITS-1+QUANT:0] w_conv_product [FIXED_NUM_MULT-1:0];  // QUANT more bits for the multipliers
   logic w_conv_end;
   logic w_conv_input_release;
 
-  // Row-streaming state. NUM_MULT is restricted to divisors 2, 4 and 8
+  // Row-streaming state. FIXED_NUM_MULT is restricted to divisors 2, 4 and 8
   // for the TC2x2 transform (16 total Hadamard products).
   localparam int ROW_INDEX_WIDTH = f_width_min1(HADAMARD_SIZE);
   localparam int PRODUCT_INDEX_WIDTH = f_width_min1(WEIGHT_CYCLES);
-  logic [NBITS-1:0] r_d_row [HADAMARD_SIZE-1:0];
-  logic [NBITS-1:0] r_s_row [HADAMARD_SIZE-1:0];
-  logic [NBITS-1:0] r_out_acc [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
-  logic [ROW_INDEX_WIDTH-1:0] r_stream_row_idx;
-  logic [PRODUCT_INDEX_WIDTH-1:0] r_stream_product_idx;
-  logic [NBITS-1:0] w_stream_sigma [CONV_OUTPUT_SIZE-1:0];
-  logic [NBITS-1:0] w_stream_sigma_current [CONV_OUTPUT_SIZE-1:0];
-  logic [NBITS-1:0] w_stream_sigma_current_2 [CONV_OUTPUT_SIZE-1:0];
-  logic [NBITS-1:0] w_stream_acc_next [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
-  logic [NBITS-1:0] w_stream_acc_after_first [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
-  logic [NBITS-1:0] w_stream_final_output [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
-  logic [NBITS-1:0] w_stream_final_capture [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
-  logic [NBITS-1:0] w_stream_product_row [HADAMARD_SIZE-1:0];
-  logic [NBITS-1:0] w_stream_product_row_2 [HADAMARD_SIZE-1:0];
-  logic [NBITS-1:0] w_conv_feature [NUM_MULT-1:0];
+  logic [NBITS-1:0] r_transform_row [HADAMARD_SIZE-1:0];
+  logic [NBITS-1:0] r_inverse_row [HADAMARD_SIZE-1:0];
+  logic [NBITS-1:0] r_output_accumulator [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
+  logic [ROW_INDEX_WIDTH-1:0] r_inverse_row_idx;
+  logic [PRODUCT_INDEX_WIDTH-1:0] r_transform_product_idx;
+  logic [NBITS-1:0] w_inverse_partial [CONV_OUTPUT_SIZE-1:0];
+  logic [NBITS-1:0] w_inverse_partial_current [CONV_OUTPUT_SIZE-1:0];
+  logic [NBITS-1:0] w_output_acc_next [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
+  logic [NBITS-1:0] w_output_final [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
+  logic [NBITS-1:0] w_output_capture [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
+  logic [NBITS-1:0] w_inverse_product_row [HADAMARD_SIZE-1:0];
+  logic [NBITS-1:0] w_transform_feature [FIXED_NUM_MULT-1:0];
 `ifdef STREAM_DEBUG
   integer stream_debug_had_count;
 `endif
@@ -364,8 +357,22 @@ module Conv
   // READING REGISTER BANK
   // -------------------------------------------------------------------------
   always_comb begin: INPUT_SHIFT_DATA_BLOCK
-    for (int unsigned i = 0; i < (CONV_INPUT_SIZE * CONV_INPUT_SIZE); i++)
-      w_input_feat_next[i] = p_input_data;
+    w_input_feat_next[0] = p_input_data;
+    w_input_feat_next[1] = p_input_data;
+    w_input_feat_next[2] = p_input_data;
+    w_input_feat_next[3] = p_input_data;
+    w_input_feat_next[4] = p_input_data;
+    w_input_feat_next[5] = p_input_data;
+    w_input_feat_next[6] = p_input_data;
+    w_input_feat_next[7] = p_input_data;
+    w_input_feat_next[8] = p_input_data;
+    w_input_feat_next[9] = p_input_data;
+    w_input_feat_next[10] = p_input_data;
+    w_input_feat_next[11] = p_input_data;
+    w_input_feat_next[12] = p_input_data;
+    w_input_feat_next[13] = p_input_data;
+    w_input_feat_next[14] = p_input_data;
+    w_input_feat_next[15] = p_input_data;
 
     w_input_feat_next[0] = (st_input_current == READ_IN_10A) ? p_input_data : r_input_feat[2];
     w_input_feat_next[1] = (st_input_current == READ_IN_10B) ? p_input_data : r_input_feat[3];
@@ -412,13 +419,29 @@ module Conv
   end
 
   always_ff @(posedge clk or posedge reset) begin: INPUT_FEATURE_REG_BLOCK  // initializes and write into the register bank and convolution register bank
-    if (reset)
-      for (int unsigned i = 0; i < (CONV_INPUT_SIZE * CONV_INPUT_SIZE); i++)
-        r_input_feat[i] <= '0;
-    else
-      for (int unsigned i = 0; i < (CONV_INPUT_SIZE * CONV_INPUT_SIZE); i++)
-        if (w_input_feat_en[i] && w_input_feat_write_valid)
-          r_input_feat[i] <= w_input_feat_next[i];
+    if (reset) begin
+      r_input_feat[0] <= '0; r_input_feat[1] <= '0; r_input_feat[2] <= '0; r_input_feat[3] <= '0;
+      r_input_feat[4] <= '0; r_input_feat[5] <= '0; r_input_feat[6] <= '0; r_input_feat[7] <= '0;
+      r_input_feat[8] <= '0; r_input_feat[9] <= '0; r_input_feat[10] <= '0; r_input_feat[11] <= '0;
+      r_input_feat[12] <= '0; r_input_feat[13] <= '0; r_input_feat[14] <= '0; r_input_feat[15] <= '0;
+    end else begin
+      if (w_input_feat_en[0] && w_input_feat_write_valid) r_input_feat[0] <= w_input_feat_next[0];
+      if (w_input_feat_en[1] && w_input_feat_write_valid) r_input_feat[1] <= w_input_feat_next[1];
+      if (w_input_feat_en[2] && w_input_feat_write_valid) r_input_feat[2] <= w_input_feat_next[2];
+      if (w_input_feat_en[3] && w_input_feat_write_valid) r_input_feat[3] <= w_input_feat_next[3];
+      if (w_input_feat_en[4] && w_input_feat_write_valid) r_input_feat[4] <= w_input_feat_next[4];
+      if (w_input_feat_en[5] && w_input_feat_write_valid) r_input_feat[5] <= w_input_feat_next[5];
+      if (w_input_feat_en[6] && w_input_feat_write_valid) r_input_feat[6] <= w_input_feat_next[6];
+      if (w_input_feat_en[7] && w_input_feat_write_valid) r_input_feat[7] <= w_input_feat_next[7];
+      if (w_input_feat_en[8] && w_input_feat_write_valid) r_input_feat[8] <= w_input_feat_next[8];
+      if (w_input_feat_en[9] && w_input_feat_write_valid) r_input_feat[9] <= w_input_feat_next[9];
+      if (w_input_feat_en[10] && w_input_feat_write_valid) r_input_feat[10] <= w_input_feat_next[10];
+      if (w_input_feat_en[11] && w_input_feat_write_valid) r_input_feat[11] <= w_input_feat_next[11];
+      if (w_input_feat_en[12] && w_input_feat_write_valid) r_input_feat[12] <= w_input_feat_next[12];
+      if (w_input_feat_en[13] && w_input_feat_write_valid) r_input_feat[13] <= w_input_feat_next[13];
+      if (w_input_feat_en[14] && w_input_feat_write_valid) r_input_feat[14] <= w_input_feat_next[14];
+      if (w_input_feat_en[15] && w_input_feat_write_valid) r_input_feat[15] <= w_input_feat_next[15];
+    end
   end
 
   // Weight register bank with per-entry write-enable.
@@ -430,24 +453,45 @@ module Conv
 
   always_ff @(posedge clk or posedge reset) begin: WEIGHT_REG_BLOCK
     if (reset) begin
-      for (int unsigned i = 0; i < WEIGHT_CYCLES; i++)
-        r_input_weight[i] <= '0;
+      r_input_weight[0] <= '0; r_input_weight[1] <= '0; r_input_weight[2] <= '0; r_input_weight[3] <= '0;
+      r_input_weight[4] <= '0; r_input_weight[5] <= '0; r_input_weight[6] <= '0; r_input_weight[7] <= '0;
+      r_input_weight[8] <= '0; r_input_weight[9] <= '0; r_input_weight[10] <= '0; r_input_weight[11] <= '0;
+      r_input_weight[12] <= '0; r_input_weight[13] <= '0; r_input_weight[14] <= '0; r_input_weight[15] <= '0;
     end else if (st_input_current == READ_WEIGHTS) begin
       // A new weight load has priority over the final HADAMARD rotation.
-      for (int unsigned i = 0; i < WEIGHT_CYCLES; i++)
-        if (w_input_weight_en[i])
-          r_input_weight[i] <= p_input_data;
-    end else if (st_conv_current == HADAMARD) begin         // rotate the active NUM_MULT-wide product block
-      for (int unsigned i = 0; i < (WEIGHT_CYCLES-NUM_MULT); i++) begin
-        r_input_weight[i] <= r_input_weight[i + NUM_MULT];
-      end
-      for (int unsigned i = (WEIGHT_CYCLES-NUM_MULT); i < WEIGHT_CYCLES; i++) begin
-        r_input_weight[i] <= r_input_weight[i - (WEIGHT_CYCLES-NUM_MULT)];
-      end
-    end else begin
-      for (int unsigned i = 0; i < WEIGHT_CYCLES; i++)
-        if (w_input_weight_en[i])
-          r_input_weight[i] <= p_input_data;
+      if (w_input_weight_en[0]) r_input_weight[0] <= p_input_data;
+      if (w_input_weight_en[1]) r_input_weight[1] <= p_input_data;
+      if (w_input_weight_en[2]) r_input_weight[2] <= p_input_data;
+      if (w_input_weight_en[3]) r_input_weight[3] <= p_input_data;
+      if (w_input_weight_en[4]) r_input_weight[4] <= p_input_data;
+      if (w_input_weight_en[5]) r_input_weight[5] <= p_input_data;
+      if (w_input_weight_en[6]) r_input_weight[6] <= p_input_data;
+      if (w_input_weight_en[7]) r_input_weight[7] <= p_input_data;
+      if (w_input_weight_en[8]) r_input_weight[8] <= p_input_data;
+      if (w_input_weight_en[9]) r_input_weight[9] <= p_input_data;
+      if (w_input_weight_en[10]) r_input_weight[10] <= p_input_data;
+      if (w_input_weight_en[11]) r_input_weight[11] <= p_input_data;
+      if (w_input_weight_en[12]) r_input_weight[12] <= p_input_data;
+      if (w_input_weight_en[13]) r_input_weight[13] <= p_input_data;
+      if (w_input_weight_en[14]) r_input_weight[14] <= p_input_data;
+      if (w_input_weight_en[15]) r_input_weight[15] <= p_input_data;
+    end else if (st_conv_current == HADAMARD) begin         // rotate four active weights
+      r_input_weight[0]  <= r_input_weight[4];
+      r_input_weight[1]  <= r_input_weight[5];
+      r_input_weight[2]  <= r_input_weight[6];
+      r_input_weight[3]  <= r_input_weight[7];
+      r_input_weight[4]  <= r_input_weight[8];
+      r_input_weight[5]  <= r_input_weight[9];
+      r_input_weight[6]  <= r_input_weight[10];
+      r_input_weight[7]  <= r_input_weight[11];
+      r_input_weight[8]  <= r_input_weight[12];
+      r_input_weight[9]  <= r_input_weight[13];
+      r_input_weight[10] <= r_input_weight[14];
+      r_input_weight[11] <= r_input_weight[15];
+      r_input_weight[12] <= r_input_weight[0];
+      r_input_weight[13] <= r_input_weight[1];
+      r_input_weight[14] <= r_input_weight[2];
+      r_input_weight[15] <= r_input_weight[3];
     end
   end
 
@@ -514,27 +558,29 @@ module Conv
   end
 
   // Transform produces the complete combinational matrix, but only one row
-  // (or a partial row) is consumed at a time. NUM_MULT is one of the
+  // (or a partial row) is consumed at a time. FIXED_NUM_MULT is one of the
   // supported factors of the 16 Hadamard products.
   always_ff @(posedge clk or posedge reset) begin: STREAMING_DATAPATH_BLOCK
     if (reset) begin
-      r_d_row          <= '{default: '0};
-      r_s_row          <= '{default: '0};
-      r_out_acc        <= '{default: '0};
-      r_stream_row_idx <= '0;
-      r_stream_product_idx <= '0;
+      r_transform_row          <= '{default: '0};
+      r_inverse_row          <= '{default: '0};
+      r_output_accumulator        <= '{default: '0};
+      r_inverse_row_idx <= '0;
+      r_transform_product_idx <= '0;
 `ifdef STREAM_DEBUG
       stream_debug_had_count <= 0;
 `endif
     end else begin
       unique case (st_conv_current)
         TRANSFORM: begin
-          for (int unsigned i = 0; i < HADAMARD_SIZE; i++)
-            r_d_row[i] <= w_conv_transform[i];
-          r_s_row              <= '{default: '0};
-          r_out_acc            <= '{default: '0};
-          r_stream_row_idx     <= '0;
-          r_stream_product_idx <= '0;
+          r_transform_row[0] <= w_conv_transform[0];
+          r_transform_row[1] <= w_conv_transform[1];
+          r_transform_row[2] <= w_conv_transform[2];
+          r_transform_row[3] <= w_conv_transform[3];
+          r_inverse_row              <= '{default: '0};
+          r_output_accumulator            <= '{default: '0};
+          r_inverse_row_idx     <= '0;
+          r_transform_product_idx <= '0;
 `ifdef STREAM_DEBUG
           $display("STREAM TRANSFORM");
           for (int unsigned d = 0; d < HADAMARD_SIZE*HADAMARD_SIZE; d++)
@@ -543,90 +589,42 @@ module Conv
 `endif
         end
         HADAMARD: begin
-          r_stream_product_idx <= r_stream_product_idx + PRODUCT_INDEX_WIDTH'(NUM_MULT);
-          if (NUM_MULT == 2) begin
-            if (r_stream_product_idx == 0) begin
-              r_d_row[0] <= w_conv_transform[2];
-              r_d_row[1] <= w_conv_transform[3];
-              r_d_row[2] <= '0;
-              r_d_row[3] <= '0;
-            end else if (r_stream_product_idx == 2) begin
-              r_d_row[0] <= w_conv_transform[4];
-              r_d_row[1] <= w_conv_transform[5];
-              r_d_row[2] <= '0;
-              r_d_row[3] <= '0;
-            end else if (r_stream_product_idx == 4) begin
-              r_d_row[0] <= w_conv_transform[6];
-              r_d_row[1] <= w_conv_transform[7];
-              r_d_row[2] <= '0;
-              r_d_row[3] <= '0;
-            end else if (r_stream_product_idx == 6) begin
-              r_d_row[0] <= w_conv_transform[8];
-              r_d_row[1] <= w_conv_transform[9];
-              r_d_row[2] <= '0;
-              r_d_row[3] <= '0;
-            end else if (r_stream_product_idx == 8) begin
-              r_d_row[0] <= w_conv_transform[10];
-              r_d_row[1] <= w_conv_transform[11];
-              r_d_row[2] <= '0;
-              r_d_row[3] <= '0;
-            end else if (r_stream_product_idx == 10) begin
-              r_d_row[0] <= w_conv_transform[12];
-              r_d_row[1] <= w_conv_transform[13];
-              r_d_row[2] <= '0;
-              r_d_row[3] <= '0;
-            end else if (r_stream_product_idx == 12) begin
-              r_d_row[0] <= w_conv_transform[14];
-              r_d_row[1] <= w_conv_transform[15];
-              r_d_row[2] <= '0;
-              r_d_row[3] <= '0;
-            end
-            if (r_stream_product_idx[1:0] == 2) begin
-              r_out_acc        <= w_stream_acc_next;
-              r_stream_row_idx <= r_stream_row_idx + 1'b1;
-              r_s_row          <= '{default: '0};
-            end else begin
-              r_s_row <= w_stream_product_row;
-            end
-          end else if (NUM_MULT == 4) begin
-            if (r_stream_product_idx == 0) begin
-              for (int unsigned i = 0; i < HADAMARD_SIZE; i++)
-                r_d_row[i] <= w_conv_transform[HADAMARD_SIZE + i];
-            end else if (r_stream_product_idx == 4) begin
-              for (int unsigned i = 0; i < HADAMARD_SIZE; i++)
-                r_d_row[i] <= w_conv_transform[(2 * HADAMARD_SIZE) + i];
-            end else if (r_stream_product_idx == 8) begin
-              for (int unsigned i = 0; i < HADAMARD_SIZE; i++)
-                r_d_row[i] <= w_conv_transform[(3 * HADAMARD_SIZE) + i];
-            end
-            r_out_acc        <= w_stream_acc_next;
-            r_stream_row_idx <= r_stream_row_idx + 1'b1;
-            r_s_row          <= w_stream_product_row;
-          end else begin
-            if (r_stream_product_idx == 0) begin
-              for (int unsigned i = 0; i < HADAMARD_SIZE; i++)
-                r_d_row[i] <= w_conv_transform[8 + i];
-            end
-            r_out_acc        <= w_stream_acc_next;
-            r_stream_row_idx <= r_stream_row_idx + 2;
-            r_s_row          <= w_stream_product_row_2;
+          r_transform_product_idx <= r_transform_product_idx + PRODUCT_INDEX_WIDTH'(FIXED_NUM_MULT);
+          if (r_transform_product_idx == 0) begin
+            r_transform_row[0] <= w_conv_transform[4];
+            r_transform_row[1] <= w_conv_transform[5];
+            r_transform_row[2] <= w_conv_transform[6];
+            r_transform_row[3] <= w_conv_transform[7];
+          end else if (r_transform_product_idx == 4) begin
+            r_transform_row[0] <= w_conv_transform[8];
+            r_transform_row[1] <= w_conv_transform[9];
+            r_transform_row[2] <= w_conv_transform[10];
+            r_transform_row[3] <= w_conv_transform[11];
+          end else if (r_transform_product_idx == 8) begin
+            r_transform_row[0] <= w_conv_transform[12];
+            r_transform_row[1] <= w_conv_transform[13];
+            r_transform_row[2] <= w_conv_transform[14];
+            r_transform_row[3] <= w_conv_transform[15];
           end
+          r_output_accumulator        <= w_output_acc_next;
+          r_inverse_row_idx <= r_inverse_row_idx + 1'b1;
+          r_inverse_row          <= w_inverse_product_row;
 `ifdef STREAM_DEBUG
-          $display("STREAM HAD product_base=%0d row=%0d", r_stream_product_idx, r_stream_row_idx);
-          $write("  F:"); for (int unsigned d = 0; d < NUM_MULT; d++) $write(" %0d", $signed(w_conv_feature[d])); $write("\n");
-          $write("  G:"); for (int unsigned d = 0; d < NUM_MULT; d++) $write(" %0d", $signed(r_input_weight[d])); $write("\n");
-          $write("  P:"); for (int unsigned d = 0; d < NUM_MULT; d++) $write(" %0d", $signed(w_conv_product[d][NBITS-1:0])); $write("\n");
-          $write("  ACC_NEXT:"); for (int unsigned d = 0; d < CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE; d++) $write(" %0d", $signed(w_stream_acc_next[d])); $write("\n");
+          $display("STREAM HAD product_base=%0d row=%0d", r_transform_product_idx, r_inverse_row_idx);
+          $write("  F:"); for (int unsigned d = 0; d < FIXED_NUM_MULT; d++) $write(" %0d", $signed(w_transform_feature[d])); $write("\n");
+          $write("  G:"); for (int unsigned d = 0; d < FIXED_NUM_MULT; d++) $write(" %0d", $signed(r_input_weight[d])); $write("\n");
+          $write("  P:"); for (int unsigned d = 0; d < FIXED_NUM_MULT; d++) $write(" %0d", $signed(w_conv_product[d][NBITS-1:0])); $write("\n");
+          $write("  ACC_NEXT:"); for (int unsigned d = 0; d < CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE; d++) $write(" %0d", $signed(w_output_acc_next[d])); $write("\n");
           stream_debug_had_count <= stream_debug_had_count + 1;
 `endif
         end
         INVERSE: begin
 `ifdef STREAM_DEBUG
           $display("STREAM FINAL");
-          $write("  ACC:"); for (int unsigned d = 0; d < CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE; d++) $write(" %0d", $signed(r_out_acc[d])); $write("\n");
-          $write("  Slast:"); for (int unsigned d = 0; d < HADAMARD_SIZE; d++) $write(" %0d", $signed(r_s_row[d])); $write("\n");
-          $write("  SIG:"); for (int unsigned d = 0; d < CONV_OUTPUT_SIZE; d++) $write(" %0d", $signed(w_stream_sigma[d])); $write("\n");
-          $write("  OUT:"); for (int unsigned d = 0; d < CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE; d++) $write(" %0d", $signed(w_stream_final_output[d])); $write("\n");
+          $write("  ACC:"); for (int unsigned d = 0; d < CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE; d++) $write(" %0d", $signed(r_output_accumulator[d])); $write("\n");
+          $write("  Slast:"); for (int unsigned d = 0; d < HADAMARD_SIZE; d++) $write(" %0d", $signed(r_inverse_row[d])); $write("\n");
+          $write("  SIG:"); for (int unsigned d = 0; d < CONV_OUTPUT_SIZE; d++) $write(" %0d", $signed(w_inverse_partial[d])); $write("\n");
+          $write("  OUT:"); for (int unsigned d = 0; d < CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE; d++) $write(" %0d", $signed(w_output_final[d])); $write("\n");
 `endif
         end
         default: begin end
@@ -645,95 +643,29 @@ module Conv
       .pout(w_conv_transform)
   );
 
-  generate
-    for (genvar i = 0; i < NUM_MULT; i++) begin : MULTIP_BLOCK
-      if (NUM_MULT == 8 && i >= HADAMARD_SIZE) begin : STREAM_LIVE_SECOND_ROW
-        assign w_conv_feature[i] = w_conv_transform[r_stream_product_idx + i];
-      end else begin : STREAM_REGISTERED_ROW
-        assign w_conv_feature[i] = r_d_row[i];
-      end
-      Multip #(
-        .QUANT(QUANT),
-        .NBITS(NBITS)
-      )
-      multip(
-        .feature(w_conv_feature[i]),
-        .weight(r_input_weight[i]),
-        .product(w_conv_product[i])
-      );
-    end
-  endgenerate
+  assign w_transform_feature[0] = r_transform_row[0];
+  assign w_transform_feature[1] = r_transform_row[1];
+  assign w_transform_feature[2] = r_transform_row[2];
+  assign w_transform_feature[3] = r_transform_row[3];
+  Multip #(.QUANT(QUANT), .NBITS(NBITS)) multip0(
+    .feature(w_transform_feature[0]), .weight(r_input_weight[0]), .product(w_conv_product[0]));
+  Multip #(.QUANT(QUANT), .NBITS(NBITS)) multip1(
+    .feature(w_transform_feature[1]), .weight(r_input_weight[1]), .product(w_conv_product[1]));
+  Multip #(.QUANT(QUANT), .NBITS(NBITS)) multip2(
+    .feature(w_transform_feature[2]), .weight(r_input_weight[2]), .product(w_conv_product[2]));
+  Multip #(.QUANT(QUANT), .NBITS(NBITS)) multip3(
+    .feature(w_transform_feature[3]), .weight(r_input_weight[3]), .product(w_conv_product[3]));
 
-  generate
-    InverseRow inverse_row(
-      .s_row(r_s_row),
-      .sigma(w_stream_sigma)
-    );
-  endgenerate
-
-  generate
-    if (NUM_MULT == 2) begin : STREAM_TWO_MAC_BLOCK
-      for (genvar j = 0; j < 2; j++) begin : STREAM_TWO_MAC_FIRST_HALF
-        assign w_stream_product_row[j] = (r_stream_product_idx[1:0] == 0) ?
-                                         w_conv_product[j] : r_s_row[j];
-      end
-      for (genvar j = 2; j < HADAMARD_SIZE; j++) begin : STREAM_TWO_MAC_SECOND_HALF
-        assign w_stream_product_row[j] = (r_stream_product_idx[1:0] == 2) ?
-                                         w_conv_product[j - 2] : r_s_row[j];
-      end
-      InverseRow inverse_row_current(
-        .s_row(w_stream_product_row),
-        .sigma(w_stream_sigma_current)
-      );
-      InverseRowAccumulate inverse_row_acc(
-        .row_idx(r_stream_row_idx),
-        .acc_in(r_out_acc),
-        .sigma(w_stream_sigma_current),
-        .acc_out(w_stream_acc_next)
-      );
-    end else if (NUM_MULT == 4) begin : STREAM_FOUR_MAC_BLOCK
-      for (genvar j = 0; j < HADAMARD_SIZE; j++) begin : STREAM_FOUR_MAC_ROW
-        assign w_stream_product_row[j] = w_conv_product[j];
-      end
-      InverseRow inverse_row_current(
-        .s_row(w_stream_product_row),
-        .sigma(w_stream_sigma_current)
-      );
-      InverseRowAccumulate inverse_row_acc(
-        .row_idx(r_stream_row_idx),
-        .acc_in(r_out_acc),
-        .sigma(w_stream_sigma_current),
-        .acc_out(w_stream_acc_next)
-      );
-    end else begin : STREAM_EIGHT_MAC_BLOCK
-      for (genvar j = 0; j < HADAMARD_SIZE; j++) begin : STREAM_EIGHT_MAC_ROW_FIRST
-        assign w_stream_product_row[j] = w_conv_product[j];
-        assign w_stream_product_row_2[j] = w_conv_product[HADAMARD_SIZE + j];
-      end
-      InverseRow inverse_row_current(
-        .s_row(w_stream_product_row),
-        .sigma(w_stream_sigma_current)
-      );
-      InverseRow inverse_row_current_2(
-        .s_row(w_stream_product_row_2),
-        .sigma(w_stream_sigma_current_2)
-      );
-      InverseRowAccumulate inverse_row_acc(
-        .row_idx(r_stream_row_idx),
-        .acc_in(r_out_acc),
-        .sigma(w_stream_sigma_current),
-        .acc_out(w_stream_acc_after_first)
-      );
-      InverseRowAccumulate inverse_row_acc_second(
-        .row_idx(r_stream_row_idx + 1'b1),
-        .acc_in(w_stream_acc_after_first),
-        .sigma(w_stream_sigma_current_2),
-        .acc_out(w_stream_acc_next)
-      );
-    end
-    assign w_stream_final_output = (st_conv_current == INVERSE) ? r_out_acc : w_stream_acc_next;
-    assign w_stream_final_capture = w_stream_acc_next;
-  endgenerate
+  InverseRow inverse_row(.inverse_input_row(r_inverse_row), .inverse_partial(w_inverse_partial));
+  assign w_inverse_product_row[0] = w_conv_product[0];
+  assign w_inverse_product_row[1] = w_conv_product[1];
+  assign w_inverse_product_row[2] = w_conv_product[2];
+  assign w_inverse_product_row[3] = w_conv_product[3];
+  InverseRow inverse_row_current(.inverse_input_row(w_inverse_product_row), .inverse_partial(w_inverse_partial_current));
+  InverseRowAccumulate inverse_row_acc(
+    .inverse_row_idx(r_inverse_row_idx), .accumulator_in(r_output_accumulator), .inverse_partial(w_inverse_partial_current), .accumulator_out(w_output_acc_next));
+  assign w_output_final = (st_conv_current == INVERSE) ? r_output_accumulator : w_output_acc_next;
+  assign w_output_capture = w_output_acc_next;
 
 
   // ----------------------------------------------------------------------------------------------------
@@ -868,7 +800,7 @@ module Conv
       end
       if (st_conv_current == HADAMARD &&
           r_conv_multiply_count == $bits(r_conv_multiply_count)'(STREAM_CYCLES - 1))
-        r_output_write <= w_stream_final_capture;
+        r_output_write <= w_output_capture;
     end
   end
 
