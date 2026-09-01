@@ -14,7 +14,7 @@ The active filenames are intentionally short and scope-neutral:
 
 - `time.csv`, `logical.csv`, `power.csv`, `merged.csv`: measured synthesis and simulation data.
 - `timing-summary.csv`, `area-hierarchy.csv`, `power-breakdown.csv`: timing, area hierarchy, and power-category views.
-- `register-budget.csv`: architectural register-word estimate, explicitly marked as formula-derived; current Winograd input tiles are 4x4, 5x5, and 6x6 for 2x2, 3x3, and 4x4 kernels.
+- `register-budget.csv`: RTL-derived register-word accounting. The `h_register_words` column counts only `r_input_weight`; `t_register_words` counts registered transform/inverse banks (`r_conv_temp`, `r_transform_row`, and `r_inverse_row`). Combinational (`w_*`) vectors and control registers are excluded. `mac_lanes` reports the physical MAC lanes separately and is not counted as storage. Current Winograd input tiles are 4x4, 5x5, and 6x6 for 2x2, 3x3, and 4x4 kernels.
 - `throughput.csv`, `energy-per-op.csv`, `mac-scaling.csv`, `pareto.csv`: normalized performance, energy, scaling, and Pareto views.
 - `flow-status.csv`, `functional-quality.csv`: artifact-completeness and functional-quality status.
 - `report.md`: Markdown rendering of all CSV tables in the current scope.
