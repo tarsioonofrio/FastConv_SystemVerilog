@@ -395,11 +395,14 @@ module Conv
         if (w_input_weight_en[i])
           r_input_weight[i] <= p_input_data;
     end else if (st_conv_current == HADAMARD) begin         // transform weights into a circular queue
-      for (int unsigned i = 0; i < (WEIGHT_CYCLES-HADAMARD_SIZE); i++) begin
-        r_input_weight[i] <= r_input_weight[i + HADAMARD_SIZE];
+      // Advance by one multiplier group.  For NUM_MULT=4 this is one
+      // Hadamard row; for NUM_MULT=8 it advances by two rows so that the
+      // next cycle selects weights 8..15 rather than repeating 4..7.
+      for (int unsigned i = 0; i < (WEIGHT_CYCLES-NUM_MULT); i++) begin
+        r_input_weight[i] <= r_input_weight[i + NUM_MULT];
       end
-      for (int unsigned i = (WEIGHT_CYCLES-HADAMARD_SIZE); i < WEIGHT_CYCLES; i++) begin
-        r_input_weight[i] <= r_input_weight[i - (WEIGHT_CYCLES-HADAMARD_SIZE)];
+      for (int unsigned i = (WEIGHT_CYCLES-NUM_MULT); i < WEIGHT_CYCLES; i++) begin
+        r_input_weight[i] <= r_input_weight[i - (WEIGHT_CYCLES-NUM_MULT)];
       end
     end else begin
       for (int unsigned i = 0; i < WEIGHT_CYCLES; i++)
@@ -496,11 +499,14 @@ module Conv
       unique case (st_conv_current)
         TRANSFORM:
           r_conv_temp <= w_conv_transform;
-        HADAMARD: begin      // shifts e entra a multiplicação na parte mais significativa
-          for (int unsigned i = 0; i < (WEIGHT_CYCLES-HADAMARD_SIZE); i++)
-            r_conv_temp[i] <= r_conv_temp[i + HADAMARD_SIZE];
-          for (int unsigned i = (WEIGHT_CYCLES-HADAMARD_SIZE); i < WEIGHT_CYCLES; i++)
-            r_conv_temp[i] <= w_conv_product[i - (WEIGHT_CYCLES-HADAMARD_SIZE)];
+        HADAMARD: begin      // shift the product FIFO and append the new products
+          // Keep the product FIFO aligned with the weight rotation above.
+          // The old HADAMARD_SIZE shift only worked for four MACs and
+          // discarded products 4..7 when NUM_MULT=8.
+          for (int unsigned i = 0; i < (WEIGHT_CYCLES-NUM_MULT); i++)
+            r_conv_temp[i] <= r_conv_temp[i + NUM_MULT];
+          for (int unsigned i = (WEIGHT_CYCLES-NUM_MULT); i < WEIGHT_CYCLES; i++)
+            r_conv_temp[i] <= w_conv_product[i - (WEIGHT_CYCLES-NUM_MULT)];
           end
           default: begin end
       endcase
