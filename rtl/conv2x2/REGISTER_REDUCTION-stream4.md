@@ -13,7 +13,7 @@ As variantes fixas sao:
 | Arquivo | MACs por ciclo | Linhas inversas consumidas por ciclo |
 | --- | ---: | ---: |
 | `conv-stream4-i16-h16-t0-o4-m4.sv` | 4 | 1 |
-| `conv-stream4-rdrow-i16-h16-t4-o4-m4.sv` | 4 | 1 (variante com `r_transform_row`) |
+| `conv-stream4-i16-h16-t4-o4-m4.sv` | 4 | 1 (variante com `r_transform_row`) |
 | `conv-stream4-i16-h16-t0-o4-m8.sv` | 8 | 2 |
 
 O contrato funcional que nao pode mudar durante a reducao e:
@@ -156,11 +156,11 @@ execucao local, nao uma falha funcional observada no Verilator.
 
 Esta alteracao foi inicialmente experimentada em `conv-stream4-i16-h16-t0-o4-m4.sv` e
 `conv-stream4-i16-h16-t0-o4-m8.sv`. A variante preservada com essa fronteira esta agora em
-`conv-stream4-rdrow-i16-h16-t4-o4-m4.sv`, enquanto `conv-stream4-i16-h16-t0-o4-m4.sv` permanece identico
+`conv-stream4-i16-h16-t4-o4-m4.sv`, enquanto `conv-stream4-i16-h16-t0-o4-m4.sv` permanece identico
 ao `HEAD`. `r_transform_row` e diferente de `r_inverse_row`: ele segura a linha
 transformada entre a captura no estado `TRANSFORM`/`HADAMARD` e o ciclo em que
 os MACs a consomem. A selecao combinacional sem essa fronteira foi mantida
-somente como variante experimental; a variante `conv-stream4-rdrow-i16-h16-t4-o4-m4.sv`
+somente como variante experimental; a variante `conv-stream4-i16-h16-t4-o4-m4.sv`
 restaura `r_transform_row` porque a sintese mostrou uma reducao material de area.
 
 ### Hipotese
@@ -193,7 +193,7 @@ e `w_transform_feature` passou a usar diretamente os indices da linha atual. A
 regressao funcional passou, mas a sintese contabilizou os muxes de selecao
 dentro da hierarquia `Transform`.
 
-Na variante `conv-stream4-rdrow-i16-h16-t4-o4-m4.sv`, `r_transform_row[0..3]` foi restaurado:
+Na variante `conv-stream4-i16-h16-t4-o4-m4.sv`, `r_transform_row[0..3]` foi restaurado:
 
 - a primeira linha `w_conv_transform[0..3]` e capturada na entrada do Hadamard;
 - as linhas seguintes `4..7`, `8..11` e `12..15` sao carregadas nas bordas dos
@@ -209,7 +209,7 @@ alterados.
 
 ### Reducao obtida
 
-Na variante `conv-stream4-rdrow-i16-h16-t4-o4-m4.sv`, a restauracao recoloca 4 palavras de 20
+Na variante `conv-stream4-i16-h16-t4-o4-m4.sv`, a restauracao recoloca 4 palavras de 20
 bits (80 bits) e deixa somente a reducao de `r_inverse_row` em relacao ao estado
 original. A sintese atual produziu 6.515 celulas, 10.857,984 de area total e
 1.768,687 de area na hierarquia `Transform`, contra 8.765 celulas, 12.072,861
@@ -219,7 +219,7 @@ adicionais reduziram a area total em aproximadamente 10,1% e a area atribuida
 
 ### Evidencia
 
-O teste da variante `conv-stream4-rdrow-i16-h16-t4-o4-m4.sv` continua funcionalmente
+O teste da variante `conv-stream4-i16-h16-t4-o4-m4.sv` continua funcionalmente
 equivalente:
 
 ```text
@@ -475,7 +475,7 @@ gerados a partir dos RTLs `conv-stream4-i16-h16-t0-o4-m4.sv` e `conv-stream4-i16
 | Conv all 16 MACs | `conv-all-i16-h16-t0-o4-m16.sv` | PASS | 15.200 | 23.129,636 | 764 | 236 | 23.672 | 0,650788 | 30,811 |
 | Stream4 4 MACs | `conv-stream4-i16-h16-t0-o4-m4.sv` | PASS | 8.473 | 12.127,770 | 757 | 243 | 27.725 | 0,692382 | 38,393 |
 | Stream4 8 MACs | `conv-stream4-i16-h16-t0-o4-m8.sv` | PASS | 11.818 | 16.855,605 | 794 | 206 | 23.675 | 0,918483 | 43,490 |
-| Stream4 4 MACs, `r_transform_row` | `conv-stream4-rdrow-i16-h16-t4-o4-m4.sv` | PASS | 6.515 | 10.857,984 | 757 | 243 | 27.725 | 0,582814 | 32,317 |
+| Stream4 4 MACs, `r_transform_row` | `conv-stream4-i16-h16-t4-o4-m4.sv` | PASS | 6.515 | 10.857,984 | 757 | 243 | 27.725 | 0,582814 | 32,317 |
 | Stream12 2 MACs | `conv-stream12-generic-i16-h16-t8-o4-m2-4-8.sv` | PASS | 6.483 | 11.012,366 | 766 | 234 | 29.749 | 0,531211 | 31,606 |
 | Stream12 4 MACs | `conv-stream12-i16-h16-t8-o4-m4.sv` | PASS | 6.478 | 11.010,342 | 774 | 226 | 29.749 | 0,508947 | 30,281 |
 | Stream12 8 MACs | `conv-stream12-i16-h16-t8-o4-m8.sv` | PASS | 10.394 | 15.873,661 | 752 | 248 | 25.699 | 0,669638 | 34,418 |
