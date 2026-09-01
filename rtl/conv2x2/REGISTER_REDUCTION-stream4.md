@@ -460,3 +460,47 @@ mas algumas celulas nao possuem atraso individual associavel apos a
 otimizacao do Genus. A reducao do estado da convolucao tambem aparece no
 relatorio: foram sintetizados 1.024 e 1.023 flip-flops nos cores mantidos de 4
 e 8 MACs, respectivamente.
+
+## 13. Comparativo geral das variantes Conv2x2
+
+Esta tabela consolida os resultados gate-level disponiveis para as variantes
+atuais. A potencia e a potencia media do `power_evaluation.txt`; a energia foi
+calculada para o mesmo workload da anotada (`2 ns` por ciclo). As linhas de
+`stream4` foram atualizadas em 01/09/2026 com sintese, SDF, anotada e Joules
+gerados a partir dos RTLs `conv4mac-stream4.sv` e `conv8mac-stream4.sv`.
+
+| Variante | Fonte | Anotada | Celulas | Area total (um2) | Data path (ps) | Slack (ps) | Ciclos | Power (mW) | Energia (nJ) |
+| --- | --- | :---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Conv std 4 MACs | `conv-std.sv` | PASS | 6.613 | 12.017,925 | 763 | 237 | 23.677 | 0,826093 | 39,119 |
+| Conv all 16 MACs | `conv16mac1cycle.sv` | PASS | 15.200 | 23.129,636 | 764 | 236 | 23.672 | 0,650788 | 30,811 |
+| Stream4 4 MACs | `conv4mac-stream4.sv` | PASS | 8.473 | 12.127,770 | 757 | 243 | 27.725 | 0,692382 | 38,393 |
+| Stream4 8 MACs | `conv8mac-stream4.sv` | PASS | 11.818 | 16.855,605 | 794 | 206 | 23.675 | 0,918483 | 43,490 |
+| Stream4 4 MACs, `r_d_row` | `conv4mac-stream4-rdrow.sv` | PASS | 6.515 | 10.857,984 | 757 | 243 | 27.725 | 0,582814 | 32,317 |
+| Stream12 2 MACs | `convXmac-stream12.sv` | PASS | 6.483 | 11.012,366 | 766 | 234 | 29.749 | 0,531211 | 31,606 |
+| Stream12 4 MACs | `conv4mac-stream12.sv` | PASS | 6.478 | 11.010,342 | 774 | 226 | 29.749 | 0,508947 | 30,281 |
+| Stream12 8 MACs | `conv8mac-stream12.sv` | PASS | 10.394 | 15.873,661 | 752 | 248 | 25.699 | 0,669638 | 34,418 |
+
+### Leitura dos resultados
+
+- A antiga igualdade entre `stream4` e `stream12` nao existe quando os RTLs
+  corretos sao sintetizados. Em 4 MACs, `stream4` usa 8.473 celulas contra
+  6.478 de `stream12`; em 8 MACs, usa 11.818 contra 10.394.
+- Dentro da familia `stream4`, a variante de 8 MACs reduz a latencia em
+  4.050 ciclos em relacao a 4 MACs, mas aumenta area, caminho critico,
+  potencia e energia.
+- A variante `stream4` com `r_d_row` e a menor em area e potencia entre as
+  duas variantes stream4 de 4 MACs: -10,5% de area total e -15,8% de energia
+  em relacao a `stream4` sem essa fronteira, neste workload.
+- `stream4` e `stream12` nao sao comparaveis apenas pelo numero de MACs: usam
+  agendamentos, fronteiras de registradores e implementacoes de matriz
+  diferentes. A comparacao correta exige manter separadas a fonte HDL, o
+  netlist, o SDF e a anotada de cada configuracao.
+- Nao ha uma sintese atual versionada para uma variante convencional de 8
+  MACs nesta arvore; por isso ela nao foi inventada ou extrapolada na tabela.
+
+Os relatorios canônicos de `stream4` estao em
+`synthesis/stream4/tcn4-04mac/` e `synthesis/stream4/tcn4-08mac/`. A
+proveniencia do HDL usado pelo Genus e a anotada correspondente permanecem nos
+respectivos `logical/genus.log` e `sim/xrun.log`. Os valores de `stream12`,
+`std`, `all16` e `rdrow` sao os ultimos artefatos gate-level disponiveis nesta
+arvore; eles nao foram re-sintetizados nesta rodada.
