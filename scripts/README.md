@@ -8,9 +8,23 @@ Os arquivos desta pasta encadeiam tarefas recorrentes do fluxo FastConv:
 - `multiple-power-eval.sh`: percorre projetos `tcn*`, roda a síntese lógica (`genus -f run_logical_synthesis.tcl`), simulação pós-layout (`xrun`) e avaliação de potência (`genus -f run_power.tcl`).
 - `multiple-synth.sh`: executa apenas a síntese lógica para cada diretório listado, removendo relatórios antigos antes de chamar o Genus.
 - `multiple-time-arch.sh`: chama `time-arch.py` para cada pasta recebida e gera as tabelas de tempo correspondentes.
-- `reports.py`: agrega relatórios de área, clock gating e potência gerados pela síntese e produz `data/report.csv` e `data/report_transposed.csv`.
+- `report-all.py`: descobre os projetos em `rtl/conv*/synthesis/*`, lê os logs de simulação anotada (`sim/xrun.log`) e os relatórios Genus de área, registradores e potência, produzindo as tabelas consolidadas em `report/`. Use `--report-dir` para outro destino e `--chapter7-dir` para exportar as tabelas derivadas do capítulo 7.
 - `time-arch.py`: busca `sim_summary.txt` nas pastas de resultados e monta `time.csv` com o tempo de simulação por tamanho.
-- `time.py`: consolida todos os `data/time.csv` gerados pelos projetos em uma única tabela pivotada (`data/time.csv`).
+- `metrics.py`: calcula MAE/RMSE dos datasets de simulação quantizada e grava os resultados em `report/` (ou no diretório informado por `--report-dir`).
 - `test-do.bat.sh`: suíte Bats que garante a disponibilidade do ModelSim e roda `vsim` em cada subpasta contendo `sim.do`.
 
 Use estes scripts para automatizar execuções em lote e consolidar os relatórios utilizados nas análises.
+
+## Relatórios consolidados
+
+As sínteses atuais ficam dentro de cada arquitetura RTL, por exemplo
+`rtl/conv2x2/synthesis/stream4/tcn4-04mac/`. Para regenerar as tabelas do
+repositório:
+
+```bash
+/home/tarsio/gaph/fast-convolution-rtl/.venv/bin/python scripts/report-all.py
+```
+
+O script reconhece tanto os logs Xcelium atuais (`xrun.log`) quanto o marcador
+legado `Total execution time`. As tabelas antigas foram preservadas em
+`report/legacy/`; elas não são usadas como entrada para a coleta atual.
