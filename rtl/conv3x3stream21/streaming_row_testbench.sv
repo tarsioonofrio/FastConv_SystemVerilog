@@ -3,17 +3,17 @@
 module tb_streaming_row;
   localparam int NBITS = 20;
   logic [NBITS-1:0] s [35:0];
-  logic [NBITS-1:0] s_row [5:0];
-  logic [NBITS-1:0] sigma [2:0];
+  logic [NBITS-1:0] inverse_input_row [5:0];
+  logic [NBITS-1:0] inverse_partial [2:0];
   logic [NBITS-1:0] acc [8:0];
   logic [NBITS-1:0] acc_next [8:0];
   logic [NBITS-1:0] inverse_full [8:0];
-  logic [2:0] row_idx;
+  logic [2:0] inverse_row_idx;
 
   Inverse #(.NBITS(NBITS)) inverse_ref(.pin(s), .pout(inverse_full));
-  InverseRow #(.NBITS(NBITS)) inverse_row(.s_row(s_row), .sigma(sigma));
+  InverseRow #(.NBITS(NBITS)) inverse_row(.inverse_input_row(inverse_input_row), .inverse_partial(inverse_partial));
   InverseRowAccumulate #(.NBITS(NBITS)) accumulator(
-    .row_idx(row_idx), .acc_in(acc), .sigma(sigma), .acc_out(acc_next));
+    .inverse_row_idx(inverse_row_idx), .accumulator_in(acc), .inverse_partial(inverse_partial), .accumulator_out(acc_next));
 
   task automatic check_vector(input int seed);
     begin
@@ -21,9 +21,9 @@ module tb_streaming_row;
         s[i] = NBITS'($urandom(seed + i * 7919));
       acc = '{default: '0};
       for (int r = 0; r < 6; r++) begin
-        row_idx = r[2:0];
+        inverse_row_idx = r[2:0];
         for (int c = 0; c < 6; c++)
-          s_row[c] = s[r*6+c];
+          inverse_input_row[c] = s[r*6+c];
         #1;
         acc = acc_next;
       end

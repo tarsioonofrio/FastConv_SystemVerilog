@@ -2,7 +2,7 @@
 
 This directory contains the dedicated streaming variant of the IF3x3
 controller. The number in the directory name is the number of 20-bit
-transform-domain register words (`r_d_row + r_s_row + r_out_acc`). The
+transform-domain register words (`r_transform_row + r_inverse_row + r_output_accumulator`). The
 baseline implementation in `rtl/conv3x3` remains unchanged.
 
 The streaming RTL and inverse-row matrices are local to this directory. The

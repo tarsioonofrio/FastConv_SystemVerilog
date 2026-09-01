@@ -99,21 +99,20 @@ module Conv
   // Row-streaming state. The transform-domain matrix is consumed by the
   // dedicated fixed-MAC datapath.
   localparam int ROW_INDEX_WIDTH = f_width_min1(HADAMARD_SIZE);
-  logic [NBITS-1:0] r_d_row [FIXED_NUM_MULT-1:0];
-  logic [NBITS-1:0] r_s_row [HADAMARD_SIZE-1:0];
-  logic [NBITS-1:0] r_out_acc [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
-  logic [ROW_INDEX_WIDTH-1:0] r_stream_row_idx;
+  logic [NBITS-1:0] r_transform_row [FIXED_NUM_MULT-1:0];
+  logic [NBITS-1:0] r_inverse_row [HADAMARD_SIZE-1:0];
+  logic [NBITS-1:0] r_output_accumulator [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
+  logic [ROW_INDEX_WIDTH-1:0] r_inverse_row_idx;
   logic r_s_valid;
-  logic [NBITS-1:0] w_stream_sigma [CONV_OUTPUT_SIZE-1:0];
-  logic [NBITS-1:0] w_stream_sigma_current [CONV_OUTPUT_SIZE-1:0];
-  logic [NBITS-1:0] w_stream_acc_next [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
-  logic [NBITS-1:0] w_stream_final_output [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
-  logic [NBITS-1:0] w_stream_final_capture [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
-  logic [NBITS-1:0] w_stream_product_row [HADAMARD_SIZE-1:0];
-  logic [NBITS-1:0] w_stream_product_row_1 [HADAMARD_SIZE-1:0];
-  logic [NBITS-1:0] w_stream_sigma_1 [CONV_OUTPUT_SIZE-1:0];
-  logic [NBITS-1:0] w_stream_acc_after_1 [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
-  logic [NBITS-1:0] w_conv_feature [FIXED_NUM_MULT-1:0];
+  logic [NBITS-1:0] w_inverse_partial [CONV_OUTPUT_SIZE-1:0];
+  logic [NBITS-1:0] w_output_acc_next [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
+  logic [NBITS-1:0] w_output_final [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
+  logic [NBITS-1:0] w_output_capture [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
+  logic [NBITS-1:0] w_inverse_product_row [HADAMARD_SIZE-1:0];
+  logic [NBITS-1:0] w_inverse_product_row_lane1 [HADAMARD_SIZE-1:0];
+  logic [NBITS-1:0] w_inverse_partial_lane1 [CONV_OUTPUT_SIZE-1:0];
+  logic [NBITS-1:0] w_output_acc_after_lane1 [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
+  logic [NBITS-1:0] w_transform_feature [FIXED_NUM_MULT-1:0];
 
   localparam OUTPUT_RW_COUNT_MAX = (CONV_OUTPUT_SIZE * CONV_OUTPUT_SIZE) - 1;
   localparam OUTPUT_RW_COUNT_WIDTH = f_width_min1(CONV_OUTPUT_SIZE * CONV_OUTPUT_SIZE);
@@ -279,7 +278,7 @@ module Conv
   // the final transform row has been consumed by the Hadamard stage.
   assign w_conv_input_release = (st_conv_current == INVERSE) ||
                                 ((st_conv_current == HADAMARD) &&
-                                 (r_stream_row_idx >= ROW_INDEX_WIDTH'(HADAMARD_SIZE - 2)));
+                                 (r_inverse_row_idx >= ROW_INDEX_WIDTH'(HADAMARD_SIZE - 2)));
 
   assign p_end = (st_output_current == WRITE_OUTPUT) &&
                  (r_output_write_count == OUTPUT_RW_COUNT_WIDTH'(OUTPUT_RW_COUNT_MAX)) &&
@@ -506,28 +505,28 @@ module Conv
   // previously completed S row.
   always_ff @(posedge clk or posedge reset) begin: STREAMING_DATAPATH_BLOCK
         if (reset) begin
-          r_d_row          <= '{default: '0};
-          r_s_row          <= '{default: '0};
-          r_out_acc        <= '{default: '0};
-          r_stream_row_idx <= '0;
+          r_transform_row          <= '{default: '0};
+          r_inverse_row          <= '{default: '0};
+          r_output_accumulator        <= '{default: '0};
+          r_inverse_row_idx <= '0;
           r_s_valid        <= 1'b0;
         end else begin
           unique case (st_conv_current)
             TRANSFORM: begin
               for (int unsigned i = 0; i < FIXED_NUM_MULT; i++)
-                r_d_row[i] <= w_conv_transform[i];
-              r_out_acc        <= '{default: '0};
-              r_stream_row_idx <= '0;
+                r_transform_row[i] <= w_conv_transform[i];
+              r_output_accumulator        <= '{default: '0};
+              r_inverse_row_idx <= '0;
               r_s_valid        <= 1'b0;
             end
             HADAMARD: begin
-              r_out_acc <= w_stream_acc_next;
+              r_output_accumulator <= w_output_acc_next;
               r_s_valid <= 1'b0;
-              if (r_stream_row_idx == 0)
-                for (int unsigned i = 0; i < FIXED_NUM_MULT; i++) r_d_row[i] <= w_conv_transform[12 + i];
-              else if (r_stream_row_idx == 2)
-                for (int unsigned i = 0; i < FIXED_NUM_MULT; i++) r_d_row[i] <= w_conv_transform[24 + i];
-              r_stream_row_idx <= r_stream_row_idx + 2;
+              if (r_inverse_row_idx == 0)
+                for (int unsigned i = 0; i < FIXED_NUM_MULT; i++) r_transform_row[i] <= w_conv_transform[12 + i];
+              else if (r_inverse_row_idx == 2)
+                for (int unsigned i = 0; i < FIXED_NUM_MULT; i++) r_transform_row[i] <= w_conv_transform[24 + i];
+              r_inverse_row_idx <= r_inverse_row_idx + 2;
             end
             default: begin end
           endcase
@@ -545,65 +544,65 @@ module Conv
       .pout(w_conv_transform)
   );
 
-  assign w_conv_feature[0] = r_d_row[0];
-  assign w_conv_feature[1] = r_d_row[1];
-  assign w_conv_feature[2] = r_d_row[2];
-  assign w_conv_feature[3] = r_d_row[3];
-  assign w_conv_feature[4] = r_d_row[4];
-  assign w_conv_feature[5] = r_d_row[5];
-  assign w_conv_feature[6] = r_d_row[6];
-  assign w_conv_feature[7] = r_d_row[7];
-  assign w_conv_feature[8] = r_d_row[8];
-  assign w_conv_feature[9] = r_d_row[9];
-  assign w_conv_feature[10] = r_d_row[10];
-  assign w_conv_feature[11] = r_d_row[11];
-  Multip #(.QUANT(QUANT), .NBITS(NBITS)) multip0(.feature(w_conv_feature[0]), .weight(r_input_weight[0]), .product(w_conv_product[0]));
-  Multip #(.QUANT(QUANT), .NBITS(NBITS)) multip1(.feature(w_conv_feature[1]), .weight(r_input_weight[1]), .product(w_conv_product[1]));
-  Multip #(.QUANT(QUANT), .NBITS(NBITS)) multip2(.feature(w_conv_feature[2]), .weight(r_input_weight[2]), .product(w_conv_product[2]));
-  Multip #(.QUANT(QUANT), .NBITS(NBITS)) multip3(.feature(w_conv_feature[3]), .weight(r_input_weight[3]), .product(w_conv_product[3]));
-  Multip #(.QUANT(QUANT), .NBITS(NBITS)) multip4(.feature(w_conv_feature[4]), .weight(r_input_weight[4]), .product(w_conv_product[4]));
-  Multip #(.QUANT(QUANT), .NBITS(NBITS)) multip5(.feature(w_conv_feature[5]), .weight(r_input_weight[5]), .product(w_conv_product[5]));
-  Multip #(.QUANT(QUANT), .NBITS(NBITS)) multip6(.feature(w_conv_feature[6]), .weight(r_input_weight[6]), .product(w_conv_product[6]));
-  Multip #(.QUANT(QUANT), .NBITS(NBITS)) multip7(.feature(w_conv_feature[7]), .weight(r_input_weight[7]), .product(w_conv_product[7]));
-  Multip #(.QUANT(QUANT), .NBITS(NBITS)) multip8(.feature(w_conv_feature[8]), .weight(r_input_weight[8]), .product(w_conv_product[8]));
-  Multip #(.QUANT(QUANT), .NBITS(NBITS)) multip9(.feature(w_conv_feature[9]), .weight(r_input_weight[9]), .product(w_conv_product[9]));
-  Multip #(.QUANT(QUANT), .NBITS(NBITS)) multip10(.feature(w_conv_feature[10]), .weight(r_input_weight[10]), .product(w_conv_product[10]));
-  Multip #(.QUANT(QUANT), .NBITS(NBITS)) multip11(.feature(w_conv_feature[11]), .weight(r_input_weight[11]), .product(w_conv_product[11]));
+  assign w_transform_feature[0] = r_transform_row[0];
+  assign w_transform_feature[1] = r_transform_row[1];
+  assign w_transform_feature[2] = r_transform_row[2];
+  assign w_transform_feature[3] = r_transform_row[3];
+  assign w_transform_feature[4] = r_transform_row[4];
+  assign w_transform_feature[5] = r_transform_row[5];
+  assign w_transform_feature[6] = r_transform_row[6];
+  assign w_transform_feature[7] = r_transform_row[7];
+  assign w_transform_feature[8] = r_transform_row[8];
+  assign w_transform_feature[9] = r_transform_row[9];
+  assign w_transform_feature[10] = r_transform_row[10];
+  assign w_transform_feature[11] = r_transform_row[11];
+  Multip #(.QUANT(QUANT), .NBITS(NBITS)) multip0(.feature(w_transform_feature[0]), .weight(r_input_weight[0]), .product(w_conv_product[0]));
+  Multip #(.QUANT(QUANT), .NBITS(NBITS)) multip1(.feature(w_transform_feature[1]), .weight(r_input_weight[1]), .product(w_conv_product[1]));
+  Multip #(.QUANT(QUANT), .NBITS(NBITS)) multip2(.feature(w_transform_feature[2]), .weight(r_input_weight[2]), .product(w_conv_product[2]));
+  Multip #(.QUANT(QUANT), .NBITS(NBITS)) multip3(.feature(w_transform_feature[3]), .weight(r_input_weight[3]), .product(w_conv_product[3]));
+  Multip #(.QUANT(QUANT), .NBITS(NBITS)) multip4(.feature(w_transform_feature[4]), .weight(r_input_weight[4]), .product(w_conv_product[4]));
+  Multip #(.QUANT(QUANT), .NBITS(NBITS)) multip5(.feature(w_transform_feature[5]), .weight(r_input_weight[5]), .product(w_conv_product[5]));
+  Multip #(.QUANT(QUANT), .NBITS(NBITS)) multip6(.feature(w_transform_feature[6]), .weight(r_input_weight[6]), .product(w_conv_product[6]));
+  Multip #(.QUANT(QUANT), .NBITS(NBITS)) multip7(.feature(w_transform_feature[7]), .weight(r_input_weight[7]), .product(w_conv_product[7]));
+  Multip #(.QUANT(QUANT), .NBITS(NBITS)) multip8(.feature(w_transform_feature[8]), .weight(r_input_weight[8]), .product(w_conv_product[8]));
+  Multip #(.QUANT(QUANT), .NBITS(NBITS)) multip9(.feature(w_transform_feature[9]), .weight(r_input_weight[9]), .product(w_conv_product[9]));
+  Multip #(.QUANT(QUANT), .NBITS(NBITS)) multip10(.feature(w_transform_feature[10]), .weight(r_input_weight[10]), .product(w_conv_product[10]));
+  Multip #(.QUANT(QUANT), .NBITS(NBITS)) multip11(.feature(w_transform_feature[11]), .weight(r_input_weight[11]), .product(w_conv_product[11]));
 
   InverseRow inverse_row(
-        .s_row(w_stream_product_row),
-        .sigma(w_stream_sigma)
+        .inverse_input_row(w_inverse_product_row),
+        .inverse_partial(w_inverse_partial)
       );
-  assign w_stream_product_row[0] = w_conv_product[0][NBITS-1:0];
-  assign w_stream_product_row[1] = w_conv_product[1][NBITS-1:0];
-  assign w_stream_product_row[2] = w_conv_product[2][NBITS-1:0];
-  assign w_stream_product_row[3] = w_conv_product[3][NBITS-1:0];
-  assign w_stream_product_row[4] = w_conv_product[4][NBITS-1:0];
-  assign w_stream_product_row[5] = w_conv_product[5][NBITS-1:0];
-  assign w_stream_product_row_1[0] = w_conv_product[6][NBITS-1:0];
-  assign w_stream_product_row_1[1] = w_conv_product[7][NBITS-1:0];
-  assign w_stream_product_row_1[2] = w_conv_product[8][NBITS-1:0];
-  assign w_stream_product_row_1[3] = w_conv_product[9][NBITS-1:0];
-  assign w_stream_product_row_1[4] = w_conv_product[10][NBITS-1:0];
-  assign w_stream_product_row_1[5] = w_conv_product[11][NBITS-1:0];
-  InverseRow inverse_row_current(
-        .s_row(w_stream_product_row_1),
-        .sigma(w_stream_sigma_1)
+  assign w_inverse_product_row[0] = w_conv_product[0][NBITS-1:0];
+  assign w_inverse_product_row[1] = w_conv_product[1][NBITS-1:0];
+  assign w_inverse_product_row[2] = w_conv_product[2][NBITS-1:0];
+  assign w_inverse_product_row[3] = w_conv_product[3][NBITS-1:0];
+  assign w_inverse_product_row[4] = w_conv_product[4][NBITS-1:0];
+  assign w_inverse_product_row[5] = w_conv_product[5][NBITS-1:0];
+  assign w_inverse_product_row_lane1[0] = w_conv_product[6][NBITS-1:0];
+  assign w_inverse_product_row_lane1[1] = w_conv_product[7][NBITS-1:0];
+  assign w_inverse_product_row_lane1[2] = w_conv_product[8][NBITS-1:0];
+  assign w_inverse_product_row_lane1[3] = w_conv_product[9][NBITS-1:0];
+  assign w_inverse_product_row_lane1[4] = w_conv_product[10][NBITS-1:0];
+  assign w_inverse_product_row_lane1[5] = w_conv_product[11][NBITS-1:0];
+  InverseRow inverse_row_lane1(
+        .inverse_input_row(w_inverse_product_row_lane1),
+        .inverse_partial(w_inverse_partial_lane1)
       );
       InverseRowAccumulate inverse_row_acc(
-        .row_idx(r_stream_row_idx),
-        .acc_in(r_out_acc),
-        .sigma(w_stream_sigma),
-        .acc_out(w_stream_acc_after_1)
+        .inverse_row_idx(r_inverse_row_idx),
+        .accumulator_in(r_output_accumulator),
+        .inverse_partial(w_inverse_partial),
+        .accumulator_out(w_output_acc_after_lane1)
       );
-      InverseRowAccumulate inverse_row_acc_1(
-        .row_idx(r_stream_row_idx + 1'b1),
-        .acc_in(w_stream_acc_after_1),
-        .sigma(w_stream_sigma_1),
-        .acc_out(w_stream_acc_next)
+      InverseRowAccumulate inverse_row_accumulate_lane1(
+        .inverse_row_idx(r_inverse_row_idx + 1'b1),
+        .accumulator_in(w_output_acc_after_lane1),
+        .inverse_partial(w_inverse_partial_lane1),
+        .accumulator_out(w_output_acc_next)
       );
-  assign w_stream_final_output = w_stream_acc_next;
-  assign w_stream_final_capture = w_stream_acc_next;
+  assign w_output_final = w_output_acc_next;
+  assign w_output_capture = w_output_acc_next;
 
 
   // ----------------------------------------------------------------------------------------------------
@@ -737,8 +736,8 @@ module Conv
         r_output_read[r_output_read_count] <= p_output_data_read;
       end
       if (st_conv_current == HADAMARD &&
-          r_stream_row_idx >= ROW_INDEX_WIDTH'(HADAMARD_SIZE - 2))
-        r_output_write <= w_stream_final_capture;
+          r_inverse_row_idx >= ROW_INDEX_WIDTH'(HADAMARD_SIZE - 2))
+        r_output_write <= w_output_capture;
     end
   end
 

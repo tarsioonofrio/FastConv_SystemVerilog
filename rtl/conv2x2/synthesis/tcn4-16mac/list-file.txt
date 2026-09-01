@@ -5,4 +5,4 @@ rtl/conv2x2/mult-matrices/tcn4/mult_matrices.sv
 rtl/csa/csa_lib.sv
 rtl/multip/multip.sv
 rtl/mem/mem.sv
-rtl/conv2x2/conv16mac1cycle.sv
+rtl/conv2x2/conv-all-i16-p16-o4-m16.sv

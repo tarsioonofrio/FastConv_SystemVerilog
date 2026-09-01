@@ -12,9 +12,9 @@ As variantes fixas sao:
 
 | Arquivo | MACs por ciclo | Linhas inversas consumidas por ciclo |
 | --- | ---: | ---: |
-| `conv4mac-stream4.sv` | 4 | 1 |
-| `conv4mac-stream4-rdrow.sv` | 4 | 1 (variante com `r_d_row`) |
-| `conv8mac-stream4.sv` | 8 | 2 |
+| `conv-stream4-i16-p16-o4-m4.sv` | 4 | 1 |
+| `conv-stream4-rdrow-i16-p20-o4-m4.sv` | 4 | 1 (variante com `r_transform_row`) |
+| `conv-stream4-i16-p16-o4-m8.sv` | 8 | 2 |
 
 O contrato funcional que nao pode mudar durante a reducao e:
 
@@ -22,7 +22,7 @@ O contrato funcional que nao pode mudar durante a reducao e:
 2. `Transform` continua calculando a mesma matriz transformada;
 3. cada produto continua associado ao peso correspondente;
 4. `InverseRowAccumulate` continua recebendo as linhas na mesma ordem;
-5. o estado `r_out_acc` continua sendo capturado antes do ciclo seguinte;
+5. o estado `r_output_accumulator` continua sendo capturado antes do ciclo seguinte;
 6. a FSM de saida continua escrevendo os mesmos 8100 valores nos mesmos
    enderecos;
 7. o caminho de referencia `rtl/conv2x2` permanece intocado.
@@ -38,35 +38,35 @@ os sinais de estado do streaming eram:
 
 | Sinal | Dimensao | Funcao | Deve permanecer? |
 | --- | ---: | --- | --- |
-| `r_d_row` | 4 x 20 bits | Mantem a linha transformada que alimenta os MACs no ciclo seguinte | Sim |
-| `r_s_row` | 4 x 20 bits | Guardava a ultima linha de produtos apenas para trace/debug | Nao, apos prova de fanout |
-| `r_out_acc` | 4 x 20 bits | Acumulador parcial dos quatro pixels de saida | Sim |
-| `r_stream_row_idx` | 2 bits | Indice da linha usado pela inversa incremental | Sim |
-| `r_stream_product_idx` | 4 bits | Base do grupo de produtos atual | Sim |
+| `r_transform_row` | 4 x 20 bits | Mantem a linha transformada que alimenta os MACs no ciclo seguinte | Sim |
+| `r_inverse_row` | 4 x 20 bits | Guardava a ultima linha de produtos apenas para trace/debug | Nao, apos prova de fanout |
+| `r_output_accumulator` | 4 x 20 bits | Acumulador parcial dos quatro pixels de saida | Sim |
+| `r_inverse_row_idx` | 2 bits | Indice da linha usado pela inversa incremental | Sim |
+| `r_transform_product_idx` | 4 bits | Base do grupo de produtos atual | Sim |
 
-Os sinais `w_stream_sigma_current`, `w_stream_acc_next` e
-`w_stream_final_capture` sao combinacionais. Eles nao representam palavras
+Os sinais `w_inverse_partial_current`, `w_output_acc_next` e
+`w_output_capture` sao combinacionais. Eles nao representam palavras
 armazenadas e nao devem ser contados como registradores.
 
-## 3. Alteracao 1: eliminar `r_s_row`
+## 3. Alteracao 1: eliminar `r_inverse_row`
 
 ### Motivacao
 
-Nos arquivos fixos `conv4mac-stream4.sv` e `conv8mac-stream4.sv`, `r_s_row` recebia
-`w_stream_product_row` ou `w_stream_product_row_2`. A unica leitura era uma
-instancia adicional de `InverseRow`, cujo resultado (`w_stream_sigma`) era
+Nos arquivos fixos `conv-stream4-i16-p16-o4-m4.sv` e `conv-stream4-i16-p16-o4-m8.sv`, `r_inverse_row` recebia
+`w_inverse_product_row` ou `w_inverse_product_row_lane1`. A unica leitura era uma
+instancia adicional de `InverseRow`, cujo resultado (`w_inverse_partial`) era
 impresso no bloco `STREAM_DEBUG`. A saida real usa as instancias
-`inverse_row_current`/`inverse_row_current_2`, alimentadas diretamente pelos
+`inverse_row_lane0`/`inverse_row_lane1`, alimentadas diretamente pelos
 produtos do ciclo atual, e depois usa `InverseRowAccumulate`.
 
-Portanto, `r_s_row` nao participa de `r_out_acc`, `w_stream_acc_next`,
-`w_stream_final_capture`, `p_output_data_write` ou dos enderecos de memoria.
+Portanto, `r_inverse_row` nao participa de `r_output_accumulator`, `w_output_acc_next`,
+`w_output_capture`, `p_output_data_write` ou dos enderecos de memoria.
 
 ### Mudanca aplicada
 
 Em ambos os arquivos foram removidos:
 
-- a declaracao de `r_s_row`;
+- a declaracao de `r_inverse_row`;
 - sua inicializacao no reset;
 - sua inicializacao no estado `TRANSFORM`;
 - sua captura no estado `HADAMARD`;
@@ -76,14 +76,14 @@ Em ambos os arquivos foram removidos:
 A acumulacao funcional nao foi reescrita. O trecho continua sendo:
 
 ```systemverilog
-InverseRow inverse_row_current(... w_stream_product_row ...);
-InverseRowAccumulate inverse_row_acc(... w_stream_sigma_current ...);
+InverseRow inverse_row_current(... w_inverse_product_row ...);
+InverseRowAccumulate inverse_row_acc(... w_inverse_partial_current ...);
 ```
 
-Para `conv8mac-stream4.sv`, o segundo caminho continua usando
-`w_stream_product_row_2` e `inverse_row_acc_second`.
+Para `conv-stream4-i16-p16-o4-m8.sv`, o segundo caminho continua usando
+`w_inverse_product_row_lane1` e `inverse_row_acc_second`.
 
-Na antiga variante parametrizada de 2 MACs, o vetor `r_s_row` conservava a
+Na antiga variante parametrizada de 2 MACs, o vetor `r_inverse_row` conservava a
 primeira metade dos produtos enquanto a segunda metade era calculada no ciclo
 seguinte. Essa variante foi removida desta pasta; a observacao fica registrada
 apenas para explicar por que a reducao nao foi aplicada de forma mecanica.
@@ -100,7 +100,7 @@ nova; ela nao deve ser inferida apenas da contagem RTL.
 - compilacao e simulacao Verilator sem erros;
 - mesmos `inverse_tiles`, `valid_writes` e valores golden;
 - lint tambem com `STREAM_DEBUG` definido;
-- nenhuma referencia residual a `r_s_row`, `w_stream_sigma` ou ao
+- nenhuma referencia residual a `r_inverse_row`, `w_inverse_partial` ou ao
   `inverse_row` de trace.
 
 ## 4. Evidencia da Alteracao 1
@@ -152,22 +152,22 @@ O wrapper ModelSim `fish ./test-streaming.fish` nao iniciou neste ambiente e
 terminou com codigo 159 (SIGSYS do sandbox). Isso e uma limitacao da
 execucao local, nao uma falha funcional observada no Verilator.
 
-## 5. Alteracao 2: reduzir `r_d_row`
+## 5. Alteracao 2: reduzir `r_transform_row`
 
-Esta alteracao foi inicialmente experimentada em `conv4mac-stream4.sv` e
-`conv8mac-stream4.sv`. A variante preservada com essa fronteira esta agora em
-`conv4mac-stream4-rdrow.sv`, enquanto `conv4mac-stream4.sv` permanece identico
-ao `HEAD`. `r_d_row` e diferente de `r_s_row`: ele segura a linha
+Esta alteracao foi inicialmente experimentada em `conv-stream4-i16-p16-o4-m4.sv` e
+`conv-stream4-i16-p16-o4-m8.sv`. A variante preservada com essa fronteira esta agora em
+`conv-stream4-rdrow-i16-p20-o4-m4.sv`, enquanto `conv-stream4-i16-p16-o4-m4.sv` permanece identico
+ao `HEAD`. `r_transform_row` e diferente de `r_inverse_row`: ele segura a linha
 transformada entre a captura no estado `TRANSFORM`/`HADAMARD` e o ciclo em que
 os MACs a consomem. A selecao combinacional sem essa fronteira foi mantida
-somente como variante experimental; a variante `conv4mac-stream4-rdrow.sv`
-restaura `r_d_row` porque a sintese mostrou uma reducao material de area.
+somente como variante experimental; a variante `conv-stream4-rdrow-i16-p20-o4-m4.sv`
+restaura `r_transform_row` porque a sintese mostrou uma reducao material de area.
 
 ### Hipotese
 
 Substituimos a linha armazenada por selecao combinacional de
-`w_conv_transform[r_stream_product_idx + offset]`. O valor selecionado fica
-estavel durante o ciclo porque `r_stream_product_idx` so muda na borda de
+`w_conv_transform[r_transform_product_idx + offset]`. O valor selecionado fica
+estavel durante o ciclo porque `r_transform_product_idx` so muda na borda de
 clock que encerra o grupo de Hadamard; nessa mesma borda os pesos ativos sao
 rotacionados. Assim, a nova linha e os novos pesos passam a valer juntos no
 ciclo seguinte.
@@ -175,9 +175,9 @@ ciclo seguinte.
 ### Prova obrigatoria antes de editar
 
 1. desenhar a tabela ciclo a ciclo para `NUM_MULT=4` e `NUM_MULT=8`;
-2. confirmar a relacao entre `st_conv_current`, `r_stream_product_idx`,
-   `r_conv_multiply_count` e `r_d_row`;
-3. criar uma variante temporaria sem `r_d_row`;
+2. confirmar a relacao entre `st_conv_current`, `r_transform_product_idx`,
+   `r_conv_multiply_count` e `r_transform_row`;
+3. criar uma variante temporaria sem `r_transform_row`;
 4. comparar produto por produto e acumulador por acumulador contra a versao
    congelada;
 5. somente depois rodar a regressao completa e, se disponivel, sintese.
@@ -188,20 +188,20 @@ selecionados diretamente da matriz transformada.
 
 ### Mudanca aplicada
 
-Na variante experimental sem o banco, a declaracao de `r_d_row` foi removida
-e `w_conv_feature` passou a usar diretamente os indices da linha atual. A
+Na variante experimental sem o banco, a declaracao de `r_transform_row` foi removida
+e `w_transform_feature` passou a usar diretamente os indices da linha atual. A
 regressao funcional passou, mas a sintese contabilizou os muxes de selecao
 dentro da hierarquia `Transform`.
 
-Na variante `conv4mac-stream4-rdrow.sv`, `r_d_row[0..3]` foi restaurado:
+Na variante `conv-stream4-rdrow-i16-p20-o4-m4.sv`, `r_transform_row[0..3]` foi restaurado:
 
 - a primeira linha `w_conv_transform[0..3]` e capturada na entrada do Hadamard;
 - as linhas seguintes `4..7`, `8..11` e `12..15` sao carregadas nas bordas dos
   ciclos correspondentes;
 - os MACs leem somente o banco registrado durante cada ciclo.
 
-`conv4mac-stream4.sv` continua sendo a referencia sem essa fronteira, e
-`conv8mac-stream4.sv` continua sendo uma variante separada e nao e alterada
+`conv-stream4-i16-p16-o4-m4.sv` continua sendo a referencia sem essa fronteira, e
+`conv-stream4-i16-p16-o4-m8.sv` continua sendo uma variante separada e nao e alterada
 por esta restauracao.
 
 O acumulador, os pesos, os contadores e a ordem da inversa nao foram
@@ -209,17 +209,17 @@ alterados.
 
 ### Reducao obtida
 
-Na variante `conv4mac-stream4-rdrow.sv`, a restauracao recoloca 4 palavras de 20
-bits (80 bits) e deixa somente a reducao de `r_s_row` em relacao ao estado
+Na variante `conv-stream4-rdrow-i16-p20-o4-m4.sv`, a restauracao recoloca 4 palavras de 20
+bits (80 bits) e deixa somente a reducao de `r_inverse_row` em relacao ao estado
 original. A sintese atual produziu 6.515 celulas, 10.857,984 de area total e
 1.768,687 de area na hierarquia `Transform`, contra 8.765 celulas, 12.072,861
-e 2.987,622 respectivamente na variante sem `r_d_row`. Portanto, os 80 bits
+e 2.987,622 respectivamente na variante sem `r_transform_row`. Portanto, os 80 bits
 adicionais reduziram a area total em aproximadamente 10,1% e a area atribuida
 `Transform` em aproximadamente 40,8%.
 
 ### Evidencia
 
-O teste da variante `conv4mac-stream4-rdrow.sv` continua funcionalmente
+O teste da variante `conv-stream4-rdrow-i16-p20-o4-m4.sv` continua funcionalmente
 equivalente:
 
 ```text
@@ -230,9 +230,9 @@ conv4mac: inverse_tiles=2025 cycles=27724 valid_writes=8100
 Nenhum erro de golden output foi observado. A simulacao anotada do netlist
 regenerado tambem passou com `cycles=27725` e 0 erros de elaboracao.
 
-## 6. Alteracao 3 candidata: reduzir `r_out_acc`
+## 6. Alteracao 3 candidata: reduzir `r_output_accumulator`
 
-Tambem nao foi aplicada. `r_out_acc` contem quatro valores que atravessam os
+Tambem nao foi aplicada. `r_output_accumulator` contem quatro valores que atravessam os
 ciclos de Hadamard. Remover esse vetor exigiria uma acumulacao distribuida ou
 um banco de linhas, o que pode trocar registradores por multiplexadores e
 aumentar a logica combinacional. O objetivo e reduzir armazenamento total,
@@ -259,12 +259,12 @@ Cada item deve ser um commit separado ou uma unidade de trabalho facilmente
 revertivel:
 
 1. baseline atual: 4 e 8 MACs;
-2. remover `r_s_row` e o `InverseRow` de trace (commit anterior);
+2. remover `r_inverse_row` e o `InverseRow` de trace (commit anterior);
 3. repetir baseline e registrar ciclos/saidas;
-4. comparar a variante sem `r_d_row` com a restauracao da fronteira
+4. comparar a variante sem `r_transform_row` com a restauracao da fronteira
    sequencial;
 5. aprovar a alternativa somente apos medir area, timing e potencia;
-6. somente entao estudar `r_out_acc` ou uma acumulacao dobrada;
+6. somente entao estudar `r_output_accumulator` ou uma acumulacao dobrada;
 7. rodar simulacao anotada e power com netlist gerado a partir do commit
    correspondente.
 
@@ -289,7 +289,7 @@ simulador.
 ### Motivacao
 
 As duas variantes mantidas compartilham o mesmo fluxo Genus e usam modulos
-fixos (`conv4mac-stream4.sv` e `conv8mac-stream4.sv`). O nome do topo e os caminhos das listas
+fixos (`conv-stream4-i16-p16-o4-m4.sv` e `conv-stream4-i16-p16-o4-m8.sv`). O nome do topo e os caminhos das listas
 precisam continuar coerentes com o layout local para que a sintese nao leia
 fontes de outra pasta.
 
@@ -324,8 +324,8 @@ artefatos locais deste diretorio:
 
 | Configuracao | Fonte do core | Parametro |
 | --- | --- | --- |
-| `stream4/tcn4-04mac` | `conv4mac-stream4.sv` | fixo em 4 MACs |
-| `stream4/tcn4-08mac` | `conv8mac-stream4.sv` | fixo em 8 MACs |
+| `stream4/tcn4-04mac` | `conv-stream4-i16-p16-o4-m4.sv` | fixo em 4 MACs |
+| `stream4/tcn4-08mac` | `conv-stream4-i16-p16-o4-m8.sv` | fixo em 8 MACs |
 
 As listas anteriores apontavam para `rtl/conv2x2/synthesis/stream12`, de modo que os
 logs/registros de sintese que ja estavam no diretorio nao comprovavam a
@@ -384,8 +384,8 @@ deve misturar esses números com os logs legados que apontavam para
 ## 12. Remocao dos estados TRANSFORM e INVERSE
 
 Depois da campanha gate-level anterior, a arquitetura stream foi simplificada
-para refletir o caminho real do datapath. As variantes fixas `conv4mac-stream4.sv` e
-`conv8mac-stream4.sv` passaram a usar somente os estados necessarios. A antiga fonte de
+para refletir o caminho real do datapath. As variantes fixas `conv-stream4-i16-p16-o4-m4.sv` e
+`conv-stream4-i16-p16-o4-m8.sv` passaram a usar somente os estados necessarios. A antiga fonte de
 2 MACs e sua sintese foram removidas posteriormente; por isso os resultados de
 2 MACs nesta secao sao historicos, nao uma configuracao atual.
 
@@ -399,7 +399,7 @@ indices. Essa inicializacao foi movida para `w_hadamard_start`, detectado na
 transicao em que a entrada termina e o primeiro ciclo HADAMARD comeca.
 
 O estado FSM `INVERSE` tambem nao executava uma inversa completa. O ultimo
-ciclo HADAMARD ja calcula `w_stream_acc_next`, grava `r_output_write` e pode
+ciclo HADAMARD ja calcula `w_output_acc_next`, grava `r_output_write` e pode
 gerar o termino da janela. O novo sinal `w_hadamard_last` substitui o antigo
 salto para `INVERSE` e aciona `w_conv_end` e `w_conv_input_release` diretamente.
 `InverseRow` e `InverseRowAccumulate` permanecem no caminho, pois sao as
@@ -432,8 +432,8 @@ contagem de tiles e contagem de escritas:
 
 | Variante | Inverse tiles | Ciclos totais | Ciclos ativos | Escritas validas |
 | --- | ---: | ---: | ---: | ---: |
-| `conv4mac-stream4.sv` | 2.025 | 27.724 | 8.100 | 8.100 |
-| `conv8mac-stream4.sv` | 2.025 | 23.674 | 4.050 | 8.100 |
+| `conv-stream4-i16-p16-o4-m4.sv` | 2.025 | 27.724 | 8.100 | 8.100 |
+| `conv-stream4-i16-p16-o4-m8.sv` | 2.025 | 23.674 | 4.050 | 8.100 |
 
 Os resultados mostram a remocao dos dois ciclos de controle por janela sem
 alterar os dados: todos os golden checks passaram, nao houve escrita fora da
@@ -467,18 +467,18 @@ Esta tabela consolida os resultados gate-level disponiveis para as variantes
 atuais. A potencia e a potencia media do `power_evaluation.txt`; a energia foi
 calculada para o mesmo workload da anotada (`2 ns` por ciclo). As linhas de
 `stream4` foram atualizadas em 01/09/2026 com sintese, SDF, anotada e Joules
-gerados a partir dos RTLs `conv4mac-stream4.sv` e `conv8mac-stream4.sv`.
+gerados a partir dos RTLs `conv-stream4-i16-p16-o4-m4.sv` e `conv-stream4-i16-p16-o4-m8.sv`.
 
 | Variante | Fonte | Anotada | Celulas | Area total (um2) | Data path (ps) | Slack (ps) | Ciclos | Power (mW) | Energia (nJ) |
 | --- | --- | :---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| Conv std 4 MACs | `conv-std.sv` | PASS | 6.613 | 12.017,925 | 763 | 237 | 23.677 | 0,826093 | 39,119 |
-| Conv all 16 MACs | `conv16mac1cycle.sv` | PASS | 15.200 | 23.129,636 | 764 | 236 | 23.672 | 0,650788 | 30,811 |
-| Stream4 4 MACs | `conv4mac-stream4.sv` | PASS | 8.473 | 12.127,770 | 757 | 243 | 27.725 | 0,692382 | 38,393 |
-| Stream4 8 MACs | `conv8mac-stream4.sv` | PASS | 11.818 | 16.855,605 | 794 | 206 | 23.675 | 0,918483 | 43,490 |
-| Stream4 4 MACs, `r_d_row` | `conv4mac-stream4-rdrow.sv` | PASS | 6.515 | 10.857,984 | 757 | 243 | 27.725 | 0,582814 | 32,317 |
-| Stream12 2 MACs | `convXmac-stream12.sv` | PASS | 6.483 | 11.012,366 | 766 | 234 | 29.749 | 0,531211 | 31,606 |
-| Stream12 4 MACs | `conv4mac-stream12.sv` | PASS | 6.478 | 11.010,342 | 774 | 226 | 29.749 | 0,508947 | 30,281 |
-| Stream12 8 MACs | `conv8mac-stream12.sv` | PASS | 10.394 | 15.873,661 | 752 | 248 | 25.699 | 0,669638 | 34,418 |
+| Conv std 4 MACs | `conv-std-i16-p32-o4-m4.sv` | PASS | 6.613 | 12.017,925 | 763 | 237 | 23.677 | 0,826093 | 39,119 |
+| Conv all 16 MACs | `conv-all-i16-p16-o4-m16.sv` | PASS | 15.200 | 23.129,636 | 764 | 236 | 23.672 | 0,650788 | 30,811 |
+| Stream4 4 MACs | `conv-stream4-i16-p16-o4-m4.sv` | PASS | 8.473 | 12.127,770 | 757 | 243 | 27.725 | 0,692382 | 38,393 |
+| Stream4 8 MACs | `conv-stream4-i16-p16-o4-m8.sv` | PASS | 11.818 | 16.855,605 | 794 | 206 | 23.675 | 0,918483 | 43,490 |
+| Stream4 4 MACs, `r_transform_row` | `conv-stream4-rdrow-i16-p20-o4-m4.sv` | PASS | 6.515 | 10.857,984 | 757 | 243 | 27.725 | 0,582814 | 32,317 |
+| Stream12 2 MACs | `conv-stream12-generic-i16-p24-o4-m2-4-8.sv` | PASS | 6.483 | 11.012,366 | 766 | 234 | 29.749 | 0,531211 | 31,606 |
+| Stream12 4 MACs | `conv-stream12-i16-p24-o4-m4.sv` | PASS | 6.478 | 11.010,342 | 774 | 226 | 29.749 | 0,508947 | 30,281 |
+| Stream12 8 MACs | `conv-stream12-i16-p24-o4-m8.sv` | PASS | 10.394 | 15.873,661 | 752 | 248 | 25.699 | 0,669638 | 34,418 |
 
 ### Leitura dos resultados
 
@@ -488,7 +488,7 @@ gerados a partir dos RTLs `conv4mac-stream4.sv` e `conv8mac-stream4.sv`.
 - Dentro da familia `stream4`, a variante de 8 MACs reduz a latencia em
   4.050 ciclos em relacao a 4 MACs, mas aumenta area, caminho critico,
   potencia e energia.
-- A variante `stream4` com `r_d_row` e a menor em area e potencia entre as
+- A variante `stream4` com `r_transform_row` e a menor em area e potencia entre as
   duas variantes stream4 de 4 MACs: -10,5% de area total e -15,8% de energia
   em relacao a `stream4` sem essa fronteira, neste workload.
 - `stream4` e `stream12` nao sao comparaveis apenas pelo numero de MACs: usam

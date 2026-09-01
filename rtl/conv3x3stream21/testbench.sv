@@ -140,9 +140,9 @@ module tb;
       if ((dut.st_conv_current == ST_CONV_INVERSE) && !in_inverse_d) begin
         if (conv_inverse_check_idx < $size(const_feat_out_batch)) begin
           for (int k = 0; k < CONV_OUTPUT_SIZE * CONV_OUTPUT_SIZE; k++) begin
-            if ($signed(dut.w_stream_final_output[k]) != $signed(const_feat_out_batch[conv_inverse_check_idx][k])) begin
+            if ($signed(dut.w_output_final[k]) != $signed(const_feat_out_batch[conv_inverse_check_idx][k])) begin
               // $display("ERROR INVERSE[%0d] idx=%0d expected=%0d got=%0d time=%0t",
-              //          k, conv_inverse_check_idx, const_feat_out_batch[conv_inverse_check_idx][k], $signed(dut.w_stream_final_output[k]), $realtime);
+              //          k, conv_inverse_check_idx, const_feat_out_batch[conv_inverse_check_idx][k], $signed(dut.w_output_final[k]), $realtime);
             end
           end
         end
