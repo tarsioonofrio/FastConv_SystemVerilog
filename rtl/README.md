@@ -281,9 +281,9 @@ No caminho streaming, a transformacao continua produzindo
 36 palavras. Em seu lugar, o datapath registra apenas os dados necessarios
 para o proximo grupo de multiplicacoes:
 
-- `r_d_row`: linha ou pacote de linhas do dominio transformado;
-- `r_s_row`: linha de produtos Hadamard;
-- `r_out_acc`: acumulador dos nove valores da inversa.
+- `r_transform_row`: linha ou pacote de linhas do dominio transformado;
+- `r_inverse_row`: linha de produtos Hadamard;
+- `r_output_accumulator`: acumulador dos nove valores da inversa.
 
 Motivo: o banco completo era o maior armazenamento especifico do core e nao
 era necessario para calcular uma linha por vez.
@@ -292,7 +292,7 @@ era necessario para calcular uma linha por vez.
 
 Foram introduzidos os modulos `InverseRow` e `InverseRowAccumulate`.
 `InverseRow` reduz uma linha de produtos a uma pequena quantidade de sinais
-`sigma`. `InverseRowAccumulate` aplica a contribuicao da linha ao acumulador
+`inverse_partial`. `InverseRowAccumulate` aplica a contribuicao da linha ao acumulador
 dos nove resultados.
 
 No TC5, as formulas de `InverseRow` seguem as combinacoes da matriz TC. No
@@ -391,10 +391,10 @@ misturaria dois problemas diferentes.
 | --- | --- | --- |
 | Leitura de IFMAP/pesos | FSM de entrada e bancos `r_input_feat`/`r_input_weight` | Mantida, com congelamento durante `TRANSFORM`. |
 | Transformacao B | `Transform` comb. gera a matriz completa | `Transform` comb. continua igual; apenas o consumo e fatiado. |
-| Armazenamento intermediario | `r_conv_temp` com toda a matriz | `r_d_row` com uma ou mais linhas. |
+| Armazenamento intermediario | `r_conv_temp` com toda a matriz | `r_transform_row` com uma ou mais linhas. |
 | Hadamard | `MuxMult` + produtos inseridos em `r_conv_temp` | Multiplicadores fixos e produtos de linha/pacote. |
 | Inversa A | `Inverse` sobre a matriz completa | `InverseRow` + `InverseRowAccumulate`. |
-| Estado da inversa | Resultado completo em `w_conv_inverse` | `r_out_acc` e captura final do ultimo grupo. |
+| Estado da inversa | Resultado completo em `w_conv_inverse` | `r_output_accumulator` e captura final do ultimo grupo. |
 | Saida | FSM de leitura/escrita e acumulacao | Reutilizada com o mesmo protocolo. |
 | Parametrizacao | `NUM_MULT`/`STATE_MULT` controlam o datapath | Cada arquivo fixa um ponto de MAC. |
 
@@ -405,7 +405,7 @@ Conv convencional:
   Transform -> [r_conv_temp completo] -> Multip/MuxMult -> Inverse completa
 
 Conv streaming:
-  Transform -> [r_d_row] -> Multip fixos -> InverseRow -> acumulador -> saida
+  Transform -> [r_transform_row] -> Multip fixos -> InverseRow -> acumulador -> saida
 ```
 
 ## 9. Verificacao funcional

@@ -37,14 +37,14 @@ module InverseRow #(
     parameter int HADAMARD_SIZE = 6,
     parameter int CONV_OUTPUT_SIZE = 4
   ) (
-    input logic [NBITS-1:0] s_row [HADAMARD_SIZE-1:0],
-    output logic [NBITS-1:0] sigma [CONV_OUTPUT_SIZE-1:0]
+    input logic [NBITS-1:0] inverse_input_row [HADAMARD_SIZE-1:0],
+    output logic [NBITS-1:0] inverse_partial [CONV_OUTPUT_SIZE-1:0]
   );
   always_comb begin: INVERSE_ROW_BLOCK
-    sigma[0] = s_row[0] + s_row[1] + s_row[2] + s_row[3] + s_row[4];
-    sigma[1] = s_row[1] + (s_row[3] * 2) - s_row[2] - (s_row[4] * 2);
-    sigma[2] = s_row[1] + s_row[2] + (s_row[3] * 4) + (s_row[4] * 4);
-    sigma[3] = s_row[1] + (s_row[3] * 8) + s_row[5] - s_row[2] - (s_row[4] * 8);
+    inverse_partial[0] = inverse_input_row[0] + inverse_input_row[1] + inverse_input_row[2] + inverse_input_row[3] + inverse_input_row[4];
+    inverse_partial[1] = inverse_input_row[1] + (inverse_input_row[3] * 2) - inverse_input_row[2] - (inverse_input_row[4] * 2);
+    inverse_partial[2] = inverse_input_row[1] + inverse_input_row[2] + (inverse_input_row[3] * 4) + (inverse_input_row[4] * 4);
+    inverse_partial[3] = inverse_input_row[1] + (inverse_input_row[3] * 8) + inverse_input_row[5] - inverse_input_row[2] - (inverse_input_row[4] * 8);
   end
 endmodule
 
@@ -54,49 +54,49 @@ module InverseRowAccumulate #(
     parameter int CONV_OUTPUT_SIZE = 4,
     parameter int ROW_INDEX_WIDTH = 3
   ) (
-    input logic [ROW_INDEX_WIDTH-1:0] row_idx,
-    input logic [NBITS-1:0] acc_in [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0],
-    input logic [NBITS-1:0] sigma [CONV_OUTPUT_SIZE-1:0],
-    output logic [NBITS-1:0] acc_out [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0]
+    input logic [ROW_INDEX_WIDTH-1:0] inverse_row_idx,
+    input logic [NBITS-1:0] accumulator_in [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0],
+    input logic [NBITS-1:0] inverse_partial [CONV_OUTPUT_SIZE-1:0],
+    output logic [NBITS-1:0] accumulator_out [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0]
   );
   always_comb begin: INVERSE_ROW_ACCUMULATE_BLOCK
     for (int unsigned i = 0; i < CONV_OUTPUT_SIZE * CONV_OUTPUT_SIZE; i++)
-      acc_out[i] = acc_in[i];
-    unique case (row_idx)
-      0: for (int unsigned i = 0; i < CONV_OUTPUT_SIZE; i++) acc_out[i] = acc_in[i] + sigma[i];
+      accumulator_out[i] = accumulator_in[i];
+    unique case (inverse_row_idx)
+      0: for (int unsigned i = 0; i < CONV_OUTPUT_SIZE; i++) accumulator_out[i] = accumulator_in[i] + inverse_partial[i];
       1: begin
         for (int unsigned i = 0; i < CONV_OUTPUT_SIZE; i++) begin
-          acc_out[i] = acc_in[i] + sigma[i];
-          acc_out[CONV_OUTPUT_SIZE + i] = acc_in[CONV_OUTPUT_SIZE + i] + sigma[i];
-          acc_out[2 * CONV_OUTPUT_SIZE + i] = acc_in[2 * CONV_OUTPUT_SIZE + i] + sigma[i];
-          acc_out[3 * CONV_OUTPUT_SIZE + i] = acc_in[3 * CONV_OUTPUT_SIZE + i] + sigma[i];
+          accumulator_out[i] = accumulator_in[i] + inverse_partial[i];
+          accumulator_out[CONV_OUTPUT_SIZE + i] = accumulator_in[CONV_OUTPUT_SIZE + i] + inverse_partial[i];
+          accumulator_out[2 * CONV_OUTPUT_SIZE + i] = accumulator_in[2 * CONV_OUTPUT_SIZE + i] + inverse_partial[i];
+          accumulator_out[3 * CONV_OUTPUT_SIZE + i] = accumulator_in[3 * CONV_OUTPUT_SIZE + i] + inverse_partial[i];
         end
       end
       2: begin
         for (int unsigned i = 0; i < CONV_OUTPUT_SIZE; i++) begin
-          acc_out[i] = acc_in[i] + sigma[i];
-          acc_out[CONV_OUTPUT_SIZE + i] = acc_in[CONV_OUTPUT_SIZE + i] - sigma[i];
-          acc_out[2 * CONV_OUTPUT_SIZE + i] = acc_in[2 * CONV_OUTPUT_SIZE + i] + sigma[i];
-          acc_out[3 * CONV_OUTPUT_SIZE + i] = acc_in[3 * CONV_OUTPUT_SIZE + i] - sigma[i];
+          accumulator_out[i] = accumulator_in[i] + inverse_partial[i];
+          accumulator_out[CONV_OUTPUT_SIZE + i] = accumulator_in[CONV_OUTPUT_SIZE + i] - inverse_partial[i];
+          accumulator_out[2 * CONV_OUTPUT_SIZE + i] = accumulator_in[2 * CONV_OUTPUT_SIZE + i] + inverse_partial[i];
+          accumulator_out[3 * CONV_OUTPUT_SIZE + i] = accumulator_in[3 * CONV_OUTPUT_SIZE + i] - inverse_partial[i];
         end
       end
       3: begin
         for (int unsigned i = 0; i < CONV_OUTPUT_SIZE; i++) begin
-          acc_out[i] = acc_in[i] + sigma[i];
-          acc_out[CONV_OUTPUT_SIZE + i] = acc_in[CONV_OUTPUT_SIZE + i] + (sigma[i] * 2);
-          acc_out[2 * CONV_OUTPUT_SIZE + i] = acc_in[2 * CONV_OUTPUT_SIZE + i] + (sigma[i] * 4);
-          acc_out[3 * CONV_OUTPUT_SIZE + i] = acc_in[3 * CONV_OUTPUT_SIZE + i] + (sigma[i] * 8);
+          accumulator_out[i] = accumulator_in[i] + inverse_partial[i];
+          accumulator_out[CONV_OUTPUT_SIZE + i] = accumulator_in[CONV_OUTPUT_SIZE + i] + (inverse_partial[i] * 2);
+          accumulator_out[2 * CONV_OUTPUT_SIZE + i] = accumulator_in[2 * CONV_OUTPUT_SIZE + i] + (inverse_partial[i] * 4);
+          accumulator_out[3 * CONV_OUTPUT_SIZE + i] = accumulator_in[3 * CONV_OUTPUT_SIZE + i] + (inverse_partial[i] * 8);
         end
       end
       4: begin
         for (int unsigned i = 0; i < CONV_OUTPUT_SIZE; i++) begin
-          acc_out[i] = acc_in[i] + sigma[i];
-          acc_out[CONV_OUTPUT_SIZE + i] = acc_in[CONV_OUTPUT_SIZE + i] - (sigma[i] * 2);
-          acc_out[2 * CONV_OUTPUT_SIZE + i] = acc_in[2 * CONV_OUTPUT_SIZE + i] + (sigma[i] * 4);
-          acc_out[3 * CONV_OUTPUT_SIZE + i] = acc_in[3 * CONV_OUTPUT_SIZE + i] - (sigma[i] * 8);
+          accumulator_out[i] = accumulator_in[i] + inverse_partial[i];
+          accumulator_out[CONV_OUTPUT_SIZE + i] = accumulator_in[CONV_OUTPUT_SIZE + i] - (inverse_partial[i] * 2);
+          accumulator_out[2 * CONV_OUTPUT_SIZE + i] = accumulator_in[2 * CONV_OUTPUT_SIZE + i] + (inverse_partial[i] * 4);
+          accumulator_out[3 * CONV_OUTPUT_SIZE + i] = accumulator_in[3 * CONV_OUTPUT_SIZE + i] - (inverse_partial[i] * 8);
         end
       end
-      5: for (int unsigned i = 0; i < CONV_OUTPUT_SIZE; i++) acc_out[3 * CONV_OUTPUT_SIZE + i] = acc_in[3 * CONV_OUTPUT_SIZE + i] + sigma[i];
+      5: for (int unsigned i = 0; i < CONV_OUTPUT_SIZE; i++) accumulator_out[3 * CONV_OUTPUT_SIZE + i] = accumulator_in[3 * CONV_OUTPUT_SIZE + i] + inverse_partial[i];
       default: begin end
     endcase
   end
