@@ -279,16 +279,16 @@ _No rows._
 
 ## `register-budget.csv`
 
-| Project | architecture_mode | kernel_size | input_words | parameter_hadamard_words | product_words | output_words | total_estimated_words | source |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Conv2x2-stream12-tcn4-02mac | stream12 | 2 | 16 | 6 | 2 | 4 | 28 | architectural_formula |
-| Conv2x2-stream12-tcn4-04mac | stream12 | 2 | 16 | 6 | 4 | 4 | 30 | architectural_formula |
-| Conv2x2-stream12-tcn4-08mac | stream12 | 2 | 16 | 6 | 8 | 4 | 34 | architectural_formula |
-| Conv2x2-stream4-tcn4-04mac | stream4 | 2 | 16 | 4 | 4 | 4 | 28 | architectural_formula |
-| Conv2x2-stream4-tcn4-04mac-rdrow | stream4-rdrow | 2 | 16 | 6 | 4 | 4 | 30 | architectural_formula |
-| Conv2x2-stream4-tcn4-08mac | stream4 | 2 | 16 | 4 | 8 | 4 | 32 | architectural_formula |
-| Conv2x2-tcn4-04mac | standard | 2 | 16 | 8 | 4 | 4 | 32 | architectural_formula |
-| Conv2x2-tcn4-16mac | standard | 2 | 16 | 8 | 16 | 4 | 44 | architectural_formula |
+| Project | architecture_mode | kernel_size | input_words | h_register_words | h_register_signals | t_register_words | t_register_signals | mac_lanes | output_words | total_estimated_words | source |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Conv2x2-stream12-tcn4-02mac | stream12 | 2 | 16 | 16 | r_input_weight[16] | 8 | r_transform_row[4]; r_inverse_row[4] | 2 | 4 | 44 | rtl_r_declarations |
+| Conv2x2-stream12-tcn4-04mac | stream12 | 2 | 16 | 16 | r_input_weight[16] | 8 | r_transform_row[4]; r_inverse_row[4] | 4 | 4 | 44 | rtl_r_declarations |
+| Conv2x2-stream12-tcn4-08mac | stream12 | 2 | 16 | 16 | r_input_weight[16] | 8 | r_transform_row[4]; r_inverse_row[4] | 8 | 4 | 44 | rtl_r_declarations |
+| Conv2x2-stream4-tcn4-04mac | stream4 | 2 | 16 | 16 | r_input_weight[16] | 0 | nan | 4 | 4 | 36 | rtl_r_declarations |
+| Conv2x2-stream4-tcn4-04mac-rdrow | stream4-rdrow | 2 | 16 | 16 | r_input_weight[16] | 4 | r_transform_row[4] | 4 | 4 | 40 | rtl_r_declarations |
+| Conv2x2-stream4-tcn4-08mac | stream4 | 2 | 16 | 16 | r_input_weight[16] | 0 | nan | 8 | 4 | 36 | rtl_r_declarations |
+| Conv2x2-tcn4-04mac | standard | 2 | 16 | 16 | r_input_weight[16] | 16 | r_conv_temp[16] | 4 | 4 | 52 | rtl_r_declarations |
+| Conv2x2-tcn4-16mac | all | 2 | 16 | 16 | r_input_weight[16] | 0 | nan | 16 | 4 | 36 | rtl_r_declarations |
 
 ## `throughput.csv`
 
