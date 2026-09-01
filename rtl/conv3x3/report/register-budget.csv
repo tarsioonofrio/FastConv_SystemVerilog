@@ -1,2 +1,2 @@
-Project,architecture_mode,kernel_size,input_words,parameter_hadamard_words,product_words,output_words,total_estimated_words,source
-Conv3x3-ifn9-06mac,standard,3,25,18,6,9,58,architectural_formula
+Project,architecture_mode,kernel_size,input_words,h_register_words,h_register_signals,t_register_words,t_register_signals,mac_lanes,output_words,total_estimated_words,source
+Conv3x3-ifn9-06mac,standard,3,25,36,r_input_weight[36],36,r_conv_temp[36],6,9,106,rtl_r_declarations

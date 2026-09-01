@@ -1,4 +1,4 @@
-Project,architecture_mode,kernel_size,input_words,parameter_hadamard_words,product_words,output_words,total_estimated_words,source
-Conv3x3stream-if-ifn9-06mac,stream,3,25,9,6,9,49,architectural_formula
-Conv3x3stream-if-ifn9-12mac,stream,3,25,9,12,9,55,architectural_formula
-Conv3x3stream-if-ifn9-18mac,stream,3,25,9,18,9,61,architectural_formula
+Project,architecture_mode,kernel_size,input_words,h_register_words,h_register_signals,t_register_words,t_register_signals,mac_lanes,output_words,total_estimated_words,source
+Conv3x3stream-if-ifn9-06mac,stream,3,25,36,r_input_weight[36],12,r_transform_row[6]; r_inverse_row[6],6,9,82,rtl_r_declarations
+Conv3x3stream-if-ifn9-12mac,stream,3,25,36,r_input_weight[36],18,r_transform_row[12]; r_inverse_row[6],12,9,88,rtl_r_declarations
+Conv3x3stream-if-ifn9-18mac,stream,3,25,36,r_input_weight[36],24,r_transform_row[18]; r_inverse_row[6],18,9,94,rtl_r_declarations
