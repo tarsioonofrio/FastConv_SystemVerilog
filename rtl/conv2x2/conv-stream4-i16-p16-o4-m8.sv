@@ -3,10 +3,6 @@
 */
 `timescale 1ns / 1ps
 
-// Fixed four-MAC streaming controller for the F(2x2, 3x3) Winograd tile.
-// The input and output FSMs surround a row-streamed transform/Hadamard/inverse
-// datapath so the complete 4x4 Hadamard matrix does not need to be registered.
-// Status: functionally changed.
 module Conv
   #(
     parameter int unsigned N_CHANNEL_IN        = 3,
@@ -20,8 +16,8 @@ module Conv
     parameter int unsigned CONV_OUTPUT_SIZE    = 2,
     parameter int unsigned CONV_INPUT_SIZE     = 4,
     parameter int unsigned HADAMARD_SIZE       = 4,
-    // Compatibility parameter for the shared testbench; hardware stays fixed at four MACs.
-    parameter int unsigned NUM_MULT            = 4
+    // Compatibility parameter for the shared testbench; hardware stays fixed at eight MACs.
+    parameter int unsigned NUM_MULT            = 8
   ) (
     input  logic clk,
     input  logic reset,
@@ -41,14 +37,8 @@ module Conv
     input  logic p_output_valid                    // Read-valid flag from the output RAM
   );
 
-  // This source is intentionally fixed at four parallel products per cycle.
-  // Keeping the value local prevents an elaboration parameter from silently
-  // changing the datapath width or the row schedule.
-  localparam int unsigned FIXED_NUM_MULT = 4;
+  localparam int unsigned FIXED_NUM_MULT = 8;
 
-  // Return a legal one-bit counter width for singleton ranges.
-  // This helper is important because $clog2(1) is zero in SystemVerilog.
-  // Status: practically unchanged functionally.
   function automatic int f_width_min1(input int x);
     if (x <= 1)
       f_width_min1 = 1;
@@ -56,23 +46,14 @@ module Conv
       f_width_min1 = $clog2(x);
   endfunction
 
-  // Input tile storage and control signals. The bank holds the current tile
-  // while the combinational Transform consumes it; write enables preserve the
-  // overlap between loading the next tile and computing the current tile.
-  // Modified: the tile lifetime is now protected until the final Hadamard row
-  // has been consumed; the transform still reads the same 16-word bank.
   logic [NBITS-1:0] r_input_feat[(CONV_INPUT_SIZE * CONV_INPUT_SIZE) - 1:0];  // input feature register bank
-  // Modified structurally: the generic loop was expanded into fixed assignments
-  // for this four-MAC implementation; the values and indexing remain equivalent.
   logic [NBITS-1:0] w_input_feat_next[(CONV_INPUT_SIZE * CONV_INPUT_SIZE) - 1:0];  // next values for feature shift bank
   logic [NADDR-1:0] r_input_addr_feat;
   logic [NADDR-1:0] r_input_addr_kernel;
   logic [NADDR-1:0] r_input_window_next;
-  // Modified: the feature-bank write mask is asserted only when the pending
-  // transfer coincides with the stream release point.
   logic [(CONV_INPUT_SIZE * CONV_INPUT_SIZE) - 1:0] w_input_feat_en;  // write-enable per feature register
-  // Modified: valid data now includes the deferred stream-transfer handshake.
   logic w_input_feat_write_valid;
+  logic r_stream_transfer_pending;
   logic w_input_last_window_col;
   logic w_input_last_window_acc;
   logic w_input_last_channel_output;
@@ -98,17 +79,11 @@ module Conv
   localparam CHANNEL_OUTPUT_COUNTER_WIDTH = f_width_min1(N_CHANNEL_OUT + 1);
   logic [CHANNEL_OUTPUT_COUNTER_WIDTH-1:0] r_input_channel_counter_output;
 
-  // Weight storage and Hadamard schedule. Sixteen weights are rotated four at
-  // a time, matching the four explicit Multip instances below.
   // REGISTER BANK FOR THE WEIGHTS ////////////////////////////////////////////
   localparam WEIGHT_CYCLES = HADAMARD_SIZE * HADAMARD_SIZE;
-  localparam STREAM_CYCLES = 4;
-  // Modified: this counter now counts the four streamed Hadamard cycles rather
-  // than the conventional multiply schedule controlled by STATE_MULT.
+  localparam STREAM_CYCLES = 2;
   logic [(f_width_min1(STREAM_CYCLES + 1))-1:0] r_conv_multiply_count;
   localparam WEIGHT_WIDTH = f_width_min1(WEIGHT_CYCLES + 1);
-  // Modified structurally: the 16-word rotation is written explicitly instead
-  // of using a loop, while preserving the original weight order.
   logic [NBITS-1:0] r_input_weight[WEIGHT_CYCLES-1:0];
   logic [WEIGHT_CYCLES-1:0] w_input_weight_en;
   logic [WEIGHT_WIDTH-1:0] r_input_count_kernel;
@@ -116,13 +91,30 @@ module Conv
   logic w_input_write_done;
 
   logic [NBITS-1:0] w_conv_transform [HADAMARD_SIZE*HADAMARD_SIZE-1:0];
-  // Modified structurally: the product bus is now explicitly four lanes,
-  // matching the fixed four-MAC implementation instead of a generic NUM_MULT
-  // schedule. The product arithmetic remains the same.
   logic signed [NBITS-1+QUANT:0] w_conv_product [FIXED_NUM_MULT-1:0];  // QUANT more bits for the multipliers
-  // Modified functionally: completion is asserted on the last streamed row
-  // rather than after the conventional full Inverse state.
   logic w_conv_end;
+  logic w_hadamard_start;
+  logic w_hadamard_last;
+  logic w_conv_input_release;
+
+  // Row-streaming state. FIXED_NUM_MULT is restricted to divisors 2, 4 and 8
+  // for the TC2x2 transform (16 total Hadamard products).
+  localparam int ROW_INDEX_WIDTH = f_width_min1(HADAMARD_SIZE);
+  localparam int PRODUCT_INDEX_WIDTH = f_width_min1(WEIGHT_CYCLES);
+  logic [NBITS-1:0] r_output_accumulator [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
+  logic [ROW_INDEX_WIDTH-1:0] r_inverse_row_idx;
+  logic [PRODUCT_INDEX_WIDTH-1:0] r_transform_product_idx;
+  logic [NBITS-1:0] w_inverse_partial_current [CONV_OUTPUT_SIZE-1:0];
+  logic [NBITS-1:0] w_inverse_partial_lane1 [CONV_OUTPUT_SIZE-1:0];
+  logic [NBITS-1:0] w_output_acc_next [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
+  logic [NBITS-1:0] w_output_acc_after_lane0 [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
+  logic [NBITS-1:0] w_output_final [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
+  logic [NBITS-1:0] w_output_capture [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
+  // Product rows feed the inverse accumulators directly; the former delayed
+  // row register was debug-only and did not participate in output generation.
+  logic [NBITS-1:0] w_inverse_product_row [HADAMARD_SIZE-1:0];
+  logic [NBITS-1:0] w_inverse_product_row_lane1 [HADAMARD_SIZE-1:0];
+  logic [NBITS-1:0] w_transform_feature [FIXED_NUM_MULT-1:0];
 `ifdef STREAM_DEBUG
   integer stream_debug_had_count;
 `endif
@@ -130,14 +122,10 @@ module Conv
   localparam OUTPUT_RW_COUNT_WIDTH = f_width_min1(CONV_OUTPUT_SIZE * CONV_OUTPUT_SIZE);
   logic [OUTPUT_RW_COUNT_WIDTH-1:0] r_output_read_count;
   logic [OUTPUT_RW_COUNT_WIDTH-1:0] r_output_write_count;
-  // Modified: this bank now receives the final row-accumulator value directly;
-  // the conventional w_conv_inverse full-matrix bus no longer exists.
   logic [NBITS-1:0] r_output_write [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
   logic [NBITS-1:0] r_output_read [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
   logic [NADDR-1:0] w_output_addr;
 
-  // Output traversal state. These counters map each 2x2 result tile into the
-  // output feature map and are also used to detect the final channel/window.
   localparam FEAT_OUTPUT_SIZE = (FEAT_INPUT_SIZE - 2);
   logic [WINDOW_COUNTER_WIDTH-1:0] r_output_window_counter_col;
   logic [WINDOW_ROW_COUNTER_WIDTH-1:0] r_output_window_counter_row;
@@ -167,105 +155,8 @@ module Conv
 
 
   // -------------------------------------------------------------------------
-  // STREAMING-ONLY SIGNALS
-  // -------------------------------------------------------------------------
-  // These declarations do not exist in the conventional Conv datapath. They
-  // are kept together before the FSM declarations so the additional state and
-  // combinational plumbing can be audited independently from legacy signals.
-
-  // Width constants for the streaming cursors. They are adjacent to the
-  // signals they size and avoid zero-width declarations for singleton ranges.
-  localparam int ROW_INDEX_WIDTH = f_width_min1(HADAMARD_SIZE);
-  localparam int PRODUCT_INDEX_WIDTH = f_width_min1(WEIGHT_CYCLES);
-
-  // Holds a transfer request when the input FSM reaches TRANSFER before the
-  // final streamed Hadamard cycle is complete. This prevents overwriting the
-  // tile that is still being consumed by Transform.
-  // Status: added.
-  logic r_stream_transfer_pending;
-
-  // Marks the first streamed Hadamard cycle and resets the row/product cursors
-  // and output accumulator at the beginning of a new transformed tile.
-  // Status: added.
-  logic w_hadamard_start;
-
-  // Marks the fourth and final streamed Hadamard cycle for the fixed four-MAC
-  // schedule. It is shared by convolution completion and input release.
-  // Status: added.
-  logic w_hadamard_last;
-
-  // Releases the deferred input transfer only after the last Hadamard row has
-  // been consumed, preserving the input tile lifetime without a second bank.
-  // Status: added.
-  logic w_conv_input_release;
-
-  // Stores the partial 2x2 output across streamed inverse rows. This is the
-  // only output datapath register bank introduced by row-wise accumulation.
-  // Status: added.
-  logic [NBITS-1:0] r_out_acc [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
-
-  // Selects the inverse row currently being accumulated (0 through 3).
-  // Status: added.
-  logic [ROW_INDEX_WIDTH-1:0] r_stream_row_idx;
-
-  // Selects the first transformed value of the four-value group feeding the
-  // explicit MACs in the current Hadamard cycle.
-  // Status: added.
-  logic [PRODUCT_INDEX_WIDTH-1:0] r_stream_product_idx;
-
-  // Contains the current row's inverse result before it is merged into the
-  // registered partial output accumulator.
-  // Status: added.
-  logic [NBITS-1:0] w_stream_sigma_current [CONV_OUTPUT_SIZE-1:0];
-
-  // Reserved second inverse-row lane for a future folded schedule. It is kept
-  // as an explicit signal to document the planned two-row extension.
-  // Status: added (reserved).
-  logic [NBITS-1:0] w_stream_sigma_current_2 [CONV_OUTPUT_SIZE-1:0];
-
-  // Combinational next value of the accumulated output, used as the D input of
-  // r_out_acc and as the source for final output capture.
-  // Status: added.
-  logic [NBITS-1:0] w_stream_acc_next [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
-
-  // Reserved diagnostic value for the first-row accumulation checkpoint. It is
-  // not required by the fixed four-MAC datapath.
-  // Status: added (reserved).
-  logic [NBITS-1:0] w_stream_acc_after_first [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
-
-  // Alias for the completed accumulated tile retained for waveform/debug
-  // visibility; output writing uses w_stream_final_capture below.
-  // Status: added (alias/debug visibility).
-  logic [NBITS-1:0] w_stream_final_output [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
-
-  // Captures the final accumulated tile on the last Hadamard cycle and feeds
-  // the output register bank without an intermediate full Inverse matrix.
-  // Status: added.
-  logic [NBITS-1:0] w_stream_final_capture [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
-
-  // Packs the four explicit products into the row-shaped interface expected by
-  // InverseRow; all four entries are driven in the fixed four-MAC variant.
-  // Status: added.
-  logic [NBITS-1:0] w_stream_product_row [HADAMARD_SIZE-1:0];
-
-  // Reserved second product row for a future two-row folded schedule. It is not
-  // consumed by the current four-MAC implementation.
-  // Status: added (reserved).
-  logic [NBITS-1:0] w_stream_product_row_2 [HADAMARD_SIZE-1:0];
-
-  // Selects the four transformed values consumed by the explicit MAC instances
-  // in the current streamed cycle.
-  // Status: added.
-  logic [NBITS-1:0] w_conv_feature [FIXED_NUM_MULT-1:0];
-
-
-  // -------------------------------------------------------------------------
   // FSM STATES DECLARION
   // -------------------------------------------------------------------------
-  // The input FSM owns memory reads and tile loading, the convolution FSM
-  // owns the four Hadamard cycles, and the output FSM owns accumulation and
-  // writes. Separating these responsibilities makes each handshake explicit.
-  // Status: practically unchanged functionally.
   typedef enum logic [3:0] {
     WAIT_INPUT,
     ADDRESS_INPUT,
@@ -282,9 +173,6 @@ module Conv
   type_st_input st_input_current;
   type_st_input st_input_next;
 
-  // Modified: TRANSFORM and INVERSE were removed because the transform is
-  // combinational and the inverse is consumed one row per Hadamard cycle.
-  // Status: functionally changed.
   typedef enum logic {
     WAIT_CONV,
     HADAMARD
@@ -292,7 +180,6 @@ module Conv
   type_st_conv st_conv_current;
   type_st_conv st_conv_next;
 
-  // Status: practically unchanged functionally.
   typedef enum logic [2:0] {
     WAIT_OUTPUT,
     ADDRESS_OUTPUT,
@@ -308,15 +195,9 @@ module Conv
   // -------  PART 1 - ADDRESS TO ACCESS THE IFMAP AND WEIGHT MEMORY ------------------------------------
   // ----------------------------------------------------------------------------------------------------
 
-  // Select the memory port for either a weight read or one row of the input
-  // tile. These signals are combinational so the RAM sees the address for the
-  // state currently active in the input FSM.
   assign p_input_en   = (st_input_current inside {READ_WEIGHTS, READ_IN_10A, READ_IN_10B, READ_IN_8C, READ_IN_8D});
   assign p_input_addr = (st_input_current == READ_WEIGHTS) ? r_input_addr_kernel : r_input_addr_feat + NADDR'(r_input_addr_count);  // p_input_addr mux
 
-  // Advance the feature-map base after each loaded row/window and return to
-  // the next channel when the complete input traversal has finished.
-  // Status: practically unchanged functionally.
   always_ff @(posedge clk or posedge reset) begin: INPUT_ADDR_POINTER_BLOCK
     if (reset) begin
       r_input_addr_feat <= '0;
@@ -345,9 +226,6 @@ module Conv
     end
   end
 
-  // Point the shared input memory at the weight region once per run, then
-  // advance one address for every weight captured into the local bank.
-  // Status: practically unchanged functionally.
   always_ff @(posedge clk or posedge reset) begin: WEIGHT_ADDR_POINTER_BLOCK
     if (reset)
       r_input_addr_kernel <= 0;
@@ -360,9 +238,6 @@ module Conv
   // ----------------------------------------------------------------------------------------------------
   // -------  PART 2 - INPUT FSM AND REGISTERS -----------------------------------------------------------
   // ----------------------------------------------------------------------------------------------------
-  // Register the sequential input-FSM state. This is the timing boundary
-  // between memory/control decisions and the next input operation.
-  // Status: practically unchanged functionally.
   always_ff @(posedge clk or posedge reset) begin: INPUT_STATE_REG_BLOCK
     if (reset)
       st_input_current <= WAIT_INPUT;
@@ -370,11 +245,6 @@ module Conv
       st_input_current <= st_input_next;
   end
 
-  // Decode the input schedule: start, load weights, load the four tile rows,
-  // wait for the streaming core, and proceed to the next window or channel.
-  // Correct sequencing is required to keep the feature bank stable during
-  // all four Hadamard cycles.
-  // Status: practically unchanged functionally.
   always_comb begin: INPUT_NEXT_STATE_BLOCK
     st_input_next = st_input_current;
     priority case (st_input_current)
@@ -400,8 +270,6 @@ module Conv
     endcase
   end
 
-  // Completion predicates are shared by the input and output FSMs. They avoid
-  // duplicating terminal-count arithmetic in multiple sequential blocks.
   assign w_input_weight_done = (r_input_count_kernel == WEIGHT_WIDTH'(WEIGHT_CYCLES - 1));
   assign w_input_write_done = r_output_write_count == 0 || r_output_write_count == OUTPUT_RW_COUNT_MAX;  // compare to zero for the first write test or the last value (8) in the next convolutions
 
@@ -411,16 +279,12 @@ module Conv
 
   // STREAM_FREEZE lifetime policy: the current feature tile remains stable
   // until the last transform row has been consumed by the Hadamard stage.
-  // Start/last delimit the lifetime of one streamed tile. The input bank is
-  // released only after the last Hadamard row has been consumed.
   assign w_hadamard_start = (st_conv_current == WAIT_CONV) &&
                             (st_input_current == CONV_INPUT);
   assign w_hadamard_last = (st_conv_current == HADAMARD) &&
                            (r_conv_multiply_count == $bits(r_conv_multiply_count)'(STREAM_CYCLES - 1));
   assign w_conv_input_release = w_hadamard_last;
 
-  // p_end is asserted only on the final output write of the final output
-  // channel, never merely when the convolution datapath becomes idle.
   assign p_end = (st_output_current == WRITE_OUTPUT) &&
                  (r_output_write_count == OUTPUT_RW_COUNT_WIDTH'(OUTPUT_RW_COUNT_MAX)) &&
                  w_input_last_channel_output;  // Signal completion only after the final output write.
@@ -429,9 +293,6 @@ module Conv
   // READING REGISTERS
   // -------------------------------------------------------------------------
 
-  // Count the samples within each of the four input rows. Resetting at the
-  // row boundary makes the address expression remain row-major and local.
-  // Status: practically unchanged functionally.
   always_ff @(posedge clk or posedge reset) begin: INPUT_READ_COUNTER_BLOCK
     if (reset) begin
       r_input_addr_count <= 0;
@@ -460,9 +321,6 @@ module Conv
   // r_input_window_counter_acc: number of convolutions in a given IFMAP channel
   // r_input_window_counter_col :  number of horizontal convolutions in a given IFMAP channel - detect the last line
   // r_input_count_kernel:        number of weights read from memory
-  // Track kernel position, window position, and input/output channel position.
-  // These counters are the progress record for the complete nested traversal.
-  // Status: practically unchanged functionally.
   always_ff @(posedge clk or posedge reset) begin: INPUT_CONTROL_COUNTERS_BLOCK
     if (reset) begin
       r_input_count_kernel           <= 0;
@@ -501,10 +359,6 @@ module Conv
   // -------------------------------------------------------------------------
   // READING REGISTER BANK
   // -------------------------------------------------------------------------
-  // Form the next 4x4 feature tile from the RAM value and retained samples.
-  // Only the positions enabled below are written, allowing horizontal
-  // windows to reuse the overlapping columns without an extra tile buffer.
-  // Status: functionally changed.
   always_comb begin: INPUT_SHIFT_DATA_BLOCK
     w_input_feat_next[0] = p_input_data;
     w_input_feat_next[1] = p_input_data;
@@ -544,9 +398,6 @@ module Conv
                                  (INPUT_FEAT_INDEX_WIDTH'(r_input_addr_count) *
                                   INPUT_FEAT_INDEX_WIDTH'(CONV_INPUT_SIZE));
 
-  // Generate one-hot writes for row loading, or the overlap mask used when a
-  // completed streamed tile hands ownership back to the input loader.
-  // Status: functionally changed.
   always_comb begin: INPUT_SHIFT_WE_BLOCK  // 'w_input_feat_en' to write into the register bank r_input_feat
     w_input_feat_en = '0;
     case (st_input_current)
@@ -561,9 +412,6 @@ module Conv
   assign w_input_feat_write_valid = (r_stream_transfer_pending && w_conv_input_release) ||
                                     p_input_valid;
 
-  // Remember that a tile transfer is pending across the input/streaming
-  // boundary. This flag prevents the overlap update from occurring early.
-  // Status: added.
   always_ff @(posedge clk or posedge reset) begin: STREAM_TRANSFER_PENDING_BLOCK
     if (reset)
       r_stream_transfer_pending <= 1'b0;
@@ -573,10 +421,6 @@ module Conv
       r_stream_transfer_pending <= 1'b0;
   end
 
-  // Capture feature samples into the tile register bank. This is the storage
-  // boundary that must remain frozen while the Transform and inverse consume
-  // the tile.
-  // Status: functionally changed.
   always_ff @(posedge clk or posedge reset) begin: INPUT_FEATURE_REG_BLOCK  // initializes and write into the register bank and convolution register bank
     if (reset) begin
       r_input_feat[0] <= '0; r_input_feat[1] <= '0; r_input_feat[2] <= '0; r_input_feat[3] <= '0;
@@ -604,18 +448,12 @@ module Conv
   end
 
   // Weight register bank with per-entry write-enable.
-  // Decode the active weight-bank entry for the current memory read.
-  // Status: practically unchanged functionally.
   always_comb begin: WEIGHT_WE_BLOCK
     w_input_weight_en = '0;
     if (st_input_current == READ_WEIGHTS)
       w_input_weight_en[r_input_count_kernel] = 1'b1;
   end
 
-  // Load all sixteen weights during READ_WEIGHTS, then rotate the bank by one
-  // transformed row during each Hadamard cycle. The rotation aligns weights
-  // with the four selected transform values without a large mux network.
-  // Status: functionally changed.
   always_ff @(posedge clk or posedge reset) begin: WEIGHT_REG_BLOCK
     if (reset) begin
       r_input_weight[0] <= '0; r_input_weight[1] <= '0; r_input_weight[2] <= '0; r_input_weight[3] <= '0;
@@ -640,32 +478,29 @@ module Conv
       if (w_input_weight_en[13]) r_input_weight[13] <= p_input_data;
       if (w_input_weight_en[14]) r_input_weight[14] <= p_input_data;
       if (w_input_weight_en[15]) r_input_weight[15] <= p_input_data;
-    end else if (st_conv_current == HADAMARD) begin         // rotate four active weights
-      r_input_weight[0]  <= r_input_weight[4];
-      r_input_weight[1]  <= r_input_weight[5];
-      r_input_weight[2]  <= r_input_weight[6];
-      r_input_weight[3]  <= r_input_weight[7];
-      r_input_weight[4]  <= r_input_weight[8];
-      r_input_weight[5]  <= r_input_weight[9];
-      r_input_weight[6]  <= r_input_weight[10];
-      r_input_weight[7]  <= r_input_weight[11];
-      r_input_weight[8]  <= r_input_weight[12];
-      r_input_weight[9]  <= r_input_weight[13];
-      r_input_weight[10] <= r_input_weight[14];
-      r_input_weight[11] <= r_input_weight[15];
-      r_input_weight[12] <= r_input_weight[0];
-      r_input_weight[13] <= r_input_weight[1];
-      r_input_weight[14] <= r_input_weight[2];
-      r_input_weight[15] <= r_input_weight[3];
+    end else if (st_conv_current == HADAMARD) begin         // rotate eight active weights
+      r_input_weight[0]  <= r_input_weight[8];
+      r_input_weight[1]  <= r_input_weight[9];
+      r_input_weight[2]  <= r_input_weight[10];
+      r_input_weight[3]  <= r_input_weight[11];
+      r_input_weight[4]  <= r_input_weight[12];
+      r_input_weight[5]  <= r_input_weight[13];
+      r_input_weight[6]  <= r_input_weight[14];
+      r_input_weight[7]  <= r_input_weight[15];
+      r_input_weight[8]  <= r_input_weight[0];
+      r_input_weight[9]  <= r_input_weight[1];
+      r_input_weight[10] <= r_input_weight[2];
+      r_input_weight[11] <= r_input_weight[3];
+      r_input_weight[12] <= r_input_weight[4];
+      r_input_weight[13] <= r_input_weight[5];
+      r_input_weight[14] <= r_input_weight[6];
+      r_input_weight[15] <= r_input_weight[7];
     end
   end
 
   // ----------------------------------------------------------------------------------------------------
   // -------  PART 3 - CONVOLUTION CONTROL AND CONVOLUTION MODULES --------------------------------------
   // ----------------------------------------------------------------------------------------------------
-  // Register the two-state streaming controller. WAIT_CONV marks the tile
-  // boundary; HADAMARD covers all four row-product cycles.
-  // Status: practically unchanged functionally.
   always_ff @(posedge clk or posedge reset) begin: CONV_STATE_REG_BLOCK
     if (reset)
       st_conv_current <= WAIT_CONV;
@@ -673,10 +508,6 @@ module Conv
       st_conv_current <= st_conv_next;
   end
 
-  // Enter HADAMARD after the tile is loaded and return to WAIT_CONV after the
-  // last row. There is no separate transform or inverse FSM state because the
-  // associated work is combinational and is finalized on that last cycle.
-  // Status: functionally changed.
   always_comb begin: CONV_NEXT_STATE_BLOCK
     st_conv_next = st_conv_current;  // default prevents latch inference
     priority case (st_conv_current)
@@ -701,9 +532,6 @@ module Conv
 //   time prev_time, curr_time;  // debug
 // `endif
 
-  // Latch the one-window completion event for the output FSM, keeping it high
-  // until the corresponding output write phase has consumed the result.
-  // Status: functionally changed.
   always_ff @(posedge clk or posedge reset) begin: CONV_END_FLAG_BLOCK
     if (reset)
       w_conv_end <= 0;
@@ -716,9 +544,6 @@ module Conv
     end
   end
 
-  // Count the four Hadamard cycles and provide the terminal predicate used by
-  // both the convolution FSM and the input-tile release logic.
-  // Status: functionally changed.
   always_ff @(posedge clk or posedge reset) begin: CONV_MULTIPLY_COUNTER_BLOCK
     if (reset)
       r_conv_multiply_count <= 0;
@@ -733,46 +558,39 @@ module Conv
   // Transform produces the complete combinational matrix, but only one row
   // (or a partial row) is consumed at a time. FIXED_NUM_MULT is one of the
   // supported factors of the 16 Hadamard products.
-  // Register only the streamed inverse accumulators and selection indices.
-  // The combinational transform/MAC/inverse path computes one row per cycle,
-  // reducing storage from a complete transformed matrix to row-sized state.
-  // Status: added.
   always_ff @(posedge clk or posedge reset) begin: STREAMING_DATAPATH_BLOCK
     if (reset) begin
-      r_out_acc        <= '{default: '0};
-      r_stream_row_idx <= '0;
-      r_stream_product_idx <= '0;
+      r_output_accumulator        <= '{default: '0};
+      r_inverse_row_idx <= '0;
+      r_transform_product_idx <= '0;
 `ifdef STREAM_DEBUG
       stream_debug_had_count <= 0;
 `endif
     end else begin
       if (w_hadamard_start) begin
-        r_out_acc            <= '{default: '0};
-        r_stream_row_idx     <= '0;
-        r_stream_product_idx <= '0;
+        r_output_accumulator            <= '{default: '0};
+        r_inverse_row_idx     <= '0;
+        r_transform_product_idx <= '0;
 `ifdef STREAM_DEBUG
         $display("STREAM START");
 `endif
       end else if (st_conv_current == HADAMARD) begin
-          r_stream_product_idx <= r_stream_product_idx + PRODUCT_INDEX_WIDTH'(FIXED_NUM_MULT);
-          r_out_acc        <= w_stream_acc_next;
-          r_stream_row_idx <= r_stream_row_idx + 1'b1;
+          r_transform_product_idx <= r_transform_product_idx + PRODUCT_INDEX_WIDTH'(FIXED_NUM_MULT);
+          r_output_accumulator        <= w_output_acc_next;
+          r_inverse_row_idx <= r_inverse_row_idx + 2;
 `ifdef STREAM_DEBUG
-          $display("STREAM HAD product_base=%0d row=%0d", r_stream_product_idx, r_stream_row_idx);
-          $write("  F:"); for (int unsigned d = 0; d < FIXED_NUM_MULT; d++) $write(" %0d", $signed(w_conv_feature[d])); $write("\n");
+          $display("STREAM HAD product_base=%0d row=%0d", r_transform_product_idx, r_inverse_row_idx);
+          $write("  F:"); for (int unsigned d = 0; d < FIXED_NUM_MULT; d++) $write(" %0d", $signed(w_transform_feature[d])); $write("\n");
           $write("  G:"); for (int unsigned d = 0; d < FIXED_NUM_MULT; d++) $write(" %0d", $signed(r_input_weight[d])); $write("\n");
           $write("  P:"); for (int unsigned d = 0; d < FIXED_NUM_MULT; d++) $write(" %0d", $signed(w_conv_product[d][NBITS-1:0])); $write("\n");
-          $write("  ACC_NEXT:"); for (int unsigned d = 0; d < CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE; d++) $write(" %0d", $signed(w_stream_acc_next[d])); $write("\n");
+          $write("  ACC_NEXT:"); for (int unsigned d = 0; d < CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE; d++) $write(" %0d", $signed(w_output_acc_next[d])); $write("\n");
           stream_debug_had_count <= stream_debug_had_count + 1;
 `endif
       end
     end
   end
 
-  // Compute the complete C * input * C^T transform combinationally. Keeping
-  // this operation combinational lets the sequential datapath consume only
-  // the four values needed in the current Hadamard cycle.
-  // Status: practically unchanged functionally.
+     // Instance of matrix multiplier "C"
   Transform #(
     .NBITS(NBITS),
     .CONV_OUTPUT_SIZE(CONV_OUTPUT_SIZE),
@@ -783,45 +601,52 @@ module Conv
       .pout(w_conv_transform)
   );
 
-  // Select one transformed row for the four parallel MACs. The product base
-  // advances only at the Hadamard clock edge, so the
-  // transform row selected here remains aligned with the rotated weights for
-  // the whole following cycle. This removes the four-word row holding bank.
-  // Status: added.
-  assign w_conv_feature[0] = w_conv_transform[r_stream_product_idx];
-  assign w_conv_feature[1] = w_conv_transform[r_stream_product_idx + 1'b1];
-  assign w_conv_feature[2] = w_conv_transform[r_stream_product_idx + 2'd2];
-  assign w_conv_feature[3] = w_conv_transform[r_stream_product_idx + 2'd3];
-  // Four explicit multipliers implement the fixed four-MAC datapath. Their
-  // outputs feed the row inverse immediately in the same cycle.
-  // Status: functionally changed.
+  // Both rows are selected from the stable transform matrix using the
+  // product base held for the current Hadamard cycle. This removes the
+  // four-word row holding bank while preserving the 0/8 product schedule.
+  assign w_transform_feature[0] = w_conv_transform[r_transform_product_idx];
+  assign w_transform_feature[1] = w_conv_transform[r_transform_product_idx + 1'b1];
+  assign w_transform_feature[2] = w_conv_transform[r_transform_product_idx + 2'd2];
+  assign w_transform_feature[3] = w_conv_transform[r_transform_product_idx + 2'd3];
+  assign w_transform_feature[4] = w_conv_transform[r_transform_product_idx + 4];
+  assign w_transform_feature[5] = w_conv_transform[r_transform_product_idx + 5];
+  assign w_transform_feature[6] = w_conv_transform[r_transform_product_idx + 6];
+  assign w_transform_feature[7] = w_conv_transform[r_transform_product_idx + 7];
   Multip #(.QUANT(QUANT), .NBITS(NBITS)) multip0(
-    .feature(w_conv_feature[0]), .weight(r_input_weight[0]), .product(w_conv_product[0]));
+    .feature(w_transform_feature[0]), .weight(r_input_weight[0]), .product(w_conv_product[0]));
   Multip #(.QUANT(QUANT), .NBITS(NBITS)) multip1(
-    .feature(w_conv_feature[1]), .weight(r_input_weight[1]), .product(w_conv_product[1]));
+    .feature(w_transform_feature[1]), .weight(r_input_weight[1]), .product(w_conv_product[1]));
   Multip #(.QUANT(QUANT), .NBITS(NBITS)) multip2(
-    .feature(w_conv_feature[2]), .weight(r_input_weight[2]), .product(w_conv_product[2]));
+    .feature(w_transform_feature[2]), .weight(r_input_weight[2]), .product(w_conv_product[2]));
   Multip #(.QUANT(QUANT), .NBITS(NBITS)) multip3(
-    .feature(w_conv_feature[3]), .weight(r_input_weight[3]), .product(w_conv_product[3]));
+    .feature(w_transform_feature[3]), .weight(r_input_weight[3]), .product(w_conv_product[3]));
+  Multip #(.QUANT(QUANT), .NBITS(NBITS)) multip4(
+    .feature(w_transform_feature[4]), .weight(r_input_weight[4]), .product(w_conv_product[4]));
+  Multip #(.QUANT(QUANT), .NBITS(NBITS)) multip5(
+    .feature(w_transform_feature[5]), .weight(r_input_weight[5]), .product(w_conv_product[5]));
+  Multip #(.QUANT(QUANT), .NBITS(NBITS)) multip6(
+    .feature(w_transform_feature[6]), .weight(r_input_weight[6]), .product(w_conv_product[6]));
+  Multip #(.QUANT(QUANT), .NBITS(NBITS)) multip7(
+    .feature(w_transform_feature[7]), .weight(r_input_weight[7]), .product(w_conv_product[7]));
 
-  // Pack the products into one inverse row and apply the incremental A1/A0
-  // inverse. The accumulator carries the partial 2x2 output between rows.
-  // Status: added.
-  assign w_stream_product_row[0] = w_conv_product[0];
-  assign w_stream_product_row[1] = w_conv_product[1];
-  assign w_stream_product_row[2] = w_conv_product[2];
-  assign w_stream_product_row[3] = w_conv_product[3];
-  // These incremental inverse blocks replace the full-matrix Inverse module
-  // and keep only the current row plus the accumulated 2x2 output.
-  // Status: added.
-  InverseRow inverse_row_current(.s_row(w_stream_product_row), .sigma(w_stream_sigma_current));
+  assign w_inverse_product_row[0] = w_conv_product[0];
+  assign w_inverse_product_row[1] = w_conv_product[1];
+  assign w_inverse_product_row[2] = w_conv_product[2];
+  assign w_inverse_product_row[3] = w_conv_product[3];
+  assign w_inverse_product_row_lane1[0] = w_conv_product[4];
+  assign w_inverse_product_row_lane1[1] = w_conv_product[5];
+  assign w_inverse_product_row_lane1[2] = w_conv_product[6];
+  assign w_inverse_product_row_lane1[3] = w_conv_product[7];
+  InverseRow inverse_row_current(.inverse_input_row(w_inverse_product_row), .inverse_partial(w_inverse_partial_current));
+  InverseRow inverse_row_lane1(.inverse_input_row(w_inverse_product_row_lane1), .inverse_partial(w_inverse_partial_lane1));
   InverseRowAccumulate inverse_row_acc(
-    .row_idx(r_stream_row_idx), .acc_in(r_out_acc), .sigma(w_stream_sigma_current), .acc_out(w_stream_acc_next));
-  // Both names intentionally refer to the same final value: output capture
-  // occurs on the last Hadamard edge, with no extra inverse state or register.
-  // Status: functionally changed.
-  assign w_stream_final_output = w_stream_acc_next;
-  assign w_stream_final_capture = w_stream_acc_next;
+    .inverse_row_idx(r_inverse_row_idx), .accumulator_in(r_output_accumulator), .inverse_partial(w_inverse_partial_current),
+    .accumulator_out(w_output_acc_after_lane0));
+  InverseRowAccumulate inverse_row_acc_second(
+    .inverse_row_idx(r_inverse_row_idx + 1'b1), .accumulator_in(w_output_acc_after_lane0), .inverse_partial(w_inverse_partial_lane1),
+    .accumulator_out(w_output_acc_next));
+  assign w_output_final = w_output_acc_next;
+  assign w_output_capture = w_output_acc_next;
 
 
   // ----------------------------------------------------------------------------------------------------
@@ -830,17 +655,11 @@ module Conv
 
 
 
-  // Register the output-FSM state, which sequences reset/read/accumulate/write
-  // operations for each output tile and channel.
-  // Status: practically unchanged functionally.
   always_ff @(posedge clk or posedge reset) begin: OUTPUT_STATE_REG_BLOCK
     if (reset) st_output_current <= WAIT_OUTPUT;
     else st_output_current <= st_output_next;
   end
 
-  // Decode output ownership and handshakes. The FSM waits for w_conv_end,
-  // reads prior channel partials when needed, then writes the completed tile.
-  // Status: functionally changed.
   always_comb begin: OUTPUT_NEXT_STATE_BLOCK
     st_output_next = st_output_current;  // default
     priority case (st_output_current)
@@ -883,9 +702,6 @@ module Conv
     endcase
   end
 
-  // Terminal predicates drive transitions at the three nested output levels:
-  // input channel, spatial window, and output channel.
-  // Status: practically unchanged functionally.
   assign w_output_last_channel_input = (r_output_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1));
   assign w_output_last_channel_output = (r_output_channel_counter_output == CHANNEL_OUTPUT_COUNTER_WIDTH'(N_CHANNEL_OUT - 1));
 
@@ -893,9 +709,6 @@ module Conv
   assign w_output_last_window_row = (r_output_window_counter_row == WINDOW_ROW_COUNTER_WIDTH'(WINDOW_COUNT_PER_LINE - 1));
   assign w_output_last_window_acc = (r_output_window_counter_acc == $bits(r_output_window_counter_acc)'((WINDOW_COUNT_PER_LINE * WINDOW_COUNT_PER_COLUMN) - 1));
 
-  // Advance the input-channel accumulator and output-channel selector only
-  // when the output FSM starts a new memory-address phase.
-  // Status: practically unchanged functionally.
   always_ff @(posedge clk or posedge reset) begin: OUTPUT_CONTROL_COUNTERS_BLOCK
     if (reset) begin
       r_output_channel_counter_input  <= '0;
@@ -909,9 +722,6 @@ module Conv
     end
   end
 
-  // Track the current window in row-major order. These counters ensure that a
-  // tile is advanced only after all input channels have been accumulated.
-  // Status: practically unchanged functionally.
   always_ff @(posedge clk or posedge reset) begin: OUTPUT_WINDOW_COUNTERS_BLOCK
     if (reset) begin
       r_output_window_counter_acc <= '0;
@@ -935,9 +745,6 @@ module Conv
   // -------------------------------------------------------------------------
   // WRITE REGISTERS - r_output_read_count e r_output_write_count
   // -------------------------------------------------------------------------
-  // Count the nine reads/writes of a 2x2 output tile. The counters also gate
-  // the transition from READ_OUTPUT to WRITE_OUTPUT.
-  // Status: practically unchanged functionally.
   always_ff @(posedge clk or posedge reset) begin: OUTPUT_RW_COUNTER_BLOCK
     if (reset) begin
       r_output_read_count  <= 0;
@@ -961,9 +768,6 @@ module Conv
     end
   end
 
-  // Store prior-channel output values and capture the final inverse result.
-  // The external write data is formed by adding these two banks below.
-  // Status: functionally changed.
   always_ff @(posedge clk) begin: OUTPUT_DATA_BLOCK
     if (reset) begin
       r_output_write <= '{default: '0};
@@ -977,13 +781,10 @@ module Conv
       end
       if (st_conv_current == HADAMARD &&
           r_conv_multiply_count == $bits(r_conv_multiply_count)'(STREAM_CYCLES - 1))
-        r_output_write <= w_stream_final_capture;
+        r_output_write <= w_output_capture;
     end
   end
 
-  // Maintain the base output address for the current channel and spatial
-  // window. Updates use row-major strides rather than a lookup table.
-  // Status: practically unchanged functionally.
   always_ff @(posedge clk or posedge reset) begin: OUTPUT_ADDR_POINTER_BLOCK
     if (reset) begin
       r_output_addr_channel <= '0;
@@ -1018,9 +819,6 @@ module Conv
     end
   end
 
-  // Generate the intra-tile read/write offset. The offset wraps at each 2x2
-  // row so adjacent output pixels map to the feature-map stride correctly.
-  // Status: practically unchanged functionally.
   always_ff @(posedge clk or posedge reset) begin: OUTPUT_ADDR_OFFSET_BLOCK
     if (reset) begin
       r_output_addr_offset_read <= '0;
@@ -1054,9 +852,6 @@ module Conv
     end
   end
 
-  // Compose the final row-major address from channel base, window column, and
-  // window row, then drive the external memory protocol signals.
-  // Status: practically unchanged functionally.
   assign w_output_addr = NADDR'(r_output_addr_channel) + NADDR'(r_output_addr_col) + NADDR'(r_output_addr_row);
   assign p_output_data_write = r_output_write[r_output_write_count] + r_output_read[r_output_write_count];
   assign p_output_addr = (st_output_current == READ_OUTPUT) ?
