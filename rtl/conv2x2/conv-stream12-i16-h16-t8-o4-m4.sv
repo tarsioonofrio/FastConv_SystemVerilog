@@ -101,14 +101,12 @@ module Conv
   localparam int PRODUCT_INDEX_WIDTH = f_width_min1(WEIGHT_CYCLES);
   logic [NBITS-1:0] r_transform_row [HADAMARD_SIZE-1:0];
   logic [NBITS-1:0] r_inverse_row [HADAMARD_SIZE-1:0];
-  logic [NBITS-1:0] r_output_accumulator [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
   logic [ROW_INDEX_WIDTH-1:0] r_inverse_row_idx;
   logic [PRODUCT_INDEX_WIDTH-1:0] r_transform_product_idx;
   logic [NBITS-1:0] w_inverse_partial [CONV_OUTPUT_SIZE-1:0];
   logic [NBITS-1:0] w_inverse_partial_current [CONV_OUTPUT_SIZE-1:0];
   logic [NBITS-1:0] w_output_acc_next [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
   logic [NBITS-1:0] w_output_final [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
-  logic [NBITS-1:0] w_output_capture [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
   logic [NBITS-1:0] w_inverse_product_row [HADAMARD_SIZE-1:0];
   logic [NBITS-1:0] w_transform_feature [FIXED_NUM_MULT-1:0];
 `ifdef STREAM_DEBUG
@@ -564,7 +562,9 @@ module Conv
     if (reset) begin
       r_transform_row          <= '{default: '0};
       r_inverse_row          <= '{default: '0};
-      r_output_accumulator        <= '{default: '0};
+      // The output-write bank also carries the streaming accumulation state.
+      // Sharing this bank removes the duplicate four-word accumulator bank.
+      r_output_write              <= '{default: '0};
       r_inverse_row_idx <= '0;
       r_transform_product_idx <= '0;
 `ifdef STREAM_DEBUG
@@ -578,7 +578,7 @@ module Conv
           r_transform_row[2] <= w_conv_transform[2];
           r_transform_row[3] <= w_conv_transform[3];
           r_inverse_row              <= '{default: '0};
-          r_output_accumulator            <= '{default: '0};
+          r_output_write              <= '{default: '0};
           r_inverse_row_idx     <= '0;
           r_transform_product_idx <= '0;
 `ifdef STREAM_DEBUG
@@ -606,7 +606,8 @@ module Conv
             r_transform_row[2] <= w_conv_transform[14];
             r_transform_row[3] <= w_conv_transform[15];
           end
-          r_output_accumulator        <= w_output_acc_next;
+          // Advance the accumulated tile in the existing output-write bank.
+          r_output_write              <= w_output_acc_next;
           r_inverse_row_idx <= r_inverse_row_idx + 1'b1;
           r_inverse_row          <= w_inverse_product_row;
 `ifdef STREAM_DEBUG
@@ -621,7 +622,7 @@ module Conv
         INVERSE: begin
 `ifdef STREAM_DEBUG
           $display("STREAM FINAL");
-          $write("  ACC:"); for (int unsigned d = 0; d < CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE; d++) $write(" %0d", $signed(r_output_accumulator[d])); $write("\n");
+          $write("  ACC:"); for (int unsigned d = 0; d < CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE; d++) $write(" %0d", $signed(r_output_write[d])); $write("\n");
           $write("  Slast:"); for (int unsigned d = 0; d < HADAMARD_SIZE; d++) $write(" %0d", $signed(r_inverse_row[d])); $write("\n");
           $write("  SIG:"); for (int unsigned d = 0; d < CONV_OUTPUT_SIZE; d++) $write(" %0d", $signed(w_inverse_partial[d])); $write("\n");
           $write("  OUT:"); for (int unsigned d = 0; d < CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE; d++) $write(" %0d", $signed(w_output_final[d])); $write("\n");
@@ -663,9 +664,8 @@ module Conv
   assign w_inverse_product_row[3] = w_conv_product[3];
   InverseRow inverse_row_current(.inverse_input_row(w_inverse_product_row), .inverse_partial(w_inverse_partial_current));
   InverseRowAccumulate inverse_row_acc(
-    .inverse_row_idx(r_inverse_row_idx), .accumulator_in(r_output_accumulator), .inverse_partial(w_inverse_partial_current), .accumulator_out(w_output_acc_next));
-  assign w_output_final = (st_conv_current == INVERSE) ? r_output_accumulator : w_output_acc_next;
-  assign w_output_capture = w_output_acc_next;
+    .inverse_row_idx(r_inverse_row_idx), .accumulator_in(r_output_write), .inverse_partial(w_inverse_partial_current), .accumulator_out(w_output_acc_next));
+  assign w_output_final = (st_conv_current == INVERSE) ? r_output_write : w_output_acc_next;
 
 
   // ----------------------------------------------------------------------------------------------------
@@ -789,18 +789,13 @@ module Conv
 
   always_ff @(posedge clk) begin: OUTPUT_DATA_BLOCK
     if (reset) begin
-      r_output_write <= '{default: '0};
       r_output_read <= '{default: '0};
     end else begin
       if (st_output_current == RESET_OUTPUT) begin
-        // r_output_write <= '{default: '0};
         r_output_read <= '{default: '0};
       end else if ((st_output_current == READ_OUTPUT) && p_output_valid) begin
         r_output_read[r_output_read_count] <= p_output_data_read;
       end
-      if (st_conv_current == HADAMARD &&
-          r_conv_multiply_count == $bits(r_conv_multiply_count)'(STREAM_CYCLES - 1))
-        r_output_write <= w_output_capture;
     end
   end
 
