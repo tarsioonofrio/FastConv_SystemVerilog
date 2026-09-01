@@ -13,6 +13,7 @@ As variantes fixas sao:
 | Arquivo | MACs por ciclo | Linhas inversas consumidas por ciclo |
 | --- | ---: | ---: |
 | `conv4mac-stream4.sv` | 4 | 1 |
+| `conv4mac-stream4-rdrow.sv` | 4 | 1 (variante com `r_d_row`) |
 | `conv8mac-stream4.sv` | 8 | 2 |
 
 O contrato funcional que nao pode mudar durante a reducao e:
@@ -153,10 +154,14 @@ execucao local, nao uma falha funcional observada no Verilator.
 
 ## 5. Alteracao 2: reduzir `r_d_row`
 
-Esta alteracao foi aplicada primeiro em `conv4mac-stream4.sv` e depois em
-`conv8mac-stream4.sv`. `r_d_row` era diferente de `r_s_row`: ele segurava a linha
+Esta alteracao foi inicialmente experimentada em `conv4mac-stream4.sv` e
+`conv8mac-stream4.sv`. A variante preservada com essa fronteira esta agora em
+`conv4mac-stream4-rdrow.sv`, enquanto `conv4mac-stream4.sv` permanece identico
+ao `HEAD`. `r_d_row` e diferente de `r_s_row`: ele segura a linha
 transformada entre a captura no estado `TRANSFORM`/`HADAMARD` e o ciclo em que
-os MACs a consomem.
+os MACs a consomem. A selecao combinacional sem essa fronteira foi mantida
+somente como variante experimental; a variante `conv4mac-stream4-rdrow.sv`
+restaura `r_d_row` porque a sintese mostrou uma reducao material de area.
 
 ### Hipotese
 
@@ -183,39 +188,47 @@ selecionados diretamente da matriz transformada.
 
 ### Mudanca aplicada
 
-- removida a declaracao e a inicializacao sequencial de `r_d_row` nos dois
-  arquivos;
-- removidas as atribuicoes de `w_conv_transform` para `r_d_row` nos estados
-  `TRANSFORM` e `HADAMARD`;
-- `w_conv_feature` agora usa diretamente os quatro indices da linha atual em
-  `conv4mac`;
-- `w_conv_feature[0..7]` usa os indices `r_stream_product_idx + offset` em
-  `conv8mac`.
+Na variante experimental sem o banco, a declaracao de `r_d_row` foi removida
+e `w_conv_feature` passou a usar diretamente os indices da linha atual. A
+regressao funcional passou, mas a sintese contabilizou os muxes de selecao
+dentro da hierarquia `Transform`.
+
+Na variante `conv4mac-stream4-rdrow.sv`, `r_d_row[0..3]` foi restaurado:
+
+- a primeira linha `w_conv_transform[0..3]` e capturada na entrada do Hadamard;
+- as linhas seguintes `4..7`, `8..11` e `12..15` sao carregadas nas bordas dos
+  ciclos correspondentes;
+- os MACs leem somente o banco registrado durante cada ciclo.
+
+`conv4mac-stream4.sv` continua sendo a referencia sem essa fronteira, e
+`conv8mac-stream4.sv` continua sendo uma variante separada e nao e alterada
+por esta restauracao.
 
 O acumulador, os pesos, os contadores e a ordem da inversa nao foram
 alterados.
 
 ### Reducao obtida
 
-Cada variante removeu outras 4 palavras de 20 bits, ou 80 bits. Somando a
-Alteracao 1, cada arquivo fixo agora elimina 8 palavras (160 bits) em relacao
-ao estado original; os dois arquivos juntos eliminam 16 palavras (320 bits).
-Area, potencia e timing ainda precisam ser medidos com nova sintese.
+Na variante `conv4mac-stream4-rdrow.sv`, a restauracao recoloca 4 palavras de 20
+bits (80 bits) e deixa somente a reducao de `r_s_row` em relacao ao estado
+original. A sintese atual produziu 6.515 celulas, 10.857,984 de area total e
+1.768,687 de area na hierarquia `Transform`, contra 8.765 celulas, 12.072,861
+e 2.987,622 respectivamente na variante sem `r_d_row`. Portanto, os 80 bits
+adicionais reduziram a area total em aproximadamente 10,1% e a area atribuida
+`Transform` em aproximadamente 40,8%.
 
 ### Evidencia
 
-Os dois testes fixos continuam com os mesmos resultados da baseline:
+O teste da variante `conv4mac-stream4-rdrow.sv` continua funcionalmente
+equivalente:
 
 ```text
-conv4mac: inverse_tiles=2025 cycles=29749 valid_writes=8100
-          input_samples_clipped=0 invalid_output_beats=0
-conv8mac: inverse_tiles=2025 cycles=25699 valid_writes=8100
+conv4mac: inverse_tiles=2025 cycles=27724 valid_writes=8100
           input_samples_clipped=0 invalid_output_beats=0
 ```
 
-Nenhum erro de golden output foi observado. Os avisos adicionais de largura
-nos indices constantes `2'd2` e `2'd3` nao alteram a elaboracao, mas devem ser
-limpos em uma etapa posterior para manter o lint silencioso.
+Nenhum erro de golden output foi observado. A simulacao anotada do netlist
+regenerado tambem passou com `cycles=27725` e 0 erros de elaboracao.
 
 ## 6. Alteracao 3 candidata: reduzir `r_out_acc`
 
@@ -248,9 +261,9 @@ revertivel:
 1. baseline atual: 4 e 8 MACs;
 2. remover `r_s_row` e o `InverseRow` de trace (commit anterior);
 3. repetir baseline e registrar ciclos/saidas;
-4. remover `r_d_row` por selecao indexada (aplicado no working tree apos a
-   prova temporal desta etapa);
-5. medir sintese da alternativa aprovada;
+4. comparar a variante sem `r_d_row` com a restauracao da fronteira
+   sequencial;
+5. aprovar a alternativa somente apos medir area, timing e potencia;
 6. somente entao estudar `r_out_acc` ou uma acumulacao dobrada;
 7. rodar simulacao anotada e power com netlist gerado a partir do commit
    correspondente.
