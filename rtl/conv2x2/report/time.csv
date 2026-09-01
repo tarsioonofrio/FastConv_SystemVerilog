@@ -1,4 +1,5 @@
 project,nome,mult,side,extra,time/ns,cycles
+Conv2x2-stream12-prefetch4-tcn4-04mac,Conv2x2-stream12-prefetch4,04,32,,259715.0,25969
 Conv2x2-stream12-tcn4-02mac,Conv2x2-stream12,02,32,,297515.0,29749
 Conv2x2-stream12-tcn4-04mac,Conv2x2-stream12,04,32,,297515.0,29749
 Conv2x2-stream12-tcn4-08mac,Conv2x2-stream12,08,32,,257015.0,25699
