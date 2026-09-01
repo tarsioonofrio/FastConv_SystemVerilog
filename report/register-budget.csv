@@ -1,0 +1,17 @@
+Project,architecture_mode,kernel_size,input_words,parameter_hadamard_words,product_words,output_words,total_estimated_words,source
+Conv2x2-stream12-tcn4-02mac,stream12,2,16,6,2,4,28,architectural_formula
+Conv2x2-stream12-tcn4-04mac,stream12,2,16,6,4,4,30,architectural_formula
+Conv2x2-stream12-tcn4-08mac,stream12,2,16,6,8,4,34,architectural_formula
+Conv2x2-stream4-tcn4-04mac,stream4,2,16,4,4,4,28,architectural_formula
+Conv2x2-stream4-tcn4-04mac-rdrow,stream4-rdrow,2,16,6,4,4,30,architectural_formula
+Conv2x2-stream4-tcn4-08mac,stream4,2,16,4,8,4,32,architectural_formula
+Conv2x2-tcn4-04mac,standard,2,16,8,4,4,32,architectural_formula
+Conv2x2-tcn4-16mac,standard,2,16,8,16,4,44,architectural_formula
+Conv3x3-ifn9-06mac,standard,3,25,18,6,9,58,architectural_formula
+Conv3x3stream-if-ifn9-06mac,stream,3,25,9,6,9,49,architectural_formula
+Conv3x3stream-if-ifn9-12mac,stream,3,25,9,12,9,55,architectural_formula
+Conv3x3stream-if-ifn9-18mac,stream,3,25,9,18,9,61,architectural_formula
+Conv3x3stream-tc-tcn9-05mac,stream,3,25,9,5,9,48,architectural_formula
+Conv3x3stream21-ifn9-06mac,stream,3,25,9,6,9,49,architectural_formula
+Conv4x4-tcn16-18mac,standard,4,36,32,18,16,102,architectural_formula
+Conv4x4stream28-tcn16-06mac,stream,4,36,16,6,16,74,architectural_formula
