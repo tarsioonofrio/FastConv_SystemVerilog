@@ -2,6 +2,7 @@ Project,simulation_log,logical_area,flop_report,power_report,mapped_netlist,sdf,
 Conv2x2-stream12-tcn4-02mac,True,True,True,True,True,False,False
 Conv2x2-stream12-tcn4-04mac,True,True,True,True,True,False,False
 Conv2x2-stream12-tcn4-08mac,True,True,True,True,True,False,False
+Conv2x2-stream12-prefetch4-tcn4-04mac,True,True,True,True,True,True,True
 Conv2x2-stream4-tcn4-04mac,True,True,True,True,True,True,True
 Conv2x2-stream4-tcn4-04mac-rdrow,True,True,True,True,True,True,True
 Conv2x2-stream4-tcn4-08mac,True,True,True,True,True,True,True

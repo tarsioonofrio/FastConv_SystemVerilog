@@ -1,4 +1,5 @@
 Project,architecture_mode,kernel_size,input_words,h_register_words,h_register_signals,t_register_words,t_register_signals,mac_lanes,output_words,total_estimated_words,source
+Conv2x2-stream12-prefetch4-tcn4-04mac,stream12,2,16,16,r_input_weight[16],8,r_transform_row[4]; r_inverse_row[4],4,4,44,rtl_r_declarations
 Conv2x2-stream12-tcn4-02mac,stream12,2,16,16,r_input_weight[16],8,r_transform_row[4]; r_inverse_row[4],2,4,44,rtl_r_declarations
 Conv2x2-stream12-tcn4-04mac,stream12,2,16,16,r_input_weight[16],8,r_transform_row[4]; r_inverse_row[4],4,4,44,rtl_r_declarations
 Conv2x2-stream12-tcn4-08mac,stream12,2,16,16,r_input_weight[16],8,r_transform_row[4]; r_inverse_row[4],8,4,44,rtl_r_declarations

@@ -35,6 +35,16 @@ Conv2x2-stream12-tcn4-08mac,multip7,Multip_219,610,637.812,252.613,890.425,5.609
 Conv2x2-stream12-tcn4-08mac,trf,Transform,2401,1697.472,794.687,2492.159,15.7
 Conv2x2-stream12-tcn4-08mac,matrix_c0,MatrixC0,1320,871.668,354.969,1226.637,7.727
 Conv2x2-stream12-tcn4-08mac,matrix_c1,MatrixC1,1081,825.804,284.649,1110.453,6.996
+Conv2x2-stream12-prefetch4-tcn4-04mac,Conv,Conv,6649,8283.87,3041.342,11325.212,100.0
+Conv2x2-stream12-prefetch4-tcn4-04mac,inverse_row_acc,InverseRowAccumulate,357,324.828,137.819,462.647,4.085
+Conv2x2-stream12-prefetch4-tcn4-04mac,inverse_row_current,InverseRow,97,169.848,33.045,202.893,1.792
+Conv2x2-stream12-prefetch4-tcn4-04mac,multip0,Multip,596,625.59,245.518,871.108,7.692
+Conv2x2-stream12-prefetch4-tcn4-04mac,multip1,Multip_235,596,625.842,245.395,871.237,7.693
+Conv2x2-stream12-prefetch4-tcn4-04mac,multip2,Multip_234,596,625.842,245.518,871.36,7.694
+Conv2x2-stream12-prefetch4-tcn4-04mac,multip3,Multip_233,596,625.59,245.518,871.108,7.692
+Conv2x2-stream12-prefetch4-tcn4-04mac,trf,Transform,968,1401.876,366.811,1768.687,15.617
+Conv2x2-stream12-prefetch4-tcn4-04mac,matrix_c0,MatrixC0,484,701.316,127.315,828.631,7.317
+Conv2x2-stream12-prefetch4-tcn4-04mac,matrix_c1,MatrixC1,484,700.56,127.315,827.875,7.31
 Conv2x2-stream4-tcn4-04mac,Conv,Conv,8473,8467.074,3660.696,12127.77,100.0
 Conv2x2-stream4-tcn4-04mac,inverse_row_acc,InverseRowAccumulate,339,331.128,133.279,464.407,3.829
 Conv2x2-stream4-tcn4-04mac,inverse_row_current,InverseRow,97,171.36,33.045,204.405,1.685

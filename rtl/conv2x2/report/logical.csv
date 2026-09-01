@@ -1,4 +1,5 @@
 Project,nome,mult,extra,Cell Count,Cell Area um^2,Net Area um^2,Total Area um^2,Flop Count
+Conv2x2-stream12-prefetch4-tcn4-04mac,Conv2x2-stream12-prefetch4,04,,6649,8283.87,3041.342,11325.212,1187
 Conv2x2-stream12-tcn4-02mac,Conv2x2-stream12,02,,6483,8034.138,2978.228,11012.366,1107
 Conv2x2-stream12-tcn4-04mac,Conv2x2-stream12,04,,6478,8033.382,2976.96,11010.342,1107
 Conv2x2-stream12-tcn4-08mac,Conv2x2-stream12,08,,10394,11183.886,4689.775,15873.661,1105

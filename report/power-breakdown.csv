@@ -1,4 +1,12 @@
 Project,category,power_mW,percent_of_subtotal
+Conv2x2-stream12-prefetch4-tcn4-04mac,memory,0.0,0.0
+Conv2x2-stream12-prefetch4-tcn4-04mac,register,0.199889,34.08905253140919
+Conv2x2-stream12-prefetch4-tcn4-04mac,latch,0.0,0.0
+Conv2x2-stream12-prefetch4-tcn4-04mac,logic,0.353412,60.27085148872816
+Conv2x2-stream12-prefetch4-tcn4-04mac,bbox,0.0,0.0
+Conv2x2-stream12-prefetch4-tcn4-04mac,clock,0.0330719,5.640078925871417
+Conv2x2-stream12-prefetch4-tcn4-04mac,pad,0.0,0.0
+Conv2x2-stream12-prefetch4-tcn4-04mac,pm,0.0,0.0
 Conv2x2-stream12-tcn4-02mac,memory,0.0,0.0
 Conv2x2-stream12-tcn4-02mac,register,0.169577,31.922719973795722
 Conv2x2-stream12-tcn4-02mac,latch,0.0,0.0
