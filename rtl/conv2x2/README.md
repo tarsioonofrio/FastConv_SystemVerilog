@@ -15,6 +15,7 @@ file is compiled separately because every file declares the top-level module
 | `conv-stream4-i16-h16-t0-o4-m8.sv` | Eight-MAC streaming path using the 4-word schedule | Fixed 8 MACs |
 | `conv-stream12-generic-i16-h16-t8-o4-m2-4-8.sv` | Generic streaming path from the `stream12` family | `NUM_MULT = 2`, `4` or `8` |
 | `conv-stream12-i16-h16-t8-o4-m4.sv` / `conv-stream12-i16-h16-t8-o4-m8.sv` | Fixed-MAC compatibility sources from the `stream12` family | Fixed 4 / 8 MACs |
+| `conv-stream12-i16-h16-t8-o4-m4-prefetch4.sv` | Four-word prefetch variant: captures the first new column while the current tile is processed, then commits it before reading the second column | Fixed 4 MACs |
 
 The filename fields are structural counts, not feature-map dimensions:
 
@@ -39,6 +40,7 @@ For the current 2x2 sources, the recount is:
 | stream4, 4 or 8 MACs | 16 | 0 | `r_input_weight[16]` |
 | stream4-rdrow, 4 MACs | 16 | 4 | `r_input_weight[16]` + `r_transform_row[4]` |
 | stream12, 2/4/8 MACs | 16 | 8 | `r_input_weight[16]` + `r_transform_row[4]` + `r_inverse_row[4]` |
+| stream12-prefetch4, 4 MACs | 16 (+4 prefetch) | 8 | `r_input_weight[16]` + `r_transform_row[4]` + `r_inverse_row[4]` + `r_input_prefetch[4]` |
 
 The output accumulator is part of the `o4` output bank, and all `w_conv_*`,
 `w_transform_*`, and `w_inverse_*` vectors remain wires; none of them is
@@ -86,6 +88,7 @@ make run-stream4-8mac
 make run-stream12 NUM_MULT=2
 make run-stream12 NUM_MULT=4
 make run-stream12 NUM_MULT=8
+make run-stream12-prefetch4
 ```
 
 The ModelSim wrapper for the conventional implementation is:
