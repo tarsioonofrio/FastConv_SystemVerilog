@@ -1,0 +1,4 @@
+Project,architecture_mode,kernel_size,input_words,parameter_hadamard_words,product_words,output_words,total_estimated_words,source
+Conv3x3stream-if-ifn9-06mac,stream,3,25,9,6,9,49,architectural_formula
+Conv3x3stream-if-ifn9-12mac,stream,3,25,9,12,9,55,architectural_formula
+Conv3x3stream-if-ifn9-18mac,stream,3,25,9,18,9,61,architectural_formula

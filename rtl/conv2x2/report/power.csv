@@ -1,0 +1,9 @@
+Project,nome,mult,extra,memory,register,latch,logic,bbox,clock,pad,pm,Subtotal
+Conv2x2-stream12-tcn4-02mac,Conv2x2-stream12,02,,0.0,0.169577,0.0,0.333295,0.0,0.0283388,0.0,0.0,0.531211
+Conv2x2-stream12-tcn4-04mac,Conv2x2-stream12,04,,0.0,0.161043,0.0,0.319568,0.0,0.0283363,0.0,0.0,0.508947
+Conv2x2-stream12-tcn4-08mac,Conv2x2-stream12,08,,0.0,0.1415,0.0,0.501811,0.0,0.0263274,0.0,0.0,0.669638
+Conv2x2-stream4-tcn4-04mac,Conv2x2-stream4,04,,0.0,0.174438,0.0,0.49124,0.0,0.026704,0.0,0.0,0.692382
+Conv2x2-stream4-tcn4-04mac-rdrow,Conv2x2-stream4,04,,0.0,0.186121,0.0,0.369382,0.0,0.0273115,0.0,0.0,0.582814
+Conv2x2-stream4-tcn4-08mac,Conv2x2-stream4,08,,0.0,0.166916,0.0,0.726525,0.0,0.025042,0.0,0.0,0.918483
+Conv2x2-tcn4-04mac,Conv2x2,04,,0.0,0.264068,0.0,0.529235,0.0,0.0327901,0.0,0.0,0.826093
+Conv2x2-tcn4-16mac,Conv2x2,16,,0.0,0.113593,0.0,0.516132,0.0,0.0210622,0.0,0.0,0.650788
