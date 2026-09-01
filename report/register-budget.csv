@@ -1,13 +1,13 @@
 Project,architecture_mode,kernel_size,input_words,h_register_words,h_register_signals,t_register_words,t_register_signals,mac_lanes,output_words,total_estimated_words,source
-Conv2x2-conv-all-i16-h16-t0-o4-m16,all,2,16,16,r_input_weight[16],0,,16,4,36,rtl_r_declarations
-Conv2x2-conv-std-i16-h16-t16-o4-m4,standard,2,16,16,r_input_weight[16],16,r_conv_temp[16],4,4,52,rtl_r_declarations
-Conv2x2-conv-stream12-generic-i16-h16-t8-o4-m2-4-8,stream12,2,16,16,r_input_weight[16],8,r_transform_row[4]; r_inverse_row[4],2,4,44,rtl_r_declarations
-Conv2x2-conv-stream12-i16-h16-t8-o4-m4,stream12,2,16,16,r_input_weight[16],8,r_transform_row[4]; r_inverse_row[4],4,4,44,rtl_r_declarations
-Conv2x2-conv-stream12-i16-h16-t8-o4-m8,stream12,2,16,16,r_input_weight[16],8,r_transform_row[4]; r_inverse_row[4],8,4,44,rtl_r_declarations
-Conv2x2-conv-stream12-i20-h16-t8-o4-m4-prefetch4,stream12,2,16,16,r_input_weight[16],8,r_transform_row[4]; r_inverse_row[4],4,4,44,rtl_r_declarations
-Conv2x2-conv-stream4-i16-h16-t0-o4-m4,stream4,2,16,16,r_input_weight[16],0,,4,4,36,rtl_r_declarations
-Conv2x2-conv-stream4-i16-h16-t0-o4-m8,stream4,2,16,16,r_input_weight[16],0,,8,4,36,rtl_r_declarations
-Conv2x2-conv-stream4-i16-h16-t4-o4-m4,stream4,2,16,16,r_input_weight[16],4,r_transform_row[4],4,4,40,rtl_r_declarations
+Conv2x2-conv-i16-h16-t00-o4-m04-stream4,stream4,2,16,16,r_input_weight[16],0,,4,4,36,rtl_r_declarations
+Conv2x2-conv-i16-h16-t00-o4-m08-stream4,stream4,2,16,16,r_input_weight[16],0,,8,4,36,rtl_r_declarations
+Conv2x2-conv-i16-h16-t00-o4-m16-all,all,2,16,16,r_input_weight[16],0,,16,4,36,rtl_r_declarations
+Conv2x2-conv-i16-h16-t04-o4-m04-stream4,stream4,2,16,16,r_input_weight[16],4,r_transform_row[4],4,4,40,rtl_r_declarations
+Conv2x2-conv-i16-h16-t08-o4-m02-04-08-stream12-generic,stream12,2,16,16,r_input_weight[16],8,r_transform_row[4]; r_inverse_row[4],2,4,44,rtl_r_declarations
+Conv2x2-conv-i16-h16-t08-o4-m04-stream12,stream12,2,16,16,r_input_weight[16],8,r_transform_row[4]; r_inverse_row[4],4,4,44,rtl_r_declarations
+Conv2x2-conv-i16-h16-t08-o4-m08-stream12,stream12,2,16,16,r_input_weight[16],8,r_transform_row[4]; r_inverse_row[4],8,4,44,rtl_r_declarations
+Conv2x2-conv-i16-h16-t16-o4-m04-std,standard,2,16,16,r_input_weight[16],16,r_conv_temp[16],4,4,52,rtl_r_declarations
+Conv2x2-conv-i20-h16-t08-o4-m04-stream12-prefetch4,stream12,2,16,16,r_input_weight[16],8,r_transform_row[4]; r_inverse_row[4],4,4,44,rtl_r_declarations
 Conv3x3-ifn9-06mac,standard,3,25,36,r_input_weight[36],36,r_conv_temp[36],6,9,106,rtl_r_declarations
 Conv3x3stream-if-ifn9-06mac,stream,3,25,36,r_input_weight[36],12,r_transform_row[6]; r_inverse_row[6],6,9,82,rtl_r_declarations
 Conv3x3stream-if-ifn9-12mac,stream,3,25,36,r_input_weight[36],18,r_transform_row[12]; r_inverse_row[6],12,9,88,rtl_r_declarations

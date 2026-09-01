@@ -9,13 +9,13 @@ file is compiled separately because every file declares the top-level module
 
 | Source | Architecture | MAC configurations |
 | --- | --- | --- |
-| `conv-std-i16-h16-t16-o4-m4.sv` | Conventional transform / Hadamard / full inverse path | Parameterized (`NUM_MULT`, default 4) |
-| `conv-all-i16-h16-t0-o4-m16.sv` | Fully parallel path, all 16 Hadamard products in one cycle | Fixed 16 MACs |
-| `conv-stream4-i16-h16-t0-o4-m4.sv` | Four-MAC streaming path using the 4-word register-reduction schedule | Fixed 4 MACs |
-| `conv-stream4-i16-h16-t0-o4-m8.sv` | Eight-MAC streaming path using the 4-word schedule | Fixed 8 MACs |
-| `conv-stream12-generic-i16-h16-t8-o4-m2-4-8.sv` | Generic streaming path from the `stream12` family | `NUM_MULT = 2`, `4` or `8` |
-| `conv-stream12-i16-h16-t8-o4-m4.sv` / `conv-stream12-i16-h16-t8-o4-m8.sv` | Fixed-MAC compatibility sources from the `stream12` family | Fixed 4 / 8 MACs |
-| `conv-stream12-i20-h16-t8-o4-m4-prefetch4.sv` | Four-word prefetch variant: captures the first new column while the current tile is processed, then commits it before reading the second column | Fixed 4 MACs |
+| `conv-i16-h16-t16-o4-m04-std.sv` | Conventional transform / Hadamard / full inverse path | Parameterized (`NUM_MULT`, default 4) |
+| `conv-i16-h16-t00-o4-m16-all.sv` | Fully parallel path, all 16 Hadamard products in one cycle | Fixed 16 MACs |
+| `conv-i16-h16-t00-o4-m04-stream4.sv` | Four-MAC streaming path using the 4-word register-reduction schedule | Fixed 4 MACs |
+| `conv-i16-h16-t00-o4-m08-stream4.sv` | Eight-MAC streaming path using the 4-word schedule | Fixed 8 MACs |
+| `conv-i16-h16-t08-o4-m02-04-08-stream12-generic.sv` | Generic streaming path from the `stream12` family | `NUM_MULT = 2`, `4` or `8` |
+| `conv-i16-h16-t08-o4-m04-stream12.sv` / `conv-i16-h16-t08-o4-m08-stream12.sv` | Fixed-MAC compatibility sources from the `stream12` family | Fixed 4 / 8 MACs |
+| `conv-i20-h16-t08-o4-m04-stream12-prefetch4.sv` | Four-word prefetch variant: captures the first new column while the current tile is processed, then commits it before reading the second column | Fixed 4 MACs |
 
 The filename fields are structural counts, not feature-map dimensions:
 
@@ -47,12 +47,12 @@ The output accumulator is part of the `o4` output bank, and all `w_conv_*`,
 silently counted as storage.
 
 The generic source is the only intentional exception to a single `m` value:
-`conv-stream12-generic-i16-h16-t8-o4-m2-4-8.sv` accepts `NUM_MULT` equal to 2, 4
+`conv-i16-h16-t08-o4-m02-04-08-stream12-generic.sv` accepts `NUM_MULT` equal to 2, 4
 or 8. The fixed sources use one concrete `m` value in their filename.
 
 The generic `stream12` source supports multiple MAC counts, while the concrete
 sources are named with their fixed MAC count. The `stream4` sources are
-`conv-stream4-i16-h16-t0-o4-m4.sv` and `conv-stream4-i16-h16-t0-o4-m8.sv`, so two files that both declare
+`conv-i16-h16-t00-o4-m04-stream4.sv` and `conv-i16-h16-t00-o4-m08-stream4.sv`, so two files that both declare
 `Conv` are never compiled in the same command.
 
 The conventional and fully-parallel variants use
@@ -101,8 +101,8 @@ For a streaming RTL run, set the source explicitly before invoking the shared
 script. For example:
 
 ```bash
-FASTCONV_STREAM_SOURCE=conv-stream4-i16-h16-t0-o4-m4.sv fish test-streaming.fish
-FASTCONV_STREAM_SOURCE=conv-stream12-generic-i16-h16-t8-o4-m2-4-8.sv fish test-streaming.fish
+FASTCONV_STREAM_SOURCE=conv-i16-h16-t00-o4-m04-stream4.sv fish test-streaming.fish
+FASTCONV_STREAM_SOURCE=conv-i16-h16-t08-o4-m02-04-08-stream12-generic.sv fish test-streaming.fish
 ```
 
 The row-level unit test is `streaming_row_testbench.sv`.
@@ -112,13 +112,13 @@ The row-level unit test is `streaming_row_testbench.sv`.
 All project-local synthesis configurations are under `synthesis/`. Each
 configuration has one direct directory whose name matches the RTL source:
 
-- `synthesis/conv-std-i16-h16-t16-o4-m4/` — conventional 4-MAC baseline;
-- `synthesis/conv-all-i16-h16-t0-o4-m16/` — fully parallel 16-MAC architecture;
-- `synthesis/conv-stream4-i16-h16-t0-o4-m4/` and `...-m8/` — fixed stream;
-- `synthesis/conv-stream4-i16-h16-t4-o4-m4/` — stream with a registered transform row;
-- `synthesis/conv-stream12-generic-i16-h16-t8-o4-m2-4-8/` — generic 2/4/8-MAC stream;
-- `synthesis/conv-stream12-i16-h16-t8-o4-m4/` and `...-m8/` — current stream12 implementations;
-- `synthesis/conv-stream12-i20-h16-t8-o4-m4-prefetch4/` — stream12 with a four-word input prefetch bank.
+- `synthesis/conv-i16-h16-t16-o4-m04-std/` — conventional 4-MAC baseline;
+- `synthesis/conv-i16-h16-t00-o4-m16-all/` — fully parallel 16-MAC architecture;
+- `synthesis/conv-i16-h16-t00-o4-m04-stream4/` and `...-m8/` — fixed stream;
+- `synthesis/conv-i16-h16-t04-o4-m04-stream4/` — stream with a registered transform row;
+- `synthesis/conv-i16-h16-t08-o4-m02-04-08-stream12-generic/` — generic 2/4/8-MAC stream;
+- `synthesis/conv-i16-h16-t08-o4-m04-stream12/` and `...-m8/` — current stream12 implementations;
+- `synthesis/conv-i20-h16-t08-o4-m04-stream12-prefetch4/` — stream12 with a four-word input prefetch bank.
 
 Each configuration keeps its own `list-file.txt`, `list-define.txt`,
 `top-module.txt`, logical, power and annotated-simulation scripts. The lists
