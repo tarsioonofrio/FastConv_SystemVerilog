@@ -62,7 +62,7 @@ run-stream12: stream12
 # convolution and retains the shared testbench/data contract.
 stream12-prefetch4:
 	$(VERILATOR) --binary --exe --Mdir obj_dir/stream12-prefetch4 \
-	  $(COMMON) $(MATRICES_STREAM) conv-stream12-i16-h16-t8-o4-m4-prefetch4.sv $(TB) --build
+	  $(COMMON) $(MATRICES_STREAM) conv-stream12-i20-h16-t8-o4-m4-prefetch4.sv $(TB) --build
 
 run-stream12-prefetch4: stream12-prefetch4
 	obj_dir/stream12-prefetch4/Vtb
@@ -74,7 +74,7 @@ lint:
 	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-stream4-i16-h16-t0-o4-m8.sv $(TB)
 	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-stream12-generic-i16-h16-t8-o4-m2-4-8.sv $(TB) \
 	  -GNUM_MULT=$(NUM_MULT)
-	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-stream12-i16-h16-t8-o4-m4-prefetch4.sv $(TB)
+	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-stream12-i20-h16-t8-o4-m4-prefetch4.sv $(TB)
 
 clean:
 	rm -rf obj_dir dump.fst dump.vcd

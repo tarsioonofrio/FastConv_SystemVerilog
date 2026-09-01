@@ -21,7 +21,7 @@ The active filenames are intentionally short and scope-neutral:
 
 These consolidated reports facilitate design space exploration and decision-making by providing an accessible overview of trade-offs between area, power, and performance.
 
-Use `scripts/report-all.py` to generate the report CSVs in one run. The
+Use `scripts/report.py` to generate the report CSVs in one run. The
 collector considers only `rtl/conv*/synthesis/` and therefore writes no
 `sys-*` tables. The global tables remain at this directory level and a
 complete Markdown index is written to `report/report.md`. In addition, each
@@ -33,7 +33,7 @@ not generated anymore. Historical copies, including their original names, are
 preserved only under `report/legacy/`.
 
 Ratios against a naive design are intentionally opt-in. Pass
-`--naive-synthesis-dir PATH` to `scripts/report-all.py`; the result is written
+`--naive-synthesis-dir PATH` to `scripts/report.py`; the result is written
 as a separate `ratio-naive.csv` and is not mixed into the convolution
 area, power, timing, or merged tables.
 
