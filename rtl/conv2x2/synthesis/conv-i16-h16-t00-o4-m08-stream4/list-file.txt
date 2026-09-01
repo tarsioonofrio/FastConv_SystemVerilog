@@ -4,4 +4,4 @@ rtl/conv2x2/mult-matrices/stream/tcn4/mult_matrices.sv
 rtl/csa/csa_lib.sv
 rtl/multip/multip.sv
 rtl/mem/mem.sv
-rtl/conv2x2/conv-stream12-i16-h16-t8-o4-m8.sv
+rtl/conv2x2/conv-i16-h16-t00-o4-m08-stream4.sv

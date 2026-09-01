@@ -19,7 +19,7 @@ Use estes scripts para automatizar execuções em lote e consolidar os relatóri
 
 As sínteses atuais ficam dentro de cada arquitetura RTL, com uma pasta direta
 por arquivo RTL, por exemplo
-`rtl/conv2x2/synthesis/conv-stream4-i16-h16-t0-o4-m4/`. Para regenerar as tabelas do
+`rtl/conv2x2/synthesis/conv-i16-h16-t00-o4-m04-stream4/`. Para regenerar as tabelas do
 repositório:
 
 ```bash
