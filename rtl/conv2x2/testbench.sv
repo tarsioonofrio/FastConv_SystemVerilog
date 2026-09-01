@@ -1,9 +1,13 @@
 `timescale 1ns/1ps
 
-module tb;
+module tb #(
+  // The same testbench is used for the parameterized, fixed-streaming and
+  // fully-parallel Conv sources. The DUT source supplies its own default when
+  // this parameter is not overridden by a simulator or Make target.
+  parameter int unsigned NUM_MULT = 4
+);
   import pack_data::*;
   import pack_param::*;
-  import pack_mux_mult::*;
 
   // Parameters and memory dimensions are imported from the generated package.
   localparam int unsigned FEAT_INPUT_WIDTH = FEAT_INPUT_SIZE;
@@ -16,7 +20,6 @@ module tb;
   localparam int unsigned OUTPUT_ADDR_WIDTH = $clog2(OUTPUT_MEMORY_SIZE);
   localparam int unsigned NADDR = (INPUT_ADDR_WIDTH > OUTPUT_ADDR_WIDTH) ? INPUT_ADDR_WIDTH : OUTPUT_ADDR_WIDTH;
 
-  localparam logic [1:0] ST_CONV_INVERSE = 2'b11;
   localparam int OUTPUT_TILES_PER_AXIS = (FEAT_OUTPUT_SIZE + CONV_OUTPUT_SIZE - 1) / CONV_OUTPUT_SIZE;
   localparam int EXPECTED_INVERSE_COUNT = N_CHANNEL_IN * N_CHANNEL_OUT * OUTPUT_TILES_PER_AXIS * OUTPUT_TILES_PER_AXIS;
 
@@ -53,11 +56,27 @@ module tb;
   int write_count;
   int cycle_count;
   logic [NBITS-1:0] output_bank [0:FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT - 1];
-  logic in_inverse_d;
+  logic conv_end_d;
+  logic [1:0] input_base_feat;
   assign p_input_data_write = '0;
+`ifdef GATE_LEVEL
+  // The mapped netlist may remove the RTL alias w_input_base_feat. Decode the
+  // four input-row states directly so the same TB remains usable post-synthesis.
+  always_comb begin
+    case (dut.st_input_current)
+      4'd3: input_base_feat = 2'd0; // READ_IN_10A
+      4'd4: input_base_feat = 2'd1; // READ_IN_10B
+      4'd5: input_base_feat = 2'd2; // READ_IN_8C
+      4'd6: input_base_feat = 2'd3; // READ_IN_8D
+      default: input_base_feat = 2'd0;
+    endcase
+  end
+`else
+  assign input_base_feat = dut.w_input_base_feat;
+`endif
   assign input_sample_in_bounds = (CONV_OUTPUT_SIZE == 4) ?
       (((dut.r_input_addr_feat % FEAT_INPUT_WIDTH) + dut.r_input_addr_count < FEAT_INPUT_WIDTH) &&
-       ((dut.r_input_addr_feat / FEAT_INPUT_WIDTH) + dut.w_input_base_feat < FEAT_INPUT_SIZE)) : 1'b1;
+       ((dut.r_input_addr_feat / FEAT_INPUT_WIDTH) + input_base_feat < FEAT_INPUT_SIZE)) : 1'b1;
   assign p_input_data = input_sample_in_bounds ? p_input_data_mem : '0;
 
   // Instanciação do Módulo (DUT)
@@ -73,8 +92,7 @@ module tb;
     .CONV_OUTPUT_SIZE(CONV_OUTPUT_SIZE),
     .CONV_INPUT_SIZE(CONV_INPUT_SIZE),
     .HADAMARD_SIZE(HADAMARD_SIZE),
-    .NUM_MULT(NUM_MULT),
-    .STATE_MULT(STATE_MULT)
+    .NUM_MULT(NUM_MULT)
   ) dut (
     .clk(clk),
     .reset(reset),
@@ -130,7 +148,9 @@ module tb;
   initial clk = 0;
   always #5 clk = ~clk;
 
-  // Validate inverse transitions and all valid writes through the Memory instances.
+  // Validate one completion event per tile and all valid writes through the
+  // Memory instances. w_conv_end is the common contract across all variants;
+  // no variant-specific FSM state is inspected here.
   always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
       conv_inverse_check_idx <= 0;
@@ -139,12 +159,12 @@ module tb;
       input_out_of_range_count <= 0;
       write_count <= 0;
       cycle_count <= 0;
-      in_inverse_d <= 1'b0;
+      conv_end_d <= 1'b0;
       output_bank <= '{default: '0};
     end else begin
       cycle_count <= cycle_count + 1;
-      in_inverse_d <= (dut.st_conv_current == ST_CONV_INVERSE);
-      if ((dut.st_conv_current == ST_CONV_INVERSE) && !in_inverse_d)
+      conv_end_d <= dut.w_conv_end;
+      if (dut.w_conv_end && !conv_end_d)
         conv_inverse_check_idx <= conv_inverse_check_idx + 1;
       if (p_input_en && !input_sample_in_bounds)
         input_out_of_range_count <= input_out_of_range_count + 1;
