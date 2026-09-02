@@ -100,7 +100,7 @@ module Conv
   logic [NBITS-1:0] r_input_weight[FIXED_NUM_MULT-1:0];
   localparam WEIGHT_ROW_COUNT_WIDTH = RAW_WEIGHT_COUNT_WIDTH;
   logic [WEIGHT_ROW_COUNT_WIDTH-1:0] r_weight_row_count;
-  logic r_weight_row_valid;
+  logic r_weight_tile_valid;
   logic [NADDR-1:0] r_input_addr_kernel_base;
   logic w_input_write_done;
 
@@ -339,10 +339,8 @@ module Conv
       CONV_INPUT: st_input_next = TRANSFER;
       TRANSFER: st_input_next = HOLD_WRITE;  // p_start the convolution
       HOLD_WRITE:
-        if ((st_conv_current == TRANSFORM) ||
-            ((st_conv_current == LOAD_WEIGHT) && !r_weight_row_valid) ||
-            ((st_conv_current == HADAMARD) &&
-             (r_conv_multiply_count != $bits(r_conv_multiply_count)'(STREAM_CYCLES - 1))))
+        if (((st_conv_current == TRANSFORM) && !r_weight_tile_valid) ||
+            ((st_conv_current == LOAD_WEIGHT) && !r_weight_tile_valid))
           st_input_next = READ_WEIGHT_ROW;
         else if (w_conv_input_release && w_input_last_window_col && w_input_write_done) st_input_next = NEXT_ROW_INPUT;
           else if (w_conv_input_release && w_input_write_done) st_input_next = READ_IN_8C;
@@ -403,7 +401,7 @@ module Conv
   always_ff @(posedge clk or posedge reset) begin: INPUT_CONTROL_COUNTERS_BLOCK
     if (reset) begin
       r_weight_row_count            <= '0;
-      r_weight_row_valid            <= 1'b0;
+      r_weight_tile_valid           <= 1'b0;
       r_input_window_counter_acc     <= 0;
       r_input_window_counter_col     <= 0;
       r_input_channel_counter_input  <= '1;  // p_start with all bits in '1' - IFchannel must be {0,1,2}
@@ -429,18 +427,15 @@ module Conv
         r_input_window_counter_col <= r_input_window_counter_col + 1;
       end
 
-      if (st_conv_current == TRANSFORM)
-        r_weight_row_valid <= 1'b0;
+      if (st_input_current == ADDRESS_INPUT)
+        r_weight_tile_valid <= 1'b0;
       else if (st_input_current == HOLD_WRITE && st_input_next == READ_WEIGHT_ROW)
-        begin
-          r_weight_row_count <= '0;
-          r_weight_row_valid <= 1'b0;
-        end
+        r_weight_row_count <= '0;
       else if (st_input_current == READ_WEIGHT_ROW && p_input_valid) begin
         if (r_weight_row_count != WEIGHT_ROW_COUNT_WIDTH'(RAW_WEIGHT_WORDS - 1))
           r_weight_row_count <= r_weight_row_count + 1'b1;
         else begin
-          r_weight_row_valid <= 1'b1;
+          r_weight_tile_valid <= 1'b1;
         end
       end
     end
@@ -576,7 +571,7 @@ module Conv
         default: begin end
       endcase
     end
-    else if (st_conv_current == LOAD_WEIGHT && r_weight_row_valid) begin
+    else if (st_conv_current == LOAD_WEIGHT && r_weight_tile_valid) begin
       r_input_weight[0] <= w_weight_transform_row[0];
       r_input_weight[1] <= w_weight_transform_row[1];
       r_input_weight[2] <= w_weight_transform_row[2];
@@ -605,7 +600,7 @@ module Conv
       TRANSFORM:
         st_conv_next = LOAD_WEIGHT;
       LOAD_WEIGHT:
-        if (r_weight_row_valid)
+        if (r_weight_tile_valid)
           st_conv_next = HADAMARD;
       HADAMARD: begin
         if (r_conv_multiply_count == $bits(r_conv_multiply_count)'(STREAM_CYCLES - 1)) begin
