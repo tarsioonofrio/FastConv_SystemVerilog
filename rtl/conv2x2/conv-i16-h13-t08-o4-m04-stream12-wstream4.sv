@@ -495,10 +495,6 @@ module Conv
       r_weight_spatial[6] <= '0;
       r_weight_spatial[7] <= '0;
       r_weight_spatial[8] <= '0;
-      r_input_weight[0] <= '0;
-      r_input_weight[1] <= '0;
-      r_input_weight[2] <= '0;
-      r_input_weight[3] <= '0;
     end
     else if (st_input_current == READ_WEIGHTS && p_input_valid) begin
       case (r_weight_row_count)
@@ -590,6 +586,7 @@ module Conv
     if (reset) begin
       r_transform_row          <= '{default: '0};
       r_inverse_row          <= '{default: '0};
+      r_input_weight          <= '{default: '0};
       // The output-write bank also carries the streaming accumulation state.
       // Sharing this bank removes the duplicate four-word accumulator bank.
       r_output_write              <= '{default: '0};
