@@ -43,7 +43,7 @@ stream4-8mac:
 NUM_MULT ?= 4
 stream12:
 	$(VERILATOR) --binary --exe --Mdir obj_dir/stream12-$(NUM_MULT) \
-	  $(COMMON) $(MATRICES_STREAM) conv-i16-h16-t08-o4-m02-04-08-stream12-generic.sv $(TB) --build \
+	  $(COMMON) $(MATRICES_STREAM) conv-i16-h16-t08-o4-mxx-stream12-generic.sv $(TB) --build \
 	  -GNUM_MULT=$(NUM_MULT)
 
 run: run-std
@@ -72,7 +72,7 @@ lint:
 	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STD) conv-i16-h16-t00-o4-m16-all.sv $(TB)
 	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i16-h16-t00-o4-m04-stream4.sv $(TB)
 	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i16-h16-t00-o4-m08-stream4.sv $(TB)
-	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i16-h16-t08-o4-m02-04-08-stream12-generic.sv $(TB) \
+	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i16-h16-t08-o4-mxx-stream12-generic.sv $(TB) \
 	  -GNUM_MULT=$(NUM_MULT)
 	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i20-h16-t08-o4-m04-stream12-prefetch4.sv $(TB)
 

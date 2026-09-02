@@ -2,8 +2,8 @@ Project,simulation_log,logical_area,flop_report,power_report,mapped_netlist,sdf,
 Conv2x2-conv-i16-h16-t00-o4-m04-stream4,True,True,True,True,True,True,True
 Conv2x2-conv-i16-h16-t00-o4-m08-stream4,True,True,True,True,True,True,True
 Conv2x2-conv-i16-h16-t00-o4-m16-all,True,True,True,True,True,False,False
-Conv2x2-conv-i16-h16-t04-o4-m04-stream4,True,True,True,True,True,True,True
-Conv2x2-conv-i16-h16-t08-o4-m02-04-08-stream12-generic,True,True,True,True,True,False,False
+Conv2x2-conv-i16-h16-t04-o4-m04-stream8,True,True,True,True,True,True,True
+Conv2x2-conv-i16-h16-t08-o4-mxx-stream12-generic,True,True,True,True,True,False,False
 Conv2x2-conv-i16-h16-t08-o4-m04-stream12,True,True,True,True,True,True,True
 Conv2x2-conv-i16-h16-t08-o4-m08-stream12,True,True,True,True,True,True,True
 Conv2x2-conv-i16-h16-t16-o4-m04-std,True,True,True,True,True,False,False

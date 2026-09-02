@@ -1886,6 +1886,8 @@ def write_register_budget(report_dir, records):
         source_name = source_path.name.lower() if source_path else ""
         if "stream12" in name or "stream12" in source_name:
             mode = "stream12"
+        elif "stream8" in name or "stream8" in source_name:
+            mode = "stream8"
         elif "stream4-rdrow" in name or "rdrow" in name or "rdrow" in source_name:
             mode = "stream4-rdrow"
         elif "stream4" in name or "stream4" in source_name:
