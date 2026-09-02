@@ -93,14 +93,16 @@ module Conv
   // Only the four transformed weights used by the current Hadamard row are
   // stored.  The next row is fetched from the weight memory before the next
   // Hadamard cycle, so no sixteen-word circular register bank is needed.
+  // The nine spatial weights are retained for the complete tile.  The MAC
+  // bank below still contains only the four transformed values for the row
+  // currently consumed by the Hadamard stage.
+  logic signed [NBITS-1:0] r_weight_spatial[RAW_WEIGHT_WORDS-1:0];
   logic [NBITS-1:0] r_input_weight[FIXED_NUM_MULT-1:0];
   localparam WEIGHT_ROW_COUNT_WIDTH = RAW_WEIGHT_COUNT_WIDTH;
   logic [WEIGHT_ROW_COUNT_WIDTH-1:0] r_weight_row_count;
   logic r_weight_row_valid;
   logic [NADDR-1:0] r_input_addr_kernel_base;
   logic w_input_write_done;
-  logic signed [31:0] r_weight_transform_acc[FIXED_NUM_MULT-1:0];
-  logic signed [31:0] w_weight_transform_acc_next[FIXED_NUM_MULT-1:0];
 
   function automatic integer f_weight_axis_coeff(input integer axis_index,
                                                  input integer spatial_index);
@@ -128,6 +130,27 @@ module Conv
       else if ((remainder < -2) || ((remainder == -2) && ((quotient & 1) != 0)))
         quotient = quotient - 1;
       f_round_div4 = quotient;
+    end
+  endfunction
+
+  function automatic integer f_weight_transform_sum(input integer output_row,
+                                                    input integer output_col);
+    integer total;
+    begin
+      // Evaluate one element of diag(q) * B * g * B^T * diag(q) from the
+      // registered 3x3 spatial tile.  Coefficients are scaled by two, hence
+      // the final division by four.
+      total = 0;
+      total = total + r_weight_spatial[0] * f_weight_axis_coeff(output_row, 0) * f_weight_axis_coeff(output_col, 0);
+      total = total + r_weight_spatial[1] * f_weight_axis_coeff(output_row, 0) * f_weight_axis_coeff(output_col, 1);
+      total = total + r_weight_spatial[2] * f_weight_axis_coeff(output_row, 0) * f_weight_axis_coeff(output_col, 2);
+      total = total + r_weight_spatial[3] * f_weight_axis_coeff(output_row, 1) * f_weight_axis_coeff(output_col, 0);
+      total = total + r_weight_spatial[4] * f_weight_axis_coeff(output_row, 1) * f_weight_axis_coeff(output_col, 1);
+      total = total + r_weight_spatial[5] * f_weight_axis_coeff(output_row, 1) * f_weight_axis_coeff(output_col, 2);
+      total = total + r_weight_spatial[6] * f_weight_axis_coeff(output_row, 2) * f_weight_axis_coeff(output_col, 0);
+      total = total + r_weight_spatial[7] * f_weight_axis_coeff(output_row, 2) * f_weight_axis_coeff(output_col, 1);
+      total = total + r_weight_spatial[8] * f_weight_axis_coeff(output_row, 2) * f_weight_axis_coeff(output_col, 2);
+      f_weight_transform_sum = total;
     end
   endfunction
 
@@ -381,10 +404,6 @@ module Conv
     if (reset) begin
       r_weight_row_count            <= '0;
       r_weight_row_valid            <= 1'b0;
-      r_weight_transform_acc[0]     <= '0;
-      r_weight_transform_acc[1]     <= '0;
-      r_weight_transform_acc[2]     <= '0;
-      r_weight_transform_acc[3]     <= '0;
       r_input_window_counter_acc     <= 0;
       r_input_window_counter_col     <= 0;
       r_input_channel_counter_input  <= '1;  // p_start with all bits in '1' - IFchannel must be {0,1,2}
@@ -416,16 +435,8 @@ module Conv
         begin
           r_weight_row_count <= '0;
           r_weight_row_valid <= 1'b0;
-          r_weight_transform_acc[0] <= '0;
-          r_weight_transform_acc[1] <= '0;
-          r_weight_transform_acc[2] <= '0;
-          r_weight_transform_acc[3] <= '0;
         end
       else if (st_input_current == READ_WEIGHT_ROW && p_input_valid) begin
-        r_weight_transform_acc[0] <= w_weight_transform_acc_next[0];
-        r_weight_transform_acc[1] <= w_weight_transform_acc_next[1];
-        r_weight_transform_acc[2] <= w_weight_transform_acc_next[2];
-        r_weight_transform_acc[3] <= w_weight_transform_acc_next[3];
         if (r_weight_row_count != WEIGHT_ROW_COUNT_WIDTH'(RAW_WEIGHT_WORDS - 1))
           r_weight_row_count <= r_weight_row_count + 1'b1;
         else begin
@@ -526,47 +537,50 @@ module Conv
     end
   end
 
-  // Each raw spatial word contributes to all four values of the selected
-  // transformed row.  The accumulator is scaled by four so that the final
-  // conversion reproduces the generator's rounded half-integer arithmetic.
-  always_comb begin: WEIGHT_TRANSFORM_ACCUMULATOR_BLOCK
-    w_weight_transform_acc_next[0] = r_weight_transform_acc[0];
-    w_weight_transform_acc_next[1] = r_weight_transform_acc[1];
-    w_weight_transform_acc_next[2] = r_weight_transform_acc[2];
-    w_weight_transform_acc_next[3] = r_weight_transform_acc[3];
-    if (st_input_current == READ_WEIGHT_ROW && p_input_valid) begin
-      w_weight_transform_acc_next[0] = r_weight_transform_acc[0] +
-        ($signed(p_input_data) * f_weight_axis_coeff(r_conv_multiply_count,
-                                                      r_weight_row_count / CONV_KERNEL_SIZE) *
-         f_weight_axis_coeff(0, r_weight_row_count % CONV_KERNEL_SIZE));
-      w_weight_transform_acc_next[1] = r_weight_transform_acc[1] +
-        ($signed(p_input_data) * f_weight_axis_coeff(r_conv_multiply_count,
-                                                      r_weight_row_count / CONV_KERNEL_SIZE) *
-         f_weight_axis_coeff(1, r_weight_row_count % CONV_KERNEL_SIZE));
-      w_weight_transform_acc_next[2] = r_weight_transform_acc[2] +
-        ($signed(p_input_data) * f_weight_axis_coeff(r_conv_multiply_count,
-                                                      r_weight_row_count / CONV_KERNEL_SIZE) *
-         f_weight_axis_coeff(2, r_weight_row_count % CONV_KERNEL_SIZE));
-      w_weight_transform_acc_next[3] = r_weight_transform_acc[3] +
-        ($signed(p_input_data) * f_weight_axis_coeff(r_conv_multiply_count,
-                                                      r_weight_row_count / CONV_KERNEL_SIZE) *
-         f_weight_axis_coeff(3, r_weight_row_count % CONV_KERNEL_SIZE));
-    end
+  logic [NBITS-1:0] w_weight_transform_row[FIXED_NUM_MULT-1:0];
+
+  always_comb begin: WEIGHT_TRANSFORM_ROW_BLOCK
+    w_weight_transform_row[0] = f_round_div4(f_weight_transform_sum(r_conv_multiply_count, 0));
+    w_weight_transform_row[1] = f_round_div4(f_weight_transform_sum(r_conv_multiply_count, 1));
+    w_weight_transform_row[2] = f_round_div4(f_weight_transform_sum(r_conv_multiply_count, 2));
+    w_weight_transform_row[3] = f_round_div4(f_weight_transform_sum(r_conv_multiply_count, 3));
   end
 
   always_ff @(posedge clk or posedge reset) begin: WEIGHT_REG_BLOCK
     if (reset) begin
+      r_weight_spatial[0] <= '0;
+      r_weight_spatial[1] <= '0;
+      r_weight_spatial[2] <= '0;
+      r_weight_spatial[3] <= '0;
+      r_weight_spatial[4] <= '0;
+      r_weight_spatial[5] <= '0;
+      r_weight_spatial[6] <= '0;
+      r_weight_spatial[7] <= '0;
+      r_weight_spatial[8] <= '0;
       r_input_weight[0] <= '0;
       r_input_weight[1] <= '0;
       r_input_weight[2] <= '0;
       r_input_weight[3] <= '0;
     end
-    else if (st_input_current == READ_WEIGHT_ROW && p_input_valid &&
-             r_weight_row_count == WEIGHT_ROW_COUNT_WIDTH'(RAW_WEIGHT_WORDS - 1)) begin
-      r_input_weight[0] <= f_round_div4(w_weight_transform_acc_next[0]);
-      r_input_weight[1] <= f_round_div4(w_weight_transform_acc_next[1]);
-      r_input_weight[2] <= f_round_div4(w_weight_transform_acc_next[2]);
-      r_input_weight[3] <= f_round_div4(w_weight_transform_acc_next[3]);
+    else if (st_input_current == READ_WEIGHT_ROW && p_input_valid) begin
+      case (r_weight_row_count)
+        0: r_weight_spatial[0] <= $signed(p_input_data);
+        1: r_weight_spatial[1] <= $signed(p_input_data);
+        2: r_weight_spatial[2] <= $signed(p_input_data);
+        3: r_weight_spatial[3] <= $signed(p_input_data);
+        4: r_weight_spatial[4] <= $signed(p_input_data);
+        5: r_weight_spatial[5] <= $signed(p_input_data);
+        6: r_weight_spatial[6] <= $signed(p_input_data);
+        7: r_weight_spatial[7] <= $signed(p_input_data);
+        8: r_weight_spatial[8] <= $signed(p_input_data);
+        default: begin end
+      endcase
+    end
+    else if (st_conv_current == LOAD_WEIGHT && r_weight_row_valid) begin
+      r_input_weight[0] <= w_weight_transform_row[0];
+      r_input_weight[1] <= w_weight_transform_row[1];
+      r_input_weight[2] <= w_weight_transform_row[2];
+      r_input_weight[3] <= w_weight_transform_row[3];
     end
   end
 
