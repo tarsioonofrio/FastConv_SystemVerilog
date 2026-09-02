@@ -11,16 +11,17 @@ file is compiled separately because every file declares the top-level module
 | --- | --- | --- |
 | `conv-i16-h16-t16-o4-m04-std.sv` | Conventional transform / Hadamard / full inverse path | Parameterized (`NUM_MULT`, default 4) |
 | `conv-i16-h16-t00-o4-m16-all.sv` | Fully parallel path, all 16 Hadamard products in one cycle | Fixed 16 MACs |
-| `conv-i16-h16-t00-o4-m04-stream4.sv` | Four-MAC streaming path using the 4-word register-reduction schedule | Fixed 4 MACs |
+| `conv-i16-h16-t04-o4-m04-stream8.sv` | Four-MAC streaming path using the registered transform-row schedule | Fixed 4 MACs |
 | `conv-i16-h16-t00-o4-m08-stream4.sv` | Eight-MAC streaming path using the 4-word schedule | Fixed 8 MACs |
 | `conv-i16-h16-t08-o4-mxx-stream12-generic.sv` | Generic streaming path from the `stream12` family | `NUM_MULT = 2`, `4` or `8` |
 | `conv-i16-h16-t08-o4-m04-stream12.sv` / `conv-i16-h16-t08-o4-m08-stream12.sv` | Fixed-MAC compatibility sources from the `stream12` family | Fixed 4 / 8 MACs |
+| `conv-i16-h04-t08-o4-m04-stream12-wstream4.sv` | Weight-row streaming path: reads raw 3x3 spatial weights, computes one Winograd row per pass, and stores only the active four-word transformed row | Fixed 4 MACs |
 | `conv-i20-h16-t08-o4-m04-stream12-prefetch4.sv` | Four-word prefetch variant: captures the first new column while the current tile is processed, then commits it before reading the second column | Fixed 4 MACs |
 
 The filename fields are structural counts, not feature-map dimensions:
 
 - `i` is the number of registered input words;
-- `h` is the number of registered weight words (`r_input_weight`) only;
+- `h` is the number of registered weight words (`r_input_weight`);
 - `t` is the number of registered transform/inverse words (`r_conv_temp`,
   `r_transform_row`, and `r_inverse_row`);
 - `o` is the number of registered output words;
@@ -37,9 +38,10 @@ For the current 2x2 sources, the recount is:
 | --- | ---: | ---: | --- |
 | standard, 4 MACs | 16 | 16 | `r_input_weight[16]` + `r_conv_temp[16]` |
 | all, 16 MACs | 16 | 0 | `r_input_weight[16]` |
-| stream4, 4 or 8 MACs | 16 | 0 | `r_input_weight[16]` |
+| stream8, 4 or 8 MACs | 16 | 0 | `r_input_weight[16]` |
 | stream4-rdrow, 4 MACs | 16 | 4 | `r_input_weight[16]` + `r_transform_row[4]` |
 | stream12, 2/4/8 MACs | 16 | 8 | `r_input_weight[16]` + `r_transform_row[4]` + `r_inverse_row[4]` |
+| stream12-wstream4, 4 MACs | 4 | 8 | `r_input_weight[4]` + `r_transform_row[4]` + `r_inverse_row[4]`; raw weights are streamed, not banked |
 | stream12-prefetch4, 4 MACs | 20 (16 core + 4 prefetch) | 8 | `r_input_weight[16]` + `r_transform_row[4]` + `r_inverse_row[4]` + `r_input_prefetch[4]` |
 
 The output accumulator is part of the `o4` output bank, and all `w_conv_*`,
@@ -51,9 +53,17 @@ The generic source is the only intentional exception to a single `m` value:
 or 8. The fixed sources use one concrete `m` value in their filename.
 
 The generic `stream12` source supports multiple MAC counts, while the concrete
-sources are named with their fixed MAC count. The `stream4` sources are
-`conv-i16-h16-t00-o4-m04-stream4.sv` and `conv-i16-h16-t00-o4-m08-stream4.sv`, so two files that both declare
-`Conv` are never compiled in the same command.
+sources are named with their fixed MAC count. The fixed stream sources are
+`conv-i16-h16-t04-o4-m04-stream8.sv` and
+`conv-i16-h16-t00-o4-m08-stream4.sv`, so two files that both declare `Conv`
+are never compiled in the same command.
+
+The weight-row streaming variant extends the generated input ROM with the raw
+spatial weights after the normal feature/transformed-weight region. For each
+Hadamard row it reads the nine words of the selected 3x3 tile, evaluates
+`diag(q) * B * g * B^T * diag(q)`, rounds exactly as the Python generator, and
+loads the resulting four-word row into `r_input_weight`. No sixteen-word
+transformed-weight register bank is instantiated.
 
 The conventional and fully-parallel variants use
 `mult-matrices/tcn4/mult_matrices.sv`. The streaming variants use the distinct
@@ -89,6 +99,7 @@ make run-stream12 NUM_MULT=2
 make run-stream12 NUM_MULT=4
 make run-stream12 NUM_MULT=8
 make run-stream12-prefetch4
+make run-stream12-wstream4
 ```
 
 The ModelSim wrapper for the conventional implementation is:
@@ -101,7 +112,7 @@ For a streaming RTL run, set the source explicitly before invoking the shared
 script. For example:
 
 ```bash
-FASTCONV_STREAM_SOURCE=conv-i16-h16-t00-o4-m04-stream4.sv fish test-streaming.fish
+FASTCONV_STREAM_SOURCE=conv-i16-h16-t04-o4-m04-stream8.sv fish test-streaming.fish
 FASTCONV_STREAM_SOURCE=conv-i16-h16-t08-o4-mxx-stream12-generic.sv fish test-streaming.fish
 ```
 
@@ -114,8 +125,7 @@ configuration has one direct directory whose name matches the RTL source:
 
 - `synthesis/conv-i16-h16-t16-o4-m04-std/` — conventional 4-MAC baseline;
 - `synthesis/conv-i16-h16-t00-o4-m16-all/` — fully parallel 16-MAC architecture;
-- `synthesis/conv-i16-h16-t00-o4-m04-stream4/` and `...-m8/` — fixed stream;
-- `synthesis/conv-i16-h16-t04-o4-m04-stream8/` — stream with a registered transform row;
+- `synthesis/conv-i16-h16-t04-o4-m04-stream8/` and `...-m8/` — fixed stream;
 - `synthesis/conv-i16-h16-t08-o4-mxx-stream12-generic/` — generic 2/4/8-MAC stream;
 - `synthesis/conv-i16-h16-t08-o4-m04-stream12/` and `...-m8/` — current stream12 implementations;
 - `synthesis/conv-i20-h16-t08-o4-m04-stream12-prefetch4/` — stream12 with a four-word input prefetch bank.
