@@ -62,7 +62,7 @@ run-stream12: stream12
 # Hadamard cycle; no complete sixteen-word weight register bank is kept.
 stream12-wstream4:
 	$(VERILATOR) --binary --exe --Mdir obj_dir/stream12-wstream4 \
-	  $(COMMON) $(MATRICES_STREAM) conv-i16-h04-t08-o4-m04-stream12-wstream4.sv $(TB) --build
+	  $(COMMON) $(MATRICES_STREAM) conv-i16-h13-t08-o4-m04-stream12-wstream4.sv $(TB) --build
 
 run-stream12-wstream4: stream12-wstream4
 	obj_dir/stream12-wstream4/Vtb
@@ -83,7 +83,7 @@ lint:
 	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i16-h16-t00-o4-m08-stream4.sv $(TB)
 	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i16-h16-t08-o4-mxx-stream12-generic.sv $(TB) \
 	  -GNUM_MULT=$(NUM_MULT)
-	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i16-h04-t08-o4-m04-stream12-wstream4.sv $(TB)
+	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i16-h13-t08-o4-m04-stream12-wstream4.sv $(TB)
 	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i20-h16-t08-o4-m04-stream12-prefetch4.sv $(TB)
 
 clean:

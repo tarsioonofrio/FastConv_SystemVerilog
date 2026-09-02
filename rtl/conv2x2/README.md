@@ -15,7 +15,7 @@ file is compiled separately because every file declares the top-level module
 | `conv-i16-h16-t00-o4-m08-stream4.sv` | Eight-MAC streaming path using the 4-word schedule | Fixed 8 MACs |
 | `conv-i16-h16-t08-o4-mxx-stream12-generic.sv` | Generic streaming path from the `stream12` family | `NUM_MULT = 2`, `4` or `8` |
 | `conv-i16-h16-t08-o4-m04-stream12.sv` / `conv-i16-h16-t08-o4-m08-stream12.sv` | Fixed-MAC compatibility sources from the `stream12` family | Fixed 4 / 8 MACs |
-| `conv-i16-h04-t08-o4-m04-stream12-wstream4.sv` | Weight-row streaming path: reads raw 3x3 spatial weights, computes one Winograd row per pass, and stores only the active four-word transformed row | Fixed 4 MACs |
+| `conv-i16-h13-t08-o4-m04-stream12-wstream4.sv` | Weight-row streaming path: registers the raw 3x3 tile, computes one Winograd row per pass, and stores the active four-word transformed row | Fixed 4 MACs |
 | `conv-i20-h16-t08-o4-m04-stream12-prefetch4.sv` | Four-word prefetch variant: captures the first new column while the current tile is processed, then commits it before reading the second column | Fixed 4 MACs |
 
 The filename fields are structural counts, not feature-map dimensions:
@@ -41,7 +41,7 @@ For the current 2x2 sources, the recount is:
 | stream8, 4 or 8 MACs | 16 | 0 | `r_input_weight[16]` |
 | stream4-rdrow, 4 MACs | 16 | 4 | `r_input_weight[16]` + `r_transform_row[4]` |
 | stream12, 2/4/8 MACs | 16 | 8 | `r_input_weight[16]` + `r_transform_row[4]` + `r_inverse_row[4]` |
-| stream12-wstream4, 4 MACs | 4 | 8 | `r_input_weight[4]` + `r_transform_row[4]` + `r_inverse_row[4]`; raw weights are streamed, not banked |
+| stream12-wstream4, 4 MACs | 13 | 8 | `r_weight_spatial[9]` + `r_input_weight[4]` + `r_transform_row[4]` + `r_inverse_row[4]` |
 | stream12-prefetch4, 4 MACs | 20 (16 core + 4 prefetch) | 8 | `r_input_weight[16]` + `r_transform_row[4]` + `r_inverse_row[4]` + `r_input_prefetch[4]` |
 
 The output accumulator is part of the `o4` output bank, and all `w_conv_*`,
@@ -60,7 +60,7 @@ are never compiled in the same command.
 
 The weight-row streaming variant extends the generated input ROM with the raw
 spatial weights after the normal feature/transformed-weight region. For each
-Hadamard row it reads the nine words of the selected 3x3 tile, evaluates
+Hadamard row it reads and registers the nine words of the selected 3x3 tile, evaluates
 `diag(q) * B * g * B^T * diag(q)`, rounds exactly as the Python generator, and
 loads the resulting four-word row into `r_input_weight`. No sixteen-word
 transformed-weight register bank is instantiated.
