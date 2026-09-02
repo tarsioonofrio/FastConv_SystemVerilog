@@ -86,6 +86,10 @@ module Conv
 
   // REGISTER BANK FOR THE SPATIAL WEIGHTS ////////////////////////////////////
   localparam WEIGHT_CYCLES = HADAMARD_SIZE * HADAMARD_SIZE;
+  // The common TC2x2 weight-transform scale is four. Keep both the active
+  // weight row and the accumulated products wide enough for that scale.
+  localparam int WEIGHT_NBITS = NBITS + 4;
+  localparam int ACC_NBITS = NBITS + 4;
   // Raw 3x3 spatial weights are streamed and transformed one Winograd row
   // at a time.  Only the active transformed row reaches the MAC register bank.
   localparam int RAW_WEIGHT_WORDS = CONV_KERNEL_SIZE * CONV_KERNEL_SIZE;
@@ -112,8 +116,6 @@ module Conv
   // Four constant-row transforms are instantiated below.  Only one enable is
   // asserted per cycle by the existing convolution FSM, and inactive rows
   // drive zero to isolate their arithmetic from switching activity.
-  localparam int WEIGHT_NBITS = NBITS + 4;
-  localparam int ACC_NBITS = NBITS + 4;
   logic signed [WEIGHT_NBITS-1:0] w_weight_row0 [FIXED_NUM_MULT-1:0];
   logic signed [WEIGHT_NBITS-1:0] w_weight_row1 [FIXED_NUM_MULT-1:0];
   logic signed [WEIGHT_NBITS-1:0] w_weight_row2 [FIXED_NUM_MULT-1:0];
