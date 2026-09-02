@@ -91,8 +91,8 @@ module Conv
   localparam STREAM_CYCLES = 4;
   logic [(f_width_min1(STREAM_CYCLES + 1))-1:0] r_conv_multiply_count;
   // Only the four transformed weights used by the current Hadamard row are
-  // stored.  The next row is fetched from the weight memory before the next
-  // Hadamard cycle, so no sixteen-word circular register bank is needed.
+  // stored.  The next row is generated combinationally from the registered
+  // spatial tile and captured at the end of the current Hadamard cycle.
   // The nine spatial weights are retained for the complete tile.  The MAC
   // bank below still contains only the four transformed values for the row
   // currently consumed by the Hadamard stage.
@@ -104,57 +104,11 @@ module Conv
   logic [NADDR-1:0] r_input_addr_kernel_base;
   logic w_input_write_done;
 
-  function automatic integer f_weight_axis_coeff(input integer axis_index,
-                                                 input integer spatial_index);
-    begin
-      // 2*diag(q)*B for TC2x2: [-2,0,0], [1,1,1], [1,-1,1], [0,0,2].
-      case (axis_index)
-        0: f_weight_axis_coeff = (spatial_index == 0) ? -2 : 0;
-        1: f_weight_axis_coeff = 1;
-        2: f_weight_axis_coeff = (spatial_index == 1) ? -1 : 1;
-        3: f_weight_axis_coeff = (spatial_index == 2) ? 2 : 0;
-        default: f_weight_axis_coeff = 0;
-      endcase
-    end
-  endfunction
-
-  function automatic integer f_round_div4(input integer value);
-    integer quotient;
-    integer remainder;
-    begin
-      // Match numpy.round used by fast-convolution-rtl: nearest, ties-to-even.
-      quotient = value >>> 2;
-      remainder = value - (quotient <<< 2);
-      if ((remainder > 2) || ((remainder == 2) && ((quotient & 1) != 0)))
-        quotient = quotient + 1;
-      else if ((remainder < -2) || ((remainder == -2) && ((quotient & 1) != 0)))
-        quotient = quotient - 1;
-      f_round_div4 = quotient;
-    end
-  endfunction
-
-  function automatic integer f_weight_transform_sum(input integer output_row,
-                                                    input integer output_col);
-    integer total;
-    begin
-      // Evaluate one element of diag(q) * B * g * B^T * diag(q) from the
-      // registered 3x3 spatial tile.  Coefficients are scaled by two, hence
-      // the final division by four.
-      total = 0;
-      total = total + r_weight_spatial[0] * f_weight_axis_coeff(output_row, 0) * f_weight_axis_coeff(output_col, 0);
-      total = total + r_weight_spatial[1] * f_weight_axis_coeff(output_row, 0) * f_weight_axis_coeff(output_col, 1);
-      total = total + r_weight_spatial[2] * f_weight_axis_coeff(output_row, 0) * f_weight_axis_coeff(output_col, 2);
-      total = total + r_weight_spatial[3] * f_weight_axis_coeff(output_row, 1) * f_weight_axis_coeff(output_col, 0);
-      total = total + r_weight_spatial[4] * f_weight_axis_coeff(output_row, 1) * f_weight_axis_coeff(output_col, 1);
-      total = total + r_weight_spatial[5] * f_weight_axis_coeff(output_row, 1) * f_weight_axis_coeff(output_col, 2);
-      total = total + r_weight_spatial[6] * f_weight_axis_coeff(output_row, 2) * f_weight_axis_coeff(output_col, 0);
-      total = total + r_weight_spatial[7] * f_weight_axis_coeff(output_row, 2) * f_weight_axis_coeff(output_col, 1);
-      total = total + r_weight_spatial[8] * f_weight_axis_coeff(output_row, 2) * f_weight_axis_coeff(output_col, 2);
-      f_weight_transform_sum = total;
-    end
-  endfunction
-
   logic [NBITS-1:0] w_conv_transform [HADAMARD_SIZE*HADAMARD_SIZE-1:0];
+  logic [NBITS-1:0] w_weight_transform [HADAMARD_SIZE*HADAMARD_SIZE-1:0];
+  logic [NBITS-1:0] w_weight_row_first [FIXED_NUM_MULT-1:0];
+  logic [NBITS-1:0] w_weight_row_next [FIXED_NUM_MULT-1:0];
+  logic [1:0] w_weight_row_index_next;
   logic signed [NBITS-1+QUANT:0] w_conv_product [FIXED_NUM_MULT-1:0];  // QUANT more bits for the multipliers
   logic w_conv_end;
   logic w_conv_input_release;
@@ -234,7 +188,6 @@ module Conv
   typedef enum logic [2:0] {
     WAIT_CONV,
     TRANSFORM,
-    LOAD_WEIGHT,
     HADAMARD,
     INVERSE
   } type_st_conv;
@@ -339,8 +292,7 @@ module Conv
       CONV_INPUT: st_input_next = TRANSFER;
       TRANSFER: st_input_next = HOLD_WRITE;  // p_start the convolution
       HOLD_WRITE:
-        if (((st_conv_current == TRANSFORM) && !r_weight_tile_valid) ||
-            ((st_conv_current == LOAD_WEIGHT) && !r_weight_tile_valid))
+        if ((st_conv_current == TRANSFORM) && !r_weight_tile_valid)
           st_input_next = READ_WEIGHT_ROW;
         else if (w_conv_input_release && w_input_last_window_col && w_input_write_done) st_input_next = NEXT_ROW_INPUT;
           else if (w_conv_input_release && w_input_write_done) st_input_next = READ_IN_8C;
@@ -532,15 +484,6 @@ module Conv
     end
   end
 
-  logic [NBITS-1:0] w_weight_transform_row[FIXED_NUM_MULT-1:0];
-
-  always_comb begin: WEIGHT_TRANSFORM_ROW_BLOCK
-    w_weight_transform_row[0] = f_round_div4(f_weight_transform_sum(r_conv_multiply_count, 0));
-    w_weight_transform_row[1] = f_round_div4(f_weight_transform_sum(r_conv_multiply_count, 1));
-    w_weight_transform_row[2] = f_round_div4(f_weight_transform_sum(r_conv_multiply_count, 2));
-    w_weight_transform_row[3] = f_round_div4(f_weight_transform_sum(r_conv_multiply_count, 3));
-  end
-
   always_ff @(posedge clk or posedge reset) begin: WEIGHT_REG_BLOCK
     if (reset) begin
       r_weight_spatial[0] <= '0;
@@ -571,12 +514,6 @@ module Conv
         default: begin end
       endcase
     end
-    else if (st_conv_current == LOAD_WEIGHT && r_weight_tile_valid) begin
-      r_input_weight[0] <= w_weight_transform_row[0];
-      r_input_weight[1] <= w_weight_transform_row[1];
-      r_input_weight[2] <= w_weight_transform_row[2];
-      r_input_weight[3] <= w_weight_transform_row[3];
-    end
   end
 
   // ----------------------------------------------------------------------------------------------------
@@ -598,15 +535,16 @@ module Conv
         end
       end
       TRANSFORM:
-        st_conv_next = LOAD_WEIGHT;
-      LOAD_WEIGHT:
+        // The first tile remains here while the nine raw weights are read.
+        // For subsequent windows the cached tile is already valid, so the
+        // first transformed row is consumed on the next cycle.
         if (r_weight_tile_valid)
           st_conv_next = HADAMARD;
       HADAMARD: begin
         if (r_conv_multiply_count == $bits(r_conv_multiply_count)'(STREAM_CYCLES - 1)) begin
           st_conv_next = INVERSE;
         end else
-          st_conv_next = LOAD_WEIGHT;
+          st_conv_next = HADAMARD;
       end
       INVERSE:
         st_conv_next = WAIT_CONV;
@@ -667,6 +605,15 @@ module Conv
           r_transform_row[1] <= w_conv_transform[1];
           r_transform_row[2] <= w_conv_transform[2];
           r_transform_row[3] <= w_conv_transform[3];
+          // Capture the first transformed weight row only after the raw
+          // spatial tile is complete.  TRANSFORM is held while that tile is
+          // being read on the first window of a channel pair.
+          if (r_weight_tile_valid) begin
+            r_input_weight[0] <= w_weight_row_first[0];
+            r_input_weight[1] <= w_weight_row_first[1];
+            r_input_weight[2] <= w_weight_row_first[2];
+            r_input_weight[3] <= w_weight_row_first[3];
+          end
           r_inverse_row              <= '{default: '0};
           r_output_write              <= '{default: '0};
           r_inverse_row_idx     <= '0;
@@ -695,6 +642,16 @@ module Conv
             r_transform_row[1] <= w_conv_transform[13];
             r_transform_row[2] <= w_conv_transform[14];
             r_transform_row[3] <= w_conv_transform[15];
+          end
+          // Capture the next transformed weight row at the same pipeline
+          // boundary used by the feature transform.  The current Hadamard
+          // cycle still uses r_input_weight; the new row is consumed only
+          // after this clock edge.
+          if (r_conv_multiply_count < $bits(r_conv_multiply_count)'(STREAM_CYCLES - 1)) begin
+            r_input_weight[0] <= w_weight_row_next[0];
+            r_input_weight[1] <= w_weight_row_next[1];
+            r_input_weight[2] <= w_weight_row_next[2];
+            r_input_weight[3] <= w_weight_row_next[3];
           end
           // Advance the accumulated tile in the existing output-write bank.
           r_output_write              <= w_output_acc_next;
@@ -732,6 +689,39 @@ module Conv
   ) trf (
       .pin (r_input_feat),
       .pout(w_conv_transform)
+  );
+
+  // Weight transformation mirrors the feature Transform module: the whole
+  // 4x4 Winograd matrix is generated combinationally, then one row is
+  // selected and captured by the sequential streaming datapath above.
+  WeightTransform #(
+    .NBITS(NBITS)
+  ) weight_trf (
+    .pin (r_weight_spatial),
+    .pout(w_weight_transform)
+  );
+
+  // Select row zero for the first Hadamard cycle and the next row for the
+  // following cycle.  The index is derived from the current counter because
+  // the counter itself is incremented at the same clock edge that captures
+  // the next row.
+  always_comb begin: WEIGHT_ROW_INDEX_NEXT_BLOCK
+    if (r_conv_multiply_count < $bits(r_conv_multiply_count)'(STREAM_CYCLES - 1))
+      w_weight_row_index_next = r_conv_multiply_count[1:0] + 2'd1;
+    else
+      w_weight_row_index_next = 2'd3;
+  end
+
+  WeightTransformRow #(.ROW_INDEX(2'd0)) weight_row_first (
+    .row_index(2'd0),
+    .pin      (w_weight_transform),
+    .pout     (w_weight_row_first)
+  );
+
+  WeightTransformRow #(.DYNAMIC_INDEX(1'b1)) weight_row_next (
+    .row_index(w_weight_row_index_next),
+    .pin      (w_weight_transform),
+    .pout      (w_weight_row_next)
   );
 
   assign w_transform_feature[0] = r_transform_row[0];
@@ -965,4 +955,111 @@ module Conv
   // Keep write enabled for every WRITE_OUTPUT beat, including the final window/channel.
   assign p_output_wr = (st_output_current == WRITE_OUTPUT) ? '1 : '0;
 
+endmodule
+
+// -----------------------------------------------------------------------------
+// Combinational transform for the 3x3 spatial kernel used by TC2x2.
+//
+// The matrix coefficients are the scaled Winograd B matrix
+//   [-2  0  0]
+//   [ 1  1  1]
+//   [ 1 -1  1]
+//   [ 0  0  2]
+// so that each result is divided by four after the two-dimensional product.
+// This module deliberately follows the Transform/Inverse organization: it
+// exposes a complete transformed matrix, while the Conv datapath selects and
+// registers one row per Hadamard cycle.
+// -----------------------------------------------------------------------------
+module WeightTransform #(
+    parameter int NBITS = 20
+  ) (
+    input  logic signed [NBITS-1:0] pin [8:0],
+    output logic        [NBITS-1:0] pout[15:0]
+  );
+  timeunit 1ns;
+  timeprecision 1ps;
+
+  integer sum      [0:15];
+  integer rounded  [0:15];
+  integer remainder[0:15];
+  integer i;
+
+  always_comb begin: WEIGHT_TRANSFORM_COMBINATIONAL_BLOCK
+    // First form the scaled two-dimensional matrix product.
+    sum[0]  =  4 * $signed(pin[0]);
+    sum[1]  = -2 * ($signed(pin[0]) + $signed(pin[1]) + $signed(pin[2]));
+    sum[2]  = -2 * $signed(pin[0]) + 2 * $signed(pin[1]) - 2 * $signed(pin[2]);
+    sum[3]  = -4 * $signed(pin[2]);
+
+    sum[4]  = -2 * ($signed(pin[0]) + $signed(pin[3]) + $signed(pin[6]));
+    sum[5]  = $signed(pin[0]) + $signed(pin[1]) + $signed(pin[2]) +
+              $signed(pin[3]) + $signed(pin[4]) + $signed(pin[5]) +
+              $signed(pin[6]) + $signed(pin[7]) + $signed(pin[8]);
+    sum[6]  = $signed(pin[0]) - $signed(pin[1]) + $signed(pin[2]) +
+              $signed(pin[3]) - $signed(pin[4]) + $signed(pin[5]) +
+              $signed(pin[6]) - $signed(pin[7]) + $signed(pin[8]);
+    sum[7]  = 2 * ($signed(pin[2]) + $signed(pin[5]) + $signed(pin[8]));
+
+    sum[8]  = -2 * $signed(pin[0]) + 2 * $signed(pin[3]) - 2 * $signed(pin[6]);
+    sum[9]  = $signed(pin[0]) + $signed(pin[1]) + $signed(pin[2]) -
+              $signed(pin[3]) - $signed(pin[4]) - $signed(pin[5]) +
+              $signed(pin[6]) + $signed(pin[7]) + $signed(pin[8]);
+    sum[10] = $signed(pin[0]) - $signed(pin[1]) + $signed(pin[2]) -
+              $signed(pin[3]) + $signed(pin[4]) - $signed(pin[5]) +
+              $signed(pin[6]) - $signed(pin[7]) + $signed(pin[8]);
+    sum[11] = 2 * ($signed(pin[2]) - $signed(pin[5]) + $signed(pin[8]));
+
+    sum[12] = -4 * $signed(pin[6]);
+    sum[13] = 2 * ($signed(pin[6]) + $signed(pin[7]) + $signed(pin[8]));
+    sum[14] = 2 * ($signed(pin[6]) - $signed(pin[7]) + $signed(pin[8]));
+    sum[15] =  4 * $signed(pin[8]);
+
+    // Round-to-nearest with ties-to-even, matching the generated data path.
+    for (i = 0; i < 16; i = i + 1) begin
+      rounded[i]   = sum[i] >>> 2;
+      remainder[i] = sum[i] - (rounded[i] <<< 2);
+      if ((remainder[i] > 2) ||
+          ((remainder[i] == 2) && ((rounded[i] & 1) != 0)))
+        rounded[i] = rounded[i] + 1;
+      else if ((remainder[i] < -2) ||
+               ((remainder[i] == -2) && ((rounded[i] & 1) != 0)))
+        rounded[i] = rounded[i] - 1;
+      pout[i] = rounded[i];
+    end
+  end
+endmodule
+
+// Select one four-word row from the complete transformed weight matrix.
+// ROW_INDEX is constant for the first row and dynamic for subsequent rows.
+module WeightTransformRow #(
+    parameter logic [1:0] ROW_INDEX = 2'd0,
+    parameter int NBITS = 20,
+    parameter bit DYNAMIC_INDEX = 1'b0
+  ) (
+    input  logic [NBITS-1:0] pin [15:0],
+    input  logic [1:0] row_index,
+    output logic [NBITS-1:0] pout[3:0]
+  );
+  timeunit 1ns;
+  timeprecision 1ps;
+
+  logic [1:0] selected_row;
+
+  always_comb begin: WEIGHT_TRANSFORM_ROW_SELECT_BLOCK
+    selected_row = DYNAMIC_INDEX ? row_index : ROW_INDEX;
+    case (selected_row)
+      2'd0: begin
+        pout[0] = pin[0];  pout[1] = pin[1];  pout[2] = pin[2];  pout[3] = pin[3];
+      end
+      2'd1: begin
+        pout[0] = pin[4];  pout[1] = pin[5];  pout[2] = pin[6];  pout[3] = pin[7];
+      end
+      2'd2: begin
+        pout[0] = pin[8];  pout[1] = pin[9];  pout[2] = pin[10]; pout[3] = pin[11];
+      end
+      default: begin
+        pout[0] = pin[12]; pout[1] = pin[13]; pout[2] = pin[14]; pout[3] = pin[15];
+      end
+    endcase
+  end
 endmodule
