@@ -2,8 +2,8 @@ project,nome,mult,side,extra,time/ns,cycles
 Conv2x2-conv-i16-h16-t00-o4-m04-stream4,Conv2x2,04,32,,277265.201,27725.0
 Conv2x2-conv-i16-h16-t00-o4-m08-stream4,Conv2x2,08,32,,236765.351,23675.0
 Conv2x2-conv-i16-h16-t00-o4-m16-all,Conv2x2,16,32,,236745.0,23672.0
-Conv2x2-conv-i16-h16-t04-o4-m04-stream4,Conv2x2,04,32,,277265.25800000003,27725.0
-Conv2x2-conv-i16-h16-t08-o4-m02-04-08-stream12-generic,Conv2x2,02,32,,297515.0,29749.0
+Conv2x2-conv-i16-h16-t04-o4-m04-stream8,Conv2x2,04,32,,277265.25800000003,27725.0
+Conv2x2-conv-i16-h16-t08-o4-mxx-stream12-generic,Conv2x2,02,32,,297515.0,29749.0
 Conv2x2-conv-i16-h16-t08-o4-m04-stream12,Conv2x2,04,32,,297515.0,29749.0
 Conv2x2-conv-i16-h16-t08-o4-m08-stream12,Conv2x2,08,32,,257015.0,25699.0
 Conv2x2-conv-i16-h16-t16-o4-m04-std,Conv2x2,04,32,,236795.0,23677.0
