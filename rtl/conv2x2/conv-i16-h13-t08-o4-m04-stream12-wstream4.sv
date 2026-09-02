@@ -172,7 +172,7 @@ module Conv
   typedef enum logic [3:0] {
     WAIT_INPUT,
     ADDRESS_INPUT,
-    READ_WEIGHT_ROW,
+    READ_WEIGHTS,
     READ_IN_10A,
     READ_IN_10B,
     READ_IN_8C,
@@ -209,8 +209,8 @@ module Conv
   // -------  PART 1 - ADDRESS TO ACCESS THE IFMAP AND WEIGHT MEMORY ------------------------------------
   // ----------------------------------------------------------------------------------------------------
 
-  assign p_input_en   = (st_input_current inside {READ_WEIGHT_ROW, READ_IN_10A, READ_IN_10B, READ_IN_8C, READ_IN_8D});
-  assign p_input_addr = (st_input_current == READ_WEIGHT_ROW) ? r_input_addr_kernel : r_input_addr_feat + NADDR'(r_input_addr_count);  // p_input_addr mux
+  assign p_input_en   = (st_input_current inside {READ_WEIGHTS, READ_IN_10A, READ_IN_10B, READ_IN_8C, READ_IN_8D});
+  assign p_input_addr = (st_input_current == READ_WEIGHTS) ? r_input_addr_kernel : r_input_addr_feat + NADDR'(r_input_addr_count);  // p_input_addr mux
 
   always_ff @(posedge clk or posedge reset) begin: INPUT_ADDR_POINTER_BLOCK
     if (reset) begin
@@ -253,15 +253,15 @@ module Conv
       // revisited for every spatial window, so keep its base address separate.
       r_input_addr_kernel_base <= r_input_addr_kernel_base + NADDR'(RAW_WEIGHT_WORDS);
       r_input_addr_kernel <= r_input_addr_kernel_base + NADDR'(RAW_WEIGHT_WORDS);
-    end else if (st_input_current == HOLD_WRITE && st_input_next == READ_WEIGHT_ROW) begin
+    end else if (st_input_current == HOLD_WRITE && st_input_next == READ_WEIGHTS) begin
       // Restart at row zero for each spatial window, or select the next row
       // after a completed Hadamard cycle.  The four-word row is then read
-      // sequentially by READ_WEIGHT_ROW.
+      // sequentially by READ_WEIGHTS.
       if (st_conv_current == HADAMARD)
         r_input_addr_kernel <= r_input_addr_kernel_base;
       else
         r_input_addr_kernel <= r_input_addr_kernel_base;
-    end else if (st_input_current == READ_WEIGHT_ROW) begin
+    end else if (st_input_current == READ_WEIGHTS) begin
       r_input_addr_kernel <= r_input_addr_kernel + 1;
     end
   end
@@ -283,7 +283,7 @@ module Conv
       ADDRESS_INPUT:
         if (w_input_last_channel_output) st_input_next = WAIT_INPUT;
         else st_input_next = READ_IN_10A;
-      READ_WEIGHT_ROW:
+      READ_WEIGHTS:
         if (r_weight_row_count == WEIGHT_ROW_COUNT_WIDTH'(RAW_WEIGHT_WORDS - 1)) st_input_next = HOLD_WRITE;
       READ_IN_10A: if (r_input_addr_count == (CONV_INPUT_SIZE - 1)) st_input_next = READ_IN_10B;  // read 5*5 values
       READ_IN_10B: if (r_input_addr_count == (CONV_INPUT_SIZE - 1)) st_input_next = READ_IN_8C;
@@ -293,7 +293,7 @@ module Conv
       TRANSFER: st_input_next = HOLD_WRITE;  // p_start the convolution
       HOLD_WRITE:
         if ((st_conv_current == TRANSFORM) && !r_weight_tile_valid)
-          st_input_next = READ_WEIGHT_ROW;
+          st_input_next = READ_WEIGHTS;
         else if (w_conv_input_release && w_input_last_window_col && w_input_write_done) st_input_next = NEXT_ROW_INPUT;
           else if (w_conv_input_release && w_input_write_done) st_input_next = READ_IN_8C;
         else st_input_next = HOLD_WRITE;
@@ -349,7 +349,7 @@ module Conv
   // r_input_channel_counter_output: number of the current OFMAP channel being processed
   // r_input_window_counter_acc: number of convolutions in a given IFMAP channel
   // r_input_window_counter_col :  number of horizontal convolutions in a given IFMAP channel - detect the last line
-  // r_weight_row_count:          raw spatial words read for the active transform row
+  // r_weight_row_count:          raw spatial words read for the active weight tile
   always_ff @(posedge clk or posedge reset) begin: INPUT_CONTROL_COUNTERS_BLOCK
     if (reset) begin
       r_weight_row_count            <= '0;
@@ -381,9 +381,9 @@ module Conv
 
       if (st_input_current == ADDRESS_INPUT)
         r_weight_tile_valid <= 1'b0;
-      else if (st_input_current == HOLD_WRITE && st_input_next == READ_WEIGHT_ROW)
+      else if (st_input_current == HOLD_WRITE && st_input_next == READ_WEIGHTS)
         r_weight_row_count <= '0;
-      else if (st_input_current == READ_WEIGHT_ROW && p_input_valid) begin
+      else if (st_input_current == READ_WEIGHTS && p_input_valid) begin
         if (r_weight_row_count != WEIGHT_ROW_COUNT_WIDTH'(RAW_WEIGHT_WORDS - 1))
           r_weight_row_count <= r_weight_row_count + 1'b1;
         else begin
@@ -500,7 +500,7 @@ module Conv
       r_input_weight[2] <= '0;
       r_input_weight[3] <= '0;
     end
-    else if (st_input_current == READ_WEIGHT_ROW && p_input_valid) begin
+    else if (st_input_current == READ_WEIGHTS && p_input_valid) begin
       case (r_weight_row_count)
         0: r_weight_spatial[0] <= $signed(p_input_data);
         1: r_weight_spatial[1] <= $signed(p_input_data);
