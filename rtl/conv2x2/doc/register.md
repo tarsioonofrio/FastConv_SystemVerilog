@@ -11,6 +11,154 @@ achatada: cada resultado de sintese agora fica diretamente em
 `synthesis/<nome-do-arquivo-rtl-sem-.sv>/`, conforme a lista atual em
 `README.md`.
 
+## 0. A historia da reducao: do `std` ao streaming
+
+A forma mais facil de entender estas arquiteturas e acompanhar a vida dos
+dados, e nao apenas comparar os nomes dos arquivos. A historia comeca em
+`conv-i16-h16-t16-o4-m04-std.sv`, que e a referencia convencional, e segue por
+cinco perguntas sucessivas:
+
+```text
+std -> all16 -> stream12 -> stream8 -> stream4 -> stream12-*
+```
+
+Cada seta representa uma mudanca de fronteira entre logica combinacional e
+registradores. O algoritmo Winograd continua calculando a mesma combinacao de
+transformada, produtos e inversa; o que muda e quanto tempo cada valor precisa
+ficar armazenado.
+
+### 0.1 O ponto de partida: `std`
+
+O `std` e parametrizado para quatro MACs, mas registra a matriz transformada
+inteira em `r_conv_temp[0:15]`. Ele tambem conserva `r_conv_input[0:15]` como
+fronteira da entrada da convolucao. O caminho de dados tem, portanto, os
+seguintes bancos de 20 bits:
+
+```text
+r_input_feat[16]       janela 4x4
+r_input_weight[16]     pesos transformados
+r_conv_temp[16]        transformada inteira registrada
+r_conv_input[16]       entrada capturada para a convolucao
+r_output_write[4]      tile que sera escrito
+r_output_read[4]       contribuicao anterior de canais
+                                      total: 72 palavras de dados
+```
+
+O `std` e simples de raciocinar porque cada etapa possui uma fronteira clara:
+
+```text
+r_input_feat -> Transform -> r_conv_temp -> Multip[0:3] -> Inverse
+                                                           -> output
+```
+
+O preco dessa clareza e manter 16 valores transformados mesmo quando somente
+quatro produtos estao sendo calculados por ciclo.
+
+### 0.2 Primeira bifurcacao: `all` com 16 MACs
+
+O arquivo `conv-i16-h16-t00-o4-m16-all.sv` pergunta se podemos trocar ciclos
+por paralelismo. A transformada e a inversa passam a ser fios combinacionais e
+os 16 produtos sao calculados no mesmo ciclo. Para isso, `r_conv_temp[16]`
+deixa de existir, mas a arquitetura ainda conserva `r_conv_input[16]` e cria
+`r_conv_result[4]` para capturar a inversa completa:
+
+```text
+std:   16 input + 16 weights + 16 temp + 16 conv_input + 8 output = 72
+all:   16 input + 16 weights + 16 conv_input + 4 conv_result + 8 output = 60
+```
+
+O `all` reduz 12 palavras em relacao ao `std`, mas aumenta de 4 para 16 MACs.
+Ele e importante porque mostra uma reducao parcial: eliminamos o banco da
+transformada, porem ainda guardamos uma copia da entrada e uma captura do
+resultado final.
+
+### 0.3 Segunda mudanca: `stream12`
+
+O `stream12` aceita quatro MACs novamente, mas conserva somente o grupo ativo
+de quatro valores da transformada. A matriz `w_conv_transform[0:15]` continua
+sendo calculada combinacionalmente; `r_transform_row[0:3]` guarda a faixa que
+sera usada no ciclo seguinte. A inversa passa a ser consumida por linhas:
+
+```text
+all:       16 input + 16 weights + 16 conv_input + 4 conv_result + 8 output = 60
+stream12:  16 input + 16 weights +  4 transform + 4 inverse + 8 output = 48
+```
+
+O ganho de 12 palavras vem de remover duas fronteiras grandes:
+`r_conv_input[16]` e `r_conv_result[4]`. O acumulado de quatro pixels fica no
+banco de saida, e a inversa incremental substitui a matriz de resultado inteira.
+
+### 0.4 Terceira mudanca: `stream8`
+
+No `conv-i16-h16-t04-o4-m04-stream8.sv`, a linha transformada continua
+registrada, mas `r_inverse_row[0:3]` deixa de ser necessario. O produto atual
+entra diretamente em `InverseRow`; somente o acumulado entre linhas atravessa o
+clock em `r_output_write[0:3]`:
+
+```text
+stream12: 16 input + 16 weights + 4 transform + 4 inverse + 8 output = 48
+stream8:  16 input + 16 weights + 4 transform              + 8 output = 44
+```
+
+O nome historico `stream8` nao deve ser interpretado como oito MACs nesta
+fonte: o arquivo documentado aqui usa quatro MACs. O numero importante para a
+reducao e a fronteira `t04`, nao o apelido antigo da pasta.
+
+### 0.5 Quarta mudanca: `stream4`
+
+No `conv-i16-h16-t00-o4-m04-stream4.sv`, o banco
+`r_transform_row[0:3]` tambem e removido. O indice
+`r_transform_product_idx` seleciona diretamente quatro elementos de
+`w_conv_transform`. A memoria economizada na transformada reaparece como
+`r_output_accumulator[0:3]`, necessario para manter a soma parcial da inversa:
+
+```text
+stream8: 16 input + 16 weights + 4 transform              + 8 output = 44
+stream4: 16 input + 16 weights + 4 accumulator             + 8 output = 44
+```
+
+Esta igualdade e didaticamente importante: remover um banco nao significa
+necessariamente reduzir o total de palavras. A fronteira foi deslocada da
+entrada dos MACs para a acumulacao da saida. O beneficio precisa ser medido em
+area, timing e potencia, porque muxes e somadores podem custar mais que os
+flip-flops removidos.
+
+### 0.6 Quinta mudanca: variantes `stream12-*`
+
+Depois de reduzir o armazenamento das features, a mesma pergunta foi aplicada
+aos pesos. O `stream12-wstream4` e o `stream12-rowconst4` deixam de registrar
+16 pesos transformados e passam a guardar nove pesos espaciais mais quatro
+pesos transformados ativos:
+
+```text
+stream12:       h16 + t08
+stream12-* row: h09 espacial + h04 ativo + t08
+```
+
+O total de dados cai de 48 para 45 palavras, mas parte do trabalho migrado
+para os registradores aparece como logica combinacional de transformacao de
+peso. O `rowconst4-exact` mantem a mesma quantidade de palavras, mas usa
+larguras maiores e elimina arredondamentos intermediarios. Ja o
+`stream12-prefetch4` faz a troca oposta: adiciona quatro palavras para manter a
+proxima coluna viva e permitir sobreposicao entre leitura e processamento.
+
+Assim, a historia completa nao e simplesmente "cada arquivo tem menos
+registradores":
+
+```text
+std       guarda etapas completas e tem 72 palavras
+all16     remove a temp, mas paraleliza tudo e fica com 60
+stream12  serializa produtos e inversa e fica com 48
+stream8   elimina a linha de inversa e fica com 44
+stream4   move a fronteira para o acumulador e continua com 44
+rowconst  reduz pesos transformados, chegando a 45
+prefetch  adiciona estado de entrada para ganhar overlap, chegando a 52
+```
+
+As secoes seguintes detalham cada uma dessas transicoes e mostram exatamente
+qual banco saiu, qual banco entrou e qual sinal combinacional passou a carregar
+a responsabilidade funcional.
+
 ## 1. Escopo e contrato congelado
 
 O diretorio implementa F(2x2, 3x3), com matriz Hadamard 4x4 e 16 produtos.
