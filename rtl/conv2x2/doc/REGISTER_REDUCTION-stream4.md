@@ -510,3 +510,544 @@ proveniencia do HDL usado pelo Genus e a anotada correspondente permanecem nos
 respectivos `logical/genus.log` e `sim/xrun.log`. Os valores de `stream12`,
 `std`, `all16` e `rdrow` sao os ultimos artefatos gate-level disponiveis nesta
 arvore; eles nao foram re-sintetizados nesta rodada.
+
+## 14. Como ler a reducao pela perspectiva dos registradores
+
+As secoes anteriores registram decisoes e resultados de campanhas. Esta secao
+reorganiza a historia de forma didatica: em vez de comecar pela FSM, comeca
+pelas palavras que precisam sobreviver a uma borda de clock.
+
+Uma palavra e um elemento de um vetor como `r_input_feat[0]`. Para o caso
+TC2x2 usado nesta pasta, a maior parte das palavras tem `NBITS=20` bits. Um
+vetor de 4 elementos, portanto, representa 4 palavras ou 80 bits de estado.
+
+Ha tres categorias diferentes no RTL:
+
+1. **Estado de dados:** valores de feature, pesos, produtos parciais e saidas.
+2. **Estado de controle:** FSMs, contadores, indices e enderecos. Eles tambem
+   sao flip-flops, mas nao aparecem nos campos `i`, `h`, `t` e `o` do nome.
+3. **Fios combinacionais:** sinais `w_*`, modulos `Transform`, `InverseRow`,
+   `Multip` e muxes. Eles podem consumir area e timing, mas nao mantem um valor
+   entre ciclos e, por isso, nao sao registradores.
+
+O nome do arquivo resume apenas os bancos de dados principais:
+
+| Campo | Significado neste documento | Exemplo |
+| --- | --- | --- |
+| `i` | palavras no banco da janela de entrada | `r_input_feat[0:15]` = `i16` |
+| `h` | palavras registradas dos pesos ativos | `r_input_weight[0:15]` = `h16` |
+| `t` | palavras registradas para transformada/inversa | `r_transform_row[0:3]` + `r_inverse_row[0:3]` = `t08` |
+| `o` | palavras no banco de saida do tile | `r_output_write[0:3]` = `o4` |
+| `m` | multiplicadores fisicos ativos por ciclo Hadamard | `m04`, `m16` |
+
+Essa convencao nao substitui a leitura do RTL. Por exemplo, `r_conv_input`,
+`r_conv_result`, `r_output_accumulator`, `r_output_read` e um banco de
+prefetch sao registradores reais, mas nao estao todos codificados nos cinco
+campos do nome. Por isso as tabelas seguintes mostram tambem um inventario
+integral de palavras de dados.
+
+### 14.1 O que significa reduzir registradores
+
+Para uma matriz Hadamard 4x4 existem 16 valores transformados. A arquitetura
+naive pode registrar esses 16 valores e depois registrar uma matriz inteira de
+produtos ou resultados intermediarios. A arquitetura streaming faz uma pergunta
+mais economica:
+
+> Qual e o menor trecho do resultado que precisa permanecer vivo quando o
+> proximo ciclo chega?
+
+A resposta muda conforme a fronteira sequencial escolhida:
+
+```text
+tile de entrada -- Transform combinacional -- produtos -- inversa por linha
+      |                    |                     |              |
+   r_input_feat       w_conv_transform       w_conv_product   parcial
+      16 palavras         16 fios              m palavras     acumulado
+```
+
+No caminho all16, todos os 16 produtos sao calculados juntos. No caminho
+streaming, somente uma linha ou um grupo de `m` produtos atravessa a fronteira
+de clock. A economia vem de nao guardar simultaneamente aquilo que pode ser
+recalculado ou consumido no mesmo ciclo.
+
+## 15. Primeiro ponto de referencia: `all` com 16 MACs
+
+Arquivo: `conv-i16-h16-t00-o4-m16-all.sv`.
+
+Esta e a melhor arquitetura para entender o que o streaming tenta remover. Ela
+faz a transformada inteira, todos os produtos e a inversa inteira de forma
+paralela. O nome `t00` significa apenas que nao ha um banco dedicado chamado
+`r_transform_row` ou `r_inverse_row`; nao significa que o datapath nao tenha
+registradores intermediarios.
+
+### 15.1 Bancos de dados do `all`
+
+| Banco | Palavras | Papel durante a janela |
+| --- | ---: | --- |
+| `r_input_feat[0:15]` | 16 | Mantem a janela 4x4 lida da feature map |
+| `r_input_weight[0:15]` | 16 | Mantem todos os pesos transformados |
+| `r_conv_input[0:15]` | 16 | Captura a entrada da convolucao antes do caminho de produtos |
+| `r_conv_result[0:3]` | 4 | Captura o resultado de `Inverse` antes da escrita |
+| `r_output_write[0:3]` | 4 | Mantem os quatro valores que serao escritos |
+| `r_output_read[0:3]` | 4 | Mantem a contribuicao anterior de outro canal |
+| **total de dados** | **60** | Soma dos bancos acima |
+
+Os 60 valores sao uma contagem de armazenamento de dados, nao uma contagem de
+flip-flops sintetizados. Ainda existem registradores escalares de endereco,
+contagem de janela, canais, FSM e controle de leitura/escrita.
+
+### 15.2 Sequencia de vida dos dados
+
+1. A FSM de entrada preenche `r_input_feat` com a janela 4x4.
+2. A FSM de pesos preenche `r_input_weight` com 16 pesos.
+3. `Transform` calcula `w_conv_transform[0:15]`. Esse vetor e `w_*`: e fio,
+   nao banco registrado.
+4. Os 16 `Multip` calculam `w_conv_product[0:15]` no mesmo ciclo.
+5. `Inverse` calcula `w_conv_inverse[0:3]`, tambem combinacional.
+6. `r_conv_result` cria uma fronteira de clock para o resultado completo.
+7. `r_output_write` prepara a escrita e `r_output_read` guarda a contribuicao
+   anterior que sera somada pelo banco de saida.
+
+O ponto importante e que o `all` troca tempo por largura: ele mantem mais
+fronteiras de dados, mas termina uma janela Hadamard em um unico ciclo. A
+primeira reducao streaming nao tenta remover o banco de entrada ou o banco de
+pesos; ela remove as fronteiras completas do caminho de transformada, produto e
+inversa.
+
+## 16. Segunda etapa: `stream12`
+
+Arquivo principal: `conv-i16-h16-t08-o4-m04-stream12.sv`.
+
+O `stream12` mantem a janela e os pesos completos, mas percorre os 16 produtos
+em quatro ciclos de quatro MACs. A matriz transformada continua existindo como
+`w_conv_transform[0:15]`, mas apenas quatro palavras passam para
+`r_transform_row` por ciclo. A inversa tambem e consumida por linha.
+
+### 16.1 Bancos registrados
+
+| Banco | Palavras | O que atravessa o clock |
+| --- | ---: | --- |
+| `r_input_feat[0:15]` | 16 | Tile 4x4 em processamento |
+| `r_input_weight[0:15]` | 16 | Os 16 pesos, rotacionados em grupos de 4 |
+| `r_transform_row[0:3]` | 4 | Grupo da transformada consumido pelo proximo ciclo |
+| `r_inverse_row[0:3]` | 4 | Linha de produto mantida para a inversa/trace nesta versao |
+| `r_output_write[0:3]` | 4 | Acumulador parcial do tile de saida |
+| `r_output_read[0:3]` | 4 | Contribuicao de canais anteriores |
+| **total integral de dados** | **48** | Inclui os dois bancos de interface de saida |
+
+Na convencao do nome, `i16 + h16 + t08 + o4` soma 44 palavras porque `o4`
+conta somente o banco de escrita. A contagem integral acrescenta as quatro
+palavras de `r_output_read` e chega a 48.
+
+### 16.2 O que foi eliminado em relacao ao `all`
+
+O `stream12` elimina `r_conv_input[16]` e `r_conv_result[4]`, pois a entrada
+ja esta em `r_input_feat` e o acumulador de saida pode ser atualizado uma linha
+por ciclo. Em troca, introduz `r_transform_row[4]`, `r_inverse_row[4]` e dois
+indices curtos (`r_transform_product_idx` e `r_inverse_row_idx`).
+
+Em palavras de dados, a transicao e:
+
+```text
+all16:    16 input + 16 weights + 16 conv_input + 4 conv_result + 4 out + 4 read = 60
+stream12: 16 input + 16 weights +  4 transform  + 4 inverse    + 4 out + 4 read = 48
+```
+
+A reducao nominal e de 12 palavras, ou 240 bits a 20 bits por palavra. Ela
+nao implica automaticamente 20% de area, porque a multiplexacao, os quatro
+ciclos de controle e os modulos `InverseRowAccumulate` tambem ocupam area.
+
+### 16.3 O ciclo a ciclo
+
+```text
+ciclo 0: r_transform_row <- w_conv_transform[0:3]   -> 4 produtos
+ciclo 1: r_transform_row <- w_conv_transform[4:7]   -> 4 produtos
+ciclo 2: r_transform_row <- w_conv_transform[8:11]  -> 4 produtos
+ciclo 3: r_transform_row <- w_conv_transform[12:15] -> 4 produtos
+```
+
+Em cada borda, `r_output_write` recebe o novo acumulado da inversa. O valor
+anterior nao precisa de uma matriz 4x4: quatro acumuladores de saida sao
+suficientes para os quatro pixels do tile.
+
+O `r_inverse_row` da fonte baseline e uma fronteira adicional que nao participa
+do resultado final quando `STREAM_DEBUG` esta desligado; ele existe por causa
+do caminho legado de trace. Esse detalhe explica por que a contagem textual do
+baseline nao e ainda o limite minimo da familia `stream12`.
+
+## 17. Terceira etapa: `stream8`
+
+Arquivo: `conv-i16-h16-t04-o4-m04-stream8.sv`.
+
+Apesar do nome historico `stream8`, esta fonte fixa tem quatro MACs. O campo
+`t04` descreve a fronteira relevante: somente uma linha de quatro valores da
+transformada e registrada. A linha da inversa nao e armazenada; o produto do
+ciclo atual entra diretamente em `InverseRow` e depois em `InverseRowAccumulate`.
+
+### 17.1 Bancos registrados
+
+| Banco | Palavras |
+| --- | ---: |
+| `r_input_feat[0:15]` | 16 |
+| `r_input_weight[0:15]` | 16 |
+| `r_transform_row[0:3]` | 4 |
+| `r_output_write[0:3]` | 4 |
+| `r_output_read[0:3]` | 4 |
+| **total integral de dados** | **44** |
+
+Em comparacao direta com o `stream12`, saem as quatro palavras de
+`r_inverse_row`. A acumulacao funcional nao desaparece: ela continua em
+`r_output_write`, que passa a exercer simultaneamente o papel de banco de
+saida do tile e de estado parcial entre linhas.
+
+### 17.2 Por que isso reduz estado sem mudar a matematica
+
+`InverseRow` e um bloco combinacional. Ele recebe o vetor de produtos do ciclo,
+calcula os quatro valores parciais da inversa e entrega o resultado ao
+`InverseRowAccumulate`. Como o acumulador ja esta registrado em
+`r_output_write`, guardar novamente a linha de produtos em `r_inverse_row` seria
+duplicar uma informacao que ja foi consumida.
+
+O fluxo fica:
+
+```text
+r_transform_row -> Multip[0:3] -> InverseRow -> Accumulate -> r_output_write
+```
+
+Essa e a primeira reducao que remove um banco inteiro sem aumentar o numero de
+produtos. O preco e uma dependencia combinacional mais direta entre MAC,
+inversa e acumulador.
+
+## 18. Quarta etapa: `stream4`
+
+Arquivo: `conv-i16-h16-t00-o4-m04-stream4.sv`.
+
+Aqui a fronteira `r_transform_row` tambem foi removida. `Transform` continua
+produzindo os 16 valores, mas eles permanecem em `w_conv_transform`; o indice
+`r_transform_product_idx` seleciona diretamente os quatro valores que alimentam
+os MACs no ciclo corrente.
+
+### 18.1 Bancos registrados
+
+| Banco | Palavras | Motivo |
+| --- | ---: | --- |
+| `r_input_feat[0:15]` | 16 | Mantem o tile de entrada |
+| `r_input_weight[0:15]` | 16 | Mantem e rotaciona os pesos |
+| `r_output_accumulator[0:3]` | 4 | Mantem a soma parcial da inversa |
+| `r_output_write[0:3]` | 4 | Captura o tile final para a FSM de saida |
+| `r_output_read[0:3]` | 4 | Mantem a contribuicao anterior |
+| **total integral de dados** | **44** |
+
+O `t00` agora faz sentido para a transformada: nao existe banco registrado de
+transformada nem de linha inversa. Mas a ausencia de `r_transform_row` nao
+elimina o estado; ela desloca quatro palavras para `r_output_accumulator`.
+
+Por isso `stream4` e `stream8` podem ter o mesmo total integral de palavras,
+mas por motivos diferentes:
+
+```text
+stream8: 16 input + 16 weights + 4 transform_row + 4 out + 4 read = 44
+stream4: 16 input + 16 weights + 4 accumulator  + 4 out + 4 read = 44
+```
+
+A diferenca e temporal. No `stream8`, a fronteira registrada protege a linha
+transformada. No `stream4`, a linha transformada e selecionada diretamente e a
+fronteira registrada fica na acumulacao da saida.
+
+## 19. Variantes `stream12-*`: reduzir pesos sem guardar 16 pesos transformados
+
+Depois de comparar as arquiteturas de feature, a proxima linha de trabalho foi
+aplicar a mesma ideia aos pesos. A pergunta passou a ser:
+
+> Precisamos manter os 16 pesos transformados, ou podemos manter os 9 pesos
+> espaciais e gerar somente a linha que os MACs usam?
+
+Essa mudanca nao reduz o banco de entrada: `r_input_feat[0:15]` continua
+necessario. Ela reduz ou reorganiza somente o lado dos pesos.
+
+### 19.1 `stream12-wstream4`
+
+Arquivo: `conv-i16-h13-t08-o4-m04-stream12-wstream4.sv`.
+
+| Banco | Palavras |
+| --- | ---: |
+| `r_input_feat[0:15]` | 16 |
+| `r_weight_spatial[0:8]` | 9 |
+| `r_input_weight[0:3]` | 4 |
+| `r_transform_row[0:3]` | 4 |
+| `r_inverse_row[0:3]` | 4 |
+| `r_output_write[0:3]` + `r_output_read[0:3]` | 8 |
+| **total integral de dados** | **45** |
+
+O campo `h13` e a soma dos nove pesos espaciais com os quatro pesos
+transformados ativos. Nao ha um banco `r_input_weight[0:15]`: a FSM le a tile
+espacial, `WeightTransform` calcula a matriz transformada e
+`WeightTransformRow` seleciona a linha correspondente ao ciclo.
+
+O ponto de economia nao e simplesmente trocar 16 por 9. Quatro palavras
+transformadas ainda precisam existir para alimentar os quatro MACs; o ganho
+vem de nao armazenar as outras doze ao mesmo tempo.
+
+### 19.2 `stream12-rowconst4`
+
+Arquivo: `conv-i16-h13-t08-o4-m04-stream12-rowconst4.sv`.
+
+A fronteira de registradores e a mesma de `wstream4`: 9 pesos espaciais, 4
+pesos ativos, 4 palavras de transformada, 4 de inversa e os bancos de saida.
+Assim, a contagem integral continua em 45 palavras.
+
+A diferenca esta no combinacional. `WeightTransformRowConst` calcula uma linha
+com constantes fixas e faz o arredondamento no fim da soma. Os vetores locais
+`weight[0:8]`, `sum[0:3]`, `rounded[0:3]` e `remainder[0:3]` sao sinais
+combinacionais do modulo; eles nao devem ser contados como registradores.
+
+Essa versao pode alterar area e timing mesmo mantendo a mesma contagem de
+palavras. Reduzir registradores nao garante reduzir area quando o arredondamento
+adiciona comparadores, extensoes de sinal e somadores.
+
+### 19.3 `stream12-rowconst4-exact`
+
+Arquivo: `conv-i16-h13-t08-o4-m04-stream12-rowconst4-exact.sv`.
+
+O inventario de palavras permanece igual ao `rowconst4`: 16 de entrada, 9
+espaciais, 4 ativos, 4 de transformada, 4 de inversa e 8 de saida/interface.
+O sufixo `exact` muda a largura aritmetica (`WEIGHT_NBITS` e `ACC_NBITS`) e
+remove o arredondamento intermediario da multiplicacao espacial. Portanto:
+
+```text
+mesmas palavras de estado != mesmos bits de estado != mesma area
+```
+
+Uma palavra de acumulador mais larga pode custar mais flip-flops e logica,
+mesmo que o numero de elementos continue igual. A avaliacao correta deve
+registrar tanto a quantidade de palavras quanto a largura de cada banco.
+
+### 19.4 `stream12-exact`
+
+Arquivo: `conv-i16-h20-t08-o4-m04-stream12-exact.sv`.
+
+Esta variante recebe os 16 numeradores de pesos ja transformados e exatos.
+Ela registra:
+
+| Banco | Palavras |
+| --- | ---: |
+| `r_input_feat[0:15]` | 16 |
+| `r_weight_transformed[0:15]` | 16 |
+| `r_input_weight[0:3]` | 4 |
+| `r_transform_row[0:3]` | 4 |
+| `r_inverse_row[0:3]` | 4 |
+| saida write/read | 8 |
+| **total integral** | **52** |
+
+Ela troca arredondamento no RTL por armazenamento de 16 pesos transformados
+mais largos/exatos. E uma escolha diferente de `wstream4`: `wstream4` reduz o
+armazenamento de pesos e calcula uma linha; `stream12-exact` preserva os 16
+valores transformados para simplificar a aritmetica durante o tile.
+
+### 19.5 `stream12-prefetch4`
+
+Arquivo: `conv-i20-h16-t08-o4-m04-stream12-prefetch4.sv`.
+
+Essa variante nao transforma pesos. Ela usa o mesmo nucleo `stream12` e adiciona
+`r_input_prefetch[0:3]` para capturar a proxima coluna enquanto a janela atual
+esta sendo processada.
+
+```text
+stream12 baseline: 16 input + 16 weights + 4 transform + 4 inverse + 8 out = 48
+prefetch4:         20 input + 16 weights + 4 transform + 4 inverse + 8 out = 52
+```
+
+O banco de prefetch nao reduz o trabalho de uma janela. Ele protege a entrada
+seguinte e pode reduzir bolhas entre janelas. O custo e quatro palavras extras
+de estado, alem dos flags `r_input_prefetch_full` e do controle de commit.
+
+## 20. Comparativo de registradores de dados
+
+A tabela usa a contagem integral, incluindo `r_output_read`, porque o objetivo
+e enxergar o armazenamento real. As fontes de 8 MACs foram omitidas conforme o
+escopo desta documentacao.
+
+| Arquitetura | Input | Pesos | Transform/inversa | Estado adicional de dados | Saida/interface | Total de palavras |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| `all`, 16 MACs | 16 | 16 | 0 | `r_conv_input16` + `r_conv_result4` | 8 | **60** |
+| `stream12`, 4 MACs | 16 | 16 | 8 | 0 | 8 | **48** |
+| `stream8`, 4 MACs | 16 | 16 | 4 | 0 | 8 | **44** |
+| `stream4`, 4 MACs | 16 | 16 | 0 | `r_output_accumulator4` | 8 | **44** |
+| `stream12-wstream4` | 16 | 13 | 8 | 0 | 8 | **45** |
+| `stream12-rowconst4` | 16 | 13 | 8 | 0 | 8 | **45** |
+| `stream12-rowconst4-exact` | 16 | 13 | 8 | 0 | 8 | **45** |
+| `stream12-exact` | 16 | 20 | 8 | 0 | 8 | **52** |
+| `stream12-prefetch4` | 20 | 16 | 8 | 0 | 8 | **52** |
+
+Essa tabela mostra tres licoes importantes:
+
+1. `t00` nao quer dizer que a arquitetura tem menos registradores totais; no
+   `all`, os bancos `r_conv_input` e `r_conv_result` ficam fora de `t`.
+2. `stream4` e `stream8` podem empatar em palavras, mas colocam a fronteira em
+   pontos diferentes do datapath.
+3. A variante com menos pesos transformados (`wstream4`/`rowconst4`) pode ter
+   a mesma quantidade de palavras que outra, mas usar larguras e logica muito
+   diferentes.
+
+## 21. O que a contagem nao mostra
+
+A contagem de palavras e uma ferramenta de raciocinio arquitetural, nao um
+substituto para Genus. Ela nao mostra:
+
+- numero de flip-flops depois de otimizacao e remocao de registradores mortos;
+- largura real de cada sinal, principalmente nas variantes `exact`;
+- muxes necessarios para selecionar linhas e rotacionar pesos;
+- profundidade dos somadores da transformada, inversa e arredondamento;
+- clock-enable e atividade de cada banco;
+- registradores escalares de FSM, endereco e contadores;
+- area e potencia de fios longos e buffers.
+
+Por isso a ordem correta de estudo e:
+
+```text
+contar palavras -> provar a vida dos dados -> simular bit a bit
+-> sintetizar o mesmo RTL -> rodar anotada -> medir power/energia
+```
+
+Se uma reducao remove quatro palavras, mas cria uma arvore de muxes maior que
+o banco removido, a sintese pode ficar pior. O registro da decisao deve mostrar
+os dois lados: palavras removidas e logica adicionada.
+
+## 22. Mapa mental final
+
+```text
+ALL16
+  guarda a janela, os pesos, a entrada da convolucao, o resultado da inversa
+  e o tile de saida; calcula tudo em paralelo.
+        |
+        | remove r_conv_input e r_conv_result; serializa os 16 produtos
+        v
+STREAM12
+  guarda quatro linhas da transformada e quatro linhas de inversa;
+  quatro ciclos de quatro MACs.
+        |
+        | elimina a linha de inversa porque ela pode ser consumida no ciclo
+        v
+STREAM8
+  guarda somente r_transform_row; o acumulador de saida carrega a parcial.
+        |
+        | elimina tambem r_transform_row e seleciona w_conv_transform direto
+        v
+STREAM4
+  guarda a parcial da saida, nao uma linha da transformada.
+        |
+        | aplica a mesma ideia aos pesos
+        v
+STREAM12-* WEIGHT STREAMING
+  guarda 9 pesos espaciais + 4 pesos ativos, ou escolhe outra troca
+  entre armazenamento, largura aritmetica, arredondamento e prefetch.
+```
+
+O principio comum e simples: uma informacao deve ser registrada somente se
+precisa sobreviver a uma borda de clock. Todo o restante deve ser consumido no
+ciclo em que e produzido, desde que a ordem, o valor bit-exato e o contrato de
+memoria permaneçam inalterados.
+
+## 23. Referencia convencional: `std` com 4 MACs
+
+Arquivo: `conv-i16-h16-t16-o4-m04-std.sv`.
+
+Embora a ordem principal deste guia comece pelo `all`, a versao convencional e
+um ponto de comparacao importante. Ela registra a matriz transformada inteira
+em `r_conv_temp[0:15]` e ainda conserva `r_conv_input[0:15]` para a entrada da
+convolucao. O caminho de produtos e parametrizado por `NUM_MULT`, mas o caso
+documentado aqui usa quatro MACs.
+
+| Banco | Palavras | Papel |
+| --- | ---: | --- |
+| `r_input_feat[0:15]` | 16 | Janela 4x4 |
+| `r_input_weight[0:15]` | 16 | Pesos transformados |
+| `r_conv_temp[0:15]` | 16 | Matriz transformada registrada |
+| `r_conv_input[0:15]` | 16 | Fronteira da entrada da convolucao |
+| `r_output_write[0:3]` + `r_output_read[0:3]` | 8 | Saida e contribuicao anterior |
+| **total integral de dados** | **72** |
+
+O `std` mostra por que o campo `t16` sozinho nao descreve todo o custo: o
+banco `r_conv_input` acrescenta outras 16 palavras. A primeira familia
+streaming remove primeiro esse banco duplicado; em seguida troca
+`r_conv_temp[16]` por uma linha ou por selecao combinacional.
+
+## 24. O generic `stream12`
+
+Arquivo: `conv-i16-h16-t08-o4-mxx-stream12-generic.sv`.
+
+O generic nao cria uma nova estrategia de armazenamento. Ele implementa a mesma
+organizacao `stream12` e escolhe `NUM_MULT` igual a 2, 4 ou 8. Para a variante
+de quatro MACs, o inventario e o mesmo do `stream12` fixo: 16 palavras de
+entrada, 16 de pesos, 4 de transformada, 4 de inversa e 8 de saida/interface,
+totalizando 48 palavras de dados.
+
+Quando `NUM_MULT=2`, a largura dos bancos `r_transform_row` e
+`r_inverse_row` continua sendo determinada pela matriz 4x4; o que muda e o
+numero de lanes de produto e a quantidade de ciclos Hadamard. Portanto, reduzir
+MACs nao reduz automaticamente os bancos de transformada/inversa. A arquitetura
+precisa de um banco menor somente quando o agendamento tambem muda a fronteira
+de dados.
+
+As configuracoes de oito MACs do generic e dos fontes fixos foram deixadas fora
+deste guia, conforme o escopo solicitado. Elas duplicam lanes de produto e
+algumas instancias de inversa, mas nao mudam o principio da contagem.
+
+## 25. Como comparar duas alteracoes sem se enganar
+
+Ao comparar duas fontes, preencha esta sequencia antes de olhar para area:
+
+1. Liste cada declaracao `r_*` que possui vetor de dados.
+2. Separe bancos de dados de contadores, estados e enderecos.
+3. Para cada banco, escreva quando ele recebe um valor e por quantos ciclos o
+   valor precisa continuar valido.
+4. Marque se o mesmo valor aparece em outro banco com outro nome.
+5. Conte palavras e bits separadamente.
+6. Identifique o fio combinacional que passou a fazer o trabalho do banco
+   removido.
+
+Um exemplo concreto:
+
+```text
+remover r_transform_row[4]
+  ganho: -4 palavras e -80 bits
+  substituto: muxes de w_conv_transform indexados por r_transform_product_idx
+  risco: caminho combinacional maior e selecao desalinhada com os pesos
+
+remover r_inverse_row[4]
+  ganho: -4 palavras e -80 bits
+  substituto: InverseRow alimentado diretamente por w_inverse_product_row
+  risco: perder somente trace ou, se houver outro fanout, perder dado funcional
+```
+
+O segundo caso e seguro somente depois de procurar todos os consumidores do
+sinal. Uma linha usada apenas por `$display` e diferente de uma linha usada
+como entrada de `InverseRowAccumulate`.
+
+## 26. Regra pratica para as proximas reducoes
+
+A sequencia de reducao que este inventario recomenda e:
+
+```text
+1. retirar bancos duplicados (`r_conv_input`, `r_conv_result`)
+2. retirar linhas que sao somente trace (`r_inverse_row` quando comprovado)
+3. mover a fronteira da transformada (`r_transform_row` versus mux direto)
+4. dobrar ou reutilizar o acumulador de saida
+5. somente depois reduzir o banco de pesos
+6. por ultimo avaliar prefetch e overlap de entrada
+```
+
+Essa ordem evita otimizar o lugar errado. O banco de pesos espaciais de nove
+palavras parece menor que 16, mas pode exigir transformadores, arredondadores e
+controle de linhas. O prefetch de quatro palavras parece pequeno, mas aumenta a
+vida da entrada e pode permitir que a FSM leia enquanto a convolucao esta
+ocupada.
+
+O criterio final continua sendo triplo:
+
+```text
+mesmos resultados + mesma interface de memoria + menor custo medido
+```
+
+Uma contagem menor que falha no golden, perde uma contribuicao de canal ou
+precisa de uma arvore de muxes maior nao e uma reducao arquitetural valida.

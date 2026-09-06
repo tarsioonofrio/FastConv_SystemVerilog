@@ -149,6 +149,6 @@ The previous nested directory layouts were removed from the active tree. The
 `list-file.txt` in each project points to the matching canonical RTL source.
 
 The detailed register-reduction rationale remains in
-[`REGISTER_REDUCTION-stream4.md`](REGISTER_REDUCTION-stream4.md).
+[`doc/REGISTER_REDUCTION-stream4.md`](doc/REGISTER_REDUCTION-stream4.md).
 The consolidated Conv2x2 PPA comparison, including the revalidated `stream4`
-results, is in [section 13 of that document](REGISTER_REDUCTION-stream4.md#13-comparativo-geral-das-variantes-conv2x2).
+results, is in [section 13 of that document](doc/REGISTER_REDUCTION-stream4.md#13-comparativo-geral-das-variantes-conv2x2).
