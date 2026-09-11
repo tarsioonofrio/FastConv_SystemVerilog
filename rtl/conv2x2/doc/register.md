@@ -112,21 +112,22 @@ No `conv-i16-h16-t00-o4-m04-stream4.sv`, o banco
 `r_transform_product_idx` seleciona diretamente quatro elementos de
 `w_conv_transform`. A memoria economizada na transformada reaparece como
 `r_output_accumulator[0:3]`, necessario para manter a soma parcial da inversa.
-Na variante posterior de 8 MACs, `conv-i16-h16-t00-o4-m08-stream4.sv`, esse
-banco e eliminado e `r_output_write[0:3]` assume as duas funcoes:
+Nas variantes `conv-i16-h16-t00-o4-m04-stream4.sv` e
+`conv-i16-h16-t00-o4-m08-stream4.sv`, esse banco e eliminado e
+`r_output_write[0:3]` assume as duas funcoes:
 
 ```text
 stream8: 16 input + 16 weights + 4 transform              + 8 output = 44
-stream4-m04: 16 input + 16 weights + 4 accumulator         + 8 output = 44
+stream4-m04: 16 input + 16 weights                          + 8 output = 40
 stream4-m08: 16 input + 16 weights                          + 8 output = 40
 ```
 
-Na versao m04, remover a linha transformada desloca a fronteira para a
-acumulacao da saida, sem reduzir o total de palavras. Na versao m08, o banco de
-escrita e reutilizado como acumulador porque a FSM nao escreve a memoria externa
-durante HADAMARD. O beneficio nominal passa a ser de quatro palavras; area,
-timing e potencia ainda precisam ser medidos, pois a logica de selecao e
-acumulacao pode compensar parte da economia de flip-flops.
+Nas duas variantes, o banco de escrita e reutilizado como acumulador porque a
+FSM nao escreve a memoria externa durante HADAMARD. O beneficio nominal e de
+quatro palavras (80 bits em `NBITS=20`). Na síntese regenerada do m04, porem,
+Genus ja havia eliminado a redundancia equivalente da versao anterior: o
+numero de celulas e a area permaneceram iguais, enquanto a potencia caiu
+ligeiramente.
 
 ### 0.6 Quinta mudanca: variantes `stream12-*`
 
@@ -155,7 +156,7 @@ std       guarda etapas completas e tem 72 palavras
 all16     remove a temp e a captura intermediaria, mas paraleliza tudo e fica com 56
 stream12  serializa produtos e inversa e fica com 48
 stream8   elimina a linha de inversa e fica com 44
-stream4   move a fronteira para o acumulador e continua com 44
+stream4   remove a fronteira extra e reutiliza r_output_write, ficando com 40
 rowconst  reduz pesos transformados, chegando a 45
 prefetch  adiciona estado de entrada para ganhar overlap, chegando a 52
 ```
@@ -181,7 +182,7 @@ O contrato funcional que nao pode mudar durante a reducao e:
 2. `Transform` continua calculando a mesma matriz transformada;
 3. cada produto continua associado ao peso correspondente;
 4. `InverseRowAccumulate` continua recebendo as linhas na mesma ordem;
-5. o estado `r_output_accumulator` continua sendo capturado antes do ciclo seguinte;
+5. o estado acumulado continua disponivel em `r_output_write` antes do ciclo seguinte;
 6. a FSM de saida continua escrevendo os mesmos 8100 valores nos mesmos
    enderecos;
 7. o caminho de referencia `rtl/conv2x2` permanece intocado.
@@ -391,11 +392,11 @@ regenerado tambem passou com `cycles=27725` e 0 erros de elaboracao.
 
 ## 6. Alteracao 3: reutilizar `r_output_write` como acumulador
 
-Esta alteracao foi aplicada somente a `conv-i16-h16-t00-o4-m08-stream4.sv`.
-Antes, quatro palavras de `r_output_accumulator` mantinham a soma parcial e
-outras quatro palavras de `r_output_write` mantinham o tile final. Como a FSM
-nao escreve a memoria externa durante HADAMARD, os dois papeis podem usar o
-mesmo banco.
+Esta alteracao foi aplicada a `conv-i16-h16-t00-o4-m04-stream4.sv` e
+`conv-i16-h16-t00-o4-m08-stream4.sv`. Antes, quatro palavras de
+`r_output_accumulator` mantinham a soma parcial e outras quatro palavras de
+`r_output_write` mantinham o tile final. Como a FSM nao escreve a memoria
+externa durante HADAMARD, os dois papeis podem usar o mesmo banco.
 
 O `STREAMING_DATAPATH_BLOCK` agora zera `r_output_write` no inicio da janela e
 grava nele `w_output_acc_next` a cada ciclo HADAMARD. O `OUTPUT_DATA_BLOCK`
@@ -410,16 +411,18 @@ depois: r_output_write[4]      -> acumulacao e escrita
 ```
 
 A reducao nominal e de quatro palavras, ou 80 bits com `NBITS=20`. O criterio
-de aceite foi a simulacao bit a bit da variante de 8 MACs:
+de aceite foi a simulacao bit a bit das variantes m04 e m08:
 
 ```text
-inverse_tiles=2025 cycles=23674 valid_writes=8100
-input_samples_clipped=0 invalid_output_beats=0
+stream4 m04: inverse_tiles=2025 cycles=27725 valid_writes=8100
+stream4 m08: inverse_tiles=2025 cycles=23675 valid_writes=8100
+input_samples_clipped=0 invalid_output_beats=0 (ambas)
 ```
 
-A sintese ainda precisa ser regenerada para medir o ganho real de area, timing
-e potencia; a simulacao funcional confirma apenas que a nova fronteira temporal
-preserva os resultados.
+A síntese regenerada do m04 produziu 8.473 células, área 12.127,770 um2,
+slack de 243 ps e potência de 0,684856 mW. A área permaneceu igual à rodada
+anterior porque o Genus já removia a redundância equivalente; a potência foi
+recalculada com o novo netlist.
 
 ## 7. Variante de 2 MACs (historica e removida)
 
@@ -623,7 +626,7 @@ Os numeros abaixo substituem os da secao 11 para esta microarquitetura:
 
 | Variante | Celulas | Area total (um2) | Flip-flops | Slack nominal (ps) | Power total (mW) |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| `stream4/tcn4-04mac` | 8.473 | 12.127,770 | 1.024 | 243 | 0,692382 |
+| `stream4/tcn4-04mac` | 8.473 | 12.127,770 | 1.024 | 243 | 0,684856 |
 | `stream4/tcn4-08mac` | 11.818 | 16.855,605 | 1.023 | 206 | 0,918483 |
 
 A anotada final usou os netlists desta mesma campanha e a biblioteca
@@ -631,7 +634,7 @@ A anotada final usou os netlists desta mesma campanha e a biblioteca
 
 | Variante | SDF errors | SDF warnings | Inverse tiles | Ciclos totais | Ciclos ativos | Escritas validas |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| `stream4/tcn4-04mac` | 0 | 879 | 2.025 | 27.725 | 8.100 | 8.100 |
+| `stream4/tcn4-04mac` | 0 | 950 | 2.025 | 27.725 | 8.100 | 8.100 |
 | `stream4/tcn4-08mac` | 0 | 866 | 2.025 | 23.675 | 4.050 | 8.100 |
 
 O power foi calculado pelo Joules a partir do `dut.shm` de cada anotada. Os
@@ -646,14 +649,16 @@ e 8 MACs, respectivamente.
 Esta tabela consolida os resultados gate-level disponiveis para as variantes
 atuais. A potencia e a potencia media do `power_evaluation.txt`; a energia foi
 calculada para o mesmo workload da anotada (`2 ns` por ciclo). As linhas de
-`stream4` foram atualizadas em 01/09/2026 com sintese, SDF, anotada e Joules
+`stream4` foram atualizadas em 11/09/2026 com sintese, SDF, anotada e Joules
 gerados a partir dos RTLs `conv-i16-h16-t00-o4-m04-stream4.sv` e `conv-i16-h16-t00-o4-m08-stream4.sv`.
+A rodada inclui a reutilizacao de `r_output_write` tambem no m04; a area
+permaneceu igual apos a otimizacao do Genus e a potencia foi recalculada.
 
 | Variante | Fonte | Anotada | Celulas | Area total (um2) | Data path (ps) | Slack (ps) | Ciclos | Power (mW) | Energia (nJ) |
 | --- | --- | :---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | Conv std 4 MACs | `conv-i16-h16-t16-o4-m04-std.sv` | PASS | 6.613 | 12.017,925 | 763 | 237 | 23.677 | 0,826093 | 39,119 |
 | Conv all 16 MACs | `conv-i16-h16-t00-o4-m16-all.sv` | PASS | 15.200 | 23.129,636 | 764 | 236 | 23.672 | 0,650788 | 30,811 |
-| Stream4 4 MACs | `conv-i16-h16-t00-o4-m04-stream4.sv` | PASS | 8.473 | 12.127,770 | 757 | 243 | 27.725 | 0,692382 | 38,393 |
+| Stream4 4 MACs, banco compartilhado | `conv-i16-h16-t00-o4-m04-stream4.sv` | PASS | 8.473 | 12.127,770 | 757 | 243 | 27.725 | 0,684856 | 37,975 |
 | Stream4 8 MACs | `conv-i16-h16-t00-o4-m08-stream4.sv` | PASS | 11.818 | 16.855,605 | 794 | 206 | 23.675 | 0,918483 | 43,490 |
 | Stream4 4 MACs, `r_transform_row` | `conv-i16-h16-t04-o4-m04-stream8.sv` | PASS | 6.515 | 10.857,984 | 757 | 243 | 27.725 | 0,582814 | 32,317 |
 | Stream12 2 MACs | `conv-i16-h16-t08-o4-mxx-stream12-generic.sv` | PASS | 6.483 | 11.012,366 | 766 | 234 | 29.749 | 0,531211 | 31,606 |
@@ -907,34 +912,34 @@ os MACs no ciclo corrente.
 | --- | ---: | --- |
 | `r_input_feat[0:15]` | 16 | Mantem o tile de entrada |
 | `r_input_weight[0:15]` | 16 | Mantem e rotaciona os pesos |
-| `r_output_accumulator[0:3]` | 4 | Mantem a soma parcial da inversa |
-| `r_output_write[0:3]` | 4 | Captura o tile final para a FSM de saida |
+| `r_output_write[0:3]` | 4 | Acumula a inversa e depois fornece o tile a FSM de saida |
 | `r_output_read[0:3]` | 4 | Mantem a contribuicao anterior |
-| **total integral de dados** | **44** |
+| **total integral de dados** | **40** |
 
 O `t00` agora faz sentido para a transformada: nao existe banco registrado de
-transformada nem de linha inversa. Mas a ausencia de `r_transform_row` nao
-elimina o estado; ela desloca quatro palavras para `r_output_accumulator`.
+transformada nem de linha inversa. A acumulacao tambem nao exige um banco
+adicional: `r_output_write` e zerado no inicio da janela e recebe
+`w_output_acc_next` em cada ciclo HADAMARD.
 
-Por isso `stream4` e `stream8` podem ter o mesmo total integral de palavras,
-mas por motivos diferentes:
+Por isso `stream4` m04 e m08 possuem a mesma fronteira de armazenamento:
 
 ```text
-stream8: 16 input + 16 weights + 4 transform_row + 4 out + 4 read = 44
-stream4: 16 input + 16 weights + 4 accumulator  + 4 out + 4 read = 44
+stream4-m04: 16 input + 16 weights + 4 output-write + 4 output-read = 40
+stream4-m08: 16 input + 16 weights + 4 output-write + 4 output-read = 40
 ```
 
-A diferenca e temporal. No `stream8`, a fronteira registrada protege a linha
-transformada. No `stream4`, a linha transformada e selecionada diretamente e a
-fronteira registrada fica na acumulacao da saida.
+A diferenca entre m04 e m08 e temporal: m04 consome uma linha da inversa por
+ciclo e precisa de quatro ciclos HADAMARD; m08 consome duas linhas e precisa de
+dois ciclos. O banco registrado e o mesmo.
 
-### 18.2 Variante de 8 MACs com banco compartilhado
+### 18.2 Implementacao comum do banco compartilhado
 
 O arquivo `conv-i16-h16-t00-o4-m08-stream4.sv` usa dois grupos de quatro MACs
-por ciclo e, por isso, produz duas linhas da inversa de uma vez. Nessa versao,
-`r_output_accumulator` foi removido. O valor anterior da acumulacao entra
-diretamente em `InverseRowAccumulate` por meio de `r_output_write`, que recebe
-o novo acumulado no mesmo processo sequencial do datapath.
+por ciclo e, por isso, produz duas linhas da inversa de uma vez. O arquivo m04
+usa um grupo, mas segue a mesma politica: `r_output_accumulator` foi removido
+e o valor anterior entra diretamente em `InverseRowAccumulate` por meio de
+`r_output_write`, que recebe o novo acumulado no mesmo processo sequencial do
+datapath.
 
 O ultimo resultado ja fica em `r_output_write` quando `w_conv_end` sinaliza o
 fim da convolucao. A FSM de saida apenas consome esse banco, somando
@@ -1064,7 +1069,7 @@ escopo desta documentacao.
 | `all`, 16 MACs | 16 | 16 | 0 | `r_conv_input16` | 8 | **56** |
 | `stream12`, 4 MACs | 16 | 16 | 8 | 0 | 8 | **48** |
 | `stream8`, 4 MACs | 16 | 16 | 4 | 0 | 8 | **44** |
-| `stream4`, 4 MACs | 16 | 16 | 0 | `r_output_accumulator4` | 8 | **44** |
+| `stream4`, 4 MACs, banco compartilhado | 16 | 16 | 0 | 0 | 8 | **40** |
 | `stream4`, 8 MACs, banco compartilhado | 16 | 16 | 0 | 0 | 8 | **40** |
 | `stream12-wstream4` | 16 | 13 | 8 | 0 | 8 | **45** |
 | `stream12-rowconst4` | 16 | 13 | 8 | 0 | 8 | **45** |
