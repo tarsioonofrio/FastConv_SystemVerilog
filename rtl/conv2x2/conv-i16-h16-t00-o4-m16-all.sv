@@ -92,7 +92,6 @@ module Conv
   logic [NBITS-1:0] r_conv_input[(CONV_INPUT_SIZE * CONV_INPUT_SIZE) - 1:0];  // convolution input register bank
   logic signed [NBITS-1+QUANT:0] w_conv_product [FULL_NUM_MULT-1:0];  // QUANT more bits for the multipliers
   logic [NBITS-1:0] w_conv_product_nbits [FULL_NUM_MULT-1:0];
-  logic [NBITS-1:0] r_conv_result [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
   logic w_conv_end;
 
   localparam OUTPUT_RW_COUNT_MAX = (CONV_OUTPUT_SIZE * CONV_OUTPUT_SIZE) - 1;
@@ -393,14 +392,8 @@ module Conv
   // -------  PART 3 - ONE-CYCLE CONVOLUTION DATAPATH ---------------------------------------------------
   // ----------------------------------------------------------------------------------------------------
   // w_conv_inverse is combinational and belongs to the current input window
-  // only while st_input_current == CONV_INPUT. Capture it before TRANSFER
-  // shifts r_input_feat for the next window.
-  always_ff @(posedge clk or posedge reset) begin: CONV_RESULT_CAPTURE_BLOCK
-    if (reset)
-      r_conv_result <= '{default: '0};
-    else if (st_input_current == CONV_INPUT)
-      r_conv_result <= w_conv_inverse;
-  end
+  // only while st_input_current == CONV_INPUT. The output bank captures it at
+  // that same edge, before TRANSFER can shift r_input_feat for the next window.
 
   always_ff @(posedge clk or posedge reset) begin: CONV_END_FLAG_BLOCK
     if (reset)
@@ -581,8 +574,12 @@ module Conv
       end else if ((st_output_current == READ_OUTPUT) && p_output_valid) begin
         r_output_read[r_output_read_count] <= p_output_data_read;
       end
-      if (w_conv_end)
-        r_output_write <= r_conv_result;
+      // Capture the completed inverse directly. The previous implementation
+      // inserted an intermediate result bank and copied it one cycle later;
+      // that storage was redundant because w_conv_inverse is stable throughout
+      // CONV_INPUT.
+      if (st_input_current == CONV_INPUT)
+        r_output_write <= w_conv_inverse;
     end
   end
 
