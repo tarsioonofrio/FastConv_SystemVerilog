@@ -12,7 +12,7 @@ file is compiled separately because every file declares the top-level module
 | `conv-i16-h16-t16-o4-m04-std.sv` | Conventional transform / Hadamard / full inverse path | Parameterized (`NUM_MULT`, default 4) |
 | `conv-i16-h16-t00-o4-m16-all.sv` | Fully parallel path, all 16 Hadamard products in one cycle | Fixed 16 MACs |
 | `conv-i16-h16-t04-o4-m04-stream8.sv` | Four-MAC streaming path using the registered transform-row schedule | Fixed 4 MACs |
-| `conv-i16-h16-t00-o4-m08-stream4.sv` | Eight-MAC streaming path using the 4-word schedule | Fixed 8 MACs |
+| `conv-i16-h16-t00-o4-m08-stream4.sv` | Eight-MAC streaming path using the 4-word schedule; reuses `r_output_write[4]` as the inverse accumulator | Fixed 8 MACs |
 | `conv-i16-h16-t08-o4-mxx-stream12-generic.sv` | Generic streaming path from the `stream12` family | `NUM_MULT = 2`, `4` or `8` |
 | `conv-i16-h16-t08-o4-m04-stream12.sv` / `conv-i16-h16-t08-o4-m08-stream12.sv` | Fixed-MAC compatibility sources from the `stream12` family | Fixed 4 / 8 MACs |
 | `conv-i16-h13-t08-o4-m04-stream12-wstream4.sv` | Weight-row streaming path: registers the raw 3x3 tile, computes one Winograd row per pass, and stores the active four-word transformed row | Fixed 4 MACs |
@@ -25,7 +25,7 @@ The filename fields are structural counts, not feature-map dimensions:
 - `i` is the number of registered input words;
 - `h` is the number of registered weight words (`r_input_weight`);
 - `t` is the number of registered transform/inverse words (`r_conv_temp`,
-  `r_transform_row`, and `r_inverse_row`);
+  `r_transform_row`, and `r_inverse_row`); the `all` variant has no such bank;
 - `o` is the number of registered output words;
 - `m` is the number of physical MAC lanes active per Hadamard cycle.
 
@@ -39,7 +39,7 @@ For the current 2x2 sources, the recount is:
 | Architecture | `h` | `t` | Registered banks included |
 | --- | ---: | ---: | --- |
 | standard, 4 MACs | 16 | 16 | `r_input_weight[16]` + `r_conv_temp[16]` |
-| all, 16 MACs | 16 | 0 | `r_input_weight[16]` |
+| all, 16 MACs | 16 | 0 | `r_input_weight[16]` + `r_conv_input[16]`; `w_conv_inverse` is captured directly in `r_output_write[4]` |
 | stream8, 4 or 8 MACs | 16 | 0 | `r_input_weight[16]` |
 | stream4-rdrow, 4 MACs | 16 | 4 | `r_input_weight[16]` + `r_transform_row[4]` |
 | stream12, 2/4/8 MACs | 16 | 8 | `r_input_weight[16]` + `r_transform_row[4]` + `r_inverse_row[4]` |
