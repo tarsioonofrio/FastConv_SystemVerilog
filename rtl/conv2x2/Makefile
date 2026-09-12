@@ -13,9 +13,9 @@ TB = testbench.sv
 VERILATOR = verilator -j 0 -DSIMULATION --trace-fst --trace-max-array 4096 \
             --top-module tb -Wno-fatal
 
-.PHONY: all std all16 stream4-4mac stream4-8mac stream12 stream12-wstream4 stream12-prefetch4 \
-        run run-std run-all16 run-stream4-4mac run-stream4-8mac \
-        run-stream12 run-stream12-wstream4 run-stream12-prefetch4 lint clean
+.PHONY: all std all16 stream04-4mac stream00-8mac stream08 stream08-wstream4 stream08-prefetch4 \
+        run run-std run-all16 run-stream04-4mac run-stream00-8mac \
+        run-stream08 run-stream08-wstream4 run-stream08-prefetch4 lint clean
 
 all: std
 
@@ -28,22 +28,22 @@ all16:
 	  $(COMMON) $(MUX) $(MATRICES_STD) conv-i16-h16-t00-o4-m16-all.sv $(TB) --build \
 	  -GNUM_MULT=16
 
-stream4-4mac:
-	$(VERILATOR) --binary --exe --Mdir obj_dir/stream4-4mac \
-	  $(COMMON) $(MATRICES_STREAM) conv-i16-h16-t04-o4-m04-stream8.sv $(TB) --build \
+stream04-4mac:
+	$(VERILATOR) --binary --exe --Mdir obj_dir/stream04-4mac \
+	  $(COMMON) $(MATRICES_STREAM) conv-i16-h16-t04-o4-m04-stream04.sv $(TB) --build \
 	  -GNUM_MULT=4
 
-stream4-8mac:
-	$(VERILATOR) --binary --exe --Mdir obj_dir/stream4-8mac \
-	  $(COMMON) $(MATRICES_STREAM) conv-i16-h16-t00-o4-m08-stream4.sv $(TB) --build \
+stream00-8mac:
+	$(VERILATOR) --binary --exe --Mdir obj_dir/stream00-8mac \
+	  $(COMMON) $(MATRICES_STREAM) conv-i16-h16-t00-o4-m08-stream00.sv $(TB) --build \
 	  -GNUM_MULT=8
 
-# The generic stream12-family implementation supports NUM_MULT=2, 4 and 8. Override
-# NUM_MULT on the command line, for example: make stream12 NUM_MULT=8.
+# The generic stream08-family implementation supports NUM_MULT=2, 4 and 8. Override
+# NUM_MULT on the command line, for example: make stream08 NUM_MULT=8.
 NUM_MULT ?= 4
-stream12:
-	$(VERILATOR) --binary --exe --Mdir obj_dir/stream12-$(NUM_MULT) \
-	  $(COMMON) $(MATRICES_STREAM) conv-i16-h16-t08-o4-mxx-stream12-generic.sv $(TB) --build \
+stream08:
+	$(VERILATOR) --binary --exe --Mdir obj_dir/stream08-$(NUM_MULT) \
+	  $(COMMON) $(MATRICES_STREAM) conv-i16-h16-t08-o4-mxx-stream08-generic.sv $(TB) --build \
 	  -GNUM_MULT=$(NUM_MULT)
 
 run: run-std
@@ -51,40 +51,40 @@ run-std: std
 	obj_dir/std/Vtb
 run-all16: all16
 	obj_dir/all16/Vtb
-run-stream4-4mac: stream4-4mac
-	obj_dir/stream4-4mac/Vtb
-run-stream4-8mac: stream4-8mac
-	obj_dir/stream4-8mac/Vtb
-run-stream12: stream12
-	obj_dir/stream12-$(NUM_MULT)/Vtb
+run-stream04-4mac: stream04-4mac
+	obj_dir/stream04-4mac/Vtb
+run-stream00-8mac: stream00-8mac
+	obj_dir/stream00-8mac/Vtb
+run-stream08: stream08
+	obj_dir/stream08-$(NUM_MULT)/Vtb
 
 # Reads only the active four-word transformed-weight row before each
 # Hadamard cycle; no complete sixteen-word weight register bank is kept.
-stream12-wstream4:
-	$(VERILATOR) --binary --exe --Mdir obj_dir/stream12-wstream4 \
-	  $(COMMON) $(MATRICES_STREAM) conv-i16-h13-t08-o4-m04-stream12-wstream4.sv $(TB) --build
+stream08-wstream4:
+	$(VERILATOR) --binary --exe --Mdir obj_dir/stream08-wstream4 \
+	  $(COMMON) $(MATRICES_STREAM) conv-i16-h13-t08-o4-m04-stream08-wstream4.sv $(TB) --build
 
-run-stream12-wstream4: stream12-wstream4
-	obj_dir/stream12-wstream4/Vtb
+run-stream08-wstream4: stream08-wstream4
+	obj_dir/stream08-wstream4/Vtb
 
 # Four-word prefetch variant: overlaps the first new column with the current
 # convolution and retains the shared testbench/data contract.
-stream12-prefetch4:
-	$(VERILATOR) --binary --exe --Mdir obj_dir/stream12-prefetch4 \
-	  $(COMMON) $(MATRICES_STREAM) conv-i20-h16-t08-o4-m04-stream12-prefetch4.sv $(TB) --build
+stream08-prefetch4:
+	$(VERILATOR) --binary --exe --Mdir obj_dir/stream08-prefetch4 \
+	  $(COMMON) $(MATRICES_STREAM) conv-i20-h16-t08-o4-m04-stream08-prefetch4.sv $(TB) --build
 
-run-stream12-prefetch4: stream12-prefetch4
-	obj_dir/stream12-prefetch4/Vtb
+run-stream08-prefetch4: stream08-prefetch4
+	obj_dir/stream08-prefetch4/Vtb
 
 lint:
 	$(VERILATOR) --timing --lint-only $(COMMON) $(MUX) $(MATRICES_STD) conv-i16-h16-t16-o4-m04-std.sv $(TB)
 	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STD) conv-i16-h16-t00-o4-m16-all.sv $(TB)
-	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i16-h16-t04-o4-m04-stream8.sv $(TB)
-	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i16-h16-t00-o4-m08-stream4.sv $(TB)
-	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i16-h16-t08-o4-mxx-stream12-generic.sv $(TB) \
+	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i16-h16-t04-o4-m04-stream04.sv $(TB)
+	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i16-h16-t00-o4-m08-stream00.sv $(TB)
+	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i16-h16-t08-o4-mxx-stream08-generic.sv $(TB) \
 	  -GNUM_MULT=$(NUM_MULT)
-	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i16-h13-t08-o4-m04-stream12-wstream4.sv $(TB)
-	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i20-h16-t08-o4-m04-stream12-prefetch4.sv $(TB)
+	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i16-h13-t08-o4-m04-stream08-wstream4.sv $(TB)
+	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i20-h16-t08-o4-m04-stream08-prefetch4.sv $(TB)
 
 clean:
 	rm -rf obj_dir dump.fst dump.vcd

@@ -1884,14 +1884,14 @@ def write_register_budget(report_dir, records):
         name = project.lower()
         source_path = rtl_source_for_record(record)
         source_name = source_path.name.lower() if source_path else ""
-        if "stream12" in name or "stream12" in source_name:
-            mode = "stream12"
-        elif "stream8" in name or "stream8" in source_name:
-            mode = "stream8"
-        elif "stream4-rdrow" in name or "rdrow" in name or "rdrow" in source_name:
-            mode = "stream4-rdrow"
-        elif "stream4" in name or "stream4" in source_name:
-            mode = "stream4"
+        if "stream08" in name or "stream08" in source_name:
+            mode = "stream08"
+        elif "stream04" in name or "stream04" in source_name:
+            mode = "stream04"
+        elif "stream00-rdrow" in name or "rdrow" in name or "rdrow" in source_name:
+            mode = "stream00-rdrow"
+        elif "stream00" in name or "stream00" in source_name:
+            mode = "stream00"
         elif "stream" in name or "stream" in source_name:
             mode = "stream"
         elif "all" in name or "all" in source_name:
