@@ -2,7 +2,6 @@ Project,architecture_mode,kernel_size,input_words,h_register_words,h_register_si
 Conv2x2-conv-i16-h13-t08-o4-m04-stream08-rowconst4,stream08,2,16,4,r_input_weight[4],8,r_transform_row[4]; r_inverse_row[4],4.0,4,32,rtl_r_declarations
 Conv2x2-conv-i16-h13-t08-o4-m04-stream08-rowconst4-exact,stream08,2,16,4,r_input_weight[4],8,r_transform_row[4]; r_inverse_row[4],4.0,4,32,rtl_r_declarations
 Conv2x2-conv-i16-h13-t08-o4-m04-stream08-wstream4,stream08,2,16,4,r_input_weight[4],8,r_transform_row[4]; r_inverse_row[4],4.0,4,32,rtl_r_declarations
-Conv2x2-conv-i16-h13-t08-o4-m08-stream08-rowconst4,stream08,2,16,8,r_input_weight[8],8,r_transform_row[4]; r_inverse_row[4],8.0,4,36,rtl_r_declarations
 Conv2x2-conv-i16-h13-t08-o4-m08-stream08-rowconst4-exact,stream08,2,16,8,r_input_weight[8],8,r_transform_row[4]; r_inverse_row[4],8.0,4,36,rtl_r_declarations
 Conv2x2-conv-i16-h13-t08-o4-m08-stream08-wstream4,stream08,2,16,8,r_input_weight[8],8,r_transform_row[4]; r_inverse_row[4],8.0,4,36,rtl_r_declarations
 Conv2x2-conv-i16-h16-t00-o4-m04-stream00,stream00,2,16,16,r_input_weight[16],0,,4.0,4,36,rtl_r_declarations
@@ -16,5 +15,6 @@ Conv2x2-conv-i16-h16-t08-o4-mxx-stream08-generic,stream08,2,16,16,r_input_weight
 Conv2x2-conv-i16-h16-t16-o4-m04-std,standard,2,16,16,r_input_weight[16],16,r_conv_temp[16],4.0,4,52,rtl_r_declarations
 Conv2x2-conv-i16-h16-t16-o4-m08-std,standard,2,16,16,r_input_weight[16],16,r_conv_temp[16],8.0,4,52,rtl_r_declarations
 Conv2x2-conv-i16-h20-t08-o4-m08-stream08-exact,stream08,2,16,8,r_input_weight[8],8,r_transform_row[4]; r_inverse_row[4],8.0,4,36,rtl_r_declarations
+Conv2x2-conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4,stream08,2,16,8,r_input_weight[8],8,r_transform_row[4]; r_inverse_row[4],8.0,4,36,rtl_r_declarations
 Conv2x2-conv-i20-h16-t08-o4-m04-stream08-prefetch4,stream08,2,16,16,r_input_weight[16],8,r_transform_row[4]; r_inverse_row[4],4.0,4,44,rtl_r_declarations
 Conv2x2-conv-i20-h16-t08-o4-m08-stream08-prefetch4,stream08,2,16,16,r_input_weight[16],8,r_transform_row[4]; r_inverse_row[4],8.0,4,44,rtl_r_declarations
