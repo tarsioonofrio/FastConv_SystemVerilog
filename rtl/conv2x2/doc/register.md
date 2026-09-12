@@ -679,7 +679,7 @@ permaneceu igual apos a otimizacao do Genus e a potencia foi recalculada.
 | Stream00 4 MACs, banco compartilhado | `conv-i16-h16-t00-o4-m04-stream00.sv` | PASS | 8.473 | 12.127,770 | 757 | 243 | 27.725 | 0,684856 | 37,975 |
 | Stream00 8 MACs | `conv-i16-h16-t00-o4-m08-stream00.sv` | PASS | 11.818 | 16.855,605 | 794 | 206 | 23.675 | 0,918483 | 43,490 |
 | Stream04 4 MACs, `r_transform_row` | `conv-i16-h16-t04-o4-m04-stream04.sv` | PASS | 6.515 | 10.857,984 | 757 | 243 | 27.725 | 0,582814 | 32,317 |
-| Stream08 2 MACs | `conv-i16-h16-t08-o4-mxx-stream08-generic.sv` | PASS | 6.483 | 11.012,366 | 766 | 234 | 29.749 | 0,531211 | 31,606 |
+| Stream08 2 MACs (historical) | `conv-i16-h16-t08-o4-mxx-stream08-generic.sv` | PASS | 6.483 | 11.012,366 | 766 | 234 | 29.749 | 0,531211 | 31,606 |
 | Stream08 4 MACs | `conv-i16-h16-t08-o4-m04-stream08.sv` | PASS | 6.478 | 11.010,342 | 774 | 226 | 29.749 | 0,508947 | 30,281 |
 | Stream08 8 MACs | `conv-i16-h16-t08-o4-m08-stream08.sv` | PASS | 10.394 | 15.873,661 | 752 | 248 | 25.699 | 0,669638 | 34,418 |
 
@@ -1158,7 +1158,7 @@ STREAM4
         |
         | aplica a mesma ideia aos pesos
         v
-STREAM12-* WEIGHT STREAMING
+STREAM08-* WEIGHT STREAMING
   guarda 9 pesos espaciais + 4 pesos ativos, ou escolhe outra troca
   entre armazenamento, largura aritmetica, arredondamento e prefetch.
 ```
@@ -1197,17 +1197,16 @@ streaming remove primeiro esse banco duplicado; em seguida troca
 Arquivo: `conv-i16-h16-t08-o4-mxx-stream08-generic.sv`.
 
 O generic nao cria uma nova estrategia de armazenamento. Ele implementa a mesma
-organizacao `stream08` e escolhe `NUM_MULT` igual a 2, 4 ou 8. Para a variante
+organizacao `stream08` e escolhe `NUM_MULT` igual a 4 ou 8. Para a variante
 de quatro MACs, o inventario e o mesmo do `stream08` fixo: 16 palavras de
 entrada, 16 de pesos, 4 de transformada, 4 de inversa e 8 de saida/interface,
 totalizando 48 palavras de dados.
 
-Quando `NUM_MULT=2`, a largura dos bancos `r_transform_row` e
-`r_inverse_row` continua sendo determinada pela matriz 4x4; o que muda e o
-numero de lanes de produto e a quantidade de ciclos Hadamard. Portanto, reduzir
-MACs nao reduz automaticamente os bancos de transformada/inversa. A arquitetura
-precisa de um banco menor somente quando o agendamento tambem muda a fronteira
-de dados.
+O caminho de dois MACs foi retirado do generic. Assim, qualquer parametrizacao
+fora de `{4,8}` falha no `STREAM_PARAMETER_CHECK_BLOCK`, em vez de selecionar
+um datapath parcialmente implementado. Reduzir MACs nao reduz automaticamente
+os bancos de transformada/inversa; uma variante com banco menor exige uma
+mudanca explicita de agendamento e fronteira de dados.
 
 As configuracoes de oito MACs do generic e dos fontes fixos foram deixadas fora
 deste guia, conforme o escopo solicitado. Elas duplicam lanes de produto e
