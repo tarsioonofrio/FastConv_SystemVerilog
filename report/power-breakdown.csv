@@ -144,11 +144,11 @@ Conv2x2-conv-i20-h16-t08-o4-m04-stream08-prefetch4,clock,0.0326494,5.60997821260
 Conv2x2-conv-i20-h16-t08-o4-m04-stream08-prefetch4,pad,0.0,0.0
 Conv2x2-conv-i20-h16-t08-o4-m04-stream08-prefetch4,pm,0.0,0.0
 Conv2x2-conv-i20-h16-t08-o4-m08-stream08-prefetch4,memory,0.0,0.0
-Conv2x2-conv-i20-h16-t08-o4-m08-stream08-prefetch4,register,0.146477,24.237354883973367
+Conv2x2-conv-i20-h16-t08-o4-m08-stream08-prefetch4,register,0.182249,23.465707689712755
 Conv2x2-conv-i20-h16-t08-o4-m08-stream08-prefetch4,latch,0.0,0.0
-Conv2x2-conv-i20-h16-t08-o4-m08-stream08-prefetch4,logic,0.42841,70.8884344015991
+Conv2x2-conv-i20-h16-t08-o4-m08-stream08-prefetch4,logic,0.563757,72.58726780409985
 Conv2x2-conv-i20-h16-t08-o4-m08-stream08-prefetch4,bbox,0.0,0.0
-Conv2x2-conv-i20-h16-t08-o4-m08-stream08-prefetch4,clock,0.0294567,4.874161073825503
+Conv2x2-conv-i20-h16-t08-o4-m08-stream08-prefetch4,clock,0.030655,3.9470245061873843
 Conv2x2-conv-i20-h16-t08-o4-m08-stream08-prefetch4,pad,0.0,0.0
 Conv2x2-conv-i20-h16-t08-o4-m08-stream08-prefetch4,pm,0.0,0.0
 Conv3x3-ifn9-06mac,memory,0.0,0.0
