@@ -11,6 +11,12 @@ achatada: cada resultado de sintese agora fica diretamente em
 `synthesis/<nome-do-arquivo-rtl-sem-.sv>/`, conforme a lista atual em
 `README.md`.
 
+O estado documentado nesta revisao inclui o commit `8c5407a9`
+(`refactor: reuse stream4 output registers`). Nele, as variantes stream4 m04 e
+m08 passam a reutilizar `r_output_write` como acumulador da inversa e como banco
+final de saida; os resultados de simulacao, sintese e power citados abaixo sao
+identificados como historicos ou atuais conforme a campanha que os produziu.
+
 ## 0. A historia da reducao: do `std` ao streaming
 
 A forma mais facil de entender estas arquiteturas e acompanhar a vida dos
@@ -260,8 +266,11 @@ nova; ela nao deve ser inferida apenas da contagem RTL.
 - compilacao e simulacao Verilator sem erros;
 - mesmos `inverse_tiles`, `valid_writes` e valores golden;
 - lint tambem com `STREAM_DEBUG` definido;
-- nenhuma referencia residual a `r_inverse_row`, `w_inverse_partial` ou ao
-  `inverse_row` de trace.
+- nenhuma referencia residual ao banco `r_inverse_row` nem à instancia
+  `InverseRow` que existia somente para trace;
+- as referencias funcionais a `w_inverse_partial_current` e às instancias
+  `inverse_row_current`/`inverse_row_lane1` continuam esperadas e nao devem
+  ser removidas.
 
 ## 4. Evidencia da Alteracao 1
 
@@ -314,14 +323,19 @@ execucao local, nao uma falha funcional observada no Verilator.
 
 ## 5. Alteracao 2: reduzir `r_transform_row`
 
-Esta alteracao foi inicialmente experimentada em `conv-i16-h16-t00-o4-m04-stream4.sv` e
-`conv-i16-h16-t00-o4-m08-stream4.sv`. A variante preservada com essa fronteira esta agora em
-`conv-i16-h16-t04-o4-m04-stream8.sv`, enquanto `conv-i16-h16-t00-o4-m04-stream4.sv` permanece identico
-ao `HEAD`. `r_transform_row` e diferente de `r_inverse_row`: ele segura a linha
+Esta alteracao foi inicialmente experimentada nas variantes stream4 m04 e m08.
+No estado atual, a fronteira foi removida dos arquivos
+`conv-i16-h16-t00-o4-m04-stream4.sv` e
+`conv-i16-h16-t00-o4-m08-stream4.sv`: os MACs selecionam diretamente a faixa
+correspondente de `w_conv_transform` usando `r_transform_product_idx`. A
+variante que preserva essa fronteira esta em
+`conv-i16-h16-t04-o4-m04-stream8.sv`, que funciona como comparador experimental
+de area e timing. `r_transform_row` e diferente de `r_inverse_row`: ele segura a linha
 transformada entre a captura no estado `TRANSFORM`/`HADAMARD` e o ciclo em que
 os MACs a consomem. A selecao combinacional sem essa fronteira foi mantida
-somente como variante experimental; a variante `conv-i16-h16-t04-o4-m04-stream8.sv`
-restaura `r_transform_row` porque a sintese mostrou uma reducao material de area.
+como a implementacao atual do stream4; a variante
+`conv-i16-h16-t04-o4-m04-stream8.sv` restaura `r_transform_row` porque a
+sintese mostrou uma reducao material de area.
 
 ### Hipotese
 
@@ -348,8 +362,8 @@ selecionados diretamente da matriz transformada.
 
 ### Mudanca aplicada
 
-Na variante experimental sem o banco, a declaracao de `r_transform_row` foi removida
-e `w_transform_feature` passou a usar diretamente os indices da linha atual. A
+Na variante sem o banco, a declaracao de `r_transform_row` foi removida e
+`w_transform_feature` passou a usar diretamente os indices da linha atual. A
 regressao funcional passou, mas a sintese contabilizou os muxes de selecao
 dentro da hierarquia `Transform`.
 
@@ -447,7 +461,7 @@ revertivel:
 4. comparar a variante sem `r_transform_row` com a restauracao da fronteira
    sequencial;
 5. aprovar a alternativa somente apos medir area, timing e potencia;
-6. somente entao estudar `r_output_accumulator` ou uma acumulacao dobrada;
+6. somente entao estudar a reutilizacao de `r_output_write` ou uma acumulacao dobrada;
 7. rodar simulacao anotada e power com netlist gerado a partir do commit
    correspondente.
 
@@ -478,7 +492,8 @@ fontes de outra pasta.
 
 ### Mudanca aplicada
 
-Os parsers locais de `stream4/tcn4-04mac` e `stream4/tcn4-08mac` agora:
+Os scripts de parsing que originaram as campanhas historicas de
+`stream4/tcn4-04mac` e `stream4/tcn4-08mac` foram corrigidos para:
 
 - ignoram linhas vazias e comentarios;
 - convertem `NAME=VALUE` em `{NAME VALUE}` antes de `elaborate`;
@@ -502,16 +517,16 @@ de RTL forem finalizadas.
 
 ## 10. Configuracao de sintese por variante
 
-As duas configuracoes em `synthesis/tcn4-*mac` foram corrigidas para usar os
-artefatos locais deste diretorio:
+As configuracoes ativas foram achatadas para diretorios nomeados pelo arquivo
+RTL. Os caminhos atuais sao:
 
 | Configuracao | Fonte do core | Parametro |
 | --- | --- | --- |
-| `stream4/tcn4-04mac` | `conv-i16-h16-t00-o4-m04-stream4.sv` | fixo em 4 MACs |
-| `stream4/tcn4-08mac` | `conv-i16-h16-t00-o4-m08-stream4.sv` | fixo em 8 MACs |
+| `conv-i16-h16-t00-o4-m04-stream4` | `conv-i16-h16-t00-o4-m04-stream4.sv` | fixo em 4 MACs |
+| `conv-i16-h16-t00-o4-m08-stream4` | `conv-i16-h16-t00-o4-m08-stream4.sv` | fixo em 8 MACs |
 
-As listas anteriores apontavam para `rtl/conv2x2/synthesis/stream12`, de modo que os
-logs/registros de sintese que ja estavam no diretorio nao comprovavam a
+As listas antigas apontavam para `rtl/conv2x2/synthesis/stream12`, de modo que os
+logs/registros de sintese daquele layout nao comprovavam a
 sintese do RTL desta pasta. Tambem foi corrigido o `testbench-file.txt` para o
 testbench compartilhado local e o nome de topo para `Conv`, respeitando
 maiusculas/minusculas do SystemVerilog.
@@ -558,8 +573,9 @@ execucao de 2 MACs agora mostra 20.250 ciclos ativos, em vez dos 12.150 da
 rodada contaminada, confirmando que cada netlist esta sendo simulado de forma
 independente.
 
-Os relatórios permanecem no Paxos em
-`rtl/conv2x2/synthesis/tcn4-*/{logical/results,power}`. Eles devem ser
+Os relatórios permanecem no Paxos e no espelho local, sob os diretórios
+`rtl/conv2x2/synthesis/conv-i16-h16-*/{logical,power}`. Os caminhos históricos
+`rtl/conv2x2/synthesis/tcn4-*` não fazem parte da árvore ativa. Eles devem ser
 copiados ou regenerados quando uma nova alteração de RTL for feita; não se
 deve misturar esses números com os logs legados que apontavam para
 `conv2x2/synthesis/stream12`.
@@ -683,8 +699,11 @@ permaneceu igual apos a otimizacao do Genus e a potencia foi recalculada.
 - Nao ha uma sintese atual versionada para uma variante convencional de 8
   MACs nesta arvore; por isso ela nao foi inventada ou extrapolada na tabela.
 
-Os relatorios canônicos de `stream4` estao em
-`synthesis/stream4/tcn4-04mac/` e `synthesis/stream4/tcn4-08mac/`. A
+Os relatorios canônicos de `stream4` estao atualmente em
+`synthesis/conv-i16-h16-t00-o4-m04-stream4/` e
+`synthesis/conv-i16-h16-t00-o4-m08-stream4/`. Os caminhos antigos
+`synthesis/stream4/tcn4-04mac/` e `synthesis/stream4/tcn4-08mac/` pertencem às
+campanhas historicas e nao devem ser usados como origem da arvore atual. A
 proveniencia do HDL usado pelo Genus e a anotada correspondente permanecem nos
 respectivos `logical/genus.log` e `sim/xrun.log`. Os valores de `stream12`,
 `std`, `all16` e `rdrow` sao os ultimos artefatos gate-level disponiveis nesta
