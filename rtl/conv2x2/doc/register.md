@@ -1079,6 +1079,31 @@ O banco de prefetch nao reduz o trabalho de uma janela. Ele protege a entrada
 seguinte e pode reduzir bolhas entre janelas. O custo e quatro palavras extras
 de estado, alem dos flags `r_input_prefetch_full` e do controle de commit.
 
+### 19.6 `stream08-prefetch4-rowconst4`
+
+Arquivo ativo: `conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4.sv`.
+
+Esta variante combina o prefetch de quatro amostras com a tecnica
+`rowconst4`. O tile espacial de pesos continua registrado em
+`r_weight_spatial[0:8]`, mas apenas as oito palavras transformadas das duas
+linhas consumidas pelos oito MACs ficam no banco ativo `r_input_weight[0:7]`.
+As quatro instancias `WeightTransformRowConst` geram as linhas sob o controle
+da FSM de Hadamard; nao ha um banco registrado de 16 pesos transformados.
+
+```text
+entrada:       16 palavras da janela + 4 palavras do prefetch
+pesos:           9 palavras espaciais + 8 palavras transformadas ativas
+computacao:      8 MACs, duas linhas por ciclo de Hadamard
+```
+
+O prefetch so e habilitado depois que o primeiro tile de pesos foi carregado.
+Na borda direita ou quando o banco ainda nao esta cheio, a variante preserva
+o deslocamento de duas colunas do `stream08` original; quando o banco esta
+cheio, o commit substitui as colunas novas antes da leitura da segunda coluna.
+O baseline `rowconst4` anterior foi preservado em
+`archive/m08/conv-i16-h13-t08-o4-m08-stream08-rowconst4.sv` e sua configuracao
+de sintese correspondente em `archive/m08/synthesis/`.
+
 ## 20. Comparativo de registradores de dados
 
 A tabela usa a contagem integral, incluindo `r_output_read`, porque o objetivo
@@ -1292,18 +1317,23 @@ Arquivos `m08` adicionados:
 conv-i16-h16-t16-o4-m08-std.sv
 conv-i16-h16-t04-o4-m08-stream04.sv
 conv-i16-h13-t08-o4-m08-stream08-wstream4.sv
-conv-i16-h13-t08-o4-m08-stream08-rowconst4.sv
 conv-i16-h13-t08-o4-m08-stream08-rowconst4-exact.sv
 conv-i20-h16-t08-o4-m08-stream08-prefetch4.sv
+conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4.sv
 conv-i16-h20-t08-o4-m08-stream08-exact.sv
 ```
+
+`conv-i16-h13-t08-o4-m08-stream08-rowconst4.sv` deixou de ser ativo e foi
+movido para `archive/m08/`; os seus resultados de síntese continuam sendo
+coletados pelo relatório consolidado.
 
 O alvo `make std` agora usa `conv-i16-h16-t16-o4-m08-std.sv` e passa
 `NUM_MULT=8`. Os alvos explícitos de oito MACs foram adicionados ao
 `Makefile`; os alvos e fontes de quatro MACs continuam disponíveis para
 comparação.
 
-O fluxo RTL foi checado com Verilator para as sete fontes novas. O fluxo de
+O fluxo RTL foi checado com Verilator para as fontes `m08` ativas, incluindo a
+nova combinação `prefetch4-rowconst4`. O fluxo de
 potência foi executado na Paxos a partir do commit publicado
 `bd4ff8aed77ee173682016c7a33f0d501358673e`, usando Genus 21.1, Xcelium 23.03,
 o banco gate-level e o `dut.shm` produzido pela simulação. Os relatórios foram
@@ -1325,6 +1355,11 @@ As seis linhas acima tiveram `LOGICAL_RC=0`, `SIM_RC=0` e `POWER_RC=0`; a
 simulação também reportou 2.025 tiles inversos, 8.100 escritas válidas e zero
 amostras de entrada fora dos limites. A soma de percentuais `100,01%` na
 linha de `rowconst4-exact` é apenas efeito do arredondamento da apresentação.
+
+A nova `stream08-prefetch4-rowconst4` já passou pela simulação RTL com
+2.025 tiles inversos, 8.100 escritas válidas e 21.892 ciclos. Sua síntese e
+fluxo de potência ainda não foram executados nesta rodada; portanto ela não
+entra na tabela de potência acima.
 
 `stream08-prefetch4` teve síntese lógica concluída (`LOGICAL_RC=0`), mas sua
 simulação gate-level permaneceu em `xmsim> run` sem emitir o contrato de
