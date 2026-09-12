@@ -45,23 +45,23 @@ def project_name_from_report(path):
     return Path(path).parent.parent.parent.parent.name
 
 
-def synthesis_projects():
-    """Yield active and archived project directories under each RTL architecture.
+def synthesis_projects(include_archived=False):
+    """Yield synthesis project directories under each RTL architecture.
 
     Active synthesis lives in ``rtl/conv*/synthesis/*``.  Historical projects
-    are kept in ``rtl/conv*/archive/{m04,m08}/synthesis/*`` and remain part of
-    the consolidated tables so published m04/m08 comparisons stay reproducible
-    after the active-tree migration.
+    are kept in ``rtl/conv*/archive/*/synthesis/*``.  They are excluded by
+    default and can be included explicitly for historical comparisons.
     """
     for architecture_root in sorted(Path(REPO_ROOT).glob("rtl/conv*")):
         if not architecture_root.is_dir():
             continue
         architecture = architecture_root.name
         synthesis_roots = [architecture_root / "synthesis"]
-        for archive_name in ("m04", "m08"):
-            archived_root = architecture_root / "archive" / archive_name / "synthesis"
-            if archived_root.is_dir():
-                synthesis_roots.append(archived_root)
+        if include_archived:
+            archive_root = architecture_root / "archive"
+            synthesis_roots.extend(
+                sorted(path for path in archive_root.glob("*/synthesis") if path.is_dir())
+            )
         for synthesis_root in synthesis_roots:
             if not synthesis_root.is_dir():
                 continue
@@ -88,11 +88,11 @@ def synthesis_projects():
                 }
 
 
-def project_records(prefix, architecture=None):
+def project_records(prefix, architecture=None, include_archived=False):
     """Return current synthesis records matching a report family."""
     if prefix != "conv-":
         return []
-    records = list(synthesis_projects())
+    records = list(synthesis_projects(include_archived=include_archived))
     if architecture is not None:
         records = [r for r in records if r["architecture"] == architecture]
     return records
@@ -2053,12 +2053,17 @@ def main():
         default=None,
         help="Optional naive synthesis project. Enables a separate ratio table.",
     )
+    parser.add_argument(
+        "--include-archived",
+        action="store_true",
+        help="Include historical projects below rtl/conv*/archive/*/synthesis/.",
+    )
     args = parser.parse_args()
     report_dir = Path(args.report_dir).resolve()
     report_dir.mkdir(parents=True, exist_ok=True)
-    records = project_records("conv-")
+    records = project_records("conv-", include_archived=args.include_archived)
     if not records:
-        raise SystemExit("No synthesis projects found below rtl/conv*/synthesis or archive/{m04,m08}/synthesis.")
+        raise SystemExit("No synthesis projects found below rtl/conv*/synthesis or archive/*/synthesis.")
     naive = parse_naive_record(args.naive_synthesis_dir) if args.naive_synthesis_dir else None
     write_report_set(
         report_dir,
