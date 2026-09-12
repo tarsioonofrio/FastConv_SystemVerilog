@@ -1334,3 +1334,140 @@ comparado como se fosse potência medida.
 
 Os resultados `m04` e os relatórios de síntese anteriores permanecem sob
 `archive/m04/`; nenhum arquivo `m04` foi sobrescrito pelos artefatos `m08`.
+
+## 28. Diagrama de ondas das FSMs e do prefetch
+
+O diagrama abaixo mostra a relação temporal entre as três FSMs do
+`stream08-prefetch4` e o leitor auxiliar de entrada. Cada coluna representa
+um ciclo completo entre duas bordas de subida de `clk`. O nome mostrado é o
+valor do estado registrado (`*_current`) durante aquele ciclo; a transição
+para o próximo estado acontece na borda seguinte.
+
+O leitor auxiliar não é uma nova enumeração dentro de `type_st_input`. Ele é
+representado pelos registradores `r_input_prefetch_active`,
+`r_input_prefetch_phase` e `r_input_prefetch_full`. A fase é um contador
+portável: `PREFETCH_PHASES = STREAM_CYCLES + 2`, com uma fase para
+`TRANSFORM`, uma para cada ciclo de `HADAMARD` e uma para `INVERSE`.
+Por isso, no diagrama ele aparece como uma quarta faixa paralela à FSM de
+entrada, sem acrescentar estados enumerados à FSM principal.
+
+### 28.1 Carregamento do primeiro tile
+
+Antes do primeiro `CONV_INPUT`, a FSM de entrada ainda precisa carregar as
+quatro linhas completas da janela 4x4. A notação `[4]` significa quatro
+ciclos, um para cada palavra da linha. Assim que o tile entra em
+`CONV_INPUT`, o endereço da primeira coluna do tile seguinte já é emitido.
+Com a latência de uma borda da RAM, a amostra chega no início de `TRANSFORM`.
+
+```text
+                         ciclos de clock  ───────────────────────────────────────────────────────────────>
+
+FSM de entrada       WAIT_INPUT  ADDRESS_INPUT  READ_WEIGHTS[n]  READ_IN_10A[4]  READ_IN_10B[4]
+                     READ_IN_8C[4]  READ_IN_8D[4]  CONV_INPUT  TRANSFER  HOLD_WRITE  ...
+
+FSM de convolução    WAIT_CONV ────────────────────────────────────────────────┐
+                                                                                └─ TRANSFORM
+                                                                                   HADAMARD[2]
+                                                                                   INVERSE
+                                                                                   WAIT_CONV
+
+FSM de saída         WAIT_OUTPUT  RESET_OUTPUT ────────────────────────────────┐
+                                                                                └─ WRITE_OUTPUT /
+                                                                                   READ_OUTPUT
+
+Prefetch auxiliar    idle       idle       idle       idle       START  READ[0:3]  READY  COMMIT
+```
+
+Durante `TRANSFORM`, `HADAMARD` e `INVERSE`, o banco `r_input_feat` permanece
+estável. O prefetch do próximo tile começa somente depois que o tile atual
+foi carregado em `CONV_INPUT`; a emissão do endereço antecipado usa a borda
+anterior para que a primeira amostra fique disponível em `TRANSFORM`.
+
+### 28.2 Regime estacionário com prefetch
+
+A partir do tile seguinte, a coluna necessária para o próximo tile é lida
+durante o uso do tile corrente. A sequência abaixo não fixa a duração de
+`HOLD_WRITE`, pois ela também depende da FSM de saída e de
+`w_input_write_done`; ela mostra apenas a sobreposição relevante.
+
+```text
+                         k       k+1       k+2       k+3       k+4       k+5       k+6       k+7
+                         │         │         │         │         │         │         │         │
+clk                      ↑         ↑         ↑         ↑         ↑         ↑         ↑         ↑
+
+FSM de entrada       CONV_INPUT TRANSFER  HOLD_WRITE HOLD_WRITE HOLD_WRITE READ_IN_8D ...
+                                  │         │         │         │         │
+                                  └─────────┴─────────┴─────────┴─────────┘
+                                    espera a liberação e o buffer pronto
+
+FSM de convolução    WAIT_CONV  TRANSFORM  HADAMARD  HADAMARD  INVERSE  WAIT_CONV ...
+
+FSM de saída         RESET_OUTPUT  RESET_OUTPUT  RESET_OUTPUT  WRITE_OUTPUT /
+                                                            READ_OUTPUT ...
+
+Prefetch auxiliar    START      READ[0]   READ[1]   READ[2]   READ[3]   READY  COMMIT
+                     issue      phase=0   phase=1   phase=2   phase=3   full=1 full→0
+
+Porta de entrada     request    prefetch  prefetch  prefetch  prefetch  livre   READ_IN_8D
+                     addr+b0    addr+b1   addr+b2   addr+b3
+```
+
+No ciclo `START` (`CONV_INPUT`), o leitor auxiliar emite um endereço-base
+derivado da mesma progressão de `r_input_addr_feat`, mas grava em
+`r_input_prefetch[0:3]`. Com a latência de uma borda da RAM, a primeira
+amostra fica válida no início de `TRANSFORM`. O contador de fase
+`r_input_prefetch_phase` avança apenas quando `p_input_valid` está ativo.
+Assim, ele não altera `r_input_addr_count`, que continua pertencendo à FSM
+principal. Para o
+`stream08` atual, os valores são `0 = TRANSFORM`, `1..STREAM_CYCLES =
+HADAMARD` e `STREAM_CYCLES + 1 = INVERSE`; portanto, com dois ciclos de
+Hadamard, as quatro leituras são indexadas por `0, 1, 2, 3`.
+
+O commit não ocorre simplesmente quando `full=1`. A condição é:
+
+```text
+r_input_prefetch_full
+&& (w_conv_input_release || w_conv_end ||
+    (st_conv_current == WAIT_CONV &&
+     st_output_current inside {RESET_OUTPUT, READ_OUTPUT}))
+&& w_input_write_done
+```
+
+Essa proteção impede que a coluna prefetched sobrescreva
+`r_input_feat` enquanto o transformador, o Hadamard ou a inversa ainda podem
+consultar o tile corrente. Depois do commit, `READ_IN_8D` captura a segunda
+coluna nova e a janela seguinte fica completa.
+
+### 28.3 Transições de controle
+
+```text
+FSM de entrada:
+
+  READ_IN_10A ─> READ_IN_10B ─> READ_IN_8C ─> READ_IN_8D
+        │                                      │
+        └──────── carregamento inicial ────────┘
+
+  CONV_INPUT ─> TRANSFER ─> HOLD_WRITE
+                 │
+                 ├─ prefetch incompleto: permanece em HOLD_WRITE
+                 ├─ prefetch completo e commit seguro: ─> READ_IN_8D
+                 └─ primeiro tile/sem prefetch: ────────> READ_IN_8C
+
+  READ_IN_8D ─> CONV_INPUT ─> TRANSFER
+
+FSM de convolução:
+
+  WAIT_CONV ─> TRANSFORM ─> HADAMARD ─> INVERSE ─> WAIT_CONV
+                         (2 ciclos no m08)
+
+FSM de saída:
+
+  WAIT_OUTPUT ─> RESET_OUTPUT ─> WRITE_OUTPUT
+                              └─> READ_OUTPUT
+```
+
+A leitura do prefetch e o cálculo da convolução compartilham a porta externa
+de memória de entrada, mas não compartilham seus contadores temporais. A
+convolução usa `r_input_feat`; o prefetch usa `r_input_prefetch`. Essa é a
+razão pela qual a implementação precisa de alguns registradores adicionais,
+mas não de uma segunda cópia da FSM de endereçamento completa.
