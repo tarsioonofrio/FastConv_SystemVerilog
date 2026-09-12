@@ -1304,9 +1304,34 @@ O alvo `make std` agora usa `conv-i16-h16-t16-o4-m08-std.sv` e passa
 comparação.
 
 O fluxo RTL foi checado com Verilator para as sete fontes novas. O fluxo de
-potência Cadence/Genus não foi executado nesta máquina porque `genus`, `module`
-e `xrun` não estão instalados no ambiente local. Portanto, nenhum número de
-potência foi inventado nem nenhum relatório `m04` foi sobrescrito. Os novos
-diretórios de síntese contêm a configuração/lista de fontes para a execução
-posterior no host Cadence; os arquivos `power_evaluation.txt` copiados do
-baseline foram removidos para não serem confundidos com resultados `m08`.
+potência foi executado na Paxos a partir do commit publicado
+`bd4ff8aed77ee173682016c7a33f0d501358673e`, usando Genus 21.1, Xcelium 23.03,
+o banco gate-level e o `dut.shm` produzido pela simulação. Os relatórios foram
+gerados em clones isolados na Paxos; o checkout de trabalho já existente, que
+continha alterações não relacionadas, não foi tocado.
+
+Resultados nominais de `report_power -unit mW` (linha `Subtotal`):
+
+| Variante m08 | Leakage | Internal | Switching | Total |
+|---|---:|---:|---:|---:|
+| `std` | 0.0527922 | 0.475721 | 0.334820 | **0.863333** |
+| `stream04` | 0.0553297 | 0.411765 | 0.291210 | **0.758305** |
+| `stream08-wstream4` | 0.0648294 | 0.346387 | 0.261474 | **0.672691** |
+| `stream08-rowconst4` | 0.0649760 | 0.342512 | 0.264060 | **0.671548** |
+| `stream08-rowconst4-exact` | 0.0693252 | 0.412595 | 0.332482 | **0.814403** |
+| `stream08-exact` | 0.0602179 | 0.383106 | 0.290075 | **0.733399** |
+
+As seis linhas acima tiveram `LOGICAL_RC=0`, `SIM_RC=0` e `POWER_RC=0`; a
+simulação também reportou 2.025 tiles inversos, 8.100 escritas válidas e zero
+amostras de entrada fora dos limites. A soma de percentuais `100,01%` na
+linha de `rowconst4-exact` é apenas efeito do arredondamento da apresentação.
+
+`stream08-prefetch4` teve síntese lógica concluída (`LOGICAL_RC=0`), mas sua
+simulação gate-level permaneceu em `xmsim> run` sem emitir o contrato de
+conclusão. Ela foi interrompida após a janela de diagnóstico e, por isso, não
+há `power_evaluation.txt` válido para essa variante. O resultado não deve ser
+comparado como se fosse potência medida.
+
+Os resultados `m04` e os relatórios de síntese anteriores permanecem nos seus
+diretórios originais; nenhum arquivo `m04` foi sobrescrito pelos artefatos
+`m08`.
