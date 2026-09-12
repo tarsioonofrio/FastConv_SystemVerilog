@@ -32,7 +32,7 @@ all16:
 
 stream04-4mac:
 	$(VERILATOR) --binary --exe --Mdir obj_dir/stream04-4mac \
-	  $(COMMON) $(MATRICES_STREAM) conv-i16-h16-t04-o4-m04-stream04.sv $(TB) --build \
+	  $(COMMON) $(MATRICES_STREAM) archive/m04/conv-i16-h16-t04-o4-m04-stream04.sv $(TB) --build \
 	  -GNUM_MULT=4
 
 stream04-8mac:
@@ -69,7 +69,7 @@ run-stream08: stream08
 # Hadamard cycle; no complete sixteen-word weight register bank is kept.
 stream08-wstream4:
 	$(VERILATOR) --binary --exe --Mdir obj_dir/stream08-wstream4 \
-	  $(COMMON) $(MATRICES_STREAM) conv-i16-h13-t08-o4-m04-stream08-wstream4.sv $(TB) --build
+	  $(COMMON) $(MATRICES_STREAM) archive/m04/conv-i16-h13-t08-o4-m04-stream08-wstream4.sv $(TB) --build
 
 stream08-wstream4-8mac:
 	$(VERILATOR) --binary --exe --Mdir obj_dir/stream08-wstream4-8mac \
@@ -90,7 +90,7 @@ run-stream08-wstream4: stream08-wstream4
 # convolution and retains the shared testbench/data contract.
 stream08-prefetch4:
 	$(VERILATOR) --binary --exe --Mdir obj_dir/stream08-prefetch4 \
-	  $(COMMON) $(MATRICES_STREAM) conv-i20-h16-t08-o4-m04-stream08-prefetch4.sv $(TB) --build
+	  $(COMMON) $(MATRICES_STREAM) archive/m04/conv-i20-h16-t08-o4-m04-stream08-prefetch4.sv $(TB) --build
 
 stream08-prefetch4-8mac:
 	$(VERILATOR) --binary --exe --Mdir obj_dir/stream08-prefetch4-8mac \
@@ -104,19 +104,19 @@ run-stream08-prefetch4: stream08-prefetch4
 	obj_dir/stream08-prefetch4/Vtb
 
 lint:
-	$(VERILATOR) --timing --lint-only $(COMMON) $(MUX) $(MATRICES_STD) conv-i16-h16-t16-o4-m04-std.sv $(TB)
+	$(VERILATOR) --timing --lint-only $(COMMON) $(MUX) $(MATRICES_STD) archive/m04/conv-i16-h16-t16-o4-m04-std.sv $(TB)
 	$(VERILATOR) --timing --lint-only $(COMMON) $(MUX) $(MATRICES_STD) conv-i16-h16-t16-o4-m08-std.sv $(TB) -GNUM_MULT=8
 	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STD) conv-i16-h16-t00-o4-m16-all.sv $(TB)
-	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i16-h16-t04-o4-m04-stream04.sv $(TB)
+	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) archive/m04/conv-i16-h16-t04-o4-m04-stream04.sv $(TB)
 	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i16-h16-t04-o4-m08-stream04.sv $(TB) -GNUM_MULT=8
 	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i16-h16-t00-o4-m08-stream00.sv $(TB)
 	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i16-h16-t08-o4-mxx-stream08-generic.sv $(TB) \
 	  -GNUM_MULT=$(NUM_MULT)
-	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i16-h13-t08-o4-m04-stream08-wstream4.sv $(TB)
+	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) archive/m04/conv-i16-h13-t08-o4-m04-stream08-wstream4.sv $(TB)
 	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i16-h13-t08-o4-m08-stream08-wstream4.sv $(TB)
 	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i16-h13-t08-o4-m08-stream08-rowconst4.sv $(TB)
 	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i16-h13-t08-o4-m08-stream08-rowconst4-exact.sv $(TB)
-	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i20-h16-t08-o4-m04-stream08-prefetch4.sv $(TB)
+	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) archive/m04/conv-i20-h16-t08-o4-m04-stream08-prefetch4.sv $(TB)
 	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i20-h16-t08-o4-m08-stream08-prefetch4.sv $(TB)
 	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i16-h20-t08-o4-m08-stream08-exact.sv $(TB)
 
