@@ -28,7 +28,7 @@ The Git tag `dissertation` points to the commit hash that contains the exact cod
 
 ## Functional Simulation (ModelSim/QuestaSim)
 
-1. Choose appropriate data files and parameters in `data/<project>/` (by default, `rtl/system/list-file.txt` already points to the IFN9 set). Adjust the contents of `list-file.txt` and `list-def.txt` if you want to test another variant.
+1. Choose the configuration under the relevant `rtl/conv*/synthesis/` directory. Adjust its `list-file.txt`, `list-define.txt`, `top-module.txt`, and `testbench-file.txt` when testing another variant.
 2. Go to `rtl/system/` and run the TCL compile/simulate script:
    
    ```bash
@@ -36,7 +36,7 @@ The Git tag `dissertation` points to the commit hash that contains the exact cod
    vsim -c -do sim.tcl
    ```
 3. The script prepares the `work` library, compiles listed packages, builds the testbench `tb`, and runs 7000ns of simulation. Use `vsim` without `-c` to open the graphical interface, inspect waveforms (`wave.do`), and debug.
-4. For larger campaigns, use utilities from the `scripts/` folder (e.g., `multiple-do.sh` to sweep datasets or `multiple-make.sh` to recompile in batch).
+4. For larger campaigns, use the architecture-local wrappers and the collectors in `scripts/`. The old `multiple-do.sh`, `multiple-make.sh`, `multiple-synth.sh`, `multiple-power-eval.sh`, and `time-arch.py` scripts remain only for legacy directory layouts.
 
 ## Logic Synthesis and Power Analysis (Cadence Genus)
 
@@ -56,7 +56,7 @@ The Git tag `dissertation` points to the commit hash that contains the exact cod
    genus -f run_power.tcl
    ```
 4. Post-synthesis simulation can be done with the wrapper `sim/run-sim.sh`, which calls Xcelium (`xrun`) using the mapped netlist and the same synthesis files/defines.
-5. Consolidate metrics with `scripts/reports.py` and `scripts/time.py`, which produce CSVs in `report/`.
+5. Consolidate RTL-local metrics with `scripts/report.py`, which reads active projects from `rtl/conv*/synthesis/` and produces aggregate CSV/Markdown tables in `report/`, plus a scoped report under each `rtl/conv*/report/`. Projects under `archive/` are excluded by default; pass `--include-archived` when a historical comparison needs them. Historical consolidated tables are kept in `report/legacy/`. Ratios against a naive synthesis are generated only when `--naive-synthesis-dir PATH` is supplied.
 
 ## Next Steps
 

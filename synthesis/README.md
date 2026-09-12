@@ -1,17 +1,68 @@
-# Fluxo de Síntese
+# Fluxo de síntese por arquitetura
 
-A pasta `source/` concentra os arquivos-base que são replicados nos experimentos de síntese:
+Cada diretório `rtl/conv*` é o dono das suas configurações de síntese. A
+estrutura de uma configuração é:
 
-- `run_logical_synthesis.tcl`: script principal do Cadence Genus. Ele carrega os cenários MMMC (`scripts/mmmc_tsmc_28_bv.tcl`), configura o esforço de síntese, lê os arquivos HDL (`${HDL_FILES}`), executa `syn_generic/syn_map/syn_opt` e gera relatórios de área, clock gating, temporização e potência, além dos netlists e arquivos SDF.
-- `run_power.tcl`: script dedicado à análise de potência. Ele reabre o netlist (`${DB_FILE}`), configura o cenário de 0,90 V/25 °C, aplica as restrições (`scripts/constraints.sdc`) e escreve `power_evaluation.txt` com o consumo médio.
-- `scripts/constraints.sdc`: restrições temporais aplicadas durante a síntese e análise de potência.
-- `scripts/mmmc_tsmc_28_bv.tcl`: definição dos modos/cantos utilizados nos fluxos MMMC.
+```text
+rtl/conv3x3stream-if/synthesis/ifn9-12mac/
+├── list-file.txt
+├── list-define.txt
+├── top-module.txt
+├── testbench-file.txt
+├── logical/
+│   ├── logical_synthesis.tcl
+│   └── run.sh
+├── power/
+│   ├── power.tcl
+│   └── run.sh
+├── scripts/
+│   ├── constraints.sdc
+│   ├── logical_synthesis_body.tcl
+│   ├── mmmc_tsmc_28_bv.tcl
+│   └── power.tcl
+└── sim/
+```
 
-Cada subpasta adicional (por exemplo, `ifn9-06m`) representa um projeto sintetizado e segue a mesma organização:
+O diretório [`_template_sys`](./_template_sys/) é a origem para novas
+configurações. Ele agora é autocontido: os corpos de síntese, o cenário MMMC,
+as restrições e o fluxo de potência ficam dentro do template. O antigo
+`synthesis/_source/` não é mais necessário.
 
-- `list-define.txt` e `list-file.txt`: listas auxiliares com macros de compilação e arquivos HDL.
-- `logical/`: contém o script ajustado `run_logical_synthesis.tcl`, um wrapper `run_logical_synthesis.sh` e a pasta `results/` com `reports/` e `gate_level/` produzidos pelo Genus.
-- `power/`: reúne `run_power.tcl`, o shell script correspondente e os relatórios de potência (`power_evaluation.txt`).
-- `sim/`: materiais para simulação pós-síntese (argumentos para o simulador, comando SDF e logs).
+`_template_conv` foi mantido somente como compatibilidade para experimentos
+arquivados; as configurações novas devem ser copiadas de `_template_sys`.
 
-Para sintetizar um novo sistema, copie `source/` como base, ajuste os arquivos de lista e scripts e mantenha a estrutura `logical/`, `power/` e `sim/` para armazenar os resultados.
+`list-file.txt` usa caminhos relativos à raiz do repositório e contém todos os
+arquivos HDL, inclusive o top. `list-define.txt` aceita a forma usada pelo
+Xcelium (`-define NAME=VALUE`) e é convertida para o formato do Genus. O top e
+o testbench são declarados, respectivamente, em `top-module.txt` e
+`testbench-file.txt`. Configurações parametrizadas podem acrescentar
+`top-parameters.txt`, com uma atribuição por linha, por exemplo
+`NUM_MULT=2`.
+
+## Exemplos
+
+```bash
+# Uma configuração específica
+cd rtl/conv3x3stream-if/synthesis/ifn9-12mac/logical
+bash ./run.sh
+
+# Todas as etapas de uma configuração
+cd rtl/conv3x3stream-if/synthesis/ifn9-12mac
+bash ./logical/run.sh
+bash ./sim/run.sh
+bash ./power/run.sh
+
+# O índice opcional da raiz percorre todas as configurações sob rtl/conv*
+cd synthesis
+bash ./run.sh -logical
+bash ./run.sh rtl/conv3x3stream-tc/synthesis/tcn9-05mac
+```
+
+Os resultados do Genus continuam em `logical/results/`, com o netlist mapeado,
+SDF, DB e relatórios da própria configuração. A análise de potência procura o
+DB local e grava `power/power_evaluation.txt`; a simulação pós-síntese procura
+o netlist e o testbench declarados pela configuração.
+
+O `synthesis/run.sh` na raiz é apenas um índice de compatibilidade. Ele não
+mantém configurações próprias e não executa automaticamente o diretório
+`synthesis/_template_sys`.
