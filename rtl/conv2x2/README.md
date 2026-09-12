@@ -14,7 +14,7 @@ file is compiled separately because every file declares the top-level module
 | `conv-i16-h16-t00-o4-m04-stream00.sv` | Four-MAC streaming path using direct transform-row selection and reusing `r_output_write[4]` as the inverse accumulator | Fixed 4 MACs |
 | `conv-i16-h16-t04-o4-m04-stream04.sv` | Four-MAC streaming path using the registered transform-row schedule | Fixed 4 MACs |
 | `conv-i16-h16-t00-o4-m08-stream00.sv` | Eight-MAC streaming path using the 4-word schedule and reusing `r_output_write[4]` as the inverse accumulator | Fixed 8 MACs |
-| `conv-i16-h16-t08-o4-mxx-stream08-generic.sv` | Generic streaming path from the `stream08` family | `NUM_MULT = 2`, `4` or `8` |
+| `conv-i16-h16-t08-o4-mxx-stream08-generic.sv` | Generic streaming path from the `stream08` family | `NUM_MULT = 4` or `8` |
 | `conv-i16-h16-t08-o4-m04-stream08.sv` / `conv-i16-h16-t08-o4-m08-stream08.sv` | Fixed-MAC compatibility sources from the `stream08` family | Fixed 4 / 8 MACs |
 | `conv-i16-h13-t08-o4-m04-stream08-wstream4.sv` | Weight-row streaming path: registers the raw 3x3 tile, computes one Winograd row per pass, and stores the active four-word transformed row | Fixed 4 MACs |
 | `conv-i16-h13-t08-o4-m04-stream08-rowconst4-exact.sv` | Spatial-weight row streaming with exact scaled numerators: reads the raw 3x3 tile and removes the row rounding/remainder network | Fixed 4 MACs |
@@ -43,7 +43,7 @@ For the current 2x2 sources, the recount is:
 | all, 16 MACs | 16 | 0 | `r_input_weight[16]` + `r_conv_input[16]`; `w_conv_inverse` is captured directly in `r_output_write[4]` |
 | stream04, 4 MACs | 16 | 4 | `r_input_weight[16]` + `r_transform_row[4]` |
 | stream00, 4/8 MACs, shared output bank | 16 | 0 | `r_input_weight[16]`; `r_output_write[4]` is also the inverse accumulator |
-| stream08, 2/4/8 MACs | 16 | 8 | `r_input_weight[16]` + `r_transform_row[4]` + `r_inverse_row[4]` |
+| stream08, 4/8 MACs | 16 | 8 | `r_input_weight[16]` + `r_transform_row[4]` + `r_inverse_row[4]` |
 | stream08-wstream4, 4 MACs | 13 | 8 | `r_weight_spatial[9]` + `r_input_weight[4]` + `r_transform_row[4]` + `r_inverse_row[4]` |
 | stream08-rowconst4-exact, 4 MACs | 13 | 8 | Same 13-word spatial/active-weight structure as `wstream4`, but the active weight row and accumulation use the exact scaled representation |
 | stream08-prefetch4, 4 MACs | 20 (16 core + 4 prefetch) | 8 | `r_input_weight[16]` + `r_transform_row[4]` + `r_inverse_row[4]` + `r_input_prefetch[4]` |
@@ -59,8 +59,8 @@ legacy `WeightTransform` rounding network, and applies the final arithmetic
 scale reduction only when the last input-channel contribution is written.
 
 The generic source is the only intentional exception to a single `m` value:
-`conv-i16-h16-t08-o4-mxx-stream08-generic.sv` accepts `NUM_MULT` equal to 2, 4
-or 8. The fixed sources use one concrete `m` value in their filename.
+`conv-i16-h16-t08-o4-mxx-stream08-generic.sv` accepts `NUM_MULT` equal to 4 or
+8. The fixed sources use one concrete `m` value in their filename.
 
 The generic `stream08` source supports multiple MAC counts, while the concrete
 sources are named with their fixed MAC count. The fixed stream sources are
@@ -105,7 +105,6 @@ make run-std
 make run-all16
 make run-stream04-4mac
 make run-stream00-8mac
-make run-stream08 NUM_MULT=2
 make run-stream08 NUM_MULT=4
 make run-stream08 NUM_MULT=8
 make run-stream08-prefetch4
@@ -136,7 +135,7 @@ configuration has one direct directory whose name matches the RTL source:
 - `synthesis/conv-i16-h16-t16-o4-m04-std/` — conventional 4-MAC baseline;
 - `synthesis/conv-i16-h16-t00-o4-m16-all/` — fully parallel 16-MAC architecture;
 - `synthesis/conv-i16-h16-t04-o4-m04-stream04/` — registered transform-row stream;
-- `synthesis/conv-i16-h16-t08-o4-mxx-stream08-generic/` — generic 2/4/8-MAC stream;
+- `synthesis/conv-i16-h16-t08-o4-mxx-stream08-generic/` — generic 4/8-MAC stream;
 - `synthesis/conv-i16-h16-t08-o4-m04-stream08/` and `synthesis/conv-i16-h16-t08-o4-m08-stream08/` — current stream08 implementations;
 - `synthesis/conv-i20-h16-t08-o4-m04-stream08-prefetch4/` — stream08 with a four-word input prefetch bank.
 
