@@ -1,11 +1,14 @@
 project,nome,mult,side,extra,time/ns,cycles
-Conv2x2-conv-i16-h16-t00-o4-m04-stream00,Conv2x2,04,32,,277265.201,27725.0
+Conv2x2-conv-i16-h13-t08-o4-m04-stream08-rowconst4,Conv2x2,04,32,,297065.0,29704.0
+Conv2x2-conv-i16-h13-t08-o4-m04-stream08-rowconst4-exact,Conv2x2,04,32,,297065.0,29704.0
+Conv2x2-conv-i16-h13-t08-o4-m04-stream08-wstream4,Conv2x2,04,32,,297065.0,29704.0
+Conv2x2-conv-i16-h16-t00-o4-m04-stream00,Conv2x2,04,32,,277265.343,27725.0
 Conv2x2-conv-i16-h16-t00-o4-m08-stream00,Conv2x2,08,32,,236765.351,23675.0
 Conv2x2-conv-i16-h16-t00-o4-m16-all,Conv2x2,16,32,,236745.0,23672.0
 Conv2x2-conv-i16-h16-t04-o4-m04-stream04,Conv2x2,04,32,,277265.25800000003,27725.0
-Conv2x2-conv-i16-h16-t08-o4-mxx-stream08-generic,Conv2x2,02,32,,297515.0,29749.0
 Conv2x2-conv-i16-h16-t08-o4-m04-stream08,Conv2x2,04,32,,297515.0,29749.0
 Conv2x2-conv-i16-h16-t08-o4-m08-stream08,Conv2x2,08,32,,257015.0,25699.0
+Conv2x2-conv-i16-h16-t08-o4-mxx-stream08-generic,Conv2x2,,32,,297515.0,29749.0
 Conv2x2-conv-i16-h16-t16-o4-m04-std,Conv2x2,04,32,,236795.0,23677.0
 Conv2x2-conv-i20-h16-t08-o4-m04-stream08-prefetch4,Conv2x2,04,32,,259715.0,25969.0
 Conv3x3-ifn9-06mac,Conv3x3,06,32,,175665.0,
