@@ -5,8 +5,10 @@ SIM_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CONFIG_ROOT="$(cd "$SIM_ROOT/.." && pwd)"
 GIT_ROOT="$(git -C "$CONFIG_ROOT" rev-parse --show-toplevel)"
 
+source /usr/share/Modules/init/bash
 module purge
-module load xcelium > /dev/null 2>&1
+module use /soft64/modulefiles
+module load cadence/xcelium/2303 > /dev/null 2>&1
 
 TB_ENTRY="$(awk 'NF && $1 !~ /^#/ {print $1; exit}' "$CONFIG_ROOT/testbench-file.txt")"
 if [[ -z "$TB_ENTRY" ]]; then
