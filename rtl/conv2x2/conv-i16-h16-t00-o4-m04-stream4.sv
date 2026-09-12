@@ -199,11 +199,6 @@ module Conv
   // Status: added.
   logic w_conv_input_release;
 
-  // Stores the partial 2x2 output across streamed inverse rows. This is the
-  // only output datapath register bank introduced by row-wise accumulation.
-  // Status: added.
-  logic [NBITS-1:0] r_output_accumulator [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
-
   // Selects the inverse row currently being accumulated (0 through 3).
   // Status: added.
   logic [ROW_INDEX_WIDTH-1:0] r_inverse_row_idx;
@@ -218,20 +213,10 @@ module Conv
   // Status: added.
   logic [NBITS-1:0] w_inverse_partial_current [CONV_OUTPUT_SIZE-1:0];
 
-  // Combinational next value of the accumulated output, used as the D input of
-  // r_output_accumulator and as the source for final output capture.
+  // Combinational next value of the accumulated output.  It is written back
+  // directly into r_output_write, which is also the output tile bank.
   // Status: added.
   logic [NBITS-1:0] w_output_acc_next [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
-
-  // Alias for the completed accumulated tile retained for waveform/debug
-  // visibility; output writing uses w_output_capture below.
-  // Status: added (alias/debug visibility).
-  logic [NBITS-1:0] w_output_final [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
-
-  // Captures the final accumulated tile on the last Hadamard cycle and feeds
-  // the output register bank without an intermediate full Inverse matrix.
-  // Status: added.
-  logic [NBITS-1:0] w_output_capture [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
 
   // Packs the four explicit products into the row-shaped interface expected by
   // InverseRow; all four entries are driven in the fixed four-MAC variant.
@@ -724,7 +709,7 @@ module Conv
   // Status: added.
   always_ff @(posedge clk or posedge reset) begin: STREAMING_DATAPATH_BLOCK
     if (reset) begin
-      r_output_accumulator        <= '{default: '0};
+      r_output_write             <= '{default: '0};
       r_inverse_row_idx <= '0;
       r_transform_product_idx <= '0;
 `ifdef STREAM_DEBUG
@@ -732,7 +717,7 @@ module Conv
 `endif
     end else begin
       if (w_hadamard_start) begin
-        r_output_accumulator            <= '{default: '0};
+        r_output_write                 <= '{default: '0};
         r_inverse_row_idx     <= '0;
         r_transform_product_idx <= '0;
 `ifdef STREAM_DEBUG
@@ -740,7 +725,7 @@ module Conv
 `endif
       end else if (st_conv_current == HADAMARD) begin
           r_transform_product_idx <= r_transform_product_idx + PRODUCT_INDEX_WIDTH'(FIXED_NUM_MULT);
-          r_output_accumulator        <= w_output_acc_next;
+          r_output_write             <= w_output_acc_next;
           r_inverse_row_idx <= r_inverse_row_idx + 1'b1;
 `ifdef STREAM_DEBUG
           $display("STREAM HAD product_base=%0d row=%0d", r_transform_product_idx, r_inverse_row_idx);
@@ -801,12 +786,7 @@ module Conv
   // Status: added.
   InverseRow inverse_row_current(.inverse_input_row(w_inverse_product_row), .inverse_partial(w_inverse_partial_current));
   InverseRowAccumulate inverse_row_acc(
-    .inverse_row_idx(r_inverse_row_idx), .accumulator_in(r_output_accumulator), .inverse_partial(w_inverse_partial_current), .accumulator_out(w_output_acc_next));
-  // Both names intentionally refer to the same final value: output capture
-  // occurs on the last Hadamard edge, with no extra inverse state or register.
-  // Status: functionally changed.
-  assign w_output_final = w_output_acc_next;
-  assign w_output_capture = w_output_acc_next;
+    .inverse_row_idx(r_inverse_row_idx), .accumulator_in(r_output_write), .inverse_partial(w_inverse_partial_current), .accumulator_out(w_output_acc_next));
 
 
   // ----------------------------------------------------------------------------------------------------
@@ -946,23 +926,19 @@ module Conv
     end
   end
 
-  // Store prior-channel output values and capture the final inverse result.
-  // The external write data is formed by adding these two banks below.
+  // Store prior-channel output values.  The streamed inverse accumulator is
+  // held directly in r_output_write by STREAMING_DATAPATH_BLOCK, so this
+  // block owns only the read bank and never drives the write bank.
   // Status: functionally changed.
-  always_ff @(posedge clk) begin: OUTPUT_DATA_BLOCK
+  always_ff @(posedge clk or posedge reset) begin: OUTPUT_DATA_BLOCK
     if (reset) begin
-      r_output_write <= '{default: '0};
       r_output_read <= '{default: '0};
     end else begin
       if (st_output_current == RESET_OUTPUT) begin
-        // r_output_write <= '{default: '0};
         r_output_read <= '{default: '0};
       end else if ((st_output_current == READ_OUTPUT) && p_output_valid) begin
         r_output_read[r_output_read_count] <= p_output_data_read;
       end
-      if (st_conv_current == HADAMARD &&
-          r_conv_multiply_count == $bits(r_conv_multiply_count)'(STREAM_CYCLES - 1))
-        r_output_write <= w_output_capture;
     end
   end
 

@@ -101,15 +101,12 @@ module Conv
   // for the TC2x2 transform (16 total Hadamard products).
   localparam int ROW_INDEX_WIDTH = f_width_min1(HADAMARD_SIZE);
   localparam int PRODUCT_INDEX_WIDTH = f_width_min1(WEIGHT_CYCLES);
-  logic [NBITS-1:0] r_output_accumulator [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
   logic [ROW_INDEX_WIDTH-1:0] r_inverse_row_idx;
   logic [PRODUCT_INDEX_WIDTH-1:0] r_transform_product_idx;
   logic [NBITS-1:0] w_inverse_partial_current [CONV_OUTPUT_SIZE-1:0];
   logic [NBITS-1:0] w_inverse_partial_lane1 [CONV_OUTPUT_SIZE-1:0];
   logic [NBITS-1:0] w_output_acc_next [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
   logic [NBITS-1:0] w_output_acc_after_lane0 [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
-  logic [NBITS-1:0] w_output_final [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
-  logic [NBITS-1:0] w_output_capture [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
   // Product rows feed the inverse accumulators directly; the former delayed
   // row register was debug-only and did not participate in output generation.
   logic [NBITS-1:0] w_inverse_product_row [HADAMARD_SIZE-1:0];
@@ -557,10 +554,14 @@ module Conv
 
   // Transform produces the complete combinational matrix, but only one row
   // (or a partial row) is consumed at a time. FIXED_NUM_MULT is one of the
-  // supported factors of the 16 Hadamard products.
+  // supported factors of the 16 Hadamard products. The output-write bank is
+  // also the tile accumulator: it is updated during HADAMARD and remains
+  // stable for the later WRITE_OUTPUT phase. This removes a duplicate
+  // four-word register bank without changing the external protocol.
+  // Status: functionally changed.
   always_ff @(posedge clk or posedge reset) begin: STREAMING_DATAPATH_BLOCK
     if (reset) begin
-      r_output_accumulator        <= '{default: '0};
+      r_output_write             <= '{default: '0};
       r_inverse_row_idx <= '0;
       r_transform_product_idx <= '0;
 `ifdef STREAM_DEBUG
@@ -568,7 +569,7 @@ module Conv
 `endif
     end else begin
       if (w_hadamard_start) begin
-        r_output_accumulator            <= '{default: '0};
+        r_output_write                 <= '{default: '0};
         r_inverse_row_idx     <= '0;
         r_transform_product_idx <= '0;
 `ifdef STREAM_DEBUG
@@ -576,7 +577,7 @@ module Conv
 `endif
       end else if (st_conv_current == HADAMARD) begin
           r_transform_product_idx <= r_transform_product_idx + PRODUCT_INDEX_WIDTH'(FIXED_NUM_MULT);
-          r_output_accumulator        <= w_output_acc_next;
+          r_output_write             <= w_output_acc_next;
           r_inverse_row_idx <= r_inverse_row_idx + 2;
 `ifdef STREAM_DEBUG
           $display("STREAM HAD product_base=%0d row=%0d", r_transform_product_idx, r_inverse_row_idx);
@@ -640,13 +641,11 @@ module Conv
   InverseRow inverse_row_current(.inverse_input_row(w_inverse_product_row), .inverse_partial(w_inverse_partial_current));
   InverseRow inverse_row_lane1(.inverse_input_row(w_inverse_product_row_lane1), .inverse_partial(w_inverse_partial_lane1));
   InverseRowAccumulate inverse_row_acc(
-    .inverse_row_idx(r_inverse_row_idx), .accumulator_in(r_output_accumulator), .inverse_partial(w_inverse_partial_current),
+    .inverse_row_idx(r_inverse_row_idx), .accumulator_in(r_output_write), .inverse_partial(w_inverse_partial_current),
     .accumulator_out(w_output_acc_after_lane0));
   InverseRowAccumulate inverse_row_acc_second(
     .inverse_row_idx(r_inverse_row_idx + 1'b1), .accumulator_in(w_output_acc_after_lane0), .inverse_partial(w_inverse_partial_lane1),
     .accumulator_out(w_output_acc_next));
-  assign w_output_final = w_output_acc_next;
-  assign w_output_capture = w_output_acc_next;
 
 
   // ----------------------------------------------------------------------------------------------------
@@ -770,18 +769,13 @@ module Conv
 
   always_ff @(posedge clk) begin: OUTPUT_DATA_BLOCK
     if (reset) begin
-      r_output_write <= '{default: '0};
       r_output_read <= '{default: '0};
     end else begin
       if (st_output_current == RESET_OUTPUT) begin
-        // r_output_write <= '{default: '0};
         r_output_read <= '{default: '0};
       end else if ((st_output_current == READ_OUTPUT) && p_output_valid) begin
         r_output_read[r_output_read_count] <= p_output_data_read;
       end
-      if (st_conv_current == HADAMARD &&
-          r_conv_multiply_count == $bits(r_conv_multiply_count)'(STREAM_CYCLES - 1))
-        r_output_write <= w_output_capture;
     end
   end
 
