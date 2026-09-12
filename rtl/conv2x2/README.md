@@ -178,5 +178,25 @@ The previous nested directory layouts were removed from the active tree. The
 
 The detailed register-reduction rationale remains in
 [`doc/register.md`](doc/register.md).
+
+## Power flow on Paxos
+
+The eight-MAC power flow was run on Paxos from the published commit
+`bd4ff8ae` (Genus 21.1 + Xcelium 23.03). The nominal `report_power` totals in
+mW are:
+
+| Variant | Total power (mW) | Gate-level simulation |
+|---|---:|---|
+| `std` | 0.863333 | passed |
+| `stream04` | 0.758305 | passed |
+| `stream08-wstream4` | 0.672691 | passed |
+| `stream08-rowconst4` | 0.671548 | passed |
+| `stream08-rowconst4-exact` | 0.814403 | passed |
+| `stream08-exact` | 0.733399 | passed |
+| `stream08-prefetch4` | — | did not reach completion |
+
+The detailed leakage/internal/switching breakdown and the exact remote
+execution evidence are recorded in [`doc/register.md`](doc/register.md).
+The historical four-MAC synthesis and power results remain untouched.
 The consolidated Conv2x2 PPA comparison, including the revalidated `stream00`
 results, is in [section 13 of that document](doc/register.md#13-comparativo-geral-das-variantes-conv2x2).
