@@ -38,7 +38,7 @@ stream00-8mac:
 	  $(COMMON) $(MATRICES_STREAM) conv-i16-h16-t00-o4-m08-stream00.sv $(TB) --build \
 	  -GNUM_MULT=8
 
-# The generic stream08-family implementation supports NUM_MULT=2, 4 and 8. Override
+# The generic stream08-family implementation supports NUM_MULT=4 and 8. Override
 # NUM_MULT on the command line, for example: make stream08 NUM_MULT=8.
 NUM_MULT ?= 4
 stream08:

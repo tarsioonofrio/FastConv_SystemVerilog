@@ -83,8 +83,8 @@ module Conv
 `ifndef SYNTHESIS
   initial begin: STREAM_PARAMETER_CHECK_BLOCK
     if (HADAMARD_SIZE != 4 || WEIGHT_CYCLES != 16 ||
-        !(NUM_MULT inside {2, 4, 8}) || (WEIGHT_CYCLES % NUM_MULT) != 0)
-      $fatal(1, "convXmac-stream08 requires NUM_MULT in {2,4,8} and a 4x4 Hadamard transform");
+        !(NUM_MULT inside {4, 8}) || (WEIGHT_CYCLES % NUM_MULT) != 0)
+      $fatal(1, "convXmac-stream08 requires NUM_MULT in {4,8} and a 4x4 Hadamard transform");
   end
 `endif
   localparam WEIGHT_WIDTH = f_width_min1(WEIGHT_CYCLES + 1);
@@ -99,8 +99,8 @@ module Conv
   logic w_conv_end;
   logic w_conv_input_release;
 
-  // Row-streaming state. NUM_MULT is restricted to divisors 2, 4 and 8
-  // for the TC2x2 transform (16 total Hadamard products).
+  // Row-streaming state. NUM_MULT is restricted to 4 or 8 for the TC2x2
+  // transform (16 total Hadamard products).
   localparam int ROW_INDEX_WIDTH = f_width_min1(HADAMARD_SIZE);
   localparam int PRODUCT_INDEX_WIDTH = f_width_min1(WEIGHT_CYCLES);
   logic [NBITS-1:0] r_transform_row [HADAMARD_SIZE-1:0];
@@ -544,51 +544,7 @@ module Conv
         end
         HADAMARD: begin
           r_transform_product_idx <= r_transform_product_idx + PRODUCT_INDEX_WIDTH'(NUM_MULT);
-          if (NUM_MULT == 2) begin
-            if (r_transform_product_idx == 0) begin
-              r_transform_row[0] <= w_conv_transform[2];
-              r_transform_row[1] <= w_conv_transform[3];
-              r_transform_row[2] <= '0;
-              r_transform_row[3] <= '0;
-            end else if (r_transform_product_idx == 2) begin
-              r_transform_row[0] <= w_conv_transform[4];
-              r_transform_row[1] <= w_conv_transform[5];
-              r_transform_row[2] <= '0;
-              r_transform_row[3] <= '0;
-            end else if (r_transform_product_idx == 4) begin
-              r_transform_row[0] <= w_conv_transform[6];
-              r_transform_row[1] <= w_conv_transform[7];
-              r_transform_row[2] <= '0;
-              r_transform_row[3] <= '0;
-            end else if (r_transform_product_idx == 6) begin
-              r_transform_row[0] <= w_conv_transform[8];
-              r_transform_row[1] <= w_conv_transform[9];
-              r_transform_row[2] <= '0;
-              r_transform_row[3] <= '0;
-            end else if (r_transform_product_idx == 8) begin
-              r_transform_row[0] <= w_conv_transform[10];
-              r_transform_row[1] <= w_conv_transform[11];
-              r_transform_row[2] <= '0;
-              r_transform_row[3] <= '0;
-            end else if (r_transform_product_idx == 10) begin
-              r_transform_row[0] <= w_conv_transform[12];
-              r_transform_row[1] <= w_conv_transform[13];
-              r_transform_row[2] <= '0;
-              r_transform_row[3] <= '0;
-            end else if (r_transform_product_idx == 12) begin
-              r_transform_row[0] <= w_conv_transform[14];
-              r_transform_row[1] <= w_conv_transform[15];
-              r_transform_row[2] <= '0;
-              r_transform_row[3] <= '0;
-            end
-            if (r_transform_product_idx[1:0] == 2) begin
-              r_output_write              <= w_output_acc_next;
-              r_inverse_row_idx <= r_inverse_row_idx + 1'b1;
-              r_inverse_row          <= '{default: '0};
-            end else begin
-              r_inverse_row <= w_inverse_product_row;
-            end
-          end else if (NUM_MULT == 4) begin
+          if (NUM_MULT == 4) begin
             if (r_transform_product_idx == 0) begin
               for (int unsigned i = 0; i < HADAMARD_SIZE; i++)
                 r_transform_row[i] <= w_conv_transform[HADAMARD_SIZE + i];
@@ -602,7 +558,7 @@ module Conv
             r_output_write              <= w_output_acc_next;
             r_inverse_row_idx <= r_inverse_row_idx + 1'b1;
             r_inverse_row          <= w_inverse_product_row;
-          end else begin
+          end else if (NUM_MULT == 8) begin
             if (r_transform_product_idx == 0) begin
               for (int unsigned i = 0; i < HADAMARD_SIZE; i++)
                 r_transform_row[i] <= w_conv_transform[8 + i];
@@ -672,26 +628,7 @@ module Conv
   endgenerate
 
   generate
-    if (NUM_MULT == 2) begin : STREAM_TWO_MAC_BLOCK
-      for (genvar j = 0; j < 2; j++) begin : STREAM_TWO_MAC_FIRST_HALF
-        assign w_inverse_product_row[j] = (r_transform_product_idx[1:0] == 0) ?
-                                         w_conv_product[j] : r_inverse_row[j];
-      end
-      for (genvar j = 2; j < HADAMARD_SIZE; j++) begin : STREAM_TWO_MAC_SECOND_HALF
-        assign w_inverse_product_row[j] = (r_transform_product_idx[1:0] == 2) ?
-                                         w_conv_product[j - 2] : r_inverse_row[j];
-      end
-      InverseRow inverse_row_current(
-        .inverse_input_row(w_inverse_product_row),
-        .inverse_partial(w_inverse_partial_current)
-      );
-      InverseRowAccumulate inverse_row_acc(
-        .inverse_row_idx(r_inverse_row_idx),
-        .accumulator_in(r_output_write),
-        .inverse_partial(w_inverse_partial_current),
-        .accumulator_out(w_output_acc_next)
-      );
-    end else if (NUM_MULT == 4) begin : STREAM_FOUR_MAC_BLOCK
+    if (NUM_MULT == 4) begin : STREAM_FOUR_MAC_BLOCK
       for (genvar j = 0; j < HADAMARD_SIZE; j++) begin : STREAM_FOUR_MAC_ROW
         assign w_inverse_product_row[j] = w_conv_product[j];
       end
@@ -705,7 +642,7 @@ module Conv
         .inverse_partial(w_inverse_partial_current),
         .accumulator_out(w_output_acc_next)
       );
-    end else begin : STREAM_EIGHT_MAC_BLOCK
+    end else if (NUM_MULT == 8) begin : STREAM_EIGHT_MAC_BLOCK
       for (genvar j = 0; j < HADAMARD_SIZE; j++) begin : STREAM_EIGHT_MAC_ROW_FIRST
         assign w_inverse_product_row[j] = w_conv_product[j];
         assign w_inverse_product_row_lane1[j] = w_conv_product[HADAMARD_SIZE + j];
