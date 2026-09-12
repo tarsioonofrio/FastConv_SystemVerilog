@@ -2,7 +2,6 @@ Project,nome,mult,extra,Cell Count,Cell Area um^2,Net Area um^2,Total Area um^2,
 Conv2x2-conv-i16-h13-t08-o4-m04-stream08-rowconst4,Conv2x2,04,,7917,9938.376,3750.432,13688.808,983
 Conv2x2-conv-i16-h13-t08-o4-m04-stream08-rowconst4-exact,Conv2x2,04,,8142,10036.152,3799.873,13836.025,1003
 Conv2x2-conv-i16-h13-t08-o4-m04-stream08-wstream4,Conv2x2,04,,7921,9969.372,3748.996,13718.368,983
-Conv2x2-conv-i16-h13-t08-o4-m08-stream08-rowconst4,Conv2x2,08,,11959,13360.284,5525.592,18885.876,1061
 Conv2x2-conv-i16-h13-t08-o4-m08-stream08-rowconst4-exact,Conv2x2,08,,12903,14173.614,5868.097,20041.711,1093
 Conv2x2-conv-i16-h13-t08-o4-m08-stream08-wstream4,Conv2x2,08,,11778,13250.664,5423.023,18673.687,1061
 Conv2x2-conv-i16-h16-t00-o4-m04-stream00,Conv2x2,04,,8473,8467.074,3660.696,12127.77,1024
@@ -16,6 +15,7 @@ Conv2x2-conv-i16-h16-t08-o4-mxx-stream08-generic,Conv2x2,,,6483,8034.138,2978.22
 Conv2x2-conv-i16-h16-t16-o4-m04-std,Conv2x2,04,,6613,8806.896,3211.029,12017.925,1264
 Conv2x2-conv-i16-h16-t16-o4-m08-std,Conv2x2,08,,8874,11220.804,4454.464,15675.268,1263
 Conv2x2-conv-i16-h20-t08-o4-m08-stream08-exact,Conv2x2,08,,11153,12022.416,4985.31,17007.726,1205
+Conv2x2-conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4,Conv2x2,08,,12222,13681.836,5629.474,19311.31,1161
 Conv2x2-conv-i20-h16-t08-o4-m04-stream08-prefetch4,Conv2x2,04,,6570,8118.936,3012.948,11131.884,1107
 Conv2x2-conv-i20-h16-t08-o4-m08-stream08-prefetch4,Conv2x2,08,,10506,11332.566,4740.575,16073.141,1124
 Conv3x3-ifn9-06mac,Conv3x3,06,,11915,16155.846,5738.323,21894.169,2451
