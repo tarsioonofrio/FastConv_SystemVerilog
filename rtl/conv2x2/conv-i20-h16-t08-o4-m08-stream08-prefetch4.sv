@@ -298,7 +298,9 @@ module Conv
   // overwrite.  The output-side write guard preserves the existing overlap
   // contract between convolution and output accumulation.
   assign w_input_prefetch_commit = r_input_prefetch_full &&
-                                   (w_conv_input_release || w_conv_end) &&
+                                   (w_conv_input_release || w_conv_end ||
+                                    ((st_conv_current == WAIT_CONV) &&
+                                     (st_output_current inside {RESET_OUTPUT, READ_OUTPUT}))) &&
                                    w_input_write_done;
 
   assign p_end = (st_output_current == WRITE_OUTPUT) &&
