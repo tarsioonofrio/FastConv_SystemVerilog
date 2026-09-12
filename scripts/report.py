@@ -48,19 +48,20 @@ def project_name_from_report(path):
 def synthesis_projects():
     """Yield active and archived project directories under each RTL architecture.
 
-    Active synthesis lives in ``rtl/conv*/synthesis/*``.  Historical four-MAC
-    projects are kept in ``rtl/conv*/archive/m04/synthesis/*`` and remain part
-    of the consolidated tables so the published m04/m08 comparisons stay
-    reproducible after the active-tree migration.
+    Active synthesis lives in ``rtl/conv*/synthesis/*``.  Historical projects
+    are kept in ``rtl/conv*/archive/{m04,m08}/synthesis/*`` and remain part of
+    the consolidated tables so published m04/m08 comparisons stay reproducible
+    after the active-tree migration.
     """
     for architecture_root in sorted(Path(REPO_ROOT).glob("rtl/conv*")):
         if not architecture_root.is_dir():
             continue
         architecture = architecture_root.name
         synthesis_roots = [architecture_root / "synthesis"]
-        archived_root = architecture_root / "archive" / "m04" / "synthesis"
-        if archived_root.is_dir():
-            synthesis_roots.append(archived_root)
+        for archive_name in ("m04", "m08"):
+            archived_root = architecture_root / "archive" / archive_name / "synthesis"
+            if archived_root.is_dir():
+                synthesis_roots.append(archived_root)
         for synthesis_root in synthesis_roots:
             if not synthesis_root.is_dir():
                 continue
@@ -2057,7 +2058,7 @@ def main():
     report_dir.mkdir(parents=True, exist_ok=True)
     records = project_records("conv-")
     if not records:
-        raise SystemExit("No synthesis projects found below rtl/conv*/synthesis or archive/m04/synthesis.")
+        raise SystemExit("No synthesis projects found below rtl/conv*/synthesis or archive/{m04,m08}/synthesis.")
     naive = parse_naive_record(args.naive_synthesis_dir) if args.naive_synthesis_dir else None
     write_report_set(
         report_dir,
