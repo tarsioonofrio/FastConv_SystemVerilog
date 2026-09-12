@@ -53,7 +53,11 @@ def compute_metrics(quantized_int, reference, quant_bits, eps=1e-9):
 
 
 def find_sim_dirs(root):
-    return sorted(root.glob("data/*/sim/sim-032-*-normal"))
+    # Datasets follow the same RTL-local layout as synthesis projects.  The
+    # archived 2x2 experiments live below ``rtl/conv2x2/archive`` and are not
+    # part of the current metrics table because this glob only visits direct
+    # ``rtl/conv*`` architecture directories.
+    return sorted(root.glob("rtl/conv*/data/*/sim/sim-032-*-normal"))
 
 
 def main():
@@ -130,6 +134,7 @@ def main():
                 "max_rel",
                 "mismatch_rate",
             ],
+            lineterminator="\n",
         )
         writer.writeheader()
         writer.writerow(

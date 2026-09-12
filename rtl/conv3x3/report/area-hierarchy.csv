@@ -1,0 +1,14 @@
+Project,instance,module,cell_count,cell_area_um2,net_area_um2,total_area_um2,area_percent
+Conv3x3-ifn9-06mac,Conv,Conv,11915,16155.846,5738.323,21894.169,100.0
+Conv3x3-ifn9-06mac,MULTIP_BLOCK[0].multip,Multip,561,603.54,235.369,838.909,3.832
+Conv3x3-ifn9-06mac,MULTIP_BLOCK[1].multip,Multip_305,561,603.54,235.369,838.909,3.832
+Conv3x3-ifn9-06mac,MULTIP_BLOCK[2].multip,Multip_304,561,603.54,235.369,838.909,3.832
+Conv3x3-ifn9-06mac,MULTIP_BLOCK[3].multip,Multip_303,561,603.54,235.369,838.909,3.832
+Conv3x3-ifn9-06mac,MULTIP_BLOCK[4].multip,Multip_302,561,603.54,235.369,838.909,3.832
+Conv3x3-ifn9-06mac,MULTIP_BLOCK[5].multip,Multip_301,561,603.54,235.369,838.909,3.832
+Conv3x3-ifn9-06mac,inv,Inverse,1053,2221.506,494.334,2715.84,12.404
+Conv3x3-ifn9-06mac,matrix_a0,MatrixA0,351,740.502,127.134,867.636,3.963
+Conv3x3-ifn9-06mac,matrix_a1,MatrixA1,702,1481.004,254.269,1735.273,7.926
+Conv3x3-ifn9-06mac,trf,Transform,2291,2950.416,776.104,3726.52,17.021
+Conv3x3-ifn9-06mac,matrix_c0,MatrixC0,905,1301.58,321.296,1622.876,7.412
+Conv3x3-ifn9-06mac,matrix_c1,MatrixC1,1386,1648.836,424.538,2073.374,9.47
