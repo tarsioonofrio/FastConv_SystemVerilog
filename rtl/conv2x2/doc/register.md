@@ -1270,3 +1270,43 @@ mesmos resultados + mesma interface de memoria + menor custo medido
 
 Uma contagem menor que falha no golden, perde uma contribuicao de canal ou
 precisa de uma arvore de muxes maior nao e uma reducao arquitetural valida.
+
+## 27. Conversao dos modelos m04 para m08
+
+Na rodada de setembro de 2026, os modelos ativos que só tinham quatro MACs
+receberam uma variante `m08` separada. Os arquivos e diretórios `m04` foram
+mantidos como referência histórica para que os resultados anteriores de área,
+timing e potência continuem reproduzíveis.
+
+Nos novos `stream04` e `stream08-*`, cada ciclo de Hadamard consome duas linhas
+de quatro elementos: a primeira linha permanece registrada e a segunda é
+alimentada diretamente pela transformada. A inversa é feita em dois blocos
+`InverseRow` e dois `InverseRowAccumulate`, com avanço de
+`r_inverse_row_idx` em dois. Assim, há oito instâncias físicas de `Multip` (ou
+`MultipExact`/`MultipSpatialExact` nas variantes exatas) sem alterar a
+interface externa `Conv`.
+
+Arquivos `m08` adicionados:
+
+```text
+conv-i16-h16-t16-o4-m08-std.sv
+conv-i16-h16-t04-o4-m08-stream04.sv
+conv-i16-h13-t08-o4-m08-stream08-wstream4.sv
+conv-i16-h13-t08-o4-m08-stream08-rowconst4.sv
+conv-i16-h13-t08-o4-m08-stream08-rowconst4-exact.sv
+conv-i20-h16-t08-o4-m08-stream08-prefetch4.sv
+conv-i16-h20-t08-o4-m08-stream08-exact.sv
+```
+
+O alvo `make std` agora usa `conv-i16-h16-t16-o4-m08-std.sv` e passa
+`NUM_MULT=8`. Os alvos explícitos de oito MACs foram adicionados ao
+`Makefile`; os alvos e fontes de quatro MACs continuam disponíveis para
+comparação.
+
+O fluxo RTL foi checado com Verilator para as sete fontes novas. O fluxo de
+potência Cadence/Genus não foi executado nesta máquina porque `genus`, `module`
+e `xrun` não estão instalados no ambiente local. Portanto, nenhum número de
+potência foi inventado nem nenhum relatório `m04` foi sobrescrito. Os novos
+diretórios de síntese contêm a configuração/lista de fontes para a execução
+posterior no host Cadence; os arquivos `power_evaluation.txt` copiados do
+baseline foram removidos para não serem confundidos com resultados `m08`.
