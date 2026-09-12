@@ -15,7 +15,7 @@ file is compiled separately because every file declares the top-level module
 | `archive/m04/conv-i16-h16-t04-o4-m04-stream04.sv` | Four-MAC streaming path using the registered transform-row schedule | Archived 4 MACs |
 | `conv-i16-h16-t04-o4-m08-stream04.sv` | Eight-MAC streaming path using two Hadamard rows per cycle | Fixed 8 MACs |
 | `conv-i16-h16-t00-o4-m08-stream00.sv` | Eight-MAC streaming path using the 4-word schedule and reusing `r_output_write[4]` as the inverse accumulator | Fixed 8 MACs |
-| `conv-i16-h16-t08-o4-mxx-stream08-generic.sv` | Generic streaming path from the `stream08` family | `NUM_MULT = 4` or `8` |
+| `archive/m04/conv-i16-h16-t08-o4-mxx-stream08-generic.sv` | Archived generic streaming path from the `stream08` family | `NUM_MULT = 4` or `8` |
 | `archive/m04/conv-i16-h16-t08-o4-m04-stream08.sv` / `conv-i16-h16-t08-o4-m08-stream08.sv` | Fixed-MAC compatibility sources from the `stream08` family | Archived 4 / active 8 MACs |
 | `archive/m04/conv-i16-h13-t08-o4-m04-stream08-wstream4.sv` | Weight-row streaming path: registers the raw 3x3 tile, computes one Winograd row per pass, and stores the active four-word transformed row | Archived 4 MACs |
 | `conv-i16-h13-t08-o4-m08-stream08-wstream4.sv` | Same weight-row streaming path with two Hadamard rows and eight products per cycle | Fixed 8 MACs |
@@ -74,7 +74,7 @@ legacy `WeightTransform` rounding network, and applies the final arithmetic
 scale reduction only when the last input-channel contribution is written.
 
 The generic source is the only intentional exception to a single `m` value:
-`conv-i16-h16-t08-o4-mxx-stream08-generic.sv` accepts `NUM_MULT` equal to 4 or
+`archive/m04/conv-i16-h16-t08-o4-mxx-stream08-generic.sv` accepts `NUM_MULT` equal to 4 or
 8. The fixed sources use one concrete `m` value in their filename.
 
 The generic `stream08` source supports multiple MAC counts, while the concrete
@@ -148,7 +148,7 @@ script. For example:
 
 ```bash
 FASTCONV_STREAM_SOURCE=archive/m04/conv-i16-h16-t04-o4-m04-stream04.sv fish test-streaming.fish
-FASTCONV_STREAM_SOURCE=conv-i16-h16-t08-o4-mxx-stream08-generic.sv fish test-streaming.fish
+FASTCONV_STREAM_SOURCE=archive/m04/conv-i16-h16-t08-o4-mxx-stream08-generic.sv fish test-streaming.fish
 ```
 
 The row-level unit test is `streaming_row_testbench.sv`.
@@ -163,7 +163,7 @@ configuration has one direct directory whose name matches the RTL source:
 - `synthesis/conv-i16-h16-t00-o4-m16-all/` — fully parallel 16-MAC architecture;
 - `archive/m04/synthesis/conv-i16-h16-t04-o4-m04-stream04/` — archived registered transform-row stream;
 - `synthesis/conv-i16-h16-t04-o4-m08-stream04/` — paired-row eight-MAC stream;
-- `synthesis/conv-i16-h16-t08-o4-mxx-stream08-generic/` — generic 4/8-MAC stream;
+- `archive/m04/synthesis/conv-i16-h16-t08-o4-mxx-stream08-generic/` — archived generic 4/8-MAC stream;
 - `archive/m04/synthesis/conv-i16-h16-t08-o4-m04-stream08/` and `synthesis/conv-i16-h16-t08-o4-m08-stream08/` — archived/current stream08 implementations;
 - `synthesis/conv-i16-h13-t08-o4-m08-stream08-wstream4/` and `synthesis/conv-i16-h13-t08-o4-m08-stream08-rowconst4-exact/` — eight-MAC weight-row variants;
 - `archive/m08/synthesis/conv-i16-h13-t08-o4-m08-stream08-rowconst4/` — archived constant-row baseline;
@@ -180,6 +180,10 @@ depends on the former top-level `conv2x2-all`, `conv2x2stream4` or
 
 The previous nested directory layouts were removed from the active tree. The
 `list-file.txt` in each project points to the matching canonical RTL source.
+
+The report generator excludes every project below `archive/` by default. To
+rebuild the historical comparison including the archived generic and `m04`
+variants, run `python3 scripts/report.py --include-archived`.
 
 The detailed register-reduction rationale remains in
 [`doc/register.md`](doc/register.md).
