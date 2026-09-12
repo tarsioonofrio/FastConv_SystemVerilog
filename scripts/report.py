@@ -46,36 +46,45 @@ def project_name_from_report(path):
 
 
 def synthesis_projects():
-    """Yield current project directories under each RTL architecture.
+    """Yield active and archived project directories under each RTL architecture.
 
-    Synthesis was moved from the repository-level ``synthesis/*`` layout to
-    ``rtl/conv*/synthesis/*``.  The architecture directory is part of the
-    identity so, for example, ``conv3x3/synthesis/ifn9-06mac`` and
-    ``conv3x3stream-if/synthesis/ifn9-06mac`` remain distinct rows.
+    Active synthesis lives in ``rtl/conv*/synthesis/*``.  Historical four-MAC
+    projects are kept in ``rtl/conv*/archive/m04/synthesis/*`` and remain part
+    of the consolidated tables so the published m04/m08 comparisons stay
+    reproducible after the active-tree migration.
     """
-    for synthesis_root in sorted(Path(REPO_ROOT).glob("rtl/conv*/synthesis")):
-        architecture = synthesis_root.parent.name
-        # ``list-file.txt`` is the common marker for an actual synthesis
-        # project. The active layout keeps each project directly below
-        # ``synthesis``. Ignore nested migration/legacy trees so they cannot
-        # reappear in current tables.
-        for list_file in sorted(synthesis_root.rglob("list-file.txt")):
-            project_dir = list_file.parent
-            if project_dir.parent != synthesis_root:
+    for architecture_root in sorted(Path(REPO_ROOT).glob("rtl/conv*")):
+        if not architecture_root.is_dir():
+            continue
+        architecture = architecture_root.name
+        synthesis_roots = [architecture_root / "synthesis"]
+        archived_root = architecture_root / "archive" / "m04" / "synthesis"
+        if archived_root.is_dir():
+            synthesis_roots.append(archived_root)
+        for synthesis_root in synthesis_roots:
+            if not synthesis_root.is_dir():
                 continue
-            if any(part in EXCLUDED_PROJECTS for part in project_dir.relative_to(synthesis_root).parts):
-                continue
-            relative_parts = project_dir.relative_to(synthesis_root).parts
-            if not relative_parts:
-                continue
-            configuration = "-".join(relative_parts)
-            yield {
-                "architecture": architecture,
-                "configuration": configuration,
-                "root": project_dir,
-                "project": f"{architecture}-{configuration}",
-                "prefix": "conv-",
-            }
+            # ``list-file.txt`` is the common marker for an actual synthesis
+            # project. Both active and archived layouts keep each project
+            # directly below their synthesis root. Ignore nested migration /
+            # legacy trees so they cannot reappear in current tables.
+            for list_file in sorted(synthesis_root.rglob("list-file.txt")):
+                project_dir = list_file.parent
+                if project_dir.parent != synthesis_root:
+                    continue
+                if any(part in EXCLUDED_PROJECTS for part in project_dir.relative_to(synthesis_root).parts):
+                    continue
+                relative_parts = project_dir.relative_to(synthesis_root).parts
+                if not relative_parts:
+                    continue
+                configuration = "-".join(relative_parts)
+                yield {
+                    "architecture": architecture,
+                    "configuration": configuration,
+                    "root": project_dir,
+                    "project": f"{architecture}-{configuration}",
+                    "prefix": "conv-",
+                }
 
 
 def project_records(prefix, architecture=None):
@@ -2048,7 +2057,7 @@ def main():
     report_dir.mkdir(parents=True, exist_ok=True)
     records = project_records("conv-")
     if not records:
-        raise SystemExit("No synthesis projects found below rtl/conv*/synthesis.")
+        raise SystemExit("No synthesis projects found below rtl/conv*/synthesis or archive/m04/synthesis.")
     naive = parse_naive_record(args.naive_synthesis_dir) if args.naive_synthesis_dir else None
     write_report_set(
         report_dir,
