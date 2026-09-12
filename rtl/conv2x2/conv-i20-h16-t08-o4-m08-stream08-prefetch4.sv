@@ -57,6 +57,9 @@ module Conv
   localparam int unsigned PREFETCH_WORDS = CONV_INPUT_SIZE;
   logic [NBITS-1:0] r_input_prefetch[PREFETCH_WORDS-1:0];
   logic r_input_prefetch_full;
+  logic r_input_prefetch_active;
+  logic r_input_prefetch_enabled;
+  logic [NADDR-1:0] r_input_prefetch_addr;
   logic w_input_prefetch_commit;
   logic w_input_prefetch_mode;
   logic w_input_last_window_col;
@@ -87,6 +90,10 @@ module Conv
   // REGISTER BANK FOR THE WEIGHTS ////////////////////////////////////////////
   localparam WEIGHT_CYCLES = HADAMARD_SIZE * HADAMARD_SIZE;
   localparam STREAM_CYCLES = 2;
+  localparam PREFETCH_PHASES = STREAM_CYCLES + 2;
+  localparam PREFETCH_PHASE_WIDTH = f_width_min1(PREFETCH_PHASES);
+  // Counter-coded prefetch phase: TRANSFORM, HADAMARD cycles, INVERSE.
+  logic [PREFETCH_PHASE_WIDTH-1:0] r_input_prefetch_phase;
   logic [(f_width_min1(STREAM_CYCLES + 1))-1:0] r_conv_multiply_count;
   localparam WEIGHT_WIDTH = f_width_min1(WEIGHT_CYCLES + 1);
   logic [NBITS-1:0] r_input_weight[WEIGHT_CYCLES-1:0];
@@ -200,15 +207,20 @@ module Conv
   // -------  PART 1 - ADDRESS TO ACCESS THE IFMAP AND WEIGHT MEMORY ------------------------------------
   // ----------------------------------------------------------------------------------------------------
 
-  assign p_input_en   = (st_input_current inside {READ_WEIGHTS, READ_IN_10A, READ_IN_10B, READ_IN_8C, READ_IN_8D});
-  assign p_input_addr = (st_input_current == READ_WEIGHTS) ? r_input_addr_kernel : r_input_addr_feat + NADDR'(r_input_addr_count);  // p_input_addr mux
+  assign p_input_en = r_input_prefetch_active ||
+                      (st_input_current inside {READ_WEIGHTS, READ_IN_10A, READ_IN_10B, READ_IN_8C, READ_IN_8D});
+  assign p_input_addr = r_input_prefetch_active
+                      ? r_input_prefetch_addr + NADDR'(r_input_prefetch_phase)
+                      : (st_input_current == READ_WEIGHTS)
+                      ? r_input_addr_kernel
+                      : r_input_addr_feat + NADDR'(r_input_addr_count);  // p_input_addr mux
 
   always_ff @(posedge clk or posedge reset) begin: INPUT_ADDR_POINTER_BLOCK
     if (reset) begin
       r_input_addr_feat <= '0;
       r_input_window_next <= CONV_OUTPUT_SIZE;
     end
-    else if ((st_input_current == READ_IN_10A && st_input_next == READ_IN_10B) || (st_input_current == READ_IN_10B && st_input_next == READ_IN_8C) || (st_input_current == READ_IN_8C && st_input_next == READ_IN_8D) || (st_input_current == WAIT_PREFETCH && st_input_next == READ_IN_8D) || st_input_current == TRANSFER)
+    else if ((st_input_current == READ_IN_10A && st_input_next == READ_IN_10B) || (st_input_current == READ_IN_10B && st_input_next == READ_IN_8C) || (st_input_current == READ_IN_8C && st_input_next == READ_IN_8D) || (st_input_current == WAIT_PREFETCH && st_input_next == READ_IN_8D) || (st_input_current == HOLD_WRITE && st_input_next == READ_IN_8D) || st_input_current == TRANSFER)
       r_input_addr_feat <= r_input_addr_feat + NADDR'(FEAT_INPUT_WIDTH);    // change internal p_input_addr in the state transition or in the TRANSFER state (CAUTION: PE)
     else if (st_input_current == NEXT_ROW_INPUT && !w_input_last_window_acc) begin  // when change the line, the read pointer moves 'r_input_window_next'
       r_input_addr_feat <= r_input_window_next + NADDR'(r_input_channel_counter_input * FEAT_INPUT_SIZE * FEAT_INPUT_WIDTH);  // restart for the first line
@@ -270,7 +282,14 @@ module Conv
       TRANSFER: st_input_next = HOLD_WRITE;  // p_start the convolution
       HOLD_WRITE:
         if ((w_conv_input_release || w_conv_end) && w_input_last_window_col && w_input_write_done) st_input_next = NEXT_ROW_INPUT;
-          else if (!w_input_last_window_col && w_input_write_done) st_input_next = READ_IN_8C;
+          else if (!w_input_last_window_col && w_input_write_done) begin
+            if (w_input_prefetch_mode && r_input_prefetch_full && w_input_prefetch_commit)
+              st_input_next = READ_IN_8D;
+            else if (w_input_prefetch_mode)
+              st_input_next = HOLD_WRITE;
+            else
+              st_input_next = READ_IN_8C;
+          end
         else st_input_next = HOLD_WRITE;
       NEXT_ROW_INPUT:
         if (w_input_last_window_acc) st_input_next = ADDRESS_INPUT;
@@ -285,7 +304,7 @@ module Conv
   assign w_input_last_window_col = (r_input_window_counter_col == WINDOW_ROW_COUNTER_WIDTH'(WINDOW_COUNT_PER_LINE));
   assign w_input_last_window_acc = (r_input_window_counter_acc == WINDOW_COUNTER_WIDTH'(WINDOW_COUNT_PER_LINE * WINDOW_COUNT_PER_COLUMN));
   assign w_input_last_channel_output = (r_input_channel_counter_output == CHANNEL_OUTPUT_COUNTER_WIDTH'(N_CHANNEL_OUT));
-  assign w_input_prefetch_mode = (r_input_window_counter_col != '0);
+  assign w_input_prefetch_mode = r_input_prefetch_enabled;
 
   // Release point for the current feature tile.  The prefetch bank may fill
   // before this point, but the tile itself remains untouched until release.
@@ -434,12 +453,36 @@ module Conv
     if (reset) begin
       r_input_prefetch <= '{default: '0};
       r_input_prefetch_full <= 1'b0;
+      r_input_prefetch_active <= 1'b0;
+      r_input_prefetch_enabled <= 1'b0;
+      r_input_prefetch_addr <= '0;
+      r_input_prefetch_phase <= '0;
     end else begin
-      if (st_input_current == READ_IN_8C && w_input_prefetch_mode && p_input_valid) begin
-        r_input_prefetch[r_input_addr_count] <= p_input_data;
-        if (r_input_addr_count == (CONV_INPUT_SIZE - 1))
+      // Issue the first new-column read one cycle before TRANSFORM.  With the
+      // one-cycle input-memory contract, the sample becomes valid during
+      // TRANSFORM while the main tile remains untouched until commit.
+      if (st_input_current == CONV_INPUT &&
+          (r_input_window_counter_col < WINDOW_ROW_COUNTER_WIDTH'(WINDOW_COUNT_PER_LINE - 1))) begin
+        r_input_prefetch_active <= 1'b1;
+        r_input_prefetch_addr <= r_input_addr_feat + NADDR'(FEAT_INPUT_WIDTH);
+        r_input_prefetch_phase <= '0;
+        r_input_prefetch_full <= 1'b0;
+      end else if (r_input_prefetch_active && p_input_valid) begin
+        r_input_prefetch[r_input_prefetch_phase] <= p_input_data;
+        if (r_input_prefetch_phase == (PREFETCH_WORDS - 1)) begin
+          r_input_prefetch_active <= 1'b0;
           r_input_prefetch_full <= 1'b1;
-      end else if (w_input_prefetch_commit) begin
+        end else begin
+          r_input_prefetch_phase <= r_input_prefetch_phase + 1'b1;
+        end
+      end
+      if (st_input_current == NEXT_ROW_INPUT || st_input_current == ADDRESS_INPUT)
+        r_input_prefetch_active <= 1'b0;
+      if (st_input_current == ADDRESS_INPUT || st_input_current == NEXT_ROW_INPUT)
+        r_input_prefetch_enabled <= 1'b0;
+      else if (st_input_current == CONV_INPUT)
+        r_input_prefetch_enabled <= (r_input_window_counter_col < WINDOW_ROW_COUNTER_WIDTH'(WINDOW_COUNT_PER_LINE - 1));
+      if (w_input_prefetch_commit) begin
         r_input_prefetch_full <= 1'b0;
       end
     end
