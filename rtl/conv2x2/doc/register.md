@@ -702,7 +702,7 @@ permaneceu igual apos a otimizacao do Genus e a potencia foi recalculada.
   MACs nesta arvore; por isso ela nao foi inventada ou extrapolada na tabela.
 
 Os relatorios canônicos de `stream00` estao atualmente em
-`synthesis/conv-i16-h16-t00-o4-m04-stream00/` e
+`archive/m04/synthesis/conv-i16-h16-t00-o4-m04-stream00/` e
 `synthesis/conv-i16-h16-t00-o4-m08-stream00/`. Os caminhos antigos
 `synthesis/stream4/tcn4-04mac/` e `synthesis/stream4/tcn4-08mac/` pertencem às
 campanhas historicas e nao devem ser usados como origem da arvore atual. A
@@ -1275,8 +1275,8 @@ precisa de uma arvore de muxes maior nao e uma reducao arquitetural valida.
 
 Na rodada de setembro de 2026, os modelos ativos que só tinham quatro MACs
 receberam uma variante `m08` separada. Os arquivos e diretórios `m04` foram
-mantidos como referência histórica para que os resultados anteriores de área,
-timing e potência continuem reproduzíveis.
+movidos para `archive/m04/` como referência histórica para que os resultados
+anteriores de área, timing e potência continuem reproduzíveis.
 
 Nos novos `stream04` e `stream08-*`, cada ciclo de Hadamard consome duas linhas
 de quatro elementos: a primeira linha permanece registrada e a segunda é
@@ -1332,6 +1332,5 @@ conclusão. Ela foi interrompida após a janela de diagnóstico e, por isso, nã
 há `power_evaluation.txt` válido para essa variante. O resultado não deve ser
 comparado como se fosse potência medida.
 
-Os resultados `m04` e os relatórios de síntese anteriores permanecem nos seus
-diretórios originais; nenhum arquivo `m04` foi sobrescrito pelos artefatos
-`m08`.
+Os resultados `m04` e os relatórios de síntese anteriores permanecem sob
+`archive/m04/`; nenhum arquivo `m04` foi sobrescrito pelos artefatos `m08`.
