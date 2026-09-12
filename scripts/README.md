@@ -8,7 +8,7 @@ Os arquivos desta pasta encadeiam tarefas recorrentes do fluxo FastConv:
 - `multiple-power-eval.sh`: fluxo legado, dependente da estrutura `sintese/`, `simSDF/` e módulos de ambiente; não deve ser usado com `rtl/conv*/synthesis/`.
 - `multiple-synth.sh`: fluxo legado para `sintese/`; as sínteses atuais são executadas pelos scripts `logical/*.tcl` dentro de cada projeto.
 - `multiple-time-arch.sh` e `time-arch.py`: geram a tabela antiga baseada em `src/<projeto>/data/sim_summary.txt`; foram substituídos pelo `time.csv` produzido por `report.py`.
-- `report.py`: descobre somente os projetos em `rtl/conv*/synthesis/`, lê os logs de simulação anotada (`sim/xrun.log`) e os relatórios Genus de área, registradores e potência. Gera tabelas sem prefixos artificiais (`time.csv`, `logical.csv`, `power.csv`, `merged.csv` e tabelas analíticas) e `report.md` em `report/`, além de um conjunto isolado em `rtl/conv*/report/` para cada arquitetura. Nenhuma tabela `sys-*` é gerada. Use `--report-dir` para outro destino global e `--naive-synthesis-dir PATH` para habilitar explicitamente a tabela separada de razões contra uma síntese naive.
+- `report.py`: descobre os projetos em `rtl/conv*/synthesis/` e os projetos históricos em `rtl/conv*/archive/m04/synthesis/`, lê os logs de simulação anotada (`sim/xrun.log`) e os relatórios Genus de área, registradores e potência. Gera tabelas sem prefixos artificiais (`time.csv`, `logical.csv`, `power.csv`, `merged.csv` e tabelas analíticas) e `report.md` em `report/`, além de um conjunto isolado em `rtl/conv*/report/` para cada arquitetura. Nenhuma tabela `sys-*` é gerada. Use `--report-dir` para outro destino global e `--naive-synthesis-dir PATH` para habilitar explicitamente a tabela separada de razões contra uma síntese naive.
 - `time-arch.py`: busca `sim_summary.txt` nas pastas de resultados e monta `time.csv` com o tempo de simulação por tamanho.
 - `metrics.py`: calcula MAE/RMSE dos datasets de simulação quantizada e grava os resultados em `report/` (ou no diretório informado por `--report-dir`).
 - `test-do.bat.sh`: suíte Bats que garante a disponibilidade do ModelSim e roda `vsim` em cada subpasta contendo `sim.do`.
@@ -17,10 +17,10 @@ Use estes scripts para automatizar execuções em lote e consolidar os relatóri
 
 ## Relatórios consolidados
 
-As sínteses atuais ficam dentro de cada arquitetura RTL, com uma pasta direta
-por arquivo RTL, por exemplo
-`rtl/conv2x2/synthesis/conv-i16-h16-t00-o4-m04-stream00/`. Para regenerar as tabelas do
-repositório:
+As sínteses ativas ficam dentro de cada arquitetura RTL, com uma pasta direta
+por arquivo RTL; os resultados históricos m04 ficam em
+`rtl/conv2x2/archive/m04/synthesis/`. Para regenerar as tabelas do repositório
+(incluindo as comparações m04/m08):
 
 ```bash
 /home/tarsio/gaph/fast-convolution-rtl/.venv/bin/python scripts/report.py
