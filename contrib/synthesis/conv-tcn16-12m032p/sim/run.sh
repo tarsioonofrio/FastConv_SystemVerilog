@@ -12,7 +12,7 @@ GIT_ROOT=$(git rev-parse --show-toplevel)
 # DATA_FILE="${GIT_ROOT}/data/ifn9/sim/sim-032/pack_data.sv"
 
 # Testbench e pack conforme usado no histórico
-TB=${GIT_ROOT}/rtl/conv-mux/testbench-synth-tc.sv
+TB=${GIT_ROOT}/rtl/conv-mux/testbench-synth-tc16.sv
 GATE=../logical/results/gate_level/conv_logic_mapped.v
 
 # Monta lista de arquivos (uma só linha, sem newline), prefixando GIT_ROOT
