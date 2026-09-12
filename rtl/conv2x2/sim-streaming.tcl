@@ -1,6 +1,6 @@
 set DATA data/tcn4/sim/sim-032-3-3-normal/pack_data.sv
 set PARAM pack-param/tcn4/pack_param.sv
-set SOURCE conv-i16-h16-t08-o4-mxx-stream08-generic.sv
+set SOURCE archive/m04/conv-i16-h16-t08-o4-mxx-stream08-generic.sv
 if {[info exists ::env(FASTCONV_STREAM_SOURCE)] && $::env(FASTCONV_STREAM_SOURCE) ne ""} {
   set SOURCE $::env(FASTCONV_STREAM_SOURCE)
 }

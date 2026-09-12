@@ -50,7 +50,7 @@ stream00-8mac:
 NUM_MULT ?= 4
 stream08:
 	$(VERILATOR) --binary --exe --Mdir obj_dir/stream08-$(NUM_MULT) \
-	  $(COMMON) $(MATRICES_STREAM) conv-i16-h16-t08-o4-mxx-stream08-generic.sv $(TB) --build \
+	  $(COMMON) $(MATRICES_STREAM) archive/m04/conv-i16-h16-t08-o4-mxx-stream08-generic.sv $(TB) --build \
 	  -GNUM_MULT=$(NUM_MULT)
 
 run: run-std
@@ -116,7 +116,7 @@ lint:
 	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) archive/m04/conv-i16-h16-t04-o4-m04-stream04.sv $(TB)
 	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i16-h16-t04-o4-m08-stream04.sv $(TB) -GNUM_MULT=8
 	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i16-h16-t00-o4-m08-stream00.sv $(TB)
-	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i16-h16-t08-o4-mxx-stream08-generic.sv $(TB) \
+	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) archive/m04/conv-i16-h16-t08-o4-mxx-stream08-generic.sv $(TB) \
 	  -GNUM_MULT=$(NUM_MULT)
 	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) archive/m04/conv-i16-h13-t08-o4-m04-stream08-wstream4.sv $(TB)
 	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i16-h13-t08-o4-m08-stream08-wstream4.sv $(TB)

@@ -679,7 +679,7 @@ permaneceu igual apos a otimizacao do Genus e a potencia foi recalculada.
 | Stream00 4 MACs, banco compartilhado | `conv-i16-h16-t00-o4-m04-stream00.sv` | PASS | 8.473 | 12.127,770 | 757 | 243 | 27.725 | 0,684856 | 37,975 |
 | Stream00 8 MACs | `conv-i16-h16-t00-o4-m08-stream00.sv` | PASS | 11.818 | 16.855,605 | 794 | 206 | 23.675 | 0,918483 | 43,490 |
 | Stream04 4 MACs, `r_transform_row` | `conv-i16-h16-t04-o4-m04-stream04.sv` | PASS | 6.515 | 10.857,984 | 757 | 243 | 27.725 | 0,582814 | 32,317 |
-| Stream08 2 MACs (historical) | `conv-i16-h16-t08-o4-mxx-stream08-generic.sv` | PASS | 6.483 | 11.012,366 | 766 | 234 | 29.749 | 0,531211 | 31,606 |
+| Stream08 generic (historical) | `archive/m04/conv-i16-h16-t08-o4-mxx-stream08-generic.sv` | PASS | 6.483 | 11.012,366 | 766 | 234 | 29.749 | 0,531211 | 31,606 |
 | Stream08 4 MACs | `conv-i16-h16-t08-o4-m04-stream08.sv` | PASS | 6.478 | 11.010,342 | 774 | 226 | 29.749 | 0,508947 | 30,281 |
 | Stream08 8 MACs | `conv-i16-h16-t08-o4-m08-stream08.sv` | PASS | 10.394 | 15.873,661 | 752 | 248 | 25.699 | 0,669638 | 34,418 |
 
@@ -1219,7 +1219,7 @@ streaming remove primeiro esse banco duplicado; em seguida troca
 
 ## 24. O generic `stream08`
 
-Arquivo: `conv-i16-h16-t08-o4-mxx-stream08-generic.sv`.
+Arquivo: `archive/m04/conv-i16-h16-t08-o4-mxx-stream08-generic.sv`.
 
 O generic nao cria uma nova estrategia de armazenamento. Ele implementa a mesma
 organizacao `stream08` e escolhe `NUM_MULT` igual a 4 ou 8. Para a variante
@@ -1324,8 +1324,14 @@ conv-i16-h20-t08-o4-m08-stream08-exact.sv
 ```
 
 `conv-i16-h13-t08-o4-m08-stream08-rowconst4.sv` deixou de ser ativo e foi
-movido para `archive/m08/`; os seus resultados de síntese continuam sendo
-coletados pelo relatório consolidado.
+movido para `archive/m08/`. O coletor padrão exclui projetos arquivados; para
+reproduzir a comparação histórica, execute `scripts/report.py
+--include-archived`.
+
+O generic `stream08` também foi movido para
+`archive/m04/conv-i16-h16-t08-o4-mxx-stream08-generic.sv`, junto com sua
+configuração de síntese. O mesmo caminho é usado pelos alvos de simulação
+compatíveis do `Makefile`.
 
 O alvo `make std` agora usa `conv-i16-h16-t16-o4-m08-std.sv` e passa
 `NUM_MULT=8`. Os alvos explícitos de oito MACs foram adicionados ao
