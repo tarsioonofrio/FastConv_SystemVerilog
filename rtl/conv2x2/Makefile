@@ -13,7 +13,8 @@ TB = testbench.sv
 VERILATOR = verilator -j 0 -DSIMULATION --trace-fst --trace-max-array 4096 \
             --top-module tb -Wno-fatal
 
-.PHONY: all std all16 stream04-4mac stream00-8mac stream08 stream08-wstream4 stream08-prefetch4 \
+.PHONY: all std all16 stream04-4mac stream04-8mac stream00-8mac stream08 stream08-wstream4 stream08-wstream4-8mac \
+	stream08-rowconst4-8mac stream08-rowconst4-exact-8mac stream08-prefetch4-8mac stream08-exact-8mac \
         run run-std run-all16 run-stream04-4mac run-stream00-8mac \
         run-stream08 run-stream08-wstream4 run-stream08-prefetch4 lint clean
 
@@ -21,7 +22,8 @@ all: std
 
 std:
 	$(VERILATOR) --binary --exe --Mdir obj_dir/std \
-	  $(COMMON) $(MUX) $(MATRICES_STD) conv-i16-h16-t16-o4-m04-std.sv $(TB) --build
+	  $(COMMON) $(MUX) $(MATRICES_STD) conv-i16-h16-t16-o4-m08-std.sv $(TB) --build \
+	  -GNUM_MULT=8
 
 all16:
 	$(VERILATOR) --binary --exe --Mdir obj_dir/all16 \
@@ -32,6 +34,11 @@ stream04-4mac:
 	$(VERILATOR) --binary --exe --Mdir obj_dir/stream04-4mac \
 	  $(COMMON) $(MATRICES_STREAM) conv-i16-h16-t04-o4-m04-stream04.sv $(TB) --build \
 	  -GNUM_MULT=4
+
+stream04-8mac:
+	$(VERILATOR) --binary --exe --Mdir obj_dir/stream04-8mac \
+	  $(COMMON) $(MATRICES_STREAM) conv-i16-h16-t04-o4-m08-stream04.sv $(TB) --build \
+	  -GNUM_MULT=8
 
 stream00-8mac:
 	$(VERILATOR) --binary --exe --Mdir obj_dir/stream00-8mac \
@@ -64,6 +71,18 @@ stream08-wstream4:
 	$(VERILATOR) --binary --exe --Mdir obj_dir/stream08-wstream4 \
 	  $(COMMON) $(MATRICES_STREAM) conv-i16-h13-t08-o4-m04-stream08-wstream4.sv $(TB) --build
 
+stream08-wstream4-8mac:
+	$(VERILATOR) --binary --exe --Mdir obj_dir/stream08-wstream4-8mac \
+	  $(COMMON) $(MATRICES_STREAM) conv-i16-h13-t08-o4-m08-stream08-wstream4.sv $(TB) --build
+
+stream08-rowconst4-8mac:
+	$(VERILATOR) --binary --exe --Mdir obj_dir/stream08-rowconst4-8mac \
+	  $(COMMON) $(MATRICES_STREAM) conv-i16-h13-t08-o4-m08-stream08-rowconst4.sv $(TB) --build
+
+stream08-rowconst4-exact-8mac:
+	$(VERILATOR) --binary --exe --Mdir obj_dir/stream08-rowconst4-exact-8mac \
+	  $(COMMON) $(MATRICES_STREAM) conv-i16-h13-t08-o4-m08-stream08-rowconst4-exact.sv $(TB) --build
+
 run-stream08-wstream4: stream08-wstream4
 	obj_dir/stream08-wstream4/Vtb
 
@@ -73,18 +92,33 @@ stream08-prefetch4:
 	$(VERILATOR) --binary --exe --Mdir obj_dir/stream08-prefetch4 \
 	  $(COMMON) $(MATRICES_STREAM) conv-i20-h16-t08-o4-m04-stream08-prefetch4.sv $(TB) --build
 
+stream08-prefetch4-8mac:
+	$(VERILATOR) --binary --exe --Mdir obj_dir/stream08-prefetch4-8mac \
+	  $(COMMON) $(MATRICES_STREAM) conv-i20-h16-t08-o4-m08-stream08-prefetch4.sv $(TB) --build
+
+stream08-exact-8mac:
+	$(VERILATOR) --binary --exe --Mdir obj_dir/stream08-exact-8mac \
+	  $(COMMON) $(MATRICES_STREAM) conv-i16-h20-t08-o4-m08-stream08-exact.sv $(TB) --build
+
 run-stream08-prefetch4: stream08-prefetch4
 	obj_dir/stream08-prefetch4/Vtb
 
 lint:
 	$(VERILATOR) --timing --lint-only $(COMMON) $(MUX) $(MATRICES_STD) conv-i16-h16-t16-o4-m04-std.sv $(TB)
+	$(VERILATOR) --timing --lint-only $(COMMON) $(MUX) $(MATRICES_STD) conv-i16-h16-t16-o4-m08-std.sv $(TB) -GNUM_MULT=8
 	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STD) conv-i16-h16-t00-o4-m16-all.sv $(TB)
 	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i16-h16-t04-o4-m04-stream04.sv $(TB)
+	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i16-h16-t04-o4-m08-stream04.sv $(TB) -GNUM_MULT=8
 	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i16-h16-t00-o4-m08-stream00.sv $(TB)
 	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i16-h16-t08-o4-mxx-stream08-generic.sv $(TB) \
 	  -GNUM_MULT=$(NUM_MULT)
 	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i16-h13-t08-o4-m04-stream08-wstream4.sv $(TB)
+	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i16-h13-t08-o4-m08-stream08-wstream4.sv $(TB)
+	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i16-h13-t08-o4-m08-stream08-rowconst4.sv $(TB)
+	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i16-h13-t08-o4-m08-stream08-rowconst4-exact.sv $(TB)
 	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i20-h16-t08-o4-m04-stream08-prefetch4.sv $(TB)
+	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i20-h16-t08-o4-m08-stream08-prefetch4.sv $(TB)
+	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i16-h20-t08-o4-m08-stream08-exact.sv $(TB)
 
 clean:
 	rm -rf obj_dir dump.fst dump.vcd
