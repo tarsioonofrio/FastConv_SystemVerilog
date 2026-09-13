@@ -3,19 +3,19 @@ Copyright 2022 Cadence Design Systems, Inc. All rights reserved worldwide.
 Cadence and the Cadence logo are registered trademarks and Genus is a trademark
 of Cadence Design Systems, Inc. in the United States and other countries.
 
-[22:41:17.503689] Configured Lic search path (20.02-s004): 5280@paxos.inf.pucrs.br
+[23:02:44.503673] Configured Lic search path (20.02-s004): 5280@paxos.inf.pucrs.br
 
 Version: 21.12-s068_1, built Fri Mar 04 09:12:46 PST 2022
 Options: -files power.tcl 
-Date:    Sat Sep 12 22:41:17 2026
+Date:    Sat Sep 12 23:02:44 2026
 Host:    paxos.inf.pucrs.br (x86_64 w/Linux 4.18.0-553.155.1.el8_10.x86_64) (14cores*28cpus*1physical cpu*Intel(R) Core(TM) i9-7940X CPU @ 3.10GHz 19712KB) (131170900KB)
-PID:     667986
+PID:     671901
 OS:      Rocky Linux release 8.10 (Green Obsidian)
 
 
-[22:41:17.014945] Periodic Lic check successful
-[22:41:17.014952] Feature usage summary:
-[22:41:17.014952] Genus_Synthesis
+[23:02:44.046848] Periodic Lic check successful
+[23:02:44.046858] Feature usage summary:
+[23:02:44.046859] Genus_Synthesis
 Checking out license: Genus_Synthesis
 
 
@@ -49,8 +49,8 @@ Finished loading tool scripts (8 seconds elapsed).
 @file(power.tcl) 21: set DB_FILE [file normalize [file join $CONFIG_ROOT logical results gate_level ${TOP_MODULE}_logic_mapped.db]]
 @file(power.tcl) 22: set SHM [file normalize [file join $CONFIG_ROOT sim dut.shm]]
 @file(power.tcl) 24: source [file join $CONFIG_ROOT scripts power.tcl]
-Sourcing '/tmp/fastconv-temporal1-flow/repo/rtl/conv2x2/synthesis/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-temporal1/scripts/power.tcl' (Sat Sep 12 22:41:25 -03 2026)...
-#@ Begin verbose source /tmp/fastconv-temporal1-flow/repo/rtl/conv2x2/synthesis/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-temporal1/scripts/power.tcl
+Sourcing '/tmp/fastconv-temporal1-coeff-flow/repo/rtl/conv2x2/synthesis/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-temporal1/scripts/power.tcl' (Sat Sep 12 23:02:52 -03 2026)...
+#@ Begin verbose source /tmp/fastconv-temporal1-coeff-flow/repo/rtl/conv2x2/synthesis/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-temporal1/scripts/power.tcl
 @file(power.tcl) 5: set START_TIME 0ns
 @file(power.tcl) 6: set CONSTRAINTS_PATH [file join $CONFIG_ROOT scripts]
 @file(power.tcl) 8: set LIB_PATH /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End
@@ -73,7 +73,7 @@ Sourcing '/tmp/fastconv-temporal1-flow/repo/rtl/conv2x2/synthesis/conv-i20-h13-t
     -delay_corner delay_corner_0p90v_25c_captyp
 @file(power.tcl) 28: set CURRENT_VIEW analysis_view_0p90v_25c_captyp_nominal
 @file(power.tcl) 29: read_db ${DB_FILE}
-Reading database file '/tmp/fastconv-temporal1-flow/repo/rtl/conv2x2/synthesis/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-temporal1/logical/results/gate_level/Conv_logic_mapped.db'.
+Reading database file '/tmp/fastconv-temporal1-coeff-flow/repo/rtl/conv2x2/synthesis/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-temporal1/logical/results/gate_level/Conv_logic_mapped.db'.
 
 Threads Configured:3
 
@@ -429,22 +429,22 @@ Warning : The variant range of wire parameters is too large. An example of wire 
 Checking out license: Joules_RTL_Power
 License 'Joules_RTL_Power' (main version: 21.1, alternate version: 21.1) checkout failed.
 
-[22:41:46.345466] Periodic Lic check successful
-[22:41:46.345473] Feature usage summary:
-[22:41:46.345473] Genus_Synthesis
-[22:41:46.345474] Joules_XL
+[23:03:13.334874] Periodic Lic check successful
+[23:03:13.334889] Feature usage summary:
+[23:03:13.334889] Genus_Synthesis
+[23:03:13.334890] Joules_XL
 Checking out license: Joules_XL
 Info   : STIM-0001 [StimInfo] read_stimulus effective options 
        : -file :
-       : /tmp/fastconv-temporal1-flow/repo/rtl/conv2x2/synthesis/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-temporal1/sim/dut.shm
+       : /tmp/fastconv-temporal1-coeff-flow/repo/rtl/conv2x2/synthesis/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-temporal1/sim/dut.shm
        : -dut_instance : tb.dut
        : -format : shm(auto determined)
        : -start : 0ns
 Info   : STIM-0001 Design top is Conv
 Info   : STIM-0001 Started reading input stimulus file
-       : /tmp/fastconv-temporal1-flow/repo/rtl/conv2x2/synthesis/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-temporal1/sim/dut.shm
+       : /tmp/fastconv-temporal1-coeff-flow/repo/rtl/conv2x2/synthesis/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-temporal1/sim/dut.shm
 Info   : STIM-0001 Found top instance /tb/dut
-Info   : STIM-0001 [StimInfo] Design Hierarchy Parsing Progress Report :   0%   1%   2%   3%   4% 100%
+Info   : STIM-0001 [StimInfo] Design Hierarchy Parsing Progress Report :   0%   1%   2%   3%   4%   5% 100%
 Info   : STIM-0002 [StimInfo] Finished design hierarchy parsing.
 Info   : STIM-0010 [StimInfo] Total number of frames '1'
 Info   : STIM-0001 [StimInfo] Value Change Section Parsing Progress Report :   0%   1%   2%   3%   4%   5%   6%   7%   8%   9%  10%  11%  12%  13%  14%  15%  16%  17%  18%  19%  20%  21%  22%  23%  24%  25%  26%  27%  28%  29%  30%  31%  32%  33%  34%  35%  36%  37%  38%  39%  40%  41%  42%  43%  44%  45%  46%  47%  48%  49%  50%  51%  52%  53%  54%  55%  56%  57%  58%  59%  60%  61%  62%  63%  64%  65%  66%  67%  68%  69%  70%  71%  72%  73%  74%  75%  76%  77%  78%  79%  80%  81%  82%  83%  84%  85%  86%  87%  88%  89%  90%  91%  92%  93%  94%  95%  96%  97%  98%  99% 100%
@@ -461,14 +461,14 @@ Primary Ports
   I/O                      0           0            0      0        N/A 
 Sequential Outputs                                                      
   Memory                   0           0            0      0        N/A 
-  Flop                  1530           0            0   1530    100.00% 
+  Flop                  1462           0            0   1462    100.00% 
   Latch                    0           0            0      0        N/A 
   Arch ICGC                0           0            0      0        N/A 
   Inferred ICGC            0          57            0     57      0.00% 
   Total ICGC               0          57            0     57      0.00% 
 Drivers                                                                 
-  Driver nets           3027       15109           28  18164     16.69% 
-  RTL Driver nets       2837       10891            0  13728     20.66% 
+  Driver nets           2943       12296           42  15281     19.31% 
+  RTL Driver nets       2836        9405            0  12241     23.16% 
 DFT                                                                     
   Input Ports              0           0            0      0        N/A 
   Flop Outputs             0           0            0      0        N/A 
@@ -496,16 +496,16 @@ Info   : ACTP-0001 Timing initialization ended
 Info   : PWRA-0002 [PwrInfo] Skipping activity propagation due to -skip_ap
        : option....
 Info   : PWRA-0002 Started 'average' power computation from attr values.
-Info   : PWRA-0009 [PwrInfo] Power Computation Progress Report :   6%  12%  18%  25%  31%  37%  43%  50%  56%  62%  68%  75%  81%  87% 100%
+Info   : PWRA-0009 [PwrInfo] Power Computation Progress Report :   7%  15%  22%  30%  37%  45%  53%  60%  68%  75%  83%  90% 100%
 Info   : PWRA-0002 Finished power computation.
 Info   : PWRA-0007 [PwrInfo] Completed successfully.
        : Info=6, Warn=0, Error=0, Fatal=0
-Output file: /tmp/fastconv-temporal1-flow/repo/rtl/conv2x2/synthesis/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-temporal1/power/power_evaluation.txt
+Output file: /tmp/fastconv-temporal1-coeff-flow/repo/rtl/conv2x2/synthesis/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-temporal1/power/power_evaluation.txt
 @file(power.tcl) 33: exit
 
 Lic Summary:
-[22:41:48.426321] Cdslmd servers: paxos
-[22:41:48.426337] Feature usage summary:
-[22:41:48.426338] Genus_Synthesis
-[22:41:48.426339] Joules_XL
+[23:03:14.188248] Cdslmd servers: paxos
+[23:03:14.188264] Feature usage summary:
+[23:03:14.188265] Genus_Synthesis
+[23:03:14.188265] Joules_XL
 
