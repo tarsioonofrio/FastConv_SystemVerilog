@@ -1644,8 +1644,22 @@ porque a atualização é sensível ao nível; os blocos de controle continuam
 usando atribuição não bloqueante em `always_ff`. A configuração isolada
 `synthesis/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-latch/` foi
 criada com os mesmos constraints e corners do baseline. A síntese lógica,
-simulação anotada e power ainda precisam ser executadas na Paxos; portanto
-nenhum número de área, timing ou potência deve ser inferido a partir da
-contagem RTL. A comparação deve usar
+simulação anotada e power foram executados no commit `9ae63cf7` e os resultados
+medidos são:
+
+| Variante | Celulas | Area total (um2) | Flip-flops | Slack nominal (ps) | Power total (mW) | Ciclos |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| baseline `prefetch4-rowconst4` | 12.222 | 19.311,310 | 1.161 | 237 | 0,776556 | 21.892 |
+| `prefetch4-rowconst4-latch` | 12.288 | 18.989,810 | 821 | 213 | 0,741005 | 21.892 |
+
+Em relação ao baseline, a variante reduziu 340 flip-flops (29,3%), 321,5
+um2 de área total (1,7%) e 0,035551 mW de potência nominal (4,6%). O custo
+foi um aumento de 66 células e uma redução de 24 ps no slack nominal; no
+corner lento de 0,81 V a restrição de 500 MHz continua fechada com slack zero
+nas duas versões. A decomposição nominal da variante latch é `register =
+0,130732 mW`, `latch = 0,00578648 mW`, `logic = 0,584752 mW` e `clock =
+0,0197341 mW`.
+
+A comparação deve usar
 `synthesis/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4/` como baseline,
 mantendo os mesmos constraints, corner, atividade e critério de ciclos.
