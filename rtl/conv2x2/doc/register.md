@@ -1597,3 +1597,53 @@ de memória de entrada, mas não compartilham seus contadores temporais. A
 convolução usa `r_input_feat`; o prefetch usa `r_input_prefetch`. Essa é a
 razão pela qual a implementação precisa de alguns registradores adicionais,
 mas não de uma segunda cópia da FSM de endereçamento completa.
+
+## 29. Alternativa experimental com bancos sensíveis a nível
+
+O arquivo
+`conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-latch.sv` preserva o
+baseline ativo e testa uma redução física de flip-flops usando `always_latch`.
+Não é uma conversão mecânica de todos os `always_ff`: a transparência de um
+latch seria insegura nos bancos que têm realimentação, acumulam produtos ou são
+consumidos no mesmo ciclo em que mudam.
+
+### 29.1 Bancos convertidos
+
+| Banco | Bloco no arquivo novo | Por que pode ser latch |
+| --- | --- | --- |
+| `r_input_prefetch[0:3]` | `INPUT_PREFETCH_DATA_LATCH_BLOCK` | recebe uma palavra independente da RAM quando `p_input_valid` está ativo; flags, fase e endereço continuam em `INPUT_PREFETCH_BUFFER_BLOCK` (`always_ff`) |
+| `r_weight_spatial[0:8]` | `WEIGHT_REG_LATCH_BLOCK` | cada palavra é escrita uma vez por índice durante `READ_WEIGHTS`; o contador de seleção continua edge-triggered |
+| `r_output_read[0:3]` | `OUTPUT_DATA_LATCH_BLOCK` | captura dados independentes da RAM de saída; contadores e endereçamento permanecem edge-triggered |
+
+Os bancos `r_input_feat`, `r_input_weight`, `r_transform_row`,
+`r_inverse_row` e `r_output_write` permanecem como flip-flops. Eles possuem,
+respectivamente, deslocamento dependente do valor anterior, consumo alinhado
+à borda do Hadamard, atualização de linha durante o cálculo, acumulação da
+inversa e realimentação de soma entre janelas. Transformá-los em latches
+mudaria a janela temporal observada pelo datapath ou permitiria uma escrita
+transparente enquanto o valor ainda estivesse sendo consumido.
+
+### 29.2 Contrato e verificação RTL
+
+A FSM, os contadores, os endereços e a quantidade de MACs não foram alterados.
+O arquivo original continua sendo a referência funcional e de síntese; o
+arquivo `-latch` é uma alternativa experimental para medir área e potência.
+Com Verilator, a simulação da variante nova produziu:
+
+```text
+inverse_tiles=2025
+cycles=21892
+valid_writes=8100
+input_samples_clipped=0
+invalid_output_beats=0
+```
+
+O build `stream08-prefetch4-rowconst4-latch-8mac` e o lint direcionado
+passaram. Os latches usam atribuição bloqueante dentro de `always_latch`,
+porque a atualização é sensível ao nível; os blocos de controle continuam
+usando atribuição não bloqueante em `always_ff`. Ainda não há configuração de
+síntese/Paxos publicada para esta alternativa, portanto nenhum número de área,
+timing ou potência deve ser inferido a partir da contagem RTL. A próxima etapa
+é criar uma configuração isolada e comparar o resultado com
+`synthesis/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4/`, mantendo os
+mesmos constraints, corner, atividade e critério de ciclos.
