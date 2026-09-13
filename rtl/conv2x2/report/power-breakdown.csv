@@ -72,11 +72,11 @@ Conv2x2-conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-latch,clock,0.01931
 Conv2x2-conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-latch,pad,0.0,0.0
 Conv2x2-conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-latch,pm,0.0,0.0
 Conv2x2-conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-latch-single,memory,0.0,0.0
-Conv2x2-conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-latch-single,register,0.0755348,11.405266654587184
-Conv2x2-conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-latch-single,latch,0.0141397,2.1350033218578246
-Conv2x2-conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-latch-single,logic,0.559735,84.51636769946246
+Conv2x2-conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-latch-single,register,0.107567,16.76752088789126
+Conv2x2-conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-latch-single,latch,0.00487453,0.7598406908592095
+Conv2x2-conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-latch-single,logic,0.510453,79.5693041526375
 Conv2x2-conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-latch-single,bbox,0.0,0.0
-Conv2x2-conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-latch-single,clock,0.0128703,1.9433321253850335
+Conv2x2-conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-latch-single,clock,0.0186264,2.9034792368125704
 Conv2x2-conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-latch-single,pad,0.0,0.0
 Conv2x2-conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-latch-single,pm,0.0,0.0
 Conv2x2-conv-i20-h16-t08-o4-m08-stream08-prefetch4,memory,0.0,0.0

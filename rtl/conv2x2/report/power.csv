@@ -8,5 +8,5 @@ Conv2x2-conv-i16-h16-t16-o4-m08-std,Conv2x2,08,,0.0,0.213996,0.0,0.621175,0.0,0.
 Conv2x2-conv-i16-h20-t08-o4-m08-stream08-exact,Conv2x2,08,,0.0,0.153771,0.0,0.555147,0.0,0.0244812,0.0,0.0,0.733399
 Conv2x2-conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4,Conv2x2,08,,0.0,0.16307,0.0,0.587332,0.0,0.0261538,0.0,0.0,0.776556
 Conv2x2-conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-latch,Conv2x2,08,,0.0,0.124186,0.0140623,0.584294,0.0,0.0193156,0.0,0.0,0.741858
-Conv2x2-conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-latch-single,Conv2x2,08,,0.0,0.0755348,0.0141397,0.559735,0.0,0.0128703,0.0,0.0,0.66228
+Conv2x2-conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-latch-single,Conv2x2,08,,0.0,0.107567,0.00487453,0.510453,0.0,0.0186264,0.0,0.0,0.64152
 Conv2x2-conv-i20-h16-t08-o4-m08-stream08-prefetch4,Conv2x2,08,,0.0,0.182249,0.0,0.563757,0.0,0.030655,0.0,0.0,0.776661
