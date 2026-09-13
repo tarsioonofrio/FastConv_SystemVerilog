@@ -532,45 +532,45 @@ module Conv
     end
   end
 
-  // Single-bank feature storage.  The latch is written only while an input
-  // beat or an explicit window-shift phase is active.  During CONV_INPUT,
-  // TRANSFER and the convolution states no feature-bank write is enabled, so
-  // the transform sees a stable tile without a second staging bank.
-  always_latch begin: INPUT_FEATURE_REG_LATCH_BLOCK
+  // Single-bank feature storage.  Capture the RAM beat and explicit window
+  // shifts on the clock edge.  Keeping one bank still removes the staging
+  // storage, while edge capture avoids a latch transparency/setup race at the
+  // transition into CONV_INPUT in gate-level simulation.
+  always_ff @(posedge clk or posedge reset) begin: INPUT_FEATURE_REG_BLOCK
     if (reset) begin
-      r_input_feat = '{default: '0};
+      r_input_feat <= '{default: '0};
     end else begin
       case (st_input_current)
         READ_IN_10A, READ_IN_10B, READ_IN_8C, READ_IN_8D:
           if (st_input_current == READ_IN_8C && w_input_feature_shift) begin
-            r_input_feat[0]  = r_input_feat[2];
-            r_input_feat[1]  = r_input_feat[3];
-            r_input_feat[4]  = r_input_feat[6];
-            r_input_feat[5]  = r_input_feat[7];
-            r_input_feat[8]  = r_input_feat[10];
-            r_input_feat[9]  = r_input_feat[11];
-            r_input_feat[12] = r_input_feat[14];
-            r_input_feat[13] = r_input_feat[15];
+            r_input_feat[0]  <= r_input_feat[2];
+            r_input_feat[1]  <= r_input_feat[3];
+            r_input_feat[4]  <= r_input_feat[6];
+            r_input_feat[5]  <= r_input_feat[7];
+            r_input_feat[8]  <= r_input_feat[10];
+            r_input_feat[9]  <= r_input_feat[11];
+            r_input_feat[12] <= r_input_feat[14];
+            r_input_feat[13] <= r_input_feat[15];
           end else if (p_input_valid &&
                        !(st_input_current == READ_IN_8C && w_input_prefetch_mode))
-            r_input_feat[w_input_feat_wr_index] = p_input_data;
+            r_input_feat[w_input_feat_wr_index] <= p_input_data;
         PREFETCH_SHIFT_OLD:
           begin
-            r_input_feat[0]  = r_input_feat[2];
-            r_input_feat[1]  = r_input_feat[3];
-            r_input_feat[4]  = r_input_feat[6];
-            r_input_feat[5]  = r_input_feat[7];
-            r_input_feat[8]  = r_input_feat[10];
-            r_input_feat[9]  = r_input_feat[11];
-            r_input_feat[12] = r_input_feat[14];
-            r_input_feat[13] = r_input_feat[15];
+            r_input_feat[0]  <= r_input_feat[2];
+            r_input_feat[1]  <= r_input_feat[3];
+            r_input_feat[4]  <= r_input_feat[6];
+            r_input_feat[5]  <= r_input_feat[7];
+            r_input_feat[8]  <= r_input_feat[10];
+            r_input_feat[9]  <= r_input_feat[11];
+            r_input_feat[12] <= r_input_feat[14];
+            r_input_feat[13] <= r_input_feat[15];
           end
         PREFETCH_FILL_NEW:
           begin
-            r_input_feat[2]  = r_input_prefetch[0];
-            r_input_feat[6]  = r_input_prefetch[1];
-            r_input_feat[10] = r_input_prefetch[2];
-            r_input_feat[14] = r_input_prefetch[3];
+            r_input_feat[2]  <= r_input_prefetch[0];
+            r_input_feat[6]  <= r_input_prefetch[1];
+            r_input_feat[10] <= r_input_prefetch[2];
+            r_input_feat[14] <= r_input_prefetch[3];
           end
         default: begin end
       endcase
