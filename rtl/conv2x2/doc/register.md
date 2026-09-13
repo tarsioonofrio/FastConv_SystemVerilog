@@ -1641,9 +1641,11 @@ invalid_output_beats=0
 O build `stream08-prefetch4-rowconst4-latch-8mac` e o lint direcionado
 passaram. Os latches usam atribuição bloqueante dentro de `always_latch`,
 porque a atualização é sensível ao nível; os blocos de controle continuam
-usando atribuição não bloqueante em `always_ff`. Ainda não há configuração de
-síntese/Paxos publicada para esta alternativa, portanto nenhum número de área,
-timing ou potência deve ser inferido a partir da contagem RTL. A próxima etapa
-é criar uma configuração isolada e comparar o resultado com
-`synthesis/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4/`, mantendo os
-mesmos constraints, corner, atividade e critério de ciclos.
+usando atribuição não bloqueante em `always_ff`. A configuração isolada
+`synthesis/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-latch/` foi
+criada com os mesmos constraints e corners do baseline. A síntese lógica,
+simulação anotada e power ainda precisam ser executadas na Paxos; portanto
+nenhum número de área, timing ou potência deve ser inferido a partir da
+contagem RTL. A comparação deve usar
+`synthesis/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4/` como baseline,
+mantendo os mesmos constraints, corner, atividade e critério de ciclos.

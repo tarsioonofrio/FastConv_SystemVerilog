@@ -175,7 +175,7 @@ configuration has one direct directory whose name matches the RTL source:
 - `synthesis/conv-i16-h20-t08-o4-m08-stream08-exact/` — eight-MAC exact-weight stream;
 - `synthesis/conv-i16-h16-t16-o4-m08-std/` — conventional eight-MAC default.
 - `synthesis/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4/` — prefetch plus constant-row eight-MAC variant.
-- The latch-bank source is currently an RTL experiment without a published synthesis or power configuration; its original edge-triggered baseline remains the canonical active implementation.
+- `synthesis/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-latch/` — isolated synthesis/power configuration for the latch-bank experiment; its original edge-triggered baseline remains the canonical active implementation.
 - `archive/m08/synthesis/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-temporal1/` — archived temporal shared-transformer experiment.
 
 Each configuration keeps its own `list-file.txt`, `list-define.txt`,
