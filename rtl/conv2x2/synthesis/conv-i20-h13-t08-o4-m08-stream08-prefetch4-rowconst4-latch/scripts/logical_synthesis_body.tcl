@@ -16,7 +16,10 @@ set_db syn_global_effort high
 set_db auto_ungroup none
 set_db hdl_parameter_naming_style ""
 set_db interconnect_mode ple
-set_db hdl_error_on_latch true
+# This configuration intentionally contains level-sensitive storage in the
+# latch-bank experiment.  Keep the default strict setting in other projects;
+# only this isolated variant accepts inferred latches.
+set_db hdl_error_on_latch false
 
 puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 puts "Control Clock Gating"
