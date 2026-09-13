@@ -119,15 +119,17 @@ module Conv
   logic w_input_write_done;
 
   logic [NBITS-1:0] w_conv_transform [HADAMARD_SIZE*HADAMARD_SIZE-1:0];
-  // Two constant-row-pair transforms are instantiated below.  Only one enable
-  // is asserted per cycle by the existing convolution FSM, and the inactive
-  // pair drives zero to isolate its arithmetic from switching activity.
-  logic [NBITS-1:0] w_weight_row0 [3:0];
-  logic [NBITS-1:0] w_weight_row1 [3:0];
-  logic [NBITS-1:0] w_weight_row2 [3:0];
-  logic [NBITS-1:0] w_weight_row3 [3:0];
-  logic w_weight_row_enable0;
-  logic w_weight_row_enable2;
+  // A single row transform is time-shared across four pre-existing capture
+  // edges.  The cached rows decouple the transform schedule from the two
+  // eight-MAC Hadamard consumers; those MACs still read r_input_weight.
+  logic signed [NBITS-1:0] w_weight_transform_pin [8:0];
+  logic [NBITS-1:0] w_weight_row_temporal [3:0];
+  logic w_weight_row_temporal_enable;
+  logic [1:0] w_weight_row_temporal_index;
+  logic [NBITS-1:0] r_weight_row_cache0 [3:0];
+  logic [NBITS-1:0] r_weight_row_cache1 [3:0];
+  logic [NBITS-1:0] r_weight_row_cache2 [3:0];
+  logic [NBITS-1:0] r_weight_row_cache3 [3:0];
   logic signed [NBITS-1+QUANT:0] w_conv_product [FIXED_NUM_MULT-1:0];  // QUANT more bits for the multipliers
   logic w_conv_end;
   logic w_conv_input_release;
@@ -730,16 +732,16 @@ module Conv
           r_transform_row[1] <= w_conv_transform[1];
           r_transform_row[2] <= w_conv_transform[2];
           r_transform_row[3] <= w_conv_transform[3];
-          // Capture the first transformed weight row only after the raw
-          // spatial tile is complete.  TRANSFORM is held while that tile is
-          // being read on the first window of a channel pair.
+          // Rows zero and one were cached while the raw tile arrived.  This
+          // edge only moves their completed values into the unchanged eight
+          // MAC input registers.
           if (r_weight_tile_valid) begin
-            r_input_weight[0] <= w_weight_row0[0];
-            r_input_weight[1] <= w_weight_row0[1];
-            r_input_weight[2] <= w_weight_row0[2];
-            r_input_weight[3] <= w_weight_row0[3];
-            r_input_weight[4] <= w_weight_row1[0]; r_input_weight[5] <= w_weight_row1[1];
-            r_input_weight[6] <= w_weight_row1[2]; r_input_weight[7] <= w_weight_row1[3];
+            r_input_weight[0] <= r_weight_row_cache0[0];
+            r_input_weight[1] <= r_weight_row_cache0[1];
+            r_input_weight[2] <= r_weight_row_cache0[2];
+            r_input_weight[3] <= r_weight_row_cache0[3];
+            r_input_weight[4] <= r_weight_row_cache1[0]; r_input_weight[5] <= r_weight_row_cache1[1];
+            r_input_weight[6] <= r_weight_row_cache1[2]; r_input_weight[7] <= r_weight_row_cache1[3];
           end
           r_inverse_row              <= '{default: '0};
           r_output_write              <= '{default: '0};
@@ -760,15 +762,15 @@ module Conv
             r_transform_row[2] <= w_conv_transform[10];
             r_transform_row[3] <= w_conv_transform[11];
           end
-          // Capture the next transformed weight row at the same pipeline
-          // boundary used by the feature transform.  The current Hadamard
-          // cycle still uses r_input_weight; the new row is consumed only
-          // after this clock edge.
+          // The third row was cached in TRANSFORM; the single temporal
+          // transform produces the fourth row during this first HADAMARD
+          // cycle.  Both are captured after the current MAC operation and
+          // become visible only to the second existing HADAMARD cycle.
           if (r_conv_multiply_count < $bits(r_conv_multiply_count)'(STREAM_CYCLES - 1)) begin
-            r_input_weight[0] <= w_weight_row2[0]; r_input_weight[1] <= w_weight_row2[1];
-            r_input_weight[2] <= w_weight_row2[2]; r_input_weight[3] <= w_weight_row2[3];
-            r_input_weight[4] <= w_weight_row3[0]; r_input_weight[5] <= w_weight_row3[1];
-            r_input_weight[6] <= w_weight_row3[2]; r_input_weight[7] <= w_weight_row3[3];
+            r_input_weight[0] <= r_weight_row_cache2[0]; r_input_weight[1] <= r_weight_row_cache2[1];
+            r_input_weight[2] <= r_weight_row_cache2[2]; r_input_weight[3] <= r_weight_row_cache2[3];
+            r_input_weight[4] <= w_weight_row_temporal[0]; r_input_weight[5] <= w_weight_row_temporal[1];
+            r_input_weight[6] <= w_weight_row_temporal[2]; r_input_weight[7] <= w_weight_row_temporal[3];
           end
           // Advance the accumulated tile in the existing output-write bank.
           r_output_write              <= w_output_acc_next;
@@ -808,27 +810,65 @@ module Conv
       .pout(w_conv_transform)
   );
 
-  always_comb begin: WEIGHT_ROW_ENABLE_BLOCK
-    w_weight_row_enable0 = 1'b0;
-    w_weight_row_enable2 = 1'b0;
-    if ((st_conv_current == TRANSFORM) && r_weight_tile_valid) begin
-      w_weight_row_enable0 = 1'b1;
+  // During the first kernel fetch, rows 0 and 1 become computable on the
+  // third and ninth raw words.  Substitute the currently returning word so
+  // their captures use the same memory edge as r_weight_spatial.  Cached
+  // kernels then use TRANSFORM for row 2 and the first HADAMARD edge for row
+  // 3.  These four edges already exist in the baseline schedule.
+  always_comb begin: WEIGHT_TEMPORAL_PIN_BLOCK
+    for (int unsigned i = 0; i < RAW_WEIGHT_WORDS; i++)
+      w_weight_transform_pin[i] = r_weight_spatial[i];
+    if ((st_input_current == READ_WEIGHTS) && p_input_valid)
+      w_weight_transform_pin[r_weight_row_count] = $signed(p_input_data);
+  end
+
+  always_comb begin: WEIGHT_TEMPORAL_SCHEDULE_BLOCK
+    w_weight_row_temporal_enable = 1'b0;
+    w_weight_row_temporal_index = 2'd0;
+    if ((st_input_current == READ_WEIGHTS) && p_input_valid) begin
+      if (r_weight_row_count == WEIGHT_ROW_COUNT_WIDTH'(2)) begin
+        w_weight_row_temporal_enable = 1'b1;
+        w_weight_row_temporal_index = 2'd0;
+      end else if (r_weight_row_count == WEIGHT_ROW_COUNT_WIDTH'(RAW_WEIGHT_WORDS - 1)) begin
+        w_weight_row_temporal_enable = 1'b1;
+        w_weight_row_temporal_index = 2'd1;
+      end
+    end else if ((st_conv_current == TRANSFORM) && r_weight_tile_valid) begin
+      w_weight_row_temporal_enable = 1'b1;
+      w_weight_row_temporal_index = 2'd2;
     end else if ((st_conv_current == HADAMARD) &&
-                 (r_conv_multiply_count < $bits(r_conv_multiply_count)'(STREAM_CYCLES - 1))) begin
-      w_weight_row_enable2 = 1'b1;
+                 (r_conv_multiply_count == 0)) begin
+      w_weight_row_temporal_enable = 1'b1;
+      w_weight_row_temporal_index = 2'd3;
     end
   end
 
-  // Each pair instance shares sign extension and the common 3-term partial
-  // sums used by its two Winograd rows.  The pair is enabled on the same
-  // cycles as the former independent row instances, so the capture boundary
-  // and the execution schedule remain unchanged.
-  WeightTransformRowPairConst #(.NBITS(NBITS), .ROW_PAIR(0)) weight_trf_pair0 (
-    .pin(r_weight_spatial), .enable(w_weight_row_enable0),
-    .pout0(w_weight_row0), .pout1(w_weight_row1));
-  WeightTransformRowPairConst #(.NBITS(NBITS), .ROW_PAIR(1)) weight_trf_pair1 (
-    .pin(r_weight_spatial), .enable(w_weight_row_enable2),
-    .pout0(w_weight_row2), .pout1(w_weight_row3));
+  // This is intentionally the only WeightTransformRowConst instance in this
+  // variant.  The parameter-free row selector is dynamic only for this
+  // temporal design; its widened arithmetic and ties-to-even rounding remain
+  // exactly the row-constant implementation below.
+  WeightTransformRowConst #(.NBITS(NBITS)) weight_trf_temporal (
+    .pin(w_weight_transform_pin),
+    .enable(w_weight_row_temporal_enable),
+    .row_index(w_weight_row_temporal_index),
+    .pout(w_weight_row_temporal));
+
+  always_ff @(posedge clk or posedge reset) begin: WEIGHT_TEMPORAL_CACHE_BLOCK
+    if (reset) begin
+      r_weight_row_cache0 <= '{default: '0};
+      r_weight_row_cache1 <= '{default: '0};
+      r_weight_row_cache2 <= '{default: '0};
+      r_weight_row_cache3 <= '{default: '0};
+    end else if (w_weight_row_temporal_enable) begin
+      unique case (w_weight_row_temporal_index)
+        2'd0: r_weight_row_cache0 <= w_weight_row_temporal;
+        2'd1: r_weight_row_cache1 <= w_weight_row_temporal;
+        2'd2: r_weight_row_cache2 <= w_weight_row_temporal;
+        2'd3: r_weight_row_cache3 <= w_weight_row_temporal;
+        default: begin end
+      endcase
+    end
+  end
 
   assign w_transform_feature[0] = r_transform_row[0];
   assign w_transform_feature[1] = r_transform_row[1];
@@ -1077,18 +1117,18 @@ module Conv
 endmodule
 
 // -----------------------------------------------------------------------------
-// Constant-row transform for the 3x3 spatial kernel used by TC2x2.  The
-// implementation below is retained for compatibility with archived variants;
-// the active prefetch design uses the shared two-row implementation that
-// follows it.  Every output is rounded once after its complete row sum, with
-// the same ties-to-even rule as the former full transform.
+// Constant-row transform for the 3x3 spatial kernel used by TC2x2.
+//
+// The temporal variant has one instance in Conv and selects a row at each
+// pre-existing capture edge.  Every output is rounded once after its complete
+// row sum with the same widened, ties-to-even rule as the row-constant design.
 // -----------------------------------------------------------------------------
 module WeightTransformRowConst #(
-    parameter int NBITS = 20,
-    parameter int ROW_INDEX = 0
+    parameter int NBITS = 20
   ) (
     input  logic signed [NBITS-1:0] pin [8:0],
     input  logic                    enable,
+    input  logic [1:0]              row_index,
     output logic        [NBITS-1:0] pout [3:0]
   );
   timeunit 1ns;
@@ -1124,15 +1164,12 @@ module WeightTransformRowConst #(
       weight[7] = {{(TRANSFORM_WIDTH-NBITS){pin[7][NBITS-1]}}, pin[7]};
       weight[8] = {{(TRANSFORM_WIDTH-NBITS){pin[8][NBITS-1]}}, pin[8]};
 
-      // ROW_INDEX is constant per instance.  This is intentionally not a
-      // run-time case on a signal: only one row's equations remain after
-      // elaboration/constant propagation in the synthesis tool.
-      if (ROW_INDEX == 0) begin
+      if (row_index == 2'd0) begin
         sum[0] = weight[0] <<< 2;
         sum[1] = -((weight[0] + weight[1] + weight[2]) <<< 1);
         sum[2] = ((-weight[0] + weight[1] - weight[2]) <<< 1);
         sum[3] = -(weight[2] <<< 2);
-      end else if (ROW_INDEX == 1) begin
+      end else if (row_index == 2'd1) begin
         sum[0] = -((weight[0] + weight[3] + weight[6]) <<< 1);
         sum[1] = weight[0] + weight[1] + weight[2] +
                  weight[3] + weight[4] + weight[5] +
@@ -1141,7 +1178,7 @@ module WeightTransformRowConst #(
                  weight[3] - weight[4] + weight[5] +
                  weight[6] - weight[7] + weight[8];
         sum[3] = (weight[2] + weight[5] + weight[8]) <<< 1;
-      end else if (ROW_INDEX == 2) begin
+      end else if (row_index == 2'd2) begin
         sum[0] = (-weight[0] + weight[3] - weight[6]) <<< 1;
         sum[1] = weight[0] + weight[1] + weight[2] -
                  weight[3] - weight[4] - weight[5] +
@@ -1181,100 +1218,6 @@ module WeightTransformRowConst #(
       pout[1] = rounded[1][NBITS-1:0];
       pout[2] = rounded[2][NBITS-1:0];
       pout[3] = rounded[3][NBITS-1:0];
-    end
-  end
-endmodule
-
-// Two-row spatial Winograd weight transform with shared partial sums.
-// ROW_PAIR=0 emits rows 0 and 1; ROW_PAIR=1 emits rows 2 and 3.  Keeping the
-// pair selection elaboration-time constant preserves the old operand-isolated
-// schedule while allowing synthesis to share the common sums within a pair.
-module WeightTransformRowPairConst #(
-    parameter int NBITS = 20,
-    parameter int ROW_PAIR = 0
-  ) (
-    input  logic signed [NBITS-1:0] pin [8:0],
-    input  logic                    enable,
-    output logic        [NBITS-1:0] pout0 [3:0],
-    output logic        [NBITS-1:0] pout1 [3:0]
-  );
-  timeunit 1ns;
-  timeprecision 1ps;
-
-  localparam int TRANSFORM_WIDTH = NBITS + 4;
-  logic signed [TRANSFORM_WIDTH-1:0] weight [0:8];
-  logic signed [TRANSFORM_WIDTH-1:0] sum [0:7];
-  logic signed [TRANSFORM_WIDTH-1:0] rounded [0:7];
-  logic signed [TRANSFORM_WIDTH-1:0] remainder [0:7];
-  logic signed [TRANSFORM_WIDTH-1:0] s0, s1, s2;
-  logic signed [TRANSFORM_WIDTH-1:0] b0, b1, b2;
-  logic signed [TRANSFORM_WIDTH-1:0] a0, a2, c0, c2;
-
-  always_comb begin: WEIGHT_TRANSFORM_ROW_PAIR_CONST_BLOCK
-    for (int unsigned i = 0; i < 9; i++) weight[i] = '0;
-    for (int unsigned i = 0; i < 8; i++) begin
-      sum[i] = '0;
-      rounded[i] = '0;
-      remainder[i] = '0;
-    end
-    s0 = '0; s1 = '0; s2 = '0;
-    b0 = '0; b1 = '0; b2 = '0;
-    a0 = '0; a2 = '0; c0 = '0; c2 = '0;
-    for (int unsigned i = 0; i < 4; i++) begin
-      pout0[i] = '0;
-      pout1[i] = '0;
-    end
-
-    if (enable) begin
-      for (int unsigned i = 0; i < 9; i++)
-        weight[i] = {{(TRANSFORM_WIDTH-NBITS){pin[i][NBITS-1]}}, pin[i]};
-
-      s0 = weight[0] + weight[1] + weight[2];
-      s1 = weight[3] + weight[4] + weight[5];
-      s2 = weight[6] + weight[7] + weight[8];
-      b0 = weight[0] - weight[1] + weight[2];
-      b1 = weight[3] - weight[4] + weight[5];
-      b2 = weight[6] - weight[7] + weight[8];
-      a0 = weight[0] + weight[3] + weight[6];
-      a2 = weight[2] + weight[5] + weight[8];
-      c0 = -weight[0] + weight[3] - weight[6];
-      c2 = weight[2] - weight[5] + weight[8];
-
-      // The same partial sums feed both rows in each pair.  They are formed
-      // once here instead of being rebuilt independently by two row modules.
-      if (ROW_PAIR == 0) begin
-        sum[0] = weight[0] <<< 2;
-        sum[1] = -(s0 <<< 1);
-        sum[2] = (-b0 <<< 1);
-        sum[3] = -(weight[2] <<< 2);
-        sum[4] = -(a0 <<< 1);
-        sum[5] = s0 + s1 + s2;
-        sum[6] = b0 + b1 + b2;
-        sum[7] = a2 <<< 1;
-      end else begin
-        sum[0] = c0 <<< 1;
-        sum[1] = s0 - s1 + s2;
-        sum[2] = b0 - b1 + b2;
-        sum[3] = c2 <<< 1;
-        sum[4] = -(weight[6] <<< 2);
-        sum[5] = s2 <<< 1;
-        sum[6] = b2 <<< 1;
-        sum[7] = weight[8] <<< 2;
-      end
-
-      for (int unsigned i = 0; i < 8; i++) begin
-        rounded[i] = sum[i] >>> 2;
-        remainder[i] = sum[i] - (rounded[i] <<< 2);
-        if ((remainder[i] > 2) || ((remainder[i] == 2) && rounded[i][0]))
-          rounded[i] = rounded[i] + 1;
-        else if ((remainder[i] < -2) || ((remainder[i] == -2) && rounded[i][0]))
-          rounded[i] = rounded[i] - 1;
-      end
-
-      for (int unsigned i = 0; i < 4; i++) begin
-        pout0[i] = rounded[i][NBITS-1:0];
-        pout1[i] = rounded[i+4][NBITS-1:0];
-      end
     end
   end
 endmodule
