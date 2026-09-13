@@ -1,7 +1,7 @@
 xrun(64): 23.03-s003: (c) Copyright 1995-2023 Cadence Design Systems, Inc.
-TOOL:	xrun(64)	23.03-s003: Started on Sep 12, 2026 at 22:40:52 -03
+TOOL:	xrun(64)	23.03-s003: Started on Sep 12, 2026 at 23:02:18 -03
 xrun
-	-f /tmp/fastconv-temporal1-flow/repo/rtl/conv2x2/synthesis/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-temporal1/sim/args.txt
+	-f /tmp/fastconv-temporal1-coeff-flow/repo/rtl/conv2x2/synthesis/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-temporal1/sim/args.txt
 		-smartorder
 		-work work
 		-top tb
@@ -10,16 +10,16 @@ xrun
 		-sdf_cmd_file sdf_cmd.cmd
 		-timescale 1ns/1ps
 		/pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v
-	/tmp/fastconv-temporal1-flow/repo/rtl/conv2x2/data/tcn4/sim/sim-032-3-3-normal/pack_data.sv
-	/tmp/fastconv-temporal1-flow/repo/rtl/conv2x2/pack-param/tcn4/pack_param.sv
-	/tmp/fastconv-temporal1-flow/repo/rtl/conv2x2/mult-matrices/stream/tcn4/mult_matrices.sv
-	/tmp/fastconv-temporal1-flow/repo/rtl/csa/csa_lib.sv
-	/tmp/fastconv-temporal1-flow/repo/rtl/multip/multip.sv
-	/tmp/fastconv-temporal1-flow/repo/rtl/mem/mem.sv
-	/tmp/fastconv-temporal1-flow/repo/rtl/conv2x2/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-temporal1.sv
-	/tmp/fastconv-temporal1-flow/repo/rtl/conv2x2/testbench.sv
-	/tmp/fastconv-temporal1-flow/repo/rtl/conv2x2/synthesis/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-temporal1/logical/results/gate_level/Conv_logic_mapped.v
-	-f /tmp/fastconv-temporal1-flow/repo/rtl/conv2x2/synthesis/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-temporal1/list-define.txt
+	/tmp/fastconv-temporal1-coeff-flow/repo/rtl/conv2x2/data/tcn4/sim/sim-032-3-3-normal/pack_data.sv
+	/tmp/fastconv-temporal1-coeff-flow/repo/rtl/conv2x2/pack-param/tcn4/pack_param.sv
+	/tmp/fastconv-temporal1-coeff-flow/repo/rtl/conv2x2/mult-matrices/stream/tcn4/mult_matrices.sv
+	/tmp/fastconv-temporal1-coeff-flow/repo/rtl/csa/csa_lib.sv
+	/tmp/fastconv-temporal1-coeff-flow/repo/rtl/multip/multip.sv
+	/tmp/fastconv-temporal1-coeff-flow/repo/rtl/mem/mem.sv
+	/tmp/fastconv-temporal1-coeff-flow/repo/rtl/conv2x2/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-temporal1.sv
+	/tmp/fastconv-temporal1-coeff-flow/repo/rtl/conv2x2/testbench.sv
+	/tmp/fastconv-temporal1-coeff-flow/repo/rtl/conv2x2/synthesis/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-temporal1/logical/results/gate_level/Conv_logic_mapped.v
+	-f /tmp/fastconv-temporal1-coeff-flow/repo/rtl/conv2x2/synthesis/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-temporal1/list-define.txt
 		-define NADDR=16
 		-define NBITS=20
 		-define LATENCY=1
@@ -2233,13 +2233,13 @@ file: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital
 		errors: 0, warnings: 0
 	primitive work.tsmc_xbuf:v
 		errors: 0, warnings: 0
-file: /tmp/fastconv-temporal1-flow/repo/rtl/conv2x2/data/tcn4/sim/sim-032-3-3-normal/pack_data.sv
+file: /tmp/fastconv-temporal1-coeff-flow/repo/rtl/conv2x2/data/tcn4/sim/sim-032-3-3-normal/pack_data.sv
 	package work.pack_data:sv
 		errors: 0, warnings: 0
-file: /tmp/fastconv-temporal1-flow/repo/rtl/conv2x2/pack-param/tcn4/pack_param.sv
+file: /tmp/fastconv-temporal1-coeff-flow/repo/rtl/conv2x2/pack-param/tcn4/pack_param.sv
 	package work.pack_param:sv
 		errors: 0, warnings: 0
-file: /tmp/fastconv-temporal1-flow/repo/rtl/conv2x2/mult-matrices/stream/tcn4/mult_matrices.sv
+file: /tmp/fastconv-temporal1-coeff-flow/repo/rtl/conv2x2/mult-matrices/stream/tcn4/mult_matrices.sv
 	module work.Transform:sv
 		errors: 0, warnings: 0
 	module work.InverseRow:sv
@@ -2256,7 +2256,7 @@ file: /tmp/fastconv-temporal1-flow/repo/rtl/conv2x2/mult-matrices/stream/tcn4/mu
 		errors: 0, warnings: 0
 	module work.MatrixA0:sv
 		errors: 0, warnings: 0
-file: /tmp/fastconv-temporal1-flow/repo/rtl/csa/csa_lib.sv
+file: /tmp/fastconv-temporal1-coeff-flow/repo/rtl/csa/csa_lib.sv
 	module work.FA:sv
 		errors: 0, warnings: 0
 	module work.CSA_1:sv
@@ -2283,21 +2283,21 @@ file: /tmp/fastconv-temporal1-flow/repo/rtl/csa/csa_lib.sv
 		errors: 0, warnings: 0
 	module work.CSA_18:sv
 		errors: 0, warnings: 0
-file: /tmp/fastconv-temporal1-flow/repo/rtl/multip/multip.sv
+file: /tmp/fastconv-temporal1-coeff-flow/repo/rtl/multip/multip.sv
 	module work.Multip:sv
 		errors: 0, warnings: 0
-file: /tmp/fastconv-temporal1-flow/repo/rtl/mem/mem.sv
+file: /tmp/fastconv-temporal1-coeff-flow/repo/rtl/mem/mem.sv
 	module work.Memory:sv
 		errors: 0, warnings: 0
-file: /tmp/fastconv-temporal1-flow/repo/rtl/conv2x2/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-temporal1.sv
+file: /tmp/fastconv-temporal1-coeff-flow/repo/rtl/conv2x2/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-temporal1.sv
 	module work.Conv:sv
 		errors: 0, warnings: 0
 	module work.WeightTransformRowConst:sv
 		errors: 0, warnings: 0
-file: /tmp/fastconv-temporal1-flow/repo/rtl/conv2x2/testbench.sv
+file: /tmp/fastconv-temporal1-coeff-flow/repo/rtl/conv2x2/testbench.sv
 	module work.tb:sv
 		errors: 0, warnings: 0
-file: /tmp/fastconv-temporal1-flow/repo/rtl/conv2x2/synthesis/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-temporal1/logical/results/gate_level/Conv_logic_mapped.v
+file: /tmp/fastconv-temporal1-coeff-flow/repo/rtl/conv2x2/synthesis/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-temporal1/logical/results/gate_level/Conv_logic_mapped.v
 	module work.RC_CG_MOD:v
 		errors: 0, warnings: 0
 	module work.RC_CG_MOD_1:v
@@ -2412,27 +2412,27 @@ file: /tmp/fastconv-temporal1-flow/repo/rtl/conv2x2/synthesis/conv-i20-h13-t08-o
 		errors: 0, warnings: 0
 	module work.InverseRowAccumulate:v
 		errors: 0, warnings: 0
-	module work.InverseRowAccumulate_364:v
+	module work.InverseRowAccumulate_422:v
 		errors: 0, warnings: 0
 	module work.InverseRow:v
 		errors: 0, warnings: 0
-	module work.InverseRow_363:v
+	module work.InverseRow_421:v
 		errors: 0, warnings: 0
 	module work.Multip:v
 		errors: 0, warnings: 0
-	module work.Multip_371:v
+	module work.Multip_429:v
 		errors: 0, warnings: 0
-	module work.Multip_370:v
+	module work.Multip_428:v
 		errors: 0, warnings: 0
-	module work.Multip_369:v
+	module work.Multip_427:v
 		errors: 0, warnings: 0
-	module work.Multip_368:v
+	module work.Multip_426:v
 		errors: 0, warnings: 0
-	module work.Multip_367:v
+	module work.Multip_425:v
 		errors: 0, warnings: 0
-	module work.Multip_366:v
+	module work.Multip_424:v
 		errors: 0, warnings: 0
-	module work.Multip_365:v
+	module work.Multip_423:v
 		errors: 0, warnings: 0
 	module work.MatrixC0:v
 		errors: 0, warnings: 0
@@ -2457,34 +2457,34 @@ file: /tmp/fastconv-temporal1-flow/repo/rtl/conv2x2/synthesis/conv-i20-h13-t08-o
 xmelab: *W,FLFNOF: No SDF file specified, but annotation parameters were present, in SDF annotation command file sdf_cmd.cmd, line 6.
     .p_input_addr(p_input_addr),
                              |
-xmelab: *W,CUVMPW (/tmp/fastconv-temporal1-flow/repo/rtl/conv2x2/testbench.sv,108|29): port sizes differ in port connection(12/16) for the instance(tb) .
+xmelab: *W,CUVMPW (/tmp/fastconv-temporal1-coeff-flow/repo/rtl/conv2x2/testbench.sv,108|29): port sizes differ in port connection(12/16) for the instance(tb) .
     .p_output_addr(p_output_addr),
                                |
-xmelab: *W,CUVMPW (/tmp/fastconv-temporal1-flow/repo/rtl/conv2x2/testbench.sv,113|31): port sizes differ in port connection(12/16) for the instance(tb) .
+xmelab: *W,CUVMPW (/tmp/fastconv-temporal1-coeff-flow/repo/rtl/conv2x2/testbench.sv,113|31): port sizes differ in port connection(12/16) for the instance(tb) .
     .feature(w_transform_feature[0]), .weight(r_input_weight[0]), .product(w_conv_product[0]));
                                                                                         |
-xmelab: *W,CUVMPW (/tmp/fastconv-temporal1-flow/repo/rtl/conv2x2/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-temporal1.sv,882|88): port sizes differ in port connection(28/20) for the instance(tb.dut) .
+xmelab: *W,CUVMPW (/tmp/fastconv-temporal1-coeff-flow/repo/rtl/conv2x2/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-temporal1.sv,882|88): port sizes differ in port connection(28/20) for the instance(tb.dut) .
     .feature(w_transform_feature[1]), .weight(r_input_weight[1]), .product(w_conv_product[1]));
                                                                                         |
-xmelab: *W,CUVMPW (/tmp/fastconv-temporal1-flow/repo/rtl/conv2x2/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-temporal1.sv,884|88): port sizes differ in port connection(28/20) for the instance(tb.dut) .
+xmelab: *W,CUVMPW (/tmp/fastconv-temporal1-coeff-flow/repo/rtl/conv2x2/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-temporal1.sv,884|88): port sizes differ in port connection(28/20) for the instance(tb.dut) .
     .feature(w_transform_feature[2]), .weight(r_input_weight[2]), .product(w_conv_product[2]));
                                                                                         |
-xmelab: *W,CUVMPW (/tmp/fastconv-temporal1-flow/repo/rtl/conv2x2/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-temporal1.sv,886|88): port sizes differ in port connection(28/20) for the instance(tb.dut) .
+xmelab: *W,CUVMPW (/tmp/fastconv-temporal1-coeff-flow/repo/rtl/conv2x2/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-temporal1.sv,886|88): port sizes differ in port connection(28/20) for the instance(tb.dut) .
     .feature(w_transform_feature[3]), .weight(r_input_weight[3]), .product(w_conv_product[3]));
                                                                                         |
-xmelab: *W,CUVMPW (/tmp/fastconv-temporal1-flow/repo/rtl/conv2x2/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-temporal1.sv,888|88): port sizes differ in port connection(28/20) for the instance(tb.dut) .
+xmelab: *W,CUVMPW (/tmp/fastconv-temporal1-coeff-flow/repo/rtl/conv2x2/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-temporal1.sv,888|88): port sizes differ in port connection(28/20) for the instance(tb.dut) .
   Multip #(.QUANT(QUANT), .NBITS(NBITS)) multip4(.feature(w_transform_feature[4]), .weight(r_input_weight[4]), .product(w_conv_product[4]));
                                                                                                                                      |
-xmelab: *W,CUVMPW (/tmp/fastconv-temporal1-flow/repo/rtl/conv2x2/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-temporal1.sv,889|133): port sizes differ in port connection(28/20) for the instance(tb.dut) .
+xmelab: *W,CUVMPW (/tmp/fastconv-temporal1-coeff-flow/repo/rtl/conv2x2/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-temporal1.sv,889|133): port sizes differ in port connection(28/20) for the instance(tb.dut) .
   Multip #(.QUANT(QUANT), .NBITS(NBITS)) multip5(.feature(w_transform_feature[5]), .weight(r_input_weight[5]), .product(w_conv_product[5]));
                                                                                                                                      |
-xmelab: *W,CUVMPW (/tmp/fastconv-temporal1-flow/repo/rtl/conv2x2/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-temporal1.sv,890|133): port sizes differ in port connection(28/20) for the instance(tb.dut) .
+xmelab: *W,CUVMPW (/tmp/fastconv-temporal1-coeff-flow/repo/rtl/conv2x2/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-temporal1.sv,890|133): port sizes differ in port connection(28/20) for the instance(tb.dut) .
   Multip #(.QUANT(QUANT), .NBITS(NBITS)) multip6(.feature(w_transform_feature[6]), .weight(r_input_weight[6]), .product(w_conv_product[6]));
                                                                                                                                      |
-xmelab: *W,CUVMPW (/tmp/fastconv-temporal1-flow/repo/rtl/conv2x2/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-temporal1.sv,891|133): port sizes differ in port connection(28/20) for the instance(tb.dut) .
+xmelab: *W,CUVMPW (/tmp/fastconv-temporal1-coeff-flow/repo/rtl/conv2x2/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-temporal1.sv,891|133): port sizes differ in port connection(28/20) for the instance(tb.dut) .
   Multip #(.QUANT(QUANT), .NBITS(NBITS)) multip7(.feature(w_transform_feature[7]), .weight(r_input_weight[7]), .product(w_conv_product[7]));
                                                                                                                                      |
-xmelab: *W,CUVMPW (/tmp/fastconv-temporal1-flow/repo/rtl/conv2x2/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-temporal1.sv,892|133): port sizes differ in port connection(28/20) for the instance(tb.dut) .
+xmelab: *W,CUVMPW (/tmp/fastconv-temporal1-coeff-flow/repo/rtl/conv2x2/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-temporal1.sv,892|133): port sizes differ in port connection(28/20) for the instance(tb.dut) .
 	Annotating SDF timing data:
 		Compiled SDF file:     Conv_analysis_view_0p90v_25c_captyp_nominal.sdf.X
 		Log file:              ./sdf_log.log
@@ -2994,7 +2994,7 @@ xmelab: *W,SDFINF: Instance sub_78_109_g1260 not found at scope level inverse_ro
 xmelab: *W,SDFINF: Instance sub_78_109_g1261 not found at scope level inverse_row_acc <../logical/results/gate_level/Conv_analysis_view_0p90v_25c_captyp_nominal.sdf, line 5373>.
 xmelab: *W,SDFINF: Instance sub_78_109_g1261 not found at scope level inverse_row_acc <../logical/results/gate_level/Conv_analysis_view_0p90v_25c_captyp_nominal.sdf, line 5373>.
 xmelab: *W,MXWARN: Reached maximum warning limit for 'SDFINF'(1000).
-	Annotation completed with 0 Errors and 31927 Warnings
+	Annotation completed with 0 Errors and 26329 Warnings
 	Building instance overlay tables: .................... Done
 	Generating native compiled code:
 		work.Memory:sv <0x45a8e3e5>
@@ -3007,8 +3007,8 @@ xmelab: *W,MXWARN: Reached maximum warning limit for 'SDFINF'(1000).
 			streams:   2, words:   903
 		work.Multip:sv <0x51a32c36>
 			streams:   2, words:   479
-		work.WeightTransformRowConst:sv <0x75fd74fb>
-			streams:   1, words: 28398
+		work.WeightTransformRowConst:sv <0x57f0af14>
+			streams:   2, words: 43851
 		work.MatrixC1:sv <0x145df725>
 			streams:  16, words:  7049
 		work.MatrixC0:sv <0x7a0ca764>
@@ -3029,7 +3029,7 @@ xmelab: *W,MXWARN: Reached maximum warning limit for 'SDFINF'(1000).
 		                 Instances  Unique
 		Modules:                21      10
 		Verilog packages:        2       2
-		Registers:             180     154
+		Registers:             189     163
 		Scalar wires:           45       -
 		Vectored wires:        150       -
 		Always blocks:          42      37
@@ -3043,6 +3043,6 @@ xcelium> source /soft64/cadence/ferramentas/XCELIUM2303/tools/xcelium/files/xmsi
 xcelium> run
 2x2 simulation passed: inverse_tiles=2025 cycles=21892 valid_writes=8100 input_samples_clipped=0 invalid_output_beats=0
 Simulation complete via $finish(1) at time 218945 NS + 0
-/tmp/fastconv-temporal1-flow/repo/rtl/conv2x2/testbench.sv:233     $finish;
+/tmp/fastconv-temporal1-coeff-flow/repo/rtl/conv2x2/testbench.sv:233     $finish;
 xcelium> exit
-TOOL:	xrun(64)	23.03-s003: Exiting on Sep 12, 2026 at 22:41:16 -03  (total: 00:00:24)
+TOOL:	xrun(64)	23.03-s003: Exiting on Sep 12, 2026 at 23:02:43 -03  (total: 00:00:25)
