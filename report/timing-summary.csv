@@ -1,5 +1,4 @@
 Project,view,data_path_ps,required_time_ps,slack_ps,reported_margin_ps
-Conv2x2-conv-i16-h13-t08-o4-m08-stream08-rowconst4-exact,analysis_view_0p81v_125c_capwst_slowest,1970.0,1970.0,0.0,0.0
 Conv2x2-conv-i16-h13-t08-o4-m08-stream08-wstream4,analysis_view_0p81v_125c_capwst_slowest,1971.0,1971.0,0.0,0.0
 Conv2x2-conv-i16-h16-t00-o4-m08-stream00,analysis_view_0p81v_125c_capwst_slowest,1976.0,1976.0,0.0,0.0
 Conv2x2-conv-i16-h16-t00-o4-m16-all,analysis_view_0p81v_125c_capwst_slowest,1975.0,1975.0,0.0,0.0
@@ -8,7 +7,6 @@ Conv2x2-conv-i16-h16-t08-o4-m08-stream08,analysis_view_0p81v_125c_capwst_slowest
 Conv2x2-conv-i16-h16-t16-o4-m08-std,analysis_view_0p81v_125c_capwst_slowest,999.0,1000.0,1.0,1.0
 Conv2x2-conv-i16-h20-t08-o4-m08-stream08-exact,analysis_view_0p81v_125c_capwst_slowest,1970.0,1970.0,0.0,0.0
 Conv2x2-conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4,analysis_view_0p81v_125c_capwst_slowest,1969.0,1969.0,0.0,0.0
-Conv2x2-conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-temporal1,analysis_view_0p81v_125c_capwst_slowest,1971.0,1971.0,0.0,0.0
 Conv2x2-conv-i20-h16-t08-o4-m08-stream08-prefetch4,analysis_view_0p81v_125c_capwst_slowest,1970.0,1971.0,0.0,0.0
 Conv3x3-ifn9-06mac,analysis_view_0p81v_125c_capwst_slowest,1000.0,1000.0,0.0,0.0
 Conv3x3stream-if-ifn9-06mac,analysis_view_0p81v_125c_capwst_slowest,998.0,1000.0,2.0,2.0
