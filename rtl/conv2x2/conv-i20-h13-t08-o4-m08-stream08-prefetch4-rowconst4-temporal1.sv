@@ -1139,11 +1139,37 @@ module WeightTransformRowConst #(
   localparam int TRANSFORM_WIDTH = NBITS + 4;
 
   logic signed [TRANSFORM_WIDTH-1:0] weight [0:8];
+  // The row selector is applied to narrow coefficients before arithmetic.
+  // This keeps one shared adder tree per output instead of elaborating four
+  // complete row expressions and multiplexing their widened results.
+  logic signed [3:0] coeff [0:3][0:8];
+  logic signed [TRANSFORM_WIDTH-1:0] term [0:3][0:8];
   logic signed [TRANSFORM_WIDTH-1:0] sum [0:3];
   logic signed [TRANSFORM_WIDTH-1:0] rounded [0:3];
   logic signed [TRANSFORM_WIDTH-1:0] remainder [0:3];
 
+  function automatic logic signed [TRANSFORM_WIDTH-1:0] f_apply_coeff(
+      input logic signed [TRANSFORM_WIDTH-1:0] value,
+      input logic signed [3:0] coefficient
+    );
+    case (coefficient)
+      4'sd4:  f_apply_coeff = value <<< 2;
+      4'sd2:  f_apply_coeff = value <<< 1;
+      4'sd1:  f_apply_coeff = value;
+      -4'sd1: f_apply_coeff = -value;
+      -4'sd2: f_apply_coeff = -(value <<< 1);
+      -4'sd4: f_apply_coeff = -(value <<< 2);
+      default: f_apply_coeff = '0;
+    endcase
+  endfunction
+
   always_comb begin: WEIGHT_TRANSFORM_ROW_CONST_BLOCK
+    for (int unsigned k = 0; k < 4; k++) begin
+      for (int unsigned i = 0; i < 9; i++) begin
+        coeff[k][i] = '0;
+        term[k][i] = '0;
+      end
+    end
     weight[0] = '0; weight[1] = '0; weight[2] = '0;
     weight[3] = '0; weight[4] = '0; weight[5] = '0;
     weight[6] = '0; weight[7] = '0; weight[8] = '0;
@@ -1164,34 +1190,47 @@ module WeightTransformRowConst #(
       weight[7] = {{(TRANSFORM_WIDTH-NBITS){pin[7][NBITS-1]}}, pin[7]};
       weight[8] = {{(TRANSFORM_WIDTH-NBITS){pin[8][NBITS-1]}}, pin[8]};
 
-      if (row_index == 2'd0) begin
-        sum[0] = weight[0] <<< 2;
-        sum[1] = -((weight[0] + weight[1] + weight[2]) <<< 1);
-        sum[2] = ((-weight[0] + weight[1] - weight[2]) <<< 1);
-        sum[3] = -(weight[2] <<< 2);
-      end else if (row_index == 2'd1) begin
-        sum[0] = -((weight[0] + weight[3] + weight[6]) <<< 1);
-        sum[1] = weight[0] + weight[1] + weight[2] +
-                 weight[3] + weight[4] + weight[5] +
-                 weight[6] + weight[7] + weight[8];
-        sum[2] = weight[0] - weight[1] + weight[2] +
-                 weight[3] - weight[4] + weight[5] +
-                 weight[6] - weight[7] + weight[8];
-        sum[3] = (weight[2] + weight[5] + weight[8]) <<< 1;
-      end else if (row_index == 2'd2) begin
-        sum[0] = (-weight[0] + weight[3] - weight[6]) <<< 1;
-        sum[1] = weight[0] + weight[1] + weight[2] -
-                 weight[3] - weight[4] - weight[5] +
-                 weight[6] + weight[7] + weight[8];
-        sum[2] = weight[0] - weight[1] + weight[2] -
-                 weight[3] + weight[4] - weight[5] +
-                 weight[6] - weight[7] + weight[8];
-        sum[3] = (weight[2] - weight[5] + weight[8]) <<< 1;
-      end else begin
-        sum[0] = -(weight[6] <<< 2);
-        sum[1] = (weight[6] + weight[7] + weight[8]) <<< 1;
-        sum[2] = (weight[6] - weight[7] + weight[8]) <<< 1;
-        sum[3] = weight[8] <<< 2;
+      // Select only the narrow coefficient pattern for the active row.  The
+      // selected terms then feed one common sum network per output.
+      case (row_index)
+        2'd0: begin
+          coeff[0][0] = 4;  coeff[1][0] = -2; coeff[1][1] = -2; coeff[1][2] = -2;
+          coeff[2][0] = -2; coeff[2][1] = 2;  coeff[2][2] = -2; coeff[3][2] = -4;
+        end
+        2'd1: begin
+          coeff[0][0] = -2; coeff[0][3] = -2; coeff[0][6] = -2;
+          coeff[1][0] = 1;  coeff[1][1] = 1;  coeff[1][2] = 1;
+          coeff[1][3] = 1;  coeff[1][4] = 1;  coeff[1][5] = 1;
+          coeff[1][6] = 1;  coeff[1][7] = 1;  coeff[1][8] = 1;
+          coeff[2][0] = 1;  coeff[2][1] = -1; coeff[2][2] = 1;
+          coeff[2][3] = 1;  coeff[2][4] = -1; coeff[2][5] = 1;
+          coeff[2][6] = 1;  coeff[2][7] = -1; coeff[2][8] = 1;
+          coeff[3][2] = 2;  coeff[3][5] = 2;  coeff[3][8] = 2;
+        end
+        2'd2: begin
+          coeff[0][0] = -2; coeff[0][3] = 2;  coeff[0][6] = -2;
+          coeff[1][0] = 1;  coeff[1][1] = 1;  coeff[1][2] = 1;
+          coeff[1][3] = -1; coeff[1][4] = -1; coeff[1][5] = -1;
+          coeff[1][6] = 1;  coeff[1][7] = 1;  coeff[1][8] = 1;
+          coeff[2][0] = 1;  coeff[2][1] = -1; coeff[2][2] = 1;
+          coeff[2][3] = -1; coeff[2][4] = 1;  coeff[2][5] = -1;
+          coeff[2][6] = 1;  coeff[2][7] = -1; coeff[2][8] = 1;
+          coeff[3][2] = 2;  coeff[3][5] = -2; coeff[3][8] = 2;
+        end
+        default: begin
+          coeff[0][6] = -4;
+          coeff[1][6] = 2;  coeff[1][7] = 2;  coeff[1][8] = 2;
+          coeff[2][6] = 2;  coeff[2][7] = -2; coeff[2][8] = 2;
+          coeff[3][8] = 4;
+        end
+      endcase
+
+      for (int unsigned k = 0; k < 4; k++) begin
+        for (int unsigned i = 0; i < 9; i++)
+          term[k][i] = f_apply_coeff(weight[i], coeff[k][i]);
+        sum[k] = term[k][0] + term[k][1] + term[k][2] +
+                 term[k][3] + term[k][4] + term[k][5] +
+                 term[k][6] + term[k][7] + term[k][8];
       end
 
       // Round each completed sum exactly once.  The subtraction is also
