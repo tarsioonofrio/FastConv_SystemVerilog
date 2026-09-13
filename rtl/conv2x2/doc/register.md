@@ -690,7 +690,7 @@ ser recuperados com `--include-archived`.
 | Stream04 8 MACs | `conv-i16-h16-t04-o4-m08-stream04.sv` | PASS | 10.338 | 15.755,807 | 23.675 | 0,758305 | 179,540 |
 | Stream08 8 MACs | `conv-i16-h16-t08-o4-m08-stream08.sv` | PASS | 10.254 | 15.660,389 | 25.699 | 0,664592 | 170,810 |
 | Stream08 wstream4 8 MACs | `conv-i16-h13-t08-o4-m08-stream08-wstream4.sv` | PASS | 11.778 | 18.673,687 | 25.654 | 0,672691 | 172,589 |
-| Stream08 exact 8 MACs | `conv-i16-h20-t08-o4-m08-stream08-exact.sv` | PASS | 11.153 | 17.007,726 | 25.717 | 0,733399 | 188,627 |
+| Stream08 exact 8 MACs (arquivado) | `archive/m08/conv-i16-h20-t08-o4-m08-stream08-exact.sv` | PASS | 11.153 | 17.007,726 | 25.717 | 0,733399 | 188,627 |
 | Prefetch4 8 MACs | `conv-i20-h16-t08-o4-m08-stream08-prefetch4.sv` | PASS | 10.506 | 16.073,141 | 21.919 | 0,776661 | 170,256 |
 | Prefetch4 rowconst4 8 MACs | `conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4.sv` | PASS | 12.222 | 19.311,310 | 21.892 | 0,776556 | 170,023 |
 | Prefetch4 rowconst4 temporal1 | `archive/m08/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-temporal1.sv` | PASS | 13.193 | 20.432,097 | 21.892 | 0,984856 | 215,629 |
@@ -1051,7 +1051,7 @@ registrar tanto a quantidade de palavras quanto a largura de cada banco.
 
 ### 19.4 `stream08-exact`
 
-Arquivo ativo: `conv-i16-h20-t08-o4-m08-stream08-exact.sv`.
+Arquivo arquivado: `archive/m08/conv-i16-h20-t08-o4-m08-stream08-exact.sv`.
 
 Esta variante recebe os 16 numeradores de pesos ja transformados e exatos.
 Ela registra:
@@ -1410,7 +1410,7 @@ conv-i16-h13-t08-o4-m08-stream08-wstream4.sv
 conv-i16-h13-t08-o4-m08-stream08-rowconst4-exact.sv
 conv-i20-h16-t08-o4-m08-stream08-prefetch4.sv
 conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4.sv
-conv-i16-h20-t08-o4-m08-stream08-exact.sv
+archive/m08/conv-i16-h20-t08-o4-m08-stream08-exact.sv
 conv-i16-h16-t00-o4-m08-stream00.sv
 ```
 
@@ -1601,8 +1601,9 @@ mas não de uma segunda cópia da FSM de endereçamento completa.
 ## 29. Alternativa experimental com bancos sensíveis a nível
 
 O arquivo
-`conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-latch.sv` preserva o
-baseline ativo e testa uma redução física de flip-flops usando `always_latch`.
+`archive/m08/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-latch.sv`
+preserva o baseline histórico e testa uma redução física de flip-flops usando
+`always_latch`.
 Não é uma conversão mecânica de todos os `always_ff`: a transparência de um
 latch seria insegura nos bancos que têm realimentação, acumulam produtos ou são
 consumidos no mesmo ciclo em que mudam.
@@ -1642,8 +1643,8 @@ O build `stream08-prefetch4-rowconst4-latch-8mac` e o lint direcionado
 passaram. Os latches usam atribuição bloqueante dentro de `always_latch`,
 porque a atualização é sensível ao nível; os blocos de controle continuam
 usando atribuição não bloqueante em `always_ff`. A configuração isolada
-`synthesis/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-latch/` foi
-criada com os mesmos constraints e corners do baseline. A síntese lógica,
+`archive/m08/synthesis/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-latch/`
+foi criada com os mesmos constraints e corners do baseline. A síntese lógica,
 simulação anotada e power foram executados no commit `9ae63cf7` e os resultados
 medidos são:
 
@@ -1660,6 +1661,6 @@ nas duas versões. A decomposição nominal da variante latch é `register =
 0,130732 mW`, `latch = 0,00578648 mW`, `logic = 0,584752 mW` e `clock =
 0,0197341 mW`.
 
-A comparação deve usar
+A comparação histórica deve usar
 `synthesis/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4/` como baseline,
 mantendo os mesmos constraints, corner, atividade e critério de ciclos.
