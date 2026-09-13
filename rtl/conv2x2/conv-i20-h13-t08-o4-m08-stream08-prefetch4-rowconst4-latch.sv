@@ -51,12 +51,13 @@ module Conv
       f_width_min1 = $clog2(x);
   endfunction
 
-  logic [NBITS-1:0] r_input_feat[(CONV_INPUT_SIZE * CONV_INPUT_SIZE) - 1:0];  // input feature register bank
-  logic [NBITS-1:0] w_input_feat_next[(CONV_INPUT_SIZE * CONV_INPUT_SIZE) - 1:0];  // next values for feature shift bank
+  logic [NBITS-1:0] r_input_feat[(CONV_INPUT_SIZE * CONV_INPUT_SIZE) - 1:0];  // active input feature latch bank
+  logic [NBITS-1:0] r_input_feat_stage[(CONV_INPUT_SIZE * CONV_INPUT_SIZE) - 1:0];  // edge-captured input staging bank
+  logic [NBITS-1:0] w_input_feat_next[(CONV_INPUT_SIZE * CONV_INPUT_SIZE) - 1:0];
   logic [NADDR-1:0] r_input_addr_feat;
   logic [NADDR-1:0] r_input_addr_kernel;
   logic [NADDR-1:0] r_input_window_next;
-  logic [(CONV_INPUT_SIZE * CONV_INPUT_SIZE) - 1:0] w_input_feat_en;  // write-enable per feature register
+  logic [(CONV_INPUT_SIZE * CONV_INPUT_SIZE) - 1:0] w_input_feat_en;
   logic w_input_feat_write_valid;
   // Four-word prefetch bank for the first new column of the next tile.
   localparam int unsigned PREFETCH_WORDS = CONV_INPUT_SIZE;
@@ -211,6 +212,7 @@ module Conv
     HOLD_WRITE,
     WAIT_PREFETCH,
     CONV_INPUT,
+    FEAT_LATCH_CLOSE,
     TRANSFER,
     NEXT_ROW_INPUT
   } type_st_input;
@@ -322,14 +324,18 @@ module Conv
         else st_input_next = READ_IN_10A;
       READ_WEIGHTS:
         if (r_weight_row_count == WEIGHT_ROW_COUNT_WIDTH'(RAW_WEIGHT_WORDS - 1)) st_input_next = HOLD_WRITE;
-      READ_IN_10A: if (r_input_addr_count == (CONV_INPUT_SIZE - 1)) st_input_next = READ_IN_10B;  // read 5*5 values
+      READ_IN_10A: if (r_input_addr_count == (CONV_INPUT_SIZE - 1)) st_input_next = READ_IN_10B;
       READ_IN_10B: if (r_input_addr_count == (CONV_INPUT_SIZE - 1)) st_input_next = READ_IN_8C;
       // Capture the first new column while the current convolution runs.
       READ_IN_8C: if (r_input_addr_count == (CONV_INPUT_SIZE - 1))
                     st_input_next = w_input_prefetch_mode ? WAIT_PREFETCH : READ_IN_8D;
       WAIT_PREFETCH:
         if (w_input_prefetch_commit) st_input_next = READ_IN_8D;
-      READ_IN_8D: if (r_input_addr_count == (CONV_INPUT_SIZE - 1)) st_input_next = CONV_INPUT;
+      READ_IN_8D: if (r_input_addr_count == (CONV_INPUT_SIZE - 1)) st_input_next = FEAT_LATCH_CLOSE;
+      // Keep the feature latch closed for one full cycle after the final RAM
+      // beat.  This isolates the combinational transform from any residual
+      // change on p_input_data or p_input_valid before convolution starts.
+      FEAT_LATCH_CLOSE: st_input_next = CONV_INPUT;
       CONV_INPUT: st_input_next = TRANSFER;
       TRANSFER: st_input_next = HOLD_WRITE;  // p_start the convolution
       HOLD_WRITE:
@@ -461,9 +467,9 @@ module Conv
     end
   end
 
-  // -------------------------------------------------------------------------
-  // READING REGISTER BANK
-  // -------------------------------------------------------------------------
+  // Form the next staging-bank contents with the original edge-based input
+  // schedule.  The active latch is updated only after the complete tile is
+  // available, so this combinational feedback never reaches the latch D pin.
   always_comb begin: INPUT_SHIFT_DATA_BLOCK
     w_input_feat_next[0] = p_input_data;
     w_input_feat_next[1] = p_input_data;
@@ -482,34 +488,34 @@ module Conv
     w_input_feat_next[14] = p_input_data;
     w_input_feat_next[15] = p_input_data;
 
-    w_input_feat_next[0] = (st_input_current == READ_IN_10A) ? p_input_data : r_input_feat[2];
-    w_input_feat_next[1] = (st_input_current == READ_IN_10B) ? p_input_data : r_input_feat[3];
-    w_input_feat_next[4] = (st_input_current == READ_IN_10A) ? p_input_data : r_input_feat[6];
-    w_input_feat_next[5] = (st_input_current == READ_IN_10B) ? p_input_data : r_input_feat[7];
+    w_input_feat_next[0] = (st_input_current == READ_IN_10A) ? p_input_data : r_input_feat_stage[2];
+    w_input_feat_next[1] = (st_input_current == READ_IN_10B) ? p_input_data : r_input_feat_stage[3];
+    w_input_feat_next[4] = (st_input_current == READ_IN_10A) ? p_input_data : r_input_feat_stage[6];
+    w_input_feat_next[5] = (st_input_current == READ_IN_10B) ? p_input_data : r_input_feat_stage[7];
 
     if (w_input_feature_shift) begin
-      w_input_feat_next[0] = r_input_feat[2];
-      w_input_feat_next[1] = r_input_feat[3];
-      w_input_feat_next[4] = r_input_feat[6];
-      w_input_feat_next[5] = r_input_feat[7];
-      w_input_feat_next[8] = r_input_feat[10];
-      w_input_feat_next[9] = r_input_feat[11];
-      w_input_feat_next[12] = r_input_feat[14];
-      w_input_feat_next[13] = r_input_feat[15];
+      w_input_feat_next[0] = r_input_feat_stage[2];
+      w_input_feat_next[1] = r_input_feat_stage[3];
+      w_input_feat_next[4] = r_input_feat_stage[6];
+      w_input_feat_next[5] = r_input_feat_stage[7];
+      w_input_feat_next[8] = r_input_feat_stage[10];
+      w_input_feat_next[9] = r_input_feat_stage[11];
+      w_input_feat_next[12] = r_input_feat_stage[14];
+      w_input_feat_next[13] = r_input_feat_stage[15];
     end
 
     if (w_input_prefetch_commit) begin
-      w_input_feat_next[0] = r_input_feat[2];
-      w_input_feat_next[1] = r_input_feat[3];
+      w_input_feat_next[0] = r_input_feat_stage[2];
+      w_input_feat_next[1] = r_input_feat_stage[3];
       w_input_feat_next[2] = r_input_prefetch[0];
-      w_input_feat_next[4] = r_input_feat[6];
-      w_input_feat_next[5] = r_input_feat[7];
+      w_input_feat_next[4] = r_input_feat_stage[6];
+      w_input_feat_next[5] = r_input_feat_stage[7];
       w_input_feat_next[6] = r_input_prefetch[1];
-      w_input_feat_next[8] = r_input_feat[10];
-      w_input_feat_next[9] = r_input_feat[11];
+      w_input_feat_next[8] = r_input_feat_stage[10];
+      w_input_feat_next[9] = r_input_feat_stage[11];
       w_input_feat_next[10] = r_input_prefetch[2];
-      w_input_feat_next[12] = r_input_feat[14];
-      w_input_feat_next[13] = r_input_feat[15];
+      w_input_feat_next[12] = r_input_feat_stage[14];
+      w_input_feat_next[13] = r_input_feat_stage[15];
       w_input_feat_next[14] = r_input_prefetch[3];
     end
 
@@ -526,7 +532,7 @@ module Conv
                                  (INPUT_FEAT_INDEX_WIDTH'(r_input_addr_count) *
                                   INPUT_FEAT_INDEX_WIDTH'(CONV_INPUT_SIZE));
 
-  always_comb begin: INPUT_SHIFT_WE_BLOCK  // 'w_input_feat_en' to write into the register bank r_input_feat
+  always_comb begin: INPUT_SHIFT_WE_BLOCK
     w_input_feat_en = '0;
     case (st_input_current)
       READ_IN_10A, READ_IN_10B, READ_IN_8C, READ_IN_8D:
@@ -604,29 +610,28 @@ module Conv
     end
   end
 
-  always_ff @(posedge clk or posedge reset) begin: INPUT_FEATURE_REG_BLOCK  // initializes and write into the register bank and convolution register bank
+  // The active feature bank is a latch, but it is opened only in the explicit
+  // FEAT_LATCH_CLOSE state.  The staging bank below retains the original
+  // edge-triggered read/shift schedule; copying it here avoids exposing a
+  // partially updated tile to the combinational transform.
+  always_latch begin: INPUT_FEATURE_REG_LATCH_BLOCK
     if (reset) begin
-      r_input_feat[0] <= '0; r_input_feat[1] <= '0; r_input_feat[2] <= '0; r_input_feat[3] <= '0;
-      r_input_feat[4] <= '0; r_input_feat[5] <= '0; r_input_feat[6] <= '0; r_input_feat[7] <= '0;
-      r_input_feat[8] <= '0; r_input_feat[9] <= '0; r_input_feat[10] <= '0; r_input_feat[11] <= '0;
-      r_input_feat[12] <= '0; r_input_feat[13] <= '0; r_input_feat[14] <= '0; r_input_feat[15] <= '0;
+      r_input_feat = '{default: '0};
+    end else if (st_input_current == FEAT_LATCH_CLOSE) begin
+      for (int unsigned i = 0; i < CONV_INPUT_SIZE * CONV_INPUT_SIZE; i++) begin
+        r_input_feat[i] = r_input_feat_stage[i];
+      end
+    end
+  end
+
+  always_ff @(posedge clk or posedge reset) begin: INPUT_FEATURE_STAGE_BLOCK
+    if (reset) begin
+      r_input_feat_stage <= '{default: '0};
     end else begin
-      if (w_input_feat_en[0] && w_input_feat_write_valid) r_input_feat[0] <= w_input_feat_next[0];
-      if (w_input_feat_en[1] && w_input_feat_write_valid) r_input_feat[1] <= w_input_feat_next[1];
-      if (w_input_feat_en[2] && w_input_feat_write_valid) r_input_feat[2] <= w_input_feat_next[2];
-      if (w_input_feat_en[3] && w_input_feat_write_valid) r_input_feat[3] <= w_input_feat_next[3];
-      if (w_input_feat_en[4] && w_input_feat_write_valid) r_input_feat[4] <= w_input_feat_next[4];
-      if (w_input_feat_en[5] && w_input_feat_write_valid) r_input_feat[5] <= w_input_feat_next[5];
-      if (w_input_feat_en[6] && w_input_feat_write_valid) r_input_feat[6] <= w_input_feat_next[6];
-      if (w_input_feat_en[7] && w_input_feat_write_valid) r_input_feat[7] <= w_input_feat_next[7];
-      if (w_input_feat_en[8] && w_input_feat_write_valid) r_input_feat[8] <= w_input_feat_next[8];
-      if (w_input_feat_en[9] && w_input_feat_write_valid) r_input_feat[9] <= w_input_feat_next[9];
-      if (w_input_feat_en[10] && w_input_feat_write_valid) r_input_feat[10] <= w_input_feat_next[10];
-      if (w_input_feat_en[11] && w_input_feat_write_valid) r_input_feat[11] <= w_input_feat_next[11];
-      if (w_input_feat_en[12] && w_input_feat_write_valid) r_input_feat[12] <= w_input_feat_next[12];
-      if (w_input_feat_en[13] && w_input_feat_write_valid) r_input_feat[13] <= w_input_feat_next[13];
-      if (w_input_feat_en[14] && w_input_feat_write_valid) r_input_feat[14] <= w_input_feat_next[14];
-      if (w_input_feat_en[15] && w_input_feat_write_valid) r_input_feat[15] <= w_input_feat_next[15];
+      for (int unsigned i = 0; i < CONV_INPUT_SIZE * CONV_INPUT_SIZE; i++) begin
+        if (w_input_feat_en[i] && w_input_feat_write_valid)
+          r_input_feat_stage[i] <= w_input_feat_next[i];
+      end
     end
   end
 
