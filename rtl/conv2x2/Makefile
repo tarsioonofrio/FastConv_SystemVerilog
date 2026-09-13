@@ -14,7 +14,7 @@ VERILATOR = verilator -j 0 -DSIMULATION --trace-fst --trace-max-array 4096 \
             --top-module tb -Wno-fatal
 
 .PHONY: all std all16 stream04-4mac stream04-8mac stream00-8mac stream08 stream08-wstream4 stream08-wstream4-8mac \
-	stream08-rowconst4-8mac stream08-rowconst4-exact-8mac stream08-prefetch4-8mac stream08-prefetch4-rowconst4-8mac stream08-exact-8mac \
+	stream08-rowconst4-8mac stream08-rowconst4-exact-8mac stream08-prefetch4-8mac stream08-prefetch4-rowconst4-8mac stream08-prefetch4-rowconst4-shared-8mac stream08-exact-8mac \
         run run-std run-all16 run-stream04-4mac run-stream00-8mac \
         run-stream08 run-stream08-wstream4 run-stream08-prefetch4 run-stream08-prefetch4-rowconst4 lint clean
 
@@ -99,6 +99,10 @@ stream08-prefetch4-8mac:
 stream08-prefetch4-rowconst4-8mac:
 	$(VERILATOR) --binary --exe --Mdir obj_dir/stream08-prefetch4-rowconst4-8mac \
 	  $(COMMON) $(MATRICES_STREAM) conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4.sv $(TB) --build
+
+stream08-prefetch4-rowconst4-shared-8mac:
+	$(VERILATOR) --binary --exe --Mdir obj_dir/stream08-prefetch4-rowconst4-shared-8mac \
+	  $(COMMON) $(MATRICES_STREAM) conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-shared.sv $(TB) --build
 
 stream08-exact-8mac:
 	$(VERILATOR) --binary --exe --Mdir obj_dir/stream08-exact-8mac \

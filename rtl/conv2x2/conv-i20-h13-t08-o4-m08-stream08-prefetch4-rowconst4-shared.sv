@@ -119,20 +119,15 @@ module Conv
   logic w_input_write_done;
 
   logic [NBITS-1:0] w_conv_transform [HADAMARD_SIZE*HADAMARD_SIZE-1:0];
-  // Four constant-row transforms are instantiated below.  Only one enable is
-  // asserted per cycle by the existing convolution FSM, and inactive rows
-  // drive zero to isolate their arithmetic from switching activity.
+  // Two constant-row-pair transforms are instantiated below.  Only one enable
+  // is asserted per cycle by the existing convolution FSM, and the inactive
+  // pair drives zero to isolate its arithmetic from switching activity.
   logic [NBITS-1:0] w_weight_row0 [3:0];
   logic [NBITS-1:0] w_weight_row1 [3:0];
   logic [NBITS-1:0] w_weight_row2 [3:0];
   logic [NBITS-1:0] w_weight_row3 [3:0];
   logic w_weight_row_enable0;
-  logic w_weight_row_enable1;
   logic w_weight_row_enable2;
-  logic w_weight_row_enable3;
-  logic [NBITS-1:0] w_weight_row [FIXED_NUM_MULT-1:0];
-  logic [NBITS-1:0] w_weight_row_lane1 [3:0];
-  logic [1:0] w_weight_row_index_next;
   logic signed [NBITS-1+QUANT:0] w_conv_product [FIXED_NUM_MULT-1:0];  // QUANT more bits for the multipliers
   logic w_conv_end;
   logic w_conv_input_release;
@@ -813,49 +808,27 @@ module Conv
       .pout(w_conv_transform)
   );
 
-  // The existing multiply counter selects the next row.  It is also the
-  // scheduling FSM for the four constant-row transforms below: row zero is
-  // enabled when the raw tile first becomes valid, then rows one through three
-  // are enabled in successive Hadamard cycles.  No additional state is needed.
-  always_comb begin: WEIGHT_ROW_INDEX_NEXT_BLOCK
-    w_weight_row_index_next = 2'd0;
-  end
-
   always_comb begin: WEIGHT_ROW_ENABLE_BLOCK
     w_weight_row_enable0 = 1'b0;
-    w_weight_row_enable1 = 1'b0;
     w_weight_row_enable2 = 1'b0;
-    w_weight_row_enable3 = 1'b0;
     if ((st_conv_current == TRANSFORM) && r_weight_tile_valid) begin
       w_weight_row_enable0 = 1'b1;
-      w_weight_row_enable1 = 1'b1;
     end else if ((st_conv_current == HADAMARD) &&
                  (r_conv_multiply_count < $bits(r_conv_multiply_count)'(STREAM_CYCLES - 1))) begin
       w_weight_row_enable2 = 1'b1;
-      w_weight_row_enable3 = 1'b1;
     end
   end
 
-  // Each instance contains only one constant row of the Winograd weight
-  // transform.  The OR reduction is safe because WEIGHT_ROW_ENABLE_BLOCK
-  // enables at most one instance in a cycle.
-  WeightTransformRowConst #(.NBITS(NBITS), .ROW_INDEX(0)) weight_trf_row0 (
-    .pin(r_weight_spatial), .enable(w_weight_row_enable0), .pout(w_weight_row0));
-  WeightTransformRowConst #(.NBITS(NBITS), .ROW_INDEX(1)) weight_trf_row1 (
-    .pin(r_weight_spatial), .enable(w_weight_row_enable1), .pout(w_weight_row1));
-  WeightTransformRowConst #(.NBITS(NBITS), .ROW_INDEX(2)) weight_trf_row2 (
-    .pin(r_weight_spatial), .enable(w_weight_row_enable2), .pout(w_weight_row2));
-  WeightTransformRowConst #(.NBITS(NBITS), .ROW_INDEX(3)) weight_trf_row3 (
-    .pin(r_weight_spatial), .enable(w_weight_row_enable3), .pout(w_weight_row3));
-
-  assign w_weight_row[0] = w_weight_row0[0] | w_weight_row1[0] |
-                           w_weight_row2[0] | w_weight_row3[0];
-  assign w_weight_row[1] = w_weight_row0[1] | w_weight_row1[1] |
-                           w_weight_row2[1] | w_weight_row3[1];
-  assign w_weight_row[2] = w_weight_row0[2] | w_weight_row1[2] |
-                           w_weight_row2[2] | w_weight_row3[2];
-  assign w_weight_row[3] = w_weight_row0[3] | w_weight_row1[3] |
-                           w_weight_row2[3] | w_weight_row3[3];
+  // Each pair instance shares sign extension and the common 3-term partial
+  // sums used by its two Winograd rows.  The pair is enabled on the same
+  // cycles as the former independent row instances, so the capture boundary
+  // and the execution schedule remain unchanged.
+  WeightTransformRowPairConst #(.NBITS(NBITS), .ROW_PAIR(0)) weight_trf_pair0 (
+    .pin(r_weight_spatial), .enable(w_weight_row_enable0),
+    .pout0(w_weight_row0), .pout1(w_weight_row1));
+  WeightTransformRowPairConst #(.NBITS(NBITS), .ROW_PAIR(1)) weight_trf_pair1 (
+    .pin(r_weight_spatial), .enable(w_weight_row_enable2),
+    .pout0(w_weight_row2), .pout1(w_weight_row3));
 
   assign w_transform_feature[0] = r_transform_row[0];
   assign w_transform_feature[1] = r_transform_row[1];
@@ -1104,15 +1077,11 @@ module Conv
 endmodule
 
 // -----------------------------------------------------------------------------
-// Constant-row transform for the 3x3 spatial kernel used by TC2x2.
-//
-// Four explicit instances are created in Conv, one for each transformed row.
-// ROW_INDEX is an elaboration-time constant, so synthesis can discard the
-// other row equations instead of retaining a run-time row multiplexer.  The
-// existing convolution counter enables one instance per cycle; disabled rows
-// drive zero and do not evaluate their arithmetic, providing operand isolation.
-// Every output is rounded once after its complete row sum, with the same
-// ties-to-even rule as the former full transform.
+// Constant-row transform for the 3x3 spatial kernel used by TC2x2.  The
+// implementation below is retained for compatibility with archived variants;
+// the active prefetch design uses the shared two-row implementation that
+// follows it.  Every output is rounded once after its complete row sum, with
+// the same ties-to-even rule as the former full transform.
 // -----------------------------------------------------------------------------
 module WeightTransformRowConst #(
     parameter int NBITS = 20,
@@ -1212,6 +1181,100 @@ module WeightTransformRowConst #(
       pout[1] = rounded[1][NBITS-1:0];
       pout[2] = rounded[2][NBITS-1:0];
       pout[3] = rounded[3][NBITS-1:0];
+    end
+  end
+endmodule
+
+// Two-row spatial Winograd weight transform with shared partial sums.
+// ROW_PAIR=0 emits rows 0 and 1; ROW_PAIR=1 emits rows 2 and 3.  Keeping the
+// pair selection elaboration-time constant preserves the old operand-isolated
+// schedule while allowing synthesis to share the common sums within a pair.
+module WeightTransformRowPairConst #(
+    parameter int NBITS = 20,
+    parameter int ROW_PAIR = 0
+  ) (
+    input  logic signed [NBITS-1:0] pin [8:0],
+    input  logic                    enable,
+    output logic        [NBITS-1:0] pout0 [3:0],
+    output logic        [NBITS-1:0] pout1 [3:0]
+  );
+  timeunit 1ns;
+  timeprecision 1ps;
+
+  localparam int TRANSFORM_WIDTH = NBITS + 4;
+  logic signed [TRANSFORM_WIDTH-1:0] weight [0:8];
+  logic signed [TRANSFORM_WIDTH-1:0] sum [0:7];
+  logic signed [TRANSFORM_WIDTH-1:0] rounded [0:7];
+  logic signed [TRANSFORM_WIDTH-1:0] remainder [0:7];
+  logic signed [TRANSFORM_WIDTH-1:0] s0, s1, s2;
+  logic signed [TRANSFORM_WIDTH-1:0] b0, b1, b2;
+  logic signed [TRANSFORM_WIDTH-1:0] a0, a2, c0, c2;
+
+  always_comb begin: WEIGHT_TRANSFORM_ROW_PAIR_CONST_BLOCK
+    for (int unsigned i = 0; i < 9; i++) weight[i] = '0;
+    for (int unsigned i = 0; i < 8; i++) begin
+      sum[i] = '0;
+      rounded[i] = '0;
+      remainder[i] = '0;
+    end
+    s0 = '0; s1 = '0; s2 = '0;
+    b0 = '0; b1 = '0; b2 = '0;
+    a0 = '0; a2 = '0; c0 = '0; c2 = '0;
+    for (int unsigned i = 0; i < 4; i++) begin
+      pout0[i] = '0;
+      pout1[i] = '0;
+    end
+
+    if (enable) begin
+      for (int unsigned i = 0; i < 9; i++)
+        weight[i] = {{(TRANSFORM_WIDTH-NBITS){pin[i][NBITS-1]}}, pin[i]};
+
+      s0 = weight[0] + weight[1] + weight[2];
+      s1 = weight[3] + weight[4] + weight[5];
+      s2 = weight[6] + weight[7] + weight[8];
+      b0 = weight[0] - weight[1] + weight[2];
+      b1 = weight[3] - weight[4] + weight[5];
+      b2 = weight[6] - weight[7] + weight[8];
+      a0 = weight[0] + weight[3] + weight[6];
+      a2 = weight[2] + weight[5] + weight[8];
+      c0 = -weight[0] + weight[3] - weight[6];
+      c2 = weight[2] - weight[5] + weight[8];
+
+      // The same partial sums feed both rows in each pair.  They are formed
+      // once here instead of being rebuilt independently by two row modules.
+      if (ROW_PAIR == 0) begin
+        sum[0] = weight[0] <<< 2;
+        sum[1] = -(s0 <<< 1);
+        sum[2] = (-b0 <<< 1);
+        sum[3] = -(weight[2] <<< 2);
+        sum[4] = -(a0 <<< 1);
+        sum[5] = s0 + s1 + s2;
+        sum[6] = b0 + b1 + b2;
+        sum[7] = a2 <<< 1;
+      end else begin
+        sum[0] = c0 <<< 1;
+        sum[1] = s0 - s1 + s2;
+        sum[2] = b0 - b1 + b2;
+        sum[3] = c2 <<< 1;
+        sum[4] = -(weight[6] <<< 2);
+        sum[5] = s2 <<< 1;
+        sum[6] = b2 <<< 1;
+        sum[7] = weight[8] <<< 2;
+      end
+
+      for (int unsigned i = 0; i < 8; i++) begin
+        rounded[i] = sum[i] >>> 2;
+        remainder[i] = sum[i] - (rounded[i] <<< 2);
+        if ((remainder[i] > 2) || ((remainder[i] == 2) && rounded[i][0]))
+          rounded[i] = rounded[i] + 1;
+        else if ((remainder[i] < -2) || ((remainder[i] == -2) && rounded[i][0]))
+          rounded[i] = rounded[i] - 1;
+      end
+
+      for (int unsigned i = 0; i < 4; i++) begin
+        pout0[i] = rounded[i][NBITS-1:0];
+        pout1[i] = rounded[i+4][NBITS-1:0];
+      end
     end
   end
 endmodule
