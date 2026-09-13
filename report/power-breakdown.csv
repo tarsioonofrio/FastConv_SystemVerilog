@@ -1,12 +1,4 @@
 Project,category,power_mW,percent_of_subtotal
-Conv2x2-conv-i16-h13-t08-o4-m08-stream08-rowconst4-exact,memory,0.0,0.0
-Conv2x2-conv-i16-h13-t08-o4-m08-stream08-rowconst4-exact,register,0.13906,17.075084448362787
-Conv2x2-conv-i16-h13-t08-o4-m08-stream08-rowconst4-exact,latch,0.0,0.0
-Conv2x2-conv-i16-h13-t08-o4-m08-stream08-rowconst4-exact,logic,0.652871,80.16559369255761
-Conv2x2-conv-i16-h13-t08-o4-m08-stream08-rowconst4-exact,bbox,0.0,0.0
-Conv2x2-conv-i16-h13-t08-o4-m08-stream08-rowconst4-exact,clock,0.0224722,2.75934641694591
-Conv2x2-conv-i16-h13-t08-o4-m08-stream08-rowconst4-exact,pad,0.0,0.0
-Conv2x2-conv-i16-h13-t08-o4-m08-stream08-rowconst4-exact,pm,0.0,0.0
 Conv2x2-conv-i16-h13-t08-o4-m08-stream08-wstream4,memory,0.0,0.0
 Conv2x2-conv-i16-h13-t08-o4-m08-stream08-wstream4,register,0.140324,20.86009772689095
 Conv2x2-conv-i16-h13-t08-o4-m08-stream08-wstream4,latch,0.0,0.0
@@ -71,14 +63,6 @@ Conv2x2-conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4,bbox,0.0,0.0
 Conv2x2-conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4,clock,0.0261538,3.367921952827613
 Conv2x2-conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4,pad,0.0,0.0
 Conv2x2-conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4,pm,0.0,0.0
-Conv2x2-conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-temporal1,memory,0.0,0.0
-Conv2x2-conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-temporal1,register,0.186494,18.936169348615433
-Conv2x2-conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-temporal1,latch,0.0,0.0
-Conv2x2-conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-temporal1,logic,0.771145,78.30027943171388
-Conv2x2-conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-temporal1,bbox,0.0,0.0
-Conv2x2-conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-temporal1,clock,0.0272174,2.7635918347453843
-Conv2x2-conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-temporal1,pad,0.0,0.0
-Conv2x2-conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-temporal1,pm,0.0,0.0
 Conv2x2-conv-i20-h16-t08-o4-m08-stream08-prefetch4,memory,0.0,0.0
 Conv2x2-conv-i20-h16-t08-o4-m08-stream08-prefetch4,register,0.182249,23.465707689712755
 Conv2x2-conv-i20-h16-t08-o4-m08-stream08-prefetch4,latch,0.0,0.0

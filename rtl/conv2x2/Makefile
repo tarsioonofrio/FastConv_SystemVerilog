@@ -81,7 +81,7 @@ stream08-rowconst4-8mac:
 
 stream08-rowconst4-exact-8mac:
 	$(VERILATOR) --binary --exe --Mdir obj_dir/stream08-rowconst4-exact-8mac \
-	  $(COMMON) $(MATRICES_STREAM) conv-i16-h13-t08-o4-m08-stream08-rowconst4-exact.sv $(TB) --build
+	  $(COMMON) $(MATRICES_STREAM) archive/m08/conv-i16-h13-t08-o4-m08-stream08-rowconst4-exact.sv $(TB) --build
 
 run-stream08-wstream4: stream08-wstream4
 	obj_dir/stream08-wstream4/Vtb
@@ -102,7 +102,7 @@ stream08-prefetch4-rowconst4-8mac:
 
 stream08-prefetch4-rowconst4-temporal1-8mac:
 	$(VERILATOR) --binary --exe --Mdir obj_dir/stream08-prefetch4-rowconst4-temporal1-8mac \
-	  $(COMMON) $(MATRICES_STREAM) conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-temporal1.sv $(TB) --build
+	  $(COMMON) $(MATRICES_STREAM) archive/m08/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-temporal1.sv $(TB) --build
 
 stream08-exact-8mac:
 	$(VERILATOR) --binary --exe --Mdir obj_dir/stream08-exact-8mac \
@@ -127,11 +127,11 @@ lint:
 	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) archive/m04/conv-i16-h13-t08-o4-m04-stream08-wstream4.sv $(TB)
 	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i16-h13-t08-o4-m08-stream08-wstream4.sv $(TB)
 	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) archive/m08/conv-i16-h13-t08-o4-m08-stream08-rowconst4.sv $(TB)
-	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i16-h13-t08-o4-m08-stream08-rowconst4-exact.sv $(TB)
+	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) archive/m08/conv-i16-h13-t08-o4-m08-stream08-rowconst4-exact.sv $(TB)
 	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) archive/m04/conv-i20-h16-t08-o4-m04-stream08-prefetch4.sv $(TB)
 	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i20-h16-t08-o4-m08-stream08-prefetch4.sv $(TB)
 	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4.sv $(TB)
-	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-temporal1.sv $(TB)
+	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) archive/m08/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-temporal1.sv $(TB)
 	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i16-h20-t08-o4-m08-stream08-exact.sv $(TB)
 
 clean:
