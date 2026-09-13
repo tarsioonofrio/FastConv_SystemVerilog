@@ -209,6 +209,7 @@ The nominal `report_power` totals in mW are:
 | `stream08-exact` | 0.733399 | passed |
 | `stream08-prefetch4` | 0.776661 | passed |
 | `stream08-prefetch4-rowconst4` | 0.776556 | passed |
+| `stream08-prefetch4-rowconst4-latch` | 0.741005 | passed |
 | `stream08-prefetch4-rowconst4-temporal1` | 0.984856 | passed (archived) |
 
 The detailed leakage/internal/switching breakdown, area, cycle count and exact
