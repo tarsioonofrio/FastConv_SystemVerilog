@@ -7,7 +7,7 @@ Conv2x2-conv-i16-h16-t08-o4-m08-stream08,Conv2x2,08,32,,257015.0,25699.0
 Conv2x2-conv-i16-h16-t16-o4-m08-std,Conv2x2,08,32,,236775.0,23675.0
 Conv2x2-conv-i16-h20-t08-o4-m08-stream08-exact,Conv2x2,08,32,,257195.0,25717.0
 Conv2x2-conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4,Conv2x2,08,32,,218945.0,21892.0
-Conv2x2-conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-latch,Conv2x2,08,32,,218945.0,21892.0
+Conv2x2-conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-latch,Conv2x2,08,32,,239195.0,23917.0
 Conv2x2-conv-i20-h16-t08-o4-m08-stream08-prefetch4,Conv2x2,08,32,,219215.0,21919.0
 Conv3x3-ifn9-06mac,Conv3x3,06,32,,175665.0,
 Conv3x3stream-if-ifn9-06mac,Conv3x3stream-if,06,32,,220615.0,22059.0
