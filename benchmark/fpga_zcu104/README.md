@@ -21,18 +21,16 @@ pelo fluxo.
 
 ## Estado desta execução
 
-O checkout local não expõe `vivado`, `xvlog`, `xelab` ou `xsim`, portanto os
-artefatos locais mantêm WNS, recursos pós-route, Fmax, power e cobertura SAIF
-como `null`/`PENDING`. Isso não bloqueia a campanha: o catálogo de módulos da
-Paxos confirmou `xilinx/vivado/2023.2`, com `vivado`, `xvlog`, `xelab` e `xsim`
-disponíveis após `module load xilinx/vivado/2023.2`.
+O checkout local não expõe `vivado`, `xvlog`, `xelab` ou `xsim`; a execução foi
+feita diretamente na Paxos. O catálogo de módulos confirmou
+`xilinx/vivado/2023.2`, com `vivado`, `xvlog`, `xelab` e `xsim` disponíveis após
+`module load xilinx/vivado/2023.2`.
 
 A Paxos foi verificada pelo endpoint institucional `paxos.inf.pucrs.br:8888`.
 Ela oferece Genus 21.12/Xcelium 23.03 para o fluxo ASIC e Vivado 2023.2 para
-esta campanha FPGA. O checkout persistente remoto está sujo e em outro commit;
-por isso ele não deve ser resetado nem usado diretamente. A execução deve usar
-um checkout/worktree isolado exatamente no commit publicado, conforme
-`AGENTS.md`. A evidência completa está em
+esta campanha FPGA. O checkout persistente remoto permaneceu sujo e em outro
+commit; a execução usou o snapshot sincronizado diretamente em
+`/tmp/fastconv-fpa-47d1445b`, conforme `AGENTS.md`. A evidência completa está em
 [`results/paxos_probe.md`](results/paxos_probe.md).
 
 A validação funcional disponível localmente foi executada com Verilator e
@@ -49,12 +47,16 @@ workload de potência é `1`.
 2. `scripts/synth_impl.tcl` faz síntese, opt, placement, phys-opt, routing,
    checkpoint e relatórios para um período solicitado.
 3. `scripts/run_fmax.py` executa o sweep pós-route e refina a fronteira de
-   timing; ele deve ser chamado na Paxos depois de carregar `xilinx/vivado/2023.2`.
+   timing; na campanha, a fronteira foi `317.000013 MHz` (`3.154574 ns`, WNS
+   `+0.086 ns`), enquanto `349.999983 MHz` (`2.857143 ns`) falhou com WNS
+   `-0.023 ns`.
 4. `scripts/power_vectorless.tcl` gera vectorless typical/maximum a partir do
    checkpoint roteado.
-5. `scripts/post_impl_saif.tcl` prepara a timing simulation pós-implementação;
-   `scripts/run_post_impl_saif.sh` compila o netlist com XSim e
-   `scripts/xsim_saif.tcl` abre a janela útil, gera SAIF e encerra.
+5. `scripts/post_impl_saif.tcl` valida os artefatos da timing simulation;
+   `scripts/run_post_impl_saif.sh` tenta compilar o netlist com XSim e
+   `scripts/xsim_saif.tcl` abre a janela útil. Nesta execução, a anotação SDF
+   foi reconhecida, mas o `xelab` abortou em uma asserção LLVM de Vivado 2023.2;
+   por isso nenhum SAIF é tratado como resultado final.
 6. `scripts/power_saif.tcl` importa o SAIF com `-strip_path`, salva o relatório
    de mapeamento e calcula power nos dois corners.
 7. `scripts/collect_results.py` consolida relatórios em CSV, JSON e Markdown.

@@ -40,6 +40,13 @@ def report_value(path: Path, patterns: list[str]) -> float | None:
 
 def timing(run: str) -> tuple[float | None, float | None, str]:
     path = REPORTS / run / "timing_summary.rpt"
+    text = path.read_text(errors="replace") if path.exists() else ""
+    setup = re.search(r"Setup\s*:\s*\d+\s+Failing Endpoints,\s+Worst Slack\s+"
+                      r"([-+]?\d+(?:\.\d+)?)ns,\s+Total Violation\s+"
+                      r"([-+]?\d+(?:\.\d+)?)ns", text)
+    if setup:
+        wns, tns = map(float, setup.groups())
+        return wns, tns, "PASS" if wns >= 0 else "FAIL"
     wns = report_value(path, [r"WNS\s*\(ns\).*?([-+]?\d+(?:\.\d+)?)",
                               r"Worst Negative Slack.*?([-+]?\d+(?:\.\d+)?)"])
     tns = report_value(path, [r"TNS\s*\(ns\).*?([-+]?\d+(?:\.\d+)?)",
@@ -51,12 +58,23 @@ def timing(run: str) -> tuple[float | None, float | None, str]:
 def utilization(run: str) -> dict[str, float | None]:
     path = REPORTS / run / "utilization.rpt"
     text = path.read_text(errors="replace") if path.exists() else ""
+    top_row = next(([part.strip() for part in line.split("|")]
+                    for line in text.splitlines()
+                    if "| Conv" in line and "(top)" in line), None)
+    if top_row and len(top_row) >= 13:
+        return {"lut": float(top_row[3]), "lut_logic": float(top_row[4]),
+                "lut_memory": float(top_row[5]), "ff": float(top_row[7]),
+                "bram": float(top_row[8]) + float(top_row[9]),
+                "uram": float(top_row[10]), "dsp": float(top_row[11]),
+                "bufg": None}
     patterns = {
-        "lut": [r"CLB LUTs\s*\|\s*([\d,]+)", r"Slice LUTs\s*\|\s*([\d,]+)"],
-        "lut_logic": [r"LUT as Logic\s*\|\s*([\d,]+)"],
+        "lut": [r"CLB LUTs\s*\|\s*([\d,]+)", r"Slice LUTs\s*\|\s*([\d,]+)",
+                r"Total LUTs\s*\|\s*([\d,]+)"],
+        "lut_logic": [r"LUT as Logic\s*\|\s*([\d,]+)", r"Logic LUTs\s*\|\s*([\d,]+)"],
         "lut_memory": [r"LUT as Memory\s*\|\s*([\d,]+)"],
-        "ff": [r"CLB Registers\s*\|\s*([\d,]+)", r"Slice Registers\s*\|\s*([\d,]+)"],
-        "dsp": [r"DSPs\s*\|\s*([\d,]+)"],
+        "ff": [r"CLB Registers\s*\|\s*([\d,]+)", r"Slice Registers\s*\|\s*([\d,]+)",
+               r"\|\s*FFs\s*\|\s*([\d,]+)"],
+        "dsp": [r"DSPs\s*\|\s*([\d,]+)", r"DSP Blocks\s*\|\s*([\d,]+)"],
         "bram": [r"Block RAM Tile\s*\|\s*([\d.]+)", r"RAMB18\s*\|\s*([\d,]+)"],
         "uram": [r"URAM\s*\|\s*([\d,]+)"],
         "bufg": [r"BUFG\s*\|\s*([\d,]+)"],
@@ -71,12 +89,12 @@ def utilization(run: str) -> dict[str, float | None]:
 def power(run: str, method: str, corner: str) -> dict[str, float | None]:
     path = REPORTS / run / f"power_{method}_{corner}.rpt"
     return {
-        "dynamic_w": report_value(path, [r"Dynamic Power\s*\(W\)\s*:\s*([\d.]+)"
-                                          , r"Dynamic Power\s*\|\s*([\d.]+)"]),
-        "static_w": report_value(path, [r"Device Static Power\s*\(W\)\s*:\s*([\d.]+)"
-                                        , r"Device Static Power\s*\|\s*([\d.]+)"]),
-        "total_w": report_value(path, [r"Total On-Chip Power\s*\(W\)\s*:\s*([\d.]+)"
-                                        , r"Total On-Chip Power\s*\|\s*([\d.]+)"]),
+        "dynamic_w": report_value(path, [r"Dynamic Power\s*\(W\)\s*:\s*([\d.]+)",
+                                          r"\|\s*Dynamic \(W\)\s*\|\s*([\d.]+)"]),
+        "static_w": report_value(path, [r"Device Static Power\s*\(W\)\s*:\s*([\d.]+)",
+                                        r"\|\s*Device Static \(W\)\s*\|\s*([\d.]+)"]),
+        "total_w": report_value(path, [r"Total On-Chip Power\s*\(W\)\s*:\s*([\d.]+)",
+                                        r"\|\s*Total On-Chip Power \(W\)\s*\|\s*([\d.]+)"]),
     }
 
 
@@ -98,11 +116,14 @@ def main() -> int:
     rtl = rtl_metrics()
     wns, tns, closure = timing("317mhz")
     util = utilization("317mhz")
+    vectorless_typical = power("317mhz", "vectorless", "typical")
+    vectorless_maximum = power("317mhz", "vectorless", "maximum")
     fmax_path = RESULTS / "fmax_search.json"
     fmax = json.loads(fmax_path.read_text()) if fmax_path.exists() else {"status": "not_run"}
     row = {
         "design": "Our Conv baseline @ 317 MHz",
-        "bits": 20, "target_mhz": 317.0, "achieved_mhz": None,
+        "bits": 20, "target_mhz": 317.0,
+        "achieved_mhz": 317.0 if closure == "PASS" else None,
         "timing": closure, "wns_ns": wns, "tns_ns": tns,
         "dsp": util["dsp"], "lut": util["lut"], "ff": util["ff"],
         "bram": util["bram"], "latency_cycles": rtl["latency_cycles"],
@@ -110,7 +131,8 @@ def main() -> int:
         # separately and is not confused with job-level re-initiation.
         "ii_cycles": rtl["latency_cycles"],
         "tile_ii_cycles": rtl["tile_ii_cycles"],
-        "gops_eq": None, "dynamic_w": None, "total_w": None,
+        "gops_eq": None, "dynamic_w": vectorless_typical["dynamic_w"],
+        "total_w": vectorless_typical["total_w"],
         "gops_per_w": None, "pj_per_op": None,
     }
     rows = [row]
@@ -137,15 +159,16 @@ def main() -> int:
                              "part": "xczu7ev-ffvc1156-2-e", "board": "ZCU104"},
                "rtl_validation": rtl, "fmax_search": fmax,
                "rows": rows,
-               "completion_status": "pending_remote_vivado"}
+               "completion_status": "complete" if fmax.get("status") == "complete" else "pending_remote_vivado"}
     (RESULTS / "results.json").write_text(json.dumps(payload, indent=2) + "\n")
 
     lines = [
         "# FPGA ZCU104 benchmark summary", "",
         "## Reproducibility boundary", "",
         "Target: `xczu7ev-ffvc1156-2-e`, reference Vivado 2023.2, top `Conv`, baseline 20-bit.",
-        "The local checkout has no Vivado binaries; the Paxos module catalog provides Vivado 2023.2. Execute the implementation there before filling post-route timing, Fmax, resource and power cells.",
-        "No timing PASS, measured power, or SAIF coverage is claimed.", "",
+        "Vivado 2023.2 was executed on Paxos from the direct synchronized snapshot; local reports are a copy of those textual artifacts.",
+        f"Fmax sweep result: `{fmax.get('fmax', {}).get('target_mhz') if fmax.get('fmax') else None}` MHz at `{fmax.get('fmax', {}).get('period_ns') if fmax.get('fmax') else None}` ns; the next faster routed point was `{next((item.get('target_mhz') for item in fmax.get('periods_ns', []) if item.get('period_ns') == 2.857143), None)}` MHz with WNS `{next((item.get('wns_ns') for item in fmax.get('periods_ns', []) if item.get('period_ns') == 2.857143), None)}` ns.",
+        "Timing/resource/vectorless values below are post-route estimates. SDF gate-level XSim hit a Vivado 2023.2 LLVM assertion and SAIF remains pending.", "",
         "## RTL evidence", "",
         f"- seed/jobs: `{rtl['seed']}` / `{rtl['jobs']}`",
         f"- latency: `{rtl['latency_cycles']}` cycles",
@@ -161,8 +184,9 @@ def main() -> int:
     lines += ["", "## Power table", "",
               "| Design | freq | method | process | Dynamic W | Static W | Total W | SAIF coverage |",
               "| --- | ---: | --- | --- | ---: | ---: | ---: | ---: |",
-              "| our core | 317 MHz | vectorless | typical | PENDING | PENDING | PENDING | N/A |",
+              f"| our core | 317 MHz | vectorless | typical | {vectorless_typical['dynamic_w']} | {vectorless_typical['static_w']} | {vectorless_typical['total_w']} | N/A |",
               "| our core | 317 MHz | SAIF post-route | typical | PENDING | PENDING | PENDING | PENDING |",
+              f"| our core | 317 MHz | vectorless | maximum | {vectorless_maximum['dynamic_w']} | {vectorless_maximum['static_w']} | {vectorless_maximum['total_w']} | N/A |",
               "| our core | 317 MHz | SAIF post-route | maximum | PENDING | PENDING | PENDING | PENDING |",
               "| our core | Fmax | SAIF post-route | typical | PENDING | PENDING | PENDING | PENDING |",
               "", "WinoGen reference is 8--16 bit; this baseline is 20 bit. WinoGen Table 1 is an IP/core comparison. The reported WinoGen Table 2 system replicas are not compared directly with one core.",
