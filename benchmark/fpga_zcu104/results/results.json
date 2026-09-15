@@ -17,30 +17,86 @@
     "reference_version": "2023.2",
     "part": "xczu7ev-ffvc1156-2-e",
     "post_route_required": true,
-    "status": "pending_remote_vivado",
-    "periods_ns": [],
+    "status": "complete",
+    "periods_ns": [
+      {
+        "run": "fmax_2p500000",
+        "period_ns": 2.5,
+        "target_mhz": 400.0,
+        "wns_ns": -0.357,
+        "timing_closure": false,
+        "returncode": 0
+      },
+      {
+        "run": "fmax_2p857143",
+        "period_ns": 2.857143,
+        "target_mhz": 349.99998250000084,
+        "wns_ns": -0.023,
+        "timing_closure": false,
+        "returncode": 0
+      },
+      {
+        "run": "fmax_3p154574",
+        "period_ns": 3.154574,
+        "target_mhz": 317.0000133140005,
+        "wns_ns": 0.086,
+        "timing_closure": true,
+        "returncode": 0
+      },
+      {
+        "run": "fmax_3p333333",
+        "period_ns": 3.333333,
+        "target_mhz": 300.000030000003,
+        "wns_ns": 0.262,
+        "timing_closure": true,
+        "returncode": 0
+      },
+      {
+        "run": "fmax_4p000000",
+        "period_ns": 4.0,
+        "target_mhz": 250.0,
+        "wns_ns": 0.671,
+        "timing_closure": true,
+        "returncode": 0
+      },
+      {
+        "run": "fmax_5p000000",
+        "period_ns": 5.0,
+        "target_mhz": 200.0,
+        "wns_ns": 1.598,
+        "timing_closure": true,
+        "returncode": 0
+      }
+    ],
     "note": "Fmax is valid only for a routed run with WNS >= 0.",
-    "tool_path": "/soft64/xilinx/ferramentas/Vivado/2023.2/bin/vivado"
+    "fmax": {
+      "run": "fmax_3p154574",
+      "period_ns": 3.154574,
+      "target_mhz": 317.0000133140005,
+      "wns_ns": 0.086,
+      "timing_closure": true,
+      "returncode": 0
+    }
   },
   "rows": [
     {
       "design": "Our Conv baseline @ 317 MHz",
       "bits": 20,
       "target_mhz": 317.0,
-      "achieved_mhz": null,
-      "timing": "PENDING",
-      "wns_ns": null,
-      "tns_ns": null,
-      "dsp": null,
-      "lut": null,
-      "ff": null,
-      "bram": null,
+      "achieved_mhz": 317.0,
+      "timing": "PASS",
+      "wns_ns": 0.221,
+      "tns_ns": 0.0,
+      "dsp": 8.0,
+      "lut": 2087.0,
+      "ff": 1266.0,
+      "bram": 0.0,
       "latency_cycles": 23648,
       "ii_cycles": 23648,
       "tile_ii_cycles": 11,
       "gops_eq": null,
-      "dynamic_w": null,
-      "total_w": null,
+      "dynamic_w": 0.251,
+      "total_w": 0.844,
       "gops_per_w": null,
       "pj_per_op": null
     },
@@ -171,5 +227,5 @@
       "pj_per_op": null
     }
   ],
-  "completion_status": "pending_remote_vivado"
+  "completion_status": "complete"
 }

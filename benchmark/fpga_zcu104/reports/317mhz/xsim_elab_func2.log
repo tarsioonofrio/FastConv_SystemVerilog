@@ -1,0 +1,133 @@
+Vivado Simulator v2023.2
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+Copyright 2022-2023 Advanced Micro Devices, Inc. All Rights Reserved.
+Running: /soft64/xilinx/ferramentas/Vivado/2023.2/Vivado/2023.2/bin/unwrapped/lnx64.o/xelab tb_power glbl -s tb_power_gate_func2 --O0 --debug off -L unisims_ver -L unimacro_ver -L secureip -timescale 1ns/1ps
+Multi-threading is on. Using 26 slave threads.
+Starting static elaboration
+Pass Through NonSizing Optimizer
+Completed static elaboration
+Starting simulation data flow analysis
+Completed simulation data flow analysis
+Time Resolution for simulation is 1ps
+Compiling package work.pack_data
+Compiling package work.pack_param
+Compiling module unisims_ver.LUT6
+Compiling module unisims_ver.LUT4
+Compiling module unisims_ver.x_lut2_mux4
+Compiling module unisims_ver.LUT2
+Compiling module unisims_ver.FDCE_default
+Compiling module unisims_ver.DSP_ALU(ALUMODEREG=0,CARRYINREG=...
+Compiling module unisims_ver.DSP_A_B_DATA(ACASCREG=0,AREG=0)
+Compiling module unisims_ver.DSP_C_DATA
+Compiling module unisims_ver.DSP_MULTIPLIER
+Compiling module unisims_ver.DSP_M_DATA(MREG=0)
+Compiling module unisims_ver.DSP_OUTPUT(PREG=0)
+Compiling module unisims_ver.DSP_PREADD_DATA(INMODEREG=0)
+Compiling module unisims_ver.DSP_PREADD
+Compiling module work.DSP48E2_UNIQ_BASE_
+Compiling module unisims_ver.CARRY8
+Compiling module unisims_ver.x_lut3_mux8
+Compiling module unisims_ver.LUT3
+Compiling module work.Multip
+Compiling module work.DSP48E2_HD8
+Compiling module work.Multip_0
+Compiling module work.DSP48E2_HD9
+Compiling module work.Multip_1
+Compiling module work.DSP48E2_HD10
+Compiling module work.Multip_2
+Compiling module work.DSP48E2_HD11
+Compiling module work.Multip_3
+Compiling module work.DSP48E2_HD12
+Compiling module work.Multip_4
+Compiling module work.DSP48E2_HD13
+Compiling module work.Multip_5
+Compiling module work.DSP48E2_HD14
+Compiling module work.Multip_6
+Compiling module unisims_ver.BUFGCE(CE_TYPE="ASYNC",SIM_DEVIC...
+Compiling module unisims_ver.IBUFCTRL_default
+Compiling module unisims_ver.INBUF_default
+Compiling module work.IBUF_UNIQ_BASE_
+Compiling module unisims_ver.LUT5
+Compiling module work.MatrixA0
+Compiling module work.MatrixA1
+Compiling module work.Inverse
+Compiling module unisims_ver.OBUF
+Compiling module work.IBUF_HD15
+Compiling module work.IBUF_HD16
+Compiling module work.IBUF_HD17
+Compiling module work.IBUF_HD18
+Compiling module work.IBUF_HD19
+Compiling module work.IBUF_HD20
+Compiling module work.IBUF_HD21
+Compiling module work.IBUF_HD22
+Compiling module work.IBUF_HD23
+Compiling module work.IBUF_HD24
+Compiling module work.IBUF_HD25
+Compiling module work.IBUF_HD26
+Compiling module work.IBUF_HD27
+Compiling module work.IBUF_HD28
+Compiling module work.IBUF_HD29
+Compiling module work.IBUF_HD30
+Compiling module work.IBUF_HD31
+Compiling module work.IBUF_HD32
+Compiling module work.IBUF_HD33
+Compiling module work.IBUF_HD34
+Compiling module work.IBUF_HD35
+Compiling module work.IBUF_HD36
+Compiling module work.IBUF_HD37
+Compiling module work.IBUF_HD38
+Compiling module work.IBUF_HD39
+Compiling module work.IBUF_HD40
+Compiling module work.IBUF_HD41
+Compiling module work.IBUF_HD42
+Compiling module work.IBUF_HD43
+Compiling module work.IBUF_HD44
+Compiling module work.IBUF_HD45
+Compiling module work.IBUF_HD46
+Compiling module work.IBUF_HD47
+Compiling module work.IBUF_HD48
+Compiling module work.IBUF_HD49
+Compiling module work.IBUF_HD50
+Compiling module work.IBUF_HD51
+Compiling module work.IBUF_HD52
+Compiling module work.IBUF_HD53
+Compiling module work.IBUF_HD54
+Compiling module work.IBUF_HD55
+Compiling module work.IBUF_HD56
+Compiling module work.IBUF_HD57
+Compiling module unisims_ver.FDRE_default
+Compiling module unisims_ver.FDPE_default
+Compiling module unisims_ver.x_lut1_mux2
+Compiling module unisims_ver.LUT1
+Compiling module work.IBUF_HD58
+Compiling module work.MatrixC0
+Compiling module work.MatrixC1
+Compiling module work.Transform
+Compiling module work.Conv
+Compiling module work.Memory(ROM=1)
+Compiling module work.Memory
+Compiling module work.tb_power
+Compiling module work.glbl
+xelab: /wrk/xhdhdnobkup3/rajshree/HEAD_XHD_Rodin_6/src/ext/llvm/7.0/build/lnx64.o/llvm-7.0.1.src/lib/CodeGen/SelectionDAG/LegalizeTypes.cpp:413: bool llvm::DAGTypeLegalizer::run(): Assertion `NodeId == Unanalyzed && "Unknown node ID!"' failed.
+ERROR: [XSIM 43-3312] Signal SIGABRT received.
+Printing stacktrace...
+
+[0] /lib64/libc.so.6(+0x21db9) [0x7f93d6a45db9]
+[1] /lib64/libc.so.6(+0x46f06) [0x7f93d6a6af06]
+[2] /soft64/xilinx/ferramentas/Vivado/2023.2/Vivado/2023.2/bin/unwrapped/lnx64.o/xelab() [0x156740a]
+[3] /soft64/xilinx/ferramentas/Vivado/2023.2/Vivado/2023.2/bin/unwrapped/lnx64.o/xelab() [0x1567ac5]
+[4] /soft64/xilinx/ferramentas/Vivado/2023.2/Vivado/2023.2/bin/unwrapped/lnx64.o/xelab() [0x1521e01]
+[5] /soft64/xilinx/ferramentas/Vivado/2023.2/Vivado/2023.2/bin/unwrapped/lnx64.o/xelab() [0x1527503]
+[6] /soft64/xilinx/ferramentas/Vivado/2023.2/Vivado/2023.2/bin/unwrapped/lnx64.o/xelab() [0x1529373]
+[7] /soft64/xilinx/ferramentas/Vivado/2023.2/Vivado/2023.2/bin/unwrapped/lnx64.o/xelab() [0x11f6ec4]
+[8] /soft64/xilinx/ferramentas/Vivado/2023.2/Vivado/2023.2/bin/unwrapped/lnx64.o/xelab() [0x17b78c4]
+[9] /soft64/xilinx/ferramentas/Vivado/2023.2/Vivado/2023.2/bin/unwrapped/lnx64.o/xelab() [0x22cdaf9]
+[10] /soft64/xilinx/ferramentas/Vivado/2023.2/Vivado/2023.2/bin/unwrapped/lnx64.o/xelab() [0x22cdb79]
+[11] /soft64/xilinx/ferramentas/Vivado/2023.2/Vivado/2023.2/bin/unwrapped/lnx64.o/xelab() [0x22cd058]
+[12] /soft64/xilinx/ferramentas/Vivado/2023.2/Vivado/2023.2/bin/unwrapped/lnx64.o/xelab() [0xaf291a]
+[13] /soft64/xilinx/ferramentas/Vivado/2023.2/Vivado/2023.2/bin/unwrapped/lnx64.o/xelab() [0xafc9ee]
+[14] /soft64/xilinx/ferramentas/Vivado/2023.2/Vivado/2023.2/lib/lnx64.o/Default/libstdc++.so.6(+0xbadff) [0x7f93d744ddff]
+[15] /lib64/libpthread.so.0(+0x81ca) [0x7f93d771e1ca]
+[16] /lib64/libc.so.6(clone+0x43) [0x7f93d6a5d953]
+
+Done

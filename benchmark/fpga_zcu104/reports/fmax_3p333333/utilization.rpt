@@ -1,0 +1,42 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2023 Advanced Micro Devices, Inc. All Rights Reserved.
+-----------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2023.2 (lin64) Build 4029153 Fri Oct 13 20:13:54 MDT 2023
+| Date         : Tue Sep 15 20:29:10 2026
+| Host         : paxos.inf.pucrs.br running 64-bit Rocky Linux release 8.10 (Green Obsidian)
+| Command      : report_utilization -hierarchical -file /tmp/fastconv-fpa-47d1445b/benchmark/fpga_zcu104/reports/fmax_3p333333/utilization.rpt
+| Design       : Conv
+| Device       : xczu7ev-ffvc1156-2-e
+| Speed File   : -2
+| Design State : Routed
+-----------------------------------------------------------------------------------------------------------------------------------------------
+
+Utilization Design Information
+
+Table of Contents
+-----------------
+1. Utilization by Hierarchy
+
+1. Utilization by Hierarchy
+---------------------------
+
++--------------------------+-----------+------------+------------+---------+------+------+--------+--------+------+------------+
+|         Instance         |   Module  | Total LUTs | Logic LUTs | LUTRAMs | SRLs |  FFs | RAMB36 | RAMB18 | URAM | DSP Blocks |
++--------------------------+-----------+------------+------------+---------+------+------+--------+--------+------+------------+
+| Conv                     |     (top) |       1910 |       1910 |       0 |    0 | 1266 |      0 |      0 |    0 |          8 |
+|   (Conv)                 |     (top) |        586 |        586 |       0 |    0 | 1266 |      0 |      0 |    0 |          0 |
+|   MULTIP_BLOCK[0].multip |    Multip |         53 |         53 |       0 |    0 |    0 |      0 |      0 |    0 |          1 |
+|   MULTIP_BLOCK[1].multip |  Multip_0 |         53 |         53 |       0 |    0 |    0 |      0 |      0 |    0 |          1 |
+|   MULTIP_BLOCK[2].multip |  Multip_1 |         53 |         53 |       0 |    0 |    0 |      0 |      0 |    0 |          1 |
+|   MULTIP_BLOCK[3].multip |  Multip_2 |         53 |         53 |       0 |    0 |    0 |      0 |      0 |    0 |          1 |
+|   MULTIP_BLOCK[4].multip |  Multip_3 |         45 |         45 |       0 |    0 |    0 |      0 |      0 |    0 |          1 |
+|   MULTIP_BLOCK[5].multip |  Multip_4 |         45 |         45 |       0 |    0 |    0 |      0 |      0 |    0 |          1 |
+|   MULTIP_BLOCK[6].multip |  Multip_5 |         45 |         45 |       0 |    0 |    0 |      0 |      0 |    0 |          1 |
+|   MULTIP_BLOCK[7].multip |  Multip_6 |         45 |         45 |       0 |    0 |    0 |      0 |      0 |    0 |          1 |
+|   inv                    |   Inverse |        244 |        244 |       0 |    0 |    0 |      0 |      0 |    0 |          0 |
+|     matrix_a0            |  MatrixA0 |        100 |        100 |       0 |    0 |    0 |      0 |      0 |    0 |          0 |
+|     matrix_a1            |  MatrixA1 |        144 |        144 |       0 |    0 |    0 |      0 |      0 |    0 |          0 |
+|   trf                    | Transform |        689 |        689 |       0 |    0 |    0 |      0 |      0 |    0 |          0 |
+|     matrix_c0            |  MatrixC0 |        449 |        449 |       0 |    0 |    0 |      0 |      0 |    0 |          0 |
+|     matrix_c1            |  MatrixC1 |        241 |        241 |       0 |    0 |    0 |      0 |      0 |    0 |          0 |
++--------------------------+-----------+------------+------------+---------+------+------+--------+--------+------+------------+
+* Note: The sum of lower-level cells may be larger than their parent cells total, due to cross-hierarchy LUT combining

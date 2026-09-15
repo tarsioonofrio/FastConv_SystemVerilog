@@ -32,7 +32,11 @@ xvlog, xelab, xsim -> same Vivado 2023.2 bin directory
 ```
 
 Therefore the Paxos has the required FPGA tools. The ZCU104 implementation,
-317 MHz post-route timing, FPGA resource extraction, and SAIF-based Vivado
-power remain pending until the published benchmark commit is executed in an
-isolated remote checkout. The dirty `remote` checkout itself must not be reset
-or overwritten; the Cadence flow remains a separate ASIC/standard-cell flow.
+317 MHz post-route timing, FPGA resource extraction, and vectorless Vivado
+power were executed in the isolated snapshot. The sweep found a valid boundary
+at 317.000013 MHz / 3.154574 ns (WNS +0.086 ns); 349.999983 MHz / 2.857143 ns
+failed (WNS -0.023 ns). The gate-level XSim attempt reached SDF annotation but
+Vivado's xelab aborted in LLVM `DAGTypeLegalizer::run`; SAIF is therefore kept
+pending rather than presented as a timing-power result. The dirty `remote`
+checkout itself was not reset or overwritten; the Cadence flow remains a
+separate ASIC/standard-cell flow.
