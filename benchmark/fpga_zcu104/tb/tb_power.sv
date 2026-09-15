@@ -135,7 +135,7 @@ module tb_power #(
     end
     $display("POWER_WORKLOAD seed=%0d jobs=%0d latency_cycles=%0d ii_cycles=%0d tile_ends=%0d tile_ii_cycles=%0d", WORKLOAD_SEED,
              jobs_completed, latency_cycles, initiation_interval_cycles, tile_end_count,
-             tile_initiation_interval_cycles);
+             tile_inlabelsitiation_interval_cycles);
     $display("POWER_WORKLOAD_END");
     $finish;
   end
