@@ -39,12 +39,15 @@ close $sources
 # command path with a generated period, so every run has an explicit clock.
 if {$run_name eq "317mhz"} {
   read_xdc [file join $bench_dir constraints zcu104_317mhz.xdc]
-} else {
-  create_clock -name clk -period $period_ns [get_ports clk]
-  set_false_path -from [get_ports reset]
 }
 
 synth_design -top Conv -part xczu7ev-ffvc1156-2-e
+# Generated-period Fmax runs cannot query top-level ports until synthesis has
+# opened the design. Apply their clock/reset constraints before placement.
+if {$run_name ne "317mhz"} {
+  create_clock -name clk -period $period_ns [get_ports clk]
+  set_false_path -from [get_ports reset]
+}
 write_checkpoint -force [file join $run_dir design_synth.dcp]
 opt_design
 place_design
