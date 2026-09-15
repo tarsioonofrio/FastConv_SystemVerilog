@@ -53,7 +53,7 @@ route_design
 write_checkpoint -force [file join $run_dir design_routed.dcp]
 # Keep post-route simulation artifacts beside the checkpoint. The default
 # campaign consumes these with XSim for SAIF and does not emit a VCD.
-write_verilog -mode timesim -force [file join $run_dir design_routed_timesim.v]
+write_verilog -mode timesim -sdf_anno true -force [file join $run_dir design_routed_timesim.v]
 write_sdf -force [file join $run_dir design_routed.sdf]
 
 report_utilization -hierarchical -file [file join $run_dir utilization.rpt]
