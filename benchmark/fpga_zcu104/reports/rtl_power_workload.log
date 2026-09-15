@@ -1,0 +1,9 @@
+RESETANDO PARA O CANAL 0 - DEU A VOLTA NOS IFMAPS time=78925000 2 (3) st_input_current = ADDRESS_INPUT
+RESETANDO PARA O CANAL 0 - DEU A VOLTA NOS IFMAPS time=157735000 2 (3) st_input_current = ADDRESS_INPUT
+RESETANDO PARA O CANAL 0 - DEU A VOLTA NOS IFMAPS time=236545000 2 (3) st_input_current = ADDRESS_INPUT
+POWER_WORKLOAD seed=1 jobs=1 latency_cycles=23648 ii_cycles=0 tile_ends=2025 tile_ii_cycles=11
+POWER_WORKLOAD_END
+- /home/tarsio/gaph/FastConv_SystemVerilog/benchmark/fpga_zcu104/tb/tb_power.sv:135: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.050 2026-07-01
+- Verilator: $finish at 237us; walltime 0.074 s; speed 3.179 ms/s
+- Verilator: cpu 0.023 s on 1 threads; allocated 7 MB
