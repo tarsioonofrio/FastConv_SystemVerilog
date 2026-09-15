@@ -191,8 +191,8 @@ The report generator excludes every project below `archive/` by default. To
 rebuild the historical comparison including the archived generic and `m04`
 variants, run `python3 scripts/report.py --include-archived`.
 
-The detailed register-reduction rationale remains in
-[`doc/register.md`](doc/register.md).
+The detailed storage-reduction history remains in
+[`doc/history.md`](doc/history.md).
 
 ## Power flow on Paxos
 
@@ -213,9 +213,9 @@ The nominal `report_power` totals in mW are:
 | `stream08-prefetch4-rowconst4-temporal1` | 0.984856 | passed (archived) |
 
 The detailed leakage/internal/switching breakdown, area, cycle count and exact
-remote execution evidence are recorded in [`doc/register.md`](doc/register.md).
+remote execution evidence are recorded in [`doc/history.md`](doc/history.md).
 The historical four-MAC synthesis and power results remain untouched. The
 default report excludes every project below `archive/`; use
 `python3 scripts/report.py --include-archived` for the historical rows.
 The consolidated Conv2x2 PPA comparison, including the revalidated `stream00`
-results, is in [section 13 of that document](doc/register.md#13-comparativo-geral-das-variantes-conv2x2).
+results, is in [section 13 of that document](doc/history.md#13-comparativo-geral-das-variantes-conv2x2).

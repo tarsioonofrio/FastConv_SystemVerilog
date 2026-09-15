@@ -1,4 +1,4 @@
-# Conv2x2: registro de reducao de armazenamento
+# Conv2x2: historia da reducao de armazenamento
 
 Este documento registra, em ordem executavel, as alteracoes do datapath
 streaming e a motivacao de cada uma. A finalidade e permitir que cada etapa
@@ -12,10 +12,12 @@ achatada: cada resultado de sintese fica diretamente em
 `synthesis/<nome-do-arquivo-rtl-sem-.sv>/`; experimentos preservados ficam em
 `archive/<geracao>/synthesis/`.
 
-Esta revisao incorpora os commits `6a1f7795` (arquivamento das variantes
-experimentais) e `592df08b` (resultado refinado da variante temporal). O
-`std` ativo usa oito MACs por padrao. As fontes m04, o generic, o
-`rowconst4` anterior, o `rowconst4-exact` e o experimento `temporal1` continuam
+Esta revisao acompanha toda a trajetoria ate os commits `445edc0d` e
+`ea8706a3`: primeiro a migracao dos modelos ativos para oito MACs, depois a
+reducao dos bancos de transformacao, as experiencias de prefetch, as
+transformacoes de pesos em linhas, as tentativas temporal e shared e, por
+fim, os bancos sensiveis a nivel. O `std` ativo usa oito MACs por padrao. As
+fontes m04 e as variantes experimentais retiradas da linha principal continuam
 disponiveis em `archive/` para comparacao, sem misturar seus resultados com a
 linha ativa.
 
@@ -41,6 +43,91 @@ Cada seta representa uma mudanca de fronteira entre logica combinacional e
 registradores. O algoritmo Winograd continua calculando a mesma combinacao de
 transformada, produtos e inversa; o que muda e quanto tempo cada valor precisa
 ficar armazenado.
+
+### 0.0 A cronologia executavel da implementacao
+
+O ponto de partida desta narrativa e o arquivo
+`archive/m04/conv-i16-h16-t16-o4-m04-std.sv`. Ele nao e apenas um baseline
+historico: e o molde contra o qual cada experimento foi perguntado. A cada
+passo, a pergunta foi a mesma: **qual informacao ainda precisa cruzar uma
+borda de clock, e qual pode permanecer como fio combinacional?** Os hashes
+abaixo funcionam como marcadores de caderno; cada um corresponde a uma
+alteracao que pode ser reencontrada no Git.
+
+1. **A linguagem dos nomes (`4aecfef7`).** Os nomes `stream00`, `stream04` e
+   `stream08` foram alinhados ao campo `t**` do arquivo. Isso separou a
+   quantidade de MACs (`m04`, `m08`) da quantidade de palavras agendadas por
+   ciclo e tornou comparacoes entre geracoes legiveis.
+2. **O generic deixa de prometer dois MACs (`04848aa3`).** A variante generica
+   `stream08` passou a aceitar somente os contratos de quatro e oito MACs. A
+   FSM deixou de carregar um caso historico que nao fazia parte da linha de
+   desenvolvimento.
+3. **A migracao para m08 (`bd4ff8ae`, `45b95289`).** Foram criados os fontes
+   de oito MACs, suas configuracoes de sintese e o primeiro registro do fluxo
+   de power no Paxos. A matematica permaneceu a mesma; o paralelismo mudou de
+   quatro para oito produtos por passo.
+4. **O m04 vira referencia (`f23130ae`, `1c0a6b3d`).** Os modelos de quatro
+   MACs foram movidos para `archive/m04/` e seus resultados foram regenerados
+   como historia. Assim, a arvore ativa passou a responder a pergunta sobre o
+   projeto atual, enquanto os m04 preservaram a evidencia da reducao de ciclos.
+5. **O fluxo remoto fica repetivel (`8ca92ef8`, `b4a619f9`).** Os scripts
+   passaram a inicializar corretamente os modulos Cadence e as campanhas
+   faltantes de logical, gate-level e power foram completadas. A partir daqui,
+   cada reducao de armazenamento passou a ser acompanhada por uma medicao
+   comparavel de area, tempo e potencia.
+6. **O primeiro prefetch (`cbf923a2`, `96d9ed0b`, `a2f33948`, `28a8f419`).** O
+   banco de prefetch passou a ser liberado no momento certo, os resultados
+   foram registrados e a leitura da proxima coluna foi sobreposta ao uso do
+   tile atual. O custo foi estado extra na entrada; o objetivo foi esconder a
+   latencia da memoria sem alterar o numero de janelas produzidas.
+7. **Pesos em linhas constantes (`5d7abd4c`, `92fa4049`, `72784b2a`).** A
+   variante `rowconst4` deixou de manter dezesseis pesos transformados. Ela
+   guarda os nove pesos espaciais e apenas as linhas transformadas que estao
+   em voo. O transformador de pesos ganhou selecao de linha e o fluxo de power
+   passou a medir esse deslocamento de armazenamento para logica.
+8. **A experiencia shared (`88d801a8`, `9b62205c`, `9b4fa904`).** Duas linhas
+   de pesos passaram a compartilhar somas do transformador. A ideia reduziu
+   hardware duplicado, mas introduziu uma dependencia temporal adicional; por
+   isso a variante original foi preservada antes de qualquer substituicao.
+9. **A experiencia temporal (`2d58c7d9`, `87f7f4db`, `a8b5dfab`).** O shared
+   foi substituido por uma captura temporal: um transformador de linha e um
+   cache registram as quatro linhas nos instantes em que a FSM ja esta parada
+   para usa-las. O numero de ciclos foi mantido, mas a area e a potencia
+   mostraram que economizar instancias combinacionais pode custar mais estado.
+10. **Coeficientes selecionados antes da aritmetica (`92976cc7`, `592df08b`).**
+    A escolha dos coeficientes da linha passou a acontecer antes da soma. Isso
+    tornou explicita a diferenca entre guardar o peso transformado completo e
+    guardar somente a linha ativa, e os reports registraram a campanha antes de
+    ela ser arquivada.
+11. **O arquivo historico e separado da linha ativa (`6a1f7795`, `f5a793dc`).**
+    As variantes exact e temporal foram movidas para `archive/m08/`; a
+    documentacao passou a distinguir fonte ativo, experimento historico e
+    resultado de sintese. O coletor de reports ganhou a regra de excluir
+    `archive/` por padrao e inclui-lo apenas com `--include-archived`.
+12. **Latches nos bancos independentes (`1566d9a2`, `75da237e`, `9ae63cf7`,
+    `dd3c0ae9`, `43d264ad`, `8c0113d1`).** O prefetch de entrada, o banco de
+    pesos espaciais e a leitura da saida foram convertidos experimentalmente
+    para `always_latch`, mantendo FSMs, contadores e realimentacoes em
+    `always_ff`. O fluxo foi ajustado para aceitar latches intencionais e os
+    resultados de area/power foram medidos sem mudar o contrato funcional.
+13. **Um unico banco de features (`4d2a79f4`, `d760df5c`).** A copia
+    `r_input_feat_stage` foi removida. O banco unico reduziu armazenamento, mas
+    revelou no gate-level uma corrida de transparencia na entrada de
+    `CONV_INPUT`.
+14. **Captura na borda e fechamento (`a60ac009`, `797badab`).** Somente
+    `r_input_feat` passou a ser capturado na borda do clock; os latches
+    independentes foram preservados. A simulacao gate-level no Paxos terminou
+    com zero mismatches, e o power foi medido sobre a netlist corrigida.
+15. **O experimento deixa de ser ativo (`ea8706a3`, `445edc0d`).** O exact
+    `h20` e o latch-bank `h13` foram movidos para `archive/m08/`, seus
+    `list-file.txt` foram corrigidos para os novos caminhos e os reports ativos
+    foram regenerados. Nada foi apagado: a mudanca apenas tornou explicita a
+    fronteira entre a implementacao corrente e a historia experimental.
+
+Essa ordem e importante. O prefetch nao nasceu com os latches; os latches nao
+nasceram com o banco unico; e o banco unico nao foi aceito antes de passar pela
+simulacao anotada. Em cada capitulo abaixo, o codigo aparece como a prova
+executavel da decisao narrativa.
 
 ### 0.1 O ponto de partida: `std`
 
