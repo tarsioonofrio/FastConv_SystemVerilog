@@ -1,0 +1,1020 @@
+{
+  "source": "reports/rtl_saif/activity_rtl.saif",
+  "duration_ps": 249995000,
+  "clock_period_ps": 10000.0,
+  "simulation_cycles": 24999.5,
+  "signal_count": 101,
+  "signals": {
+    "clk": {
+      "static_probability": 0.499989999799996,
+      "toggle_count": 49999,
+      "toggle_rate_per_clock": 2.0,
+      "t0_ps": 125000000,
+      "t1_ps": 124995000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "reset": {
+      "static_probability": 8.000160003200064e-05,
+      "toggle_count": 2,
+      "toggle_rate_per_clock": 8.000160003200064e-05,
+      "t0_ps": 249975000,
+      "t1_ps": 20000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_start": {
+      "static_probability": 4.000080001600032e-05,
+      "toggle_count": 2,
+      "toggle_rate_per_clock": 8.000160003200064e-05,
+      "t0_ps": 249985000,
+      "t1_ps": 10000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_end": {
+      "static_probability": 4.000080001600032e-05,
+      "toggle_count": 2,
+      "toggle_rate_per_clock": 8.000160003200064e-05,
+      "t0_ps": 249985000,
+      "t1_ps": 10000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_input_en": {
+      "static_probability": 0.6970139402788056,
+      "toggle_count": 4052,
+      "toggle_rate_per_clock": 0.1620832416648333,
+      "t0_ps": 75745000,
+      "t1_ps": 174250000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_input_addr[0]": {
+      "static_probability": 0.3484869697393948,
+      "toggle_count": 17424,
+      "toggle_rate_per_clock": 0.6969739394787896,
+      "t0_ps": 162875000,
+      "t1_ps": 87120000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_input_addr[1]": {
+      "static_probability": 0.4644092881857637,
+      "toggle_count": 8838,
+      "toggle_rate_per_clock": 0.3535270705414108,
+      "t0_ps": 133895000,
+      "t1_ps": 116100000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_input_addr[2]": {
+      "static_probability": 0.4647692953859077,
+      "toggle_count": 4140,
+      "toggle_rate_per_clock": 0.16560331206624132,
+      "t0_ps": 133805000,
+      "t1_ps": 116190000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_input_addr[3]": {
+      "static_probability": 0.4647692953859077,
+      "toggle_count": 1782,
+      "toggle_rate_per_clock": 0.07128142562851257,
+      "t0_ps": 133805000,
+      "t1_ps": 116190000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_input_addr[4]": {
+      "static_probability": 0.46448928978579573,
+      "toggle_count": 594,
+      "toggle_rate_per_clock": 0.02376047520950419,
+      "t0_ps": 133875000,
+      "t1_ps": 116120000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_input_addr[5]": {
+      "static_probability": 0.510170203404068,
+      "toggle_count": 4328,
+      "toggle_rate_per_clock": 0.1731234624692494,
+      "t0_ps": 122455000,
+      "t1_ps": 127540000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_input_addr[6]": {
+      "static_probability": 0.47236944738894776,
+      "toggle_count": 2168,
+      "toggle_rate_per_clock": 0.0867217344346887,
+      "t0_ps": 131905000,
+      "t1_ps": 118090000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_input_addr[7]": {
+      "static_probability": 0.4758895177903558,
+      "toggle_count": 1084,
+      "toggle_rate_per_clock": 0.04336086721734435,
+      "t0_ps": 131025000,
+      "t1_ps": 118970000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_input_addr[8]": {
+      "static_probability": 0.4752095041900838,
+      "toggle_count": 540,
+      "toggle_rate_per_clock": 0.02160043200864017,
+      "t0_ps": 131195000,
+      "t1_ps": 118800000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_input_addr[9]": {
+      "static_probability": 0.4752095041900838,
+      "toggle_count": 270,
+      "toggle_rate_per_clock": 0.010800216004320086,
+      "t0_ps": 131195000,
+      "t1_ps": 118800000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_input_addr[10]": {
+      "static_probability": 0.3228464569291386,
+      "toggle_count": 272,
+      "toggle_rate_per_clock": 0.010880217604352087,
+      "t0_ps": 169285000,
+      "t1_ps": 80710000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_input_addr[11]": {
+      "static_probability": 0.3228464569291386,
+      "toggle_count": 98,
+      "toggle_rate_per_clock": 0.003920078401568031,
+      "t0_ps": 169285000,
+      "t1_ps": 80710000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_input_addr[12]": {
+      "static_probability": 0.0,
+      "toggle_count": 0,
+      "toggle_rate_per_clock": 0.0,
+      "t0_ps": 249995000,
+      "t1_ps": 0,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_input_addr[13]": {
+      "static_probability": 0.0,
+      "toggle_count": 0,
+      "toggle_rate_per_clock": 0.0,
+      "t0_ps": 249995000,
+      "t1_ps": 0,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_input_addr[14]": {
+      "static_probability": 0.0,
+      "toggle_count": 0,
+      "toggle_rate_per_clock": 0.0,
+      "t0_ps": 249995000,
+      "t1_ps": 0,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_input_addr[15]": {
+      "static_probability": 0.0,
+      "toggle_count": 0,
+      "toggle_rate_per_clock": 0.0,
+      "t0_ps": 249995000,
+      "t1_ps": 0,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_input_data[0]": {
+      "static_probability": 0.3504070081401628,
+      "toggle_count": 9644,
+      "toggle_rate_per_clock": 0.3857677153543071,
+      "t0_ps": 162395000,
+      "t1_ps": 87600000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_input_data[1]": {
+      "static_probability": 0.3510470209404188,
+      "toggle_count": 9458,
+      "toggle_rate_per_clock": 0.37832756655133104,
+      "t0_ps": 162235000,
+      "t1_ps": 87760000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_input_data[2]": {
+      "static_probability": 0.3416068321366427,
+      "toggle_count": 10046,
+      "toggle_rate_per_clock": 0.40184803696073923,
+      "t0_ps": 164595000,
+      "t1_ps": 85400000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_input_data[3]": {
+      "static_probability": 0.3476069521390428,
+      "toggle_count": 9888,
+      "toggle_rate_per_clock": 0.3955279105582112,
+      "t0_ps": 163095000,
+      "t1_ps": 86900000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_input_data[4]": {
+      "static_probability": 0.3522470449408988,
+      "toggle_count": 9760,
+      "toggle_rate_per_clock": 0.3904078081561631,
+      "t0_ps": 161935000,
+      "t1_ps": 88060000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_input_data[5]": {
+      "static_probability": 0.3494069881397628,
+      "toggle_count": 9640,
+      "toggle_rate_per_clock": 0.3856077121542431,
+      "t0_ps": 162645000,
+      "t1_ps": 87350000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_input_data[6]": {
+      "static_probability": 0.3534070681413628,
+      "toggle_count": 9872,
+      "toggle_rate_per_clock": 0.3948878977579552,
+      "t0_ps": 161645000,
+      "t1_ps": 88350000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_input_data[7]": {
+      "static_probability": 0.3474869497389948,
+      "toggle_count": 9694,
+      "toggle_rate_per_clock": 0.3877677553551071,
+      "t0_ps": 163125000,
+      "t1_ps": 86870000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_input_data[8]": {
+      "static_probability": 0.3481269625392508,
+      "toggle_count": 9672,
+      "toggle_rate_per_clock": 0.3868877377547551,
+      "t0_ps": 162965000,
+      "t1_ps": 87030000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_input_data[9]": {
+      "static_probability": 0.35528710574211486,
+      "toggle_count": 9876,
+      "toggle_rate_per_clock": 0.39504790095801917,
+      "t0_ps": 161175000,
+      "t1_ps": 88820000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_input_data[10]": {
+      "static_probability": 0.35748714974299484,
+      "toggle_count": 9884,
+      "toggle_rate_per_clock": 0.39536790735814714,
+      "t0_ps": 160625000,
+      "t1_ps": 89370000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_input_data[11]": {
+      "static_probability": 0.35748714974299484,
+      "toggle_count": 9884,
+      "toggle_rate_per_clock": 0.39536790735814714,
+      "t0_ps": 160625000,
+      "t1_ps": 89370000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_input_data[12]": {
+      "static_probability": 0.35748714974299484,
+      "toggle_count": 9884,
+      "toggle_rate_per_clock": 0.39536790735814714,
+      "t0_ps": 160625000,
+      "t1_ps": 89370000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_input_data[13]": {
+      "static_probability": 0.35748714974299484,
+      "toggle_count": 9884,
+      "toggle_rate_per_clock": 0.39536790735814714,
+      "t0_ps": 160625000,
+      "t1_ps": 89370000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_input_data[14]": {
+      "static_probability": 0.35748714974299484,
+      "toggle_count": 9884,
+      "toggle_rate_per_clock": 0.39536790735814714,
+      "t0_ps": 160625000,
+      "t1_ps": 89370000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_input_data[15]": {
+      "static_probability": 0.35748714974299484,
+      "toggle_count": 9884,
+      "toggle_rate_per_clock": 0.39536790735814714,
+      "t0_ps": 160625000,
+      "t1_ps": 89370000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_input_data[16]": {
+      "static_probability": 0.35748714974299484,
+      "toggle_count": 9884,
+      "toggle_rate_per_clock": 0.39536790735814714,
+      "t0_ps": 160625000,
+      "t1_ps": 89370000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_input_data[17]": {
+      "static_probability": 0.35748714974299484,
+      "toggle_count": 9884,
+      "toggle_rate_per_clock": 0.39536790735814714,
+      "t0_ps": 160625000,
+      "t1_ps": 89370000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_input_data[18]": {
+      "static_probability": 0.35748714974299484,
+      "toggle_count": 9884,
+      "toggle_rate_per_clock": 0.39536790735814714,
+      "t0_ps": 160625000,
+      "t1_ps": 89370000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_input_data[19]": {
+      "static_probability": 0.35748714974299484,
+      "toggle_count": 9884,
+      "toggle_rate_per_clock": 0.39536790735814714,
+      "t0_ps": 160625000,
+      "t1_ps": 89370000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_input_valid": {
+      "static_probability": 0.6970139402788056,
+      "toggle_count": 4052,
+      "toggle_rate_per_clock": 0.1620832416648333,
+      "t0_ps": 75745000,
+      "t1_ps": 174250000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_output_en": {
+      "static_probability": 0.7346546930938619,
+      "toggle_count": 1530,
+      "toggle_rate_per_clock": 0.06120122402448049,
+      "t0_ps": 66335000,
+      "t1_ps": 183660000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_output_wr": {
+      "static_probability": 0.3240064801296026,
+      "toggle_count": 4050,
+      "toggle_rate_per_clock": 0.1620032400648013,
+      "t0_ps": 168995000,
+      "t1_ps": 81000000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_output_addr[0]": {
+      "static_probability": 0.49524990499809995,
+      "toggle_count": 6750,
+      "toggle_rate_per_clock": 0.27000540010800217,
+      "t0_ps": 126185000,
+      "t1_ps": 123810000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_output_addr[1]": {
+      "static_probability": 0.4750895017900358,
+      "toggle_count": 13626,
+      "toggle_rate_per_clock": 0.5450509010180203,
+      "t0_ps": 131225000,
+      "t1_ps": 118770000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_output_addr[2]": {
+      "static_probability": 0.4719294385887718,
+      "toggle_count": 7816,
+      "toggle_rate_per_clock": 0.3126462529250585,
+      "t0_ps": 132015000,
+      "t1_ps": 117980000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_output_addr[3]": {
+      "static_probability": 0.5252905058101162,
+      "toggle_count": 3971,
+      "toggle_rate_per_clock": 0.15884317686353727,
+      "t0_ps": 118675000,
+      "t1_ps": 131320000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_output_addr[4]": {
+      "static_probability": 0.46960939218784375,
+      "toggle_count": 1984,
+      "toggle_rate_per_clock": 0.07936158723174463,
+      "t0_ps": 132595000,
+      "t1_ps": 117400000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_output_addr[5]": {
+      "static_probability": 0.4772095441908838,
+      "toggle_count": 12718,
+      "toggle_rate_per_clock": 0.5087301746034921,
+      "t0_ps": 130695000,
+      "t1_ps": 119300000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_output_addr[6]": {
+      "static_probability": 0.4449288985779716,
+      "toggle_count": 7178,
+      "toggle_rate_per_clock": 0.2871257425148503,
+      "t0_ps": 138765000,
+      "t1_ps": 111230000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_output_addr[7]": {
+      "static_probability": 0.44464889297785953,
+      "toggle_count": 3536,
+      "toggle_rate_per_clock": 0.14144282885657714,
+      "t0_ps": 138835000,
+      "t1_ps": 111160000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_output_addr[8]": {
+      "static_probability": 0.5124902498049961,
+      "toggle_count": 1851,
+      "toggle_rate_per_clock": 0.07404148082961659,
+      "t0_ps": 121875000,
+      "t1_ps": 128120000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_output_addr[9]": {
+      "static_probability": 0.4748494969899398,
+      "toggle_count": 941,
+      "toggle_rate_per_clock": 0.0376407528150563,
+      "t0_ps": 131285000,
+      "t1_ps": 118710000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_output_addr[10]": {
+      "static_probability": 0.4097681953639073,
+      "toggle_count": 275,
+      "toggle_rate_per_clock": 0.011000220004400088,
+      "t0_ps": 147555000,
+      "t1_ps": 102440000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_output_addr[11]": {
+      "static_probability": 0.21524430488609772,
+      "toggle_count": 154,
+      "toggle_rate_per_clock": 0.006160123202464049,
+      "t0_ps": 196185000,
+      "t1_ps": 53810000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_output_addr[12]": {
+      "static_probability": 0.0,
+      "toggle_count": 0,
+      "toggle_rate_per_clock": 0.0,
+      "t0_ps": 249995000,
+      "t1_ps": 0,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_output_addr[13]": {
+      "static_probability": 0.0,
+      "toggle_count": 0,
+      "toggle_rate_per_clock": 0.0,
+      "t0_ps": 249995000,
+      "t1_ps": 0,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_output_addr[14]": {
+      "static_probability": 0.0,
+      "toggle_count": 0,
+      "toggle_rate_per_clock": 0.0,
+      "t0_ps": 249995000,
+      "t1_ps": 0,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_output_addr[15]": {
+      "static_probability": 0.0,
+      "toggle_count": 0,
+      "toggle_rate_per_clock": 0.0,
+      "t0_ps": 249995000,
+      "t1_ps": 0,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_output_data_write[0]": {
+      "static_probability": 0.46736934738694774,
+      "toggle_count": 4990,
+      "toggle_rate_per_clock": 0.19960399207984159,
+      "t0_ps": 133155000,
+      "t1_ps": 116840000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_output_data_write[1]": {
+      "static_probability": 0.5169303386067722,
+      "toggle_count": 5115,
+      "toggle_rate_per_clock": 0.20460409208184163,
+      "t0_ps": 120765000,
+      "t1_ps": 129230000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_output_data_write[2]": {
+      "static_probability": 0.48124962499249985,
+      "toggle_count": 5024,
+      "toggle_rate_per_clock": 0.2009640192803856,
+      "t0_ps": 129685000,
+      "t1_ps": 120310000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_output_data_write[3]": {
+      "static_probability": 0.4753695073901478,
+      "toggle_count": 5018,
+      "toggle_rate_per_clock": 0.2007240144802896,
+      "t0_ps": 131155000,
+      "t1_ps": 118840000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_output_data_write[4]": {
+      "static_probability": 0.5262905258105162,
+      "toggle_count": 5055,
+      "toggle_rate_per_clock": 0.2022040440808816,
+      "t0_ps": 118425000,
+      "t1_ps": 131570000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_output_data_write[5]": {
+      "static_probability": 0.4778095561911238,
+      "toggle_count": 5002,
+      "toggle_rate_per_clock": 0.2000840016800336,
+      "t0_ps": 130545000,
+      "t1_ps": 119450000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_output_data_write[6]": {
+      "static_probability": 0.4728894577891558,
+      "toggle_count": 5018,
+      "toggle_rate_per_clock": 0.2007240144802896,
+      "t0_ps": 131775000,
+      "t1_ps": 118220000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_output_data_write[7]": {
+      "static_probability": 0.4679293585871717,
+      "toggle_count": 5076,
+      "toggle_rate_per_clock": 0.20304406088121763,
+      "t0_ps": 133015000,
+      "t1_ps": 116980000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_output_data_write[8]": {
+      "static_probability": 0.4706894137882758,
+      "toggle_count": 5042,
+      "toggle_rate_per_clock": 0.2016840336806736,
+      "t0_ps": 132325000,
+      "t1_ps": 117670000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_output_data_write[9]": {
+      "static_probability": 0.46724934498689974,
+      "toggle_count": 5054,
+      "toggle_rate_per_clock": 0.20216404328086562,
+      "t0_ps": 133185000,
+      "t1_ps": 116810000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_output_data_write[10]": {
+      "static_probability": 0.45984919698393967,
+      "toggle_count": 4928,
+      "toggle_rate_per_clock": 0.19712394247884957,
+      "t0_ps": 135035000,
+      "t1_ps": 114960000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_output_data_write[11]": {
+      "static_probability": 0.45560911218224365,
+      "toggle_count": 4860,
+      "toggle_rate_per_clock": 0.19440388807776154,
+      "t0_ps": 136095000,
+      "t1_ps": 113900000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_output_data_write[12]": {
+      "static_probability": 0.45596911938238766,
+      "toggle_count": 4842,
+      "toggle_rate_per_clock": 0.19368387367747356,
+      "t0_ps": 136005000,
+      "t1_ps": 113990000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_output_data_write[13]": {
+      "static_probability": 0.45660913218264365,
+      "toggle_count": 4832,
+      "toggle_rate_per_clock": 0.19328386567731354,
+      "t0_ps": 135845000,
+      "t1_ps": 114150000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_output_data_write[14]": {
+      "static_probability": 0.45660913218264365,
+      "toggle_count": 4832,
+      "toggle_rate_per_clock": 0.19328386567731354,
+      "t0_ps": 135845000,
+      "t1_ps": 114150000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_output_data_write[15]": {
+      "static_probability": 0.45660913218264365,
+      "toggle_count": 4832,
+      "toggle_rate_per_clock": 0.19328386567731354,
+      "t0_ps": 135845000,
+      "t1_ps": 114150000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_output_data_write[16]": {
+      "static_probability": 0.45660913218264365,
+      "toggle_count": 4832,
+      "toggle_rate_per_clock": 0.19328386567731354,
+      "t0_ps": 135845000,
+      "t1_ps": 114150000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_output_data_write[17]": {
+      "static_probability": 0.45660913218264365,
+      "toggle_count": 4832,
+      "toggle_rate_per_clock": 0.19328386567731354,
+      "t0_ps": 135845000,
+      "t1_ps": 114150000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_output_data_write[18]": {
+      "static_probability": 0.45660913218264365,
+      "toggle_count": 4832,
+      "toggle_rate_per_clock": 0.19328386567731354,
+      "t0_ps": 135845000,
+      "t1_ps": 114150000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_output_data_write[19]": {
+      "static_probability": 0.45660913218264365,
+      "toggle_count": 4832,
+      "toggle_rate_per_clock": 0.19328386567731354,
+      "t0_ps": 135845000,
+      "t1_ps": 114150000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_output_data_read[0]": {
+      "static_probability": 0.31792635852717055,
+      "toggle_count": 5368,
+      "toggle_rate_per_clock": 0.21472429448588973,
+      "t0_ps": 170515000,
+      "t1_ps": 79480000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_output_data_read[1]": {
+      "static_probability": 0.3116062321246425,
+      "toggle_count": 5416,
+      "toggle_rate_per_clock": 0.21664433288665774,
+      "t0_ps": 172095000,
+      "t1_ps": 77900000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_output_data_read[2]": {
+      "static_probability": 0.31856637132742655,
+      "toggle_count": 5440,
+      "toggle_rate_per_clock": 0.21760435208704174,
+      "t0_ps": 170355000,
+      "t1_ps": 79640000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_output_data_read[3]": {
+      "static_probability": 0.32032640652813055,
+      "toggle_count": 5424,
+      "toggle_rate_per_clock": 0.21696433928678574,
+      "t0_ps": 169915000,
+      "t1_ps": 80080000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_output_data_read[4]": {
+      "static_probability": 0.31628632572651455,
+      "toggle_count": 5530,
+      "toggle_rate_per_clock": 0.22120442408848176,
+      "t0_ps": 170925000,
+      "t1_ps": 79070000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_output_data_read[5]": {
+      "static_probability": 0.3115662313246265,
+      "toggle_count": 5312,
+      "toggle_rate_per_clock": 0.2124842496849937,
+      "t0_ps": 172105000,
+      "t1_ps": 77890000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_output_data_read[6]": {
+      "static_probability": 0.31932638652773054,
+      "toggle_count": 5396,
+      "toggle_rate_per_clock": 0.21584431688633773,
+      "t0_ps": 170165000,
+      "t1_ps": 79830000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_output_data_read[7]": {
+      "static_probability": 0.31368627372547453,
+      "toggle_count": 5500,
+      "toggle_rate_per_clock": 0.22000440008800176,
+      "t0_ps": 171575000,
+      "t1_ps": 78420000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_output_data_read[8]": {
+      "static_probability": 0.31592631852637054,
+      "toggle_count": 5454,
+      "toggle_rate_per_clock": 0.21816436328726574,
+      "t0_ps": 171015000,
+      "t1_ps": 78980000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_output_data_read[9]": {
+      "static_probability": 0.30556611132222644,
+      "toggle_count": 5528,
+      "toggle_rate_per_clock": 0.22112442248844977,
+      "t0_ps": 173605000,
+      "t1_ps": 76390000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_output_data_read[10]": {
+      "static_probability": 0.3162463249264985,
+      "toggle_count": 5316,
+      "toggle_rate_per_clock": 0.2126442528850577,
+      "t0_ps": 170935000,
+      "t1_ps": 79060000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_output_data_read[11]": {
+      "static_probability": 0.30492609852197045,
+      "toggle_count": 5424,
+      "toggle_rate_per_clock": 0.21696433928678574,
+      "t0_ps": 173765000,
+      "t1_ps": 76230000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_output_data_read[12]": {
+      "static_probability": 0.3046060921218424,
+      "toggle_count": 5560,
+      "toggle_rate_per_clock": 0.2224044480889618,
+      "t0_ps": 173845000,
+      "t1_ps": 76150000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_output_data_read[13]": {
+      "static_probability": 0.3042460849216984,
+      "toggle_count": 5570,
+      "toggle_rate_per_clock": 0.22280445608912178,
+      "t0_ps": 173935000,
+      "t1_ps": 76060000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_output_data_read[14]": {
+      "static_probability": 0.3042460849216984,
+      "toggle_count": 5570,
+      "toggle_rate_per_clock": 0.22280445608912178,
+      "t0_ps": 173935000,
+      "t1_ps": 76060000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_output_data_read[15]": {
+      "static_probability": 0.3042460849216984,
+      "toggle_count": 5570,
+      "toggle_rate_per_clock": 0.22280445608912178,
+      "t0_ps": 173935000,
+      "t1_ps": 76060000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_output_data_read[16]": {
+      "static_probability": 0.3042460849216984,
+      "toggle_count": 5570,
+      "toggle_rate_per_clock": 0.22280445608912178,
+      "t0_ps": 173935000,
+      "t1_ps": 76060000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_output_data_read[17]": {
+      "static_probability": 0.3042460849216984,
+      "toggle_count": 5570,
+      "toggle_rate_per_clock": 0.22280445608912178,
+      "t0_ps": 173935000,
+      "t1_ps": 76060000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_output_data_read[18]": {
+      "static_probability": 0.3042460849216984,
+      "toggle_count": 5570,
+      "toggle_rate_per_clock": 0.22280445608912178,
+      "t0_ps": 173935000,
+      "t1_ps": 76060000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_output_data_read[19]": {
+      "static_probability": 0.3042460849216984,
+      "toggle_count": 5570,
+      "toggle_rate_per_clock": 0.22280445608912178,
+      "t0_ps": 173935000,
+      "t1_ps": 76060000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    },
+    "p_output_valid": {
+      "static_probability": 0.7346546930938619,
+      "toggle_count": 1530,
+      "toggle_rate_per_clock": 0.06120122402448049,
+      "t0_ps": 66335000,
+      "t1_ps": 183660000,
+      "tz_ps": 0,
+      "tx_ps": 0,
+      "duration_ps": 249995000
+    }
+  },
+  "method": "RTL-derived primary-port activity; internal nets remain vectorless"
+}

@@ -14,8 +14,11 @@ int main(int argc, char** argv) {
     top->trace(&saif, 99);
     saif.open("activity_rtl.saif");
 
-    constexpr uint64_t max_time_ns = 250000;
-    while (!context->gotFinish() && context->time() < max_time_ns) {
+    // Verilator's context time is expressed in the generated design precision
+    // (1 ps here), while the testbench clock period is 10 ns.  Keep the
+    // capture window long enough for the complete 23,648-cycle job.
+    constexpr uint64_t max_time_ps = 250000000;
+    while (!context->gotFinish() && context->time() < max_time_ps) {
         top->eval();
         saif.dump(context->time());
         if (context->gotFinish() || !top->eventsPending()) break;

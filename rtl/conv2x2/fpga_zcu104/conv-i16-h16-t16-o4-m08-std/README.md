@@ -66,11 +66,22 @@ medidos separadamente.
    `scripts/xsim_saif.tcl` abre a janela útil. Nesta execução, a anotação SDF
    foi reconhecida, mas o `xelab` abortou em uma asserção LLVM de Vivado 2023.2;
    por isso apenas o timing-SAIF fica opcional; o RTL-SAIF do fluxo Verilator é
-   o resultado de atividade usado no power pós-route.
-7. `scripts/power_saif.tcl` importa o SAIF RTL com `-strip_path`, salva o
+   a fonte de atividade para o power híbrido pós-route. A captura completa foi
+   regenerada após corrigir a unidade de tempo do driver; os relatórios da
+   captura truncada ficam separados em `reports/stale_saif_245ns/`.
+7. `scripts/extract_saif_activity.py` extrai a atividade dos ports e sinais de
+   controle do DUT da captura RTL completa e gera
+   `reports/rtl_saif/primary_activity.json` e `scripts/primary_activity.tcl`.
+   O Tcl aplica `set_switching_activity` aos ports encontrados e deixa a
+   propagação interna sob estimativa vectorless.
+8. `scripts/power_saif.tcl` importa o SAIF RTL com `-strip_path`, salva o
    relatório de mapeamento e calcula power nos dois corners. As nets não
    cobertas continuam sob estimativa vectorless do Vivado.
-8. `scripts/collect_results.py` consolida relatórios em CSV, JSON e Markdown.
+9. `scripts/power_io_activity.tcl` aplica somente a atividade primária derivada
+   do workload ao checkpoint roteado e gera uma segunda estimativa híbrida para
+   comparação. A cobertura direta do SAIF e a cobertura efetiva dessa etapa
+   devem ser registradas nos relatórios Vivado.
+10. `scripts/collect_results.py` consolida relatórios em CSV, JSON e Markdown.
 
 O Experimento A usa exatamente `317 MHz`, período `3.154574 ns`. O Experimento
 B só chama uma frequência Fmax se uma implementação pós-route tiver WNS >= 0;
@@ -88,9 +99,24 @@ marcado como *equivalent direct-convolution GOPS*; não se afirma que seja uma
 convenção explicitamente idêntica à do WinoGen.
 
 Power é sempre rotulado como **Vivado post-route estimate**. Vectorless é o
-baseline; o resultado principal desta campanha é power pós-route com atividade
-RTL-SAIF. Timing-SAIF pós-implementation continua opcional e não bloqueia o
-experimento. Nenhum valor é chamado de medição física.
+baseline; o resultado principal pretendido é **post-route hybrid
+SAIF/vectorless**, usando atividade RTL nos sinais que casarem e propagação
+vectorless no restante. A captura completa tem duração de `249995000 ps`
+(aproximadamente `249,995 us`) e contém o job inteiro; a extração atual cobre
+`101` bits de ports/sinais de controle para aplicação explícita de atividade.
+Ela ainda precisa ser reimportada no checkpoint roteado antes de consolidar o
+novo power. Os relatórios da janela truncada de `245 ns` ficam em
+`reports/stale_saif_245ns/` e não são resultados finais. Timing-SAIF
+pós-implementation continua opcional e não bloqueia o experimento. Nenhum
+valor é chamado de medição física.
+
+A contagem de operações foi auditada em
+[`results/operation_count.md`](results/operation_count.md). O workload é uma
+convolução densa `3 input channels -> 3 output channels`: são `72900` MACs,
+`70200` adições elementares e `145800` operações equivalentes quando cada MAC
+vale duas operações. A linha `24300 multiplications` do gerador é uma contagem
+espacial por kernel que não inclui a acumulação nos três canais de entrada; ela
+não deve ser usada para reduzir a contagem do job.
 
 ## Referência WinoGen (Tabela 1, kernel 3x3)
 
@@ -115,16 +141,27 @@ vivado -mode batch -source scripts/synth_impl.tcl \
   -tclargs 317mhz 3.154574
 python3 scripts/run_fmax.py
 ./scripts/run_rtl_saif.sh
+python3 scripts/extract_saif_activity.py \
+  reports/rtl_saif/activity_rtl.saif \
+  --json reports/rtl_saif/primary_activity.json \
+  --tcl scripts/primary_activity.tcl
 python3 scripts/collect_results.py
 # depois de uma implementação roteada, importar a atividade RTL:
 vivado -mode batch -source scripts/power_saif.tcl \
   -tclargs 317mhz reports/rtl_saif/activity_rtl.saif TOP/tb_power
+# ou aplicar explicitamente a atividade dos ports e controles:
+vivado -mode batch -source scripts/power_io_activity.tcl \
+  -tclargs 317mhz scripts/primary_activity.tcl
 ```
 
 O SAIF RTL pode ser gerado antes da implementação e importado no checkpoint
-roteado. Nesta execução, o Vivado casou 104 de 5442 nets (1,91%) usando
-`TOP/tb_power`; as nets restantes continuam com estimativa vectorless. A
-captura de VCD do `tb_power.sv` é opcional e só é ativada ao compilar com
-`-DPOWER_DUMP`; a campanha padrão compila sem essa macro e não gera VCD. A
-tentativa de timing-SAIF com SDF fica documentada como uma validação opcional
-de maior fidelidade, pois o XSim abortou em uma asserção interna LLVM.
+roteado. O import da captura anterior encontrou 104 de 5442 nets (1,91%), mas
+essa importação usava a janela truncada de 245 ns e foi movida para
+`reports/stale_saif_245ns/`. A nova captura completa precisa ser importada
+antes de publicar cobertura ou potência híbrida; até lá, os campos de power
+SAIF ficam `PENDING` no coletor. As nets restantes continuam com estimativa
+vectorless. A captura de VCD do `tb_power.sv` é opcional e só é ativada ao
+compilar com `-DPOWER_DUMP`; a campanha padrão compila sem essa macro e não
+gera VCD. A tentativa de timing-SAIF com SDF fica documentada como uma
+validação opcional de maior fidelidade, pois o XSim abortou em uma asserção
+interna LLVM.

@@ -106,11 +106,14 @@ The following attempts were recorded without VCD generation:
   compilation stage for more than six minutes and produced no SAIF; that
   temporary process was stopped and its logs were preserved remotely.
 
-The RTL/behavioral SAIF path is now complete without VCD. Verilator generated
-`reports/rtl_saif/activity_rtl.saif` from the canonical package, and Vivado
-imported it into the routed 317 MHz checkpoint with `TOP/tb_power`. Vivado
-reported 104 matched nets out of 5442 design nets (1.91%); the remaining nets
-use vectorless estimation. The resulting post-route RTL-SAIF power reports are
-0.689 W typical and 0.908 W maximum. These are valid post-route estimates with
-explicitly low SAIF coverage, not physical-board measurements. The timing-SDF
-SAIF path remains optional because of the XSim LLVM failure.
+The RTL/behavioral SAIF capture is now complete without VCD. The first local
+capture was accidentally limited to 245 ns by a time-unit mismatch in the
+Verilator driver; it was regenerated with a 249.995 us window and now contains
+the full 23,648-cycle job, including `p_end` and output writes. The earlier
+0.689 W/0.908 W reports and 104/5442 mapping belong to the truncated capture
+and were moved to `reports/stale_saif_245ns/`; they must not be used as final
+hybrid power results. The new complete SAIF still needs to be imported into the
+routed checkpoint with `TOP/tb_power`. The intended label is **post-route hybrid
+SAIF/vectorless power**, with coverage and vectorless propagation reported
+separately. The timing-SDF SAIF path remains optional because of the XSim LLVM
+failure.
