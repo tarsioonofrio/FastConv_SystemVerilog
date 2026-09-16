@@ -33,11 +33,13 @@ xvlog, xelab, xsim -> same Vivado 2023.2 bin directory
 
 Therefore the Paxos has the required FPGA tools. The ZCU104 implementation,
 317 MHz post-route timing, FPGA resource extraction, and vectorless Vivado
-power were executed in the isolated snapshot. The sweep found a valid boundary
-at 317.000013 MHz / 3.154574 ns (WNS +0.086 ns); 349.999983 MHz / 2.857143 ns
-failed (WNS -0.023 ns). The gate-level XSim attempt reached SDF annotation but
-Vivado's xelab aborted in LLVM `DAGTypeLegalizer::run`; SAIF is therefore kept
-pending rather than presented as a timing-power result. The dirty `remote`
+power were executed in the isolated snapshot. The initial sweep found a valid
+boundary at 317.000013 MHz / 3.154574 ns (WNS +0.086 ns); 349.999983 MHz /
+2.857143 ns failed (WNS -0.023 ns). These points establish only the interval
+317--350 MHz; 317 MHz is not an exact Fmax. The gate-level XSim attempt reached
+SDF annotation but Vivado's xelab aborted in LLVM
+`DAGTypeLegalizer::run`; timing-SAIF is optional rather than the primary power
+result. The dirty `remote`
 checkout itself was not reset or overwritten; the Cadence flow remains a
 separate ASIC/standard-cell flow.
 
@@ -52,15 +54,16 @@ After the FPGA benchmark was moved under the variant-specific directory, commit
 Vivado 2023.2 regenerated the 317 MHz implementation artifacts and the full
 post-route Fmax sweep. The local copy now includes the synthesis/routed DCPs,
 timing netlists, SDFs, implementation logs, and reports for the sweep points.
-The final Fmax JSON reports 317.000013 MHz at 3.154574 ns with WNS +0.086 ns;
-349.999983 MHz fails with WNS -0.023 ns.
+The copied Fmax points report 317.000013 MHz at 3.154574 ns with WNS +0.086 ns;
+349.999983 MHz fails with WNS -0.023 ns. The result is kept as a PASS/FAIL
+bracket until the refined bisection campaign is rerun; no artificial exact Fmax
+is claimed.
 
-The official SAIF runner using `unisims_ver` compiled successfully but failed at
+The timing-SAIF runner using `unisims_ver` compiled successfully but failed at
 SDF annotation with `XSIM 43-3462`. A second elaboration using `simprims_ver`
 accepted the timing primitives but aborted in Vivado 2023.2's LLVM
-`DAGTypeLegalizer::run` assertion. No `activity.saif` was produced, and no
-SAIF-based power value is included in the consolidated results. No VCD was
-generated.
+`DAGTypeLegalizer::run` assertion. This path is optional and is not a blocker;
+no VCD was generated.
 
 ## Workload generated with `fast-conv`
 
@@ -74,13 +77,15 @@ The activity workload was regenerated in an isolated copy of the
   --name 032-3-3-normal --no-c
 ```
 
-The resulting package is the variant-local `data/pack_data.sv`, with SHA-256
-`22381f465fb5b7d739512aa0db40cf368bead1bcced673b42218bcb9b62b9ed3`.
+The resulting package is the canonical
+`rtl/conv2x2/data/tcn4/sim/sim-032-3-3-normal/pack_data.sv`, with SHA-256
+`3ced5c4527374898e1f8d65c275403e1366e2bb09f466542915656b263356da0`.
 The metadata records the generator, configuration, dimensions, seed, and the
 8-bit quantization used by `fast-conv sim normal`. Local RTL validation passed
 with one complete job: 23,648 cycles latency and 11 cycles between tile-end
 events. The core is not re-entrant without reset, so the workload deliberately
-uses one job rather than falsely reporting a multi-job initiation interval.
+uses one job and reports inter-job II as N/A rather than reusing latency as a
+pipeline interval.
 
 ## Direct Paxos SAIF attempts for the generated workload
 
@@ -101,7 +106,11 @@ The following attempts were recorded without VCD generation:
   compilation stage for more than six minutes and produced no SAIF; that
   temporary process was stopped and its logs were preserved remotely.
 
-Consequently, the benchmark remains `pending_saif`: vectorless typical and
-maximum power are valid post-route estimates, while SAIF-based power, SAIF
-coverage, energy/op, and GOPS/W cannot be claimed until a compatible
-gate-level simulation path is available.
+The RTL/behavioral SAIF path is now complete without VCD. Verilator generated
+`reports/rtl_saif/activity_rtl.saif` from the canonical package, and Vivado
+imported it into the routed 317 MHz checkpoint with `TOP/tb_power`. Vivado
+reported 104 matched nets out of 5442 design nets (1.91%); the remaining nets
+use vectorless estimation. The resulting post-route RTL-SAIF power reports are
+0.689 W typical and 0.908 W maximum. These are valid post-route estimates with
+explicitly low SAIF coverage, not physical-board measurements. The timing-SDF
+SAIF path remains optional because of the XSim LLVM failure.

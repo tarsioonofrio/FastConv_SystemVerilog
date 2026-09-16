@@ -1,0 +1,12 @@
+method=Vivado post-route report_power with RTL/behavioral SAIF
+saif=reports/rtl_saif/activity_rtl.saif
+strip_path=TOP/tb_power
+matched_nets=104
+total_design_nets=5442
+coverage_pct=1.91
+unmatched_nets_use_vectorless=true
+typical_report=reports/317mhz/power_rtl_saif_typical.rpt
+maximum_report=reports/317mhz/power_rtl_saif_maximum.rpt
+tool=Vivado 2023.2
+host=paxos.inf.pucrs.br
+note=Vivado reported a strip_path warning for TOP/tb_power, but matched 104 of 5442 design nets; uncovered nets remain under vectorless estimation.

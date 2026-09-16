@@ -1,18 +1,10 @@
-Feature: None
-Weights: None
-Bias enabled: False
-Image side: 32
-Quantization bits: 8
-Exact scaled weight transform: False
-Weight transform scale: 1
-R2: 0.9999617574915172
-
-Totals
-Naive
-Convolutions: 2700
-Multiplications: 24300
-Additions: 21600
-Fast
-Convolutions: 675
-Multiplications: 10800
-
+3ced5c4527374898e1f8d65c275403e1366e2bb09f466542915656b263356da0  /home/tarsio/gaph/FastConv_SystemVerilog/rtl/conv2x2/data/tcn4/sim/sim-032-3-3-normal/pack_data.sv
+generator=fast-conv sim normal
+stimulus=/home/tarsio/gaph/FastConv_SystemVerilog/rtl/conv2x2/data/tcn4/sim/sim-032-3-3-normal/pack_data.sv
+image_side=32
+channel_in=3
+channel_out=3
+seed=1
+quant_bits=8
+jobs_for_activity=1
+job_model=non-reentrant; reset required between launches

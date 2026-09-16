@@ -11,8 +11,8 @@ set run_dir [file join $bench_dir reports $run_name]
 foreach corner {typical maximum} {
   open_checkpoint [file join $run_dir design_routed.dcp]
   reset_switching_activity -all
-  read_saif -strip_path $strip_path -out_file [file join $run_dir saif_mapping_${corner}.rpt] $saif
+  read_saif -strip_path $strip_path -out_file [file join $run_dir rtl_saif_mapping_${corner}.rpt] $saif
   set_operating_conditions -process $corner -ambient_temp 25
-  report_power -hier all -file [file join $run_dir power_saif_${corner}.rpt]
+  report_power -hier all -file [file join $run_dir power_rtl_saif_${corner}.rpt]
   close_design
 }

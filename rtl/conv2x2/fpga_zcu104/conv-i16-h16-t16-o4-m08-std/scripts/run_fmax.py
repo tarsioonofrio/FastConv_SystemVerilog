@@ -36,7 +36,9 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--periods", nargs="+", type=float,
                         default=[5.0, 4.0, 3.333333, 3.154574, 2.857143, 2.5])
-    parser.add_argument("--refine-iterations", type=int, default=4)
+    parser.add_argument("--refine-iterations", type=int, default=8)
+    parser.add_argument("--target-tolerance-mhz", type=float, default=0.5,
+                        help="stop when the pass/fail frequency bracket is this narrow")
     args = parser.parse_args()
 
     vivado = shutil.which("vivado")
@@ -89,7 +91,15 @@ def main() -> int:
             break
         best_pass = min(passed)
         best_fail = max(failed)
-        if best_pass >= best_fail or best_pass - best_fail < 1e-6:
+        # Period increases as frequency decreases: the highest-frequency pass
+        # has the smallest passing period, while the lowest-frequency fail has
+        # the largest failing period. They form a valid bracket when
+        # best_fail < best_pass.
+        if best_fail >= best_pass or best_pass - best_fail < 1e-6:
+            break
+        lower_mhz = 1000.0 / best_pass
+        upper_mhz = 1000.0 / best_fail
+        if upper_mhz - lower_mhz <= args.target_tolerance_mhz:
             break
         run_period((best_pass + best_fail) / 2.0)
 
@@ -100,6 +110,30 @@ def main() -> int:
     if valid:
         best = min(valid, key=lambda item: item["period_ns"])
         result["fmax"] = best
+        result["fmax"]["reported_as"] = "highest_tested_pass_lower_bound"
+        passed_periods = [item["period_ns"] for item in ordered
+                          if item["timing_closure"]]
+        failed_periods = [item["period_ns"] for item in ordered
+                          if item["wns_ns"] is not None and not item["timing_closure"]]
+        if failed_periods:
+            pass_period = min(passed_periods)
+            fail_period = max(failed_periods)
+            result["fmax_bracket_mhz"] = {
+                "lower_bound_mhz": 1000.0 / pass_period,
+                "upper_bound_mhz": 1000.0 / fail_period,
+                "width_mhz": 1000.0 / fail_period - 1000.0 / pass_period,
+                "highest_tested_pass_mhz": 1000.0 / pass_period,
+                "lowest_tested_fail_mhz": 1000.0 / fail_period,
+                "tolerance_mhz": args.target_tolerance_mhz,
+            }
+            result["refinement_target_met"] = (
+                result["fmax_bracket_mhz"]["width_mhz"] <= args.target_tolerance_mhz
+            )
+            result["note"] = (
+                "Report the highest tested PASS as a lower bound; the true "
+                "post-route boundary is bracketed by the nearest PASS/FAIL "
+                "points and is not known to the displayed decimal precision."
+            )
     out = BENCH / "results" / "fmax_search.json"
     out.write_text(json.dumps(result, indent=2) + "\n")
     print("wrote", out)

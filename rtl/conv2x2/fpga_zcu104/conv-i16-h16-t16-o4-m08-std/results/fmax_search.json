@@ -54,13 +54,23 @@
       "returncode": 0
     }
   ],
-  "note": "Fmax is valid only for a routed run with WNS >= 0.",
+  "note": "Report the highest tested PASS as a lower bound; the true post-route boundary is bracketed by the nearest PASS/FAIL points and is not known to the displayed decimal precision.",
   "fmax": {
     "run": "fmax_3p154574",
     "period_ns": 3.154574,
     "target_mhz": 317.0000133140005,
     "wns_ns": 0.086,
     "timing_closure": true,
-    "returncode": 0
-  }
+    "returncode": 0,
+    "reported_as": "highest_tested_pass_lower_bound"
+  },
+  "fmax_bracket_mhz": {
+    "lower_bound_mhz": 317.0000133140005,
+    "upper_bound_mhz": 349.99998250000084,
+    "width_mhz": 32.99996918600034,
+    "highest_tested_pass_mhz": 317.0000133140005,
+    "lowest_tested_fail_mhz": 349.99998250000084,
+    "tolerance_mhz": 0.5
+  },
+  "refinement_target_met": false
 }

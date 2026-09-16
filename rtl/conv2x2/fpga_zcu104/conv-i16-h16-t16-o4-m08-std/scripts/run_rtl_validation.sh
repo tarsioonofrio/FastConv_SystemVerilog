@@ -4,7 +4,7 @@ set -euo pipefail
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 bench_dir="$(cd "$script_dir/.." && pwd)"
 repo_root="$(cd "$script_dir/../../../../.." && pwd)"
-pack_data="$bench_dir/data/pack_data.sv"
+pack_data="$repo_root/rtl/conv2x2/data/tcn4/sim/sim-032-3-3-normal/pack_data.sv"
 mkdir -p "$bench_dir/reports" "$bench_dir/results"
 
 [[ -f "$pack_data" ]] || {

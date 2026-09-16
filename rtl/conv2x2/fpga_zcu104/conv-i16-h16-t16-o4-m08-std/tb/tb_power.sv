@@ -137,6 +137,8 @@ module tb_power #(
              jobs_completed, latency_cycles, initiation_interval_cycles, tile_end_count,
              tile_initiation_interval_cycles);
     $display("POWER_WORKLOAD_END");
+`ifndef SAIF_CAPTURE
     $finish;
+`endif
   end
 endmodule
