@@ -3,7 +3,7 @@
 
 set script_dir [file dirname [file normalize [info script]]]
 set bench_dir [file normalize [file join $script_dir ..]]
-set repo_root [file normalize [file join $bench_dir ../..]]
+set repo_root [file normalize [file join $bench_dir ../../../../]]
 if {$argc < 2} {
   puts stderr "usage: synth_impl.tcl <run-name> <period-ns>"
   exit 2

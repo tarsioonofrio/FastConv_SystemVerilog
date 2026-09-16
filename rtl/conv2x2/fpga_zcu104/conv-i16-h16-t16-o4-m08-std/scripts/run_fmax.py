@@ -9,8 +9,8 @@ import shutil
 import subprocess
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[3]
-BENCH = ROOT / "benchmark" / "fpga_zcu104"
+ROOT = Path(__file__).resolve().parents[5]
+BENCH = Path(__file__).resolve().parents[1]
 SYNTH = BENCH / "scripts" / "synth_impl.tcl"
 
 

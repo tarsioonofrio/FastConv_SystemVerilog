@@ -13,7 +13,7 @@ script_dir=$(cd -- "$(dirname -- "$0")" && pwd)
 bench_dir=$(cd -- "$script_dir/.." && pwd)
 run_name=$1
 run_dir="$bench_dir/reports/$run_name"
-repo_root=$(cd -- "$bench_dir/../.." && pwd)
+repo_root=$(cd -- "$bench_dir/../../../.." && pwd)
 
 for tool in xvlog xelab xsim; do
   command -v "$tool" >/dev/null || {

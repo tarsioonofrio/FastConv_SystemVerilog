@@ -1,7 +1,10 @@
 # Benchmark FPGA ZCU104 / WinoGen
 
-Este diretório isola o experimento FPGA pedido em `tmp/winogen-fpa.md`. O
-alvo é a mesma família usada pelo WinoGen:
+Este diretório isola o experimento FPGA pedido em `tmp/winogen-fpa.md` para a
+variante `conv-i16-h16-t16-o4-m08-std`. Ele segue a organização por variante
+usada em `rtl/conv2x2/synthesis/` e fica em
+`rtl/conv2x2/fpga_zcu104/conv-i16-h16-t16-o4-m08-std/`. O alvo é a mesma
+família usada pelo WinoGen:
 
 | Campo | Valor |
 | --- | --- |
@@ -96,13 +99,14 @@ e `F(6,3) x5` não é usada para comparar diretamente um único core.
 ## Comandos em ambiente Vivado
 
 ```bash
-vivado -mode batch -source benchmark/fpga_zcu104/scripts/synth_impl.tcl \
+cd rtl/conv2x2/fpga_zcu104/conv-i16-h16-t16-o4-m08-std
+vivado -mode batch -source scripts/synth_impl.tcl \
   -tclargs 317mhz 3.154574
-python3 benchmark/fpga_zcu104/scripts/run_fmax.py
-python3 benchmark/fpga_zcu104/scripts/collect_results.py
+python3 scripts/run_fmax.py
+python3 scripts/collect_results.py
 # depois de uma implementação roteada:
-bash benchmark/fpga_zcu104/scripts/run_post_impl_saif.sh 317mhz
-vivado -mode batch -source benchmark/fpga_zcu104/scripts/power_saif.tcl \
+bash scripts/run_post_impl_saif.sh 317mhz
+vivado -mode batch -source scripts/power_saif.tcl \
   -tclargs 317mhz reports/317mhz/activity.saif /tb_power
 ```
 

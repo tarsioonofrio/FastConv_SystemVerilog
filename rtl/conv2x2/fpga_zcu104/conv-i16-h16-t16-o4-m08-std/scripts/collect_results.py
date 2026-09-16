@@ -7,8 +7,8 @@ import json
 import re
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[3]
-BENCH = ROOT / "benchmark" / "fpga_zcu104"
+ROOT = Path(__file__).resolve().parents[5]
+BENCH = Path(__file__).resolve().parents[1]
 REPORTS = BENCH / "reports"
 RESULTS = BENCH / "results"
 

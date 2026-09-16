@@ -187,6 +187,12 @@ depends on the former top-level `conv2x2-all`, `conv2x2stream4` or
 The previous nested directory layouts were removed from the active tree. The
 `list-file.txt` in each project points to the matching canonical RTL source.
 
+The FPGA campaign follows the same per-variant naming convention, but is kept
+under `fpga_zcu104/` because it uses the Vivado/ZCU104 flow rather than the
+ASIC Genus/Xcelium flow. The current campaign is therefore at
+`fpga_zcu104/conv-i16-h16-t16-o4-m08-std/`; future FPGA campaigns should use a
+sibling directory named after their RTL source.
+
 The report generator excludes every project below `archive/` by default. To
 rebuild the historical comparison including the archived generic and `m04`
 variants, run `python3 scripts/report.py --include-archived`.
