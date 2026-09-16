@@ -1,2 +1,3 @@
 POWER_WORKLOAD seed=1 jobs=1 latency_cycles=23648 ii_cycles=0 tile_ends=2025 tile_ii_cycles=11
 POWER_WORKLOAD_END
+SAIF_CAPTURE clock_period_ps=3154 nominal_clock_period_ps=3154.57 clock_frequency_mhz=317 simulated_clock_frequency_mhz=317.058 capture_start_ps=44156 capture_end_ps=74631525 capture_duration_ps=74587369 captured_cycles=23648.5

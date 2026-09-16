@@ -58,4 +58,60 @@ sed -i '/(DESIGN "tb_power")/a\
   printf 'RTL Verilator run completed without a non-empty activity_rtl.saif\n' >&2
   exit 1
 }
+
+# Keep the capture metadata next to the SAIF and regenerate the primary-port
+# activity artifacts from exactly this directed window.
+python3 "$script_dir/extract_saif_activity.py" \
+  "$run_dir/activity_rtl.saif" \
+  --clock-period-ps 3154.0 \
+  --json "$run_dir/primary_activity.json" \
+  --tcl "$script_dir/primary_activity.tcl"
+python3 - "$run_dir" <<'PY'
+import re
+import sys
+from pathlib import Path
+
+run_dir = Path(sys.argv[1])
+workload = (run_dir / "workload.log").read_text(errors="replace")
+capture_line = next((line for line in workload.splitlines()
+                     if line.startswith("SAIF_CAPTURE ")), "")
+workload_line = next((line for line in workload.splitlines()
+                      if line.startswith("POWER_WORKLOAD ")), "")
+values = dict(re.findall(r"(\w+)=([^\s]+)", capture_line))
+job = dict(re.findall(r"(\w+)=([^\s]+)", workload_line))
+duration_match = re.search(r"\(DURATION\s+(\d+)\)",
+                           (run_dir / "activity_rtl.saif").read_text(errors="replace"))
+duration_ps = int(duration_match.group(1)) if duration_match else None
+period_ps = float(values["clock_period_ps"])
+nominal_period_ps = float(values["nominal_clock_period_ps"])
+captured_cycles = float(values["captured_cycles"])
+summary = f"""# Captura RTL-SAIF a 317 MHz
+
+| Campo | Valor |
+| --- | --- |
+| Frequência do clock | `{values.get('clock_frequency_mhz', '317')} MHz` |
+| Período nominal do alvo | `{nominal_period_ps:g} ps` |
+| Período efetivo na simulação | `{period_ps:g} ps` |
+| Frequência efetiva na simulação | `{values.get('simulated_clock_frequency_mhz', 'N/A')} MHz` |
+| Início da captura | `{values.get('capture_start_ps')} ps` |
+| Fim da captura | `{values.get('capture_end_ps')} ps` |
+| Duração da captura | `{values.get('capture_duration_ps')} ps` |
+| Duração no cabeçalho SAIF | `{duration_ps} ps` |
+| Ciclos capturados | `{captured_cycles:.3f}` |
+| Latência do job | `{job.get('latency_cycles', 'N/A')} ciclos` |
+| Jobs | `{job.get('jobs', 'N/A')}` |
+| Tile ends | `{job.get('tile_ends', 'N/A')}` |
+| Tile II | `{job.get('tile_ii_cycles', 'N/A')} ciclos` |
+| VCD | não gerado |
+
+A captura é dirigida pelo protocolo: começa quando `p_start` é observado e
+termina quando o testbench registra `p_end` (`jobs_completed > 0`). O limite de `200000000 ps` existe
+somente como timeout de segurança e não define a duração normal da captura.
+
+O período nominal é o operating point de 317 MHz (`3.154574 ns`). O SAIF
+deve ser importado no checkpoint correspondente somente depois de verificar
+que os ciclos capturados estão próximos da latência esperada de `23648` ciclos.
+"""
+(run_dir / "capture_summary.md").write_text(summary)
+PY
 printf 'RTL_SAIF_COMPLETE file=%s\n' "$run_dir/activity_rtl.saif"

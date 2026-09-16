@@ -182,7 +182,7 @@ def main() -> int:
                   if rtl.get("latency_cycles") is not None else None)
     hybrid_power_available = (
         rtl_saif_typical["total_w"] is not None
-        and saif.get("status") != "requires_reimport_after_complete_window_fix"
+        and not str(saif.get("status", "")).startswith("requires_")
     )
     active_power_typical = (rtl_saif_typical["total_w"]
                             if hybrid_power_available
@@ -249,6 +249,12 @@ def main() -> int:
                "workload": {"package": "rtl/conv2x2/data/tcn4/sim/sim-032-3-3-normal/pack_data.sv",
                              "sha256": "3ced5c4527374898e1f8d65c275403e1366e2bb09f466542915656b263356da0",
                              "equivalent_ops_per_job": ops,
+                             "literal_operations_per_job": operations.get("literal_arithmetic_ops"),
+                             "job_latency_cycles": rtl["latency_cycles"],
+                             "job_initiation_interval_cycles": rtl["job_initiation_interval_cycles"],
+                             "job_reentrant": rtl["job_reentrant"],
+                             "throughput_mode": "sequential_complete_jobs_with_reset",
+                             "equivalent_throughput_gops_317mhz": gops_eq,
                              "job_time_s_at_317mhz": job_time_s,
                              "operation_count_status": operations.get("status")},
                "operation_count": operations,
@@ -268,7 +274,7 @@ def main() -> int:
         "Target: `xczu7ev-ffvc1156-2-e`, reference Vivado 2023.2, top `Conv`, baseline 20-bit.",
         "Vivado 2023.2 was executed on Paxos from the direct synchronized snapshot; local reports are a copy of those textual artifacts.",
         fmax_line,
-        ("Timing/resource values below are post-route estimates. Complete-window RTL-SAIF import is pending; the prior 245 ns SAIF power reports were moved to `reports/stale_saif_245ns/`. The intended result is hybrid SAIF/vectorless power, with vectorless estimation retained for uncovered nets. Timing-SAIF remains optional because XSim hit a Vivado 2023.2 LLVM assertion."), "",
+        ("Timing/resource values below are post-route estimates. A protocol-directed RTL-SAIF capture at 317 MHz is present locally and must be imported into the routed checkpoint before hybrid power is reported; the prior 245 ns reports and the superseded approximately 100 MHz capture are not final inputs. The intended result is hybrid SAIF/vectorless power, with vectorless estimation retained for uncovered nets. Timing-SAIF remains optional because XSim hit a Vivado 2023.2 LLVM assertion."), "",
         "## RTL evidence", "",
         f"- seed/jobs: `{rtl['seed']}` / `{rtl['jobs']}`",
         f"- latency: `{rtl['latency_cycles']}` cycles",
@@ -294,7 +300,9 @@ def main() -> int:
               "", "## Operation count, energy and throughput", "",
               "- operation-count audit: `validated dense 2-D convolution`; the generator's 24,300-multiplication line omits input-channel accumulation",
               f"- equivalent operations per complete job: `{ops}`",
+              f"- literal arithmetic operations per complete job: `{operations.get('literal_arithmetic_ops')}`",
               f"- job time at 317 MHz: `{job_time_s * 1e6 if job_time_s else None}` us",
+              f"- sequential complete-job equivalent throughput at 317 MHz: `{gops_eq}` GOPS",
               f"- typical total energy/job from hybrid power: `{active_power_typical * job_time_s * 1e6 if hybrid_power_available and active_power_typical is not None and job_time_s else 'PENDING hybrid reimport'}` uJ",
               f"- equivalent throughput: `{gops_eq}` GOPS; efficiency: `{gops_per_w if hybrid_power_available else 'PENDING hybrid reimport'}` GOPS/W; energy: `{pj_per_op if hybrid_power_available else 'PENDING hybrid reimport'}` pJ/op",
               "GOPS is derived from the validated dense operation count. Power-derived efficiency and energy remain pending until the complete-window SAIF is imported into the routed checkpoint.",
