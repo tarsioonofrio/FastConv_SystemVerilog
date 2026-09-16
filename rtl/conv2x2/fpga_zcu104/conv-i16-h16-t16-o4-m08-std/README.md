@@ -88,7 +88,9 @@ medidos separadamente.
 O Experimento A usa exatamente `317 MHz`, período `3.154574 ns`. O Experimento
 B só chama uma frequência Fmax se uma implementação pós-route tiver WNS >= 0;
 o maior PASS é publicado como limite inferior acompanhado do intervalo
-PASS/FAIL, sem precisão artificial.
+PASS/FAIL, sem precisão artificial. Nesta campanha, o maior PASS foi
+`346.8966 MHz` (WNS `+0.002 ns`) e o menor FAIL foi `347.1764 MHz` (WNS
+`-0.013 ns`), portanto `346.8966 MHz <= Fmax < 347.1764 MHz`.
 
 ## Métricas e convenções
 
@@ -110,14 +112,13 @@ observa `p_end`; o limite de `200000000 ps` é somente timeout de
 segurança. A duração esperada é aproximadamente `74.6 us` para os `23648`
 ciclos do job.
 
-A captura atual deve ser regenerada com
-`scripts/run_rtl_saif.sh` antes de ser importada no checkpoint roteado. O
-script também gera os metadados de frequência, início/fim, duração e ciclos
-capturados, além de extrair os `101` bits de ports/sinais de controle para
-aplicação explícita de atividade. Os relatórios da janela truncada de `245 ns`
-ficam em `reports/stale_saif_245ns/` e não são resultados finais. Timing-SAIF
-pós-implementation continua opcional e não bloqueia o experimento. Nenhum
-valor é chamado de medição física.
+A captura completa foi regenerada com `scripts/run_rtl_saif.sh` e importada no
+checkpoint roteado. O script também gera os metadados de frequência,
+início/fim, duração e ciclos capturados, além de extrair os `101` bits de
+ports/sinais de controle para aplicação explícita de atividade. Os relatórios
+da janela truncada de `245 ns` ficam em `reports/stale_saif_245ns/` e não são
+resultados finais. Timing-SAIF pós-implementation continua opcional e não
+bloqueia o experimento. Nenhum valor é chamado de medição física.
 
 A contagem de operações foi auditada em
 [`results/operation_count.md`](results/operation_count.md). O workload é uma
@@ -133,9 +134,29 @@ O throughput equivalente não depende do power: para um job ativo,
 entre jobs e não é um II inter-job. Apenas GOPS/W, energia por job e pJ/op
 foram calculados com o tempo arquitetural de `23648 / 317 MHz`; P1 é o
 resultado híbrido principal e P2 é o cross-check com atividade explícita de
-entradas/controles.
+entradas/controles. No P1 typical, `0.593 W` (`73.8%` do total) é static/device
+power da FPGA. Por isso o relatório publica tanto eficiência total
+(`2.434 GOPS/W`) quanto eficiência dinâmica (`9.31 GOPS/W`, `107.5 pJ/op`).
 
 ## Referência WinoGen (Tabela 1, kernel 3x3)
+
+Como o núcleo usa TC2x2, a referência direta é o IP WinoGen `F(4,1)` no modo
+suportado `F(2,3)*`, e não `F(4,3) x12`. A tabela do WinoGen usa um modelo de
+throughput baseado em ciclos esperados sobre input tiles; este benchmark usa
+uma execução RTL completa e validada do workload. A comparação abaixo é,
+portanto, uma referência de IP, não uma reprodução do mesmo protocolo de
+latência.
+
+| WinoGen F(2,3)* | bits | DSP | LUT | FF | equivalent GOPS |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| F(4,1) PNmin | 8--16 | 4 | 1689 | 2191 | 5.559 |
+| F(4,1) constrained | 8--16 | 16 | 2267 | 2901 | 22.236 |
+| F(4,1) PNmax | 8--16 | 64 | 4858 | 7579 | 92.868 |
+
+O PNmin WinoGen reporta aproximadamente `2.84x` o throughput deste core
+(`5.559 / 1.954`), usando metade dos DSPs, menos LUTs e mais FFs. A diferença
+de precisão (WinoGen 8--16 bit contra este baseline de 20 bit) e o modelo de
+throughput devem permanecer explícitos.
 
 | Design | bits | DSP | LUT | FF | equivalent throughput (GOPS) |
 | --- | ---: | ---: | ---: | ---: | ---: |
@@ -146,9 +167,11 @@ entradas/controles.
 | F(6,3) constrained | 8--16 | 128 | 31899 | 25307 | 412.020 |
 | F(6,3) PNmax | 8--16 | 256 | 41093 | 40238 | 835.812 |
 
-Essa referência não é uma medição do nosso design: WinoGen é 8--16 bits e o
-baseline deste projeto é 20 bits. A comparação de sistema WinoGen `F(4,3) x12`
-e `F(6,3) x5` não é usada para comparar diretamente um único core.
+Essa referência não é uma medição do nosso design. A comparação de sistema
+WinoGen `F(4,3) x12` e `F(6,3) x5` não é usada para comparar diretamente um
+único core: esses sistemas replicam IPs para amortizar o static power da FPGA.
+Uma campanha futura de replicação `1/2/4/8/... x TCn4` é o caminho adequado
+para uma comparação de utilização equivalente.
 
 ## Comandos em ambiente Vivado
 

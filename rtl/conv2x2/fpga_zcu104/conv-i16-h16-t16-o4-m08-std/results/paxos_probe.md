@@ -33,10 +33,11 @@ xvlog, xelab, xsim -> same Vivado 2023.2 bin directory
 
 Therefore the Paxos has the required FPGA tools. The ZCU104 implementation,
 317 MHz post-route timing, FPGA resource extraction, and vectorless Vivado
-power were executed in the isolated snapshot. The initial sweep found a valid
-boundary at 317.000013 MHz / 3.154574 ns (WNS +0.086 ns); 349.999983 MHz /
-2.857143 ns failed (WNS -0.023 ns). These points establish only the interval
-317--350 MHz; 317 MHz is not an exact Fmax. The gate-level XSim attempt reached
+power were executed in the isolated snapshot. The initial coarse sweep found
+a valid point at 317.000013 MHz / 3.154574 ns (WNS +0.086 ns) and a failure at
+349.999983 MHz / 2.857143 ns (WNS -0.023 ns). The refined boundary is recorded
+in the current direct-snapshot campaign below; 317 MHz is not an exact Fmax.
+The gate-level XSim attempt reached
 SDF annotation but Vivado's xelab aborted in LLVM
 `DAGTypeLegalizer::run`; timing-SAIF is optional rather than the primary power
 result. The dirty `remote`
@@ -52,12 +53,13 @@ After the FPGA benchmark was moved under the variant-specific directory, commit
 `d719dfc852dfb783c6d330104c6e8980f48ec662` and was not modified.
 
 Vivado 2023.2 regenerated the 317 MHz implementation artifacts and the full
-post-route Fmax sweep. The local copy now includes the synthesis/routed DCPs,
-timing netlists, SDFs, implementation logs, and reports for the sweep points.
-The copied Fmax points report 317.000013 MHz at 3.154574 ns with WNS +0.086 ns;
-349.999983 MHz fails with WNS -0.023 ns. The result is kept as a PASS/FAIL
-bracket until the refined bisection campaign is rerun; no artificial exact Fmax
-is claimed.
+post-route Fmax sweep. The local copy includes the implementation logs and
+timing reports for the sweep points. The refined campaign verified a highest
+tested PASS of 346.896588 MHz at 2.882703476 ns (WNS +0.002 ns) and a lowest
+tested FAIL of 347.176439 MHz at 2.880379796 ns (WNS -0.013 ns). Therefore the
+reported boundary is the bounded interval
+`346.896588 MHz <= Fmax < 347.176439 MHz`, with width 0.279851 MHz; no exact
+Fmax beyond this tested bracket is claimed.
 
 The timing-SAIF runner using `unisims_ver` compiled successfully but failed at
 SDF annotation with `XSIM 43-3462`. A second elaboration using `simprims_ver`

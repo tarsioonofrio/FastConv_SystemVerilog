@@ -40,6 +40,63 @@
         "returncode": 0
       },
       {
+        "run": "fmax_2p875732",
+        "period_ns": 2.875732437,
+        "target_mhz": 347.7374971098537,
+        "wns_ns": -0.002,
+        "timing_closure": false,
+        "returncode": 0
+      },
+      {
+        "run": "fmax_2p880380",
+        "period_ns": 2.880379796,
+        "target_mhz": 347.17643881154345,
+        "wns_ns": -0.013,
+        "timing_closure": false,
+        "returncode": 0
+      },
+      {
+        "run": "fmax_2p882703",
+        "period_ns": 2.882703476,
+        "target_mhz": 346.8965879860756,
+        "wns_ns": 0.002,
+        "timing_closure": true,
+        "returncode": 0,
+        "reported_as": "highest_tested_pass_lower_bound"
+      },
+      {
+        "run": "fmax_2p885027",
+        "period_ns": 2.885027156,
+        "target_mhz": 346.61718795966857,
+        "wns_ns": 0.008,
+        "timing_closure": true,
+        "returncode": 0
+      },
+      {
+        "run": "fmax_2p894322",
+        "period_ns": 2.894321875,
+        "target_mhz": 345.50407424882553,
+        "wns_ns": 0.025,
+        "timing_closure": true,
+        "returncode": 0
+      },
+      {
+        "run": "fmax_2p931501",
+        "period_ns": 2.93150075,
+        "target_mhz": 341.1222050685131,
+        "wns_ns": 0.021,
+        "timing_closure": true,
+        "returncode": 0
+      },
+      {
+        "run": "fmax_3p005858",
+        "period_ns": 3.0058585,
+        "target_mhz": 332.68365759732205,
+        "wns_ns": 0.071,
+        "timing_closure": true,
+        "returncode": 0
+      },
+      {
         "run": "fmax_3p154574",
         "period_ns": 3.154574,
         "target_mhz": 317.0000133140005,
@@ -74,23 +131,23 @@
     ],
     "note": "Report the highest tested PASS as a lower bound; the true post-route boundary is bracketed by the nearest PASS/FAIL points and is not known to the displayed decimal precision.",
     "fmax": {
-      "run": "fmax_3p154574",
-      "period_ns": 3.154574,
-      "target_mhz": 317.0000133140005,
-      "wns_ns": 0.086,
+      "run": "fmax_2p882703",
+      "period_ns": 2.882703476,
+      "target_mhz": 346.8965879860756,
+      "wns_ns": 0.002,
       "timing_closure": true,
       "returncode": 0,
       "reported_as": "highest_tested_pass_lower_bound"
     },
     "fmax_bracket_mhz": {
-      "lower_bound_mhz": 317.0000133140005,
-      "upper_bound_mhz": 349.99998250000084,
-      "width_mhz": 32.99996918600034,
-      "highest_tested_pass_mhz": 317.0000133140005,
-      "lowest_tested_fail_mhz": 349.99998250000084,
+      "lower_bound_mhz": 346.8965879860756,
+      "upper_bound_mhz": 347.17643881154345,
+      "width_mhz": 0.2798508254678609,
+      "highest_tested_pass_mhz": 346.8965879860756,
+      "lowest_tested_fail_mhz": 347.17643881154345,
       "tolerance_mhz": 0.5
     },
-    "refinement_target_met": false
+    "refinement_target_met": true
   },
   "workload": {
     "package": "rtl/conv2x2/data/tcn4/sim/sim-032-3-3-normal/pack_data.sv",
@@ -192,8 +249,11 @@
       "gops_eq": 1.9544401217861977,
       "dynamic_w": 0.21,
       "total_w": 0.803,
+      "dynamic_energy_uj": 15.665867507886436,
       "gops_per_w": 2.433922941203235,
-      "pj_per_op": 410.8593509972176
+      "pj_per_op": 410.8593509972176,
+      "dynamic_gops_per_w": 9.306857722791419,
+      "dynamic_pj_per_op": 107.44765094572314
     },
     {
       "design": "WinoGen F(4,3) PNmin",
@@ -213,8 +273,11 @@
       "gops_eq": 9.883,
       "dynamic_w": null,
       "total_w": null,
+      "dynamic_energy_uj": null,
       "gops_per_w": null,
-      "pj_per_op": null
+      "pj_per_op": null,
+      "dynamic_gops_per_w": null,
+      "dynamic_pj_per_op": null
     },
     {
       "design": "WinoGen F(4,3) constrained",
@@ -234,8 +297,11 @@
       "gops_eq": 123.824,
       "dynamic_w": null,
       "total_w": null,
+      "dynamic_energy_uj": null,
       "gops_per_w": null,
-      "pj_per_op": null
+      "pj_per_op": null,
+      "dynamic_gops_per_w": null,
+      "dynamic_pj_per_op": null
     },
     {
       "design": "WinoGen F(4,3) PNmax",
@@ -255,8 +321,11 @@
       "gops_eq": 371.472,
       "dynamic_w": null,
       "total_w": null,
+      "dynamic_energy_uj": null,
       "gops_per_w": null,
-      "pj_per_op": null
+      "pj_per_op": null,
+      "dynamic_gops_per_w": null,
+      "dynamic_pj_per_op": null
     },
     {
       "design": "WinoGen F(6,3) PNmin",
@@ -276,8 +345,11 @@
       "gops_eq": 12.508,
       "dynamic_w": null,
       "total_w": null,
+      "dynamic_energy_uj": null,
       "gops_per_w": null,
-      "pj_per_op": null
+      "pj_per_op": null,
+      "dynamic_gops_per_w": null,
+      "dynamic_pj_per_op": null
     },
     {
       "design": "WinoGen F(6,3) constrained",
@@ -297,8 +369,11 @@
       "gops_eq": 412.02,
       "dynamic_w": null,
       "total_w": null,
+      "dynamic_energy_uj": null,
       "gops_per_w": null,
-      "pj_per_op": null
+      "pj_per_op": null,
+      "dynamic_gops_per_w": null,
+      "dynamic_pj_per_op": null
     },
     {
       "design": "WinoGen F(6,3) PNmax",
@@ -318,8 +393,83 @@
       "gops_eq": 835.812,
       "dynamic_w": null,
       "total_w": null,
+      "dynamic_energy_uj": null,
       "gops_per_w": null,
-      "pj_per_op": null
+      "pj_per_op": null,
+      "dynamic_gops_per_w": null,
+      "dynamic_pj_per_op": null
+    },
+    {
+      "design": "WinoGen F(4,1) PNmin, F(2,3)*",
+      "bits": "8-16",
+      "target_mhz": null,
+      "achieved_mhz": null,
+      "timing": "REFERENCE",
+      "wns_ns": null,
+      "tns_ns": null,
+      "dsp": 4,
+      "lut": 1689,
+      "ff": 2191,
+      "bram": null,
+      "latency_cycles": null,
+      "ii_cycles": null,
+      "tile_ii_cycles": null,
+      "gops_eq": 5.559,
+      "dynamic_w": null,
+      "total_w": null,
+      "dynamic_energy_uj": null,
+      "gops_per_w": null,
+      "pj_per_op": null,
+      "dynamic_gops_per_w": null,
+      "dynamic_pj_per_op": null
+    },
+    {
+      "design": "WinoGen F(4,1) constrained, F(2,3)*",
+      "bits": "8-16",
+      "target_mhz": null,
+      "achieved_mhz": null,
+      "timing": "REFERENCE",
+      "wns_ns": null,
+      "tns_ns": null,
+      "dsp": 16,
+      "lut": 2267,
+      "ff": 2901,
+      "bram": null,
+      "latency_cycles": null,
+      "ii_cycles": null,
+      "tile_ii_cycles": null,
+      "gops_eq": 22.236,
+      "dynamic_w": null,
+      "total_w": null,
+      "dynamic_energy_uj": null,
+      "gops_per_w": null,
+      "pj_per_op": null,
+      "dynamic_gops_per_w": null,
+      "dynamic_pj_per_op": null
+    },
+    {
+      "design": "WinoGen F(4,1) PNmax, F(2,3)*",
+      "bits": "8-16",
+      "target_mhz": null,
+      "achieved_mhz": null,
+      "timing": "REFERENCE",
+      "wns_ns": null,
+      "tns_ns": null,
+      "dsp": 64,
+      "lut": 4858,
+      "ff": 7579,
+      "bram": null,
+      "latency_cycles": null,
+      "ii_cycles": null,
+      "tile_ii_cycles": null,
+      "gops_eq": 92.868,
+      "dynamic_w": null,
+      "total_w": null,
+      "dynamic_energy_uj": null,
+      "gops_per_w": null,
+      "pj_per_op": null,
+      "dynamic_gops_per_w": null,
+      "dynamic_pj_per_op": null
     }
   ],
   "power_rtl_saif_typical": {
