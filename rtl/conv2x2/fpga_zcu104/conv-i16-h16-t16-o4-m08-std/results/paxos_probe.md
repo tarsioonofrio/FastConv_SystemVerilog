@@ -61,3 +61,47 @@ accepted the timing primitives but aborted in Vivado 2023.2's LLVM
 `DAGTypeLegalizer::run` assertion. No `activity.saif` was produced, and no
 SAIF-based power value is included in the consolidated results. No VCD was
 generated.
+
+## Workload generated with `fast-conv`
+
+The activity workload was regenerated in an isolated copy of the
+`fast-convolution-rtl` configuration with the project virtual environment:
+
+```text
+/home/tarsio/gaph/fast-convolution-rtl/.venv/bin/fast-conv \
+  --path <isolated-config-copy> sim normal \
+  --image-side 32 --channel-in 3 --channel-out 3 --seed 1 \
+  --name 032-3-3-normal --no-c
+```
+
+The resulting package is the variant-local `data/pack_data.sv`, with SHA-256
+`22381f465fb5b7d739512aa0db40cf368bead1bcced673b42218bcb9b62b9ed3`.
+The metadata records the generator, configuration, dimensions, seed, and the
+8-bit quantization used by `fast-conv sim normal`. Local RTL validation passed
+with one complete job: 23,648 cycles latency and 11 cycles between tile-end
+events. The core is not re-entrant without reset, so the workload deliberately
+uses one job rather than falsely reporting a multi-job initiation interval.
+
+## Direct Paxos SAIF attempts for the generated workload
+
+The isolated snapshot `/tmp/fastconv-fpa-workload-8fdb9dc6.tar.gz` (SHA-256
+`e2126b286f26e71be8b03af5b432fa6c7595d24ccb4a40a7f631591bb48621a6`) was
+copied directly to Paxos; the persistent checkout was not changed. The
+generated package compiled successfully together with the routed netlist and
+the missing auxiliary RTL files.
+
+The following attempts were recorded without VCD generation:
+
+- Vivado 2023.2, 2024.2, and 2025.2 with `unisims_ver`: SDF backannotation
+  failed with `XSIM 43-3462` (`Unable to annotate SDF delays in the design`).
+- Vivado 2023.2 with `simprims_ver`: SDF annotation succeeded, but `xelab`
+  aborted in LLVM `DAGTypeLegalizer::run()`.
+- A functional netlist emitted from the routed DCP (`write_verilog -mode
+  funcsim`) was generated, but its `xelab` elaboration remained at the module
+  compilation stage for more than six minutes and produced no SAIF; that
+  temporary process was stopped and its logs were preserved remotely.
+
+Consequently, the benchmark remains `pending_saif`: vectorless typical and
+maximum power are valid post-route estimates, while SAIF-based power, SAIF
+coverage, energy/op, and GOPS/W cannot be claimed until a compatible
+gate-level simulation path is available.

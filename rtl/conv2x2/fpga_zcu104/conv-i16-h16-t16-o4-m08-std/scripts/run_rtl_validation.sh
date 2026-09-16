@@ -4,17 +4,30 @@ set -euo pipefail
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 bench_dir="$(cd "$script_dir/.." && pwd)"
 repo_root="$(cd "$script_dir/../../../../.." && pwd)"
+pack_data="$bench_dir/data/pack_data.sv"
 mkdir -p "$bench_dir/reports" "$bench_dir/results"
 
-echo "[rtl] canonical regression"
-make -C "$repo_root/rtl/conv2x2" run-std >"$bench_dir/reports/rtl_regression.log" 2>&1
+[[ -f "$pack_data" ]] || {
+  printf 'missing generated workload package: %s\n' "$pack_data" >&2
+  exit 1
+}
+
+if [[ "${RUN_CANONICAL_REGRESSION:-0}" == "1" ]]; then
+  echo "[rtl] canonical regression"
+  make -C "$repo_root/rtl/conv2x2" run-std >"$bench_dir/reports/rtl_regression.log" 2>&1
+else
+  printf '%s\n' \
+    'canonical regression skipped: it unconditionally enables dump.vcd;' \
+    'set RUN_CANONICAL_REGRESSION=1 only when waveform generation is explicitly requested.' \
+    >"$bench_dir/reports/rtl_regression.log"
+fi
 
 echo "[rtl] steady-state non-zero workload / latency probe"
 tmp_dir="$(mktemp -d /tmp/fpga-zcu104-rtl.XXXXXX)"
 trap 'rm -rf "$tmp_dir"' EXIT
 verilator -j 0 -DSIMULATION -DNO_DUMP --top-module tb_power -Wno-fatal \
   --binary --Mdir "$tmp_dir/obj" \
-  "$repo_root/rtl/conv2x2/data/tcn4/sim/sim-032-3-3-normal/pack_data.sv" \
+  "$pack_data" \
   "$repo_root/rtl/conv2x2/pack-param/tcn4/pack_param.sv" \
   "$repo_root/rtl/mem/mem.sv" \
   "$repo_root/rtl/csa/csa_lib.sv" \

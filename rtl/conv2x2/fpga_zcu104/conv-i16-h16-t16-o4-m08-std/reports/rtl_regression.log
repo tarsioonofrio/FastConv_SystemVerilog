@@ -1,20 +1,2 @@
-make: Entering directory '/home/tarsio/gaph/FastConv_SystemVerilog/rtl/conv2x2'
-verilator -j 0 -DSIMULATION --trace-fst --trace-max-array 4096 --top-module tb -Wno-fatal --binary --exe --Mdir obj_dir/std \
-  data/tcn4/sim/sim-032-3-3-normal/pack_data.sv pack-param/tcn4/pack_param.sv ../mem/mem.sv ../csa/csa_lib.sv ../multip/multip.sv mux-mult/tcn4/mux_mult_04.sv mult-matrices/tcn4/mult_matrices.sv conv-i16-h16-t16-o4-m08-std.sv testbench.sv --build \
-  -GNUM_MULT=8
-make[1]: Entering directory '/home/tarsio/gaph/FastConv_SystemVerilog/rtl/conv2x2/obj_dir/std'
-make[1]: Nothing to be done for 'default'.
-make[1]: Leaving directory '/home/tarsio/gaph/FastConv_SystemVerilog/rtl/conv2x2/obj_dir/std'
-- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
-- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
-- Verilator: Walltime 0.046 s (elab=0.000, cvt=0.000, bld=0.045); cpu 0.001 s on 4 threads; allocated 16.352 MB
-obj_dir/std/Vtb
-RESETANDO PARA O CANAL 0 - DEU A VOLTA NOS IFMAPS time=78925000 2 (3) st_input_current = ADDRESS_INPUT
-RESETANDO PARA O CANAL 0 - DEU A VOLTA NOS IFMAPS time=157735000 2 (3) st_input_current = ADDRESS_INPUT
-RESETANDO PARA O CANAL 0 - DEU A VOLTA NOS IFMAPS time=236545000 2 (3) st_input_current = ADDRESS_INPUT
-2x2 simulation passed: inverse_tiles=2025 cycles=23675 valid_writes=8100 input_samples_clipped=0 invalid_output_beats=0
-- testbench.sv:233: Verilog $finish
-- S i m u l a t i o n   R e p o r t: Verilator 5.050 2026-07-01
-- Verilator: $finish at 237us; walltime 0.214 s; speed 1.107 ms/s
-- Verilator: cpu 0.175 s on 1 threads; allocated 43 MB
-make: Leaving directory '/home/tarsio/gaph/FastConv_SystemVerilog/rtl/conv2x2'
+canonical regression skipped: it unconditionally enables dump.vcd;
+set RUN_CANONICAL_REGRESSION=1 only when waveform generation is explicitly requested.
