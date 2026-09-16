@@ -131,7 +131,9 @@ O throughput equivalente não depende do power: para um job ativo,
 `145800` operações em `23648` ciclos a `317 MHz` resultam em aproximadamente
 `1.954 GOPS`. O núcleo não é reentrante; esse número não inclui reset/rearm
 entre jobs e não é um II inter-job. Apenas GOPS/W, energia por job e pJ/op
-aguardam a importação do power híbrido.
+foram calculados com o tempo arquitetural de `23648 / 317 MHz`; P1 é o
+resultado híbrido principal e P2 é o cross-check com atividade explícita de
+entradas/controles.
 
 ## Referência WinoGen (Tabela 1, kernel 3x3)
 
@@ -175,10 +177,11 @@ vivado -mode batch -source scripts/power_io_activity.tcl \
 O SAIF RTL pode ser gerado antes da implementação e importado no checkpoint
 roteado. O import da captura anterior encontrou 104 de 5442 nets (1,91%), mas
 essa importação usava a janela truncada de 245 ns e foi movida para
-`reports/stale_saif_245ns/`. A nova captura completa precisa ser importada
-antes de publicar cobertura ou potência híbrida; até lá, os campos de power
-SAIF ficam `PENDING` no coletor. As nets restantes continuam com estimativa
-vectorless. A captura de VCD do `tb_power.sv` é opcional e só é ativada ao
+`reports/stale_saif_245ns/`. A captura completa de `74587369 ps` foi importada
+na Paxos e encontrou `104/5442` nets (`1.91%`), mantendo estimativa vectorless
+nas nets restantes. P2 injeta somente os `40` sinais de entrada/controle; o
+clock permanece nas constraints e as saídas são observação. A captura de VCD
+do `tb_power.sv` é opcional e só é ativada ao
 compilar com `-DPOWER_DUMP`; a campanha padrão compila sem essa macro e não
 gera VCD. A tentativa de timing-SAIF com SDF fica documentada como uma
 validação opcional de maior fidelidade, pois o XSim abortou em uma asserção

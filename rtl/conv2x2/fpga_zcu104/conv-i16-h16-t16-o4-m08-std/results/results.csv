@@ -1,5 +1,5 @@
 design,bits,target_mhz,achieved_mhz,timing,wns_ns,tns_ns,dsp,lut,ff,bram,latency_cycles,ii_cycles,tile_ii_cycles,gops_eq,dynamic_w,total_w,gops_per_w,pj_per_op
-Our Conv baseline @ 317 MHz,20,317.0,317.0,PASS,0.221,0.0,8.0,2087.0,1266.0,0.0,23648,NA,11,1.9544401217861977,0.251,0.844,NA,NA
+Our Conv baseline @ 317 MHz,20,317.0,317.0,PASS,0.221,0.0,8.0,2087.0,1266.0,0.0,23648,NA,11,1.9544401217861977,0.21,0.803,2.433922941203235,410.8593509972176
 "WinoGen F(4,3) PNmin",8-16,NA,NA,REFERENCE,NA,NA,6,2441,3587,NA,NA,NA,NA,9.883,NA,NA,NA,NA
 "WinoGen F(4,3) constrained",8-16,NA,NA,REFERENCE,NA,NA,48,8267,11678,NA,NA,NA,NA,123.824,NA,NA,NA,NA
 "WinoGen F(4,3) PNmax",8-16,NA,NA,REFERENCE,NA,NA,144,17472,18476,NA,NA,NA,NA,371.472,NA,NA,NA,NA
