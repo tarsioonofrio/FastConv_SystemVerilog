@@ -121,9 +121,9 @@ def saif_import() -> dict[str, object]:
         if key not in values:
             continue
         if key in {"matched_nets", "total_design_nets"}:
-            values[key] = int(value)
+            values[key] = int(value) if value.isdigit() else value
         elif key == "coverage_pct":
-            values[key] = float(value)
+            values[key] = float(value) if value.replace(".", "", 1).isdigit() else value
         elif key == "unmatched_nets_use_vectorless":
             values[key] = value.lower() == "true"
         else:
@@ -131,13 +131,13 @@ def saif_import() -> dict[str, object]:
     return values
 
 
-def workload_ops(rtl: dict[str, object]) -> int | None:
-    """Equivalent direct-convolution operations for the 32x32/3x3 workload."""
-    if rtl.get("latency_cycles") is None:
-        return None
-    # 30x30 output pixels, 3 input channels, 3 output channels, 3x3 kernel;
-    # one MAC is counted as two operations, matching the README convention.
-    return 2 * 30 * 30 * 3 * 3 * 3 * 3
+def operation_count() -> dict[str, object]:
+    """Load the reviewed operation-count audit instead of re-deriving it here."""
+    path = RESULTS / "operation_count.json"
+    if not path.exists():
+        return {"status": "pending_operation_count_validation",
+                "mac_equivalent_ops": None}
+    return json.loads(path.read_text())
 
 
 def rtl_metrics() -> dict[str, int | bool | None]:
@@ -176,21 +176,26 @@ def main() -> int:
     saif = saif_import()
     fmax_path = RESULTS / "fmax_search.json"
     fmax = json.loads(fmax_path.read_text()) if fmax_path.exists() else {"status": "not_run"}
-    ops = workload_ops(rtl)
+    operations = operation_count()
+    ops = operations.get("mac_equivalent_ops")
     job_time_s = (rtl["latency_cycles"] / 317e6
                   if rtl.get("latency_cycles") is not None else None)
+    hybrid_power_available = (
+        rtl_saif_typical["total_w"] is not None
+        and saif.get("status") != "requires_reimport_after_complete_window_fix"
+    )
     active_power_typical = (rtl_saif_typical["total_w"]
-                            if rtl_saif_typical["total_w"] is not None
+                            if hybrid_power_available
                             else vectorless_typical["total_w"])
     active_dynamic_typical = (rtl_saif_typical["dynamic_w"]
-                              if rtl_saif_typical["dynamic_w"] is not None
+                              if hybrid_power_available
                               else vectorless_typical["dynamic_w"])
     gops_eq = (ops / job_time_s / 1e9
                if ops is not None and job_time_s else None)
     gops_per_w = (gops_eq / active_power_typical
-                  if gops_eq is not None and active_power_typical else None)
+                  if hybrid_power_available and gops_eq is not None and active_power_typical else None)
     pj_per_op = (active_power_typical * job_time_s / ops * 1e12
-                 if active_power_typical is not None and job_time_s and ops else None)
+                 if hybrid_power_available and active_power_typical is not None and job_time_s and ops else None)
     bracket = fmax.get("fmax_bracket_mhz", {})
     if bracket:
         fmax_line = (f"Fmax sweep bracket: `{bracket.get('lower_bound_mhz')}`--"
@@ -202,7 +207,7 @@ def main() -> int:
                      "was recorded in the copied JSON.")
     coverage = (f"{saif['matched_nets']}/{saif['total_design_nets']} "
                 f"({saif['coverage_pct']}%)"
-                if saif.get("matched_nets") is not None else "pending")
+                if isinstance(saif.get("matched_nets"), int) else "pending reimport")
     row = {
         "design": "Our Conv baseline @ 317 MHz",
         "bits": 20, "target_mhz": 317.0,
@@ -244,16 +249,17 @@ def main() -> int:
                "workload": {"package": "rtl/conv2x2/data/tcn4/sim/sim-032-3-3-normal/pack_data.sv",
                              "sha256": "3ced5c4527374898e1f8d65c275403e1366e2bb09f466542915656b263356da0",
                              "equivalent_ops_per_job": ops,
-                             "job_time_s_at_317mhz": job_time_s},
+                             "job_time_s_at_317mhz": job_time_s,
+                             "operation_count_status": operations.get("status")},
+               "operation_count": operations,
                "saif_import": saif,
                "rows": rows,
                "power_rtl_saif_typical": rtl_saif_typical,
                "power_rtl_saif_maximum": rtl_saif_maximum,
                "workload_model": "non_reentrant_single_job",
                "completion_status": ("complete_rtl_saif_bracketed_fmax"
-                                     if rtl_saif_typical["total_w"] is not None
-                                     and fmax.get("status") == "complete"
-                                     else "pending_remote_vivado")}
+                                     if hybrid_power_available and fmax.get("status") == "complete"
+                                     else "pending_hybrid_power_reimport")}
     (RESULTS / "results.json").write_text(json.dumps(payload, indent=2) + "\n")
 
     lines = [
@@ -262,7 +268,7 @@ def main() -> int:
         "Target: `xczu7ev-ffvc1156-2-e`, reference Vivado 2023.2, top `Conv`, baseline 20-bit.",
         "Vivado 2023.2 was executed on Paxos from the direct synchronized snapshot; local reports are a copy of those textual artifacts.",
         fmax_line,
-        "Timing/resource values below are post-route estimates. RTL-SAIF power is imported successfully, with vectorless estimation retained for uncovered nets. Timing-SAIF remains optional because XSim hit a Vivado 2023.2 LLVM assertion.", "",
+        ("Timing/resource values below are post-route estimates. Complete-window RTL-SAIF import is pending; the prior 245 ns SAIF power reports were moved to `reports/stale_saif_245ns/`. The intended result is hybrid SAIF/vectorless power, with vectorless estimation retained for uncovered nets. Timing-SAIF remains optional because XSim hit a Vivado 2023.2 LLVM assertion."), "",
         "## RTL evidence", "",
         f"- seed/jobs: `{rtl['seed']}` / `{rtl['jobs']}`",
         f"- latency: `{rtl['latency_cycles']}` cycles",
@@ -282,15 +288,16 @@ def main() -> int:
               "| Design | freq | method | process | Dynamic W | Static W | Total W | SAIF coverage |",
               "| --- | ---: | --- | --- | ---: | ---: | ---: | ---: |",
               f"| our core | 317 MHz | vectorless | typical | {vectorless_typical['dynamic_w']} | {vectorless_typical['static_w']} | {vectorless_typical['total_w']} | N/A |",
-              f"| our core | 317 MHz | RTL-SAIF post-route | typical | {rtl_saif_typical['dynamic_w']} | {rtl_saif_typical['static_w']} | {rtl_saif_typical['total_w']} | {coverage} |",
+              f"| our core | 317 MHz | hybrid RTL-SAIF/vectorless | typical | {rtl_saif_typical['dynamic_w'] if hybrid_power_available else 'PENDING'} | {rtl_saif_typical['static_w'] if hybrid_power_available else 'PENDING'} | {rtl_saif_typical['total_w'] if hybrid_power_available else 'PENDING'} | {coverage} |",
               f"| our core | 317 MHz | vectorless | maximum | {vectorless_maximum['dynamic_w']} | {vectorless_maximum['static_w']} | {vectorless_maximum['total_w']} | N/A |",
-              f"| our core | 317 MHz | RTL-SAIF post-route | maximum | {rtl_saif_maximum['dynamic_w']} | {rtl_saif_maximum['static_w']} | {rtl_saif_maximum['total_w']} | {coverage} |",
-              "", "## Energy and throughput", "",
+              f"| our core | 317 MHz | hybrid RTL-SAIF/vectorless | maximum | {rtl_saif_maximum['dynamic_w'] if hybrid_power_available else 'PENDING'} | {rtl_saif_maximum['static_w'] if hybrid_power_available else 'PENDING'} | {rtl_saif_maximum['total_w'] if hybrid_power_available else 'PENDING'} | {coverage} |",
+              "", "## Operation count, energy and throughput", "",
+              "- operation-count audit: `validated dense 2-D convolution`; the generator's 24,300-multiplication line omits input-channel accumulation",
               f"- equivalent operations per complete job: `{ops}`",
               f"- job time at 317 MHz: `{job_time_s * 1e6 if job_time_s else None}` us",
-              f"- typical total energy/job from RTL-SAIF power: `{active_power_typical * job_time_s * 1e6 if active_power_typical is not None and job_time_s else None}` uJ",
-              f"- equivalent throughput: `{gops_eq}` GOPS; efficiency: `{gops_per_w}` GOPS/W; energy: `{pj_per_op}` pJ/op",
-              "These are estimates based on post-route Vivado power and the RTL-derived workload, not physical-board measurements.",
+              f"- typical total energy/job from hybrid power: `{active_power_typical * job_time_s * 1e6 if hybrid_power_available and active_power_typical is not None and job_time_s else 'PENDING hybrid reimport'}` uJ",
+              f"- equivalent throughput: `{gops_eq}` GOPS; efficiency: `{gops_per_w if hybrid_power_available else 'PENDING hybrid reimport'}` GOPS/W; energy: `{pj_per_op if hybrid_power_available else 'PENDING hybrid reimport'}` pJ/op",
+              "GOPS is derived from the validated dense operation count. Power-derived efficiency and energy remain pending until the complete-window SAIF is imported into the routed checkpoint.",
               "", "WinoGen reference is 8--16 bit; this baseline is 20 bit. WinoGen Table 1 is an IP/core comparison. The reported WinoGen Table 2 system replicas are not compared directly with one core.",
               "", "Power labels are estimates from Vivado post-route, never physical-board measurements."]
     (RESULTS / "summary.md").write_text("\n".join(lines) + "\n")

@@ -5,7 +5,7 @@
 Target: `xczu7ev-ffvc1156-2-e`, reference Vivado 2023.2, top `Conv`, baseline 20-bit.
 Vivado 2023.2 was executed on Paxos from the direct synchronized snapshot; local reports are a copy of those textual artifacts.
 Fmax sweep bracket: `317.0000133140005`--`349.99998250000084` MHz; highest tested PASS is `317.0000133140005` MHz and lowest tested FAIL is `349.99998250000084` MHz.
-Timing/resource values below are post-route estimates. RTL-SAIF power is imported successfully, with vectorless estimation retained for uncovered nets. Timing-SAIF remains optional because XSim hit a Vivado 2023.2 LLVM assertion.
+Timing/resource values below are post-route estimates. Complete-window RTL-SAIF import is pending; the prior 245 ns SAIF power reports were moved to `reports/stale_saif_245ns/`. The intended result is hybrid SAIF/vectorless power, with vectorless estimation retained for uncovered nets. Timing-SAIF remains optional because XSim hit a Vivado 2023.2 LLVM assertion.
 
 ## RTL evidence
 
@@ -20,7 +20,7 @@ Timing/resource values below are post-route estimates. RTL-SAIF power is importe
 
 | Design | bits | target MHz | achieved MHz | timing | DSP | LUT | FF | latency cyc | II | GOPS eq. | dyn. W | total W | GOPS/W | pJ/op |
 | --- | ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| Our Conv baseline @ 317 MHz | 20 | 317.0 | 317.0 | PASS | 8.0 | 2087.0 | 1266.0 | 23648 | N/A | 1.9544401217861977 | 0.096 | 0.689 | 2.83663297791901 | 352.5306261981107 |
+| Our Conv baseline @ 317 MHz | 20 | 317.0 | 317.0 | PASS | 8.0 | 2087.0 | 1266.0 | 23648 | N/A | 1.9544401217861977 | 0.251 | 0.844 | N/A | N/A |
 | WinoGen F(4,3) PNmin | 8-16 | N/A | N/A | REFERENCE | 6 | 2441 | 3587 | N/A | N/A | 9.883 | N/A | N/A | N/A | N/A |
 | WinoGen F(4,3) constrained | 8-16 | N/A | N/A | REFERENCE | 48 | 8267 | 11678 | N/A | N/A | 123.824 | N/A | N/A | N/A | N/A |
 | WinoGen F(4,3) PNmax | 8-16 | N/A | N/A | REFERENCE | 144 | 17472 | 18476 | N/A | N/A | 371.472 | N/A | N/A | N/A | N/A |
@@ -33,17 +33,18 @@ Timing/resource values below are post-route estimates. RTL-SAIF power is importe
 | Design | freq | method | process | Dynamic W | Static W | Total W | SAIF coverage |
 | --- | ---: | --- | --- | ---: | ---: | ---: | ---: |
 | our core | 317 MHz | vectorless | typical | 0.251 | 0.593 | 0.844 | N/A |
-| our core | 317 MHz | RTL-SAIF post-route | typical | 0.096 | 0.592 | 0.689 | 104/5442 (1.91%) |
+| our core | 317 MHz | hybrid RTL-SAIF/vectorless | typical | PENDING | PENDING | PENDING | pending reimport |
 | our core | 317 MHz | vectorless | maximum | 0.251 | 0.814 | 1.065 | N/A |
-| our core | 317 MHz | RTL-SAIF post-route | maximum | 0.096 | 0.811 | 0.908 | 104/5442 (1.91%) |
+| our core | 317 MHz | hybrid RTL-SAIF/vectorless | maximum | PENDING | PENDING | PENDING | pending reimport |
 
-## Energy and throughput
+## Operation count, energy and throughput
 
+- operation-count audit: `validated dense 2-D convolution`; the generator's 24,300-multiplication line omits input-channel accumulation
 - equivalent operations per complete job: `145800`
 - job time at 317 MHz: `74.59936908517349` us
-- typical total energy/job from RTL-SAIF power: `51.39896529968454` uJ
-- equivalent throughput: `1.9544401217861977` GOPS; efficiency: `2.83663297791901` GOPS/W; energy: `352.5306261981107` pJ/op
-These are estimates based on post-route Vivado power and the RTL-derived workload, not physical-board measurements.
+- typical total energy/job from hybrid power: `PENDING hybrid reimport` uJ
+- equivalent throughput: `1.9544401217861977` GOPS; efficiency: `PENDING hybrid reimport` GOPS/W; energy: `PENDING hybrid reimport` pJ/op
+GOPS is derived from the validated dense operation count. Power-derived efficiency and energy remain pending until the complete-window SAIF is imported into the routed checkpoint.
 
 WinoGen reference is 8--16 bit; this baseline is 20 bit. WinoGen Table 1 is an IP/core comparison. The reported WinoGen Table 2 system replicas are not compared directly with one core.
 

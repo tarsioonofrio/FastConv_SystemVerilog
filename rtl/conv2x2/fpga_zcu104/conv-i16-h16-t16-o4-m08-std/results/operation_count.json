@@ -1,0 +1,34 @@
+{
+  "status": "validated",
+  "model": "dense_2d_convolution",
+  "feature_shape": [1, 3, 32, 32],
+  "weight_shape": [3, 3, 3, 3],
+  "output_shape": [1, 3, 30, 30],
+  "output_elements": 2700,
+  "input_channels": 3,
+  "output_channels": 3,
+  "kernel_elements": 9,
+  "multiplications": 72900,
+  "additions": 70200,
+  "literal_arithmetic_ops": 143100,
+  "mac_equivalent_ops": 145800,
+  "generator_report": {
+    "convolutions": 2700,
+    "multiplications": 24300,
+    "additions": 21600,
+    "scope": "one 3x3 spatial kernel per output element; input-channel accumulation omitted"
+  },
+  "derivation": {
+    "output_elements": "1 * 3 * 30 * 30",
+    "multiplications": "2700 * 3 input channels * 9 kernel elements",
+    "within_kernel_additions": "2700 * 3 * 8",
+    "cross_channel_additions": "2700 * (3 - 1)",
+    "mac_equivalent_ops": "2 * 72900"
+  },
+  "evidence": {
+    "generator_simulation": "/home/tarsio/gaph/fast-convolution-rtl/src/fast_convolution/simulation.py:_standard_convolve and sim_naive",
+    "rtl_channel_input_loop": "rtl/conv2x2/conv-i16-h16-t16-o4-m08-std.sv:289-307",
+    "rtl_channel_accumulation": "rtl/conv2x2/conv-i16-h16-t16-o4-m08-std.sv:574-625",
+    "canonical_workload": "rtl/conv2x2/data/tcn4/sim/sim-032-3-3-normal/pack_data.sv"
+  }
+}

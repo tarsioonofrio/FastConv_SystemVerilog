@@ -96,15 +96,65 @@
     "package": "rtl/conv2x2/data/tcn4/sim/sim-032-3-3-normal/pack_data.sv",
     "sha256": "3ced5c4527374898e1f8d65c275403e1366e2bb09f466542915656b263356da0",
     "equivalent_ops_per_job": 145800,
-    "job_time_s_at_317mhz": 7.45993690851735e-05
+    "job_time_s_at_317mhz": 7.45993690851735e-05,
+    "operation_count_status": "validated"
+  },
+  "operation_count": {
+    "status": "validated",
+    "model": "dense_2d_convolution",
+    "feature_shape": [
+      1,
+      3,
+      32,
+      32
+    ],
+    "weight_shape": [
+      3,
+      3,
+      3,
+      3
+    ],
+    "output_shape": [
+      1,
+      3,
+      30,
+      30
+    ],
+    "output_elements": 2700,
+    "input_channels": 3,
+    "output_channels": 3,
+    "kernel_elements": 9,
+    "multiplications": 72900,
+    "additions": 70200,
+    "literal_arithmetic_ops": 143100,
+    "mac_equivalent_ops": 145800,
+    "generator_report": {
+      "convolutions": 2700,
+      "multiplications": 24300,
+      "additions": 21600,
+      "scope": "one 3x3 spatial kernel per output element; input-channel accumulation omitted"
+    },
+    "derivation": {
+      "output_elements": "1 * 3 * 30 * 30",
+      "multiplications": "2700 * 3 input channels * 9 kernel elements",
+      "within_kernel_additions": "2700 * 3 * 8",
+      "cross_channel_additions": "2700 * (3 - 1)",
+      "mac_equivalent_ops": "2 * 72900"
+    },
+    "evidence": {
+      "generator_simulation": "/home/tarsio/gaph/fast-convolution-rtl/src/fast_convolution/simulation.py:_standard_convolve and sim_naive",
+      "rtl_channel_input_loop": "rtl/conv2x2/conv-i16-h16-t16-o4-m08-std.sv:289-307",
+      "rtl_channel_accumulation": "rtl/conv2x2/conv-i16-h16-t16-o4-m08-std.sv:574-625",
+      "canonical_workload": "rtl/conv2x2/data/tcn4/sim/sim-032-3-3-normal/pack_data.sv"
+    }
   },
   "saif_import": {
-    "method": "Vivado post-route report_power with RTL/behavioral SAIF",
+    "method": "Vivado post-route report_power with RTL/behavioral SAIF plus vectorless propagation",
     "saif": "reports/rtl_saif/activity_rtl.saif",
     "strip_path": "TOP/tb_power",
-    "matched_nets": 104,
+    "matched_nets": "pending_reimport",
     "total_design_nets": 5442,
-    "coverage_pct": 1.91,
+    "coverage_pct": "pending_reimport",
     "unmatched_nets_use_vectorless": true,
     "tool": "Vivado 2023.2",
     "host": "paxos.inf.pucrs.br"
@@ -126,10 +176,10 @@
       "ii_cycles": null,
       "tile_ii_cycles": 11,
       "gops_eq": 1.9544401217861977,
-      "dynamic_w": 0.096,
-      "total_w": 0.689,
-      "gops_per_w": 2.83663297791901,
-      "pj_per_op": 352.5306261981107
+      "dynamic_w": 0.251,
+      "total_w": 0.844,
+      "gops_per_w": null,
+      "pj_per_op": null
     },
     {
       "design": "WinoGen F(4,3) PNmin",
@@ -259,15 +309,15 @@
     }
   ],
   "power_rtl_saif_typical": {
-    "dynamic_w": 0.096,
-    "static_w": 0.592,
-    "total_w": 0.689
+    "dynamic_w": null,
+    "static_w": null,
+    "total_w": null
   },
   "power_rtl_saif_maximum": {
-    "dynamic_w": 0.096,
-    "static_w": 0.811,
-    "total_w": 0.908
+    "dynamic_w": null,
+    "static_w": null,
+    "total_w": null
   },
   "workload_model": "non_reentrant_single_job",
-  "completion_status": "complete_rtl_saif_bracketed_fmax"
+  "completion_status": "pending_hybrid_power_reimport"
 }
