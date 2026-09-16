@@ -25,8 +25,27 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("saif", type=Path)
     parser.add_argument("--json", dest="json_path", type=Path, required=True)
     parser.add_argument("--tcl", dest="tcl_path", type=Path, required=True)
+    parser.add_argument(
+        "--input-tcl",
+        dest="input_tcl_path",
+        type=Path,
+        required=False,
+        help="write P2 activity Tcl for reset/start/input ports only",
+    )
     parser.add_argument("--clock-period-ps", type=float, default=3154.0)
     return parser.parse_args()
+
+
+def signal_category(name: str) -> str:
+    """Classify a DUT-facing signal for the P2 activity experiment."""
+    base = name.split("[", 1)[0]
+    if base == "clk":
+        return "clock"
+    if base == "reset" or base == "p_start" or base.startswith("p_input"):
+        return "input_control"
+    if base.startswith("p_output") or base == "p_end":
+        return "output"
+    return "other"
 
 
 def main() -> int:
@@ -76,31 +95,60 @@ def main() -> int:
         "clock_period_ps": args.clock_period_ps,
         "simulation_cycles": cycles,
         "signal_count": len(signals),
+        "categories": {
+            category: sorted(name for name in signals
+                             if signal_category(name) == category)
+            for category in ("clock", "input_control", "output", "other")
+        },
         "signals": signals,
         "method": "RTL-derived primary-port activity; internal nets remain vectorless",
+        "p2_injection_policy": {
+            "clock": "XDC only",
+            "input_control": "inject workload activity",
+            "output": "observation only",
+            "other": "not injected",
+        },
     }
     args.json_path.parent.mkdir(parents=True, exist_ok=True)
     args.json_path.write_text(json.dumps(payload, indent=2) + "\n")
 
-    lines = [
+    def activity_lines(names: list[str], header: str) -> list[str]:
+        lines = [
+            header,
+            "# Apply after reset_switching_activity -all and before report_power.",
+        ]
+        for name in names:
+            values = signals[name]
+            lines.append("set _activity_port [get_ports -quiet {%s}]" % name)
+            lines.append("if {[llength $_activity_port]} {")
+            lines.append(
+                "  set_switching_activity -static_probability %.12g "
+                "-toggle_rate %.12g $_activity_port"
+                % (values["static_probability"], values["toggle_rate_per_clock"])
+            )
+            lines.append("}")
+            lines.append("unset _activity_port")
+        return lines
+
+    all_names = sorted(signals)
+    lines = activity_lines(
+        all_names,
         "# Generated from RTL/Verilator SAIF. Do not edit by hand.",
-        "# Apply after reset_switching_activity -all and before report_power.",
-    ]
-    for name in sorted(signals):
-        values = signals[name]
-        lines.append(
-            "set _activity_port [get_ports -quiet {%s}]" % name
-        )
-        lines.append("if {[llength $_activity_port]} {")
-        lines.append(
-            "  set_switching_activity -static_probability %.12g "
-            "-toggle_rate %.12g $_activity_port"
-            % (values["static_probability"], values["toggle_rate_per_clock"])
-        )
-        lines.append("}")
-        lines.append("unset _activity_port")
+    )
     args.tcl_path.write_text("\n".join(lines) + "\n")
-    print(f"extracted {len(signals)} primary-port signals")
+    if args.input_tcl_path:
+        input_names = sorted(
+            name for name in signals if signal_category(name) == "input_control"
+        )
+        input_lines = activity_lines(
+            input_names,
+            "# Generated P2 activity: primary inputs and controls only.",
+        )
+        input_lines.insert(1, "# Clock is constrained by XDC; outputs are observation-only.")
+        args.input_tcl_path.write_text("\n".join(input_lines) + "\n")
+    counts = {category: sum(signal_category(name) == category for name in signals)
+              for category in ("clock", "input_control", "output", "other")}
+    print(f"extracted {len(signals)} primary-port signals; categories={counts}")
     return 0
 
 

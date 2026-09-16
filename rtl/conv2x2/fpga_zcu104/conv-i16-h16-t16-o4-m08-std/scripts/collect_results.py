@@ -164,6 +164,31 @@ def rtl_metrics() -> dict[str, int | bool | None]:
     return values
 
 
+def saif_capture_metadata() -> dict[str, int | float | None]:
+    """Read the directed capture timing facts from the Verilator workload log."""
+    path = REPORTS / "rtl_saif" / "workload.log"
+    text = path.read_text(errors="replace") if path.exists() else ""
+    line = next((item for item in text.splitlines()
+                 if item.startswith("SAIF_CAPTURE ")), "")
+    raw = dict(re.findall(r"(\w+)=([^\s]+)", line))
+    integer_keys = {"clock_period_ps", "capture_start_ps", "capture_end_ps",
+                    "capture_duration_ps"}
+    float_keys = {"nominal_clock_period_ps", "clock_frequency_mhz",
+                  "simulated_clock_frequency_mhz", "captured_cycles"}
+    values: dict[str, int | float | None] = {}
+    for key in integer_keys:
+        try:
+            values[key] = int(raw[key])
+        except (KeyError, ValueError):
+            values[key] = None
+    for key in float_keys:
+        try:
+            values[key] = float(raw[key])
+        except (KeyError, ValueError):
+            values[key] = None
+    return values
+
+
 def main() -> int:
     RESULTS.mkdir(parents=True, exist_ok=True)
     rtl = rtl_metrics()
@@ -177,6 +202,7 @@ def main() -> int:
     fmax_path = RESULTS / "fmax_search.json"
     fmax = json.loads(fmax_path.read_text()) if fmax_path.exists() else {"status": "not_run"}
     operations = operation_count()
+    capture = saif_capture_metadata()
     ops = operations.get("mac_equivalent_ops")
     job_time_s = (rtl["latency_cycles"] / 317e6
                   if rtl.get("latency_cycles") is not None else None)
@@ -253,9 +279,14 @@ def main() -> int:
                              "job_latency_cycles": rtl["latency_cycles"],
                              "job_initiation_interval_cycles": rtl["job_initiation_interval_cycles"],
                              "job_reentrant": rtl["job_reentrant"],
-                             "throughput_mode": "sequential_complete_jobs_with_reset",
+                             "throughput_mode": "single_active_job_compute_throughput",
                              "equivalent_throughput_gops_317mhz": gops_eq,
                              "job_time_s_at_317mhz": job_time_s,
+                             "saif_window_cycles": capture.get("captured_cycles"),
+                             "saif_duration_ps": capture.get("capture_duration_ps"),
+                             "saif_clock_period_ps": capture.get("clock_period_ps"),
+                             "target_frequency_mhz": 317.0,
+                             "saif_frequency_mhz": capture.get("simulated_clock_frequency_mhz"),
                              "operation_count_status": operations.get("status")},
                "operation_count": operations,
                "saif_import": saif,
@@ -302,7 +333,7 @@ def main() -> int:
               f"- equivalent operations per complete job: `{ops}`",
               f"- literal arithmetic operations per complete job: `{operations.get('literal_arithmetic_ops')}`",
               f"- job time at 317 MHz: `{job_time_s * 1e6 if job_time_s else None}` us",
-              f"- sequential complete-job equivalent throughput at 317 MHz: `{gops_eq}` GOPS",
+              f"- active-job equivalent compute throughput at 317 MHz: `{gops_eq}` GOPS",
               f"- typical total energy/job from hybrid power: `{active_power_typical * job_time_s * 1e6 if hybrid_power_available and active_power_typical is not None and job_time_s else 'PENDING hybrid reimport'}` uJ",
               f"- equivalent throughput: `{gops_eq}` GOPS; efficiency: `{gops_per_w if hybrid_power_available else 'PENDING hybrid reimport'}` GOPS/W; energy: `{pj_per_op if hybrid_power_available else 'PENDING hybrid reimport'}` pJ/op",
               "GOPS is derived from the validated dense operation count. Power-derived efficiency and energy remain pending until the complete-window SAIF is imported into the routed checkpoint.",

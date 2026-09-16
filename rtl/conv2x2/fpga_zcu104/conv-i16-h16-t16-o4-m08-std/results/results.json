@@ -100,9 +100,14 @@
     "job_latency_cycles": 23648,
     "job_initiation_interval_cycles": null,
     "job_reentrant": false,
-    "throughput_mode": "sequential_complete_jobs_with_reset",
+    "throughput_mode": "single_active_job_compute_throughput",
     "equivalent_throughput_gops_317mhz": 1.9544401217861977,
     "job_time_s_at_317mhz": 7.45993690851735e-05,
+    "saif_window_cycles": 23648.5,
+    "saif_duration_ps": 74587369,
+    "saif_clock_period_ps": 3154,
+    "target_frequency_mhz": 317.0,
+    "saif_frequency_mhz": 317.058,
     "operation_count_status": "validated"
   },
   "operation_count": {
