@@ -2,7 +2,7 @@
 
 ## Reproducibility boundary
 
-Target: `xczu7ev-ffvc1156-2-e`, reference Vivado 2023.2, top `Conv`, baseline 20-bit.
+Target: `xczu7ev-ffvc1156-2-e`, reference Vivado 2023.2, top `Conv`, pilot 20-bit.
 Vivado 2023.2 was executed on Paxos from the direct synchronized snapshot; local reports are a copy of those textual artifacts.
 Fmax sweep bracket: `346.90`--`347.18` MHz; highest tested PASS is `346.90` MHz and lowest tested FAIL is `347.18` MHz. Exact values remain in `results/fmax_search.json`.
 Timing/resource values below are post-route estimates. The complete protocol-directed RTL-SAIF capture at 317 MHz was imported into the routed checkpoint on Paxos; P1 is hybrid SAIF/vectorless and P2 is the input/control cross-check. The prior 245 ns reports and the superseded approximately 100 MHz capture are not final inputs. Timing-SAIF remains optional because XSim hit a Vivado 2023.2 LLVM assertion.
@@ -16,11 +16,11 @@ Timing/resource values below are post-route estimates. The complete protocol-dir
 - tile initiation interval: `11` cycles across `2025` tile-end events
 - canonical Verilator regression: PASS (2025 inverse tiles, 23675 cycles, 8100 writes, zero errors)
 
-## Required final table
+## Pilot characterization table
 
 | Design | bits | target MHz | achieved MHz | timing | DSP | LUT | FF | latency cyc | II | GOPS eq. | dyn. W | total W | GOPS/W | dyn. GOPS/W | pJ/op | dyn. pJ/op |
 | --- | ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| Our Conv baseline @ 317 MHz | 20 | 317.0 | 317.0 | PASS | 8.0 | 2087.0 | 1266.0 | 23648 | N/A | 1.9544401217861977 | 0.21 | 0.803 | 2.433922941203235 | 9.306857722791419 | 410.8593509972176 | 107.44765094572314 |
+| Our Conv pilot @ 317 MHz | 20 | 317.0 | 317.0 | PASS | 8.0 | 2087.0 | 1266.0 | 23648 | N/A | 1.9544401217861977 | 0.21 | 0.803 | 2.433922941203235 | 9.306857722791419 | 410.8593509972176 | 107.44765094572314 |
 | WinoGen F(4,3) PNmin | 8-16 | N/A | N/A | REFERENCE | 6 | 2441 | 3587 | N/A | N/A | 9.883 | N/A | N/A | N/A | N/A | N/A | N/A |
 | WinoGen F(4,3) constrained | 8-16 | N/A | N/A | REFERENCE | 48 | 8267 | 11678 | N/A | N/A | 123.824 | N/A | N/A | N/A | N/A | N/A | N/A |
 | WinoGen F(4,3) PNmax | 8-16 | N/A | N/A | REFERENCE | 144 | 17472 | 18476 | N/A | N/A | 371.472 | N/A | N/A | N/A | N/A | N/A | N/A |
@@ -75,6 +75,6 @@ The TC2x2 core executes F(2,3). The closest WinoGen Table 1 IP is F(4,1) in supp
 | WinoGen F(4,1) constrained, F(2,3)* | 8-16 | 16 | 2267 | 2901 | 22.236 |
 | WinoGen F(4,1) PNmax, F(2,3)* | 8-16 | 64 | 4858 | 7579 | 92.868 |
 
-WinoGen is 8--16 bit while this baseline is 20 bit. The WinoGen system replicas are not compared directly with this single core; a future replication sweep is the appropriate utilization-matched comparison.
+WinoGen is 8--16 bit while this pilot is 20 bit. The WinoGen system replicas are not compared directly with this single core; a future replication sweep is the appropriate utilization-matched comparison. The pilot validates the flow and is not automatically part of the final architecture set.
 
 Power labels are estimates from Vivado post-route, never physical-board measurements.

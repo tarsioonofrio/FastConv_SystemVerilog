@@ -279,7 +279,7 @@ def main() -> int:
                 f"({saif['coverage_pct']}%)"
                 if isinstance(saif.get("matched_nets"), int) else "pending reimport")
     row = {
-        "design": "Our Conv baseline @ 317 MHz",
+        "design": "Our Conv pilot @ 317 MHz",
         "bits": 20, "target_mhz": 317.0,
         "achieved_mhz": 317.0 if closure == "PASS" else None,
         "timing": closure, "wns_ns": wns, "tns_ns": tns,
@@ -358,7 +358,7 @@ def main() -> int:
     lines = [
         "# FPGA ZCU104 benchmark summary", "",
         "## Reproducibility boundary", "",
-        "Target: `xczu7ev-ffvc1156-2-e`, reference Vivado 2023.2, top `Conv`, baseline 20-bit.",
+        "Target: `xczu7ev-ffvc1156-2-e`, reference Vivado 2023.2, top `Conv`, pilot 20-bit.",
         "Vivado 2023.2 was executed on Paxos from the direct synchronized snapshot; local reports are a copy of those textual artifacts.",
         fmax_line,
         ("Timing/resource values below are post-route estimates. The complete protocol-directed RTL-SAIF capture at 317 MHz was imported into the routed checkpoint on Paxos; P1 is hybrid SAIF/vectorless and P2 is the input/control cross-check. The prior 245 ns reports and the superseded approximately 100 MHz capture are not final inputs. Timing-SAIF remains optional because XSim hit a Vivado 2023.2 LLVM assertion."), "",
@@ -369,7 +369,7 @@ def main() -> int:
         f"- sequential job rate: one complete job every `{rtl['latency_cycles']}` cycles when reset-delimited; this is not a pipeline II",
         f"- tile initiation interval: `{rtl['tile_ii_cycles']}` cycles across `{rtl['tile_ends']}` tile-end events",
         "- canonical Verilator regression: PASS (2025 inverse tiles, 23675 cycles, 8100 writes, zero errors)", "",
-        "## Required final table", "",
+        "## Pilot characterization table", "",
         "| Design | bits | target MHz | achieved MHz | timing | DSP | LUT | FF | latency cyc | II | GOPS eq. | dyn. W | total W | GOPS/W | dyn. GOPS/W | pJ/op | dyn. pJ/op |",
         "| --- | ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
     ]
@@ -405,7 +405,7 @@ def main() -> int:
               "The TC2x2 core executes F(2,3). The closest WinoGen Table 1 IP is F(4,1) in supported mode F(2,3)*; its throughput model is based on expected cycles over input tiles, whereas this benchmark uses a complete validated RTL workload.",
               "", "| WinoGen IP | bits | DSP | LUT | FF | equivalent GOPS |", "| --- | ---: | ---: | ---: | ---: | ---: |",
               *[f"| {name} | {bits} | {dsp} | {lut} | {ff} | {gops} |" for name, bits, dsp, lut, ff, gops in WINOGEN_F23],
-              "", "WinoGen is 8--16 bit while this baseline is 20 bit. The WinoGen system replicas are not compared directly with this single core; a future replication sweep is the appropriate utilization-matched comparison.",
+              "", "WinoGen is 8--16 bit while this pilot is 20 bit. The WinoGen system replicas are not compared directly with this single core; a future replication sweep is the appropriate utilization-matched comparison. The pilot validates the flow and is not automatically part of the final architecture set.",
               "", "Power labels are estimates from Vivado post-route, never physical-board measurements."]
     (RESULTS / "summary.md").write_text("\n".join(lines) + "\n")
     print("wrote", RESULTS / "results.csv", RESULTS / "results.json", RESULTS / "summary.md")

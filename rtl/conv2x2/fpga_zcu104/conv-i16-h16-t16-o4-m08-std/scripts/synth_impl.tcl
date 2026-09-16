@@ -1,4 +1,4 @@
-# Vivado 2023.2 batch implementation flow for the canonical Conv baseline.
+# Vivado 2023.2 batch implementation flow for the Conv pilot.
 # Usage: vivado -mode batch -source synth_impl.tcl -tclargs <run> <period_ns>
 
 set script_dir [file dirname [file normalize [info script]]]

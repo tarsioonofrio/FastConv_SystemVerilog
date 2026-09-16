@@ -1,10 +1,16 @@
-# Benchmark FPGA ZCU104 / WinoGen
+# FPGA ZCU104 pilot / WinoGen flow validation
 
-Este diretório isola o experimento FPGA pedido em `tmp/winogen-fpa.md` para a
+Este diretório isola o piloto FPGA pedido em `tmp/winogen-fpa.md` para a
 variante `conv-i16-h16-t16-o4-m08-std`. Ele segue a organização por variante
 usada em `rtl/conv2x2/synthesis/` e fica em
 `rtl/conv2x2/fpga_zcu104/conv-i16-h16-t16-o4-m08-std/`. O alvo é a mesma
 família usada pelo WinoGen:
+
+> **Fase 0 — Pilot / flow validation.** Esta arquitetura valida o fluxo
+> experimental completo na ZCU104/XCZU7EV. Ela não é o baseline definitivo nem
+> precisa pertencer ao conjunto final de arquiteturas do estudo. Os números
+> abaixo permanecem como evidência reproduzível do piloto; a metodologia é o
+> artefato que será reutilizado nas arquiteturas alvo.
 
 | Campo | Valor |
 | --- | --- |
@@ -93,11 +99,12 @@ PASS/FAIL, sem precisão artificial. Nesta campanha, o maior PASS foi
 `-0.013 ns`), portanto `346.90 MHz <= Fmax < 347.18 MHz`. Os valores
 completos da bisseção permanecem em `results/fmax_search.json`.
 
-## Caracterização congelada do core único
+## Caracterização registrada do piloto
 
-O operating point comum da campanha de desempenho e power é `317 MHz`. O
+O operating point comum deste piloto para desempenho e power é `317 MHz`. O
 limite de timing é uma caracterização separada: `346.90 MHz` é o maior PASS
-verificado e `347.18 MHz` é o próximo FAIL pós-route.
+verificado e `347.18 MHz` é o próximo FAIL pós-route. Esses valores não
+definem antecipadamente o operating point ou o Fmax das arquiteturas alvo.
 
 | Métrica | Resultado |
 | --- | ---: |
@@ -129,6 +136,16 @@ dynamic-power-normalized value describes the implemented FPGA design's dynamic
 power, including relevant clocking, routing and I/O activity; it is not an
 isolated datapath efficiency measurement.
 
+## Escopo para a campanha científica
+
+O próximo estudo deve definir primeiro o conjunto de arquiteturas alvo. Só
+depois vale extrair a infraestrutura comum de síntese, Fmax, SAIF, P0/P1/P2 e
+coleta de resultados para uma campanha homogênea. A organização prevista é
+`common/` para o fluxo compartilhado, `pilot/` para este experimento e
+`architectures/` para as variantes científicas, com uma consolidação separada
+em `comparison/`. Essa reorganização fica deliberadamente pendente até a
+definição das arquiteturas.
+
 ## Métricas e convenções
 
 Latência e II são medidos em ciclos no workload RTL. Para esta variante o job
@@ -139,8 +156,8 @@ reportado separadamente. O GOPS publicado pelo coletor é o total do workload,
 marcado como *equivalent direct-convolution GOPS*; não se afirma que seja uma
 convenção explicitamente idêntica à do WinoGen.
 
-Power é sempre rotulado como **Vivado post-route estimate**. Vectorless é o
-baseline; o resultado principal pretendido é **post-route hybrid
+Power é sempre rotulado como **Vivado post-route estimate**. Vectorless é a
+referência de controle; o resultado principal deste piloto é **post-route hybrid
 SAIF/vectorless**, usando atividade RTL nos sinais que casarem e propagação
 vectorless no restante. A captura RTL principal usa o mesmo operating point do
 experimento fixo: `317 MHz`, período nominal de `3154.574 ps`. A janela é
@@ -193,7 +210,7 @@ latência.
 
 O PNmin WinoGen reporta aproximadamente `2.84x` o throughput deste core
 (`5.559 / 1.954`), usando metade dos DSPs, menos LUTs e mais FFs. A diferença
-de precisão (WinoGen 8--16 bit contra este baseline de 20 bit) e o modelo de
+de precisão (WinoGen 8--16 bit contra este piloto de 20 bit) e o modelo de
 throughput devem permanecer explícitos.
 
 | Design | bits | DSP | LUT | FF | equivalent throughput (GOPS) |
