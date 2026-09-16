@@ -1,0 +1,23 @@
+
+****** Vivado v2023.2 (64-bit)
+  **** SW Build 4029153 on Fri Oct 13 20:13:54 MDT 2023
+  **** IP Build 4028589 on Sat Oct 14 00:45:43 MDT 2023
+  **** SharedData Build 4025554 on Tue Oct 10 17:18:54 MDT 2023
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2023 Advanced Micro Devices, Inc. All Rights Reserved.
+
+source rtl/conv2x2/fpga_zcu104/conv-i16-h16-t16-o4-m08-std/scripts/post_impl_saif.tcl
+# set script_dir [file dirname [file normalize [info script]]]
+# set bench_dir [file normalize [file join $script_dir ..]]
+# if {$argc < 1} { puts stderr "usage: post_impl_saif.tcl <run>"; exit 2 }
+# set run_name [lindex $argv 0]
+# set run_dir [file join $bench_dir reports $run_name]
+# foreach artifact {design_routed.dcp design_routed_timesim.v design_routed.sdf} {
+#   set path [file join $run_dir $artifact]
+#   if {![file exists $path]} {
+#     error "missing post-route artifact: $path"
+#   }
+# }
+# puts "POST_IMPL_ARTIFACTS_OK run=$run_name dir=$run_dir"
+POST_IMPL_ARTIFACTS_OK run=317mhz dir=/tmp/fastconv-fpa-5e0146f4/rtl/conv2x2/fpga_zcu104/conv-i16-h16-t16-o4-m08-std/reports/317mhz
+INFO: [Common 17-206] Exiting Vivado at Tue Sep 15 23:02:35 2026...

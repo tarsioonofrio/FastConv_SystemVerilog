@@ -1,14 +1,14 @@
 Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2023 Advanced Micro Devices, Inc. All Rights Reserved.
------------------------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 | Tool Version : Vivado v.2023.2 (lin64) Build 4029153 Fri Oct 13 20:13:54 MDT 2023
-| Date         : Tue Sep 15 20:35:02 2026
+| Date         : Tue Sep 15 22:29:45 2026
 | Host         : paxos.inf.pucrs.br running 64-bit Rocky Linux release 8.10 (Green Obsidian)
-| Command      : report_utilization -hierarchical -file /tmp/fastconv-fpa-47d1445b/benchmark/fpga_zcu104/reports/fmax_2p857143/utilization.rpt
+| Command      : report_utilization -hierarchical -file /tmp/fastconv-fpa-5e0146f4/rtl/conv2x2/fpga_zcu104/conv-i16-h16-t16-o4-m08-std/reports/fmax_2p857143/utilization.rpt
 | Design       : Conv
 | Device       : xczu7ev-ffvc1156-2-e
 | Speed File   : -2
 | Design State : Routed
------------------------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 Utilization Design Information
 
@@ -40,3 +40,5 @@ Table of Contents
 |     matrix_c1            |  MatrixC1 |        241 |        241 |       0 |    0 |    0 |      0 |      0 |    0 |          0 |
 +--------------------------+-----------+------------+------------+---------+------+------+--------+--------+------+------------+
 * Note: The sum of lower-level cells may be larger than their parent cells total, due to cross-hierarchy LUT combining
+
+

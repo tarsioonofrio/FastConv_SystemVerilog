@@ -40,3 +40,24 @@ Vivado's xelab aborted in LLVM `DAGTypeLegalizer::run`; SAIF is therefore kept
 pending rather than presented as a timing-power result. The dirty `remote`
 checkout itself was not reset or overwritten; the Cadence flow remains a
 separate ASIC/standard-cell flow.
+
+## Current direct-snapshot campaign
+
+After the FPGA benchmark was moved under the variant-specific directory, commit
+`5e0146f4` was synchronized directly to
+`/tmp/fastconv-fpa-5e0146f4`. The persistent checkout at
+`/sim/tarsio/FastConv_SystemVerilog` remained on its pre-existing dirty commit
+`d719dfc852dfb783c6d330104c6e8980f48ec662` and was not modified.
+
+Vivado 2023.2 regenerated the 317 MHz implementation artifacts and the full
+post-route Fmax sweep. The local copy now includes the synthesis/routed DCPs,
+timing netlists, SDFs, implementation logs, and reports for the sweep points.
+The final Fmax JSON reports 317.000013 MHz at 3.154574 ns with WNS +0.086 ns;
+349.999983 MHz fails with WNS -0.023 ns.
+
+The official SAIF runner using `unisims_ver` compiled successfully but failed at
+SDF annotation with `XSIM 43-3462`. A second elaboration using `simprims_ver`
+accepted the timing primitives but aborted in Vivado 2023.2's LLVM
+`DAGTypeLegalizer::run` assertion. No `activity.saif` was produced, and no
+SAIF-based power value is included in the consolidated results. No VCD was
+generated.

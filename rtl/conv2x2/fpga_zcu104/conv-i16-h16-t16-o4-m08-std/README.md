@@ -32,8 +32,8 @@ feita diretamente na Paxos. O catálogo de módulos confirmou
 A Paxos foi verificada pelo endpoint institucional `paxos.inf.pucrs.br:8888`.
 Ela oferece Genus 21.12/Xcelium 23.03 para o fluxo ASIC e Vivado 2023.2 para
 esta campanha FPGA. O checkout persistente remoto permaneceu sujo e em outro
-commit; a execução usou o snapshot sincronizado diretamente em
-`/tmp/fastconv-fpa-47d1445b`, conforme `AGENTS.md`. A evidência completa está em
+commit; a execução atual usou o snapshot do commit `5e0146f4`, sincronizado
+diretamente em `/tmp/fastconv-fpa-5e0146f4`, conforme `AGENTS.md`. A evidência completa está em
 [`results/paxos_probe.md`](results/paxos_probe.md).
 
 A validação funcional disponível localmente foi executada com Verilator e
