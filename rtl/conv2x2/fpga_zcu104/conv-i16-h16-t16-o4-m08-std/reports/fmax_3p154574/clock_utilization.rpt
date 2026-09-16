@@ -1,15 +1,15 @@
 Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2023 Advanced Micro Devices, Inc. All Rights Reserved.
---------------------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 | Tool Version      : Vivado v.2023.2 (lin64) Build 4029153 Fri Oct 13 20:13:54 MDT 2023
-| Date              : Tue Sep 15 20:32:14 2026
+| Date              : Tue Sep 15 22:26:56 2026
 | Host              : paxos.inf.pucrs.br running 64-bit Rocky Linux release 8.10 (Green Obsidian)
-| Command           : report_clock_utilization -file /tmp/fastconv-fpa-47d1445b/benchmark/fpga_zcu104/reports/fmax_3p154574/clock_utilization.rpt
+| Command           : report_clock_utilization -file /tmp/fastconv-fpa-5e0146f4/rtl/conv2x2/fpga_zcu104/conv-i16-h16-t16-o4-m08-std/reports/fmax_3p154574/clock_utilization.rpt
 | Design            : Conv
 | Device            : xczu7ev-ffvc1156
 | Speed File        : -2  PRODUCTION 1.30 05-15-2022
 | Temperature Grade : E
 | Design State      : Routed
---------------------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 Clock Utilization Report
 
@@ -268,3 +268,5 @@ All Modules
 * Clock Loads column represents cell count of net connects that connect to a clock pin. Internal cell leaf pins are not considered
 ** Non-Clock Loads column represents cell count of non-clock pin loads
 *** Columns FF, LUTRAM, RAMB through 'Hard IP' represents load cell counts
+
+

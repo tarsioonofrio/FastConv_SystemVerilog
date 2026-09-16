@@ -1,15 +1,15 @@
 Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2023 Advanced Micro Devices, Inc. All Rights Reserved.
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 | Tool Version      : Vivado v.2023.2 (lin64) Build 4029153 Fri Oct 13 20:13:54 MDT 2023
-| Date              : Tue Sep 15 20:35:03 2026
+| Date              : Tue Sep 15 22:29:47 2026
 | Host              : paxos.inf.pucrs.br running 64-bit Rocky Linux release 8.10 (Green Obsidian)
-| Command           : report_timing_summary -delay_type max -report_unconstrained -check_timing_verbose -max_paths 20 -file /tmp/fastconv-fpa-47d1445b/benchmark/fpga_zcu104/reports/fmax_2p857143/timing_summary.rpt
+| Command           : report_timing_summary -delay_type max -report_unconstrained -check_timing_verbose -max_paths 20 -file /tmp/fastconv-fpa-5e0146f4/rtl/conv2x2/fpga_zcu104/conv-i16-h16-t16-o4-m08-std/reports/fmax_2p857143/timing_summary.rpt
 | Design            : Conv
 | Device            : xczu7ev-ffvc1156
 | Speed File        : -2  PRODUCTION 1.30 05-15-2022
 | Design State      : Routed
 | Temperature Grade : E
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 Timing Summary Report
 
@@ -30,11 +30,11 @@ Timing Summary Report
   Merge Timing Exceptions                    :  Yes
   Inter-SLR Compensation                     :  Conservative
 
-  Corner  Analyze    Analyze
-  Name    Max Paths  Min Paths
-  ------  ---------  ---------
-  Slow    Yes        Yes
-  Fast    Yes        Yes
+  Corner  Analyze    Analyze    
+  Name    Max Paths  Min Paths  
+  ------  ---------  ---------  
+  Slow    Yes        Yes        
+  Fast    Yes        Yes        
 
 
 ------------------------------------------------------------------------------------------------
@@ -237,9 +237,9 @@ p_output_wr
 | ---------------------
 ------------------------------------------------------------------------------------------------
 
-    WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  TPWS Total Endpoints
-    -------      -------  ---------------------  -------------------     --------     --------  ----------------------  --------------------
-     -0.023       -0.035                      3                 2506        1.153        0.000                       0                  1267
+    WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  TPWS Total Endpoints  
+    -------      -------  ---------------------  -------------------     --------     --------  ----------------------  --------------------  
+     -0.023       -0.035                      3                 2506        1.153        0.000                       0                  1267  
 
 
 Timing constraints are not met.
@@ -252,7 +252,7 @@ Timing constraints are not met.
 
 Clock  Waveform(ns)         Period(ns)      Frequency(MHz)
 -----  ------------         ----------      --------------
-clk    {0.000 1.429}        2.857           350.017
+clk    {0.000 1.429}        2.857           350.017         
 
 
 ------------------------------------------------------------------------------------------------
@@ -260,9 +260,9 @@ clk    {0.000 1.429}        2.857           350.017
 | -----------------
 ------------------------------------------------------------------------------------------------
 
-Clock             WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  TPWS Total Endpoints
------             -------      -------  ---------------------  -------------------     --------     --------  ----------------------  --------------------
-clk                -0.023       -0.035                      3                 2506        1.153        0.000                       0                  1267
+Clock             WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  TPWS Total Endpoints  
+-----             -------      -------  ---------------------  -------------------     --------     --------  ----------------------  --------------------  
+clk                -0.023       -0.035                      3                 2506        1.153        0.000                       0                  1267  
 
 
 ------------------------------------------------------------------------------------------------
@@ -270,8 +270,8 @@ clk                -0.023       -0.035                      3                 25
 | -----------------
 ------------------------------------------------------------------------------------------------
 
-From Clock    To Clock          WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints
-----------    --------          -------      -------  ---------------------  -------------------
+From Clock    To Clock          WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints  
+----------    --------          -------      -------  ---------------------  -------------------  
 
 
 ------------------------------------------------------------------------------------------------
@@ -279,8 +279,8 @@ From Clock    To Clock          WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS
 | -----------------------
 ------------------------------------------------------------------------------------------------
 
-Path Group    From Clock    To Clock          WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints
-----------    ----------    --------          -------      -------  ---------------------  -------------------
+Path Group    From Clock    To Clock          WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints  
+----------    ----------    --------          -------      -------  ---------------------  -------------------  
 
 
 ------------------------------------------------------------------------------------------------
@@ -288,9 +288,9 @@ Path Group    From Clock    To Clock          WNS(ns)      TNS(ns)  TNS Failing 
 | -----------------------
 ------------------------------------------------------------------------------------------------
 
-Path Group    From Clock    To Clock
-----------    ----------    --------
-(none)                      clk
+Path Group    From Clock    To Clock    
+----------    ----------    --------    
+(none)                      clk           
 
 
 ------------------------------------------------------------------------------------------------
@@ -298,10 +298,10 @@ Path Group    From Clock    To Clock
 | ------------------------
 ------------------------------------------------------------------------------------------------
 
-Path Group    From Clock    To Clock
-----------    ----------    --------
-(none)        clk
-(none)                      clk
+Path Group    From Clock    To Clock    
+----------    ----------    --------    
+(none)        clk                         
+(none)                      clk           
 
 
 ------------------------------------------------------------------------------------------------
@@ -333,7 +333,7 @@ Slack (VIOLATED) :        -0.023ns  (required time - arrival time)
   Data Path Delay:        2.730ns  (logic 2.002ns (73.328%)  route 0.728ns (26.672%))
   Logic Levels:           10  (CARRY8=2 DSP_A_B_DATA=1 DSP_ALU=1 DSP_M_DATA=1 DSP_MULTIPLIER=1 DSP_OUTPUT=1 DSP_PREADD_DATA=1 LUT2=1 LUT3=1)
   Clock Path Skew:        -0.139ns (DCD - SCD + CPR)
-    Destination Clock Delay (DCD):    1.269ns = ( 4.126 - 2.857 )
+    Destination Clock Delay (DCD):    1.269ns = ( 4.126 - 2.857 ) 
     Source Clock Delay      (SCD):    1.716ns
     Clock Pessimism Removal (CPR):    0.308ns
   Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
@@ -346,7 +346,7 @@ Slack (VIOLATED) :        -0.023ns  (required time - arrival time)
 
     Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
   -------------------------------------------------------------------    -------------------
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -396,7 +396,7 @@ Slack (VIOLATED) :        -0.023ns  (required time - arrival time)
     SLICE_X79Y331        FDRE                                         r  r_conv_temp_reg[10][18]/D
   -------------------------------------------------------------------    -------------------
 
-                         (clock clk rise edge)        2.857     2.857 r
+                         (clock clk rise edge)        2.857     2.857 r  
     G10                                               0.000     2.857 r  clk (IN)
                          net (fo=0)                   0.000     2.857    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -409,15 +409,15 @@ Slack (VIOLATED) :        -0.023ns  (required time - arrival time)
                                                       0.024     3.461 r  clk_IBUF_BUFG_inst/O
     X2Y5 (CLOCK_ROOT)    net (fo=1314, routed)        0.665     4.126    clk_IBUF_BUFG
     SLICE_X79Y331        FDRE                                         r  r_conv_temp_reg[10][18]/C
-                         clock pessimism              0.308     4.434
-                         clock uncertainty           -0.035     4.399
+                         clock pessimism              0.308     4.434    
+                         clock uncertainty           -0.035     4.399    
     SLICE_X79Y331        FDRE (Setup_HFF_SLICEM_C_D)
                                                       0.025     4.424    r_conv_temp_reg[10][18]
   -------------------------------------------------------------------
-                         required time                          4.424
-                         arrival time                          -4.446
+                         required time                          4.424    
+                         arrival time                          -4.446    
   -------------------------------------------------------------------
-                         slack                                 -0.023
+                         slack                                 -0.023    
 
 Slack (VIOLATED) :        -0.008ns  (required time - arrival time)
   Source:                 r_input_weight_reg[5][14]/C
@@ -430,7 +430,7 @@ Slack (VIOLATED) :        -0.008ns  (required time - arrival time)
   Data Path Delay:        2.765ns  (logic 1.899ns (68.674%)  route 0.866ns (31.326%))
   Logic Levels:           8  (CARRY8=1 DSP_A_B_DATA=1 DSP_ALU=1 DSP_M_DATA=1 DSP_MULTIPLIER=1 DSP_OUTPUT=1 DSP_PREADD_DATA=1 LUT3=1)
   Clock Path Skew:        -0.089ns (DCD - SCD + CPR)
-    Destination Clock Delay (DCD):    1.274ns = ( 4.131 - 2.857 )
+    Destination Clock Delay (DCD):    1.274ns = ( 4.131 - 2.857 ) 
     Source Clock Delay      (SCD):    1.671ns
     Clock Pessimism Removal (CPR):    0.308ns
   Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
@@ -443,7 +443,7 @@ Slack (VIOLATED) :        -0.008ns  (required time - arrival time)
 
     Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
   -------------------------------------------------------------------    -------------------
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -487,7 +487,7 @@ Slack (VIOLATED) :        -0.008ns  (required time - arrival time)
     SLICE_X75Y341        FDRE                                         r  r_conv_temp_reg[13][16]/D
   -------------------------------------------------------------------    -------------------
 
-                         (clock clk rise edge)        2.857     2.857 r
+                         (clock clk rise edge)        2.857     2.857 r  
     G10                                               0.000     2.857 r  clk (IN)
                          net (fo=0)                   0.000     2.857    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -500,15 +500,15 @@ Slack (VIOLATED) :        -0.008ns  (required time - arrival time)
                                                       0.024     3.461 r  clk_IBUF_BUFG_inst/O
     X2Y5 (CLOCK_ROOT)    net (fo=1314, routed)        0.670     4.131    clk_IBUF_BUFG
     SLICE_X75Y341        FDRE                                         r  r_conv_temp_reg[13][16]/C
-                         clock pessimism              0.308     4.439
-                         clock uncertainty           -0.035     4.404
+                         clock pessimism              0.308     4.439    
+                         clock uncertainty           -0.035     4.404    
     SLICE_X75Y341        FDRE (Setup_DFF2_SLICEL_C_D)
                                                       0.025     4.429    r_conv_temp_reg[13][16]
   -------------------------------------------------------------------
-                         required time                          4.429
-                         arrival time                          -4.436
+                         required time                          4.429    
+                         arrival time                          -4.436    
   -------------------------------------------------------------------
-                         slack                                 -0.008
+                         slack                                 -0.008    
 
 Slack (VIOLATED) :        -0.005ns  (required time - arrival time)
   Source:                 r_input_weight_reg[5][18]/C
@@ -521,7 +521,7 @@ Slack (VIOLATED) :        -0.005ns  (required time - arrival time)
   Data Path Delay:        2.764ns  (logic 1.988ns (71.925%)  route 0.776ns (28.075%))
   Logic Levels:           10  (CARRY8=2 DSP_A_B_DATA=1 DSP_ALU=1 DSP_M_DATA=1 DSP_MULTIPLIER=1 DSP_OUTPUT=1 DSP_PREADD_DATA=1 LUT2=1 LUT3=1)
   Clock Path Skew:        -0.088ns (DCD - SCD + CPR)
-    Destination Clock Delay (DCD):    1.275ns = ( 4.132 - 2.857 )
+    Destination Clock Delay (DCD):    1.275ns = ( 4.132 - 2.857 ) 
     Source Clock Delay      (SCD):    1.671ns
     Clock Pessimism Removal (CPR):    0.308ns
   Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
@@ -534,7 +534,7 @@ Slack (VIOLATED) :        -0.005ns  (required time - arrival time)
 
     Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
   -------------------------------------------------------------------    -------------------
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -584,7 +584,7 @@ Slack (VIOLATED) :        -0.005ns  (required time - arrival time)
     SLICE_X74Y345        FDRE                                         r  r_conv_temp_reg[13][18]/D
   -------------------------------------------------------------------    -------------------
 
-                         (clock clk rise edge)        2.857     2.857 r
+                         (clock clk rise edge)        2.857     2.857 r  
     G10                                               0.000     2.857 r  clk (IN)
                          net (fo=0)                   0.000     2.857    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -597,15 +597,15 @@ Slack (VIOLATED) :        -0.005ns  (required time - arrival time)
                                                       0.024     3.461 r  clk_IBUF_BUFG_inst/O
     X2Y5 (CLOCK_ROOT)    net (fo=1314, routed)        0.671     4.132    clk_IBUF_BUFG
     SLICE_X74Y345        FDRE                                         r  r_conv_temp_reg[13][18]/C
-                         clock pessimism              0.308     4.441
-                         clock uncertainty           -0.035     4.405
+                         clock pessimism              0.308     4.441    
+                         clock uncertainty           -0.035     4.405    
     SLICE_X74Y345        FDRE (Setup_HFF_SLICEM_C_D)
                                                       0.025     4.430    r_conv_temp_reg[13][18]
   -------------------------------------------------------------------
-                         required time                          4.430
-                         arrival time                          -4.435
+                         required time                          4.430    
+                         arrival time                          -4.435    
   -------------------------------------------------------------------
-                         slack                                 -0.005
+                         slack                                 -0.005    
 
 Slack (MET) :             0.003ns  (required time - arrival time)
   Source:                 r_input_weight_reg[0][9]/C
@@ -618,7 +618,7 @@ Slack (MET) :             0.003ns  (required time - arrival time)
   Data Path Delay:        2.751ns  (logic 2.047ns (74.408%)  route 0.704ns (25.592%))
   Logic Levels:           10  (CARRY8=2 DSP_A_B_DATA=1 DSP_ALU=1 DSP_M_DATA=1 DSP_MULTIPLIER=1 DSP_OUTPUT=1 DSP_PREADD_DATA=1 LUT2=1 LUT3=1)
   Clock Path Skew:        -0.093ns (DCD - SCD + CPR)
-    Destination Clock Delay (DCD):    1.265ns = ( 4.122 - 2.857 )
+    Destination Clock Delay (DCD):    1.265ns = ( 4.122 - 2.857 ) 
     Source Clock Delay      (SCD):    1.666ns
     Clock Pessimism Removal (CPR):    0.308ns
   Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
@@ -631,7 +631,7 @@ Slack (MET) :             0.003ns  (required time - arrival time)
 
     Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
   -------------------------------------------------------------------    -------------------
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -681,7 +681,7 @@ Slack (MET) :             0.003ns  (required time - arrival time)
     SLICE_X85Y332        FDRE                                         r  r_conv_temp_reg[8][19]/D
   -------------------------------------------------------------------    -------------------
 
-                         (clock clk rise edge)        2.857     2.857 r
+                         (clock clk rise edge)        2.857     2.857 r  
     G10                                               0.000     2.857 r  clk (IN)
                          net (fo=0)                   0.000     2.857    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -694,15 +694,15 @@ Slack (MET) :             0.003ns  (required time - arrival time)
                                                       0.024     3.461 r  clk_IBUF_BUFG_inst/O
     X2Y5 (CLOCK_ROOT)    net (fo=1314, routed)        0.661     4.122    clk_IBUF_BUFG
     SLICE_X85Y332        FDRE                                         r  r_conv_temp_reg[8][19]/C
-                         clock pessimism              0.308     4.431
-                         clock uncertainty           -0.035     4.395
+                         clock pessimism              0.308     4.431    
+                         clock uncertainty           -0.035     4.395    
     SLICE_X85Y332        FDRE (Setup_BFF2_SLICEL_C_D)
                                                       0.025     4.420    r_conv_temp_reg[8][19]
   -------------------------------------------------------------------
-                         required time                          4.420
-                         arrival time                          -4.417
+                         required time                          4.420    
+                         arrival time                          -4.417    
   -------------------------------------------------------------------
-                         slack                                  0.003
+                         slack                                  0.003    
 
 Slack (MET) :             0.005ns  (required time - arrival time)
   Source:                 r_input_weight_reg[4][14]/C
@@ -715,7 +715,7 @@ Slack (MET) :             0.005ns  (required time - arrival time)
   Data Path Delay:        2.755ns  (logic 2.018ns (73.254%)  route 0.737ns (26.746%))
   Logic Levels:           9  (CARRY8=1 DSP_A_B_DATA=1 DSP_ALU=1 DSP_M_DATA=1 DSP_MULTIPLIER=1 DSP_OUTPUT=1 DSP_PREADD_DATA=1 LUT2=1 LUT3=1)
   Clock Path Skew:        -0.087ns (DCD - SCD + CPR)
-    Destination Clock Delay (DCD):    1.274ns = ( 4.131 - 2.857 )
+    Destination Clock Delay (DCD):    1.274ns = ( 4.131 - 2.857 ) 
     Source Clock Delay      (SCD):    1.669ns
     Clock Pessimism Removal (CPR):    0.308ns
   Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
@@ -728,7 +728,7 @@ Slack (MET) :             0.005ns  (required time - arrival time)
 
     Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
   -------------------------------------------------------------------    -------------------
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -775,7 +775,7 @@ Slack (MET) :             0.005ns  (required time - arrival time)
     SLICE_X87Y343        FDRE                                         r  r_conv_temp_reg[12][15]/D
   -------------------------------------------------------------------    -------------------
 
-                         (clock clk rise edge)        2.857     2.857 r
+                         (clock clk rise edge)        2.857     2.857 r  
     G10                                               0.000     2.857 r  clk (IN)
                          net (fo=0)                   0.000     2.857    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -788,15 +788,15 @@ Slack (MET) :             0.005ns  (required time - arrival time)
                                                       0.024     3.461 r  clk_IBUF_BUFG_inst/O
     X2Y5 (CLOCK_ROOT)    net (fo=1314, routed)        0.670     4.131    clk_IBUF_BUFG
     SLICE_X87Y343        FDRE                                         r  r_conv_temp_reg[12][15]/C
-                         clock pessimism              0.308     4.439
-                         clock uncertainty           -0.035     4.404
+                         clock pessimism              0.308     4.439    
+                         clock uncertainty           -0.035     4.404    
     SLICE_X87Y343        FDRE (Setup_DFF_SLICEL_C_D)
                                                       0.025     4.429    r_conv_temp_reg[12][15]
   -------------------------------------------------------------------
-                         required time                          4.429
-                         arrival time                          -4.424
+                         required time                          4.429    
+                         arrival time                          -4.424    
   -------------------------------------------------------------------
-                         slack                                  0.005
+                         slack                                  0.005    
 
 Slack (MET) :             0.005ns  (required time - arrival time)
   Source:                 r_input_weight_reg[6][17]/C
@@ -809,7 +809,7 @@ Slack (MET) :             0.005ns  (required time - arrival time)
   Data Path Delay:        2.745ns  (logic 1.950ns (71.038%)  route 0.795ns (28.962%))
   Logic Levels:           10  (CARRY8=2 DSP_A_B_DATA=1 DSP_ALU=1 DSP_M_DATA=1 DSP_MULTIPLIER=1 DSP_OUTPUT=1 DSP_PREADD_DATA=1 LUT2=1 LUT3=1)
   Clock Path Skew:        -0.097ns (DCD - SCD + CPR)
-    Destination Clock Delay (DCD):    1.270ns = ( 4.127 - 2.857 )
+    Destination Clock Delay (DCD):    1.270ns = ( 4.127 - 2.857 ) 
     Source Clock Delay      (SCD):    1.675ns
     Clock Pessimism Removal (CPR):    0.308ns
   Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
@@ -822,7 +822,7 @@ Slack (MET) :             0.005ns  (required time - arrival time)
 
     Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
   -------------------------------------------------------------------    -------------------
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -872,7 +872,7 @@ Slack (MET) :             0.005ns  (required time - arrival time)
     SLICE_X85Y334        FDRE                                         r  r_conv_temp_reg[14][19]/D
   -------------------------------------------------------------------    -------------------
 
-                         (clock clk rise edge)        2.857     2.857 r
+                         (clock clk rise edge)        2.857     2.857 r  
     G10                                               0.000     2.857 r  clk (IN)
                          net (fo=0)                   0.000     2.857    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -885,15 +885,15 @@ Slack (MET) :             0.005ns  (required time - arrival time)
                                                       0.024     3.461 r  clk_IBUF_BUFG_inst/O
     X2Y5 (CLOCK_ROOT)    net (fo=1314, routed)        0.666     4.127    clk_IBUF_BUFG
     SLICE_X85Y334        FDRE                                         r  r_conv_temp_reg[14][19]/C
-                         clock pessimism              0.308     4.436
-                         clock uncertainty           -0.035     4.400
+                         clock pessimism              0.308     4.436    
+                         clock uncertainty           -0.035     4.400    
     SLICE_X85Y334        FDRE (Setup_GFF2_SLICEL_C_D)
                                                       0.025     4.425    r_conv_temp_reg[14][19]
   -------------------------------------------------------------------
-                         required time                          4.425
-                         arrival time                          -4.420
+                         required time                          4.425    
+                         arrival time                          -4.420    
   -------------------------------------------------------------------
-                         slack                                  0.005
+                         slack                                  0.005    
 
 Slack (MET) :             0.007ns  (required time - arrival time)
   Source:                 r_input_weight_reg[1][7]/C
@@ -906,7 +906,7 @@ Slack (MET) :             0.007ns  (required time - arrival time)
   Data Path Delay:        2.754ns  (logic 1.844ns (66.948%)  route 0.910ns (33.052%))
   Logic Levels:           9  (CARRY8=2 DSP_A_B_DATA=1 DSP_ALU=1 DSP_M_DATA=1 DSP_MULTIPLIER=1 DSP_OUTPUT=1 DSP_PREADD_DATA=1 LUT3=1)
   Clock Path Skew:        -0.086ns (DCD - SCD + CPR)
-    Destination Clock Delay (DCD):    1.249ns = ( 4.106 - 2.857 )
+    Destination Clock Delay (DCD):    1.249ns = ( 4.106 - 2.857 ) 
     Source Clock Delay      (SCD):    1.643ns
     Clock Pessimism Removal (CPR):    0.309ns
   Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
@@ -919,7 +919,7 @@ Slack (MET) :             0.007ns  (required time - arrival time)
 
     Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
   -------------------------------------------------------------------    -------------------
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -966,7 +966,7 @@ Slack (MET) :             0.007ns  (required time - arrival time)
     SLICE_X71Y333        FDRE                                         r  r_conv_temp_reg[9][18]/D
   -------------------------------------------------------------------    -------------------
 
-                         (clock clk rise edge)        2.857     2.857 r
+                         (clock clk rise edge)        2.857     2.857 r  
     G10                                               0.000     2.857 r  clk (IN)
                          net (fo=0)                   0.000     2.857    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -979,15 +979,15 @@ Slack (MET) :             0.007ns  (required time - arrival time)
                                                       0.024     3.461 r  clk_IBUF_BUFG_inst/O
     X2Y5 (CLOCK_ROOT)    net (fo=1314, routed)        0.645     4.106    clk_IBUF_BUFG
     SLICE_X71Y333        FDRE                                         r  r_conv_temp_reg[9][18]/C
-                         clock pessimism              0.309     4.415
-                         clock uncertainty           -0.035     4.379
+                         clock pessimism              0.309     4.415    
+                         clock uncertainty           -0.035     4.379    
     SLICE_X71Y333        FDRE (Setup_AFF_SLICEM_C_D)
                                                       0.025     4.404    r_conv_temp_reg[9][18]
   -------------------------------------------------------------------
-                         required time                          4.404
-                         arrival time                          -4.398
+                         required time                          4.404    
+                         arrival time                          -4.398    
   -------------------------------------------------------------------
-                         slack                                  0.007
+                         slack                                  0.007    
 
 Slack (MET) :             0.010ns  (required time - arrival time)
   Source:                 r_input_weight_reg[4][14]/C
@@ -1000,7 +1000,7 @@ Slack (MET) :             0.010ns  (required time - arrival time)
   Data Path Delay:        2.757ns  (logic 2.066ns (74.942%)  route 0.691ns (25.058%))
   Logic Levels:           10  (CARRY8=2 DSP_A_B_DATA=1 DSP_ALU=1 DSP_M_DATA=1 DSP_MULTIPLIER=1 DSP_OUTPUT=1 DSP_PREADD_DATA=1 LUT2=1 LUT3=1)
   Clock Path Skew:        -0.080ns (DCD - SCD + CPR)
-    Destination Clock Delay (DCD):    1.281ns = ( 4.138 - 2.857 )
+    Destination Clock Delay (DCD):    1.281ns = ( 4.138 - 2.857 ) 
     Source Clock Delay      (SCD):    1.669ns
     Clock Pessimism Removal (CPR):    0.308ns
   Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
@@ -1013,7 +1013,7 @@ Slack (MET) :             0.010ns  (required time - arrival time)
 
     Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
   -------------------------------------------------------------------    -------------------
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -1063,7 +1063,7 @@ Slack (MET) :             0.010ns  (required time - arrival time)
     SLICE_X86Y344        FDRE                                         r  r_conv_temp_reg[12][19]/D
   -------------------------------------------------------------------    -------------------
 
-                         (clock clk rise edge)        2.857     2.857 r
+                         (clock clk rise edge)        2.857     2.857 r  
     G10                                               0.000     2.857 r  clk (IN)
                          net (fo=0)                   0.000     2.857    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -1076,15 +1076,15 @@ Slack (MET) :             0.010ns  (required time - arrival time)
                                                       0.024     3.461 r  clk_IBUF_BUFG_inst/O
     X2Y5 (CLOCK_ROOT)    net (fo=1314, routed)        0.677     4.138    clk_IBUF_BUFG
     SLICE_X86Y344        FDRE                                         r  r_conv_temp_reg[12][19]/C
-                         clock pessimism              0.308     4.447
-                         clock uncertainty           -0.035     4.411
+                         clock pessimism              0.308     4.447    
+                         clock uncertainty           -0.035     4.411    
     SLICE_X86Y344        FDRE (Setup_HFF2_SLICEM_C_D)
                                                       0.025     4.436    r_conv_temp_reg[12][19]
   -------------------------------------------------------------------
-                         required time                          4.436
-                         arrival time                          -4.426
+                         required time                          4.436    
+                         arrival time                          -4.426    
   -------------------------------------------------------------------
-                         slack                                  0.010
+                         slack                                  0.010    
 
 Slack (MET) :             0.012ns  (required time - arrival time)
   Source:                 r_input_weight_reg[6][17]/C
@@ -1097,7 +1097,7 @@ Slack (MET) :             0.012ns  (required time - arrival time)
   Data Path Delay:        2.738ns  (logic 1.910ns (69.758%)  route 0.828ns (30.242%))
   Logic Levels:           10  (CARRY8=2 DSP_A_B_DATA=1 DSP_ALU=1 DSP_M_DATA=1 DSP_MULTIPLIER=1 DSP_OUTPUT=1 DSP_PREADD_DATA=1 LUT2=1 LUT3=1)
   Clock Path Skew:        -0.097ns (DCD - SCD + CPR)
-    Destination Clock Delay (DCD):    1.270ns = ( 4.127 - 2.857 )
+    Destination Clock Delay (DCD):    1.270ns = ( 4.127 - 2.857 ) 
     Source Clock Delay      (SCD):    1.675ns
     Clock Pessimism Removal (CPR):    0.308ns
   Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
@@ -1110,7 +1110,7 @@ Slack (MET) :             0.012ns  (required time - arrival time)
 
     Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
   -------------------------------------------------------------------    -------------------
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -1160,7 +1160,7 @@ Slack (MET) :             0.012ns  (required time - arrival time)
     SLICE_X85Y334        FDRE                                         r  r_conv_temp_reg[14][18]/D
   -------------------------------------------------------------------    -------------------
 
-                         (clock clk rise edge)        2.857     2.857 r
+                         (clock clk rise edge)        2.857     2.857 r  
     G10                                               0.000     2.857 r  clk (IN)
                          net (fo=0)                   0.000     2.857    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -1173,15 +1173,15 @@ Slack (MET) :             0.012ns  (required time - arrival time)
                                                       0.024     3.461 r  clk_IBUF_BUFG_inst/O
     X2Y5 (CLOCK_ROOT)    net (fo=1314, routed)        0.666     4.127    clk_IBUF_BUFG
     SLICE_X85Y334        FDRE                                         r  r_conv_temp_reg[14][18]/C
-                         clock pessimism              0.308     4.436
-                         clock uncertainty           -0.035     4.400
+                         clock pessimism              0.308     4.436    
+                         clock uncertainty           -0.035     4.400    
     SLICE_X85Y334        FDRE (Setup_GFF_SLICEL_C_D)
                                                       0.025     4.425    r_conv_temp_reg[14][18]
   -------------------------------------------------------------------
-                         required time                          4.425
-                         arrival time                          -4.413
+                         required time                          4.425    
+                         arrival time                          -4.413    
   -------------------------------------------------------------------
-                         slack                                  0.012
+                         slack                                  0.012    
 
 Slack (MET) :             0.014ns  (required time - arrival time)
   Source:                 r_input_weight_reg[7][18]/C
@@ -1194,7 +1194,7 @@ Slack (MET) :             0.014ns  (required time - arrival time)
   Data Path Delay:        2.785ns  (logic 1.955ns (70.186%)  route 0.830ns (29.814%))
   Logic Levels:           10  (CARRY8=2 DSP_A_B_DATA=1 DSP_ALU=1 DSP_M_DATA=1 DSP_MULTIPLIER=1 DSP_OUTPUT=1 DSP_PREADD_DATA=1 LUT2=1 LUT3=1)
   Clock Path Skew:        -0.047ns (DCD - SCD + CPR)
-    Destination Clock Delay (DCD):    1.318ns = ( 4.175 - 2.857 )
+    Destination Clock Delay (DCD):    1.318ns = ( 4.175 - 2.857 ) 
     Source Clock Delay      (SCD):    1.673ns
     Clock Pessimism Removal (CPR):    0.308ns
   Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
@@ -1207,7 +1207,7 @@ Slack (MET) :             0.014ns  (required time - arrival time)
 
     Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
   -------------------------------------------------------------------    -------------------
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -1257,7 +1257,7 @@ Slack (MET) :             0.014ns  (required time - arrival time)
     SLICE_X77Y350        FDRE                                         r  r_conv_temp_reg[15][18]/D
   -------------------------------------------------------------------    -------------------
 
-                         (clock clk rise edge)        2.857     2.857 r
+                         (clock clk rise edge)        2.857     2.857 r  
     G10                                               0.000     2.857 r  clk (IN)
                          net (fo=0)                   0.000     2.857    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -1270,15 +1270,15 @@ Slack (MET) :             0.014ns  (required time - arrival time)
                                                       0.024     3.461 r  clk_IBUF_BUFG_inst/O
     X2Y5 (CLOCK_ROOT)    net (fo=1314, routed)        0.714     4.175    clk_IBUF_BUFG
     SLICE_X77Y350        FDRE                                         r  r_conv_temp_reg[15][18]/C
-                         clock pessimism              0.308     4.483
-                         clock uncertainty           -0.035     4.448
+                         clock pessimism              0.308     4.483    
+                         clock uncertainty           -0.035     4.448    
     SLICE_X77Y350        FDRE (Setup_GFF_SLICEL_C_D)
                                                       0.025     4.473    r_conv_temp_reg[15][18]
   -------------------------------------------------------------------
-                         required time                          4.473
-                         arrival time                          -4.459
+                         required time                          4.473    
+                         arrival time                          -4.459    
   -------------------------------------------------------------------
-                         slack                                  0.014
+                         slack                                  0.014    
 
 Slack (MET) :             0.015ns  (required time - arrival time)
   Source:                 r_input_weight_reg[5][18]/C
@@ -1291,7 +1291,7 @@ Slack (MET) :             0.015ns  (required time - arrival time)
   Data Path Delay:        2.743ns  (logic 1.929ns (70.324%)  route 0.814ns (29.676%))
   Logic Levels:           10  (CARRY8=2 DSP_A_B_DATA=1 DSP_ALU=1 DSP_M_DATA=1 DSP_MULTIPLIER=1 DSP_OUTPUT=1 DSP_PREADD_DATA=1 LUT2=1 LUT3=1)
   Clock Path Skew:        -0.089ns (DCD - SCD + CPR)
-    Destination Clock Delay (DCD):    1.274ns = ( 4.131 - 2.857 )
+    Destination Clock Delay (DCD):    1.274ns = ( 4.131 - 2.857 ) 
     Source Clock Delay      (SCD):    1.671ns
     Clock Pessimism Removal (CPR):    0.308ns
   Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
@@ -1304,7 +1304,7 @@ Slack (MET) :             0.015ns  (required time - arrival time)
 
     Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
   -------------------------------------------------------------------    -------------------
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -1354,7 +1354,7 @@ Slack (MET) :             0.015ns  (required time - arrival time)
     SLICE_X75Y341        FDRE                                         r  r_conv_temp_reg[13][17]/D
   -------------------------------------------------------------------    -------------------
 
-                         (clock clk rise edge)        2.857     2.857 r
+                         (clock clk rise edge)        2.857     2.857 r  
     G10                                               0.000     2.857 r  clk (IN)
                          net (fo=0)                   0.000     2.857    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -1367,15 +1367,15 @@ Slack (MET) :             0.015ns  (required time - arrival time)
                                                       0.024     3.461 r  clk_IBUF_BUFG_inst/O
     X2Y5 (CLOCK_ROOT)    net (fo=1314, routed)        0.670     4.131    clk_IBUF_BUFG
     SLICE_X75Y341        FDRE                                         r  r_conv_temp_reg[13][17]/C
-                         clock pessimism              0.308     4.439
-                         clock uncertainty           -0.035     4.404
+                         clock pessimism              0.308     4.439    
+                         clock uncertainty           -0.035     4.404    
     SLICE_X75Y341        FDRE (Setup_BFF_SLICEL_C_D)
                                                       0.025     4.429    r_conv_temp_reg[13][17]
   -------------------------------------------------------------------
-                         required time                          4.429
-                         arrival time                          -4.414
+                         required time                          4.429    
+                         arrival time                          -4.414    
   -------------------------------------------------------------------
-                         slack                                  0.015
+                         slack                                  0.015    
 
 Slack (MET) :             0.017ns  (required time - arrival time)
   Source:                 r_input_weight_reg[0][9]/C
@@ -1388,7 +1388,7 @@ Slack (MET) :             0.017ns  (required time - arrival time)
   Data Path Delay:        2.737ns  (logic 1.966ns (71.829%)  route 0.771ns (28.171%))
   Logic Levels:           10  (CARRY8=2 DSP_A_B_DATA=1 DSP_ALU=1 DSP_M_DATA=1 DSP_MULTIPLIER=1 DSP_OUTPUT=1 DSP_PREADD_DATA=1 LUT2=1 LUT3=1)
   Clock Path Skew:        -0.093ns (DCD - SCD + CPR)
-    Destination Clock Delay (DCD):    1.265ns = ( 4.122 - 2.857 )
+    Destination Clock Delay (DCD):    1.265ns = ( 4.122 - 2.857 ) 
     Source Clock Delay      (SCD):    1.666ns
     Clock Pessimism Removal (CPR):    0.308ns
   Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
@@ -1401,7 +1401,7 @@ Slack (MET) :             0.017ns  (required time - arrival time)
 
     Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
   -------------------------------------------------------------------    -------------------
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -1451,7 +1451,7 @@ Slack (MET) :             0.017ns  (required time - arrival time)
     SLICE_X85Y332        FDRE                                         r  r_conv_temp_reg[8][18]/D
   -------------------------------------------------------------------    -------------------
 
-                         (clock clk rise edge)        2.857     2.857 r
+                         (clock clk rise edge)        2.857     2.857 r  
     G10                                               0.000     2.857 r  clk (IN)
                          net (fo=0)                   0.000     2.857    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -1464,15 +1464,15 @@ Slack (MET) :             0.017ns  (required time - arrival time)
                                                       0.024     3.461 r  clk_IBUF_BUFG_inst/O
     X2Y5 (CLOCK_ROOT)    net (fo=1314, routed)        0.661     4.122    clk_IBUF_BUFG
     SLICE_X85Y332        FDRE                                         r  r_conv_temp_reg[8][18]/C
-                         clock pessimism              0.308     4.431
-                         clock uncertainty           -0.035     4.395
+                         clock pessimism              0.308     4.431    
+                         clock uncertainty           -0.035     4.395    
     SLICE_X85Y332        FDRE (Setup_BFF_SLICEL_C_D)
                                                       0.025     4.420    r_conv_temp_reg[8][18]
   -------------------------------------------------------------------
-                         required time                          4.420
-                         arrival time                          -4.403
+                         required time                          4.420    
+                         arrival time                          -4.403    
   -------------------------------------------------------------------
-                         slack                                  0.017
+                         slack                                  0.017    
 
 Slack (MET) :             0.022ns  (required time - arrival time)
   Source:                 r_input_weight_reg[6][17]/C
@@ -1485,7 +1485,7 @@ Slack (MET) :             0.022ns  (required time - arrival time)
   Data Path Delay:        2.723ns  (logic 1.961ns (72.014%)  route 0.762ns (27.986%))
   Logic Levels:           9  (CARRY8=1 DSP_A_B_DATA=1 DSP_ALU=1 DSP_M_DATA=1 DSP_MULTIPLIER=1 DSP_OUTPUT=1 DSP_PREADD_DATA=1 LUT2=1 LUT3=1)
   Clock Path Skew:        -0.102ns (DCD - SCD + CPR)
-    Destination Clock Delay (DCD):    1.265ns = ( 4.122 - 2.857 )
+    Destination Clock Delay (DCD):    1.265ns = ( 4.122 - 2.857 ) 
     Source Clock Delay      (SCD):    1.675ns
     Clock Pessimism Removal (CPR):    0.308ns
   Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
@@ -1498,7 +1498,7 @@ Slack (MET) :             0.022ns  (required time - arrival time)
 
     Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
   -------------------------------------------------------------------    -------------------
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -1545,7 +1545,7 @@ Slack (MET) :             0.022ns  (required time - arrival time)
     SLICE_X85Y332        FDRE                                         r  r_conv_temp_reg[14][15]/D
   -------------------------------------------------------------------    -------------------
 
-                         (clock clk rise edge)        2.857     2.857 r
+                         (clock clk rise edge)        2.857     2.857 r  
     G10                                               0.000     2.857 r  clk (IN)
                          net (fo=0)                   0.000     2.857    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -1558,15 +1558,15 @@ Slack (MET) :             0.022ns  (required time - arrival time)
                                                       0.024     3.461 r  clk_IBUF_BUFG_inst/O
     X2Y5 (CLOCK_ROOT)    net (fo=1314, routed)        0.661     4.122    clk_IBUF_BUFG
     SLICE_X85Y332        FDRE                                         r  r_conv_temp_reg[14][15]/C
-                         clock pessimism              0.308     4.431
-                         clock uncertainty           -0.035     4.395
+                         clock pessimism              0.308     4.431    
+                         clock uncertainty           -0.035     4.395    
     SLICE_X85Y332        FDRE (Setup_CFF_SLICEL_C_D)
                                                       0.025     4.420    r_conv_temp_reg[14][15]
   -------------------------------------------------------------------
-                         required time                          4.420
-                         arrival time                          -4.398
+                         required time                          4.420    
+                         arrival time                          -4.398    
   -------------------------------------------------------------------
-                         slack                                  0.022
+                         slack                                  0.022    
 
 Slack (MET) :             0.024ns  (required time - arrival time)
   Source:                 r_input_weight_reg[2][2]/C
@@ -1579,7 +1579,7 @@ Slack (MET) :             0.024ns  (required time - arrival time)
   Data Path Delay:        2.741ns  (logic 1.973ns (71.975%)  route 0.768ns (28.025%))
   Logic Levels:           9  (CARRY8=1 DSP_A_B_DATA=1 DSP_ALU=1 DSP_M_DATA=1 DSP_MULTIPLIER=1 DSP_OUTPUT=1 DSP_PREADD_DATA=1 LUT2=1 LUT3=1)
   Clock Path Skew:        -0.082ns (DCD - SCD + CPR)
-    Destination Clock Delay (DCD):    1.256ns = ( 4.113 - 2.857 )
+    Destination Clock Delay (DCD):    1.256ns = ( 4.113 - 2.857 ) 
     Source Clock Delay      (SCD):    1.646ns
     Clock Pessimism Removal (CPR):    0.309ns
   Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
@@ -1592,7 +1592,7 @@ Slack (MET) :             0.024ns  (required time - arrival time)
 
     Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
   -------------------------------------------------------------------    -------------------
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -1639,7 +1639,7 @@ Slack (MET) :             0.024ns  (required time - arrival time)
     SLICE_X81Y330        FDRE                                         r  r_conv_temp_reg[10][16]/D
   -------------------------------------------------------------------    -------------------
 
-                         (clock clk rise edge)        2.857     2.857 r
+                         (clock clk rise edge)        2.857     2.857 r  
     G10                                               0.000     2.857 r  clk (IN)
                          net (fo=0)                   0.000     2.857    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -1652,15 +1652,15 @@ Slack (MET) :             0.024ns  (required time - arrival time)
                                                       0.024     3.461 r  clk_IBUF_BUFG_inst/O
     X2Y5 (CLOCK_ROOT)    net (fo=1314, routed)        0.652     4.113    clk_IBUF_BUFG
     SLICE_X81Y330        FDRE                                         r  r_conv_temp_reg[10][16]/C
-                         clock pessimism              0.309     4.422
-                         clock uncertainty           -0.035     4.386
+                         clock pessimism              0.309     4.422    
+                         clock uncertainty           -0.035     4.386    
     SLICE_X81Y330        FDRE (Setup_CFF2_SLICEM_C_D)
                                                       0.025     4.411    r_conv_temp_reg[10][16]
   -------------------------------------------------------------------
-                         required time                          4.411
-                         arrival time                          -4.387
+                         required time                          4.411    
+                         arrival time                          -4.387    
   -------------------------------------------------------------------
-                         slack                                  0.024
+                         slack                                  0.024    
 
 Slack (MET) :             0.024ns  (required time - arrival time)
   Source:                 r_input_weight_reg[3][19]/C
@@ -1673,7 +1673,7 @@ Slack (MET) :             0.024ns  (required time - arrival time)
   Data Path Delay:        2.738ns  (logic 1.809ns (66.064%)  route 0.929ns (33.936%))
   Logic Levels:           9  (CARRY8=2 DSP_A_B_DATA=1 DSP_ALU=1 DSP_M_DATA=1 DSP_MULTIPLIER=1 DSP_OUTPUT=1 DSP_PREADD_DATA=1 LUT3=1)
   Clock Path Skew:        -0.085ns (DCD - SCD + CPR)
-    Destination Clock Delay (DCD):    1.268ns = ( 4.125 - 2.857 )
+    Destination Clock Delay (DCD):    1.268ns = ( 4.125 - 2.857 ) 
     Source Clock Delay      (SCD):    1.661ns
     Clock Pessimism Removal (CPR):    0.308ns
   Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
@@ -1686,7 +1686,7 @@ Slack (MET) :             0.024ns  (required time - arrival time)
 
     Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
   -------------------------------------------------------------------    -------------------
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -1733,7 +1733,7 @@ Slack (MET) :             0.024ns  (required time - arrival time)
     SLICE_X72Y343        FDRE                                         r  r_conv_temp_reg[11][18]/D
   -------------------------------------------------------------------    -------------------
 
-                         (clock clk rise edge)        2.857     2.857 r
+                         (clock clk rise edge)        2.857     2.857 r  
     G10                                               0.000     2.857 r  clk (IN)
                          net (fo=0)                   0.000     2.857    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -1746,15 +1746,15 @@ Slack (MET) :             0.024ns  (required time - arrival time)
                                                       0.024     3.461 r  clk_IBUF_BUFG_inst/O
     X2Y5 (CLOCK_ROOT)    net (fo=1314, routed)        0.664     4.125    clk_IBUF_BUFG
     SLICE_X72Y343        FDRE                                         r  r_conv_temp_reg[11][18]/C
-                         clock pessimism              0.308     4.434
-                         clock uncertainty           -0.035     4.398
+                         clock pessimism              0.308     4.434    
+                         clock uncertainty           -0.035     4.398    
     SLICE_X72Y343        FDRE (Setup_GFF_SLICEL_C_D)
                                                       0.025     4.423    r_conv_temp_reg[11][18]
   -------------------------------------------------------------------
-                         required time                          4.423
-                         arrival time                          -4.399
+                         required time                          4.423    
+                         arrival time                          -4.399    
   -------------------------------------------------------------------
-                         slack                                  0.024
+                         slack                                  0.024    
 
 Slack (MET) :             0.028ns  (required time - arrival time)
   Source:                 r_input_weight_reg[2][9]/C
@@ -1767,7 +1767,7 @@ Slack (MET) :             0.028ns  (required time - arrival time)
   Data Path Delay:        2.668ns  (logic 2.031ns (76.119%)  route 0.637ns (23.881%))
   Logic Levels:           9  (CARRY8=1 DSP_A_B_DATA=1 DSP_ALU=1 DSP_M_DATA=1 DSP_MULTIPLIER=1 DSP_OUTPUT=1 DSP_PREADD_DATA=1 LUT2=1 LUT3=1)
   Clock Path Skew:        -0.150ns (DCD - SCD + CPR)
-    Destination Clock Delay (DCD):    1.258ns = ( 4.115 - 2.857 )
+    Destination Clock Delay (DCD):    1.258ns = ( 4.115 - 2.857 ) 
     Source Clock Delay      (SCD):    1.716ns
     Clock Pessimism Removal (CPR):    0.308ns
   Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
@@ -1780,7 +1780,7 @@ Slack (MET) :             0.028ns  (required time - arrival time)
 
     Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
   -------------------------------------------------------------------    -------------------
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -1827,7 +1827,7 @@ Slack (MET) :             0.028ns  (required time - arrival time)
     SLICE_X80Y330        FDRE                                         r  r_conv_temp_reg[10][14]/D
   -------------------------------------------------------------------    -------------------
 
-                         (clock clk rise edge)        2.857     2.857 r
+                         (clock clk rise edge)        2.857     2.857 r  
     G10                                               0.000     2.857 r  clk (IN)
                          net (fo=0)                   0.000     2.857    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -1840,15 +1840,15 @@ Slack (MET) :             0.028ns  (required time - arrival time)
                                                       0.024     3.461 r  clk_IBUF_BUFG_inst/O
     X2Y5 (CLOCK_ROOT)    net (fo=1314, routed)        0.654     4.115    clk_IBUF_BUFG
     SLICE_X80Y330        FDRE                                         r  r_conv_temp_reg[10][14]/C
-                         clock pessimism              0.308     4.423
-                         clock uncertainty           -0.035     4.388
+                         clock pessimism              0.308     4.423    
+                         clock uncertainty           -0.035     4.388    
     SLICE_X80Y330        FDRE (Setup_HFF2_SLICEL_C_D)
                                                       0.025     4.413    r_conv_temp_reg[10][14]
   -------------------------------------------------------------------
-                         required time                          4.413
-                         arrival time                          -4.384
+                         required time                          4.413    
+                         arrival time                          -4.384    
   -------------------------------------------------------------------
-                         slack                                  0.028
+                         slack                                  0.028    
 
 Slack (MET) :             0.028ns  (required time - arrival time)
   Source:                 r_input_weight_reg[2][9]/C
@@ -1861,7 +1861,7 @@ Slack (MET) :             0.028ns  (required time - arrival time)
   Data Path Delay:        2.679ns  (logic 1.958ns (73.082%)  route 0.721ns (26.918%))
   Logic Levels:           10  (CARRY8=2 DSP_A_B_DATA=1 DSP_ALU=1 DSP_M_DATA=1 DSP_MULTIPLIER=1 DSP_OUTPUT=1 DSP_PREADD_DATA=1 LUT2=1 LUT3=1)
   Clock Path Skew:        -0.139ns (DCD - SCD + CPR)
-    Destination Clock Delay (DCD):    1.269ns = ( 4.126 - 2.857 )
+    Destination Clock Delay (DCD):    1.269ns = ( 4.126 - 2.857 ) 
     Source Clock Delay      (SCD):    1.716ns
     Clock Pessimism Removal (CPR):    0.308ns
   Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
@@ -1874,7 +1874,7 @@ Slack (MET) :             0.028ns  (required time - arrival time)
 
     Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
   -------------------------------------------------------------------    -------------------
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -1924,7 +1924,7 @@ Slack (MET) :             0.028ns  (required time - arrival time)
     SLICE_X79Y331        FDRE                                         r  r_conv_temp_reg[10][19]/D
   -------------------------------------------------------------------    -------------------
 
-                         (clock clk rise edge)        2.857     2.857 r
+                         (clock clk rise edge)        2.857     2.857 r  
     G10                                               0.000     2.857 r  clk (IN)
                          net (fo=0)                   0.000     2.857    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -1937,15 +1937,15 @@ Slack (MET) :             0.028ns  (required time - arrival time)
                                                       0.024     3.461 r  clk_IBUF_BUFG_inst/O
     X2Y5 (CLOCK_ROOT)    net (fo=1314, routed)        0.665     4.126    clk_IBUF_BUFG
     SLICE_X79Y331        FDRE                                         r  r_conv_temp_reg[10][19]/C
-                         clock pessimism              0.308     4.434
-                         clock uncertainty           -0.035     4.399
+                         clock pessimism              0.308     4.434    
+                         clock uncertainty           -0.035     4.399    
     SLICE_X79Y331        FDRE (Setup_HFF2_SLICEM_C_D)
                                                       0.025     4.424    r_conv_temp_reg[10][19]
   -------------------------------------------------------------------
-                         required time                          4.424
-                         arrival time                          -4.395
+                         required time                          4.424    
+                         arrival time                          -4.395    
   -------------------------------------------------------------------
-                         slack                                  0.028
+                         slack                                  0.028    
 
 Slack (MET) :             0.031ns  (required time - arrival time)
   Source:                 r_input_weight_reg[4][14]/C
@@ -1958,7 +1958,7 @@ Slack (MET) :             0.031ns  (required time - arrival time)
   Data Path Delay:        2.736ns  (logic 1.967ns (71.899%)  route 0.769ns (28.101%))
   Logic Levels:           10  (CARRY8=2 DSP_A_B_DATA=1 DSP_ALU=1 DSP_M_DATA=1 DSP_MULTIPLIER=1 DSP_OUTPUT=1 DSP_PREADD_DATA=1 LUT2=1 LUT3=1)
   Clock Path Skew:        -0.080ns (DCD - SCD + CPR)
-    Destination Clock Delay (DCD):    1.281ns = ( 4.138 - 2.857 )
+    Destination Clock Delay (DCD):    1.281ns = ( 4.138 - 2.857 ) 
     Source Clock Delay      (SCD):    1.669ns
     Clock Pessimism Removal (CPR):    0.308ns
   Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
@@ -1971,7 +1971,7 @@ Slack (MET) :             0.031ns  (required time - arrival time)
 
     Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
   -------------------------------------------------------------------    -------------------
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -2021,7 +2021,7 @@ Slack (MET) :             0.031ns  (required time - arrival time)
     SLICE_X86Y344        FDRE                                         r  r_conv_temp_reg[12][18]/D
   -------------------------------------------------------------------    -------------------
 
-                         (clock clk rise edge)        2.857     2.857 r
+                         (clock clk rise edge)        2.857     2.857 r  
     G10                                               0.000     2.857 r  clk (IN)
                          net (fo=0)                   0.000     2.857    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -2034,15 +2034,15 @@ Slack (MET) :             0.031ns  (required time - arrival time)
                                                       0.024     3.461 r  clk_IBUF_BUFG_inst/O
     X2Y5 (CLOCK_ROOT)    net (fo=1314, routed)        0.677     4.138    clk_IBUF_BUFG
     SLICE_X86Y344        FDRE                                         r  r_conv_temp_reg[12][18]/C
-                         clock pessimism              0.308     4.447
-                         clock uncertainty           -0.035     4.411
+                         clock pessimism              0.308     4.447    
+                         clock uncertainty           -0.035     4.411    
     SLICE_X86Y344        FDRE (Setup_HFF_SLICEM_C_D)
                                                       0.025     4.436    r_conv_temp_reg[12][18]
   -------------------------------------------------------------------
-                         required time                          4.436
-                         arrival time                          -4.405
+                         required time                          4.436    
+                         arrival time                          -4.405    
   -------------------------------------------------------------------
-                         slack                                  0.031
+                         slack                                  0.031    
 
 Slack (MET) :             0.031ns  (required time - arrival time)
   Source:                 r_input_weight_reg[7][18]/C
@@ -2055,7 +2055,7 @@ Slack (MET) :             0.031ns  (required time - arrival time)
   Data Path Delay:        2.722ns  (logic 1.916ns (70.378%)  route 0.806ns (29.622%))
   Logic Levels:           10  (CARRY8=2 DSP_A_B_DATA=1 DSP_ALU=1 DSP_M_DATA=1 DSP_MULTIPLIER=1 DSP_OUTPUT=1 DSP_PREADD_DATA=1 LUT2=1 LUT3=1)
   Clock Path Skew:        -0.093ns (DCD - SCD + CPR)
-    Destination Clock Delay (DCD):    1.272ns = ( 4.129 - 2.857 )
+    Destination Clock Delay (DCD):    1.272ns = ( 4.129 - 2.857 ) 
     Source Clock Delay      (SCD):    1.673ns
     Clock Pessimism Removal (CPR):    0.308ns
   Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
@@ -2068,7 +2068,7 @@ Slack (MET) :             0.031ns  (required time - arrival time)
 
     Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
   -------------------------------------------------------------------    -------------------
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -2118,7 +2118,7 @@ Slack (MET) :             0.031ns  (required time - arrival time)
     SLICE_X78Y350        FDRE                                         r  r_conv_temp_reg[15][17]/D
   -------------------------------------------------------------------    -------------------
 
-                         (clock clk rise edge)        2.857     2.857 r
+                         (clock clk rise edge)        2.857     2.857 r  
     G10                                               0.000     2.857 r  clk (IN)
                          net (fo=0)                   0.000     2.857    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -2131,15 +2131,15 @@ Slack (MET) :             0.031ns  (required time - arrival time)
                                                       0.024     3.461 r  clk_IBUF_BUFG_inst/O
     X2Y5 (CLOCK_ROOT)    net (fo=1314, routed)        0.668     4.129    clk_IBUF_BUFG
     SLICE_X78Y350        FDRE                                         r  r_conv_temp_reg[15][17]/C
-                         clock pessimism              0.308     4.437
-                         clock uncertainty           -0.035     4.402
+                         clock pessimism              0.308     4.437    
+                         clock uncertainty           -0.035     4.402    
     SLICE_X78Y350        FDRE (Setup_AFF2_SLICEM_C_D)
                                                       0.025     4.427    r_conv_temp_reg[15][17]
   -------------------------------------------------------------------
-                         required time                          4.427
-                         arrival time                          -4.396
+                         required time                          4.427    
+                         arrival time                          -4.396    
   -------------------------------------------------------------------
-                         slack                                  0.031
+                         slack                                  0.031    
 
 Slack (MET) :             0.034ns  (required time - arrival time)
   Source:                 r_input_weight_reg[2][2]/C
@@ -2152,7 +2152,7 @@ Slack (MET) :             0.034ns  (required time - arrival time)
   Data Path Delay:        2.745ns  (logic 1.919ns (69.903%)  route 0.826ns (30.097%))
   Logic Levels:           9  (CARRY8=1 DSP_A_B_DATA=1 DSP_ALU=1 DSP_M_DATA=1 DSP_MULTIPLIER=1 DSP_OUTPUT=1 DSP_PREADD_DATA=1 LUT2=1 LUT3=1)
   Clock Path Skew:        -0.068ns (DCD - SCD + CPR)
-    Destination Clock Delay (DCD):    1.270ns = ( 4.127 - 2.857 )
+    Destination Clock Delay (DCD):    1.270ns = ( 4.127 - 2.857 ) 
     Source Clock Delay      (SCD):    1.646ns
     Clock Pessimism Removal (CPR):    0.309ns
   Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
@@ -2165,7 +2165,7 @@ Slack (MET) :             0.034ns  (required time - arrival time)
 
     Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
   -------------------------------------------------------------------    -------------------
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -2212,7 +2212,7 @@ Slack (MET) :             0.034ns  (required time - arrival time)
     SLICE_X81Y331        FDRE                                         r  r_conv_temp_reg[10][11]/D
   -------------------------------------------------------------------    -------------------
 
-                         (clock clk rise edge)        2.857     2.857 r
+                         (clock clk rise edge)        2.857     2.857 r  
     G10                                               0.000     2.857 r  clk (IN)
                          net (fo=0)                   0.000     2.857    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -2225,15 +2225,15 @@ Slack (MET) :             0.034ns  (required time - arrival time)
                                                       0.024     3.461 r  clk_IBUF_BUFG_inst/O
     X2Y5 (CLOCK_ROOT)    net (fo=1314, routed)        0.666     4.127    clk_IBUF_BUFG
     SLICE_X81Y331        FDRE                                         r  r_conv_temp_reg[10][11]/C
-                         clock pessimism              0.309     4.435
-                         clock uncertainty           -0.035     4.400
+                         clock pessimism              0.309     4.435    
+                         clock uncertainty           -0.035     4.400    
     SLICE_X81Y331        FDRE (Setup_HFF_SLICEM_C_D)
                                                       0.025     4.425    r_conv_temp_reg[10][11]
   -------------------------------------------------------------------
-                         required time                          4.425
-                         arrival time                          -4.391
+                         required time                          4.425    
+                         arrival time                          -4.391    
   -------------------------------------------------------------------
-                         slack                                  0.034
+                         slack                                  0.034    
 
 
 
@@ -2312,7 +2312,7 @@ High Pulse Width  Fast    FDRE/C    n/a            0.275         1.428       1.1
 
 --------------------------------------------------------------------------------------
 Path Group:  (none)
-From Clock:
+From Clock:  
   To Clock:  clk
 
 Max Delay          1274 Endpoints
@@ -2356,7 +2356,7 @@ Slack:                    inf
     SLICE_X79Y346        FDCE                                         f  r_input_weight_reg[15][10]/CLR
   -------------------------------------------------------------------    -------------------
 
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -2404,7 +2404,7 @@ Slack:                    inf
     SLICE_X79Y346        FDCE                                         f  r_input_weight_reg[15][12]/CLR
   -------------------------------------------------------------------    -------------------
 
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -2452,7 +2452,7 @@ Slack:                    inf
     SLICE_X79Y346        FDCE                                         f  r_input_weight_reg[15][13]/CLR
   -------------------------------------------------------------------    -------------------
 
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -2500,7 +2500,7 @@ Slack:                    inf
     SLICE_X79Y346        FDCE                                         f  r_input_weight_reg[15][14]/CLR
   -------------------------------------------------------------------    -------------------
 
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -2548,7 +2548,7 @@ Slack:                    inf
     SLICE_X79Y346        FDCE                                         f  r_input_weight_reg[7][10]/CLR
   -------------------------------------------------------------------    -------------------
 
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -2596,7 +2596,7 @@ Slack:                    inf
     SLICE_X79Y346        FDCE                                         f  r_input_weight_reg[7][12]/CLR
   -------------------------------------------------------------------    -------------------
 
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -2644,7 +2644,7 @@ Slack:                    inf
     SLICE_X79Y346        FDCE                                         f  r_input_weight_reg[7][13]/CLR
   -------------------------------------------------------------------    -------------------
 
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -2692,7 +2692,7 @@ Slack:                    inf
     SLICE_X79Y346        FDCE                                         f  r_input_weight_reg[7][14]/CLR
   -------------------------------------------------------------------    -------------------
 
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -2740,7 +2740,7 @@ Slack:                    inf
     SLICE_X79Y346        FDRE                                         r  r_conv_temp_reg[7][8]/R
   -------------------------------------------------------------------    -------------------
 
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -2788,7 +2788,7 @@ Slack:                    inf
     SLICE_X79Y346        FDRE                                         r  r_conv_temp_reg[7][9]/R
   -------------------------------------------------------------------    -------------------
 
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -2836,7 +2836,7 @@ Slack:                    inf
     SLICE_X80Y346        FDCE                                         f  r_input_feat_reg[7][13]/CLR
   -------------------------------------------------------------------    -------------------
 
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -2884,7 +2884,7 @@ Slack:                    inf
     SLICE_X80Y346        FDCE                                         f  r_input_feat_reg[7][15]/CLR
   -------------------------------------------------------------------    -------------------
 
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -2932,7 +2932,7 @@ Slack:                    inf
     SLICE_X80Y346        FDCE                                         f  r_input_feat_reg[7][19]/CLR
   -------------------------------------------------------------------    -------------------
 
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -2980,7 +2980,7 @@ Slack:                    inf
     SLICE_X80Y346        FDCE                                         f  r_input_feat_reg[7][9]/CLR
   -------------------------------------------------------------------    -------------------
 
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -3028,7 +3028,7 @@ Slack:                    inf
     SLICE_X80Y346        FDCE                                         f  r_input_feat_reg[7][10]/CLR
   -------------------------------------------------------------------    -------------------
 
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -3076,7 +3076,7 @@ Slack:                    inf
     SLICE_X80Y346        FDCE                                         f  r_input_feat_reg[7][12]/CLR
   -------------------------------------------------------------------    -------------------
 
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -3124,7 +3124,7 @@ Slack:                    inf
     SLICE_X80Y346        FDCE                                         f  r_input_feat_reg[7][16]/CLR
   -------------------------------------------------------------------    -------------------
 
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -3172,7 +3172,7 @@ Slack:                    inf
     SLICE_X80Y346        FDCE                                         f  r_input_feat_reg[7][1]/CLR
   -------------------------------------------------------------------    -------------------
 
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -3220,7 +3220,7 @@ Slack:                    inf
     SLICE_X80Y346        FDCE                                         f  r_input_feat_reg[7][2]/CLR
   -------------------------------------------------------------------    -------------------
 
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -3268,7 +3268,7 @@ Slack:                    inf
     SLICE_X80Y346        FDCE                                         f  r_input_feat_reg[7][3]/CLR
   -------------------------------------------------------------------    -------------------
 
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -3289,7 +3289,7 @@ Slack:                    inf
 --------------------------------------------------------------------------------------
 Path Group:  (none)
 From Clock:  clk
-  To Clock:
+  To Clock:  
 
 Max Delay            53 Endpoints
 Min Delay             0 Endpoints
@@ -3316,7 +3316,7 @@ Slack:                    inf
 
     Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
   -------------------------------------------------------------------    -------------------
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -3372,7 +3372,7 @@ Slack:                    inf
 
     Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
   -------------------------------------------------------------------    -------------------
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -3431,7 +3431,7 @@ Slack:                    inf
 
     Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
   -------------------------------------------------------------------    -------------------
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -3484,7 +3484,7 @@ Slack:                    inf
 
     Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
   -------------------------------------------------------------------    -------------------
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -3540,7 +3540,7 @@ Slack:                    inf
 
     Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
   -------------------------------------------------------------------    -------------------
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -3596,7 +3596,7 @@ Slack:                    inf
 
     Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
   -------------------------------------------------------------------    -------------------
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -3649,7 +3649,7 @@ Slack:                    inf
 
     Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
   -------------------------------------------------------------------    -------------------
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -3705,7 +3705,7 @@ Slack:                    inf
 
     Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
   -------------------------------------------------------------------    -------------------
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -3755,7 +3755,7 @@ Slack:                    inf
 
     Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
   -------------------------------------------------------------------    -------------------
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -3805,7 +3805,7 @@ Slack:                    inf
 
     Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
   -------------------------------------------------------------------    -------------------
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -3858,7 +3858,7 @@ Slack:                    inf
 
     Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
   -------------------------------------------------------------------    -------------------
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -3914,7 +3914,7 @@ Slack:                    inf
 
     Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
   -------------------------------------------------------------------    -------------------
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -3964,7 +3964,7 @@ Slack:                    inf
 
     Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
   -------------------------------------------------------------------    -------------------
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -4020,7 +4020,7 @@ Slack:                    inf
 
     Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
   -------------------------------------------------------------------    -------------------
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -4073,7 +4073,7 @@ Slack:                    inf
 
     Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
   -------------------------------------------------------------------    -------------------
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -4123,7 +4123,7 @@ Slack:                    inf
 
     Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
   -------------------------------------------------------------------    -------------------
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -4170,7 +4170,7 @@ Slack:                    inf
 
     Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
   -------------------------------------------------------------------    -------------------
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -4226,7 +4226,7 @@ Slack:                    inf
 
     Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
   -------------------------------------------------------------------    -------------------
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -4276,7 +4276,7 @@ Slack:                    inf
 
     Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
   -------------------------------------------------------------------    -------------------
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -4326,7 +4326,7 @@ Slack:                    inf
 
     Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
   -------------------------------------------------------------------    -------------------
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -4361,7 +4361,7 @@ Slack:                    inf
 
 --------------------------------------------------------------------------------------
 Path Group:  (none)
-From Clock:
+From Clock:  
   To Clock:  clk
 
 Max Delay          1155 Endpoints
@@ -4407,7 +4407,7 @@ Slack:                    inf
     SLICE_X85Y330        FDCE                                         r  r_input_weight_reg[0][2]/D
   -------------------------------------------------------------------    -------------------
 
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -4457,7 +4457,7 @@ Slack:                    inf
     SLICE_X85Y330        FDCE                                         r  r_input_weight_reg[8][2]/D
   -------------------------------------------------------------------    -------------------
 
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -4510,7 +4510,7 @@ Slack:                    inf
     SLICE_X77Y344        FDCE                                         r  r_input_feat_reg[11][1]/CE
   -------------------------------------------------------------------    -------------------
 
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -4563,7 +4563,7 @@ Slack:                    inf
     SLICE_X77Y344        FDCE                                         r  r_input_feat_reg[11][2]/CE
   -------------------------------------------------------------------    -------------------
 
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -4616,7 +4616,7 @@ Slack:                    inf
     SLICE_X76Y344        FDCE                                         r  r_input_feat_reg[11][3]/CE
   -------------------------------------------------------------------    -------------------
 
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -4669,7 +4669,7 @@ Slack:                    inf
     SLICE_X77Y344        FDCE                                         r  r_input_feat_reg[11][6]/CE
   -------------------------------------------------------------------    -------------------
 
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -4722,7 +4722,7 @@ Slack:                    inf
     SLICE_X77Y344        FDCE                                         r  r_input_feat_reg[11][7]/CE
   -------------------------------------------------------------------    -------------------
 
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -4775,7 +4775,7 @@ Slack:                    inf
     SLICE_X75Y346        FDCE                                         r  r_input_feat_reg[11][10]/CE
   -------------------------------------------------------------------    -------------------
 
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -4828,7 +4828,7 @@ Slack:                    inf
     SLICE_X75Y346        FDCE                                         r  r_input_feat_reg[11][11]/CE
   -------------------------------------------------------------------    -------------------
 
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -4881,7 +4881,7 @@ Slack:                    inf
     SLICE_X75Y346        FDCE                                         r  r_input_feat_reg[11][12]/CE
   -------------------------------------------------------------------    -------------------
 
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -4934,7 +4934,7 @@ Slack:                    inf
     SLICE_X75Y346        FDCE                                         r  r_input_feat_reg[11][14]/CE
   -------------------------------------------------------------------    -------------------
 
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -4987,7 +4987,7 @@ Slack:                    inf
     SLICE_X75Y345        FDCE                                         r  r_input_feat_reg[11][4]/CE
   -------------------------------------------------------------------    -------------------
 
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -5040,7 +5040,7 @@ Slack:                    inf
     SLICE_X75Y345        FDCE                                         r  r_input_feat_reg[11][0]/CE
   -------------------------------------------------------------------    -------------------
 
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -5093,7 +5093,7 @@ Slack:                    inf
     SLICE_X75Y345        FDCE                                         r  r_input_feat_reg[11][5]/CE
   -------------------------------------------------------------------    -------------------
 
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -5146,7 +5146,7 @@ Slack:                    inf
     SLICE_X84Y346        FDCE                                         r  r_input_feat_reg[10][16]/CE
   -------------------------------------------------------------------    -------------------
 
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -5199,7 +5199,7 @@ Slack:                    inf
     SLICE_X84Y346        FDCE                                         r  r_input_feat_reg[10][17]/CE
   -------------------------------------------------------------------    -------------------
 
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -5249,7 +5249,7 @@ Slack:                    inf
     SLICE_X68Y332        FDRE                                         r  r_output_read_reg[2][10]/CE
   -------------------------------------------------------------------    -------------------
 
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -5299,7 +5299,7 @@ Slack:                    inf
     SLICE_X68Y332        FDRE                                         r  r_output_read_reg[2][11]/CE
   -------------------------------------------------------------------    -------------------
 
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -5349,7 +5349,7 @@ Slack:                    inf
     SLICE_X68Y332        FDRE                                         r  r_output_read_reg[2][12]/CE
   -------------------------------------------------------------------    -------------------
 
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -5399,7 +5399,7 @@ Slack:                    inf
     SLICE_X68Y332        FDRE                                         r  r_output_read_reg[2][17]/CE
   -------------------------------------------------------------------    -------------------
 
-                         (clock clk rise edge)        0.000     0.000 r
+                         (clock clk rise edge)        0.000     0.000 r  
     G10                                               0.000     0.000 r  clk (IN)
                          net (fo=0)                   0.000     0.000    clk_IBUF_inst/I
     G10                  INBUF (Prop_INBUF_HPIOB_M_PAD_O)
@@ -5412,3 +5412,8 @@ Slack:                    inf
                                                       0.024     0.604 r  clk_IBUF_BUFG_inst/O
     X2Y5 (CLOCK_ROOT)    net (fo=1314, routed)        0.631     1.235    clk_IBUF_BUFG
     SLICE_X68Y332        FDRE                                         r  r_output_read_reg[2][17]/C
+
+
+
+
+
