@@ -55,11 +55,12 @@ After the FPGA benchmark was moved under the variant-specific directory, commit
 Vivado 2023.2 regenerated the 317 MHz implementation artifacts and the full
 post-route Fmax sweep. The local copy includes the implementation logs and
 timing reports for the sweep points. The refined campaign verified a highest
-tested PASS of 346.896588 MHz at 2.882703476 ns (WNS +0.002 ns) and a lowest
-tested FAIL of 347.176439 MHz at 2.880379796 ns (WNS -0.013 ns). Therefore the
+tested PASS of 346.90 MHz at 2.882703476 ns (WNS +0.002 ns) and a lowest
+tested FAIL of 347.18 MHz at 2.880379796 ns (WNS -0.013 ns). Therefore the
 reported boundary is the bounded interval
-`346.896588 MHz <= Fmax < 347.176439 MHz`, with width 0.279851 MHz; no exact
-Fmax beyond this tested bracket is claimed.
+`346.90 MHz <= Fmax < 347.18 MHz`, with width 0.279851 MHz. The exact values
+remain in `results/fmax_search.json`; no exact Fmax beyond this tested bracket
+is claimed.
 
 The timing-SAIF runner using `unisims_ver` compiled successfully but failed at
 SDF annotation with `XSIM 43-3462`. A second elaboration using `simprims_ver`

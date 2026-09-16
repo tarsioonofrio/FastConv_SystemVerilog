@@ -89,8 +89,45 @@ O Experimento A usa exatamente `317 MHz`, período `3.154574 ns`. O Experimento
 B só chama uma frequência Fmax se uma implementação pós-route tiver WNS >= 0;
 o maior PASS é publicado como limite inferior acompanhado do intervalo
 PASS/FAIL, sem precisão artificial. Nesta campanha, o maior PASS foi
-`346.8966 MHz` (WNS `+0.002 ns`) e o menor FAIL foi `347.1764 MHz` (WNS
-`-0.013 ns`), portanto `346.8966 MHz <= Fmax < 347.1764 MHz`.
+`346.90 MHz` (WNS `+0.002 ns`) e o menor FAIL foi `347.18 MHz` (WNS
+`-0.013 ns`), portanto `346.90 MHz <= Fmax < 347.18 MHz`. Os valores
+completos da bisseção permanecem em `results/fmax_search.json`.
+
+## Caracterização congelada do core único
+
+O operating point comum da campanha de desempenho e power é `317 MHz`. O
+limite de timing é uma caracterização separada: `346.90 MHz` é o maior PASS
+verificado e `347.18 MHz` é o próximo FAIL pós-route.
+
+| Métrica | Resultado |
+| --- | ---: |
+| Frequência do benchmark | **317 MHz** |
+| Maior frequência pós-route verificada | **346.90 MHz** |
+| Próximo ponto que falha timing | **347.18 MHz** |
+| DSP | **8** |
+| LUT | **2.087** |
+| FF | **1.266** |
+| Latência | **23.648 ciclos** |
+| Tile II | **11 ciclos** |
+| Operações equivalentes/job | **145.800** |
+| Throughput de job ativo | **1,954 GOPS** |
+| Dynamic power | **0,210 W** |
+| Total power | **0,803 W** |
+| Dynamic energy/job | **15,67 µJ** |
+| Total energy/job | **59,90 µJ** |
+| Dynamic-power-normalized efficiency | **9,31 GOPS/W** |
+| Total GOPS/W | **2,434** |
+| Dynamic-power-normalized energy | **107,4 pJ/op** |
+| Total energy/op | **410,9 pJ/op** |
+
+Power is estimated after place-and-route using a hybrid RTL-SAIF/vectorless
+methodology. The RTL-SAIF directly annotates `104/5442` routed nets (`1.91%`);
+unmatched activity is estimated by Vivado's vectorless propagation. A second
+experiment using explicit workload-derived primary-input/control activity
+produced `0.211 W` dynamic versus `0.210 W` for the hybrid SAIF method. A
+dynamic-power-normalized value describes the implemented FPGA design's dynamic
+power, including relevant clocking, routing and I/O activity; it is not an
+isolated datapath efficiency measurement.
 
 ## Métricas e convenções
 
@@ -136,7 +173,8 @@ foram calculados com o tempo arquitetural de `23648 / 317 MHz`; P1 é o
 resultado híbrido principal e P2 é o cross-check com atividade explícita de
 entradas/controles. No P1 typical, `0.593 W` (`73.8%` do total) é static/device
 power da FPGA. Por isso o relatório publica tanto eficiência total
-(`2.434 GOPS/W`) quanto eficiência dinâmica (`9.31 GOPS/W`, `107.5 pJ/op`).
+(`2.434 GOPS/W`) quanto eficiência normalizada pela potência dinâmica
+(`9.31 GOPS/W_dynamic`, `107.4 pJ/op_dynamic`).
 
 ## Referência WinoGen (Tabela 1, kernel 3x3)
 

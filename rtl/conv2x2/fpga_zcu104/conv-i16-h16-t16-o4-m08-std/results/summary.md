@@ -4,7 +4,7 @@
 
 Target: `xczu7ev-ffvc1156-2-e`, reference Vivado 2023.2, top `Conv`, baseline 20-bit.
 Vivado 2023.2 was executed on Paxos from the direct synchronized snapshot; local reports are a copy of those textual artifacts.
-Fmax sweep bracket: `346.8965879860756`--`347.17643881154345` MHz; highest tested PASS is `346.8965879860756` MHz and lowest tested FAIL is `347.17643881154345` MHz.
+Fmax sweep bracket: `346.90`--`347.18` MHz; highest tested PASS is `346.90` MHz and lowest tested FAIL is `347.18` MHz. Exact values remain in `results/fmax_search.json`.
 Timing/resource values below are post-route estimates. The complete protocol-directed RTL-SAIF capture at 317 MHz was imported into the routed checkpoint on Paxos; P1 is hybrid SAIF/vectorless and P2 is the input/control cross-check. The prior 245 ns reports and the superseded approximately 100 MHz capture are not final inputs. Timing-SAIF remains optional because XSim hit a Vivado 2023.2 LLVM assertion.
 
 ## RTL evidence
@@ -50,8 +50,8 @@ Timing/resource values below are post-route estimates. The complete protocol-dir
 - job time at 317 MHz: `74.59936908517349` us
 - active-job equivalent compute throughput at 317 MHz: `1.9544401217861977` GOPS
 - typical total energy/job from P1 hybrid power: `59.90329337539432` uJ
-- equivalent throughput: `1.9544401217861977` GOPS; P1 total efficiency: `2.433922941203235` GOPS/W; P1 dynamic efficiency: `9.306857722791419` GOPS/W
-- P1 total energy: `410.8593509972176` pJ/op; P1 dynamic energy: `107.44765094572314` pJ/op
+- equivalent throughput: `1.9544401217861977` GOPS; P1 total efficiency: `2.433922941203235` GOPS/W; P1 dynamic-power-normalized efficiency: `9.306857722791419` GOPS/W_dynamic
+- P1 total energy: `410.8593509972176` pJ/op; P1 dynamic-power-normalized energy: `107.44765094572314` pJ/op_dynamic
 GOPS uses the validated dense operation count. Energy is calculated with the 23648-cycle job time at exactly 317 MHz; P1 is the principal hybrid estimate and P2 is the input/control cross-check.
 
 ## P0/P1/P2 energy comparison
