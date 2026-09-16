@@ -1,16 +1,16 @@
 Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2023 Advanced Micro Devices, Inc. All Rights Reserved.
--------------------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 | Tool Version     : Vivado v.2023.2 (lin64) Build 4029153 Fri Oct 13 20:13:54 MDT 2023
-| Date             : Tue Sep 15 19:48:13 2026
+| Date             : Tue Sep 15 22:16:20 2026
 | Host             : paxos.inf.pucrs.br running 64-bit Rocky Linux release 8.10 (Green Obsidian)
-| Command          : report_power -hier all -file /tmp/fastconv-fpa-47d1445b/benchmark/fpga_zcu104/reports/317mhz/power_vectorless_typical.rpt
+| Command          : report_power -hier all -file /tmp/fastconv-fpa-5e0146f4/rtl/conv2x2/fpga_zcu104/conv-i16-h16-t16-o4-m08-std/reports/317mhz/power_vectorless_typical.rpt
 | Design           : Conv
 | Device           : xczu7ev-ffvc1156-2-e
 | Design State     : routed
 | Grade            : extended
 | Process          : typical
 | Characterization : Production
--------------------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 Power Report
 
@@ -175,3 +175,5 @@ Table of Contents
 |   trf                    |     0.004 |       3 |     0.000 |    0 |  0.000 |      842 |      0.002 |     870 |     0.002 |     0 |   0.000 |
 |     matrix_c1            |     0.003 |       3 |     0.000 |    0 |  0.000 |      568 |      0.002 |     367 |     0.001 |     0 |   0.000 |
 +--------------------------+-----------+---------+-----------+------+--------+----------+------------+---------+-----------+-------+---------+
+
+
