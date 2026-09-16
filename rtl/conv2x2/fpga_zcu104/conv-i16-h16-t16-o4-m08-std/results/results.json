@@ -8,9 +8,13 @@
     "seed": 1,
     "jobs": 1,
     "latency_cycles": 23648,
-    "ii_cycles": 0,
+    "ii_cycles": null,
     "tile_ends": 2025,
-    "tile_ii_cycles": 11
+    "tile_ii_cycles": 11,
+    "job_initiation_interval_cycles": null,
+    "observed_ii_cycles": null,
+    "job_reentrant": false,
+    "requires_reset_between_jobs": true
   },
   "fmax_search": {
     "tool": "vivado",
@@ -68,15 +72,42 @@
         "returncode": 0
       }
     ],
-    "note": "Fmax is valid only for a routed run with WNS >= 0.",
+    "note": "Report the highest tested PASS as a lower bound; the true post-route boundary is bracketed by the nearest PASS/FAIL points and is not known to the displayed decimal precision.",
     "fmax": {
       "run": "fmax_3p154574",
       "period_ns": 3.154574,
       "target_mhz": 317.0000133140005,
       "wns_ns": 0.086,
       "timing_closure": true,
-      "returncode": 0
-    }
+      "returncode": 0,
+      "reported_as": "highest_tested_pass_lower_bound"
+    },
+    "fmax_bracket_mhz": {
+      "lower_bound_mhz": 317.0000133140005,
+      "upper_bound_mhz": 349.99998250000084,
+      "width_mhz": 32.99996918600034,
+      "highest_tested_pass_mhz": 317.0000133140005,
+      "lowest_tested_fail_mhz": 349.99998250000084,
+      "tolerance_mhz": 0.5
+    },
+    "refinement_target_met": false
+  },
+  "workload": {
+    "package": "rtl/conv2x2/data/tcn4/sim/sim-032-3-3-normal/pack_data.sv",
+    "sha256": "3ced5c4527374898e1f8d65c275403e1366e2bb09f466542915656b263356da0",
+    "equivalent_ops_per_job": 145800,
+    "job_time_s_at_317mhz": 7.45993690851735e-05
+  },
+  "saif_import": {
+    "method": "Vivado post-route report_power with RTL/behavioral SAIF",
+    "saif": "reports/rtl_saif/activity_rtl.saif",
+    "strip_path": "TOP/tb_power",
+    "matched_nets": 104,
+    "total_design_nets": 5442,
+    "coverage_pct": 1.91,
+    "unmatched_nets_use_vectorless": true,
+    "tool": "Vivado 2023.2",
+    "host": "paxos.inf.pucrs.br"
   },
   "rows": [
     {
@@ -92,13 +123,13 @@
       "ff": 1266.0,
       "bram": 0.0,
       "latency_cycles": 23648,
-      "ii_cycles": 23648,
+      "ii_cycles": null,
       "tile_ii_cycles": 11,
-      "gops_eq": null,
-      "dynamic_w": 0.251,
-      "total_w": 0.844,
-      "gops_per_w": null,
-      "pj_per_op": null
+      "gops_eq": 1.9544401217861977,
+      "dynamic_w": 0.096,
+      "total_w": 0.689,
+      "gops_per_w": 2.83663297791901,
+      "pj_per_op": 352.5306261981107
     },
     {
       "design": "WinoGen F(4,3) PNmin",
@@ -227,6 +258,16 @@
       "pj_per_op": null
     }
   ],
+  "power_rtl_saif_typical": {
+    "dynamic_w": 0.096,
+    "static_w": 0.592,
+    "total_w": 0.689
+  },
+  "power_rtl_saif_maximum": {
+    "dynamic_w": 0.096,
+    "static_w": 0.811,
+    "total_w": 0.908
+  },
   "workload_model": "non_reentrant_single_job",
-  "completion_status": "pending_saif"
+  "completion_status": "complete_rtl_saif_bracketed_fmax"
 }

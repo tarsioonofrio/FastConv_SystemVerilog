@@ -4,41 +4,46 @@
 
 Target: `xczu7ev-ffvc1156-2-e`, reference Vivado 2023.2, top `Conv`, baseline 20-bit.
 Vivado 2023.2 was executed on Paxos from the direct synchronized snapshot; local reports are a copy of those textual artifacts.
-Fmax sweep result: `317.0000133140005` MHz at `3.154574` ns; the next faster routed point was `349.99998250000084` MHz with WNS `-0.023` ns.
-Timing/resource/vectorless values below are post-route estimates. SDF gate-level XSim hit a Vivado 2023.2 LLVM assertion and SAIF remains pending.
-The workload package was generated with `fast-conv sim normal` (seed 1, 32x32,
-3 input channels, 3 output channels) in the variant-local `data/` directory.
+Fmax sweep bracket: `317.0000133140005`--`349.99998250000084` MHz; highest tested PASS is `317.0000133140005` MHz and lowest tested FAIL is `349.99998250000084` MHz.
+Timing/resource values below are post-route estimates. RTL-SAIF power is imported successfully, with vectorless estimation retained for uncovered nets. Timing-SAIF remains optional because XSim hit a Vivado 2023.2 LLVM assertion.
 
 ## RTL evidence
 
 - seed/jobs: `1` / `1`
 - latency: `23648` cycles
-- job-level II: `23648` cycles (non-reentrant core; reset required between launches)
+- job initiation interval: `N/A` (non-reentrant core; reset required between launches)
+- sequential job rate: one complete job every `23648` cycles when reset-delimited; this is not a pipeline II
 - tile initiation interval: `11` cycles across `2025` tile-end events
 - canonical Verilator regression: PASS (2025 inverse tiles, 23675 cycles, 8100 writes, zero errors)
-- activity workload: one complete job; no VCD generated; multi-job launch is not valid for this non-re-entrant core without reset
 
 ## Required final table
 
 | Design | bits | target MHz | achieved MHz | timing | DSP | LUT | FF | latency cyc | II | GOPS eq. | dyn. W | total W | GOPS/W | pJ/op |
 | --- | ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| Our Conv baseline @ 317 MHz | 20 | 317.0 | 317.0 | PASS | 8.0 | 2087.0 | 1266.0 | 23648 | 23648 | None | 0.251 | 0.844 | None | None |
-| WinoGen F(4,3) PNmin | 8-16 | None | None | REFERENCE | 6 | 2441 | 3587 | None | None | 9.883 | None | None | None | None |
-| WinoGen F(4,3) constrained | 8-16 | None | None | REFERENCE | 48 | 8267 | 11678 | None | None | 123.824 | None | None | None | None |
-| WinoGen F(4,3) PNmax | 8-16 | None | None | REFERENCE | 144 | 17472 | 18476 | None | None | 371.472 | None | None | None | None |
-| WinoGen F(6,3) PNmin | 8-16 | None | None | REFERENCE | 8 | 3757 | 5703 | None | None | 12.508 | None | None | None | None |
-| WinoGen F(6,3) constrained | 8-16 | None | None | REFERENCE | 128 | 31899 | 25307 | None | None | 412.02 | None | None | None | None |
-| WinoGen F(6,3) PNmax | 8-16 | None | None | REFERENCE | 256 | 41093 | 40238 | None | None | 835.812 | None | None | None | None |
+| Our Conv baseline @ 317 MHz | 20 | 317.0 | 317.0 | PASS | 8.0 | 2087.0 | 1266.0 | 23648 | N/A | 1.9544401217861977 | 0.096 | 0.689 | 2.83663297791901 | 352.5306261981107 |
+| WinoGen F(4,3) PNmin | 8-16 | N/A | N/A | REFERENCE | 6 | 2441 | 3587 | N/A | N/A | 9.883 | N/A | N/A | N/A | N/A |
+| WinoGen F(4,3) constrained | 8-16 | N/A | N/A | REFERENCE | 48 | 8267 | 11678 | N/A | N/A | 123.824 | N/A | N/A | N/A | N/A |
+| WinoGen F(4,3) PNmax | 8-16 | N/A | N/A | REFERENCE | 144 | 17472 | 18476 | N/A | N/A | 371.472 | N/A | N/A | N/A | N/A |
+| WinoGen F(6,3) PNmin | 8-16 | N/A | N/A | REFERENCE | 8 | 3757 | 5703 | N/A | N/A | 12.508 | N/A | N/A | N/A | N/A |
+| WinoGen F(6,3) constrained | 8-16 | N/A | N/A | REFERENCE | 128 | 31899 | 25307 | N/A | N/A | 412.02 | N/A | N/A | N/A | N/A |
+| WinoGen F(6,3) PNmax | 8-16 | N/A | N/A | REFERENCE | 256 | 41093 | 40238 | N/A | N/A | 835.812 | N/A | N/A | N/A | N/A |
 
 ## Power table
 
 | Design | freq | method | process | Dynamic W | Static W | Total W | SAIF coverage |
 | --- | ---: | --- | --- | ---: | ---: | ---: | ---: |
 | our core | 317 MHz | vectorless | typical | 0.251 | 0.593 | 0.844 | N/A |
-| our core | 317 MHz | SAIF post-route | typical | PENDING | PENDING | PENDING | PENDING |
+| our core | 317 MHz | RTL-SAIF post-route | typical | 0.096 | 0.592 | 0.689 | 104/5442 (1.91%) |
 | our core | 317 MHz | vectorless | maximum | 0.251 | 0.814 | 1.065 | N/A |
-| our core | 317 MHz | SAIF post-route | maximum | PENDING | PENDING | PENDING | PENDING |
-| our core | Fmax | SAIF post-route | typical | PENDING | PENDING | PENDING | PENDING |
+| our core | 317 MHz | RTL-SAIF post-route | maximum | 0.096 | 0.811 | 0.908 | 104/5442 (1.91%) |
+
+## Energy and throughput
+
+- equivalent operations per complete job: `145800`
+- job time at 317 MHz: `74.59936908517349` us
+- typical total energy/job from RTL-SAIF power: `51.39896529968454` uJ
+- equivalent throughput: `1.9544401217861977` GOPS; efficiency: `2.83663297791901` GOPS/W; energy: `352.5306261981107` pJ/op
+These are estimates based on post-route Vivado power and the RTL-derived workload, not physical-board measurements.
 
 WinoGen reference is 8--16 bit; this baseline is 20 bit. WinoGen Table 1 is an IP/core comparison. The reported WinoGen Table 2 system replicas are not compared directly with one core.
 

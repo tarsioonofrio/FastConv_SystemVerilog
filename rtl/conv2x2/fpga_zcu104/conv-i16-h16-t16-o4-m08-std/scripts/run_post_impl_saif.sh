@@ -29,7 +29,7 @@ for artifact in design_routed_timesim.v design_routed.sdf; do
   }
 done
 
-pack_data="$bench_dir/data/pack_data.sv"
+pack_data="$repo_root/rtl/conv2x2/data/tcn4/sim/sim-032-3-3-normal/pack_data.sv"
 pack_param="$repo_root/rtl/conv2x2/pack-param/tcn4/pack_param.sv"
 memory="$repo_root/rtl/mem/mem.sv"
 tb="$bench_dir/tb/tb_power.sv"
