@@ -106,14 +106,21 @@ The following attempts were recorded without VCD generation:
   compilation stage for more than six minutes and produced no SAIF; that
   temporary process was stopped and its logs were preserved remotely.
 
-The RTL/behavioral SAIF capture is now complete without VCD. The first local
+The RTL/behavioral SAIF capture is generated without VCD. The first local
 capture was accidentally limited to 245 ns by a time-unit mismatch in the
-Verilator driver; it was regenerated with a 249.995 us window and now contains
-the full 23,648-cycle job, including `p_end` and output writes. The earlier
+Verilator driver; it was then regenerated with a 249.995 us window. That
+second capture contains the full 23,648-cycle job, including `p_end` and output
+writes, but it used the old approximately 100 MHz RTL clock and is now treated
+as superseded evidence rather than a 317 MHz power input. The earlier
 0.689 W/0.908 W reports and 104/5442 mapping belong to the truncated capture
-and were moved to `reports/stale_saif_245ns/`; they must not be used as final
-hybrid power results. The new complete SAIF still needs to be imported into the
-routed checkpoint with `TOP/tb_power`. The intended label is **post-route hybrid
-SAIF/vectorless power**, with coverage and vectorless propagation reported
-separately. The timing-SDF SAIF path remains optional because of the XSim LLVM
-failure.
+and were moved to `reports/stale_saif_245ns/`; neither set is a final hybrid
+power result.
+
+The current driver uses the 317 MHz nominal period (`3154.574 ps`) and starts
+SAIF at `p_start` and stops when the testbench observes `p_end`, with a timeout
+only as a safety guard. Its capture metadata must show approximately 23,648 active
+cycles and approximately 74.6 us before the SAIF is imported into the routed
+checkpoint with `TOP/tb_power`. The intended label is **post-route hybrid
+SAIF/vectorless power**, with direct mapping and vectorless propagation
+reported separately. The timing-SDF SAIF path remains optional because of the
+XSim LLVM failure.

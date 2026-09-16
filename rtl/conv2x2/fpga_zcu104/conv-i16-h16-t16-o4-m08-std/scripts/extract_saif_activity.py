@@ -25,7 +25,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("saif", type=Path)
     parser.add_argument("--json", dest="json_path", type=Path, required=True)
     parser.add_argument("--tcl", dest="tcl_path", type=Path, required=True)
-    parser.add_argument("--clock-period-ps", type=float, default=10000.0)
+    parser.add_argument("--clock-period-ps", type=float, default=3154.0)
     return parser.parse_args()
 
 

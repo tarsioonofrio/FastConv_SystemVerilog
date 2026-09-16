@@ -101,12 +101,19 @@ convenção explicitamente idêntica à do WinoGen.
 Power é sempre rotulado como **Vivado post-route estimate**. Vectorless é o
 baseline; o resultado principal pretendido é **post-route hybrid
 SAIF/vectorless**, usando atividade RTL nos sinais que casarem e propagação
-vectorless no restante. A captura completa tem duração de `249995000 ps`
-(aproximadamente `249,995 us`) e contém o job inteiro; a extração atual cobre
-`101` bits de ports/sinais de controle para aplicação explícita de atividade.
-Ela ainda precisa ser reimportada no checkpoint roteado antes de consolidar o
-novo power. Os relatórios da janela truncada de `245 ns` ficam em
-`reports/stale_saif_245ns/` e não são resultados finais. Timing-SAIF
+vectorless no restante. A captura RTL principal usa o mesmo operating point do
+experimento fixo: `317 MHz`, período nominal de `3154.574 ps`. A janela é
+dirigida pelo protocolo, começa em `p_start` e termina quando o testbench
+observa `p_end`; o limite de `200000000 ps` é somente timeout de
+segurança. A duração esperada é aproximadamente `74.6 us` para os `23648`
+ciclos do job.
+
+A captura atual deve ser regenerada com
+`scripts/run_rtl_saif.sh` antes de ser importada no checkpoint roteado. O
+script também gera os metadados de frequência, início/fim, duração e ciclos
+capturados, além de extrair os `101` bits de ports/sinais de controle para
+aplicação explícita de atividade. Os relatórios da janela truncada de `245 ns`
+ficam em `reports/stale_saif_245ns/` e não são resultados finais. Timing-SAIF
 pós-implementation continua opcional e não bloqueia o experimento. Nenhum
 valor é chamado de medição física.
 
@@ -117,6 +124,11 @@ convolução densa `3 input channels -> 3 output channels`: são `72900` MACs,
 vale duas operações. A linha `24300 multiplications` do gerador é uma contagem
 espacial por kernel que não inclui a acumulação nos três canais de entrada; ela
 não deve ser usada para reduzir a contagem do job.
+
+O throughput equivalente não depende do power: para o modo
+`sequential complete jobs with reset`, `145800` operações em `23648` ciclos a
+`317 MHz` resultam em aproximadamente `1.954 GOPS`. Apenas GOPS/W, energia por
+job e pJ/op aguardam a importação do power híbrido.
 
 ## Referência WinoGen (Tabela 1, kernel 3x3)
 
@@ -146,7 +158,9 @@ python3 scripts/extract_saif_activity.py \
   --json reports/rtl_saif/primary_activity.json \
   --tcl scripts/primary_activity.tcl
 python3 scripts/collect_results.py
-# depois de uma implementação roteada, importar a atividade RTL:
+# depois de uma implementação roteada, regenerar e validar a atividade RTL:
+./scripts/run_rtl_saif.sh
+# e importar a captura dirigida a 317 MHz:
 vivado -mode batch -source scripts/power_saif.tcl \
   -tclargs 317mhz reports/rtl_saif/activity_rtl.saif TOP/tb_power
 # ou aplicar explicitamente a atividade dos ports e controles:

@@ -1,3 +1,5 @@
+`timescale 1ns/1ps
+
 // Deterministic non-zero workload for post-implementation SAIF capture.
 // The ROM contents come from the variant-local fast-conv generated package.
 module tb_power #(
@@ -39,7 +41,11 @@ module tb_power #(
   logic tile_end_d;
   integer jobs_completed;
 
-  always #5 clk = ~clk;
+  // Match the fixed 317 MHz implementation operating point. The nominal
+  // period is 3.154574 ns; 1 ps timeprecision realizes 1577 ps half-periods
+  // (3154 ps effective period, about 317.058 MHz).
+  localparam realtime CLK_PERIOD_NS = 3.154574;
+  always #(CLK_PERIOD_NS / 2.0) clk = ~clk;
 
 `ifdef GATE_LEVEL
   // The routed Vivado netlist has no parameter interface.
@@ -114,12 +120,15 @@ module tb_power #(
 
   task automatic launch_job;
     begin
-      #80;
+      // Wait for a clock-relative launch point, then hold p_start for exactly
+      // one target-clock period. A fixed #10 pulse would span several cycles
+      // at 317 MHz and overwrite launch_cycle repeatedly.
+      repeat (8) @(negedge clk);
       p_start = 1'b1;
-      #10;
+      @(negedge clk);
       p_start = 1'b0;
       @(posedge p_end);
-      #10;
+      @(negedge clk);
     end
   endtask
 

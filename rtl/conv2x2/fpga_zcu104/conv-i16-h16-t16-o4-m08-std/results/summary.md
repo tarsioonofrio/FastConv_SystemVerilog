@@ -5,7 +5,7 @@
 Target: `xczu7ev-ffvc1156-2-e`, reference Vivado 2023.2, top `Conv`, baseline 20-bit.
 Vivado 2023.2 was executed on Paxos from the direct synchronized snapshot; local reports are a copy of those textual artifacts.
 Fmax sweep bracket: `317.0000133140005`--`349.99998250000084` MHz; highest tested PASS is `317.0000133140005` MHz and lowest tested FAIL is `349.99998250000084` MHz.
-Timing/resource values below are post-route estimates. Complete-window RTL-SAIF import is pending; the prior 245 ns SAIF power reports were moved to `reports/stale_saif_245ns/`. The intended result is hybrid SAIF/vectorless power, with vectorless estimation retained for uncovered nets. Timing-SAIF remains optional because XSim hit a Vivado 2023.2 LLVM assertion.
+Timing/resource values below are post-route estimates. A protocol-directed RTL-SAIF capture at 317 MHz is present locally and must be imported into the routed checkpoint before hybrid power is reported; the prior 245 ns reports and the superseded approximately 100 MHz capture are not final inputs. The intended result is hybrid SAIF/vectorless power, with vectorless estimation retained for uncovered nets. Timing-SAIF remains optional because XSim hit a Vivado 2023.2 LLVM assertion.
 
 ## RTL evidence
 
@@ -41,7 +41,9 @@ Timing/resource values below are post-route estimates. Complete-window RTL-SAIF 
 
 - operation-count audit: `validated dense 2-D convolution`; the generator's 24,300-multiplication line omits input-channel accumulation
 - equivalent operations per complete job: `145800`
+- literal arithmetic operations per complete job: `143100`
 - job time at 317 MHz: `74.59936908517349` us
+- sequential complete-job equivalent throughput at 317 MHz: `1.9544401217861977` GOPS
 - typical total energy/job from hybrid power: `PENDING hybrid reimport` uJ
 - equivalent throughput: `1.9544401217861977` GOPS; efficiency: `PENDING hybrid reimport` GOPS/W; energy: `PENDING hybrid reimport` pJ/op
 GOPS is derived from the validated dense operation count. Power-derived efficiency and energy remain pending until the complete-window SAIF is imported into the routed checkpoint.
