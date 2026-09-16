@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
-bench_dir="$repo_root/benchmark/fpga_zcu104"
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+bench_dir="$(cd "$script_dir/.." && pwd)"
+repo_root="$(cd "$script_dir/../../../../.." && pwd)"
 mkdir -p "$bench_dir/reports" "$bench_dir/results"
 
 echo "[rtl] canonical regression"
