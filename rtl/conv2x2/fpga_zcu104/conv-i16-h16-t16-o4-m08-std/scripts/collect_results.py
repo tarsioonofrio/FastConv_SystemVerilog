@@ -127,8 +127,9 @@ def main() -> int:
         "timing": closure, "wns_ns": wns, "tns_ns": tns,
         "dsp": util["dsp"], "lut": util["lut"], "ff": util["ff"],
         "bram": util["bram"], "latency_cycles": rtl["latency_cycles"],
-        # The core accepts one complete campaign per launch; tile II is kept
-        # separately and is not confused with job-level re-initiation.
+        # This core is not re-entrant without reset. For the one-job workload,
+        # the effective job II is therefore its complete campaign latency;
+        # tile II remains a separate metric.
         "ii_cycles": rtl["latency_cycles"],
         "tile_ii_cycles": rtl["tile_ii_cycles"],
         "gops_eq": None, "dynamic_w": vectorless_typical["dynamic_w"],
@@ -159,7 +160,9 @@ def main() -> int:
                              "part": "xczu7ev-ffvc1156-2-e", "board": "ZCU104"},
                "rtl_validation": rtl, "fmax_search": fmax,
                "rows": rows,
-               "completion_status": "complete" if fmax.get("status") == "complete" else "pending_remote_vivado"}
+               "workload_model": "non_reentrant_single_job",
+               "completion_status": ("pending_saif" if fmax.get("status") == "complete"
+                                     else "pending_remote_vivado")}
     (RESULTS / "results.json").write_text(json.dumps(payload, indent=2) + "\n")
 
     lines = [
@@ -172,7 +175,7 @@ def main() -> int:
         "## RTL evidence", "",
         f"- seed/jobs: `{rtl['seed']}` / `{rtl['jobs']}`",
         f"- latency: `{rtl['latency_cycles']}` cycles",
-        f"- job-level II: `{rtl['latency_cycles']}` cycles (one campaign per launch)",
+        f"- job-level II: `{rtl['latency_cycles']}` cycles (non-reentrant core; reset required between launches)",
         f"- tile initiation interval: `{rtl['tile_ii_cycles']}` cycles across `{rtl['tile_ends']}` tile-end events",
         "- canonical Verilator regression: PASS (2025 inverse tiles, 23675 cycles, 8100 writes, zero errors)", "",
         "## Required final table", "",

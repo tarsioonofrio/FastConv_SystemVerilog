@@ -6,14 +6,17 @@ Target: `xczu7ev-ffvc1156-2-e`, reference Vivado 2023.2, top `Conv`, baseline 20
 Vivado 2023.2 was executed on Paxos from the direct synchronized snapshot; local reports are a copy of those textual artifacts.
 Fmax sweep result: `317.0000133140005` MHz at `3.154574` ns; the next faster routed point was `349.99998250000084` MHz with WNS `-0.023` ns.
 Timing/resource/vectorless values below are post-route estimates. SDF gate-level XSim hit a Vivado 2023.2 LLVM assertion and SAIF remains pending.
+The workload package was generated with `fast-conv sim normal` (seed 1, 32x32,
+3 input channels, 3 output channels) in the variant-local `data/` directory.
 
 ## RTL evidence
 
 - seed/jobs: `1` / `1`
 - latency: `23648` cycles
-- job-level II: `23648` cycles (one campaign per launch)
+- job-level II: `23648` cycles (non-reentrant core; reset required between launches)
 - tile initiation interval: `11` cycles across `2025` tile-end events
 - canonical Verilator regression: PASS (2025 inverse tiles, 23675 cycles, 8100 writes, zero errors)
+- activity workload: one complete job; no VCD generated; multi-job launch is not valid for this non-re-entrant core without reset
 
 ## Required final table
 

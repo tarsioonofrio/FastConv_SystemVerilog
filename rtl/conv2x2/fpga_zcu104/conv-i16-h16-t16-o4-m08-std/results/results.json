@@ -227,5 +227,6 @@
       "pj_per_op": null
     }
   ],
-  "completion_status": "complete"
+  "workload_model": "non_reentrant_single_job",
+  "completion_status": "pending_saif"
 }

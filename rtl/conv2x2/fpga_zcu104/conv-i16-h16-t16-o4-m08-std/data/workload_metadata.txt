@@ -1,0 +1,10 @@
+generator=fast-conv sim normal
+fast_conv_root=/home/tarsio/gaph/fast-convolution-rtl
+config=test/2d-tcn4/config
+image_side=32
+channel_in=3
+channel_out=3
+seed=1
+quant_bits=8
+jobs_for_activity=1
+job_model=non-reentrant; reset required between launches

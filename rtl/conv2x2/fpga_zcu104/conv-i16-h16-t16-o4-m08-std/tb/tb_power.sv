@@ -1,5 +1,5 @@
 // Deterministic non-zero workload for post-implementation SAIF capture.
-// The ROM contents come from the canonical generated pack_data package.
+// The ROM contents come from the variant-local fast-conv generated package.
 module tb_power #(
   parameter int unsigned JOBS = 1
 );
