@@ -1,4 +1,6 @@
-# Apply workload-derived primary-port activity to the routed checkpoint.
+# Apply workload-derived primary-input/control activity to the routed checkpoint.
+# The supplied Tcl should be primary_input_activity.tcl: clock activity comes
+# from the XDC and output ports are observations, not injected stimuli.
 # Usage: vivado -mode batch -source power_io_activity.tcl \
 #   -tclargs <run> <activity.tcl>
 set script_dir [file dirname [file normalize [info script]]]

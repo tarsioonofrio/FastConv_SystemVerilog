@@ -116,4 +116,4 @@ rm Vtb_power__ALL.verilator_deplist.tmp
 make: Leaving directory '/home/tarsio/gaph/FastConv_SystemVerilog/rtl/conv2x2/fpga_zcu104/conv-i16-h16-t16-o4-m08-std/reports/rtl_saif/obj'
 - V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
 - Verilator: Built from 1.346 MB sources in 29 modules, into 0.914 MB in 15 C++ files needing 0.002 MB
-- Verilator: Walltime 21.022 s (elab=0.354, cvt=1.317, bld=19.175); cpu 1.861 s on 4 threads; allocated 486.555 MB
+- Verilator: Walltime 27.251 s (elab=0.562, cvt=2.043, bld=24.319); cpu 2.475 s on 4 threads; allocated 422.551 MB

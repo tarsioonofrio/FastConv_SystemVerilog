@@ -43,7 +43,7 @@ Timing/resource values below are post-route estimates. A protocol-directed RTL-S
 - equivalent operations per complete job: `145800`
 - literal arithmetic operations per complete job: `143100`
 - job time at 317 MHz: `74.59936908517349` us
-- sequential complete-job equivalent throughput at 317 MHz: `1.9544401217861977` GOPS
+- active-job equivalent compute throughput at 317 MHz: `1.9544401217861977` GOPS
 - typical total energy/job from hybrid power: `PENDING hybrid reimport` uJ
 - equivalent throughput: `1.9544401217861977` GOPS; efficiency: `PENDING hybrid reimport` GOPS/W; energy: `PENDING hybrid reimport` pJ/op
 GOPS is derived from the validated dense operation count. Power-derived efficiency and energy remain pending until the complete-window SAIF is imported into the routed checkpoint.

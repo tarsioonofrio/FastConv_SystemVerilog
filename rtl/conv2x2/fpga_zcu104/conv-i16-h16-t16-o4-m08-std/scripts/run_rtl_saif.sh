@@ -65,7 +65,8 @@ python3 "$script_dir/extract_saif_activity.py" \
   "$run_dir/activity_rtl.saif" \
   --clock-period-ps 3154.0 \
   --json "$run_dir/primary_activity.json" \
-  --tcl "$script_dir/primary_activity.tcl"
+  --tcl "$script_dir/primary_activity.tcl" \
+  --input-tcl "$script_dir/primary_input_activity.tcl"
 python3 - "$run_dir" <<'PY'
 import re
 import sys
@@ -85,6 +86,26 @@ duration_ps = int(duration_match.group(1)) if duration_match else None
 period_ps = float(values["clock_period_ps"])
 nominal_period_ps = float(values["nominal_clock_period_ps"])
 captured_cycles = float(values["captured_cycles"])
+activity = __import__("json").loads((run_dir / "primary_activity.json").read_text())
+signals = activity["signals"]
+clock = signals.get("clk", {})
+clock_toggles = int(clock.get("toggle_count", 0))
+checks = {
+    "duration_matches_capture": duration_ps == int(values["capture_duration_ps"]),
+    "cycles_match_duration": abs(captured_cycles - duration_ps / period_ps) < 1e-6,
+    "p_start_observed": signals.get("p_start", {}).get("toggle_count", 0) > 0,
+    "p_end_observed": signals.get("p_end", {}).get("toggle_count", 0) > 0,
+    "output_write_activity": signals.get("p_output_wr", {}).get("toggle_count", 0) > 0,
+    "reset_not_active": signals.get("reset", {}).get("t1_ps", 0) == 0,
+    "input_data_activity": any(
+        signal.startswith("p_input_data[") and values.get("toggle_count", 0) > 0
+        for signal, values in signals.items()
+    ),
+    "clock_toggle_sanity": abs(clock_toggles - 2 * captured_cycles) <= 2,
+}
+if not all(checks.values()):
+    failed = ", ".join(name for name, passed in checks.items() if not passed)
+    raise SystemExit(f"SAIF sanity check failed: {failed}")
 summary = f"""# Captura RTL-SAIF a 317 MHz
 
 | Campo | Valor |
@@ -98,6 +119,7 @@ summary = f"""# Captura RTL-SAIF a 317 MHz
 | Duração da captura | `{values.get('capture_duration_ps')} ps` |
 | Duração no cabeçalho SAIF | `{duration_ps} ps` |
 | Ciclos capturados | `{captured_cycles:.3f}` |
+| Transições do clock | `{clock_toggles}` (esperado aproximadamente `{2 * captured_cycles:.1f}`) |
 | Latência do job | `{job.get('latency_cycles', 'N/A')} ciclos` |
 | Jobs | `{job.get('jobs', 'N/A')}` |
 | Tile ends | `{job.get('tile_ends', 'N/A')}` |
@@ -111,6 +133,15 @@ somente como timeout de segurança e não define a duração normal da captura.
 O período nominal é o operating point de 317 MHz (`3.154574 ns`). O SAIF
 deve ser importado no checkpoint correspondente somente depois de verificar
 que os ciclos capturados estão próximos da latência esperada de `23648` ciclos.
+
+## Auditoria automática
+
+""" + "\n".join(f"- {name}: `PASS`" for name in checks) + """
+
+O Tcl `primary_input_activity.tcl` injeta somente reset, start e sinais de
+entrada. O clock permanece sob controle do XDC e os sinais de saída ficam como
+observação; o Tcl completo `primary_activity.tcl` é mantido apenas para
+auditoria.
 """
 (run_dir / "capture_summary.md").write_text(summary)
 PY

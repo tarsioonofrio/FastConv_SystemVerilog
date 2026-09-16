@@ -71,9 +71,11 @@ medidos separadamente.
    captura truncada ficam separados em `reports/stale_saif_245ns/`.
 7. `scripts/extract_saif_activity.py` extrai a atividade dos ports e sinais de
    controle do DUT da captura RTL completa e gera
-   `reports/rtl_saif/primary_activity.json` e `scripts/primary_activity.tcl`.
-   O Tcl aplica `set_switching_activity` aos ports encontrados e deixa a
-   propagação interna sob estimativa vectorless.
+   `reports/rtl_saif/primary_activity.json`, `scripts/primary_activity.tcl` e
+   `scripts/primary_input_activity.tcl`. O primeiro Tcl é uma auditoria de
+   todos os ports; o segundo injeta somente reset, start e entradas no P2. O
+   clock permanece sob controle do XDC e as saídas são somente observação; a
+   propagação interna fica sob estimativa vectorless.
 8. `scripts/power_saif.tcl` importa o SAIF RTL com `-strip_path`, salva o
    relatório de mapeamento e calcula power nos dois corners. As nets não
    cobertas continuam sob estimativa vectorless do Vivado.
@@ -125,10 +127,11 @@ vale duas operações. A linha `24300 multiplications` do gerador é uma contage
 espacial por kernel que não inclui a acumulação nos três canais de entrada; ela
 não deve ser usada para reduzir a contagem do job.
 
-O throughput equivalente não depende do power: para o modo
-`sequential complete jobs with reset`, `145800` operações em `23648` ciclos a
-`317 MHz` resultam em aproximadamente `1.954 GOPS`. Apenas GOPS/W, energia por
-job e pJ/op aguardam a importação do power híbrido.
+O throughput equivalente não depende do power: para um job ativo,
+`145800` operações em `23648` ciclos a `317 MHz` resultam em aproximadamente
+`1.954 GOPS`. O núcleo não é reentrante; esse número não inclui reset/rearm
+entre jobs e não é um II inter-job. Apenas GOPS/W, energia por job e pJ/op
+aguardam a importação do power híbrido.
 
 ## Referência WinoGen (Tabela 1, kernel 3x3)
 
@@ -156,7 +159,8 @@ python3 scripts/run_fmax.py
 python3 scripts/extract_saif_activity.py \
   reports/rtl_saif/activity_rtl.saif \
   --json reports/rtl_saif/primary_activity.json \
-  --tcl scripts/primary_activity.tcl
+  --tcl scripts/primary_activity.tcl \
+  --input-tcl scripts/primary_input_activity.tcl
 python3 scripts/collect_results.py
 # depois de uma implementação roteada, regenerar e validar a atividade RTL:
 ./scripts/run_rtl_saif.sh
@@ -165,7 +169,7 @@ vivado -mode batch -source scripts/power_saif.tcl \
   -tclargs 317mhz reports/rtl_saif/activity_rtl.saif TOP/tb_power
 # ou aplicar explicitamente a atividade dos ports e controles:
 vivado -mode batch -source scripts/power_io_activity.tcl \
-  -tclargs 317mhz scripts/primary_activity.tcl
+  -tclargs 317mhz scripts/primary_input_activity.tcl
 ```
 
 O SAIF RTL pode ser gerado antes da implementação e importado no checkpoint
