@@ -266,10 +266,12 @@ def main() -> int:
                  if hybrid_power_available and active_power_typical is not None and job_time_s and ops else None)
     bracket = fmax.get("fmax_bracket_mhz", {})
     if bracket:
-        fmax_line = (f"Fmax sweep bracket: `{bracket.get('lower_bound_mhz')}`--"
-                     f"`{bracket.get('upper_bound_mhz')}` MHz; highest tested PASS "
-                     f"is `{bracket.get('highest_tested_pass_mhz')}` MHz and "
-                     f"lowest tested FAIL is `{bracket.get('lowest_tested_fail_mhz')}` MHz.")
+        lower = bracket.get("lower_bound_mhz")
+        upper = bracket.get("upper_bound_mhz")
+        fmax_line = (f"Fmax sweep bracket: `{lower:.2f}`--`{upper:.2f}` MHz; "
+                     f"highest tested PASS is `{lower:.2f}` MHz and lowest "
+                     f"tested FAIL is `{upper:.2f}` MHz. Exact values remain in "
+                     f"`results/fmax_search.json`.")
     else:
         fmax_line = ("Fmax sweep has a PASS/FAIL boundary but no refined bracket "
                      "was recorded in the copied JSON.")
@@ -391,8 +393,8 @@ def main() -> int:
               f"- job time at 317 MHz: `{job_time_s * 1e6 if job_time_s else None}` us",
               f"- active-job equivalent compute throughput at 317 MHz: `{gops_eq}` GOPS",
               f"- typical total energy/job from P1 hybrid power: `{active_power_typical * job_time_s * 1e6 if hybrid_power_available and active_power_typical is not None and job_time_s else 'PENDING hybrid reimport'}` uJ",
-              f"- equivalent throughput: `{gops_eq}` GOPS; P1 total efficiency: `{gops_per_w if hybrid_power_available else 'PENDING hybrid reimport'}` GOPS/W; P1 dynamic efficiency: `{gops_eq / active_dynamic_typical if hybrid_power_available and active_dynamic_typical else 'PENDING hybrid reimport'}` GOPS/W",
-              f"- P1 total energy: `{pj_per_op if hybrid_power_available else 'PENDING hybrid reimport'}` pJ/op; P1 dynamic energy: `{active_dynamic_typical * 1000 / gops_eq if hybrid_power_available and active_dynamic_typical and gops_eq else 'PENDING hybrid reimport'}` pJ/op",
+              f"- equivalent throughput: `{gops_eq}` GOPS; P1 total efficiency: `{gops_per_w if hybrid_power_available else 'PENDING hybrid reimport'}` GOPS/W; P1 dynamic-power-normalized efficiency: `{gops_eq / active_dynamic_typical if hybrid_power_available and active_dynamic_typical else 'PENDING hybrid reimport'}` GOPS/W_dynamic",
+              f"- P1 total energy: `{pj_per_op if hybrid_power_available else 'PENDING hybrid reimport'}` pJ/op; P1 dynamic-power-normalized energy: `{active_dynamic_typical * 1000 / gops_eq if hybrid_power_available and active_dynamic_typical and gops_eq else 'PENDING hybrid reimport'}` pJ/op_dynamic",
               "GOPS uses the validated dense operation count. Energy is calculated with the 23648-cycle job time at exactly 317 MHz; P1 is the principal hybrid estimate and P2 is the input/control cross-check.",
               "", "## P0/P1/P2 energy comparison", "",
               "| Method | Corner | Dynamic W | Static W | Total W | Dynamic uJ/job | Total uJ/job | GOPS/W | pJ/equivalent-op |",

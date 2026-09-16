@@ -11,8 +11,8 @@
 - SAIF: `reports/rtl_saif/activity_rtl.saif`
 - SAIF duration: `74587369 ps` (`23648.5` cycles)
 - SAIF clock transitions: `47297`
-- Refined post-route timing boundary: highest tested PASS `346.8966 MHz`
-  (WNS `+0.002 ns`); lowest tested FAIL `347.1764 MHz` (WNS `-0.013 ns`).
+- Refined post-route timing boundary: highest tested PASS `346.90 MHz`
+  (WNS `+0.002 ns`); lowest tested FAIL `347.18 MHz` (WNS `-0.013 ns`).
   The PASS/FAIL bracket width is `0.2799 MHz`, below the `0.5 MHz` search
   tolerance. This is reported as a verified lower bound, not an exact Fmax.
 
@@ -34,8 +34,8 @@ and whose status was clean before execution.
 For the principal P1 typical result, the total-power efficiency is
 `2.4339 GOPS/W` and `410.9 pJ/equivalent-op`. Since the routed FPGA static
 power is `0.593 W` (`73.8%` of the `0.803 W` total), the corresponding dynamic
-figures are also reported: `9.3069 GOPS/W_dynamic` and `107.4
-pJ/equivalent-op_dynamic`. P2 is a cross-check, not a second principal result;
+figures are also reported as dynamic-power-normalized efficiency: `9.3069
+GOPS/W_dynamic` and `107.4 pJ/equivalent-op_dynamic`. P2 is a cross-check, not a second principal result;
 its total power differs from P1 by only `1 mW`.
 
 P1 imported the complete directed RTL SAIF. Vivado reported the clock-net
@@ -67,8 +67,8 @@ reset/rearm between complete jobs.
 
 ## Refined Fmax search
 
-The post-route search verified timing closure at `346.8966 MHz` and failure at
-`347.1764 MHz`, giving the bounded result
-`346.8966 MHz <= Fmax < 347.1764 MHz`. The implementation point used for the
+The post-route search verified timing closure at `346.90 MHz` and failure at
+`347.18 MHz`, giving the bounded result
+`346.90 MHz <= Fmax < 347.18 MHz`. The implementation point used for the
 power campaign remains exactly `317 MHz`; the refined Fmax search is an
 independent timing characterization.
