@@ -21,6 +21,12 @@ WINOGEN = [
     ("WinoGen F(6,3) PNmax", "8-16", 256, 41093, 40238, 835.812),
 ]
 
+WINOGEN_F23 = [
+    ("WinoGen F(4,1) PNmin, F(2,3)*", "8-16", 4, 1689, 2191, 5.559),
+    ("WinoGen F(4,1) constrained, F(2,3)*", "8-16", 16, 2267, 2901, 22.236),
+    ("WinoGen F(4,1) PNmax, F(2,3)*", "8-16", 64, 4858, 7579, 92.868),
+]
+
 
 def number(pattern: str, text: str) -> float | None:
     match = re.search(pattern, text, flags=re.I | re.S)
@@ -283,10 +289,16 @@ def main() -> int:
         "tile_ii_cycles": rtl["tile_ii_cycles"],
         "gops_eq": gops_eq, "dynamic_w": active_dynamic_typical,
         "total_w": active_power_typical,
+        "dynamic_energy_uj": (active_dynamic_typical * job_time_s * 1e6
+                               if active_dynamic_typical is not None and job_time_s else None),
         "gops_per_w": gops_per_w, "pj_per_op": pj_per_op,
+        "dynamic_gops_per_w": (gops_eq / active_dynamic_typical
+                                if gops_eq is not None and active_dynamic_typical else None),
+        "dynamic_pj_per_op": (active_dynamic_typical * 1000 / gops_eq
+                               if active_dynamic_typical is not None and gops_eq else None),
     }
     rows = [row]
-    for name, bits, dsp, lut, ff, gops in WINOGEN:
+    for name, bits, dsp, lut, ff, gops in WINOGEN + WINOGEN_F23:
         rows.append({"design": name, "bits": bits, "target_mhz": None,
                      "achieved_mhz": None, "timing": "REFERENCE",
                      "wns_ns": None, "tns_ns": None, "dsp": dsp,
@@ -294,7 +306,9 @@ def main() -> int:
                      "latency_cycles": None, "ii_cycles": None,
                      "tile_ii_cycles": None, "gops_eq": gops,
                      "dynamic_w": None, "total_w": None,
-                     "gops_per_w": None, "pj_per_op": None})
+                     "dynamic_energy_uj": None, "gops_per_w": None,
+                     "pj_per_op": None, "dynamic_gops_per_w": None,
+                     "dynamic_pj_per_op": None})
 
     fields = list(rows[0])
     # Keep the CSV unambiguous and diff-check clean. JSON retains real nulls;
@@ -354,13 +368,13 @@ def main() -> int:
         f"- tile initiation interval: `{rtl['tile_ii_cycles']}` cycles across `{rtl['tile_ends']}` tile-end events",
         "- canonical Verilator regression: PASS (2025 inverse tiles, 23675 cycles, 8100 writes, zero errors)", "",
         "## Required final table", "",
-        "| Design | bits | target MHz | achieved MHz | timing | DSP | LUT | FF | latency cyc | II | GOPS eq. | dyn. W | total W | GOPS/W | pJ/op |",
-        "| --- | ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
+        "| Design | bits | target MHz | achieved MHz | timing | DSP | LUT | FF | latency cyc | II | GOPS eq. | dyn. W | total W | GOPS/W | dyn. GOPS/W | pJ/op | dyn. pJ/op |",
+        "| --- | ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
     ]
     for item in rows:
         display_item = {key: ("N/A" if value is None else value)
                         for key, value in item.items()}
-        lines.append("| {design} | {bits} | {target_mhz} | {achieved_mhz} | {timing} | {dsp} | {lut} | {ff} | {latency_cycles} | {ii_cycles} | {gops_eq} | {dynamic_w} | {total_w} | {gops_per_w} | {pj_per_op} |".format(**display_item))
+        lines.append("| {design} | {bits} | {target_mhz} | {achieved_mhz} | {timing} | {dsp} | {lut} | {ff} | {latency_cycles} | {ii_cycles} | {gops_eq} | {dynamic_w} | {total_w} | {gops_per_w} | {dynamic_gops_per_w} | {pj_per_op} | {dynamic_pj_per_op} |".format(**display_item))
     lines += ["", "## Power table", "",
               "| Design | freq | method | process | Dynamic W | Static W | Total W | SAIF coverage |",
               "| --- | ---: | --- | --- | ---: | ---: | ---: | ---: |",
@@ -377,14 +391,19 @@ def main() -> int:
               f"- job time at 317 MHz: `{job_time_s * 1e6 if job_time_s else None}` us",
               f"- active-job equivalent compute throughput at 317 MHz: `{gops_eq}` GOPS",
               f"- typical total energy/job from P1 hybrid power: `{active_power_typical * job_time_s * 1e6 if hybrid_power_available and active_power_typical is not None and job_time_s else 'PENDING hybrid reimport'}` uJ",
-              f"- equivalent throughput: `{gops_eq}` GOPS; P1 efficiency: `{gops_per_w if hybrid_power_available else 'PENDING hybrid reimport'}` GOPS/W; P1 energy: `{pj_per_op if hybrid_power_available else 'PENDING hybrid reimport'}` pJ/op",
+              f"- equivalent throughput: `{gops_eq}` GOPS; P1 total efficiency: `{gops_per_w if hybrid_power_available else 'PENDING hybrid reimport'}` GOPS/W; P1 dynamic efficiency: `{gops_eq / active_dynamic_typical if hybrid_power_available and active_dynamic_typical else 'PENDING hybrid reimport'}` GOPS/W",
+              f"- P1 total energy: `{pj_per_op if hybrid_power_available else 'PENDING hybrid reimport'}` pJ/op; P1 dynamic energy: `{active_dynamic_typical * 1000 / gops_eq if hybrid_power_available and active_dynamic_typical and gops_eq else 'PENDING hybrid reimport'}` pJ/op",
               "GOPS uses the validated dense operation count. Energy is calculated with the 23648-cycle job time at exactly 317 MHz; P1 is the principal hybrid estimate and P2 is the input/control cross-check.",
               "", "## P0/P1/P2 energy comparison", "",
               "| Method | Corner | Dynamic W | Static W | Total W | Dynamic uJ/job | Total uJ/job | GOPS/W | pJ/equivalent-op |",
               "| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
               *[f"| {method} | {corner} | {power_methods[method][corner]['dynamic_w']} | {power_methods[method][corner]['static_w']} | {power_methods[method][corner]['total_w']} | {energy[method][corner]['energy_dynamic_uj']} | {energy[method][corner]['energy_total_uj']} | {energy[method][corner]['gops_per_w']} | {energy[method][corner]['pj_per_op']} |"
                 for method in power_methods for corner in ("typical", "maximum")],
-              "", "WinoGen reference is 8--16 bit; this baseline is 20 bit. WinoGen Table 1 is an IP/core comparison. The reported WinoGen Table 2 system replicas are not compared directly with one core.",
+              "", "## Direct WinoGen F(2,3) reference", "",
+              "The TC2x2 core executes F(2,3). The closest WinoGen Table 1 IP is F(4,1) in supported mode F(2,3)*; its throughput model is based on expected cycles over input tiles, whereas this benchmark uses a complete validated RTL workload.",
+              "", "| WinoGen IP | bits | DSP | LUT | FF | equivalent GOPS |", "| --- | ---: | ---: | ---: | ---: | ---: |",
+              *[f"| {name} | {bits} | {dsp} | {lut} | {ff} | {gops} |" for name, bits, dsp, lut, ff, gops in WINOGEN_F23],
+              "", "WinoGen is 8--16 bit while this baseline is 20 bit. The WinoGen system replicas are not compared directly with this single core; a future replication sweep is the appropriate utilization-matched comparison.",
               "", "Power labels are estimates from Vivado post-route, never physical-board measurements."]
     (RESULTS / "summary.md").write_text("\n".join(lines) + "\n")
     print("wrote", RESULTS / "results.csv", RESULTS / "results.json", RESULTS / "summary.md")
