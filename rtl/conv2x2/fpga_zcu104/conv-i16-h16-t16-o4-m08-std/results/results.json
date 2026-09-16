@@ -160,12 +160,15 @@
     }
   },
   "saif_import": {
+    "status": "complete",
     "method": "Vivado post-route report_power with RTL/behavioral SAIF plus vectorless propagation",
     "saif": "reports/rtl_saif/activity_rtl.saif",
+    "saif_duration_ps": 74587369,
+    "captured_cycles": 23648.5,
     "strip_path": "TOP/tb_power",
-    "matched_nets": "pending_reimport",
+    "matched_nets": 104,
     "total_design_nets": 5442,
-    "coverage_pct": "pending_reimport",
+    "coverage_pct": 1.91,
     "unmatched_nets_use_vectorless": true,
     "tool": "Vivado 2023.2",
     "host": "paxos.inf.pucrs.br"
@@ -187,10 +190,10 @@
       "ii_cycles": null,
       "tile_ii_cycles": 11,
       "gops_eq": 1.9544401217861977,
-      "dynamic_w": 0.251,
-      "total_w": 0.844,
-      "gops_per_w": null,
-      "pj_per_op": null
+      "dynamic_w": 0.21,
+      "total_w": 0.803,
+      "gops_per_w": 2.433922941203235,
+      "pj_per_op": 410.8593509972176
     },
     {
       "design": "WinoGen F(4,3) PNmin",
@@ -320,15 +323,107 @@
     }
   ],
   "power_rtl_saif_typical": {
-    "dynamic_w": null,
-    "static_w": null,
-    "total_w": null
+    "dynamic_w": 0.21,
+    "static_w": 0.593,
+    "total_w": 0.803
   },
   "power_rtl_saif_maximum": {
-    "dynamic_w": null,
-    "static_w": null,
-    "total_w": null
+    "dynamic_w": 0.21,
+    "static_w": 0.813,
+    "total_w": 1.023
+  },
+  "power_io_activity_typical": {
+    "dynamic_w": 0.211,
+    "static_w": 0.593,
+    "total_w": 0.804
+  },
+  "power_io_activity_maximum": {
+    "dynamic_w": 0.211,
+    "static_w": 0.813,
+    "total_w": 1.024
+  },
+  "power_comparison": {
+    "P0 vectorless": {
+      "typical": {
+        "dynamic_w": 0.251,
+        "static_w": 0.593,
+        "total_w": 0.844
+      },
+      "maximum": {
+        "dynamic_w": 0.251,
+        "static_w": 0.814,
+        "total_w": 1.065
+      }
+    },
+    "P1 RTL-SAIF hybrid": {
+      "typical": {
+        "dynamic_w": 0.21,
+        "static_w": 0.593,
+        "total_w": 0.803
+      },
+      "maximum": {
+        "dynamic_w": 0.21,
+        "static_w": 0.813,
+        "total_w": 1.023
+      }
+    },
+    "P2 input/control activity": {
+      "typical": {
+        "dynamic_w": 0.211,
+        "static_w": 0.593,
+        "total_w": 0.804
+      },
+      "maximum": {
+        "dynamic_w": 0.211,
+        "static_w": 0.813,
+        "total_w": 1.024
+      }
+    }
+  },
+  "energy_comparison": {
+    "P0 vectorless": {
+      "typical": {
+        "energy_total_uj": 62.96186750788643,
+        "energy_dynamic_uj": 18.724441640378547,
+        "gops_per_w": 2.315687348087912,
+        "pj_per_op": 431.83722570566823
+      },
+      "maximum": {
+        "energy_total_uj": 79.44832807570978,
+        "energy_dynamic_uj": 18.724441640378547,
+        "gops_per_w": 1.8351550439307023,
+        "pj_per_op": 544.9130869390245
+      }
+    },
+    "P1 RTL-SAIF hybrid": {
+      "typical": {
+        "energy_total_uj": 59.90329337539432,
+        "energy_dynamic_uj": 15.665867507886436,
+        "gops_per_w": 2.433922941203235,
+        "pj_per_op": 410.8593509972175
+      },
+      "maximum": {
+        "energy_total_uj": 76.31515457413248,
+        "energy_dynamic_uj": 15.665867507886436,
+        "gops_per_w": 1.910498652772432,
+        "pj_per_op": 523.4235567498798
+      }
+    },
+    "P2 input/control activity": {
+      "typical": {
+        "energy_total_uj": 59.9778927444795,
+        "energy_dynamic_uj": 15.740466876971608,
+        "gops_per_w": 2.43089567386343,
+        "pj_per_op": 411.37100647791146
+      },
+      "maximum": {
+        "energy_total_uj": 76.38975394321766,
+        "energy_dynamic_uj": 15.740466876971608,
+        "gops_per_w": 1.9086329314318338,
+        "pj_per_op": 523.9352122305738
+      }
+    }
   },
   "workload_model": "non_reentrant_single_job",
-  "completion_status": "pending_hybrid_power_reimport"
+  "completion_status": "complete_p0_p1_p2_power_fmax_refinement_pending"
 }

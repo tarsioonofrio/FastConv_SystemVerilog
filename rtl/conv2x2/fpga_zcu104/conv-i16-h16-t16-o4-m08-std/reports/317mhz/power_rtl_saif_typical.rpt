@@ -1,16 +1,16 @@
 Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2023 Advanced Micro Devices, Inc. All Rights Reserved.
----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 | Tool Version     : Vivado v.2023.2 (lin64) Build 4029153 Fri Oct 13 20:13:54 MDT 2023
-| Date             : Wed Sep 16 10:52:27 2026
+| Date             : Wed Sep 16 10:54:24 2026
 | Host             : paxos.inf.pucrs.br running 64-bit Rocky Linux release 8.10 (Green Obsidian)
-| Command          : report_power -hier all -file /tmp/fastconv-power-35e0d2c7/rtl/conv2x2/fpga_zcu104/conv-i16-h16-t16-o4-m08-std/reports/317mhz/power_vectorless_typical.rpt
+| Command          : report_power -hier all -file /tmp/fastconv-power-35e0d2c7/rtl/conv2x2/fpga_zcu104/conv-i16-h16-t16-o4-m08-std/reports/317mhz/power_rtl_saif_typical.rpt
 | Design           : Conv
 | Device           : xczu7ev-ffvc1156-2-e
 | Design State     : routed
 | Grade            : extended
 | Process          : typical
 | Characterization : Production
----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 Power Report
 
@@ -29,20 +29,20 @@ Table of Contents
 1. Summary
 ----------
 
-+--------------------------+--------------+
-| Total On-Chip Power (W)  | 0.844        |
-| Design Power Budget (W)  | Unspecified* |
-| Power Budget Margin (W)  | NA           |
-| Dynamic (W)              | 0.251        |
-| Device Static (W)        | 0.593        |
-| Effective TJA (C/W)      | 1.0          |
-| Max Ambient (C)          | 99.2         |
-| Junction Temperature (C) | 25.8         |
-| Confidence Level         | Low          |
-| Setting File             | ---          |
-| Simulation Activity File | ---          |
-| Design Nets Matched      | NA           |
-+--------------------------+--------------+
++--------------------------+---------------------------------------------------------------------------------------------------------------------+
+| Total On-Chip Power (W)  | 0.803                                                                                                               |
+| Design Power Budget (W)  | Unspecified*                                                                                                        |
+| Power Budget Margin (W)  | NA                                                                                                                  |
+| Dynamic (W)              | 0.210                                                                                                               |
+| Device Static (W)        | 0.593                                                                                                               |
+| Effective TJA (C/W)      | 1.0                                                                                                                 |
+| Max Ambient (C)          | 99.2                                                                                                                |
+| Junction Temperature (C) | 25.8                                                                                                                |
+| Confidence Level         | Medium                                                                                                              |
+| Setting File             | ---                                                                                                                 |
+| Simulation Activity File | /tmp/fastconv-power-35e0d2c7/rtl/conv2x2/fpga_zcu104/conv-i16-h16-t16-o4-m08-std/reports/rtl_saif/activity_rtl.saif |
+| Design Nets Matched      | 2%   (104/5442)                                                                                                     |
++--------------------------+---------------------------------------------------------------------------------------------------------------------+
 * Specify Design Power Budget using, set_operating_conditions -design_power_budget <value in Watts>
 
 
@@ -52,17 +52,17 @@ Table of Contents
 +----------------+-----------+----------+-----------+-----------------+
 | On-Chip        | Power (W) | Used     | Available | Utilization (%) |
 +----------------+-----------+----------+-----------+-----------------+
-| Clocks         |     0.012 |        3 |       --- |             --- |
-| CLB Logic      |     0.030 |     4075 |       --- |             --- |
-|   LUT as Logic |     0.027 |     2087 |    230400 |            0.91 |
+| Clocks         |     0.011 |        3 |       --- |             --- |
+| CLB Logic      |     0.036 |     4075 |       --- |             --- |
+|   LUT as Logic |     0.032 |     2087 |    230400 |            0.91 |
 |   CARRY8       |     0.002 |      174 |     28800 |            0.60 |
 |   Register     |     0.001 |     1266 |    460800 |            0.27 |
 |   Others       |     0.000 |       38 |       --- |             --- |
-| Signals        |     0.032 |     3319 |       --- |             --- |
-| DSPs           |     0.009 |        8 |      1728 |            0.46 |
-| I/O            |     0.169 |      101 |       360 |           28.06 |
+| Signals        |     0.040 |     3319 |       --- |             --- |
+| DSPs           |     0.012 |        8 |      1728 |            0.46 |
+| I/O            |     0.111 |      101 |       360 |           28.06 |
 | Static Power   |     0.593 |          |           |                 |
-| Total          |     0.844 |          |           |                 |
+| Total          |     0.803 |          |           |                 |
 +----------------+-----------+----------+-----------+-----------------+
 
 
@@ -72,14 +72,14 @@ Table of Contents
 +-----------------+-------------+-----------+-------------+------------+-------------+-------------+------------+
 | Source          | Voltage (V) | Total (A) | Dynamic (A) | Static (A) | Powerup (A) | Budget (A)  | Margin (A) |
 +-----------------+-------------+-----------+-------------+------------+-------------+-------------+------------+
-| Vccint          |       0.850 |     0.234 |       0.097 |      0.137 |       NA    | Unspecified | NA         |
-| Vccint_io       |       0.850 |     0.077 |       0.007 |      0.070 |       NA    | Unspecified | NA         |
+| Vccint          |       0.850 |     0.253 |       0.117 |      0.136 |       NA    | Unspecified | NA         |
+| Vccint_io       |       0.850 |     0.075 |       0.005 |      0.070 |       NA    | Unspecified | NA         |
 | Vccbram         |       0.850 |     0.002 |       0.000 |      0.002 |       NA    | Unspecified | NA         |
 | Vccaux          |       1.800 |     0.148 |       0.000 |      0.148 |       NA    | Unspecified | NA         |
-| Vccaux_io       |       1.800 |     0.082 |       0.027 |      0.055 |       NA    | Unspecified | NA         |
+| Vccaux_io       |       1.800 |     0.075 |       0.020 |      0.055 |       NA    | Unspecified | NA         |
 | Vcco33          |       3.300 |     0.000 |       0.000 |      0.000 |       NA    | Unspecified | NA         |
 | Vcco25          |       2.500 |     0.000 |       0.000 |      0.000 |       NA    | Unspecified | NA         |
-| Vcco18          |       1.800 |     0.064 |       0.064 |      0.000 |       NA    | Unspecified | NA         |
+| Vcco18          |       1.800 |     0.039 |       0.039 |      0.000 |       NA    | Unspecified | NA         |
 | Vcco15          |       1.500 |     0.000 |       0.000 |      0.000 |       NA    | Unspecified | NA         |
 | Vcco135         |       1.350 |     0.000 |       0.000 |      0.000 |       NA    | Unspecified | NA         |
 | Vcco12          |       1.200 |     0.000 |       0.000 |      0.000 |       NA    | Unspecified | NA         |
@@ -110,17 +110,17 @@ Table of Contents
 1.3 Confidence Level
 --------------------
 
-+-----------------------------+------------+--------------------------------------------------------+------------------------------------------------------------------------------------------------------------+
-| User Input Data             | Confidence | Details                                                | Action                                                                                                     |
-+-----------------------------+------------+--------------------------------------------------------+------------------------------------------------------------------------------------------------------------+
-| Design implementation state | High       | Design is routed                                       |                                                                                                            |
-| Clock nodes activity        | High       | User specified more than 95% of clocks                 |                                                                                                            |
-| I/O nodes activity          | Low        | More than 75% of inputs are missing user specification | Provide missing input activity with simulation results or by editing the "By Resource Type -> I/Os" view   |
-| Internal nodes activity     | Medium     | User specified less than 25% of internal nodes         | Provide missing internal nodes activity with simulation results or by editing the "By Resource Type" views |
-| Device models               | High       | Device models are Production                           |                                                                                                            |
-|                             |            |                                                        |                                                                                                            |
-| Overall confidence level    | Low        |                                                        |                                                                                                            |
-+-----------------------------+------------+--------------------------------------------------------+------------------------------------------------------------------------------------------------------------+
++-----------------------------+------------+------------------------------------------------+------------------------------------------------------------------------------------------------------------+
+| User Input Data             | Confidence | Details                                        | Action                                                                                                     |
++-----------------------------+------------+------------------------------------------------+------------------------------------------------------------------------------------------------------------+
+| Design implementation state | High       | Design is routed                               |                                                                                                            |
+| Clock nodes activity        | High       | User specified more than 95% of clocks         |                                                                                                            |
+| I/O nodes activity          | High       | User specified more than 95% of inputs         |                                                                                                            |
+| Internal nodes activity     | Medium     | User specified less than 25% of internal nodes | Provide missing internal nodes activity with simulation results or by editing the "By Resource Type" views |
+| Device models               | High       | Device models are Production                   |                                                                                                            |
+|                             |            |                                                |                                                                                                            |
+| Overall confidence level    | Medium     |                                                |                                                                                                            |
++-----------------------------+------------+------------------------------------------------+------------------------------------------------------------------------------------------------------------+
 
 
 2. Settings
@@ -160,20 +160,19 @@ Table of Contents
 +--------------------------+-----------+---------+-----------+------+--------+----------+------------+---------+-----------+-------+---------+
 | Name                     | Power (W) | Clock # | Clock (W) | Io # | Io (W) | Signal # | Signal (W) | Logic # | Logic (W) | Dsp # | Dsp (W) |
 +--------------------------+-----------+---------+-----------+------+--------+----------+------------+---------+-----------+-------+---------+
-| Conv                     |     0.251 |       3 |     0.012 |  101 |  0.169 |     3319 |      0.032 |    4075 |     0.030 |     8 |   0.009 |
-|   MULTIP_BLOCK[0].multip |     0.003 |       3 |    <0.001 |    0 |  0.000 |       60 |     <0.001 |      74 |    <0.001 |     1 |   0.001 |
-|   MULTIP_BLOCK[1].multip |     0.003 |       3 |    <0.001 |    0 |  0.000 |       60 |     <0.001 |      74 |    <0.001 |     1 |   0.001 |
-|   MULTIP_BLOCK[2].multip |     0.003 |       3 |    <0.001 |    0 |  0.000 |       60 |     <0.001 |      74 |    <0.001 |     1 |   0.001 |
-|   MULTIP_BLOCK[3].multip |     0.003 |       3 |    <0.001 |    0 |  0.000 |       60 |     <0.001 |      74 |    <0.001 |     1 |   0.001 |
+| Conv                     |     0.210 |       3 |     0.011 |  101 |  0.111 |     3319 |      0.040 |    4075 |     0.036 |     8 |   0.012 |
+|   MULTIP_BLOCK[0].multip |     0.003 |       3 |    <0.001 |    0 |  0.000 |       60 |     <0.001 |      74 |     0.001 |     1 |   0.002 |
+|   MULTIP_BLOCK[1].multip |     0.003 |       3 |    <0.001 |    0 |  0.000 |       60 |     <0.001 |      74 |     0.001 |     1 |   0.002 |
+|   MULTIP_BLOCK[2].multip |     0.003 |       3 |    <0.001 |    0 |  0.000 |       60 |     <0.001 |      74 |     0.001 |     1 |   0.001 |
+|   MULTIP_BLOCK[3].multip |     0.003 |       3 |    <0.001 |    0 |  0.000 |       60 |     <0.001 |      74 |     0.001 |     1 |   0.002 |
 |   MULTIP_BLOCK[4].multip |     0.003 |       3 |    <0.001 |    0 |  0.000 |       60 |     <0.001 |      66 |    <0.001 |     1 |   0.001 |
 |   MULTIP_BLOCK[5].multip |     0.003 |       3 |    <0.001 |    0 |  0.000 |       60 |     <0.001 |      66 |    <0.001 |     1 |   0.001 |
-|   MULTIP_BLOCK[6].multip |     0.002 |       3 |    <0.001 |    0 |  0.000 |       60 |     <0.001 |      66 |    <0.001 |     1 |   0.001 |
-|   MULTIP_BLOCK[7].multip |     0.003 |       3 |    <0.001 |    0 |  0.000 |       61 |     <0.001 |      67 |    <0.001 |     1 |   0.001 |
+|   MULTIP_BLOCK[6].multip |     0.003 |       3 |    <0.001 |    0 |  0.000 |       60 |     <0.001 |      66 |    <0.001 |     1 |   0.001 |
+|   MULTIP_BLOCK[7].multip |     0.004 |       3 |    <0.001 |    0 |  0.000 |       61 |      0.001 |      67 |     0.001 |     1 |   0.001 |
 |   inv                    |     0.020 |       3 |     0.000 |    0 |  0.000 |      396 |      0.008 |     496 |     0.012 |     0 |   0.000 |
 |     matrix_a0            |     0.007 |       3 |     0.000 |    0 |  0.000 |      180 |      0.003 |     210 |     0.004 |     0 |   0.000 |
 |     matrix_a1            |     0.013 |       3 |     0.000 |    0 |  0.000 |      216 |      0.005 |     286 |     0.008 |     0 |   0.000 |
-|   trf                    |     0.004 |       3 |     0.000 |    0 |  0.000 |      842 |      0.002 |     870 |     0.002 |     0 |   0.000 |
-|     matrix_c1            |     0.003 |       3 |     0.000 |    0 |  0.000 |      568 |      0.002 |     367 |     0.001 |     0 |   0.000 |
+|   trf                    |     0.007 |       3 |     0.000 |    0 |  0.000 |      842 |      0.004 |     870 |     0.003 |     0 |   0.000 |
+|     matrix_c0            |     0.002 |       3 |     0.000 |    0 |  0.000 |      274 |     <0.001 |     503 |     0.001 |     0 |   0.000 |
+|     matrix_c1            |     0.006 |       3 |     0.000 |    0 |  0.000 |      568 |      0.003 |     367 |     0.002 |     0 |   0.000 |
 +--------------------------+-----------+---------+-----------+------+--------+----------+------------+---------+-----------+-------+---------+
-
-
