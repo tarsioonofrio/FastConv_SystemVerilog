@@ -150,8 +150,7 @@ r_output_read[4]       contribuicao anterior de canais
 O `std` e simples de raciocinar porque cada etapa possui uma fronteira clara:
 
 ```text
-r_input_feat -> Transform -> r_conv_temp -> Multip[0:3] -> Inverse
-                                                           -> output
+r_input_feat -> Transform -> r_conv_temp -> Multip[0:3] -> Inverse -> output
 ```
 
 O preco dessa clareza e manter 16 valores transformados mesmo quando somente
@@ -168,7 +167,7 @@ intermediaria:
 
 ```text
 std:   16 input + 16 weights + 16 temp + 16 conv_input + 8 output = 72
-all:   16 input + 16 weights + 16 conv_input + 8 output = 56
+all:   16 input + 16 weights           + 16 conv_input + 8 output = 56
 ```
 
 O `all` reduz 16 palavras em relacao ao `std`, mas aumenta de 4 para 16 MACs.
@@ -178,15 +177,15 @@ alterar o ciclo em que o resultado e armazenado.
 
 ### 0.3 Segunda mudanca: `stream08`
 
-O `stream08` ativo usa oito MACs e conserva uma linha de quatro valores da
-transformada. A matriz `w_conv_transform[0:15]` continua sendo calculada
+O `stream08` conserva duas linhas de quatro valores uma para transformada e outra para inversa.
+A matriz `w_conv_transform[0:15]` continua sendo calculada
 combinacionalmente; `r_transform_row[0:3]` guarda a faixa que sera usada no
 ciclo seguinte, enquanto a segunda faixa permanece no caminho combinacional.
 A inversa passa a ser consumida por linhas:
 
 ```text
-all:       16 input + 16 weights + 16 conv_input + 8 output = 56
-stream08:  16 input + 16 weights +  4 transform + 4 inverse + 8 output = 48
+all:       16 input + 16 weights + 16 conv_input             + 8 output = 56
+stream08:  16 input + 16 weights +  4 transform  + 4 inverse + 8 output = 48
 ```
 
 O ganho de 8 palavras vem de remover a fronteira grande `r_conv_input[16]`;
@@ -202,7 +201,7 @@ clock em `r_output_write[0:3]`:
 
 ```text
 stream08: 16 input + 16 weights + 4 transform + 4 inverse + 8 output = 48
-stream04:  16 input + 16 weights + 4 transform              + 8 output = 44
+stream04: 16 input + 16 weights + 4 transform             + 8 output = 44
 ```
 
 O sufixo `stream04` segue a fronteira `t04` do RTL e nao a quantidade de MACs:
@@ -274,18 +273,18 @@ O diretorio implementa F(2x2, 3x3), com matriz Hadamard 4x4 e 16 produtos.
 Os fontes ativos de referencia usam oito MACs; os equivalentes m04 foram
 preservados em `archive/m04/` para nao apagar a linha de base historica.
 
-| Arquivo | Estado | MACs por ciclo | Linhas inversas consumidas por ciclo |
-| --- | --- | ---: | ---: |
-| `conv-i16-h16-t16-o4-m08-std.sv` | ativo e padrao (`make std`) | 8 | 2 |
-| `conv-i16-h16-t00-o4-m16-all.sv` | ativo de referencia paralela | 16 | 4 |
-| `conv-i16-h16-t08-o4-m08-stream08.sv` | ativo | 8 | 2 |
-| `conv-i16-h16-t04-o4-m08-stream04.sv` | ativo | 8 | 2 |
-| `conv-i16-h16-t00-o4-m08-stream00.sv` | ativo, variacao `stream08` | 8 | 2 |
-| `conv-i16-h13-t08-o4-m08-stream08-wstream4.sv` | ativo | 8 | 2 |
-| `conv-i16-h13-t08-o4-m08-stream08-rowconst4.sv` | ativo | 8 | 2 |
-| `conv-i20-h16-t08-o4-m08-stream08-prefetch4.sv` | ativo | 8 | 2 |
-| `conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4.sv` | ativo | 8 | 2 |
-| `conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-latch-single.sv` | ativo experimental | 8 | 2 |
+| Arquivo                                                                | Estado                       | MACs por ciclo | Linhas inversas consumidas por ciclo |
+| ---------------------------------------------------------------------- | ---------------------------- | -------------: | -----------------------------------: |
+| `conv-i16-h16-t16-o4-m08-std.sv`                                       | ativo e padrao (`make std`)  |              8 |                                    2 |
+| `conv-i16-h16-t00-o4-m16-all.sv`                                       | ativo de referencia paralela |             16 |                                    4 |
+| `conv-i16-h16-t08-o4-m08-stream08.sv`                                  | ativo                        |              8 |                                    2 |
+| `conv-i16-h16-t04-o4-m08-stream04.sv`                                  | ativo                        |              8 |                                    2 |
+| `conv-i16-h16-t00-o4-m08-stream00.sv`                                  | ativo, variacao `stream08`   |              8 |                                    2 |
+| `conv-i16-h13-t08-o4-m08-stream08-wstream4.sv`                         | ativo                        |              8 |                                    2 |
+| `conv-i16-h13-t08-o4-m08-stream08-rowconst4.sv`                        | ativo                        |              8 |                                    2 |
+| `conv-i20-h16-t08-o4-m08-stream08-prefetch4.sv`                        | ativo                        |              8 |                                    2 |
+| `conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4.sv`              | ativo                        |              8 |                                    2 |
+| `conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-latch-single.sv` | ativo experimental           |              8 |                                    2 |
 
 O contrato funcional que nao pode mudar durante a reducao e:
 
@@ -307,13 +306,13 @@ de `../conv2x2/pack-param/tcn4/pack_param.sv`.
 Cada palavra de dados tem 20 bits (`NBITS=20`). Antes da primeira alteracao,
 os sinais de estado do streaming eram:
 
-| Sinal | Dimensao | Funcao | Deve permanecer? |
-| --- | ---: | --- | --- |
-| `r_transform_row` | 4 x 20 bits | Mantem a linha transformada que alimenta os MACs no ciclo seguinte | Sim |
-| `r_inverse_row` | 4 x 20 bits | Guardava a ultima linha de produtos apenas para trace/debug | Nao, apos prova de fanout |
-| `r_output_accumulator` | 4 x 20 bits | Acumulador parcial dos quatro pixels de saida | Sim |
-| `r_inverse_row_idx` | 2 bits | Indice da linha usado pela inversa incremental | Sim |
-| `r_transform_product_idx` | 4 bits | Base do grupo de produtos atual | Sim |
+| Sinal                     |    Dimensao | Funcao                                                             | Deve permanecer?          |
+| ------------------------- | ----------: | ------------------------------------------------------------------ | ------------------------- |
+| `r_transform_row`         | 4 x 20 bits | Mantem a linha transformada que alimenta os MACs no ciclo seguinte | Sim                       |
+| `r_inverse_row`           | 4 x 20 bits | Guardava a ultima linha de produtos apenas para trace/debug        | Nao, apos prova de fanout |
+| `r_output_accumulator`    | 4 x 20 bits | Acumulador parcial dos quatro pixels de saida                      | Sim                       |
+| `r_inverse_row_idx`       |      2 bits | Indice da linha usado pela inversa incremental                     | Sim                       |
+| `r_transform_product_idx` |      4 bits | Base do grupo de produtos atual                                    | Sim                       |
 
 Os sinais `w_inverse_partial_current`, `w_output_acc_next` e
 `w_output_capture` sao combinacionais. Eles nao representam palavras
@@ -625,8 +624,8 @@ de RTL forem finalizadas.
 As configuracoes ativas foram achatadas para diretorios nomeados pelo arquivo
 RTL. Os caminhos atuais sao:
 
-| Configuracao | Fonte do core | Parametro |
-| --- | --- | --- |
+| Configuracao                       | Fonte do core                         | Parametro      |
+| ---------------------------------- | ------------------------------------- | -------------- |
 | `conv-i16-h16-t00-o4-m04-stream00` | `conv-i16-h16-t00-o4-m04-stream00.sv` | fixo em 4 MACs |
 | `conv-i16-h16-t04-o4-m04-stream04` | `conv-i16-h16-t04-o4-m04-stream04.sv` | fixo em 4 MACs |
 | `conv-i16-h16-t00-o4-m08-stream00` | `conv-i16-h16-t00-o4-m08-stream00.sv` | fixo em 8 MACs |
@@ -651,11 +650,11 @@ testbench e a biblioteca de trabalho da anotada; portanto nao foi necessario
 repetir a sintese logica. Os valores abaixo sao os resultados efetivamente
 gerados, nao estimativas baseadas na contagem de declaracoes SystemVerilog.
 
-| Variante | Celulas | Area total (um2) | Flip-flops | Slack nominal (ps) | Power total (mW) |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| `tcn4-02mac` | 5.391 | 9.309,779 | 1.111 | 235 | 0,620796 |
-| `stream4/tcn4-04mac` | 8.325 | 12.083,943 | 1.027 | 240 | 0,653916 |
-| `stream4/tcn4-08mac` | 11.628 | 16.780,670 | 1.025 | 242 | 0,839179 |
+| Variante             | Celulas | Area total (um2) | Flip-flops | Slack nominal (ps) | Power total (mW) |
+| -------------------- | ------: | ---------------: | ---------: | -----------------: | ---------------: |
+| `tcn4-02mac`         |   5.391 |        9.309,779 |      1.111 |                235 |         0,620796 |
+| `stream4/tcn4-04mac` |   8.325 |       12.083,943 |      1.027 |                240 |         0,653916 |
+| `stream4/tcn4-08mac` |  11.628 |       16.780,670 |      1.025 |                242 |         0,839179 |
 
 O slack e positivo no view nominal de 2 ns (`analysis_view_0p90v_25c_captyp_nominal`).
 O power foi calculado pelo Joules a partir do `dut.shm` da simulacao anotada,
@@ -663,11 +662,11 @@ com o resultado consolidado em `power_evaluation.txt`. A tabela abaixo registra
 a mesma campanha gate-level, agora compilada em bibliotecas Xcelium novas
 (`work_gate_final`) e sem os modulos comportamentais `Conv` da lista RTL:
 
-| Variante | SDF errors | SDF warnings | Inverse tiles | Ciclos totais | Ciclos ativos | Escritas validas |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| `tcn4-02mac` | 0 | 1.194 | 2.025 | 37.850 | 20.250 | 8.100 |
-| `stream4/tcn4-04mac` | 0 | 1.107 | 2.025 | 29.750 | 12.150 | 8.100 |
-| `stream4/tcn4-08mac` | 0 | 1.108 | 2.025 | 25.700 | 8.100 | 8.100 |
+| Variante             | SDF errors | SDF warnings | Inverse tiles | Ciclos totais | Ciclos ativos | Escritas validas |
+| -------------------- | ---------: | -----------: | ------------: | ------------: | ------------: | ---------------: |
+| `tcn4-02mac`         |          0 |        1.194 |         2.025 |        37.850 |        20.250 |            8.100 |
+| `stream4/tcn4-04mac` |          0 |        1.107 |         2.025 |        29.750 |        12.150 |            8.100 |
+| `stream4/tcn4-08mac` |          0 |        1.108 |         2.025 |        25.700 |         8.100 |            8.100 |
 
 O Xcelium reportou warnings `SDFINF` de instancias sem atraso anotavel (por
 exemplo, celulas removidas ou reescritas pelo Genus), mas nenhum erro de SDF.
@@ -735,10 +734,10 @@ sendo capturado no mesmo ciclo da ultima acumulacao.
 Os tres executaveis fixos passaram pelo mesmo `testbench.sv`, com golden,
 contagem de tiles e contagem de escritas:
 
-| Variante | Inverse tiles | Ciclos totais | Ciclos ativos | Escritas validas |
-| --- | ---: | ---: | ---: | ---: |
-| `conv-i16-h16-t00-o4-m04-stream00.sv` | 2.025 | 27.724 | 8.100 | 8.100 |
-| `conv-i16-h16-t00-o4-m08-stream00.sv` | 2.025 | 23.674 | 4.050 | 8.100 |
+| Variante                              | Inverse tiles | Ciclos totais | Ciclos ativos | Escritas validas |
+| ------------------------------------- | ------------: | ------------: | ------------: | ---------------: |
+| `conv-i16-h16-t00-o4-m04-stream00.sv` |         2.025 |        27.724 |         8.100 |            8.100 |
+| `conv-i16-h16-t00-o4-m08-stream00.sv` |         2.025 |        23.674 |         4.050 |            8.100 |
 
 Os resultados mostram a remocao dos dois ciclos de controle por janela sem
 alterar os dados: todos os golden checks passaram, nao houve escrita fora da
@@ -746,18 +745,18 @@ faixa e cada variante manteve 2.025 tiles e 8.100 escritas. A campanha unica
 de Genus, anotada e Joules foi entao executada no Paxos a partir deste RTL.
 Os numeros abaixo substituem os da secao 11 para esta microarquitetura:
 
-| Variante | Celulas | Area total (um2) | Flip-flops | Slack nominal (ps) | Power total (mW) |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| `stream4/tcn4-04mac` | 8.473 | 12.127,770 | 1.024 | 243 | 0,684856 |
-| `stream4/tcn4-08mac` | 11.818 | 16.855,605 | 1.023 | 206 | 0,918483 |
+| Variante             | Celulas | Area total (um2) | Flip-flops | Slack nominal (ps) | Power total (mW) |
+| -------------------- | ------: | ---------------: | ---------: | -----------------: | ---------------: |
+| `stream4/tcn4-04mac` |   8.473 |       12.127,770 |      1.024 |                243 |         0,684856 |
+| `stream4/tcn4-08mac` |  11.818 |       16.855,605 |      1.023 |                206 |         0,918483 |
 
 A anotada final usou os netlists desta mesma campanha e a biblioteca
 `work_gate_final`, sem compilar o RTL comportamental junto com o netlist:
 
-| Variante | SDF errors | SDF warnings | Inverse tiles | Ciclos totais | Ciclos ativos | Escritas validas |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| `stream4/tcn4-04mac` | 0 | 950 | 2.025 | 27.725 | 8.100 | 8.100 |
-| `stream4/tcn4-08mac` | 0 | 866 | 2.025 | 23.675 | 4.050 | 8.100 |
+| Variante             | SDF errors | SDF warnings | Inverse tiles | Ciclos totais | Ciclos ativos | Escritas validas |
+| -------------------- | ---------: | -----------: | ------------: | ------------: | ------------: | ---------------: |
+| `stream4/tcn4-04mac` |          0 |          950 |         2.025 |        27.725 |         8.100 |            8.100 |
+| `stream4/tcn4-08mac` |          0 |          866 |         2.025 |        23.675 |         4.050 |            8.100 |
 
 O power foi calculado pelo Joules a partir do `dut.shm` de cada anotada. Os
 warnings `SDFINF` continuam sendo informativos: nao houve erro de anotacao,
@@ -774,18 +773,18 @@ foi calculada para o mesmo workload da simulacao anotada. Os valores m04 e as
 variantes que so existem em `archive/` ficam no Anexo A e podem ser recuperados
 com `--include-archived`.
 
-| Variante | Fonte | Anotada | Celulas | Area total (um2) | Ciclos | Power (mW) | Energia (nJ) |
-| --- | --- | :---: | ---: | ---: | ---: | ---: | ---: |
-| Conv std 8 MACs | `conv-i16-h16-t16-o4-m08-std.sv` | PASS | 8.874 | 15.675,268 | 23.675 | 0,863333 | 204,416 |
-| Conv all 16 MACs | `conv-i16-h16-t00-o4-m16-all.sv` | PASS | 15.200 | 23.129,636 | 23.672 | 0,650788 | 154,071 |
-| Stream08 8 MACs | `conv-i16-h16-t08-o4-m08-stream08.sv` | PASS | 10.254 | 15.660,389 | 25.699 | 0,664592 | 170,810 |
-| Stream04 8 MACs | `conv-i16-h16-t04-o4-m08-stream04.sv` | PASS | 10.338 | 15.755,807 | 23.675 | 0,758305 | 179,540 |
-| Stream00 8 MACs | `conv-i16-h16-t00-o4-m08-stream00.sv` | PASS | 11.818 | 16.855,605 | 23.675 | 0,918483 | 217,465 |
-| Stream08 wstream4 8 MACs | `conv-i16-h13-t08-o4-m08-stream08-wstream4.sv` | PASS | 11.778 | 18.673,687 | 25.654 | 0,672691 | 172,589 |
-| Stream08 rowconst4 8 MACs | `conv-i16-h13-t08-o4-m08-stream08-rowconst4.sv` | PASS | 11.959 | 18.885,876 | 25.654 | 0,671548 | 172,294 |
-| Prefetch4 8 MACs | `conv-i20-h16-t08-o4-m08-stream08-prefetch4.sv` | PASS | 10.506 | 16.073,141 | 21.919 | 0,776661 | 170,256 |
-| Prefetch4 rowconst4 8 MACs | `conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4.sv` | PASS | 12.222 | 19.311,310 | 21.892 | 0,776556 | 170,023 |
-| Prefetch4 rowconst4 latch-single 8 MACs | `conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-latch-single.sv` | PASS | 12.372 | 19.019,773 | 27.688 | 0,641520 | 177,624 |
+| Variante                                | Fonte                                                                  | Anotada | Celulas | Area total (um2) | Ciclos | Power (mW) | Energia (nJ) |
+| --------------------------------------- | ---------------------------------------------------------------------- | :-----: | ------: | ---------------: | -----: | ---------: | -----------: |
+| Conv std 8 MACs                         | `conv-i16-h16-t16-o4-m08-std.sv`                                       |  PASS   |   8.874 |       15.675,268 | 23.675 |   0,863333 |      204,416 |
+| Conv all 16 MACs                        | `conv-i16-h16-t00-o4-m16-all.sv`                                       |  PASS   |  15.200 |       23.129,636 | 23.672 |   0,650788 |      154,071 |
+| Stream08 8 MACs                         | `conv-i16-h16-t08-o4-m08-stream08.sv`                                  |  PASS   |  10.254 |       15.660,389 | 25.699 |   0,664592 |      170,810 |
+| Stream04 8 MACs                         | `conv-i16-h16-t04-o4-m08-stream04.sv`                                  |  PASS   |  10.338 |       15.755,807 | 23.675 |   0,758305 |      179,540 |
+| Stream00 8 MACs                         | `conv-i16-h16-t00-o4-m08-stream00.sv`                                  |  PASS   |  11.818 |       16.855,605 | 23.675 |   0,918483 |      217,465 |
+| Stream08 wstream4 8 MACs                | `conv-i16-h13-t08-o4-m08-stream08-wstream4.sv`                         |  PASS   |  11.778 |       18.673,687 | 25.654 |   0,672691 |      172,589 |
+| Stream08 rowconst4 8 MACs               | `conv-i16-h13-t08-o4-m08-stream08-rowconst4.sv`                        |  PASS   |  11.959 |       18.885,876 | 25.654 |   0,671548 |      172,294 |
+| Prefetch4 8 MACs                        | `conv-i20-h16-t08-o4-m08-stream08-prefetch4.sv`                        |  PASS   |  10.506 |       16.073,141 | 21.919 |   0,776661 |      170,256 |
+| Prefetch4 rowconst4 8 MACs              | `conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4.sv`              |  PASS   |  12.222 |       19.311,310 | 21.892 |   0,776556 |      170,023 |
+| Prefetch4 rowconst4 latch-single 8 MACs | `conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-latch-single.sv` |  PASS   |  12.372 |       19.019,773 | 27.688 |   0,641520 |      177,624 |
 
 ### Leitura dos resultados
 
@@ -833,13 +832,13 @@ Ha tres categorias diferentes no RTL:
 
 O nome do arquivo resume apenas os bancos de dados principais:
 
-| Campo | Significado neste documento | Exemplo |
-| --- | --- | --- |
-| `i` | palavras no banco da janela de entrada | `r_input_feat[0:15]` = `i16` |
-| `h` | palavras registradas dos pesos ativos | `r_input_weight[0:15]` = `h16` |
-| `t` | palavras registradas para transformada/inversa | `r_transform_row[0:3]` + `r_inverse_row[0:3]` = `t08` |
-| `o` | palavras no banco de saida do tile | `r_output_write[0:3]` = `o4` |
-| `m` | multiplicadores fisicos ativos por ciclo Hadamard | `m04`, `m16` |
+| Campo | Significado neste documento                       | Exemplo                                               |
+| ----- | ------------------------------------------------- | ----------------------------------------------------- |
+| `i`   | palavras no banco da janela de entrada            | `r_input_feat[0:15]` = `i16`                          |
+| `h`   | palavras registradas dos pesos ativos             | `r_input_weight[0:15]` = `h16`                        |
+| `t`   | palavras registradas para transformada/inversa    | `r_transform_row[0:3]` + `r_inverse_row[0:3]` = `t08` |
+| `o`   | palavras no banco de saida do tile                | `r_output_write[0:3]` = `o4`                          |
+| `m`   | multiplicadores fisicos ativos por ciclo Hadamard | `m04`, `m16`                                          |
 
 Essa convencao nao substitui a leitura do RTL. Por exemplo, `r_conv_input`,
 `r_output_accumulator`, `r_output_read` e um banco de prefetch sao
@@ -883,14 +882,14 @@ registradores intermediarios.
 
 ### 15.1 Bancos de dados do `all`
 
-| Banco | Palavras | Papel durante a janela |
-| --- | ---: | --- |
-| `r_input_feat[0:15]` | 16 | Mantem a janela 4x4 lida da feature map |
-| `r_input_weight[0:15]` | 16 | Mantem todos os pesos transformados |
-| `r_conv_input[0:15]` | 16 | Captura a entrada da convolucao antes do caminho de produtos |
-| `r_output_write[0:3]` | 4 | Mantem os quatro valores que serao escritos |
-| `r_output_read[0:3]` | 4 | Mantem a contribuicao anterior de outro canal |
-| **total de dados** | **56** | Soma dos bancos acima |
+| Banco                  | Palavras | Papel durante a janela                                       |
+| ---------------------- | -------: | ------------------------------------------------------------ |
+| `r_input_feat[0:15]`   |       16 | Mantem a janela 4x4 lida da feature map                      |
+| `r_input_weight[0:15]` |       16 | Mantem todos os pesos transformados                          |
+| `r_conv_input[0:15]`   |       16 | Captura a entrada da convolucao antes do caminho de produtos |
+| `r_output_write[0:3]`  |        4 | Mantem os quatro valores que serao escritos                  |
+| `r_output_read[0:3]`   |        4 | Mantem a contribuicao anterior de outro canal                |
+| **total de dados**     |   **56** | Soma dos bancos acima                                        |
 
 Os 56 valores sao uma contagem de armazenamento de dados, nao uma contagem de
 flip-flops sintetizados. Ainda existem registradores escalares de endereco,
@@ -926,15 +925,15 @@ em quatro ciclos de quatro MACs. A matriz transformada continua existindo como
 
 ### 16.1 Bancos registrados
 
-| Banco | Palavras | O que atravessa o clock |
-| --- | ---: | --- |
-| `r_input_feat[0:15]` | 16 | Tile 4x4 em processamento |
-| `r_input_weight[0:15]` | 16 | Os 16 pesos, rotacionados em grupos de 4 |
-| `r_transform_row[0:3]` | 4 | Grupo da transformada consumido pelo proximo ciclo |
-| `r_inverse_row[0:3]` | 4 | Linha de produto mantida para a inversa/trace nesta versao |
-| `r_output_write[0:3]` | 4 | Acumulador parcial do tile de saida |
-| `r_output_read[0:3]` | 4 | Contribuicao de canais anteriores |
-| **total integral de dados** | **48** | Inclui os dois bancos de interface de saida |
+| Banco                       | Palavras | O que atravessa o clock                                    |
+| --------------------------- | -------: | ---------------------------------------------------------- |
+| `r_input_feat[0:15]`        |       16 | Tile 4x4 em processamento                                  |
+| `r_input_weight[0:15]`      |       16 | Os 16 pesos, rotacionados em grupos de 4                   |
+| `r_transform_row[0:3]`      |        4 | Grupo da transformada consumido pelo proximo ciclo         |
+| `r_inverse_row[0:3]`        |        4 | Linha de produto mantida para a inversa/trace nesta versao |
+| `r_output_write[0:3]`       |        4 | Acumulador parcial do tile de saida                        |
+| `r_output_read[0:3]`        |        4 | Contribuicao de canais anteriores                          |
+| **total integral de dados** |   **48** | Inclui os dois bancos de interface de saida                |
 
 Na convencao do nome, `i16 + h16 + t08 + o4` soma 44 palavras porque `o4`
 conta somente o banco de escrita. A contagem integral acrescenta as quatro
@@ -987,14 +986,14 @@ ciclo atual entra diretamente em `InverseRow` e depois em `InverseRowAccumulate`
 
 ### 17.1 Bancos registrados
 
-| Banco | Palavras |
-| --- | ---: |
-| `r_input_feat[0:15]` | 16 |
-| `r_input_weight[0:15]` | 16 |
-| `r_transform_row[0:3]` | 4 |
-| `r_output_write[0:3]` | 4 |
-| `r_output_read[0:3]` | 4 |
-| **total integral de dados** | **44** |
+| Banco                       | Palavras |
+| --------------------------- | -------: |
+| `r_input_feat[0:15]`        |       16 |
+| `r_input_weight[0:15]`      |       16 |
+| `r_transform_row[0:3]`      |        4 |
+| `r_output_write[0:3]`       |        4 |
+| `r_output_read[0:3]`        |        4 |
+| **total integral de dados** |   **44** |
 
 Em comparacao direta com o `stream08`, saem as quatro palavras de
 `r_inverse_row`. A acumulacao funcional nao desaparece: ela continua em
@@ -1030,13 +1029,13 @@ os MACs no ciclo corrente.
 
 ### 18.1 Bancos registrados
 
-| Banco | Palavras | Motivo |
-| --- | ---: | --- |
-| `r_input_feat[0:15]` | 16 | Mantem o tile de entrada |
-| `r_input_weight[0:15]` | 16 | Mantem e rotaciona os pesos |
-| `r_output_write[0:3]` | 4 | Acumula a inversa e depois fornece o tile a FSM de saida |
-| `r_output_read[0:3]` | 4 | Mantem a contribuicao anterior |
-| **total integral de dados** | **40** |
+| Banco                       | Palavras | Motivo                                                   |
+| --------------------------- | -------: | -------------------------------------------------------- |
+| `r_input_feat[0:15]`        |       16 | Mantem o tile de entrada                                 |
+| `r_input_weight[0:15]`      |       16 | Mantem e rotaciona os pesos                              |
+| `r_output_write[0:3]`       |        4 | Acumula a inversa e depois fornece o tile a FSM de saida |
+| `r_output_read[0:3]`        |        4 | Mantem a contribuicao anterior                           |
+| **total integral de dados** |   **40** |
 
 O `t00` agora faz sentido para a transformada: nao existe banco registrado de
 transformada nem de linha inversa. A acumulacao tambem nao exige um banco
@@ -1088,15 +1087,15 @@ necessario. Ela reduz ou reorganiza somente o lado dos pesos.
 
 Arquivo ativo: `conv-i16-h13-t08-o4-m08-stream08-wstream4.sv`.
 
-| Banco | Palavras |
-| --- | ---: |
-| `r_input_feat[0:15]` | 16 |
-| `r_weight_spatial[0:8]` | 9 |
-| `r_input_weight[0:7]` | 8 |
-| `r_transform_row[0:3]` | 4 |
-| `r_inverse_row[0:3]` | 4 |
-| `r_output_write[0:3]` + `r_output_read[0:3]` | 8 |
-| **total integral de dados** | **49** |
+| Banco                                        | Palavras |
+| -------------------------------------------- | -------: |
+| `r_input_feat[0:15]`                         |       16 |
+| `r_weight_spatial[0:8]`                      |        9 |
+| `r_input_weight[0:7]`                        |        8 |
+| `r_transform_row[0:3]`                       |        4 |
+| `r_inverse_row[0:3]`                         |        4 |
+| `r_output_write[0:3]` + `r_output_read[0:3]` |        8 |
+| **total integral de dados**                  |   **49** |
 
 O campo `h13` e a soma dos nove pesos espaciais com os oito pesos
 transformados ativos. Nao ha um banco `r_input_weight[0:15]`: a FSM le a tile
@@ -1198,17 +1197,17 @@ desenvolvimento. As versões que permanecem somente em `archive/` aparecem no
 Anexo A, para que a ordem principal não seja interrompida por experimentos
 encerrados.
 
-| Arquitetura | Input | Pesos | Transform/inversa | Estado adicional de dados | Saida/interface | Total de palavras |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| `all`, 16 MACs | 16 | 16 | 0 | `r_conv_input16` | 8 | **56** |
-| `stream08`, 8 MACs | 16 | 16 | 8 | 0 | 8 | **48** |
-| `stream04`, 8 MACs | 16 | 16 | 4 | 0 | 8 | **44** |
-| `stream00`, 8 MACs | 16 | 16 | 0 | 0 | 8 | **40** |
-| `stream08-wstream4` | 16 | 17 | 8 | 0 | 8 | **49** |
-| `stream08-rowconst4` | 16 | 17 | 8 | 0 | 8 | **49** |
-| `stream08-prefetch4` | 20 | 16 | 8 | 0 | 8 | **52** |
-| `stream08-prefetch4-rowconst4` | 20 | 17 | 8 | 0 | 8 | **53** |
-| `stream08-prefetch4-rowconst4-latch-single` | 20 | 17 | 8 | 0 | 8 | **53** |
+| Arquitetura                                 | Input | Pesos | Transform/inversa | Estado adicional de dados | Saida/interface | Total de palavras |
+| ------------------------------------------- | ----: | ----: | ----------------: | ------------------------: | --------------: | ----------------: |
+| `all`, 16 MACs                              |    16 |    16 |                 0 |          `r_conv_input16` |               8 |            **56** |
+| `stream08`, 8 MACs                          |    16 |    16 |                 8 |                         0 |               8 |            **48** |
+| `stream04`, 8 MACs                          |    16 |    16 |                 4 |                         0 |               8 |            **44** |
+| `stream00`, 8 MACs                          |    16 |    16 |                 0 |                         0 |               8 |            **40** |
+| `stream08-wstream4`                         |    16 |    17 |                 8 |                         0 |               8 |            **49** |
+| `stream08-rowconst4`                        |    16 |    17 |                 8 |                         0 |               8 |            **49** |
+| `stream08-prefetch4`                        |    20 |    16 |                 8 |                         0 |               8 |            **52** |
+| `stream08-prefetch4-rowconst4`              |    20 |    17 |                 8 |                         0 |               8 |            **53** |
+| `stream08-prefetch4-rowconst4-latch-single` |    20 |    17 |                 8 |                         0 |               8 |            **53** |
 
 Essa tabela mostra tres licoes importantes:
 
@@ -1410,15 +1409,15 @@ sintese correspondente, mesmo quando a fonte foi arquivada depois.
 
 Resultados nominais de `report_power -unit mW` (linha `Subtotal`):
 
-| Variante m08 | Leakage | Internal | Switching | Total |
-|---|---:|---:|---:|---:|
-| `std` | 0.0527922 | 0.475721 | 0.334820 | **0.863333** |
-| `stream04` | 0.0553297 | 0.411765 | 0.291210 | **0.758305** |
-| `stream08-wstream4` | 0.0648294 | 0.346387 | 0.261474 | **0.672691** |
-| `stream08-rowconst4` | 0.0649760 | 0.342512 | 0.264060 | **0.671548** |
-| `stream08-prefetch4` | 0.0559951 | 0.419183 | 0.301483 | **0.776661** |
-| `stream08-prefetch4-rowconst4` | 0.0664352 | 0.403777 | 0.306344 | **0.776556** |
-| `stream08-prefetch4-rowconst4-latch-single` | 0.0644949 | 0.317654 | 0.259372 | **0.641520** |
+| Variante m08                                |   Leakage | Internal | Switching |        Total |
+| ------------------------------------------- | --------: | -------: | --------: | -----------: |
+| `std`                                       | 0.0527922 | 0.475721 |  0.334820 | **0.863333** |
+| `stream04`                                  | 0.0553297 | 0.411765 |  0.291210 | **0.758305** |
+| `stream08-wstream4`                         | 0.0648294 | 0.346387 |  0.261474 | **0.672691** |
+| `stream08-rowconst4`                        | 0.0649760 | 0.342512 |  0.264060 | **0.671548** |
+| `stream08-prefetch4`                        | 0.0559951 | 0.419183 |  0.301483 | **0.776661** |
+| `stream08-prefetch4-rowconst4`              | 0.0664352 | 0.403777 |  0.306344 | **0.776556** |
+| `stream08-prefetch4-rowconst4-latch-single` | 0.0644949 | 0.317654 |  0.259372 | **0.641520** |
 
 As variantes m08 ativas com fluxo completo tiveram `LOGICAL_RC=0`, `SIM_RC=0`
 e `POWER_RC=0`. O mesmo workload reportou
@@ -1598,18 +1597,18 @@ prefetch, adicionar quatro palavras para manter a próxima coluna viva. Os
 fontes e as sínteses estão em `archive/m04/`; os resultados históricos são
 incluídos somente com `--include-archived`.
 
-| Fonte arquivada | Papel histórico |
-| --- | --- |
-| `conv-i16-h16-t16-o4-m04-std.sv` | Referência convencional, 4 MACs |
-| `conv-i16-h16-t00-o4-m04-stream00.sv` | Streaming sem linha transformada registrada |
-| `conv-i16-h16-t04-o4-m04-stream04.sv` | Streaming com linha transformada registrada |
-| `conv-i16-h16-t08-o4-m04-stream08.sv` | Streaming genérico fixo, 4 MACs |
-| `conv-i16-h16-t08-o4-mxx-stream08-generic.sv` | Generic histórico para `NUM_MULT=4` ou `8` |
-| `conv-i16-h13-t08-o4-m04-stream08-wstream4.sv` | Pesos espaciais e linha ativa, 4 MACs |
-| `conv-i16-h13-t08-o4-m04-stream08-rowconst4.sv` | Transformação de linha constante, 4 MACs |
+| Fonte arquivada                                       | Papel histórico                                |
+| ----------------------------------------------------- | ---------------------------------------------- |
+| `conv-i16-h16-t16-o4-m04-std.sv`                      | Referência convencional, 4 MACs                |
+| `conv-i16-h16-t00-o4-m04-stream00.sv`                 | Streaming sem linha transformada registrada    |
+| `conv-i16-h16-t04-o4-m04-stream04.sv`                 | Streaming com linha transformada registrada    |
+| `conv-i16-h16-t08-o4-m04-stream08.sv`                 | Streaming genérico fixo, 4 MACs                |
+| `conv-i16-h16-t08-o4-mxx-stream08-generic.sv`         | Generic histórico para `NUM_MULT=4` ou `8`     |
+| `conv-i16-h13-t08-o4-m04-stream08-wstream4.sv`        | Pesos espaciais e linha ativa, 4 MACs          |
+| `conv-i16-h13-t08-o4-m04-stream08-rowconst4.sv`       | Transformação de linha constante, 4 MACs       |
 | `conv-i16-h13-t08-o4-m04-stream08-rowconst4-exact.sv` | Linha constante com numeradores exatos, 4 MACs |
-| `conv-i16-h20-t08-o4-m04-stream08-exact.sv` | Pesos transformados exatos, 4 MACs |
-| `conv-i20-h16-t08-o4-m04-stream08-prefetch4.sv` | Prefetch de coluna, 4 MACs |
+| `conv-i16-h20-t08-o4-m04-stream08-exact.sv`           | Pesos transformados exatos, 4 MACs             |
+| `conv-i20-h16-t08-o4-m04-stream08-prefetch4.sv`       | Prefetch de coluna, 4 MACs                     |
 
 O [generic `stream08` m04](/home/tarsio/gaph/FastConv_SystemVerilog/rtl/conv2x2/archive/m04/conv-i16-h16-t08-o4-mxx-stream08-generic.sv)
 implementa a mesma organização streaming para `NUM_MULT=4` ou `8`. O suporte
@@ -1629,19 +1628,19 @@ faz a troca oposta: mantém 16 pesos transformados exatos e simplifica a
 aritmética do tile. O custo nominal é de 52 palavras de dados, mas a largura
 exata evita perdas de precisão durante a transformação.
 
-| Fonte arquivada em `archive/m08/` | Decisão preservada |
-| --- | --- |
+| Fonte arquivada em `archive/m08/`                     | Decisão preservada                     |
+| ----------------------------------------------------- | -------------------------------------- |
 | `conv-i16-h13-t08-o4-m08-stream08-rowconst4-exact.sv` | Linhas constantes com aritmética exata |
-| `conv-i16-h20-t08-o4-m08-stream08-exact.sv` | Pesos transformados exatos armazenados |
+| `conv-i16-h20-t08-o4-m08-stream08-exact.sv`           | Pesos transformados exatos armazenados |
 
 Os números preservados para as duas variantes exatas são os seguintes. Eles
 continuam disponíveis no report completo arquivado, mas não entram na tabela
 principal de PPA:
 
-| Variante arquivada | Celulas | Area total (um2) | Ciclos | Slack nominal (ps) | Power total (mW) |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| `stream08-rowconst4-exact` | 12.903 | 20.041,711 | 25.654 | 217 | 0,814403 |
-| `stream08-exact` | 11.153 | 17.007,726 | 25.717 | 227 | 0,733399 |
+| Variante arquivada         | Celulas | Area total (um2) | Ciclos | Slack nominal (ps) | Power total (mW) |
+| -------------------------- | ------: | ---------------: | -----: | -----------------: | ---------------: |
+| `stream08-rowconst4-exact` |  12.903 |       20.041,711 | 25.654 |                217 |         0,814403 |
+| `stream08-exact`           |  11.153 |       17.007,726 | 25.717 |                227 |         0,733399 |
 
 ### A.3 `shared` e `temporal1`
 
