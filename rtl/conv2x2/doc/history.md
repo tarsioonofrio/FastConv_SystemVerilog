@@ -330,7 +330,7 @@ paralela e termina com os experimentos `stream08-*`. A ordem é conceitual, não
 uma cronologia dos commits. O bloco cronológico no final preserva essa
 cronologia e os relatórios das campanhas.
 
-### 1. Ponto de partida: `std` e vida dos registradores
+### 1. Ponto de partida: `std` e redução dos registradores
 
 Encerrada a visão geral e definido o contrato, começamos pelo `std`: seus
 bancos estabelecem a referência para entender as reduções seguintes. Esta
