@@ -167,8 +167,8 @@ ciclo seguinte, enquanto a segunda faixa permanece no caminho combinacional.
 A inversa passa a ser consumida por linhas:
 
 ```text
-std:      16 input + 16 weights + 16 temp + 16 conv_input + 8 output = 72
-stream08: 16 input + 16 weights +  4 transform + 4 inverse + 8 output = 48
+std:      16 input + 16 weights + 16 temp      + 16 conv_input + 8 output = 72
+stream08: 16 input + 16 weights +  4 transform + 4 inverse     + 8 output = 48
 ```
 
 O ganho de 24 palavras vem da remoção de `r_conv_temp[16]` e
@@ -183,8 +183,9 @@ entra diretamente em `InverseRow`; somente o acumulado entre linhas atravessa o
 clock em `r_output_write[0:3]`:
 
 ```text
-stream08: 16 input + 16 weights + 4 transform + 4 inverse + 8 output = 48
-stream04: 16 input + 16 weights + 4 transform             + 8 output = 44
+std:      16 input + 16 weights + 16 temp      + 16 conv_input + 8 output = 72
+stream08: 16 input + 16 weights + 4 transform  + 4 inverse     + 8 output = 48
+stream04: 16 input + 16 weights + 4 transform                  + 8 output = 44
 ```
 
 O sufixo `stream04` segue a fronteira `t04` do RTL e não a quantidade de MACs:
@@ -203,7 +204,10 @@ Na variante ativa `conv-i16-h16-t00-o4-m08-stream00.sv`, esse banco é eliminado
 `r_output_write[0:3]` assume as duas funções:
 
 ```text
-stream00-m08: 16 input + 16 weights                          + 8 output = 40
+std:          16 input + 16 weights + 16 temp      + 16 conv_input + 8 output = 72
+stream08:     16 input + 16 weights + 4 transform  + 4 inverse     + 8 output = 48
+stream04:     16 input + 16 weights + 4 transform                  + 8 output = 44
+stream00-m08: 16 input + 16 weights                                + 8 output = 40
 ```
 
 No m08 ativo, o banco de escrita é reutilizado como acumulador porque a FSM
@@ -251,7 +255,7 @@ As variantes `stream08-wstream4` e `stream08-rowconst4` deixam de registrar
 pesos transformados ativos:
 
 ```text
-stream08:       h16 + t08
+stream08:       h16                      + t08
 stream08-* row: h09 espacial + h08 ativo + t08
 ```
 
@@ -537,9 +541,9 @@ deixou de escrever esse banco e permanece responsavel apenas por
 mesmo sinal.
 
 ```text
-antes: r_output_accumulator[4] -> acumulação
-       r_output_write[4]       -> escrita
-depois: r_output_write[4]      -> acumulação e escrita
+antes:  r_output_accumulator[4] -> acumulação
+        r_output_write[4]       -> escrita
+depois: r_output_write[4]       -> acumulação e escrita
 ```
 
 A redução nominal é de quatro palavras, ou 80 bits com `NBITS=20`. O critério
@@ -1223,17 +1227,17 @@ Anexo A, para que a ordem principal não seja interrompida por experimentos
 encerrados.
 
 | Arquitetura                                 | Entrada | Pesos | Transform/inversa | Estado adicional de dados | Saída/interface | Total de palavras |
-| ------------------------------------------- | ----: | ----: | ----------------: | ------------------------: | --------------: | ----------------: |
-| `std`, 8 MACs                               |    16 |    16 |                16 |     `r_conv_input[16]` |               8 |            **72** |
-| `stream08`, 8 MACs                          |    16 |    16 |                 8 |                         0 |               8 |            **48** |
-| `stream04`, 8 MACs                          |    16 |    16 |                 4 |                         0 |               8 |            **44** |
-| `stream00`, 8 MACs                          |    16 |    16 |                 0 |                         0 |               8 |            **40** |
-| `all`, 16 MACs                              |    16 |    16 |                 0 |     `r_conv_input[16]` |               8 |            **56** |
-| `stream08-wstream4`                         |    16 |    17 |                 8 |                         0 |               8 |            **49** |
-| `stream08-rowconst4`                        |    16 |    17 |                 8 |                         0 |               8 |            **49** |
-| `stream08-prefetch4`                        |    20 |    16 |                 8 |                         0 |               8 |            **52** |
-| `stream08-prefetch4-rowconst4`              |    20 |    17 |                 8 |                         0 |               8 |            **53** |
-| `stream08-prefetch4-rowconst4-latch-single` |    20 |    17 |                 8 |                         0 |               8 |            **53** |
+| ------------------------------------------- | ------: | ----: | ----------------: | ------------------------: | --------------: | ----------------: |
+| `std`, 8 MACs                               |      16 |    16 |                16 |        `r_conv_input[16]` |               8 |            **72** |
+| `stream08`, 8 MACs                          |      16 |    16 |                 8 |                         0 |               8 |            **48** |
+| `stream04`, 8 MACs                          |      16 |    16 |                 4 |                         0 |               8 |            **44** |
+| `stream00`, 8 MACs                          |      16 |    16 |                 0 |                         0 |               8 |            **40** |
+| `all`, 16 MACs                              |      16 |    16 |                 0 |        `r_conv_input[16]` |               8 |            **56** |
+| `stream08-wstream4`                         |      16 |    17 |                 8 |                         0 |               8 |            **49** |
+| `stream08-rowconst4`                        |      16 |    17 |                 8 |                         0 |               8 |            **49** |
+| `stream08-prefetch4`                        |      20 |    16 |                 8 |                         0 |               8 |            **52** |
+| `stream08-prefetch4-rowconst4`              |      20 |    17 |                 8 |                         0 |               8 |            **53** |
+| `stream08-prefetch4-rowconst4-latch-single` |      20 |    17 |                 8 |                         0 |               8 |            **53** |
 
 Essa tabela mostra três lições importantes:
 
