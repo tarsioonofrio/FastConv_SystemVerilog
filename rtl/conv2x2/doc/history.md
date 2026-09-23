@@ -30,19 +30,21 @@ considera somente `rtl/conv*/synthesis/`; a opção
 ## 0. A história da redução: do `std` ao streaming
 
 A forma mais fácil de entender estas arquiteturas é acompanhar a vida dos
-dados, e não apenas comparar os nomes dos arquivos. A história começa em
-`archive/m04/conv-i16-h16-t16-o4-m04-std.sv`, que é a referência convencional
-histórica, e segue por
-cinco perguntas sucessivas:
+dados, e não apenas comparar os nomes dos arquivos. A sequência didática de
+redução começa em `archive/m04/conv-i16-h16-t16-o4-m04-std.sv`, a referência
+convencional histórica, e segue pela redução dos bancos de dados:
 
 ```text
-std -> all16 -> stream08 -> stream04 -> stream08-*
+std -> stream08 -> stream04 -> stream00 -> all16 -> stream08-*
 ```
 
-Cada seta representa uma mudança de fronteira entre lógica combinacional e
-registradores. O algoritmo Winograd continua calculando a mesma combinação de
-transformada, produtos e inversa; o que muda é quanto tempo cada valor precisa
-ficar armazenado.
+O caminho `std -> stream08 -> stream04 -> stream00` é a redução progressiva
+dos registradores. `all16` aparece depois como referência paralela, não como
+mais uma etapa dessa redução. A comparação consolida `stream08` como o melhor
+compromisso PPA entre os baselines de 8 MACs, e é essa escolha que motiva os
+testes seguintes `stream08-*`. O algoritmo Winograd continua calculando a
+mesma combinação de transformada, produtos e inversa; muda quanto tempo cada
+valor precisa ficar armazenado e onde fica a fronteira entre lógica e estado.
 
 ### 0.0 A cronologia executável da implementação
 
@@ -150,32 +152,13 @@ r_output_read[4]       contribuição anterior de canais
 O `std` é simples de raciocinar porque cada etapa possui uma fronteira clara:
 
 ```text
-r_input_feat -> Transform -> r_conv_temp -> Multip[0:3] -> Inverse -> output
+r_input_feat -> Transform -> r_conv_temp -> r_conv_input -> Multip[0:7] -> Inverse -> output
 ```
 
 O preço dessa clareza é manter 16 valores transformados mesmo quando somente
-quatro produtos estão sendo calculados por ciclo.
+oito produtos estão sendo calculados por ciclo.
 
-### 0.2 Primeira bifurcação: `all` com 16 MACs
-
-O arquivo `conv-i16-h16-t00-o4-m16-all.sv` pergunta se podemos trocar ciclos
-por paralelismo. A transformada e a inversa passam a ser fios combinacionais e
-os 16 produtos são calculados no mesmo ciclo. Para isso, `r_conv_temp[16]`
-deixa de existir, mas a arquitetura ainda conserva `r_conv_input[16]`. A
-inversa agora é capturada diretamente no banco de saída, sem uma cópia
-intermediaria:
-
-```text
-std:   16 input + 16 weights + 16 temp + 16 conv_input + 8 output = 72
-all:   16 input + 16 weights           + 16 conv_input + 8 output = 56
-```
-
-O `all` reduz 16 palavras em relação ao `std`, mas aumenta de 4 para 16 MACs.
-Ele é importante porque mostra duas reduções distintas: eliminamos o banco da
-transformada registrada e, depois, a captura intermediária da inversa, sem
-alterar o ciclo em que o resultado é armazenado.
-
-### 0.3 Segunda mudança: `stream08`
+### 0.2 Primeira redução: `stream08`
 
 O `stream08` conserva duas linhas de quatro valores: uma para a transformada e outra para a inversa.
 A matriz `w_conv_transform[0:15]` continua sendo calculada
@@ -184,15 +167,15 @@ ciclo seguinte, enquanto a segunda faixa permanece no caminho combinacional.
 A inversa passa a ser consumida por linhas:
 
 ```text
-all:       16 input + 16 weights + 16 conv_input             + 8 output = 56
-stream08:  16 input + 16 weights +  4 transform  + 4 inverse + 8 output = 48
+std:      16 input + 16 weights + 16 temp + 16 conv_input + 8 output = 72
+stream08: 16 input + 16 weights +  4 transform + 4 inverse + 8 output = 48
 ```
 
-O ganho de 8 palavras vem de remover a fronteira grande `r_conv_input[16]`;
-o `all` já não possui uma cópia intermediária da inversa. O acumulado de quatro pixels fica no
-banco de saída, e a inversa incremental substitui a matriz de resultado inteira.
+O ganho de 24 palavras vem da remoção de `r_conv_temp[16]` e
+`r_conv_input[16]`, além da substituição da matriz de resultado pela inversa
+incremental. O acumulado dos quatro pixels fica no banco de saída.
 
-### 0.4 Terceira mudança: `stream04`
+### 0.3 Segunda redução: `stream04`
 
 No `conv-i16-h16-t04-o4-m08-stream04.sv`, a linha transformada continua
 registrada, mas `r_inverse_row[0:3]` deixa de ser necessário. O produto atual
@@ -209,7 +192,7 @@ o arquivo documentado aqui usa oito MACs. As quatro palavras da linha
 transformada continuam sendo a fronteira temporal; os oito produtos são
 calculados em duas linhas de Hadamard por ciclo.
 
-### 0.5 Primeira variação de `stream08`: `stream00`
+### 0.4 Terceira redução: `stream00`
 
 No `conv-i16-h16-t00-o4-m08-stream00.sv`, o banco
 `r_transform_row[0:3]` também é removido. O índice
@@ -231,10 +214,39 @@ permaneceram iguais, enquanto a potência caiu ligeiramente. Esse resultado
 fica preservado no Anexo A, sem misturar a linha de base arquivada com o fluxo
 ativo.
 
-### 0.6 Variações seguintes de `stream08`
+### 0.5 Referência paralela: `all` com 16 MACs
 
-Depois de reduzir o armazenamento das features, a mesma pergunta foi aplicada
-aos pesos. O `stream08-wstream4` e o `stream08-rowconst4` deixam de registrar
+Depois de acompanhar a redução serial `std -> stream08 -> stream04 -> stream00`,
+o `all` serve como comparação paralela. O arquivo
+`conv-i16-h16-t00-o4-m16-all.sv` pergunta se podemos trocar ciclos por
+paralelismo: a transformada e a inversa passam a ser fios combinacionais, e os
+16 produtos são calculados no mesmo ciclo. Para isso, `r_conv_temp[16]` deixa
+de existir, mas a arquitetura ainda conserva `r_conv_input[16]`. A inversa é
+capturada diretamente no banco de saída, sem uma cópia intermediária:
+
+```text
+std:   16 input + 16 weights + 16 temp + 16 conv_input + 8 output = 72
+all:   16 input + 16 weights           + 16 conv_input + 8 output = 56
+```
+
+O `all` reduz 16 palavras em relação ao `std`, mas aumenta de 4 para 16 MACs.
+Ele ilustra outra troca: menos ciclos de cálculo em troca de paralelismo e de
+uma área maior que a de `stream08`. Por isso, fica depois das variantes de
+redução como referência, e não como degrau intermediário da família streaming.
+
+### 0.6 Consolidação de `stream08` e início dos testes `stream08-*`
+
+Entre os baselines de oito MACs, `stream08` é o melhor compromisso entre
+armazenamento, área e potência: usa 48 palavras, contra 44 em `stream04` e 40
+em `stream00`, mas obteve a menor área (15.660,389 um2) e a menor potência
+(0,664592 mW) desse grupo. Não é o vencedor em latência: seus 25.699 ciclos
+superam os 23.675 de `stream04` e `stream00`. A escolha de `stream08` como base
+dos testes seguintes, portanto, privilegia o compromisso PPA, não a menor
+latência nem a menor contagem isolada de registradores. O `all` também teve
+potência ligeiramente menor, mas usa 16 MACs e área substancialmente maior.
+
+Com essa referência consolidada, a próxima pergunta foi aplicada aos pesos.
+As variantes `stream08-wstream4` e `stream08-rowconst4` deixam de registrar
 16 pesos transformados e passam a guardar nove pesos espaciais mais oito
 pesos transformados ativos:
 
@@ -251,14 +263,16 @@ larguras maiores e elimina arredondamentos intermediários. Já o
 próxima coluna viva e permitir sobreposição entre leitura e processamento.
 
 Assim, a história completa não é simplesmente "cada arquivo tem menos
-registradores":
+registradores". A redução principal e a decisão de onde continuar estão
+resumidas assim:
 
 ```text
 std       guarda etapas completas e tem 72 palavras
-all16     remove a temp e a captura intermediária, mas paraleliza tudo e fica com 56
 stream08  serializa produtos e inversa e fica com 48
 stream04   elimina a linha de inversa e fica com 44
 stream00   remove a fronteira extra e reutiliza r_output_write, ficando com 40
+all16     remove a temp, mas paraleliza tudo e fica com 56
+decisão   consolida stream08 como base de melhor compromisso PPA entre os baselines m08
 rowconst  reduz pesos transformados, chegando a 49
 prefetch  adiciona estado de entrada para ganhar overlap, chegando a 52
 ```
@@ -776,10 +790,10 @@ com `--include-archived`.
 | Variante                                | Fonte                                                                  | Anotada | Células | Área total (um2) | Ciclos | Power (mW) | Energia (nJ) |
 | --------------------------------------- | ---------------------------------------------------------------------- | :-----: | ------: | ---------------: | -----: | ---------: | -----------: |
 | Conv std 8 MACs                         | `conv-i16-h16-t16-o4-m08-std.sv`                                       |  PASS   |   8.874 |       15.675,268 | 23.675 |   0,863333 |      204,416 |
-| Conv all 16 MACs                        | `conv-i16-h16-t00-o4-m16-all.sv`                                       |  PASS   |  15.200 |       23.129,636 | 23.672 |   0,650788 |      154,071 |
 | Stream08 8 MACs                         | `conv-i16-h16-t08-o4-m08-stream08.sv`                                  |  PASS   |  10.254 |       15.660,389 | 25.699 |   0,664592 |      170,810 |
 | Stream04 8 MACs                         | `conv-i16-h16-t04-o4-m08-stream04.sv`                                  |  PASS   |  10.338 |       15.755,807 | 23.675 |   0,758305 |      179,540 |
 | Stream00 8 MACs                         | `conv-i16-h16-t00-o4-m08-stream00.sv`                                  |  PASS   |  11.818 |       16.855,605 | 23.675 |   0,918483 |      217,465 |
+| Conv all 16 MACs                        | `conv-i16-h16-t00-o4-m16-all.sv`                                       |  PASS   |  15.200 |       23.129,636 | 23.672 |   0,650788 |      154,071 |
 | Stream08 wstream4 8 MACs                | `conv-i16-h13-t08-o4-m08-stream08-wstream4.sv`                         |  PASS   |  11.778 |       18.673,687 | 25.654 |   0,672691 |      172,589 |
 | Stream08 rowconst4 8 MACs               | `conv-i16-h13-t08-o4-m08-stream08-rowconst4.sv`                        |  PASS   |  11.959 |       18.885,876 | 25.654 |   0,671548 |      172,294 |
 | Prefetch4 8 MACs                        | `conv-i20-h16-t08-o4-m08-stream08-prefetch4.sv`                        |  PASS   |  10.506 |       16.073,141 | 21.919 |   0,776661 |      170,256 |
@@ -788,18 +802,24 @@ com `--include-archived`.
 
 ### Leitura dos resultados
 
-- O `std` m08 é agora a referência convencional padrão. O ganho de oito MACs
-  aparece principalmente na redução de ciclos em relação aos m04 históricos;
-  a área e a potência, entretanto, dependem da árvore combinacional e não
-  escalam linearmente com o número de MACs.
-- Entre os fontes ativos, `stream08` tem a menor área total (15.660,389 um2)
-  e `stream08-wstream4` tem a menor potência (0,672691 mW) entre as variantes
-  de pesos avaliadas. O prefetch reduz a latência para 21.892--21.919 ciclos,
-  mas adiciona estado de entrada.
+- A sequência de redução é `std` (72 palavras), `stream08` (48), `stream04`
+  (44) e `stream00` (40). Menos palavras, porém, não garantem menor área,
+  potência ou latência.
+- Entre os baselines de oito MACs, `stream08` tem a menor área total
+  (15.660,389 um2) e a menor potência (0,664592 mW). É o melhor compromisso
+  PPA desse grupo para continuar a exploração dos pesos, embora não tenha a
+  menor latência: são 25.699 ciclos, contra 23.675 em `stream04` e `stream00`.
+- O `all` tem potência ligeiramente menor (0,650788 mW) e latência menor
+  (23.672 ciclos), mas usa 16 MACs e tem área total bem maior
+  (23.129,636 um2); por isso é uma referência paralela, não a base escolhida
+  para a série `stream08-*`.
+- As variantes seguintes testam os pesos: `stream08-wstream4` tem potência
+  de 0,672691 mW; o prefetch reduz a latência para 21.892--21.919 ciclos, mas
+  adiciona estado de entrada.
 - O `temporal1` preserva os mesmos 21.892 ciclos e o mesmo contrato funcional
   do baseline `prefetch4-rowconst4`, porém a captura temporal de quatro linhas
   aumenta a área para 20.432,097 um2 e a potência para 0,984856 mW. Portanto,
-  Esta tentativa não é uma vitória de PPA; ela fica documentada como
+  esta tentativa não é uma vitória de PPA; ela fica documentada como
   experimento arquivado.
 - As comparações devem manter separadas fonte HDL, netlist, SDF e anotada. Uma
   linha arquivada só entra no comparativo quando o report é gerado com
@@ -816,6 +836,10 @@ Genus e da simulação anotada permanece nos respectivos `logical/genus.log` e
 As seções anteriores registram decisões e resultados de campanhas. Esta seção
 reorganiza a história de forma didática: em vez de começar pela FSM, começa
 pelas palavras que precisam sobreviver a uma borda de clock.
+
+Os exemplos detalhados das seções 15 a 17 apontam para fontes históricas m04;
+eles ilustram a vida dos bancos de dados. A ordem principal e a comparação de
+PPA referem-se às variantes m08 ativas descritas nas seções 0 e 13.
 
 Uma palavra é um elemento de um vetor como `r_input_feat[0]`. Para o caso
 TC2x2 usado nesta pasta, a maior parte das palavras tem `NBITS=20` bits. Um
@@ -870,51 +894,7 @@ streaming, somente uma linha ou um grupo de `m` produtos atravessa a fronteira
 de clock. A economia vem de não guardar simultaneamente aquilo que pode ser
 recalculado ou consumido no mesmo ciclo.
 
-## 15. Primeiro ponto de referência: `all` com 16 MACs
-
-Arquivo: `conv-i16-h16-t00-o4-m16-all.sv`.
-
-Esta é a melhor arquitetura para entender o que o streaming tenta remover. Ela
-faz a transformada inteira, todos os produtos e a inversa inteira de forma
-paralela. O nome `t00` significa apenas que não há um banco dedicado chamado
-`r_transform_row` ou `r_inverse_row`; não significa que o datapath não tenha
-registradores intermediários.
-
-### 15.1 Bancos de dados do `all`
-
-| Banco                  | Palavras | Papel durante a janela                                       |
-| ---------------------- | -------: | ------------------------------------------------------------ |
-| `r_input_feat[0:15]`   |       16 | Mantém a janela 4x4 lida da feature map                      |
-| `r_input_weight[0:15]` |       16 | Mantém todos os pesos transformados                          |
-| `r_conv_input[0:15]`   |       16 | Captura a entrada da convolução antes do caminho de produtos |
-| `r_output_write[0:3]`  |        4 | Mantém os quatro valores que serão escritos                  |
-| `r_output_read[0:3]`   |        4 | Mantém a contribuição anterior de outro canal                |
-| **total de dados**     |   **56** | Soma dos bancos acima                                        |
-
-Os 56 valores são uma contagem de armazenamento de dados, não uma contagem de
-flip-flops sintetizados. Ainda existem registradores escalares de endereço,
-contagem de janela, canais, FSM e controle de leitura/escrita.
-
-### 15.2 Sequência de vida dos dados
-
-1. A FSM de entrada preenche `r_input_feat` com a janela 4x4.
-2. A FSM de pesos preenche `r_input_weight` com 16 pesos.
-3. `Transform` calcula `w_conv_transform[0:15]`. Esse vetor é `w_*`: é um fio,
-   não um banco registrado.
-4. Os 16 `Multip` calculam `w_conv_product[0:15]` no mesmo ciclo.
-5. `Inverse` calcula `w_conv_inverse[0:3]`, também combinacionalmente.
-6. `r_output_write` captura diretamente `w_conv_inverse` no mesmo ciclo em que
-   `st_input_current == CONV_INPUT`; não existe uma cópia intermediária.
-7. `r_output_read` guarda a contribuição anterior que será somada pelo banco
-   de saída.
-
-O ponto importante é que o `all` troca tempo por largura: ele mantém mais
-fronteiras de dados, mas termina uma janela Hadamard em um único ciclo. A
-primeira redução streaming não tenta remover o banco de entrada ou o banco de
-pesos; ela remove as fronteiras completas do caminho de transformada, produto e
-inversa.
-
-## 16. Segunda etapa: `stream08`
+## 15. Primeira redução: `stream08`
 
 Arquivo principal: `conv-i16-h16-t08-o4-m04-stream08.sv`.
 
@@ -923,7 +903,7 @@ em quatro ciclos de quatro MACs. A matriz transformada continua existindo como
 `w_conv_transform[0:15]`, mas apenas quatro palavras passam para
 `r_transform_row` por ciclo. A inversa também é consumida por linha.
 
-### 16.1 Bancos registrados
+### 15.1 Bancos registrados
 
 | Banco                       | Palavras | O que atravessa o clock                                    |
 | --------------------------- | -------: | ---------------------------------------------------------- |
@@ -939,7 +919,7 @@ Na convenção do nome, `i16 + h16 + t08 + o4` soma 44 palavras porque `o4`
 conta somente o banco de escrita. A contagem integral acrescenta as quatro
 palavras de `r_output_read` e chega a 48.
 
-### 16.2 O que foi eliminado em relação ao `all`
+### 15.2 Diferença para a referência paralela `all`
 
 O `stream08` elimina `r_conv_input[16]`, pois a entrada já está em `r_input_feat`
 e o acumulador de saída pode ser atualizado uma linha
@@ -957,7 +937,7 @@ A redução nominal é de 8 palavras, ou 160 bits a 20 bits por palavra. Ela
 não implica automaticamente 11% de área, porque a multiplexação, os quatro
 ciclos de controle e os módulos `InverseRowAccumulate` também ocupam área.
 
-### 16.3 O ciclo a ciclo
+### 15.3 O ciclo a ciclo
 
 ```text
 ciclo 0: r_transform_row <- w_conv_transform[0:3]   -> 4 produtos
@@ -975,7 +955,7 @@ do resultado final quando `STREAM_DEBUG` está desligado; ele existe por causa
 do caminho legado de trace. Esse detalhe explica por que a contagem textual do
 baseline não é ainda o limite mínimo da família `stream08`.
 
-## 17. Terceira etapa: `stream04`
+## 16. Segunda redução: `stream04`
 
 Arquivo: `conv-i16-h16-t04-o4-m04-stream04.sv`.
 
@@ -984,7 +964,7 @@ MACs. Somente uma linha de quatro valores da
 transformada é registrada. A linha da inversa não é armazenada; o produto do
 ciclo atual entra diretamente em `InverseRow` e depois em `InverseRowAccumulate`.
 
-### 17.1 Bancos registrados
+### 16.1 Bancos registrados
 
 | Banco                       | Palavras |
 | --------------------------- | -------: |
@@ -1000,7 +980,7 @@ Em comparação direta com o `stream08`, saem as quatro palavras de
 `r_output_write`, que passa a exercer simultaneamente o papel de banco de
 saída do tile e de estado parcial entre linhas.
 
-### 17.2 Por que isso reduz estado sem mudar a matemática
+### 16.2 Por que isso reduz estado sem mudar a matemática
 
 `InverseRow` e um bloco combinacional. Ele recebe o vetor de produtos do ciclo,
 calcula os quatro valores parciais da inversa e entrega o resultado ao
@@ -1018,7 +998,7 @@ Essa é a primeira redução que remove um banco inteiro sem aumentar o número 
 produtos. O preco e uma dependencia combinacional mais direta entre MAC,
 inversa e acumulador.
 
-## 18. Quarta etapa: `stream00`
+## 17. Terceira redução: `stream00`
 
 Arquivo: `conv-i16-h16-t00-o4-m04-stream00.sv`.
 
@@ -1027,7 +1007,7 @@ produzindo os 16 valores, mas eles permanecem em `w_conv_transform`; o índice
 `r_transform_product_idx` seleciona diretamente os quatro valores que alimentam
 os MACs no ciclo corrente.
 
-### 18.1 Bancos registrados
+### 17.1 Bancos registrados
 
 | Banco                       | Palavras | Motivo                                                   |
 | --------------------------- | -------: | -------------------------------------------------------- |
@@ -1053,7 +1033,7 @@ A diferença entre m04 e m08 é temporal: m04 consome uma linha da inversa por
 ciclo e precisa de quatro ciclos HADAMARD; m08 consome duas linhas e precisa de
 dois ciclos. O banco registrado é o mesmo.
 
-### 18.2 Implementação comum do banco compartilhado
+### 17.2 Implementação comum do banco compartilhado
 
 O arquivo `conv-i16-h16-t00-o4-m08-stream00.sv` usa dois grupos de quatro MACs
 por ciclo e, por isso, produz duas linhas da inversa de uma vez. O arquivo m04
@@ -1071,6 +1051,51 @@ HADAMARD:      r_output_write <= w_output_acc_next
 fim HADAMARD:  w_conv_end <= 1
 WRITE_OUTPUT:  p_output_data_write <- r_output_write + r_output_read
 ```
+
+## 18. Referência paralela: `all` com 16 MACs
+
+Arquivo: `conv-i16-h16-t00-o4-m16-all.sv`.
+
+Depois da sequência de redução `std -> stream08 -> stream04 -> stream00`, o
+`all` permite comparar esse caminho com uma arquitetura paralela. Esta é uma
+boa referência para entender o que o streaming remove: ela faz a transformada,
+os produtos e a inversa de forma paralela. O nome `t00` significa apenas que
+não há um banco dedicado chamado `r_transform_row` ou `r_inverse_row`; não
+significa que o datapath não tenha registradores intermediários.
+
+### 18.1 Bancos de dados do `all`
+
+| Banco                  | Palavras | Papel durante a janela                                       |
+| ---------------------- | -------: | ------------------------------------------------------------ |
+| `r_input_feat[0:15]`   |       16 | Mantém a janela 4x4 lida da feature map                      |
+| `r_input_weight[0:15]` |       16 | Mantém todos os pesos transformados                          |
+| `r_conv_input[0:15]`   |       16 | Captura a entrada da convolução antes do caminho de produtos |
+| `r_output_write[0:3]`  |        4 | Mantém os quatro valores que serão escritos                  |
+| `r_output_read[0:3]`   |        4 | Mantém a contribuição anterior de outro canal                |
+| **total de dados**     |   **56** | Soma dos bancos acima                                        |
+
+Os 56 valores são uma contagem de armazenamento de dados, não uma contagem de
+flip-flops sintetizados. Ainda existem registradores escalares de endereço,
+contagem de janela, canais, FSM e controle de leitura/escrita.
+
+### 18.2 Sequência de vida dos dados
+
+1. A FSM de entrada preenche `r_input_feat` com a janela 4x4.
+2. A FSM de pesos preenche `r_input_weight` com 16 pesos.
+3. `Transform` calcula `w_conv_transform[0:15]`. Esse vetor é `w_*`: é um fio,
+   não um banco registrado.
+4. Os 16 `Multip` calculam `w_conv_product[0:15]` no mesmo ciclo.
+5. `Inverse` calcula `w_conv_inverse[0:3]`, também combinacionalmente.
+6. `r_output_write` captura diretamente `w_conv_inverse` no mesmo ciclo em que
+   `st_input_current == CONV_INPUT`; não existe uma cópia intermediária.
+7. `r_output_read` guarda a contribuição anterior que será somada pelo banco
+   de saída.
+
+O `all` troca tempo por largura: mantém mais fronteiras de dados, mas termina
+uma janela Hadamard em um único ciclo. Em comparação com `std`, elimina o banco
+da transformada registrada e captura a inversa diretamente na saída. Em
+comparação com `stream08`, usa mais palavras e 16 MACs para processar todos os
+produtos no mesmo ciclo.
 
 ## 19. Variantes `stream08-*`: reduzir pesos sem guardar 16 pesos transformados
 
@@ -1199,10 +1224,11 @@ encerrados.
 
 | Arquitetura                                 | Entrada | Pesos | Transform/inversa | Estado adicional de dados | Saída/interface | Total de palavras |
 | ------------------------------------------- | ----: | ----: | ----------------: | ------------------------: | --------------: | ----------------: |
-| `all`, 16 MACs                              |    16 |    16 |                 0 |          `r_conv_input16` |               8 |            **56** |
+| `std`, 8 MACs                               |    16 |    16 |                16 |     `r_conv_input[16]` |               8 |            **72** |
 | `stream08`, 8 MACs                          |    16 |    16 |                 8 |                         0 |               8 |            **48** |
 | `stream04`, 8 MACs                          |    16 |    16 |                 4 |                         0 |               8 |            **44** |
 | `stream00`, 8 MACs                          |    16 |    16 |                 0 |                         0 |               8 |            **40** |
+| `all`, 16 MACs                              |    16 |    16 |                 0 |     `r_conv_input[16]` |               8 |            **56** |
 | `stream08-wstream4`                         |    16 |    17 |                 8 |                         0 |               8 |            **49** |
 | `stream08-rowconst4`                        |    16 |    17 |                 8 |                         0 |               8 |            **49** |
 | `stream08-prefetch4`                        |    20 |    16 |                 8 |                         0 |               8 |            **52** |
@@ -1254,31 +1280,33 @@ os dois lados: palavras removidas e lógica adicionada.
 ## 22. Mapa mental final
 
 ```text
-ALL16
-  guarda a janela, os pesos, a entrada da convolução e o tile de saída;
-  calcula tudo em paralelo e captura a inversa diretamente na saída.
+STD (72 palavras)
+  mantém as etapas convencionais em bancos separados.
         |
-        | remove r_conv_input; serializa os 16 produtos
+        | substitui as matrizes completas por linhas consumidas em fluxo
         v
-STREAM12
-  guarda quatro linhas da transformada e quatro linhas de inversa;
-  quatro ciclos de quatro MACs.
+STREAM08 (48 palavras)
+  registra linhas da transformada e da inversa.
         |
-        | elimina a linha de inversa porque ela pode ser consumida no ciclo
+        | elimina a linha de inversa já consumida
         v
-STREAM8
-  guarda somente r_transform_row; o acumulador de saída carrega a parcial.
+STREAM04 (44 palavras)
+  conserva a linha transformada e acumula a inversa na saída.
         |
         | elimina também r_transform_row e seleciona w_conv_transform diretamente
         v
-STREAM4
-  guarda a parcial da saída, não uma linha da transformada.
+STREAM00 (40 palavras)
+  reutiliza o banco de saída como acumulador.
         |
-        | aplica a mesma ideia aos pesos
+        | comparação paralela, não mais uma etapa de redução
         v
-STREAM08-* WEIGHT STREAMING
-  guarda 9 pesos espaciais + 4 pesos ativos, ou escolhe outra troca
-  entre armazenamento, largura aritmética, arredondamento e prefetch.
+ALL16 (56 palavras; 16 MACs)
+  calcula os 16 produtos em paralelo.
+        |
+        | stream08 é escolhido pelo melhor compromisso PPA entre os baselines m08
+        v
+STREAM08-*
+  inicia os testes de armazenamento de pesos, precisão e prefetch.
 ```
 
 O princípio comum é simples: uma informação deve ser registrada somente se
@@ -1291,9 +1319,10 @@ memória permaneçam inalterados.
 As referências que só existem em `archive/` não interrompem a narrativa das
 variantes ativas. A descrição do `std` m04 e do `stream08` genérico, incluindo
 seus bancos de 72 e 48 palavras e a remoção do suporte a dois MACs, foi
-transferida para o **Anexo A**. A seção principal pode, assim, ser lida em uma
-única direção: primeiro o armazenamento convencional, depois o paralelismo e,
-por fim, as fronteiras streaming que continuam disponíveis na árvore ativa.
+transferida para o **Anexo A**. A seção principal segue a ordem de redução dos
+registradores (`std`, `stream08`, `stream04`, `stream00`), apresenta `all16`
+como comparação paralela e então registra a escolha de `stream08` como base
+PPA para os testes de pesos `stream08-*`.
 
 ## 24. Como comparar duas alterações sem se enganar
 
