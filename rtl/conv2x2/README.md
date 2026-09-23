@@ -224,4 +224,4 @@ The historical four-MAC synthesis and power results remain untouched. The
 default report excludes every project below `archive/`; use
 `python3 scripts/report.py --include-archived` for the historical rows.
 The consolidated Conv2x2 PPA comparison, including the revalidated `stream00`
-results, is in [section 13 of that document](doc/history.md#13-comparativo-geral-das-variantes-conv2x2).
+results, is in [the chronological PPA comparison](doc/history.md#12-comparativo-geral-das-variantes-conv2x2).

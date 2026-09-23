@@ -281,12 +281,12 @@ rowconst  reduz pesos transformados, chegando a 49
 prefetch  adiciona estado de entrada para ganhar overlap, chegando a 52
 ```
 
-Essa seção encerra a visão geral da trajetória; ela explica a sequência e a
-motivação das escolhas, mas não substitui o registro técnico. A partir da
-seção 1, vêm o escopo e o contrato; a seção 2 detalha o baseline `std` e o
-snapshot de `stream00`; as seções 3 a 13 registram experimentos, ajustes do
-fluxo e evidências de campanhas. Na seção 14, o documento muda novamente de
-perspectiva: compara a vida dos registradores, sem recontar a cronologia.
+Essa seção encerra a visão geral da trajetória. Depois do escopo e do contrato
+da seção 1, o documento se divide em duas leituras complementares. Primeiro,
+**Alterações em ordem lógica** organiza as arquiteturas pela sequência didática
+`std -> stream08 -> stream04 -> stream00 -> all -> stream08-*`. No final,
+**Alterações em ordem cronológica** preserva o diário de implementação, os
+ajustes do fluxo e as campanhas na ordem em que ocorreram.
 
 ## 1. Escopo e contrato congelado
 
@@ -322,21 +322,33 @@ O pacote usado na validação RTL é
 `../conv2x2/data/tcn4/sim/sim-032-3-3-normal/pack_data.sv`, com os parâmetros
 de `../conv2x2/pack-param/tcn4/pack_param.sv`.
 
-## 14. Comparativo conceitual: vida dos registradores
+## Alterações em ordem lógica
 
-As seções 2 a 13 registram o ponto de partida, os experimentos de implementação
-e as campanhas de síntese. Aqui muda a pergunta: em vez de seguir a ordem dos
-experimentos, comparamos quais palavras precisam sobreviver a cada borda de
-clock em cada arquitetura.
+Esta parte explica a arquitetura pela vida dos dados: começa no `std`, percorre
+as reduções `stream08`, `stream04` e `stream00`, apresenta `all` como referência
+paralela e termina com os experimentos `stream08-*`. A ordem é conceitual, não
+uma cronologia dos commits. O bloco cronológico no final preserva essa
+cronologia e os relatórios das campanhas.
 
-Não é outra tabela de PPA: a seção 13 compara resultados de síntese; esta parte
-compara o fluxo e o armazenamento dos dados no RTL. As contagens de palavras
-ajudam a explicar a arquitetura, mas não substituem flip-flops e área medidos
-na síntese.
+### 1. Ponto de partida: `std` e vida dos registradores
 
-Os exemplos detalhados das seções 15 a 17 apontam para fontes históricas m04;
-eles ilustram a vida dos bancos de dados. A ordem principal e a comparação de
-PPA referem-se às variantes m08 ativas descritas nas seções 0 e 13.
+Encerrada a visão geral e definido o contrato, começamos pelo `std`: seus
+bancos estabelecem a referência para entender as reduções seguintes. Esta
+subseção também define o que significa contar armazenamento no RTL. Depois, a
+leitura percorre `stream08 -> stream04 -> stream00 -> all` e termina nos
+experimentos `stream08-*`. A sequência é arquitetural, não a data dos commits.
+
+Aqui a pergunta é: quais palavras precisam sobreviver a cada borda de clock em
+cada arquitetura?
+
+Não é uma tabela de PPA: a comparação de PPA fica no bloco cronológico. Esta
+parte compara o fluxo e o armazenamento dos dados no RTL. As contagens de
+palavras ajudam a explicar a arquitetura, mas não substituem flip-flops e área
+medidos na síntese.
+
+Os exemplos detalhados das reduções `stream08`, `stream04` e `stream00` apontam
+para fontes históricas m04 e ilustram a vida dos bancos de dados. A visão geral
+e o inventário de fontes ativos identificam as variantes m08 atuais.
 
 Uma palavra é um elemento de um vetor como `r_input_feat[0]`. Para o caso
 TC2x2 usado nesta pasta, a maior parte das palavras tem `NBITS=20` bits. Um
@@ -367,7 +379,7 @@ registradores reais, mas não estão todos codificados nos cinco
 campos do nome. Por isso as tabelas seguintes mostram também um inventário
 integral de palavras de dados.
 
-### 14.1 O que significa reduzir registradores
+#### 1.1 O que significa reduzir registradores
 
 Para uma matriz Hadamard 4x4 existem 16 valores transformados. A arquitetura
 ingênua pode registrar esses 16 valores e depois registrar uma matriz inteira de
@@ -391,7 +403,7 @@ streaming, somente uma linha ou um grupo de `m` produtos atravessa a fronteira
 de clock. A economia vem de não guardar simultaneamente aquilo que pode ser
 recalculado ou consumido no mesmo ciclo.
 
-## 15. Primeira redução: `stream08`
+### 2. Primeira redução: `stream08`
 
 Arquivo principal: `conv-i16-h16-t08-o4-m04-stream08.sv`.
 
@@ -400,7 +412,7 @@ em quatro ciclos de quatro MACs. A matriz transformada continua existindo como
 `w_conv_transform[0:15]`, mas apenas quatro palavras passam para
 `r_transform_row` por ciclo. A inversa também é consumida por linha.
 
-### 15.1 Bancos registrados
+#### 2.1 Bancos registrados
 
 | Banco                       | Palavras | O que atravessa o clock                                    |
 | --------------------------- | -------: | ---------------------------------------------------------- |
@@ -416,7 +428,7 @@ Na convenção do nome, `i16 + h16 + t08 + o4` soma 44 palavras porque `o4`
 conta somente o banco de escrita. A contagem integral acrescenta as quatro
 palavras de `r_output_read` e chega a 48.
 
-### 15.2 Diferença para a referência paralela `all`
+#### 2.2 Diferença para a referência paralela `all`
 
 O `stream08` elimina `r_conv_input[16]`, pois a entrada já está em `r_input_feat`
 e o acumulador de saída pode ser atualizado uma linha
@@ -434,7 +446,7 @@ A redução nominal é de 8 palavras, ou 160 bits a 20 bits por palavra. Ela
 não implica automaticamente 11% de área, porque a multiplexação, os quatro
 ciclos de controle e os módulos `InverseRowAccumulate` também ocupam área.
 
-### 15.3 O ciclo a ciclo
+#### 2.3 O ciclo a ciclo
 
 ```text
 ciclo 0: r_transform_row <- w_conv_transform[0:3]   -> 4 produtos
@@ -452,7 +464,7 @@ do resultado final quando `STREAM_DEBUG` está desligado; ele existe por causa
 do caminho legado de trace. Esse detalhe explica por que a contagem textual do
 baseline não é ainda o limite mínimo da família `stream08`.
 
-## 16. Segunda redução: `stream04`
+### 3. Segunda redução: `stream04`
 
 Arquivo: `conv-i16-h16-t04-o4-m04-stream04.sv`.
 
@@ -461,7 +473,7 @@ MACs. Somente uma linha de quatro valores da
 transformada é registrada. A linha da inversa não é armazenada; o produto do
 ciclo atual entra diretamente em `InverseRow` e depois em `InverseRowAccumulate`.
 
-### 16.1 Bancos registrados
+#### 3.1 Bancos registrados
 
 | Banco                       | Palavras |
 | --------------------------- | -------: |
@@ -477,7 +489,7 @@ Em comparação direta com o `stream08`, saem as quatro palavras de
 `r_output_write`, que passa a exercer simultaneamente o papel de banco de
 saída do tile e de estado parcial entre linhas.
 
-### 16.2 Por que isso reduz estado sem mudar a matemática
+#### 3.2 Por que isso reduz estado sem mudar a matemática
 
 `InverseRow` e um bloco combinacional. Ele recebe o vetor de produtos do ciclo,
 calcula os quatro valores parciais da inversa e entrega o resultado ao
@@ -495,7 +507,7 @@ Essa é a primeira redução que remove um banco inteiro sem aumentar o número 
 produtos. O preco e uma dependencia combinacional mais direta entre MAC,
 inversa e acumulador.
 
-## 17. Terceira redução: `stream00`
+### 4. Terceira redução: `stream00`
 
 Arquivo: `conv-i16-h16-t00-o4-m04-stream00.sv`.
 
@@ -504,7 +516,7 @@ produzindo os 16 valores, mas eles permanecem em `w_conv_transform`; o índice
 `r_transform_product_idx` seleciona diretamente os quatro valores que alimentam
 os MACs no ciclo corrente.
 
-### 17.1 Bancos registrados
+#### 4.1 Bancos registrados
 
 | Banco                       | Palavras | Motivo                                                   |
 | --------------------------- | -------: | -------------------------------------------------------- |
@@ -530,7 +542,7 @@ A diferença entre m04 e m08 é temporal: m04 consome uma linha da inversa por
 ciclo e precisa de quatro ciclos HADAMARD; m08 consome duas linhas e precisa de
 dois ciclos. O banco registrado é o mesmo.
 
-### 17.2 Implementação comum do banco compartilhado
+#### 4.2 Implementação comum do banco compartilhado
 
 O arquivo `conv-i16-h16-t00-o4-m08-stream00.sv` usa dois grupos de quatro MACs
 por ciclo e, por isso, produz duas linhas da inversa de uma vez. O arquivo m04
@@ -549,7 +561,7 @@ fim HADAMARD:  w_conv_end <= 1
 WRITE_OUTPUT:  p_output_data_write <- r_output_write + r_output_read
 ```
 
-## 18. Referência paralela: `all` com 16 MACs
+### 5. Referência paralela: `all` com 16 MACs
 
 Arquivo: `conv-i16-h16-t00-o4-m16-all.sv`.
 
@@ -560,7 +572,7 @@ os produtos e a inversa de forma paralela. O nome `t00` significa apenas que
 não há um banco dedicado chamado `r_transform_row` ou `r_inverse_row`; não
 significa que o datapath não tenha registradores intermediários.
 
-### 18.1 Bancos de dados do `all`
+#### 5.1 Bancos de dados do `all`
 
 | Banco                  | Palavras | Papel durante a janela                                       |
 | ---------------------- | -------: | ------------------------------------------------------------ |
@@ -575,7 +587,7 @@ Os 56 valores são uma contagem de armazenamento de dados, não uma contagem de
 flip-flops sintetizados. Ainda existem registradores escalares de endereço,
 contagem de janela, canais, FSM e controle de leitura/escrita.
 
-### 18.2 Sequência de vida dos dados
+#### 5.2 Sequência de vida dos dados
 
 1. A FSM de entrada preenche `r_input_feat` com a janela 4x4.
 2. A FSM de pesos preenche `r_input_weight` com 16 pesos.
@@ -594,7 +606,7 @@ da transformada registrada e captura a inversa diretamente na saída. Em
 comparação com `stream08`, usa mais palavras e 16 MACs para processar todos os
 produtos no mesmo ciclo.
 
-## 19. Variantes `stream08-*`: reduzir pesos sem guardar 16 pesos transformados
+### 6. Variantes `stream08-*`: reduzir pesos sem guardar 16 pesos transformados
 
 Depois de comparar as arquiteturas de feature, a próxima linha de trabalho foi
 aplicar a mesma ideia aos pesos. A pergunta passou a ser:
@@ -605,7 +617,7 @@ aplicar a mesma ideia aos pesos. A pergunta passou a ser:
 Essa mudança não reduz o banco de entrada: `r_input_feat[0:15]` continua
 necessário. Ela reduz ou reorganiza somente o lado dos pesos.
 
-### 19.1 `stream08-wstream4`
+#### 6.1 `stream08-wstream4`
 
 Arquivo ativo: `conv-i16-h13-t08-o4-m08-stream08-wstream4.sv`.
 
@@ -628,7 +640,7 @@ O ponto de economia não é simplesmente trocar 16 por 9. Oito palavras
 transformadas ainda precisam existir para alimentar os oito MACs; o ganho
 vem de não armazenar as outras doze ao mesmo tempo.
 
-### 19.2 `stream08-rowconst4`
+#### 6.2 `stream08-rowconst4`
 
 Arquivo ativo: `conv-i16-h13-t08-o4-m08-stream08-rowconst4.sv`.
 
@@ -645,7 +657,7 @@ Essa versão pode alterar área e timing mesmo mantendo a mesma contagem de
 palavras. Reduzir registradores não garante reduzir área quando o arredondamento
 adiciona comparadores, extensões de sinal e somadores.
 
-### 19.3 `stream08-rowconst4-exact` e `stream08-exact`
+#### 6.3 `stream08-rowconst4-exact` e `stream08-exact`
 
 Estas duas alternativas foram retiradas da linha ativa e estão descritas no
 **Anexo A**, no fim deste arquivo. A primeira mantém a fronteira de 49 palavras
@@ -654,7 +666,7 @@ segunda mantém 16 pesos transformados exatos e chega a 52 palavras. A
 separação evita que uma escolha histórica de largura seja confundida com o
 fluxo ativo de redução de armazenamento.
 
-### 19.4 `stream08-prefetch4`
+#### 6.4 `stream08-prefetch4`
 
 Arquivo ativo: `conv-i20-h16-t08-o4-m08-stream08-prefetch4.sv`.
 
@@ -671,7 +683,7 @@ O banco de prefetch não reduz o trabalho de uma janela. Ele protege a entrada
 seguinte e pode reduzir bolhas entre janelas. O custo é quatro palavras extras
 de estado, além dos flags `r_input_prefetch_full` e do controle de commit.
 
-### 19.5 `stream08-prefetch4-rowconst4`
+#### 6.5 `stream08-prefetch4-rowconst4`
 
 Arquivo ativo: `conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4.sv`.
 
@@ -696,14 +708,14 @@ O baseline `rowconst4` continua sendo o arquivo ativo
 `conv-i16-h13-t08-o4-m08-stream08-rowconst4.sv`, com sua configuração de
 síntese correspondente em `synthesis/`.
 
-### 19.6 `stream08-prefetch4-rowconst4-temporal1`
+#### 6.6 `stream08-prefetch4-rowconst4-temporal1`
 
 Esta alternativa temporal está arquivada e foi deslocada para o **Anexo A**.
 Ela é importante como contraexemplo: manteve 21.892 ciclos, mas o cache de
 quatro linhas aumentou área e potência. O fluxo ativo continua sendo o
 `prefetch4-rowconst4`, que preserva as linhas constantes em paralelo.
 
-### 19.7 Arquivamento, `shared` e reprodutibilidade
+#### 6.7 Arquivamento, `shared` e reprodutibilidade
 
 As variantes que só existem em `archive/`, incluindo `shared`, `exact`,
 `temporal1` e o banco latch, ficam reunidas no **Anexo A**. Cada diretório de
@@ -711,7 +723,7 @@ síntese preserva `list-file.txt`, logs do Genus, netlist, simulação anotada e
 `power_evaluation.txt`; os caminhos dos fontes arquivados foram corrigidos para
 que a reprodução histórica não dependa de arquivos ativos.
 
-## 20. Comparativo de registradores de dados
+### 7. Comparativo de registradores de dados
 
 A tabela usa a contagem integral, incluindo `r_output_read`, porque o objetivo
 é enxergar o armazenamento real das variantes que ainda orientam o
@@ -750,7 +762,7 @@ pós-síntese contabiliza 1.401 flip-flops, e não uma simples multiplicação d
 contagem nominal de palavras. Essa diferença entre estado declarado e estado
 retido é parte do motivo para sempre conferir o relatório de área.
 
-## 21. O que a contagem não mostra
+### 8. O que a contagem não mostra
 
 A contagem de palavras é uma ferramenta de raciocínio arquitetural, não um
 substituto para Genus. Ela não mostra:
@@ -774,7 +786,7 @@ Se uma redução remove quatro palavras, mas cria uma árvore de muxes maior que
 o banco removido, a síntese pode ficar pior. O registro da decisão deve mostrar
 os dois lados: palavras removidas e lógica adicionada.
 
-## 22. Mapa mental final
+### 9. Mapa mental final
 
 ```text
 STD (72 palavras)
@@ -811,7 +823,7 @@ precisa sobreviver a uma borda de clock. Todo o restante deve ser consumido no
 ciclo em que é produzido, desde que a ordem, o valor bit-exato e o contrato de
 memória permaneçam inalterados.
 
-## 23. Comparações metodológicas
+### 10. Comparações metodológicas
 
 As referências que só existem em `archive/` não interrompem a narrativa das
 variantes ativas. A descrição do `std` m04 e do `stream08` genérico, incluindo
@@ -821,7 +833,7 @@ registradores (`std`, `stream08`, `stream04`, `stream00`), apresenta `all16`
 como comparação paralela e então registra a escolha de `stream08` como base
 PPA para os testes de pesos `stream08-*`.
 
-## 24. Como comparar duas alterações sem se enganar
+### 11. Como comparar duas alterações sem se enganar
 
 Ao comparar duas fontes, preencha esta sequência antes de olhar para área:
 
@@ -852,7 +864,7 @@ O segundo caso é seguro somente depois de procurar todos os consumidores do
 sinal. Uma linha usada apenas por `$display` é diferente de uma linha usada
 como entrada de `InverseRowAccumulate`.
 
-## 25. Regra prática para as próximas reduções
+### 12. Regra prática para as próximas reduções
 
 A sequência de redução que este inventário recomenda é:
 
@@ -880,7 +892,7 @@ mesmos resultados + mesma interface de memória + menor custo medido
 Uma contagem menor que falha no golden, perde uma contribuição de canal ou
 precisa de uma árvore de muxes maior não é uma redução arquitetural válida.
 
-## 26. Conversão dos modelos m04 para m08
+### 13. Conversão dos modelos m04 para m08
 
 Na rodada de setembro de 2026, os modelos ativos que só tinham quatro MACs
 receberam uma variante `m08` separada. Os arquivos e diretórios `m04` foram
@@ -955,7 +967,7 @@ tabela acima destaca os valores nominais de total.
 Os resultados `m04` e os relatórios de síntese anteriores permanecem sob
 `archive/m04/`; nenhum arquivo `m04` foi sobrescrito pelos artefatos `m08`.
 
-## 27. Diagrama de ondas das FSMs e do prefetch
+### 14. Diagrama de ondas das FSMs e do prefetch
 
 O diagrama abaixo mostra a relação temporal entre as três FSMs do
 `stream08-prefetch4` e o leitor auxiliar de entrada. Cada coluna representa
@@ -971,7 +983,7 @@ portável: `PREFETCH_PHASES = STREAM_CYCLES + 2`, com uma fase para
 Por isso, no diagrama ele aparece como uma quarta faixa paralela à FSM de
 entrada, sem acrescentar estados enumerados à FSM principal.
 
-### 27.1 Carregamento do primeiro tile
+#### 14.1 Carregamento do primeiro tile
 
 Antes do primeiro `CONV_INPUT`, a FSM de entrada ainda precisa carregar as
 quatro linhas completas da janela 4x4. A notação `[4]` significa quatro
@@ -1003,7 +1015,7 @@ estável. O prefetch do próximo tile começa somente depois que o tile atual
 foi carregado em `CONV_INPUT`; a emissão do endereço antecipado usa a borda
 anterior para que a primeira amostra fique disponível em `TRANSFORM`.
 
-### 27.2 Regime estacionário com prefetch
+#### 14.2 Regime estacionário com prefetch
 
 A partir do tile seguinte, a coluna necessária para o próximo tile é lida
 durante o uso do tile corrente. A sequência abaixo não fixa a duração de
@@ -1058,7 +1070,7 @@ Essa proteção impede que a coluna pré-carregada sobrescreva
 consultar o tile corrente. Depois do commit, `READ_IN_8D` captura a segunda
 coluna nova e a janela seguinte fica completa.
 
-### 27.3 Transições de controle
+#### 14.3 Transições de controle
 
 ```text
 FSM de entrada:
@@ -1092,7 +1104,7 @@ convolução usa `r_input_feat`; o prefetch usa `r_input_prefetch`. Essa é a
 razão pela qual a implementação precisa de alguns registradores adicionais,
 mas não de uma segunda cópia da FSM de endereçamento completa.
 
-## 28. Alternativas arquivadas
+### 15. Alternativas arquivadas
 
 As experiências com latches foram deslocadas para o **Anexo A**, junto com as
 demais versões que não fazem parte da árvore ativa. O baseline
@@ -1100,7 +1112,7 @@ demais versões que não fazem parte da árvore ativa. O baseline
 fica documentada como experimento de redução de flip-flops, com seu resultado
 funcional e PPA preservado no anexo.
 
-## Anexo A — Versões que só existem em `archive/`
+### Anexo A — Versões que só existem em `archive/`
 
 Este anexo reúne, independentemente da quantidade de MACs, tudo que foi
 retirado da linha ativa. A regra é simples: o corpo principal explica as
@@ -1108,7 +1120,7 @@ decisões que ainda podem ser usadas para desenvolver os fontes ativos; o
 anexo conserva as tentativas anteriores, seus bancos de dados e seus números,
 para que nenhuma comparação histórica desapareça.
 
-### A.1 Referências m04
+#### A.1 Referências m04
 
 O [baseline `std` m04](/home/tarsio/gaph/FastConv_SystemVerilog/rtl/conv2x2/archive/m04/conv-i16-h16-t16-o4-m04-std.sv)
 mantém 16 palavras de features, 16 pesos transformados, 16 palavras de
@@ -1141,7 +1153,7 @@ implementa a mesma organização streaming para `NUM_MULT=4` ou `8`. O suporte
 a dois MACs foi retirado em `04848aa3`, porque manter esse caso no arquivo genérico
 criava uma promessa de datapath que não era mais usada nem validada.
 
-### A.2 `rowconst4-exact` e `stream08-exact` m08
+#### A.2 `rowconst4-exact` e `stream08-exact` m08
 
 O [rowconst4-exact](/home/tarsio/gaph/FastConv_SystemVerilog/rtl/conv2x2/archive/m08/conv-i16-h13-t08-o4-m08-stream08-rowconst4-exact.sv)
 preserva a contagem nominal de 45 palavras do `rowconst4`, mas usa larguras
@@ -1168,7 +1180,7 @@ principal de PPA:
 | `stream08-rowconst4-exact` |  12.903 |       20.041,711 | 25.654 |                217 |         0,814403 |
 | `stream08-exact`           |  11.153 |       17.007,726 | 25.717 |                227 |         0,733399 |
 
-### A.3 `shared` e `temporal1`
+#### A.3 `shared` e `temporal1`
 
 O `shared` tentou dividir as somas de `WeightTransformRowConst` entre linhas.
 O ganho potencial de lógica veio acompanhado de dependências de seleção e
@@ -1186,7 +1198,7 @@ O report anotado do temporal1 confirma 2.025 tiles, 8.100 escritas válidas e
 21.892 ciclos. O slack nominal foi de 190 ps; a energia correspondente ao
 workload foi 215,629 nJ.
 
-### A.4 Banco latch
+#### A.4 Banco latch
 
 O [latch-bank m08](/home/tarsio/gaph/FastConv_SystemVerilog/rtl/conv2x2/archive/m08/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-latch.sv)
 converteu somente bancos independentes para `always_latch`: prefetch de
@@ -1198,13 +1210,25 @@ O experimento manteve 21.892 ciclos, reduziu 340 flip-flops (29,3%), chegou a
 18.989,810 um2 e 0,741005 mW, e perdeu 24 ps de slack nominal. Ele permanece
 como evidência de uma troca de armazenamento, não como padrão ativo.
 
-## 2. Inventário detalhado: baseline `std` e snapshot de `stream00`
+## Alterações em ordem cronológica
 
-Cada palavra de dados tem 20 bits (`NBITS=20`). O ponto de partida detalhado é
-o `std`: ele mantém bancos registrados para a janela, os pesos transformados,
-a transformada completa e a entrada da convolução.
+Esta parte registra como o RTL e o fluxo de avaliação mudaram ao longo do
+desenvolvimento. Diferentemente da seção lógica anterior, aqui a ordem é a dos
+experimentos, decisões de implementação, correções de infraestrutura e
+campanhas executadas. Os resultados são evidências históricas vinculadas às
+fontes e aos commits indicados; não representam necessariamente o estado atual
+de todas as variantes.
 
-### Baseline: bancos de dados do `std`
+### 1. Inventário detalhado: baseline `std` e snapshot de `stream00`
+
+Este inventário abre o diário técnico com dois pontos de referência, sem
+recontar a sequência didática da seção lógica: primeiro documenta os bancos do
+`std`; depois registra o snapshot de `stream00` que serviu de base a alguns
+experimentos incrementais. Cada palavra de dados tem 20 bits (`NBITS=20`). O
+`std` mantém bancos registrados para a janela, os pesos transformados, a
+transformada completa e a entrada da convolução.
+
+#### 1.1 Baseline: bancos de dados do `std`
 
 | Sinal                  |        Dimensão | Função                                 |
 | ---------------------- | --------------: | -------------------------------------- |
@@ -1220,9 +1244,9 @@ Essa contagem é de palavras de dados, não de flip-flops sintetizados. Ela
 estabelece a referência para entender quais fronteiras o streaming remove ou
 substitui.
 
-### Snapshot de `stream00` antes das alterações incrementais
+#### 1.2 Snapshot de `stream00` antes das alterações incrementais
 
-O inventário abaixo é o ponto de partida dos experimentos das seções 3 a 6:
+O inventário abaixo é o ponto de partida dos experimentos cronológicos 2 a 5:
 um snapshot de `stream00` m04/m08 anterior às alterações incrementais. Ele
 não representa todas as variantes streaming. Os bancos da janela, dos pesos,
 `r_output_write` e `r_output_read` continuam existindo, mas não são repetidos
@@ -1241,7 +1265,7 @@ Os sinais `w_inverse_partial_current`, `w_output_acc_next` e
 `w_output_capture` são combinacionais. Eles não representam palavras
 armazenadas e não devem ser contadas como registradores.
 
-### Como ler o registro técnico das seções 3 a 13
+#### 1.3 Como ler o registro técnico dos experimentos seguintes
 
 Este trecho não é uma segunda sequência didática das arquiteturas. Ele reúne o
 registro de implementação e as evidências das campanhas. Primeiro, há três
@@ -1253,20 +1277,22 @@ perguntas independentes sobre o snapshot de `stream00`:
 | `r_transform_row` precisa ficar registrado?               | Depende da variante: `stream00` o remove; `stream04` o mantém após a comparação de síntese. |
 | Acumulador e banco final de saída precisam ser separados? | Não nessa FSM; `r_output_write` passou a exercer os dois papéis.                            |
 
-Depois dessas decisões, o assunto muda. As seções 7 e 8 delimitam o escopo
-histórico e registram o plano da época; as seções 9 e 10 tratam dos ajustes de
-scripts e configurações; as seções 11 e 12 apresentam as campanhas gate-level
-antes e depois da simplificação da FSM; a seção 13 reúne a comparação de PPA.
+Depois dessas decisões, o assunto muda. Os experimentos 6 e 7 delimitam o
+escopo histórico e registram o plano da época; os experimentos 8 e 9 tratam
+dos ajustes de scripts e configurações; os experimentos 10 e 11 apresentam as
+campanhas gate-level antes e depois da simplificação da FSM; o experimento 12
+reúne a comparação de PPA.
 
-Em particular, as seções 3 a 6 não descrevem uma cadeia em que toda variante
-recebe cumulativamente cada alteração. A remoção de `r_transform_row` é uma
+Em particular, os experimentos 2 a 5 não descrevem uma cadeia em que toda
+variante recebe cumulativamente cada alteração. A remoção de `r_transform_row` é uma
 ramificação: `stream00` não a mantém, enquanto `stream04` a preserva por causa
-do resultado de síntese. A ordem didática das arquiteturas continua sendo a da
-seção 0; a leitura comparativa da vida dos registradores começa na seção 14.
+do resultado de síntese. Para a explicação por arquitetura, use a seção
+**Alterações em ordem lógica**, organizada na ordem `std -> stream08 ->
+stream04 -> stream00 -> all -> stream08-*`.
 
-## 3. Experimento 1: remover `r_inverse_row`, usado apenas pelo trace
+### 2. Experimento 1: remover `r_inverse_row`, usado apenas pelo trace
 
-### Motivação
+#### 2.1 Motivação
 
 Nos snapshots então avaliados de `conv-i16-h16-t00-o4-m04-stream00.sv` e
 `conv-i16-h16-t00-o4-m08-stream00.sv`, `r_inverse_row` recebia
@@ -1279,7 +1305,7 @@ produtos do ciclo atual, e depois usa `InverseRowAccumulate`.
 Portanto, `r_inverse_row` não participa de `r_output_accumulator`, `w_output_acc_next`,
 `w_output_capture`, `p_output_data_write` ou dos endereços de memória.
 
-### Mudança aplicada
+#### 2.2 Mudança aplicada
 
 Em ambos os arquivos foram removidos:
 
@@ -1305,7 +1331,7 @@ primeira metade dos produtos enquanto a segunda metade era calculada no ciclo
 seguinte. Essa variante foi removida desta pasta; a observação fica registrada
 apenas para explicar por que a redução não foi aplicada de forma mecânica.
 
-### Redução obtida
+#### 2.3 Redução obtida
 
 Cada variante removeu 4 palavras de 20 bits, ou 80 bits de armazenamento.
 Considerando `conv4mac` e `conv8mac`, a redução textual é de 8 palavras, ou
@@ -1313,7 +1339,7 @@ Considerando `conv4mac` e `conv8mac`, a redução textual é de 8 palavras, ou
 ou área: esses efeitos só podem ser afirmados a partir da síntese do mesmo
 snapshot de código.
 
-### Condições de aceite do experimento
+#### 2.4 Condições de aceite do experimento
 
 - compilação e simulação Verilator sem erros;
 - mesmos `inverse_tiles`, `valid_writes` e valores golden;
@@ -1324,9 +1350,9 @@ snapshot de código.
   `inverse_row_current`/`inverse_row_lane1` continuam esperadas e não devem
   ser removidas.
 
-## 4. Evidências do experimento `r_inverse_row`
+### 3. Evidências do experimento `r_inverse_row`
 
-### `conv4mac`
+#### 3.1 `conv4mac`
 
 Comando:
 
@@ -1342,7 +1368,7 @@ valid_writes=8100 input_samples_clipped=0 invalid_output_beats=0
 Core active cycles: 12150
 ```
 
-### `conv8mac`
+#### 3.2 `conv8mac`
 
 Comando:
 
@@ -1358,7 +1384,7 @@ valid_writes=8100 input_samples_clipped=0 invalid_output_beats=0
 Core active cycles: 8100
 ```
 
-### Lint
+#### 3.3 Lint
 
 Os dois arquivos também passaram por:
 
@@ -1373,7 +1399,7 @@ O wrapper ModelSim `fish ./test-streaming.fish` não iniciou neste ambiente e
 terminou com código 159 (SIGSYS do sandbox). Isso é uma limitação da
 execução local, não uma falha funcional observada no Verilator.
 
-## 5. Experimento 2: testar a fronteira de `r_transform_row`
+### 4. Experimento 2: testar a fronteira de `r_transform_row`
 
 Este experimento compara duas escolhas de microarquitetura; não é uma remoção
 adotada por todas as variantes. Nas variantes `stream00` m04 e m08, os MACs
@@ -1382,9 +1408,9 @@ selecionam diretamente de `w_conv_transform` a faixa indicada por
 `stream04` m04 mantém esse banco como alternativa de comparação. São duas
 ramificações, não etapas cumulativas. `r_transform_row` guarda a linha
 transformada entre sua captura e o ciclo em que os MACs a consomem;
-`r_inverse_row`, tratado na seção 3, era apenas uma cópia para trace.
+`r_inverse_row`, tratado no experimento 2, era apenas uma cópia para trace.
 
-### Hipótese
+#### 4.1 Hipótese
 
 Substituímos a linha armazenada por seleção combinacional de
 `w_conv_transform[r_transform_product_idx + offset]`. O valor selecionado fica
@@ -1393,7 +1419,7 @@ clock que encerra o grupo de Hadamard; nessa mesma borda os pesos ativos são
 rotacionados. Assim, a nova linha e os novos pesos passam a valer juntos no
 ciclo seguinte.
 
-### Protocolo de avaliação da hipótese
+#### 4.2 Protocolo de avaliação da hipótese
 
 1. desenhar a tabela ciclo a ciclo para `NUM_MULT=4` e `NUM_MULT=8`;
 2. confirmar a relação entre `st_conv_current`, `r_transform_product_idx`,
@@ -1407,7 +1433,7 @@ No caso `NUM_MULT=4`, os quatro índices usados são 0, 4, 8 e 12. No caso
 `NUM_MULT=8`, os grupos são 0 e 8 e todos os oito operandos passam a ser
 selecionados diretamente da matriz transformada.
 
-### Mudança aplicada
+#### 4.3 Mudança aplicada
 
 Na variante sem o banco, a declaração de `r_transform_row` foi removida e
 `w_transform_feature` passou a usar diretamente os índices da linha atual. A
@@ -1428,7 +1454,7 @@ alternativa `stream04` não altera
 O acumulador, os pesos, os contadores e a ordem da inversa não foram
 alterados.
 
-### Redução obtida
+#### 4.4 Redução obtida
 
 Na variante `conv-i16-h16-t04-o4-m04-stream04.sv`, manter a fronteira representa
 4 palavras adicionais de 20 bits (80 bits) em relação à variante sem
@@ -1440,7 +1466,7 @@ e 2.987,622 respectivamente na variante sem `r_transform_row`. Portanto, os
 aproximadamente 10,1% e da área atribuída à hierarquia `Transform` em
 aproximadamente 40,8%.
 
-### Evidência
+#### 4.5 Evidência
 
 O teste da variante `conv-i16-h16-t04-o4-m04-stream04.sv` continua funcionalmente
 equivalente:
@@ -1453,7 +1479,7 @@ conv4mac: inverse_tiles=2025 cycles=27724 valid_writes=8100
 Nenhum erro de golden output foi observado. A simulação anotada do netlist
 regenerado também passou com `cycles=27725` e 0 erros de elaboração.
 
-## 6. Experimento 3: reutilizar `r_output_write` como acumulador
+### 5. Experimento 3: reutilizar `r_output_write` como acumulador
 
 Esta alteração foi aplicada a `conv-i16-h16-t00-o4-m04-stream00.sv` e
 `conv-i16-h16-t00-o4-m08-stream00.sv`. Antes, quatro palavras de
@@ -1487,7 +1513,7 @@ slack de 243 ps e potência de 0,684856 mW. A área permaneceu igual à rodada
 anterior porque o Genus já removia a redundância equivalente; a potência foi
 recalculada com o novo netlist.
 
-## 7. Escopo retirado: variante de 2 MACs
+### 6. Escopo retirado: variante de 2 MACs
 
 A antiga variante parametrizada de 2 MACs foi validada durante o
 desenvolvimento, mas não faz mais parte desta árvore. O arquivo
@@ -1495,15 +1521,15 @@ desenvolvimento, mas não faz mais parte desta árvore. O arquivo
 `synthesis/tcn4-02mac` foram removidos para que não exista uma fonte ou
 netlist obsoleto apresentado como configuração suportada.
 
-Os resultados antigos permanecem nas seções de campanha histórica somente
+Os resultados antigos permanecem nos registros de campanha histórica somente
 para rastreabilidade; eles não devem ser usados como resultados atuais da
 pasta `conv2x2`.
 
-## 8. Plano de execução original (registro histórico)
+### 7. Plano de execução original (registro histórico)
 
 Esta lista registra o plano proposto naquela etapa do desenvolvimento. Ela não
 é o roteiro atual do repositório: parte das variantes m04 foi arquivada, e as
-campanhas concluídas aparecem nas seções 11 a 13. Na época, cada item deveria
+campanhas concluídas aparecem nos experimentos 10 a 12. Na época, cada item deveria
 ser um commit separado ou uma unidade de trabalho facilmente revertível:
 
 1. estabelecer o baseline então mantido, com 4 e 8 MACs;
@@ -1519,13 +1545,13 @@ O princípio metodológico registrado era não promover uma alteração com base
 apenas na área estimada em RTL: cada etapa deveria identificar a mudança, sua
 motivação, os testes e o que ainda não havia sido medido.
 
-## 9. Correções no fluxo de síntese e simulação gate-level
+### 8. Correções no fluxo de síntese e simulação gate-level
 
 As mudanças desta seção são de infraestrutura: corrigem a seleção e a
 elaboração dos arquivos usados pelo Genus e pelo Xcelium. Elas não alteram a
-arquitetura do datapath descrita nas seções 3 a 6.
+arquitetura do datapath descrita nos experimentos 2 a 5.
 
-### Motivação
+#### 8.1 Motivação
 
 As duas variantes avaliadas naquela campanha compartilhavam o fluxo Genus e
 usavam módulos fixos (`conv-i16-h16-t00-o4-m04-stream00.sv` e
@@ -1533,7 +1559,7 @@ usavam módulos fixos (`conv-i16-h16-t00-o4-m04-stream00.sv` e
 precisavam corresponder ao layout local para que a síntese não lesse fontes de
 outra pasta.
 
-### Mudança aplicada
+#### 8.2 Mudança aplicada
 
 Os scripts de parsing usados nas campanhas históricas de
 `stream4/tcn4-04mac` e `stream4/tcn4-08mac` foram corrigidos para:
@@ -1551,7 +1577,7 @@ A mesma correção de origem foi aplicada ao caminho do testbench e às duas
 mudança de script: a prova exige executar Genus depois que todas as alterações
 de RTL forem finalizadas.
 
-### Verificações previstas para fechar a campanha
+#### 8.3 Verificações previstas para fechar a campanha
 
 - confirmar textualmente que todos os caminhos das listas existem;
 - executar `make run-stream04-4mac` e `make run-stream00-8mac` no RTL;
@@ -1559,10 +1585,10 @@ de RTL forem finalizadas.
   anotada e power com os artefatos dessa mesma campanha.
 
 Esses itens são os critérios registrados para aquela campanha, não tarefas
-pendentes agora; os resultados gate-level correspondentes estão nas seções 11
-e 12.
+pendentes agora; os resultados gate-level correspondentes estão nos
+experimentos 10 e 11.
 
-### Cuidados de anotação SDF registrados nessa correção
+#### 8.4 Cuidados de anotação SDF registrados nessa correção
 
 O `sdf_cmd.cmd` precisa usar exatamente o nome produzido pelo Genus
 (`Conv_...sdf`, respeitando maiúsculas e minúsculas). Se apontar para
@@ -1575,7 +1601,7 @@ módulos auxiliares. A lista deve conter `pack_data.sv`, `pack_param.sv`,
 `mem.sv`, o testbench e o netlist, evitando que o simulador escolha
 silenciosamente uma definição duplicada de `Conv`.
 
-## 10. Configurações da campanha histórica por variante
+### 9. Configurações da campanha histórica por variante
 
 Esta tabela registra as configurações usadas naquela campanha; não é o
 inventário atual de variantes ativas. As fontes m04 agora ficam em
@@ -1597,7 +1623,7 @@ Essa etapa corrigiu a origem dos arquivos, mas não gerou, por si só, uma nova
 síntese. Os resultados de cada campanha só comprovam o RTL identificado pelo
 commit registrado nos respectivos logs.
 
-## 11. Campanha gate-level anterior à simplificação da FSM (`f71dd2a2`)
+### 10. Campanha gate-level anterior à simplificação da FSM (`f71dd2a2`)
 
 Esta é a primeira das duas campanhas usadas para registrar a simplificação da
 FSM. Os resultados são históricos e pertencem aos commits e às configurações
@@ -1644,16 +1670,16 @@ movidas para `archive/m04/`, e a variante de 2 MACs foi removida. Portanto,
 estes números servem para comparar aquela campanha com a campanha seguinte,
 não para afirmar quais configurações estão ativas hoje.
 
-## 12. Campanha seguinte: simplificação da FSM
+### 11. Campanha seguinte: simplificação da FSM
 
-Depois da campanha da seção 11, as variantes stream simplificaram a FSM para
+Depois da campanha anterior, as variantes stream simplificaram a FSM para
 refletir o caminho real do datapath. Naquela revisão, os arquivos fixos
 `conv-i16-h16-t00-o4-m04-stream00.sv` e
 `conv-i16-h16-t00-o4-m08-stream00.sv` passaram a usar somente os estados
 necessários. A variante de 2 MACs mostrada na campanha anterior já não é uma
 configuração suportada.
 
-### Motivo arquitetural
+#### 11.1 Motivo arquitetural
 
 `Transform` continua sendo um módulo combinacional necessário: a matriz C
 inteira fica disponível em `w_conv_transform` enquanto cada ciclo seleciona a
@@ -1670,7 +1696,7 @@ salto para `INVERSE` e aciona `w_conv_end` e `w_conv_input_release` diretamente.
 operações incrementais de A1 e A0 que reduzem a necessidade de registrar a
 matriz M x M inteira.
 
-### Mudanças de controle
+#### 11.2 Mudanças de controle
 
 Antes, a sequência era:
 
@@ -1689,7 +1715,7 @@ registrador de estado de dois bits para um bit. O contador de produtos continua
 sendo inicializado antes do primeiro Hadamard, e o último resultado continua
 sendo capturado no mesmo ciclo da última acumulação.
 
-### Verificação RTL após a remoção
+#### 11.3 Verificação RTL após a remoção
 
 As duas variantes fixas da tabela passaram pelo mesmo `testbench.sv`, com golden,
 contagem de tiles e contagem de escritas:
@@ -1703,7 +1729,7 @@ Os resultados mostram a remoção dos dois ciclos de controle por janela sem
 alterar os dados: todos os golden checks passaram, não houve escrita fora da
 faixa e cada variante manteve 2.025 tiles e 8.100 escritas. A campanha única
 de Genus, anotada e Joules foi então executada no Paxos a partir deste RTL.
-Os números abaixo substituem os da seção 11 para esta microarquitetura:
+Os números abaixo substituem os da campanha anterior para esta microarquitetura:
 
 | Variante             | Células | Área total (um2) | Flip-flops | Slack nominal (ps) | Power total (mW) |
 | -------------------- | ------: | ---------------: | ---------: | -----------------: | ---------------: |
@@ -1725,10 +1751,10 @@ otimização do Genus. A redução do estado da convolução também aparece no
 relatório: foram sintetizados 1.024 e 1.023 flip-flops nos cores mantidos de 4
 e 8 MACs, respectivamente.
 
-## 13. Comparativo geral das variantes Conv2x2
+### 12. Comparativo geral das variantes Conv2x2
 
-As seções 11 e 12 preservam duas campanhas históricas ligadas à evolução da
-FSM. Esta tabela muda o foco: compara entre si os resultados gate-level
+As duas entradas anteriores preservam campanhas históricas ligadas à evolução
+da FSM. Esta tabela muda o foco: compara entre si os resultados gate-level
 disponíveis para as variantes m08 da linha principal. A potência é a média do
 `power_evaluation.txt`; a energia foi calculada para o workload da simulação
 anotada. As variantes que hoje só existem em `archive/` são identificadas no
@@ -1747,7 +1773,7 @@ Anexo A e entram no relatório agregado apenas com `--include-archived`.
 | Prefetch4 rowconst4 8 MACs              | `conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4.sv`              |  PASS   |  12.222 |       19.311,310 | 21.892 |   0,776556 |      170,023 |
 | Prefetch4 rowconst4 latch-single 8 MACs | `conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-latch-single.sv` |  PASS   |  12.372 |       19.019,773 | 27.688 |   0,641520 |      177,624 |
 
-### Leitura dos resultados
+#### 12.1 Leitura dos resultados
 
 - A sequência de redução é `std` (72 palavras), `stream08` (48), `stream04`
   (44) e `stream00` (40). Menos palavras, porém, não garantem menor área,
