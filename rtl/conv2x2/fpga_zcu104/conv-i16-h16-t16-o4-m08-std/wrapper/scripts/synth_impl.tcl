@@ -31,6 +31,7 @@ while {[gets $manifest line] >= 0} {
 }
 close $manifest
 
+read_verilog -sv [file join $memory_dir output_signature_pkg.sv]
 read_verilog -sv [file join $wrapper_dir rtl fpga_benchmark_top.sv]
 read_xdc [file join $wrapper_dir constraints zcu104_317mhz.xdc]
 
