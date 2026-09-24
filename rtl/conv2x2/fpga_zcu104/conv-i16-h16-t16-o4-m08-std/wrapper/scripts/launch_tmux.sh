@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if [[ $# -ne 2 || ( "$1" != "rtl" && "$1" != "implementation" ) ]]; then
-  printf 'usage: %s <rtl|implementation> <run-name>\n' "$0" >&2
+if [[ $# -ne 2 || ( "$1" != "rtl" && "$1" != "implementation" && "$1" != "audit" ) ]]; then
+  printf 'usage: %s <rtl|implementation|audit> <run-name>\n' "$0" >&2
   exit 2
 fi
 mode=$1
@@ -30,8 +30,13 @@ fi
 
 if [[ "$mode" == "rtl" ]]; then
   task_cmd="'$script_dir/run_xpm_rtl.sh' '$run_name' > '$log' 2>&1"
-else
+elif [[ "$mode" == "implementation" ]]; then
   task_cmd="vivado -mode batch -source '$script_dir/synth_impl.tcl' -tclargs '$run_name' > '$log' 2>&1"
+else
+  audit_dir="$run_dir/audit"
+  mkdir -p "$audit_dir"
+  dcp="$wrapper_dir/reports/route_317/design_routed.dcp"
+  task_cmd="vivado -mode batch -source '$script_dir/audit_routed.tcl' -tclargs '$dcp' '$audit_dir' > '$log' 2>&1"
 fi
 cmd="source /usr/share/Modules/init/bash && module purge && module use /soft64/modulefiles && module load xilinx/vivado/2023.2 cadence/xcelium/2303 && cd '$wrapper_dir/data' && $task_cmd"
 tmux new-session -d -s "$session" -c "$wrapper_dir/data" bash -lc "$cmd"
