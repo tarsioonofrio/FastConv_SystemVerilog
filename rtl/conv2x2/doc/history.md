@@ -405,21 +405,22 @@ recalculado ou consumido no mesmo ciclo.
 
 ### 2. Primeira redução: `stream08`
 
-Arquivo principal: `conv-i16-h16-t08-o4-m04-stream08.sv`.
+Arquivo ativo: `conv-i16-h16-t08-o4-m08-stream08.sv`.
 
 O `stream08` mantém a janela e os pesos completos, mas percorre os 16 produtos
-em quatro ciclos de quatro MACs. A matriz transformada continua existindo como
-`w_conv_transform[0:15]`, mas apenas quatro palavras passam para
-`r_transform_row` por ciclo. A inversa também é consumida por linha.
+em dois ciclos de oito MACs. A matriz transformada continua existindo como
+`w_conv_transform[0:15]`: quatro operandos são capturados em
+`r_transform_row`, enquanto os outros quatro são selecionados diretamente da
+matriz em cada ciclo. A inversa também é consumida por linha.
 
 #### 2.1 Bancos registrados
 
 | Banco                       | Palavras | O que atravessa o clock                                    |
 | --------------------------- | -------: | ---------------------------------------------------------- |
 | `r_input_feat[0:15]`        |       16 | Tile 4x4 em processamento                                  |
-| `r_input_weight[0:15]`      |       16 | Os 16 pesos, rotacionados em grupos de 4                   |
+| `r_input_weight[0:15]`      |       16 | Os 16 pesos, rotacionados em grupos de 8                   |
 | `r_transform_row[0:3]`      |        4 | Grupo da transformada consumido pelo próximo ciclo         |
-| `r_inverse_row[0:3]`        |        4 | Linha de produto mantida para a inversa/trace nesta versão |
+| `r_inverse_row[0:3]`        |        4 | Última linha de produtos mantida para o trace              |
 | `r_output_write[0:3]`       |        4 | Acumulador parcial do tile de saída                        |
 | `r_output_read[0:3]`        |        4 | Contribuição de canais anteriores                          |
 | **total integral de dados** |   **48** | Inclui os dois bancos de interface de saída                |
@@ -428,41 +429,82 @@ Na convenção do nome, `i16 + h16 + t08 + o4` soma 44 palavras porque `o4`
 conta somente o banco de escrita. A contagem integral acrescenta as quatro
 palavras de `r_output_read` e chega a 48.
 
-#### 2.2 Diferença para a referência paralela `all`
+#### 2.2 Mudanças de sinais, módulos e controle: `std` -> `stream08`
 
-O `stream08` elimina `r_conv_input[16]`, pois a entrada já está em `r_input_feat`
-e o acumulador de saída pode ser atualizado uma linha
-por ciclo. Em troca, introduz `r_transform_row[4]`, `r_inverse_row[4]` e dois
-índices curtos (`r_transform_product_idx` e `r_inverse_row_idx`).
+Depois da redução dos bancos descrita em 2.1, comparamos agora os outros
+elementos da implementação. A referência é o `std` ativo de oito MACs, para
+isolar as mudanças de microarquitetura sem misturá-las com uma mudança na
+quantidade de multiplicadores.
 
-Em palavras de dados, a transição é:
+| Aspecto | `std` | `stream08` | Efeito |
+| ------- | ----- | ---------- | ------ |
+| Caminho dos operandos | `r_conv_temp[0:7]` alimenta diretamente os oito `Multip`. | `r_transform_row` e `w_transform_feature` alimentam os oito `Multip`, combinando valores registrados e seleções diretas de `w_conv_transform`. | Os produtos deixam de consumir o FIFO completo e passam a consumir grupos da transformada em fluxo. |
+| Sinais de seleção legados | `MuxMult8`, `r_conv_idx_in` e `r_conv_idx_out` aparecem no RTL, mas as saídas do mux não têm consumidores no caminho funcional desta fonte. | Esses sinais e a instância `MuxMult8` não aparecem. | É uma remoção de estrutura sem uso funcional no `std`; não deve ser contada como ganho de datapath por si só. |
+| Retenção da janela | `TRANSFER` desloca a janela antes de `HOLD_WRITE`. | `r_stream_transfer_pending` guarda o pedido; `w_conv_input_release` autoriza o deslocamento. | A janela atual permanece estável até o datapath terminar de consumi-la. |
+| Sinais da inversa | `w_conv_inverse` recebe a saída matricial de `Inverse`. | `w_inverse_product_row*` alimentam as operações por linha; `w_output_acc_after_lane0` e `w_output_acc_next` encadeiam as somas. | A inversa matricial é substituída por cálculo incremental e acumulação por linha. |
+| Controle do fluxo | `r_conv_multiply_count` encerra a sequência HADAMARD; `r_conv_idx_in/out` pertencem ao caminho `MuxMult8` sem efeito funcional. | `r_conv_multiply_count` encerra a sequência, enquanto `r_transform_product_idx` e `r_inverse_row_idx` acompanham grupo e linha. | O contador de ciclos permanece; os novos índices representam o avanço explícito do fluxo por linhas. |
 
-```text
-all16:    16 input + 16 weights + 16 conv_input + 4 out + 4 read = 56
-stream08: 16 input + 16 weights +  4 transform  + 4 inverse    + 4 out + 4 read = 48
-```
+Os módulos `Transform` e os oito `Multip` permanecem. No `std`, os
+multiplicadores são descritos por um `generate`; no `stream08`, são instâncias
+explícitas ligadas aos operandos selecionados. A instância `MuxMult8` presente
+no `std` não participa do caminho funcional, pois suas saídas não são
+consumidas; o `stream08` não a declara. Já o módulo funcional `Inverse` é
+substituído por duas instâncias funcionais de `InverseRow` — uma para cada
+grupo de quatro produtos — e duas de `InverseRowAccumulate` para combinar as
+linhas processadas no mesmo ciclo. Há ainda uma instância de `InverseRow`
+alimentada por `r_inverse_row`, usada apenas pelo trace `STREAM_DEBUG`.
 
-A redução nominal é de 8 palavras, ou 160 bits a 20 bits por palavra. Ela
-não implica automaticamente 11% de área, porque a multiplexação, os quatro
-ciclos de controle e os módulos `InverseRowAccumulate` também ocupam área.
+Os índices `r_transform_product_idx` e `r_inverse_row_idx` são registradores de
+controle, não palavras dos bancos de dados contados em 2.1. Eles tornam visível
+o progresso do fluxo e não devem ser confundidos com os registradores de dados
+que motivaram a redução.
+
+As três FSMs preservam os mesmos estados enumerados: 11 na entrada, quatro na
+convolução (`WAIT_CONV`, `TRANSFORM`, `HADAMARD`, `INVERSE`) e seis na saída.
+Portanto, esta transição não reduz a quantidade de estados. A diferença está
+nas condições de avanço: `HOLD_WRITE` só libera a leitura/deslocamento seguinte
+quando `w_conv_input_release` e a condição de escrita estão satisfeitos. O
+controle faz a janela esperar pelo consumo da transformada sem acrescentar um
+novo estado à FSM.
 
 #### 2.3 O ciclo a ciclo
 
 ```text
-ciclo 0: r_transform_row <- w_conv_transform[0:3]   -> 4 produtos
-ciclo 1: r_transform_row <- w_conv_transform[4:7]   -> 4 produtos
-ciclo 2: r_transform_row <- w_conv_transform[8:11]  -> 4 produtos
-ciclo 3: r_transform_row <- w_conv_transform[12:15] -> 4 produtos
+TRANSFORM:    r_transform_row <- w_conv_transform[0:3], índice <- 0
+HADAMARD 0:   usa [0:3] registrados e [4:7] selecionados diretamente -> 8 produtos
+borda:        r_transform_row <- w_conv_transform[8:11], índice <- 8
+HADAMARD 1:   usa [8:11] registrados e [12:15] selecionados diretamente -> 8 produtos
 ```
 
 Em cada borda, `r_output_write` recebe o novo acumulado da inversa. O valor
 anterior não precisa de uma matriz 4x4: quatro acumuladores de saída são
 suficientes para os quatro pixels do tile.
 
-O `r_inverse_row` da fonte baseline é uma fronteira adicional que não participa
+O `r_inverse_row` desta variante é uma fronteira adicional que não participa
 do resultado final quando `STREAM_DEBUG` está desligado; ele existe por causa
-do caminho legado de trace. Esse detalhe explica por que a contagem textual do
-baseline não é ainda o limite mínimo da família `stream08`.
+do caminho legado de trace. Por isso a contagem textual desta fonte não é ainda
+o limite mínimo de armazenamento da família `stream08`.
+
+#### 2.4 Comparação PPA: `std` -> `stream08`
+
+A comparação usa as variantes m08, ambas com oito MACs, aprovadas na mesma
+campanha gate-level e avaliadas com o mesmo workload. Assim, os deltas mostram
+o efeito observado da mudança de arquitetura sem misturar quantidades de MACs.
+
+| Métrica | `std` m08 | `stream08` m08 | Diferença (`stream08` - `std`) |
+| ------- | --------: | -------------: | -----------------------------: |
+| Células reportadas | 8.874 | 10.254 | +1.380 (+15,5%) |
+| Área total (um2) | 15.675,268 | 15.660,389 | -14,879 (-0,095%) |
+| Ciclos do workload | 23.675 | 25.699 | +2.024 (+8,5%) |
+| Power (mW) | 0,863333 | 0,664592 | -0,198741 (-23,0%) |
+| Energia (nJ) | 204,416 | 170,810 | -33,606 (-16,4%) |
+
+Neste resultado, `stream08` reduz power e energia, mas aumenta o número de
+células reportadas e leva mais ciclos. A área total fica praticamente igual à
+do `std`; portanto, a redução de registradores não se converteu aqui numa
+redução material de área. Os resultados são da campanha gate-level reportada
+na comparação cronológica geral; não devem ser confundidos com a contagem
+nominal de palavras de dados da subseção 2.1.
 
 ### 3. Segunda redução: `stream04`
 
