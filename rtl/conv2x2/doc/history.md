@@ -508,12 +508,14 @@ nominal de palavras de dados da subseção 2.1.
 
 ### 3. Segunda redução: `stream04`
 
-Arquivo: `conv-i16-h16-t04-o4-m04-stream04.sv`.
+Arquivo ativo usado na comparação: `conv-i16-h16-t04-o4-m08-stream04.sv`.
 
-O sufixo `stream04` identifica a fronteira `t04`; esta fonte fixa tem quatro
-MACs. Somente uma linha de quatro valores da
-transformada é registrada. A linha da inversa não é armazenada; o produto do
-ciclo atual entra diretamente em `InverseRow` e depois em `InverseRowAccumulate`.
+O sufixo `stream04` identifica a fronteira de quatro valores registrados da
+transformada, não a quantidade de MACs. Esta variante m08 usa oito MACs em
+dois grupos de quatro. Somente uma linha de quatro valores da transformada é
+registrada; os produtos das duas lanes entram em `InverseRow` e
+`InverseRowAccumulate`. O vetor `r_inverse_row` ainda aparece no RTL para
+diagnóstico, mas não alimenta o caminho funcional da saída.
 
 #### 3.1 Bancos registrados
 
@@ -524,39 +526,81 @@ ciclo atual entra diretamente em `InverseRow` e depois em `InverseRowAccumulate`
 | `r_transform_row[0:3]`      |        4 |
 | `r_output_write[0:3]`       |        4 |
 | `r_output_read[0:3]`        |        4 |
-| **total integral de dados** |   **44** |
+| **total funcional de dados** | **44** |
 
-Em comparação direta com o `stream08`, saem as quatro palavras de
-`r_inverse_row`. A acumulação funcional não desaparece: ela continua em
-`r_output_write`, que passa a exercer simultaneamente o papel de banco de
-saída do tile e de estado parcial entre linhas.
+Na fronteira funcional, em comparação com `stream08`, não é necessário manter
+as quatro palavras de `r_inverse_row`; a declaração de diagnóstico que ainda
+existe no fonte não participa da saída e pode ser eliminada pela síntese. A
+acumulação continua em `r_output_write`, que exerce simultaneamente o papel de
+banco de saída do tile e de estado parcial entre linhas. A contagem textual do
+fonte pode incluir ainda as quatro palavras de trace em `r_inverse_row`; elas
+nao fazem parte das 44 palavras funcionais desta tabela.
 
-#### 3.2 Por que isso reduz estado sem mudar a matemática
+#### 3.2 Mudanças de sinais, módulos e controle: `stream08` -> `stream04`
 
-`InverseRow` e um bloco combinacional. Ele recebe o vetor de produtos do ciclo,
-calcula os quatro valores parciais da inversa e entrega o resultado ao
-`InverseRowAccumulate`. Como o acumulador já está registrado em
-`r_output_write`, guardar novamente a linha de produtos em `r_inverse_row` seria
-duplicar uma informação que já foi consumida.
+A comparação mantém oito MACs e destaca as diferenças funcionais entre as
+duas variantes. `stream04` preserva uma fronteira de quatro operandos da
+transformada, mas simplifica o controle da convolução.
+
+| Aspecto | `stream08` | `stream04` | Efeito |
+| ------- | ---------- | ---------- | ------ |
+| Linha da inversa | `r_inverse_row` também alimenta um caminho de trace. | `r_inverse_row` é somente diagnóstico; não alimenta a saída funcional. | O resultado da inversa é acumulado diretamente em `r_output_write`. |
+| Linha da transformada | `r_transform_row[0:3]` registra quatro valores. | O mesmo banco de quatro valores permanece. | A fronteira registrada da transformada não muda. |
+| Seleção de operandos | Quatro operandos registrados e quatro selecionados de `w_conv_transform`. | Mantém a mesma divisão entre operandos registrados e seleção direta. | Ambas processam oito produtos por ciclo HADAMARD. |
+| Inversa | Duas lanes funcionais de `InverseRow`/`InverseRowAccumulate`, mais o caminho de trace. | Duas lanes funcionais de `InverseRow`/`InverseRowAccumulate`; o sinal de trace não participa do datapath. | Mantém a operação incremental por linha. |
+| Índices e hand-shake | Usa `r_transform_product_idx`, `r_inverse_row_idx` e liberação após o consumo. | Mantém os índices e a liberação da janela ao final da convolução. | A janela continua estável até o consumo dos operandos. |
+| FSM da convolução | Quatro estados: `WAIT_CONV`, `TRANSFORM`, `HADAMARD`, `INVERSE`. | Dois estados: `WAIT_CONV`, `HADAMARD`. | Elimina `TRANSFORM` e `INVERSE`, que separavam operações combinacionais. |
+| FSMs externas | 11 estados na entrada e seis na saída. | Os mesmos estados na entrada e na saída. | A mudança fica concentrada no controle da convolução. |
+
+`Transform`, os oito `Multip`, duas instâncias funcionais de `InverseRow` e
+duas de `InverseRowAccumulate` permanecem. A mudança não reduz produtos nem
+altera a matemática; ela remove dois estados de controle e deixa o acumulador
+receber diretamente as linhas calculadas.
+
+#### 3.3 Por que isso reduz estado sem mudar a matemática
+
+`InverseRow` e um bloco combinacional. Cada lane recebe um grupo de quatro
+produtos, calcula os valores parciais da inversa e os entrega ao
+`InverseRowAccumulate`. Como o acumulador ja esta registrado em
+`r_output_write`, guardar novamente os produtos de uma lane em `r_inverse_row`
+nao e necessario para produzir a saida.
 
 O fluxo fica:
 
 ```text
-r_transform_row -> Multip[0:3] -> InverseRow -> Accumulate -> r_output_write
+r_transform_row + selecao direta -> Multip[0:7] -> duas lanes de InverseRow -> r_output_write
 ```
 
-Essa é a primeira redução que remove um banco inteiro sem aumentar o número de
-produtos. O preco e uma dependencia combinacional mais direta entre MAC,
-inversa e acumulador.
+Essa alteração remove da fronteira funcional um banco inteiro sem aumentar o
+número de produtos. O preço é uma dependência combinacional mais direta entre
+MAC, inversa e acumulador.
+
+#### 3.4 Comparação PPA: `stream08` -> `stream04`
+
+As duas variantes são m08, usam oito MACs e foram avaliadas na mesma campanha
+gate-level e com o mesmo workload. A contagem de palavras, por si só, não
+antecipa o PPA medido.
+
+| Métrica | `stream08` m08 | `stream04` m08 | Diferença (`stream04` - `stream08`) |
+| ------- | -------------: | -------------: | ----------------------------------: |
+| Células reportadas | 10.254 | 10.338 | +84 (+0,82%) |
+| Área total (um2) | 15.660,389 | 15.755,807 | +95,418 (+0,61%) |
+| Ciclos do workload | 25.699 | 23.675 | -2.024 (-7,88%) |
+| Power (mW) | 0,664592 | 0,758305 | +0,093713 (+14,10%) |
+| Energia (nJ) | 170,810 | 179,540 | +8,730 (+5,11%) |
+
+`stream04` reduz ciclos, mas a campanha mostra aumentos de área e potência; a
+energia total também fica maior. A retirada de estados e da dependência do
+banco de trace, portanto, não se converteu em melhora geral de PPA.
 
 ### 4. Terceira redução: `stream00`
 
-Arquivo: `conv-i16-h16-t00-o4-m04-stream00.sv`.
+Arquivo ativo usado na comparação: `conv-i16-h16-t00-o4-m08-stream00.sv`.
 
 Aqui a fronteira `r_transform_row` também foi removida. `Transform` continua
 produzindo os 16 valores, mas eles permanecem em `w_conv_transform`; o índice
-`r_transform_product_idx` seleciona diretamente os quatro valores que alimentam
-os MACs no ciclo corrente.
+`r_transform_product_idx` seleciona diretamente os oito valores que alimentam
+os MACs no ciclo corrente, em dois grupos de quatro.
 
 #### 4.1 Bancos registrados
 
@@ -580,9 +624,9 @@ stream00-m04: 16 input + 16 weights + 4 output-write + 4 output-read = 40
 stream00-m08: 16 input + 16 weights + 4 output-write + 4 output-read = 40
 ```
 
-A diferença entre m04 e m08 é temporal: m04 consome uma linha da inversa por
-ciclo e precisa de quatro ciclos HADAMARD; m08 consome duas linhas e precisa de
-dois ciclos. O banco registrado é o mesmo.
+O m04 histórico consome uma linha da inversa por ciclo HADAMARD; o m08 ativo
+consome duas linhas por ciclo. A fronteira de armazenamento de dados é a
+mesma.
 
 #### 4.2 Implementação comum do banco compartilhado
 
@@ -602,6 +646,39 @@ HADAMARD:      r_output_write <= w_output_acc_next
 fim HADAMARD:  w_conv_end <= 1
 WRITE_OUTPUT:  p_output_data_write <- r_output_write + r_output_read
 ```
+
+#### 4.3 Mudanças de sinais, módulos e controle: `stream04` -> `stream00`
+
+Esta comparação mantém oito MACs, as duas lanes da inversa e as FSMs externas.
+O que muda é a fronteira sequencial entre `Transform` e os multiplicadores.
+
+| Aspecto | `stream04` | `stream00` | Efeito |
+| ------- | ---------- | ---------- | ------ |
+| Linha transformada | `r_transform_row[0:3]` registra quatro valores. | Não há banco funcional `r_transform_row`; oito seleções combinacionais leem `w_conv_transform`. | Remove quatro palavras registradas e acrescenta seleção combinacional antes dos MACs. |
+| Índice de produtos | `r_transform_product_idx` acompanha os dois grupos. | O mesmo índice seleciona diretamente as faixas `[0:7]` e `[8:15]`. | O índice de controle substitui o banco de operandos. |
+| Linha da inversa | Duas lanes funcionais por ciclo; sinal de trace sem uso funcional. | Mantém o caminho incremental de duas lanes, sem banco funcional de linha. | Não muda a matemática nem a acumulação. |
+| Acumulador/saída | `r_output_write[0:3]` recebe os acumulados. | O mesmo banco é reutilizado durante HADAMARD e depois pela FSM de saída. | Não cria um banco separado de acumulador. |
+| FSM da convolução | `WAIT_CONV`, `HADAMARD`. | `WAIT_CONV`, `HADAMARD`. | Estados iguais; cada ciclo seleciona uma faixa diferente de `w_conv_transform`. |
+| FSMs externas | 11 estados de entrada e seis de saída, com liberação da janela. | Mesmos estados e hand-shake de liberação da janela. | Sem mudança na organização do carregamento e da escrita. |
+
+`Transform`, os oito `Multip`, as duas instâncias funcionais de `InverseRow` e
+as duas de `InverseRowAccumulate` permanecem. A mudança principal é trocar
+uma fronteira registrada por seleção combinacional: há menos armazenamento de
+dados, mas mais lógica de seleção no caminho dos operandos.
+
+#### 4.4 Comparação PPA: `stream04` -> `stream00`
+
+| Métrica | `stream04` m08 | `stream00` m08 | Diferença (`stream00` - `stream04`) |
+| ------- | -------------: | -------------: | ---------------------------------: |
+| Células reportadas | 10.338 | 11.818 | +1.480 (+14,31%) |
+| Área total (um2) | 15.755,807 | 16.855,605 | +1.099,798 (+6,98%) |
+| Ciclos do workload | 23.675 | 23.675 | 0 (0%) |
+| Power (mW) | 0,758305 | 0,918483 | +0,160178 (+21,13%) |
+| Energia (nJ) | 179,540 | 217,465 | +37,925 (+21,12%) |
+
+A fronteira menor de armazenamento não reduziu os ciclos nesta campanha. A
+seleção combinacional associada à sua remoção veio acompanhada de mais células,
+área, potência e energia.
 
 ### 5. Referência paralela: `all` com 16 MACs
 
@@ -645,8 +722,44 @@ contagem de janela, canais, FSM e controle de leitura/escrita.
 O `all` troca tempo por largura: mantém mais fronteiras de dados, mas termina
 uma janela Hadamard em um único ciclo. Em comparação com `std`, elimina o banco
 da transformada registrada e captura a inversa diretamente na saída. Em
-comparação com `stream08`, usa mais palavras e 16 MACs para processar todos os
-produtos no mesmo ciclo.
+comparação com `stream00`, usa mais palavras e 16 MACs para processar todos os
+produtos no mesmo ciclo. Esta é uma referência paralela, não uma etapa
+cumulativa da redução streaming.
+
+#### 5.3 Diferenças de sinais, módulos e controle: `stream00` -> referência `all`
+
+Esta comparação é entre estratégias, não entre duas etapas cumulativas do
+mesmo caminho. O `all` usa 16 MACs; `stream00` usa oito.
+
+| Aspecto | `stream00` m08 | `all` m16 | Efeito |
+| ------- | ------------- | --------- | ------ |
+| Operandos da transformada | Seleciona oito valores por ciclo em duas iterações. | Usa os 16 valores de `w_conv_transform` juntos. | Duplica a largura de multiplicação para concluir os produtos em um ciclo HADAMARD. |
+| Multiplicadores | Oito instâncias `Multip`. | 16 instâncias `Multip`. | Aumenta o paralelismo espacial e a largura combinacional. |
+| Inversa | Duas `InverseRow` e duas `InverseRowAccumulate` funcionais. | Uma `Inverse` matricial consome os 16 produtos. | Troca a acumulação incremental por linha por uma inversa completa em paralelo. |
+| Bancos intermediários | Não registra a linha transformada; `r_output_write` acumula. | Registra `r_conv_input[0:15]` e captura a saída de `Inverse`. | O `all` mantém um banco completo de entrada da convolução e captura a inversa diretamente na saída. |
+| Controle da convolução | FSM de dois estados (`WAIT_CONV`, `HADAMARD`) e índices de produto/linha. | Não há FSM de convolução nem índices de linha; o datapath paralelo é acionado junto ao carregamento da janela. | Remove controle temporal interno em troca de cálculo e armazenamento paralelos. |
+| FSMs de entrada/saída | 11 estados de entrada e seis de saída, com liberação da janela. | FSMs de entrada e saída controlam captura e escrita; não há hand-shake de término de HADAMARD por linha. | Muda a divisão de responsabilidade entre controle da janela e datapath. |
+
+`Transform` e o multiplicador `Multip` permanecem como funções, mas o número
+de instâncias de `Multip` dobra. A inversa por linha e seus índices deixam de
+ser necessários; entram a instância matricial `Inverse` e o banco
+`r_conv_input[0:15]`. Por isso, os 56 valores de dados do `all` não devem ser
+interpretados como uma simples etapa entre 40 e 48 palavras do streaming.
+
+#### 5.4 Comparação PPA: `stream00` -> referência paralela `all`
+
+| Métrica | `stream00` m08 | `all` m16 | Diferença (`all` - `stream00`) |
+| ------- | -------------: | --------: | -----------------------------: |
+| Células reportadas | 11.818 | 15.200 | +3.382 (+28,62%) |
+| Área total (um2) | 16.855,605 | 23.129,636 | +6.274,031 (+37,23%) |
+| Ciclos do workload | 23.675 | 23.672 | -3 (-0,013%) |
+| Power (mW) | 0,918483 | 0,650788 | -0,267695 (-29,14%) |
+| Energia (nJ) | 217,465 | 154,071 | -63,394 (-29,15%) |
+
+Embora `all` use 16 MACs e tenha área maior, a campanha reporta potência e
+energia menores e praticamente a mesma quantidade de ciclos totais. Esses
+ciclos incluem o workload completo; por isso não contradizem o fato de o
+datapath `all` calcular os 16 produtos em um ciclo HADAMARD.
 
 ### 6. Variantes `stream08-*`: reduzir pesos sem guardar 16 pesos transformados
 
@@ -682,6 +795,32 @@ O ponto de economia não é simplesmente trocar 16 por 9. Oito palavras
 transformadas ainda precisam existir para alimentar os oito MACs; o ganho
 vem de não armazenar as outras doze ao mesmo tempo.
 
+##### Diferenças para `stream08`: sinais, módulos e controle
+
+O caminho de features, os oito MACs e o controle de duas iterações HADAMARD
+permanecem. A alteração fica no caminho dos pesos.
+
+| Aspecto | `stream08` | `stream08-wstream4` | Efeito |
+| ------- | ---------- | ------------------ | ------ |
+| Banco de pesos | `r_input_weight[0:15]` guarda os 16 pesos transformados. | `r_weight_spatial[0:8]` guarda os nove pesos espaciais e `r_input_weight[0:7]` os oito pesos ativos. | Substitui o banco completo por pesos espaciais mais a linha ativa. |
+| Transformação dos pesos | Já ocorre antes da captura dos 16 pesos. | `WeightTransform` e `WeightTransformRow` calculam/selecionam as linhas usadas pelos MACs. | Acrescenta lógica combinacional de transformação e seleção por linha. |
+| Sinais de controle | Controle da leitura/captura dos pesos transformados. | Índice/seleção de linha e controle de captura do tile espacial. | A FSM passa a coordenar a geração da linha de pesos correspondente ao ciclo HADAMARD. |
+| Features, inversa e FSMs | Datapath `stream08` de features e inversa por duas lanes. | Mantém o mesmo datapath e o mesmo hand-shake de janela. | Isola a mudança no lado dos pesos. |
+
+##### PPA: `stream08` -> `stream08-wstream4`
+
+| Métrica | `stream08` m08 | `wstream4` m08 | Diferença (`wstream4` - `stream08`) |
+| ------- | -------------: | -------------: | ---------------------------------: |
+| Células reportadas | 10.254 | 11.778 | +1.524 (+14,86%) |
+| Área total (um2) | 15.660,389 | 18.673,687 | +3.013,298 (+19,24%) |
+| Ciclos do workload | 25.699 | 25.654 | -45 (-0,18%) |
+| Power (mW) | 0,664592 | 0,672691 | +0,008099 (+1,22%) |
+| Energia (nJ) | 170,810 | 172,589 | +1,779 (+1,04%) |
+
+A variante reduz o armazenamento de pesos transformados, mas aumenta área e
+potência nesta campanha; a redução de 45 ciclos não compensa esses aumentos na
+energia total.
+
 #### 6.2 `stream08-rowconst4`
 
 Arquivo ativo: `conv-i16-h13-t08-o4-m08-stream08-rowconst4.sv`.
@@ -699,6 +838,32 @@ Essa versão pode alterar área e timing mesmo mantendo a mesma contagem de
 palavras. Reduzir registradores não garante reduzir área quando o arredondamento
 adiciona comparadores, extensões de sinal e somadores.
 
+##### Diferenças para `wstream4`: sinais, módulos e controle
+
+Esta variante preserva os mesmos bancos de pesos e a mesma interface de
+controle de `wstream4`. A mudança é a implementação da transformação por linha.
+
+| Aspecto | `wstream4` | `rowconst4` | Efeito |
+| ------- | ---------- | ----------- | ------ |
+| Módulos de peso | `WeightTransform` seguido por `WeightTransformRow`. | `WeightTransformRowConst` gera cada linha com constantes fixas. | Substitui transformação geral e mux de linha por expressões especializadas. |
+| Sinais intermediários | Matriz transformada completa e seleção dinâmica/estática da linha. | Somatórios, arredondamento e resto locais ao módulo especializado. | Os intermediários de `rowconst4` são combinacionais, não bancos registrados. |
+| Controle | FSM coordena geração e captura da linha ativa. | Mantém a mesma sequência externa e seleciona as instâncias de linha. | Não altera a sequência HADAMARD nem o número de MACs. |
+| Bancos de dados | 49 palavras integrais. | Os mesmos 49 valores contabilizados. | A alteração não muda a fronteira de registradores. |
+
+##### PPA: `wstream4` -> `rowconst4`
+
+| Métrica | `wstream4` m08 | `rowconst4` m08 | Diferença (`rowconst4` - `wstream4`) |
+| ------- | -------------: | --------------: | ----------------------------------: |
+| Células reportadas | 11.778 | 11.959 | +181 (+1,54%) |
+| Área total (um2) | 18.673,687 | 18.885,876 | +212,189 (+1,14%) |
+| Ciclos do workload | 25.654 | 25.654 | 0 (0%) |
+| Power (mW) | 0,672691 | 0,671548 | -0,001143 (-0,17%) |
+| Energia (nJ) | 172,589 | 172,294 | -0,295 (-0,17%) |
+
+O caminho especializado mantém o desempenho temporal, tem área ligeiramente
+maior e reduz marginalmente potência e energia nesta campanha. A diferença é
+pequena e não representa uma mudança material de PPA.
+
 #### 6.3 `stream08-rowconst4-exact` e `stream08-exact`
 
 Estas duas alternativas foram retiradas da linha ativa e estão descritas no
@@ -707,6 +872,26 @@ do `rowconst4`, mas aumenta as larguras para preservar numeradores exatos; a
 segunda mantém 16 pesos transformados exatos e chega a 52 palavras. A
 separação evita que uma escolha histórica de largura seja confundida com o
 fluxo ativo de redução de armazenamento.
+
+##### Diferenças de arquitetura e PPA em relação a `rowconst4`
+
+As duas variantes são arquivadas e não devem ser lidas como parte do fluxo
+ativo. `rowconst4-exact` preserva a geração de linhas constantes, mas carrega
+numeradores com largura maior para evitar arredondamentos intermediários;
+`stream08-exact` mantém os 16 pesos transformados e altera a precisão
+aritmética. Em ambos os casos, a mudança afeta os módulos e sinais de dados,
+mas não cria uma nova FSM de controle.
+
+| Variante arquivada | Mudança principal frente a `rowconst4` | Células | Área total (um2) | Ciclos | Power (mW) |
+| ------------------ | -------------------------------------- | ------: | ---------------: | -----: | ---------: |
+| `rowconst4-exact` | Mantém a geração por linha; aumenta larguras para manter numeradores exatos. | 12.903 | 20.041,711 | 25.654 | 0,814403 |
+| `stream08-exact` | Restaura o banco de 16 pesos transformados e evita arredondamento intermediário. | 11.153 | 17.007,726 | 25.717 | 0,733399 |
+
+Os resultados completos permanecem no Anexo A. Eles não são diretamente
+comparáveis como uma progressao de PPA: `stream08-exact` muda simultaneamente
+precisao e banco de pesos, enquanto `rowconst4-exact` prioriza exatidao
+aritmetica. A tabela informa os resultados lado a lado, mas não os apresenta
+como uma evolução monotônica a partir do `rowconst4` ativo.
 
 #### 6.4 `stream08-prefetch4`
 
@@ -724,6 +909,33 @@ prefetch4:         20 input + 16 weights + 4 transform + 4 inverse + 8 out = 52
 O banco de prefetch não reduz o trabalho de uma janela. Ele protege a entrada
 seguinte e pode reduzir bolhas entre janelas. O custo é quatro palavras extras
 de estado, além dos flags `r_input_prefetch_full` e do controle de commit.
+
+##### Diferenças para `stream08`: sinais, módulos e controle
+
+`prefetch4` é uma ramificação do baseline `stream08`, independente da
+exploração de pesos `wstream4`/`rowconst4`.
+
+| Aspecto | `stream08` | `prefetch4` | Efeito |
+| ------- | ---------- | ---------- | ------ |
+| Banco de entrada | A FSM lê e desloca a janela atual ao liberar a convolução. | `r_input_prefetch[0:3]` captura a próxima coluna. | Antecipação da leitura com quatro palavras extras. |
+| Sinais de controle | `r_stream_transfer_pending` e `w_conv_input_release`. | Acrescenta `r_input_prefetch_full`, `active`, `enabled`, endereço/fase e condição de commit. | Controla início da leitura antecipada, preenchimento do banco e transferência atômica à janela. |
+| Endereço/interface de memória | Endereço atende à leitura corrente. | Um mux seleciona endereço de prefetch ou leitura corrente; `p_input_en` inclui a leitura antecipada. | A interface atende a duas fases temporais de leitura, sem alterar as portas externas. |
+| Módulos de computação | `Transform`, oito `Multip` e inversa por linhas. | Mantém os mesmos módulos de computação. | O ganho esperado vem da sobreposição de leitura, não de mais paralelismo aritmético. |
+| FSMs | FSMs de entrada, convolução e saída do `stream08`. | Mesmas três FSMs; a de entrada considera cheio/commit do prefetch. | Acrescenta condições de controle, sem acrescentar um estado de convolução. |
+
+##### PPA: `stream08` -> `prefetch4`
+
+| Métrica | `stream08` m08 | `prefetch4` m08 | Diferença (`prefetch4` - `stream08`) |
+| ------- | -------------: | ---------------: | ----------------------------------: |
+| Células reportadas | 10.254 | 10.506 | +252 (+2,46%) |
+| Área total (um2) | 15.660,389 | 16.073,141 | +412,752 (+2,64%) |
+| Ciclos do workload | 25.699 | 21.919 | -3.780 (-14,71%) |
+| Power (mW) | 0,664592 | 0,776661 | +0,112069 (+16,86%) |
+| Energia (nJ) | 170,810 | 170,256 | -0,554 (-0,32%) |
+
+O prefetch reduz sensivelmente os ciclos, com pequeno aumento de energia total
+por workload, mas aumenta a potência. É uma troca de latência por atividade e
+estado adicional, não uma redução geral de PPA.
 
 #### 6.5 `stream08-prefetch4-rowconst4`
 
@@ -750,14 +962,94 @@ O baseline `rowconst4` continua sendo o arquivo ativo
 `conv-i16-h13-t08-o4-m08-stream08-rowconst4.sv`, com sua configuração de
 síntese correspondente em `synthesis/`.
 
-#### 6.6 `stream08-prefetch4-rowconst4-temporal1`
+##### Diferenças para `prefetch4`: sinais, módulos e controle
+
+Esta variante parte de `prefetch4` e acrescenta a transformação de pesos
+`rowconst4`; não é uma etapa subsequente de `wstream4` sem prefetch.
+
+| Aspecto | `prefetch4` | `prefetch4-rowconst4` | Efeito |
+| ------- | ---------- | -------------------- | ------ |
+| Pesos registrados | Mantém `r_input_weight[0:15]`. | Mantém nove pesos espaciais e oito pesos transformados ativos. | Substitui os 16 pesos transformados por dados espaciais e linhas ativas. |
+| Módulos de transformação | Transformação completa do peso e captura dos 16 valores. | Quatro `WeightTransformRowConst`, com arredondamento especializado. | Gera as quatro linhas com constantes, coordenadas pela FSM HADAMARD. |
+| Prefetch de entrada | Banco e flags de prefetch ativos. | Mantém banco, flags, endereço, fase e commit do prefetch. | A otimização de entrada é preservada, sem mudança de protocolo externo. |
+| Features e datapath | Oito MACs e inversa em duas lanes. | O mesmo datapath de features, oito MACs e inversa em duas lanes. | A mudança incremental fica no armazenamento/geração dos pesos. |
+
+##### PPA: `prefetch4` -> `prefetch4-rowconst4`
+
+| Métrica | `prefetch4` m08 | `prefetch4-rowconst4` m08 | Diferença (`rowconst4` - `prefetch4`) |
+| ------- | --------------: | -------------------------: | -----------------------------------: |
+| Células reportadas | 10.506 | 12.222 | +1.716 (+16,33%) |
+| Área total (um2) | 16.073,141 | 19.311,310 | +3.238,169 (+20,14%) |
+| Ciclos do workload | 21.919 | 21.892 | -27 (-0,12%) |
+| Power (mW) | 0,776661 | 0,776556 | -0,000105 (-0,01%) |
+| Energia (nJ) | 170,256 | 170,023 | -0,233 (-0,14%) |
+
+`rowconst4` praticamente não muda os resultados temporais ou de potência
+quando combinado ao prefetch, mas eleva substancialmente células e área nesta
+campanha. O ganho de energia é marginal.
+
+#### 6.6 `stream08-prefetch4-rowconst4-latch-single`
+
+Arquivo ativo experimental: `conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-latch-single.sv`.
+
+Esta variante parte de `prefetch4-rowconst4` e troca alguns bancos
+selecionados para armazenamento sensivel a nivel. O prefetch e os pesos
+espaciais usam `always_latch`; a leitura de saida tambem usa latch. A janela de
+features e os estados, contadores e enderecos permanecem edge-triggered, para
+preservar o escalonamento da leitura e evitar transparencias durante a janela.
+
+##### Diferencas para `prefetch4-rowconst4`: sinais, modulos e controle
+
+| Aspecto | `prefetch4-rowconst4` | `latch-single` | Efeito |
+| ------- | -------------------- | ------------- | ------ |
+| Bancos sensiveis a nivel | Prefetch, pesos espaciais e leitura de saida edge-triggered. | Prefetch, pesos espaciais e leitura de saida usam latches; janela de features segue em flip-flops. | Muda a implementacao dos bancos escolhidos sem alterar sua funcao logica. |
+| Transformacao de pesos | Quatro `WeightTransformRowConst`. | Mantem as mesmas quatro instancias e habilita cada linha por controle. | Nao altera o algoritmo nem o numero de MACs. |
+| FSM e escalonamento | FSMs edge-triggered controlam leitura, prefetch, HADAMARD e saida. | FSMs, contadores e enderecos continuam edge-triggered. | A proposta experimental e local aos bancos, nao muda o protocolo. |
+
+##### PPA: `prefetch4-rowconst4` -> `latch-single`
+
+| Metrica | `prefetch4-rowconst4` | `latch-single` | Diferenca (`latch-single` - baseline) |
+| ------- | --------------------: | ------------: | ----------------------------------: |
+| Celulas reportadas | 12.222 | 12.372 | +150 (+1,23%) |
+| Area total (um2) | 19.311,310 | 19.019,773 | -291,537 (-1,51%) |
+| Ciclos do workload | 21.892 | 27.688 | +5.796 (+26,47%) |
+| Power (mW) | 0,776556 | 0,641520 | -0,135036 (-17,39%) |
+| Energia (nJ) | 170,023 | 177,624 | +7,601 (+4,47%) |
+
+O uso de latches reduz area e potencia reportadas, mas aumenta bastante os
+ciclos e a energia por workload. Como a variante e experimental, esses valores
+nao a promovem acima do baseline edge-triggered.
+
+#### 6.7 `stream08-prefetch4-rowconst4-temporal1`
 
 Esta alternativa temporal está arquivada e foi deslocada para o **Anexo A**.
 Ela é importante como contraexemplo: manteve 21.892 ciclos, mas o cache de
 quatro linhas aumentou área e potência. O fluxo ativo continua sendo o
 `prefetch4-rowconst4`, que preserva as linhas constantes em paralelo.
 
-#### 6.7 Arquivamento, `shared` e reprodutibilidade
+##### Diferenças para `prefetch4-rowconst4`: módulos, sinais e controle
+
+`temporal1` substitui as quatro instâncias paralelas de `WeightTransformRowConst`
+por uma instância compartilhada, capturando as linhas em bordas ja usadas
+(`READ_WEIGHTS`, `TRANSFORM` e `HADAMARD`). Isso acrescenta armazenamento
+temporal/cache e selecao, mas preserva a FSM funcional e o contrato de saida.
+E uma variante arquivada, portanto a comparacao abaixo e historica.
+
+##### PPA: `prefetch4-rowconst4` -> `temporal1` arquivado
+
+| Metrica | `prefetch4-rowconst4` | `temporal1` | Diferenca (`temporal1` - baseline) |
+| ------- | --------------------: | ----------: | ---------------------------------: |
+| Celulas reportadas | 12.222 | 13.193 | +971 (+7,95%) |
+| Area total (um2) | 19.311,310 | 20.432,097 | +1.120,787 (+5,80%) |
+| Ciclos do workload | 21.892 | 21.892 | 0 (0%) |
+| Power (mW) | 0,776556 | 0,984856 | +0,208300 (+26,82%) |
+| Energia (nJ) | 170,023 | 215,629 | +45,606 (+26,82%) |
+
+O compartilhamento reduz instancias combinacionais, mas o cache/controle
+temporal aumenta area, potencia e energia. Os resultados justificam manter a
+variante apenas como contraexemplo arquivado.
+
+#### 6.8 Arquivamento, `shared` e reprodutibilidade
 
 As variantes que só existem em `archive/`, incluindo `shared`, `exact`,
 `temporal1` e o banco latch, ficam reunidas no **Anexo A**. Cada diretório de
