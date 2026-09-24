@@ -100,12 +100,51 @@ execuções anteriores, mas o golden continuou falhando exatamente 2.691 vezes.
 Assim, atualizar estímulos em `negedge` melhorou a disciplina temporal do
 harness, mas não tornou a timing simulation funcionalmente válida.
 
+### Janela curta de endereço/dado
+
+Para localizar o desalinhamento sem rodar outro job completo, o mesmo
+testbench recebeu dois modos de trace limitados: os primeiros 50 acessos de
+entrada e os primeiros eventos/resultados da memória de saída. No segundo modo
+foi restaurada explicitamente a ROM combinacional original; o dado e o
+endereço foram registrados no `posedge` observado, além do valor esperado do
+pacote. A captura termina após dez escritas do último canal.
+
+- Com ROM combinacional, os 50 registros no-SDF tiveram zero divergências
+  entre dado e `const_data[address]`, e o endereço não mudou entre o `negedge`
+  observado e o `posedge` seguinte.
+- Com SDF e `-notimingchecks`, os 47 registros em que `p_input_en=1` também
+  coincidiram com `const_data[p_input_addr]` no `posedge`. Os três registros
+  restantes eram ciclos sem leitura (`p_input_en=0`), com dado mascarado para
+  zero. Ainda assim, o endereço de saída mudou entre as duas bordas em todos
+  os 50 intervalos observados.
+- Isso mostra por que a variante anterior que amostrava e segurava a ROM no
+  `negedge` não é um modelo adequado da ROM combinacional sob SDF: por exemplo,
+  o primeiro endereço passou de 3072 no `negedge` para 3073 no `posedge`, mas
+  o dado mantido era `data[3072]` (`-466`) enquanto a ROM combinacional já
+  apresentava `data[3073]` (`425`). Esse atraso introduzido pelo testbench não
+  deve ser confundido com evidência sobre a interface original.
+- Na saída, os primeiros quatro writes no-SDF e SDF tinham os mesmos endereços
+  (`0`, `30`, `1`, `31`), mas valores muito diferentes. Por exemplo, no
+  endereço zero: `-856` no no-SDF e `334656` com SDF. Em ambos os casos, o dado
+  lido e o conteúdo anterior da RAM eram zero, no canal de entrada zero.
+  Portanto, a primeira divergência observada já existe antes de a RAM de saída
+  fornecer uma soma anterior; realimentação/acumulação da RAM de saída não
+  explica esse primeiro erro.
+
+O trace confirma uma sensibilidade temporal endereço/resposta na fronteira
+externa e localiza a divergência observável antes da acumulação de saída, mas
+não prova qual registrador interno capturou qual valor na corrida de eventos.
+Também não demonstra que o mesmo protocolo seria válido para BRAM, DDR ou uma
+interface de streaming real. A causa exata permanece sem prova; não foi
+tentado compensar a diferença com atraso artificial.
+
 Essas execuções são somente diagnósticas: não produziram SAIF para power, e
 nenhum valor P3 anterior foi promovido. Não calcular energia, GOPS/W ou pJ/op
 com base nelas. Como as duas hipóteses pedidas foram testadas e a falha
 permaneceu mesmo sem timing checks, encerrar a investigação do piloto neste
-ponto; qualquer passo seguinte exigiria investigar a semântica do SDF/export
-e do modelo das memórias, fora de uma simples correção de fase do testbench.
+ponto; qualquer passo seguinte exigiria definir e modelar a interface de
+memória que a arquitetura FPGA final realmente usará, além de investigar a
+semântica do SDF/export.
 
 ## SAIF/SHM e potência diagnóstica
 
