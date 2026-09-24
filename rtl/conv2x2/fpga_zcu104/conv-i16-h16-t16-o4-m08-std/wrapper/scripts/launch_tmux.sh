@@ -35,7 +35,7 @@ elif [[ "$mode" == "implementation" ]]; then
 else
   audit_dir="$run_dir/audit"
   mkdir -p "$audit_dir"
-  dcp="$wrapper_dir/reports/route_317/design_routed.dcp"
+  dcp="${AUDIT_DCP:-$wrapper_dir/reports/route_317/design_routed.dcp}"
   task_cmd="vivado -mode batch -source '$script_dir/audit_routed.tcl' -tclargs '$dcp' '$audit_dir' > '$log' 2>&1"
 fi
 cmd="source /usr/share/Modules/init/bash && module purge && module use /soft64/modulefiles && module load xilinx/vivado/2023.2 cadence/xcelium/2303 && cd '$wrapper_dir/data' && $task_cmd"

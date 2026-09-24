@@ -17,7 +17,11 @@ report_io -file [file join $out_dir io.rpt]
 
 set counts [open [file join $out_dir cell_counts.txt] w]
 puts $counts "design=[get_property NAME [current_design]]"
-puts $counts "ports=[lsort [get_object_name [get_ports *]]]"
+set port_names {}
+foreach port [get_ports *] {
+  lappend port_names [get_property NAME $port]
+}
+puts $counts "ports=[lsort $port_names]"
 foreach ref {RAMB18E2 RAMB36E2 DSP48E2 URAM288} {
   set cells [get_cells -hier -filter "REF_NAME == $ref"]
   puts $counts "$ref=[llength $cells]"
