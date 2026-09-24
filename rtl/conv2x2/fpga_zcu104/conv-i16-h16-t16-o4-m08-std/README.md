@@ -69,12 +69,16 @@ medidos separadamente.
    para importação no checkpoint roteado. `scripts/post_impl_saif.tcl` valida
    os artefatos da timing simulation;
    `scripts/run_post_impl_saif.sh` tenta compilar o netlist com XSim e
-   `scripts/xsim_saif.tcl` abre a janela útil. Nesta execução, a anotação SDF
-   foi reconhecida, mas o `xelab` abortou em uma asserção LLVM de Vivado 2023.2;
-   por isso apenas o timing-SAIF fica opcional; o RTL-SAIF do fluxo Verilator é
-   a fonte de atividade para o power híbrido pós-route. A captura completa foi
-   regenerada após corrigir a unidade de tempo do driver; os relatórios da
-   captura truncada ficam separados em `reports/stale_saif_245ns/`.
+   `scripts/xsim_saif.tcl` abre a janela útil. A tentativa inicial com XSim
+   reconheceu o SDF, mas o `xelab` abortou numa asserção LLVM do Vivado 2023.2.
+   Um experimento isolado posterior com Xcelium compilou as bibliotecas FPGA,
+   executou a netlist/SDF e importou o SAIF no Vivado; porém, a saída não passou
+   no golden e houve violações de hold. P3 não foi adotado como método de
+   potência. O RTL-SAIF/vectorless continua sendo a estimativa principal; P2 é
+   o cross-check. O resultado e as limitações do teste Xcelium estão em
+   `reports/p3_timesim/summary.md`. A captura RTL-SAIF completa foi regenerada
+   após corrigir a unidade de tempo do driver; os relatórios da captura
+   truncada ficam separados em `reports/stale_saif_245ns/`.
 7. `scripts/extract_saif_activity.py` extrai a atividade dos ports e sinais de
    controle do DUT da captura RTL completa e gera
    `reports/rtl_saif/primary_activity.json`, `scripts/primary_activity.tcl` e
