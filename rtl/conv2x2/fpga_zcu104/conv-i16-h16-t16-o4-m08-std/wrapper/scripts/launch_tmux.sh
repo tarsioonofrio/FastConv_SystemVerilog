@@ -29,9 +29,10 @@ if tmux has-session -t "$session" 2>/dev/null; then
 fi
 
 if [[ "$mode" == "rtl" ]]; then
-  cmd="'$script_dir/run_xpm_rtl.sh' '$run_name' > '$log' 2>&1"
+  task_cmd="'$script_dir/run_xpm_rtl.sh' '$run_name' > '$log' 2>&1"
 else
-  cmd="vivado -mode batch -source '$script_dir/synth_impl.tcl' -tclargs '$run_name' > '$log' 2>&1"
+  task_cmd="vivado -mode batch -source '$script_dir/synth_impl.tcl' -tclargs '$run_name' > '$log' 2>&1"
 fi
-tmux new-session -d -s "$session" -c "$wrapper_dir/data" "$cmd"
+cmd="source /usr/share/Modules/init/bash && module purge && module use /soft64/modulefiles && module load xilinx/vivado/2023.2 cadence/xcelium/2303 && cd '$wrapper_dir/data' && $task_cmd"
+tmux new-session -d -s "$session" -c "$wrapper_dir/data" bash -lc "$cmd"
 printf 'TMUX_SESSION=%s\nLOG=%s\n' "$session" "$log"
