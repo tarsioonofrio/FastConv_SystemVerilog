@@ -1,0 +1,93 @@
+
+****** Vivado v2023.2 (64-bit)
+  **** SW Build 4029153 on Fri Oct 13 20:13:54 MDT 2023
+  **** IP Build 4028589 on Sat Oct 14 00:45:43 MDT 2023
+  **** SharedData Build 4025554 on Tue Oct 10 17:18:54 MDT 2023
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2023 Advanced Micro Devices, Inc. All Rights Reserved.
+
+source /tmp/p3f_mapping_trials.tcl
+# set dcp [file normalize [lindex $argv 0]]
+# set saif [file normalize [lindex $argv 1]]
+# set out_dir [file normalize [lindex $argv 2]]
+# open_checkpoint $dcp
+Command: open_checkpoint /tmp/fastconv-p3f-d0282f55/rtl/conv2x2/fpga_zcu104/conv-i16-h16-t16-o4-m08-std/reports/317mhz/design_routed.dcp
+
+Starting open_checkpoint Task
+
+Time (s): cpu = 00:00:00.03 ; elapsed = 00:00:00.03 . Memory (MB): peak = 1360.062 ; gain = 0.000 ; free physical = 18369 ; free virtual = 106974
+INFO: [Device 21-403] Loading part xczu7ev-ffvc1156-2-e
+Netlist sorting complete. Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.02 . Memory (MB): peak = 2417.141 ; gain = 0.000 ; free physical = 17332 ; free virtual = 105944
+INFO: [Netlist 29-17] Analyzing 227 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-479] Netlist was created with Vivado 2023.2
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Read ShapeDB Complete: Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00.01 . Memory (MB): peak = 2417.141 ; gain = 0.000 ; free physical = 17566 ; free virtual = 106178
+INFO: [Timing 38-478] Restoring timing data from binary archive.
+INFO: [Timing 38-479] Binary timing data restore complete.
+INFO: [Project 1-856] Restoring constraints from binary archive.
+INFO: [Project 1-853] Binary constraint restore complete.
+INFO: [Designutils 20-5722] Start Reading Physical Databases.
+Reading placement.
+Read Netlist Cache: Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00.01 . Memory (MB): peak = 2853.727 ; gain = 0.000 ; free physical = 17119 ; free virtual = 105785
+Reading placer database...
+Read Device Cache: Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.02 . Memory (MB): peak = 2853.727 ; gain = 0.000 ; free physical = 17114 ; free virtual = 105781
+Read PlaceDB: Time (s): cpu = 00:00:00.11 ; elapsed = 00:00:00.11 . Memory (MB): peak = 2853.727 ; gain = 0.000 ; free physical = 17110 ; free virtual = 105777
+Read PulsedLatchDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2853.727 ; gain = 0.000 ; free physical = 17110 ; free virtual = 105777
+Reading routing.
+Read RouteStorage: Time (s): cpu = 00:00:00.07 ; elapsed = 00:00:00.07 . Memory (MB): peak = 2871.539 ; gain = 17.812 ; free physical = 17108 ; free virtual = 105775
+Read Physdb Files: Time (s): cpu = 00:00:00.23 ; elapsed = 00:00:00.23 . Memory (MB): peak = 2871.539 ; gain = 17.812 ; free physical = 17108 ; free virtual = 105775
+Restored from archive | CPU: 0.260000 secs | Memory: 5.906319 MB |
+Finished XDEF File Restore: Time (s): cpu = 00:00:00.26 ; elapsed = 00:00:00.26 . Memory (MB): peak = 2871.539 ; gain = 17.812 ; free physical = 17108 ; free virtual = 105775
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 3246.148 ; gain = 0.000 ; free physical = 16674 ; free virtual = 105341
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 53 instances were transformed.
+  DSP48E2 => DSP48E2 (DSP_ALU, DSP_A_B_DATA, DSP_C_DATA, DSP_MULTIPLIER, DSP_M_DATA, DSP_OUTPUT, DSP_PREADD, DSP_PREADD_DATA): 8 instances
+  IBUF => IBUF (IBUFCTRL, INBUF): 45 instances
+
+INFO: [Project 1-604] Checkpoint was created with Vivado v2023.2 (64-bit) build 4029153
+open_checkpoint: Time (s): cpu = 00:00:21 ; elapsed = 00:00:22 . Memory (MB): peak = 3246.184 ; gain = 1886.121 ; free physical = 16673 ; free virtual = 105340
+# foreach strip_path {tb_power/dut tb_power/dut/Conv tb_power dut tb_power.dut} {
+#   reset_switching_activity -all
+#   set safe_name [string map {/ _ . _} $strip_path]
+#   if {[catch {
+#     read_saif -strip_path $strip_path \
+#       -out_file [file join $out_dir mapping_trial_${safe_name}.rpt] $saif
+#   } message]} {
+#     puts "MAPPING_TRIAL_ERROR strip_path=$strip_path message=$message"
+#   } else {
+#     puts "MAPPING_TRIAL_DONE strip_path=$strip_path"
+#   }
+# }
+INFO: [Power 33-167] Parsing SAIF file /tmp/fastconv-p3f-d0282f55/rtl/conv2x2/fpga_zcu104/conv-i16-h16-t16-o4-m08-std/reports/p3_funcsim/saif_top_nomem/activity_timesim_top_nomem.saif
+WARNING: [Power 33-395] Could not find -strip_path argument "tb_power/dut" in net(s).
+WARNING: [Power 33-330] Read_saif is trying to annotate activities on clock net and this will be ignored. Users shall manually specify clock net frequency using sdc timing constraints(e.g. create_clock)
+INFO: [Power 33-177] SAIF annotation done from file /tmp/fastconv-p3f-d0282f55/rtl/conv2x2/fpga_zcu104/conv-i16-h16-t16-o4-m08-std/reports/p3_funcsim/saif_top_nomem/activity_timesim_top_nomem.saif
+INFO: [Power 33-26] Design nets matched = 5342 of 5442
+MAPPING_TRIAL_DONE strip_path=tb_power/dut
+INFO: [Power 33-167] Parsing SAIF file /tmp/fastconv-p3f-d0282f55/rtl/conv2x2/fpga_zcu104/conv-i16-h16-t16-o4-m08-std/reports/p3_funcsim/saif_top_nomem/activity_timesim_top_nomem.saif
+WARNING: [Power 33-395] Could not find -strip_path argument "tb_power/dut/Conv" in net(s).
+WARNING: [Power 33-330] Read_saif is trying to annotate activities on clock net and this will be ignored. Users shall manually specify clock net frequency using sdc timing constraints(e.g. create_clock)
+INFO: [Power 33-177] SAIF annotation done from file /tmp/fastconv-p3f-d0282f55/rtl/conv2x2/fpga_zcu104/conv-i16-h16-t16-o4-m08-std/reports/p3_funcsim/saif_top_nomem/activity_timesim_top_nomem.saif
+INFO: [Power 33-26] Design nets matched = 101 of 5442
+MAPPING_TRIAL_DONE strip_path=tb_power/dut/Conv
+INFO: [Power 33-167] Parsing SAIF file /tmp/fastconv-p3f-d0282f55/rtl/conv2x2/fpga_zcu104/conv-i16-h16-t16-o4-m08-std/reports/p3_funcsim/saif_top_nomem/activity_timesim_top_nomem.saif
+WARNING: [Power 33-330] Read_saif is trying to annotate activities on clock net and this will be ignored. Users shall manually specify clock net frequency using sdc timing constraints(e.g. create_clock)
+INFO: [Power 33-177] SAIF annotation done from file /tmp/fastconv-p3f-d0282f55/rtl/conv2x2/fpga_zcu104/conv-i16-h16-t16-o4-m08-std/reports/p3_funcsim/saif_top_nomem/activity_timesim_top_nomem.saif
+INFO: [Power 33-26] Design nets matched = 201 of 5442
+MAPPING_TRIAL_DONE strip_path=tb_power
+INFO: [Power 33-167] Parsing SAIF file /tmp/fastconv-p3f-d0282f55/rtl/conv2x2/fpga_zcu104/conv-i16-h16-t16-o4-m08-std/reports/p3_funcsim/saif_top_nomem/activity_timesim_top_nomem.saif
+WARNING: [Power 33-395] Could not find -strip_path argument "dut" in net(s).
+WARNING: [Power 33-330] Read_saif is trying to annotate activities on clock net and this will be ignored. Users shall manually specify clock net frequency using sdc timing constraints(e.g. create_clock)
+INFO: [Power 33-177] SAIF annotation done from file /tmp/fastconv-p3f-d0282f55/rtl/conv2x2/fpga_zcu104/conv-i16-h16-t16-o4-m08-std/reports/p3_funcsim/saif_top_nomem/activity_timesim_top_nomem.saif
+INFO: [Power 33-26] Design nets matched = 101 of 5442
+MAPPING_TRIAL_DONE strip_path=dut
+INFO: [Power 33-167] Parsing SAIF file /tmp/fastconv-p3f-d0282f55/rtl/conv2x2/fpga_zcu104/conv-i16-h16-t16-o4-m08-std/reports/p3_funcsim/saif_top_nomem/activity_timesim_top_nomem.saif
+WARNING: [Power 33-395] Could not find -strip_path argument "tb_power.dut" in net(s).
+WARNING: [Power 33-330] Read_saif is trying to annotate activities on clock net and this will be ignored. Users shall manually specify clock net frequency using sdc timing constraints(e.g. create_clock)
+INFO: [Power 33-177] SAIF annotation done from file /tmp/fastconv-p3f-d0282f55/rtl/conv2x2/fpga_zcu104/conv-i16-h16-t16-o4-m08-std/reports/p3_funcsim/saif_top_nomem/activity_timesim_top_nomem.saif
+INFO: [Power 33-26] Design nets matched = 101 of 5442
+MAPPING_TRIAL_DONE strip_path=tb_power.dut
+# close_design
+# exit
+INFO: [Common 17-206] Exiting Vivado at Thu Sep 24 13:26:46 2026...

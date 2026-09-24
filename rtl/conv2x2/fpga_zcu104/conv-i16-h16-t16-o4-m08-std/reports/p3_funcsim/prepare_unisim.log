@@ -1,0 +1,116 @@
+
+****** Vivado v2023.2 (64-bit)
+  **** SW Build 4029153 on Fri Oct 13 20:13:54 MDT 2023
+  **** IP Build 4028589 on Sat Oct 14 00:45:43 MDT 2023
+  **** SharedData Build 4025554 on Tue Oct 10 17:18:54 MDT 2023
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2023 Advanced Micro Devices, Inc. All Rights Reserved.
+
+source /tmp/p3f_prepare_unisim.tcl
+# set dcp [lindex $argv 0]
+# set netlist [lindex $argv 1]
+# set simlib_dir [lindex $argv 2]
+# open_checkpoint $dcp
+Command: open_checkpoint /tmp/fastconv-p3f-d0282f55/rtl/conv2x2/fpga_zcu104/conv-i16-h16-t16-o4-m08-std/reports/317mhz/design_routed.dcp
+
+Starting open_checkpoint Task
+
+Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.03 . Memory (MB): peak = 1307.277 ; gain = 0.000 ; free physical = 19694 ; free virtual = 109616
+INFO: [Device 21-403] Loading part xczu7ev-ffvc1156-2-e
+Netlist sorting complete. Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00.02 . Memory (MB): peak = 2417.277 ; gain = 0.000 ; free physical = 18578 ; free virtual = 108501
+INFO: [Netlist 29-17] Analyzing 227 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-479] Netlist was created with Vivado 2023.2
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Read ShapeDB Complete: Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00.01 . Memory (MB): peak = 2417.277 ; gain = 0.000 ; free physical = 18591 ; free virtual = 108512
+INFO: [Timing 38-478] Restoring timing data from binary archive.
+INFO: [Timing 38-479] Binary timing data restore complete.
+INFO: [Project 1-856] Restoring constraints from binary archive.
+INFO: [Project 1-853] Binary constraint restore complete.
+INFO: [Designutils 20-5722] Start Reading Physical Databases.
+Reading placement.
+Read Netlist Cache: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2857.262 ; gain = 0.000 ; free physical = 18318 ; free virtual = 108238
+Reading placer database...
+Read Device Cache: Time (s): cpu = 00:00:00.03 ; elapsed = 00:00:00.03 . Memory (MB): peak = 2857.262 ; gain = 0.000 ; free physical = 18312 ; free virtual = 108232
+Read PlaceDB: Time (s): cpu = 00:00:00.11 ; elapsed = 00:00:00.11 . Memory (MB): peak = 2857.262 ; gain = 0.000 ; free physical = 18309 ; free virtual = 108229
+Read PulsedLatchDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2857.262 ; gain = 0.000 ; free physical = 18309 ; free virtual = 108229
+Reading routing.
+Read RouteStorage: Time (s): cpu = 00:00:00.07 ; elapsed = 00:00:00.06 . Memory (MB): peak = 2873.105 ; gain = 15.844 ; free physical = 18308 ; free virtual = 108228
+Read Physdb Files: Time (s): cpu = 00:00:00.22 ; elapsed = 00:00:00.22 . Memory (MB): peak = 2873.105 ; gain = 15.844 ; free physical = 18308 ; free virtual = 108228
+Restored from archive | CPU: 0.260000 secs | Memory: 5.906319 MB |
+Finished XDEF File Restore: Time (s): cpu = 00:00:00.25 ; elapsed = 00:00:00.25 . Memory (MB): peak = 2873.105 ; gain = 15.844 ; free physical = 18308 ; free virtual = 108228
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 3248.684 ; gain = 0.000 ; free physical = 17912 ; free virtual = 107833
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 53 instances were transformed.
+  DSP48E2 => DSP48E2 (DSP_ALU, DSP_A_B_DATA, DSP_C_DATA, DSP_MULTIPLIER, DSP_M_DATA, DSP_OUTPUT, DSP_PREADD, DSP_PREADD_DATA): 8 instances
+  IBUF => IBUF (IBUFCTRL, INBUF): 45 instances
+
+INFO: [Project 1-604] Checkpoint was created with Vivado v2023.2 (64-bit) build 4029153
+open_checkpoint: Time (s): cpu = 00:00:20 ; elapsed = 00:00:21 . Memory (MB): peak = 3248.719 ; gain = 1941.441 ; free physical = 17912 ; free virtual = 107832
+# write_verilog -force -mode funcsim $netlist
+# close_design
+# compile_simlib \
+#   -simulator xcelium \
+#   -family zynquplus \
+#   -language verilog \
+#   -library unisim \
+#   -directory $simlib_dir \
+#   -no_ip_compile \
+#   -force
+INFO: [Vivado 12-5496] Finding simulator executables and checking version...
+INFO: [Vivado 12-12197] Finding GCC compiler executables...
+INFO: [Vivado 12-12200] Using GCC executables set by -gcc_exec_path from '/soft64/cadence/ferramentas/XCELIUM2303/tools/cdsgcc/gcc/9.3/bin'
+INFO: [Vivado 12-12198] GCC version '9.3.0'
+INFO: [Vivado 12-5498] Processing source library information for the selected device family (default:all) ...
+
+Compiling libraries for 'xcelium' simulator in '/tmp/fastconv-p3f-d0282f55/rtl/conv2x2/fpga_zcu104/conv-i16-h16-t16-o4-m08-std/reports/p3_funcsim/simlibs_unisim'
+Creating cds.lib file...
+Creating hdl.var file...
+--> Compiling 'verilog.secureip' library...
+    > Source Library = '/soft64/xilinx/ferramentas/Vivado/2023.2/Vivado/2023.2/data/secureip'
+    > Compiled Path  = '/tmp/fastconv-p3f-d0282f55/rtl/conv2x2/fpga_zcu104/conv-i16-h16-t16-o4-m08-std/reports/p3_funcsim/simlibs_unisim/secureip'
+    > Log File       = '/tmp/fastconv-p3f-d0282f55/rtl/conv2x2/fpga_zcu104/conv-i16-h16-t16-o4-m08-std/reports/p3_funcsim/simlibs_unisim/secureip/.cxl.ver.secureip.secureip.log'
+
+compile_simlib[verilog.secureip]: 0 error(s), 1 warning(s), 50.00 % complete
+--> Compiling 'verilog.unisim' library...
+    > Source Library = '/soft64/xilinx/ferramentas/Vivado/2023.2/Vivado/2023.2/data/verilog/src'
+    > Compiled Path  = '/tmp/fastconv-p3f-d0282f55/rtl/conv2x2/fpga_zcu104/conv-i16-h16-t16-o4-m08-std/reports/p3_funcsim/simlibs_unisim/unisims_ver'
+    > Log File       = '/tmp/fastconv-p3f-d0282f55/rtl/conv2x2/fpga_zcu104/conv-i16-h16-t16-o4-m08-std/reports/p3_funcsim/simlibs_unisim/unisims_ver/.cxl.ver.unisim.unisims_ver.log'
+--> Compiling 'verilog.unisim:verilog.unimacro' library...
+    > Source Library = '/soft64/xilinx/ferramentas/Vivado/2023.2/Vivado/2023.2/data/verilog/src/unimacro'
+    > Compiled Path  = '/tmp/fastconv-p3f-d0282f55/rtl/conv2x2/fpga_zcu104/conv-i16-h16-t16-o4-m08-std/reports/p3_funcsim/simlibs_unisim/unimacro_ver'
+    > Log File       = '/tmp/fastconv-p3f-d0282f55/rtl/conv2x2/fpga_zcu104/conv-i16-h16-t16-o4-m08-std/reports/p3_funcsim/simlibs_unisim/unimacro_ver/.cxl.ver.unimacro.unimacro_ver.log'
+compile_simlib[verilog.unisim:verilog.unimacro]: 0 error(s), 0 warning(s)
+--> Compiling 'verilog.unisim:verilog.unifast' library...
+    > Source Library = '/soft64/xilinx/ferramentas/Vivado/2023.2/Vivado/2023.2/data/verilog/src/unifast'
+    > Compiled Path  = '/tmp/fastconv-p3f-d0282f55/rtl/conv2x2/fpga_zcu104/conv-i16-h16-t16-o4-m08-std/reports/p3_funcsim/simlibs_unisim/unifast_ver'
+    > Log File       = '/tmp/fastconv-p3f-d0282f55/rtl/conv2x2/fpga_zcu104/conv-i16-h16-t16-o4-m08-std/reports/p3_funcsim/simlibs_unisim/unifast_ver/.cxl.ver.unifast.unifast_ver.log'
+compile_simlib[verilog.unisim:verilog.unifast]: 0 error(s), 0 warning(s)
+
+compile_simlib[verilog.unisim]: 0 error(s), 2 warning(s), 100.00 % complete
+Copying setup file 'cds.lib' to '/tmp/fastconv-p3f-d0282f55/rtl/conv2x2/fpga_zcu104/conv-i16-h16-t16-o4-m08-std/reports/p3_funcsim/simlibs_unisim' ...
+Copying setup file 'hdl.var' to '/tmp/fastconv-p3f-d0282f55/rtl/conv2x2/fpga_zcu104/conv-i16-h16-t16-o4-m08-std/reports/p3_funcsim/simlibs_unisim' ...
+
+***********************************************************************************************************************
+*                                             COMPILATION SUMMARY                                                     *
+*                                                                                                                     *
+*  Simulator used: xcelium                                                                                            *
+*  Compiled on: Thu Sep 24 13:06:41 2026                                                                              *
+*                                                                                                                     *
+***********************************************************************************************************************
+*  Library                                | Language |          Mapped Library Name           | Error(s) | Warning(s) *
+*---------------------------------------------------------------------------------------------------------------------*
+*  secureip                               | verilog  | secureip                               | 0        | 1          *
+-----------------------------------------------------------------------------------------------------------------------
+*  unisim                                 | verilog  | unisims_ver                            | 0        | 2          *
+-----------------------------------------------------------------------------------------------------------------------
+*  unimacro                               | verilog  | unimacro_ver                           | 0        | 0          *
+-----------------------------------------------------------------------------------------------------------------------
+*  unifast                                | verilog  | unifast_ver                            | 0        | 0          *
+-----------------------------------------------------------------------------------------------------------------------
+
+INFO: [Vivado 12-7167] Writing compiled library information...
+INFO: [Vivado 12-7165] Finished writing compiled library information.
+compile_simlib: Time (s): cpu = 00:00:19 ; elapsed = 00:00:21 . Memory (MB): peak = 3248.719 ; gain = 0.000 ; free physical = 16558 ; free virtual = 105397
+# exit
+INFO: [Common 17-206] Exiting Vivado at Thu Sep 24 13:07:02 2026...
