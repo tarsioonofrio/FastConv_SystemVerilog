@@ -3,17 +3,27 @@
 module tb_fpga_wrapper;
   import pack_data::*;
   import pack_param::*;
+  import output_signature_pkg::*;
 
   localparam int unsigned OUTPUT_WORDS = FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE * N_CHANNEL_OUT;
   localparam int unsigned EXPECTED_WRITES = N_CHANNEL_IN * OUTPUT_WORDS;
   localparam int unsigned OUTPUT_TILES_PER_AXIS = (FEAT_OUTPUT_SIZE + CONV_OUTPUT_SIZE - 1) / CONV_OUTPUT_SIZE;
   localparam int unsigned EXPECTED_TILES = N_CHANNEL_IN * N_CHANNEL_OUT * OUTPUT_TILES_PER_AXIS * OUTPUT_TILES_PER_AXIS;
   localparam realtime CLK_PERIOD_NS = 3.154574;
+`ifdef CHECKER_FAULT_INJECT
+  localparam bit EXPECT_CHECKER_OK = 1'b0;
+  localparam bit INJECT_CHECKER_FAULT = 1'b1;
+`else
+  localparam bit EXPECT_CHECKER_OK = 1'b1;
+  localparam bit INJECT_CHECKER_FAULT = 1'b0;
+`endif
 
   logic clk = 1'b0;
   logic reset = 1'b1;
   logic start = 1'b0;
   logic done;
+  logic result_valid;
+  logic result_ok;
   integer cycles;
   integer launch_cycle;
   integer latency_cycles;
@@ -21,15 +31,20 @@ module tb_fpga_wrapper;
   integer golden_errors;
   integer out_of_range_writes;
   integer tile_count;
+  integer checker_reads;
   logic tile_end_d;
 
   always #(CLK_PERIOD_NS / 2.0) clk = ~clk;
 
-  fpga_benchmark_top dut (
+  fpga_benchmark_top #(
+    .CHECKER_FAULT_INJECT(INJECT_CHECKER_FAULT)
+  ) dut (
     .clk(clk),
     .reset(reset),
     .start(start),
-    .done(done)
+    .done(done),
+    .result_valid(result_valid),
+    .result_ok(result_ok)
   );
 
   always_ff @(posedge clk) begin
@@ -41,6 +56,7 @@ module tb_fpga_wrapper;
       golden_errors <= 0;
       out_of_range_writes <= 0;
       tile_count <= 0;
+      checker_reads <= 0;
       tile_end_d <= 1'b0;
     end else begin
       cycles <= cycles + 1;
@@ -51,6 +67,8 @@ module tb_fpga_wrapper;
       tile_end_d <= dut.accelerator_core.w_conv_end;
       if (dut.accelerator_core.w_conv_end && !tile_end_d)
         tile_count <= tile_count + 1;
+      if (dut.checker_read_valid)
+        checker_reads <= checker_reads + 1;
 
       if (dut.core_output_en && dut.core_output_wr) begin
         write_count <= write_count + 1;
@@ -80,7 +98,8 @@ module tb_fpga_wrapper;
     fork
       begin
         @(posedge done);
-        repeat (2) @(negedge clk);
+        wait (result_valid === 1'b1);
+        repeat (1) @(negedge clk);
       end
       begin
         repeat (100000) @(posedge clk);
@@ -100,9 +119,21 @@ module tb_fpga_wrapper;
       $fatal(1, "golden mismatch count: %0d", golden_errors);
     if (out_of_range_writes != 0)
       $fatal(1, "out-of-range write count: %0d", out_of_range_writes);
+    if (result_valid !== 1'b1 || result_ok !== EXPECT_CHECKER_OK)
+      $fatal(1, "result checker failed: valid=%b ok=%b crc=%08x",
+             result_valid, result_ok, dut.result_signature);
+    if (checker_reads != OUTPUT_WORDS)
+      $fatal(1, "wrong checker read count: got %0d expected %0d",
+             checker_reads, OUTPUT_WORDS);
+    if (!INJECT_CHECKER_FAULT && dut.result_signature !== EXPECTED_OUTPUT_CRC32)
+      $fatal(1, "signature mismatch: got %08x expected %08x",
+             dut.result_signature, EXPECTED_OUTPUT_CRC32);
+    if (INJECT_CHECKER_FAULT && dut.result_signature === EXPECTED_OUTPUT_CRC32)
+      $fatal(1, "injected output-word bit error was not detected");
 
-    $display("FPGA_WRAPPER_RESULT latency_cycles=%0d writes=%0d tiles=%0d golden_errors=%0d out_of_range=%0d",
-             latency_cycles, write_count, tile_count, golden_errors, out_of_range_writes);
+    $display("FPGA_WRAPPER_RESULT latency_cycles=%0d writes=%0d tiles=%0d golden_errors=%0d out_of_range=%0d checker_reads=%0d result_valid=%b result_ok=%b signature=%08x",
+             latency_cycles, write_count, tile_count, golden_errors, out_of_range_writes,
+             checker_reads, result_valid, result_ok, dut.result_signature);
     $finish;
   end
 endmodule

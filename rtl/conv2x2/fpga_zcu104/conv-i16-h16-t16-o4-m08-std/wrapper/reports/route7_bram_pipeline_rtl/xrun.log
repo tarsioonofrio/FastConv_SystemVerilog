@@ -1,0 +1,213 @@
+xrun(64): 23.03-s003: (c) Copyright 1995-2023 Cadence Design Systems, Inc.
+TOOL:	xrun(64)	23.03-s003: Started on Sep 24, 2026 at 16:13:46 -03
+xrun
+	-64bit
+	-sv
+	-timescale 1ns/1ps
+	-access +rwc
+	-top tb_fpga_wrapper
+	-l xrun.log
+	/soft64/xilinx/ferramentas/Vivado/2023.2/Vivado/2023.2/data/ip/xpm/xpm_memory/hdl/xpm_memory.sv
+	/tmp/fastconv-wrapper-678802f6/rtl/conv2x2/pack-param/tcn4/pack_param.sv
+	/tmp/fastconv-wrapper-678802f6/rtl/conv2x2/data/tcn4/sim/sim-032-3-3-normal/pack_data.sv
+	/tmp/fastconv-wrapper-678802f6/rtl/conv2x2/fpga_zcu104/conv-i16-h16-t16-o4-m08-std/wrapper/data/output_signature_pkg.sv
+	/tmp/fastconv-wrapper-678802f6/rtl/csa/csa_lib.sv
+	/tmp/fastconv-wrapper-678802f6/rtl/multip/multip.sv
+	/tmp/fastconv-wrapper-678802f6/rtl/conv2x2/mux-mult/tcn4/mux_mult_04.sv
+	/tmp/fastconv-wrapper-678802f6/rtl/conv2x2/mult-matrices/tcn4/mult_matrices.sv
+	/tmp/fastconv-wrapper-678802f6/rtl/conv2x2/conv-i16-h16-t16-o4-m08-std.sv
+	/tmp/fastconv-wrapper-678802f6/rtl/conv2x2/fpga_zcu104/conv-i16-h16-t16-o4-m08-std/wrapper/rtl/fpga_benchmark_top.sv
+	/tmp/fastconv-wrapper-678802f6/rtl/conv2x2/fpga_zcu104/conv-i16-h16-t16-o4-m08-std/wrapper/tb/tb_fpga_wrapper.sv
+file: /soft64/xilinx/ferramentas/Vivado/2023.2/Vivado/2023.2/data/ip/xpm/xpm_memory/hdl/xpm_memory.sv
+	module worklib.xpm_memory_base:sv
+		errors: 0, warnings: 0
+	module worklib.asym_bwe_bb:sv
+		errors: 0, warnings: 0
+	module worklib.xpm_memory_dpdistram:sv
+		errors: 0, warnings: 0
+	module worklib.xpm_memory_dprom:sv
+		errors: 0, warnings: 0
+	module worklib.xpm_memory_sdpram:sv
+		errors: 0, warnings: 0
+	module worklib.xpm_memory_spram:sv
+		errors: 0, warnings: 0
+	module worklib.xpm_memory_sprom:sv
+		errors: 0, warnings: 0
+	module worklib.xpm_memory_tdpram:sv
+		errors: 0, warnings: 0
+file: /tmp/fastconv-wrapper-678802f6/rtl/conv2x2/pack-param/tcn4/pack_param.sv
+	package worklib.pack_param:sv
+		errors: 0, warnings: 0
+file: /tmp/fastconv-wrapper-678802f6/rtl/conv2x2/data/tcn4/sim/sim-032-3-3-normal/pack_data.sv
+	package worklib.pack_data:sv
+		errors: 0, warnings: 0
+file: /tmp/fastconv-wrapper-678802f6/rtl/conv2x2/fpga_zcu104/conv-i16-h16-t16-o4-m08-std/wrapper/data/output_signature_pkg.sv
+	package worklib.output_signature_pkg:sv
+		errors: 0, warnings: 0
+file: /tmp/fastconv-wrapper-678802f6/rtl/csa/csa_lib.sv
+	module worklib.FA:sv
+		errors: 0, warnings: 0
+	module worklib.CSA_1:sv
+		errors: 0, warnings: 0
+	module worklib.CSA_2:sv
+		errors: 0, warnings: 0
+	module worklib.CSA_3:sv
+		errors: 0, warnings: 0
+	module worklib.CSA_4:sv
+		errors: 0, warnings: 0
+	module worklib.CSA_5:sv
+		errors: 0, warnings: 0
+	module worklib.CSA_6:sv
+		errors: 0, warnings: 0
+	module worklib.CSA_7:sv
+		errors: 0, warnings: 0
+	module worklib.CSA_8:sv
+		errors: 0, warnings: 0
+	module worklib.CSA_9:sv
+		errors: 0, warnings: 0
+	module worklib.CSA_12:sv
+		errors: 0, warnings: 0
+	module worklib.CSA_16:sv
+		errors: 0, warnings: 0
+	module worklib.CSA_18:sv
+		errors: 0, warnings: 0
+file: /tmp/fastconv-wrapper-678802f6/rtl/multip/multip.sv
+	module worklib.Multip:sv
+		errors: 0, warnings: 0
+file: /tmp/fastconv-wrapper-678802f6/rtl/conv2x2/mux-mult/tcn4/mux_mult_04.sv
+	package worklib.pack_mux_mult:sv
+		errors: 0, warnings: 0
+	module worklib.MuxMult:sv
+		errors: 0, warnings: 0
+file: /tmp/fastconv-wrapper-678802f6/rtl/conv2x2/mult-matrices/tcn4/mult_matrices.sv
+	module worklib.Transform:sv
+		errors: 0, warnings: 0
+	module worklib.Inverse:sv
+		errors: 0, warnings: 0
+	module worklib.MatrixC0:sv
+		errors: 0, warnings: 0
+	module worklib.MatrixC1:sv
+		errors: 0, warnings: 0
+	module worklib.MatrixA1:sv
+		errors: 0, warnings: 0
+	module worklib.MatrixA0:sv
+		errors: 0, warnings: 0
+file: /tmp/fastconv-wrapper-678802f6/rtl/conv2x2/conv-i16-h16-t16-o4-m08-std.sv
+	module worklib.Conv:sv
+		errors: 0, warnings: 0
+	module worklib.MuxMult8:sv
+		errors: 0, warnings: 0
+file: /tmp/fastconv-wrapper-678802f6/rtl/conv2x2/fpga_zcu104/conv-i16-h16-t16-o4-m08-std/wrapper/rtl/fpga_benchmark_top.sv
+	module worklib.fpga_benchmark_top:sv
+		errors: 0, warnings: 0
+file: /tmp/fastconv-wrapper-678802f6/rtl/conv2x2/fpga_zcu104/conv-i16-h16-t16-o4-m08-std/wrapper/tb/tb_fpga_wrapper.sv
+	module worklib.tb_fpga_wrapper:sv
+		errors: 0, warnings: 0
+	Elaborating the design hierarchy:
+		Caching library 'worklib' ....... Done
+	Top level design units:
+		pack_data
+		pack_param
+		output_signature_pkg
+		tb_fpga_wrapper
+        .product(w_conv_product[i])
+                              |
+xmelab: *W,CUVMPW (/tmp/fastconv-wrapper-678802f6/rtl/conv2x2/conv-i16-h16-t16-o4-m08-std.sv,539|30): port sizes differ in port connection(28/20) for the instance(tb_fpga_wrapper.dut.accelerator_core.MULTIP_BLOCK[7]) .
+        .product(w_conv_product[i])
+                              |
+xmelab: *W,CUVMPW (/tmp/fastconv-wrapper-678802f6/rtl/conv2x2/conv-i16-h16-t16-o4-m08-std.sv,539|30): port sizes differ in port connection(28/20) for the instance(tb_fpga_wrapper.dut.accelerator_core.MULTIP_BLOCK[6]) .
+        .product(w_conv_product[i])
+                              |
+xmelab: *W,CUVMPW (/tmp/fastconv-wrapper-678802f6/rtl/conv2x2/conv-i16-h16-t16-o4-m08-std.sv,539|30): port sizes differ in port connection(28/20) for the instance(tb_fpga_wrapper.dut.accelerator_core.MULTIP_BLOCK[5]) .
+        .product(w_conv_product[i])
+                              |
+xmelab: *W,CUVMPW (/tmp/fastconv-wrapper-678802f6/rtl/conv2x2/conv-i16-h16-t16-o4-m08-std.sv,539|30): port sizes differ in port connection(28/20) for the instance(tb_fpga_wrapper.dut.accelerator_core.MULTIP_BLOCK[4]) .
+        .product(w_conv_product[i])
+                              |
+xmelab: *W,CUVMPW (/tmp/fastconv-wrapper-678802f6/rtl/conv2x2/conv-i16-h16-t16-o4-m08-std.sv,539|30): port sizes differ in port connection(28/20) for the instance(tb_fpga_wrapper.dut.accelerator_core.MULTIP_BLOCK[3]) .
+        .product(w_conv_product[i])
+                              |
+xmelab: *W,CUVMPW (/tmp/fastconv-wrapper-678802f6/rtl/conv2x2/conv-i16-h16-t16-o4-m08-std.sv,539|30): port sizes differ in port connection(28/20) for the instance(tb_fpga_wrapper.dut.accelerator_core.MULTIP_BLOCK[2]) .
+        .product(w_conv_product[i])
+                              |
+xmelab: *W,CUVMPW (/tmp/fastconv-wrapper-678802f6/rtl/conv2x2/conv-i16-h16-t16-o4-m08-std.sv,539|30): port sizes differ in port connection(28/20) for the instance(tb_fpga_wrapper.dut.accelerator_core.MULTIP_BLOCK[1]) .
+        .product(w_conv_product[i])
+                              |
+xmelab: *W,CUVMPW (/tmp/fastconv-wrapper-678802f6/rtl/conv2x2/conv-i16-h16-t16-o4-m08-std.sv,539|30): port sizes differ in port connection(28/20) for the instance(tb_fpga_wrapper.dut.accelerator_core.MULTIP_BLOCK[0]) .
+	Building instance overlay tables: .................... Done
+	Generating native compiled code:
+		worklib.xpm_memory_sdpram:sv <0x38087502>
+			streams:   1, words:   541
+		worklib.xpm_memory_base:sv <0x2fc29790>
+			streams:  24, words: 20763
+		worklib.xpm_memory_sprom:sv <0x2d23f8ee>
+			streams:   1, words:   977
+		worklib.xpm_memory_base:sv <0x126871e0>
+			streams:  23, words: 18057
+		worklib.xpm_memory_sprom:sv <0x73814f8a>
+			streams:   1, words:   977
+		worklib.MatrixA0:sv <0x226ae3eb>
+			streams:   4, words:  1807
+		worklib.MatrixA1:sv <0x101443f7>
+			streams:   8, words:  3690
+		worklib.Inverse:sv <0x003d2a8c>
+			streams:   4, words:  4658
+		worklib.Multip:sv <0x2def52ad>
+			streams:   2, words:   479
+		worklib.MuxMult8:sv <0x07e2be0f>
+			streams:   1, words:   729
+		worklib.MatrixC1:sv <0x270bc92f>
+			streams:  16, words:  7049
+		worklib.MatrixC0:sv <0x211e9d8f>
+			streams:  16, words:  7049
+		worklib.Transform:sv <0x74501a21>
+			streams:   4, words:  4658
+		worklib.tb_fpga_wrapper:sv <0x0ed72467>
+			streams:  25, words: 23947
+		worklib.Conv:sv <0x4c0a4e89>
+			streams:  93, words: 71761
+		worklib.fpga_benchmark_top:sv <0x7da6666c>
+			streams:  44, words: 17520
+		worklib.pack_data:sv <0x5fc72f18>
+			streams:   5, words:  3543
+		worklib.pack_param:sv <0x3f357e85>
+			streams:   1, words:   708
+		worklib.xpm_memory_base:sv <0x6b8e46a7>
+			streams:  94, words: 42119
+	Building instance specific data structures.
+	Loading native compiled code:     .................... Done
+	Design hierarchy summary:
+		                 Instances  Unique
+		Modules:                24      14
+		Verilog packages:        3       3
+		Registers:             268     929
+		Scalar wires:          132       -
+		Expanded wires:        300      15
+		Vectored wires:        159       -
+		Named events:            0     136
+		Always blocks:          44     736
+		Initial blocks:         60     255
+		Parallel blocks:         1       1
+		Cont. assignments:     115     190
+		Pseudo assignments:     68       -
+		Assertions:              1     137
+		Simulation timescale:  1ps
+	Writing initial simulation snapshot: worklib.tb_fpga_wrapper:sv
+Loading snapshot worklib.tb_fpga_wrapper:sv .................... Done
+xcelium> source /soft64/cadence/ferramentas/XCELIUM2303/tools/xcelium/files/xmsimrc
+xcelium> run
+WRAPPER_GOLDEN_MISMATCH addr=30 got=-2588 expected=-566
+WRAPPER_GOLDEN_MISMATCH addr=1 got=748 expected=1368
+WRAPPER_GOLDEN_MISMATCH addr=31 got=3145 expected=3299
+WRAPPER_GOLDEN_MISMATCH addr=90 got=-877 expected=954
+WRAPPER_GOLDEN_MISMATCH addr=61 got=3000 expected=-1122
+WRAPPER_GOLDEN_MISMATCH addr=91 got=2375 expected=767
+WRAPPER_GOLDEN_MISMATCH addr=150 got=1164 expected=-752
+WRAPPER_GOLDEN_MISMATCH addr=121 got=-932 expected=639
+xmsim: *F,FATSEV (/tmp/fastconv-wrapper-678802f6/rtl/conv2x2/fpga_zcu104/conv-i16-h16-t16-o4-m08-std/wrapper/tb/tb_fpga_wrapper.sv,119): (time 83334989 PS).
+tb_fpga_wrapper
+golden mismatch count: 2009
+Simulation terminated via $fatal(1) at time 83334989 PS + 0
+/tmp/fastconv-wrapper-678802f6/rtl/conv2x2/fpga_zcu104/conv-i16-h16-t16-o4-m08-std/wrapper/tb/tb_fpga_wrapper.sv:119       $fatal(1, "golden mismatch count: %0d", golden_errors);
+xcelium> exit
+TOOL:	xrun(64)	23.03-s003: Exiting on Sep 24, 2026 at 16:13:49 -03  (total: 00:00:03)

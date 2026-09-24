@@ -1,0 +1,54 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2023 Advanced Micro Devices, Inc. All Rights Reserved.
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2023.2 (lin64) Build 4029153 Fri Oct 13 20:13:54 MDT 2023
+| Date         : Thu Sep 24 15:49:34 2026
+| Host         : paxos.inf.pucrs.br running 64-bit Rocky Linux release 8.10 (Green Obsidian)
+| Command      : report_utilization -hierarchical -file /tmp/fastconv-wrapper-678802f6/rtl/conv2x2/fpga_zcu104/conv-i16-h16-t16-o4-m08-std/wrapper/reports/observability_route_03/utilization.rpt
+| Design       : fpga_benchmark_top
+| Device       : xczu7ev-ffvc1156-2-e
+| Speed File   : -2
+| Design State : Routed
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Utilization Design Information
+
+Table of Contents
+-----------------
+1. Utilization by Hierarchy
+
+1. Utilization by Hierarchy
+---------------------------
+
++----------------------------+----------------------------------+------------+------------+---------+------+------+--------+--------+------+------------+
+|          Instance          |              Module              | Total LUTs | Logic LUTs | LUTRAMs | SRLs |  FFs | RAMB36 | RAMB18 | URAM | DSP Blocks |
++----------------------------+----------------------------------+------------+------------+---------+------+------+--------+--------+------+------------+
+| fpga_benchmark_top         |                            (top) |       2340 |       2340 |       0 |    0 | 1330 |      4 |      3 |    0 |          8 |
+|   (fpga_benchmark_top)     |                            (top) |          8 |          8 |       0 |    0 |   62 |      0 |      0 |    0 |          0 |
+|   accelerator_core         |                             Conv |       2218 |       2218 |       0 |    0 | 1268 |      0 |      0 |    0 |          8 |
+|     (accelerator_core)     |                             Conv |        930 |        930 |       0 |    0 | 1268 |      0 |      0 |    0 |          0 |
+|     MULTIP_BLOCK[0].multip |                           Multip |         52 |         52 |       0 |    0 |    0 |      0 |      0 |    0 |          1 |
+|     MULTIP_BLOCK[1].multip |                         Multip_0 |         51 |         51 |       0 |    0 |    0 |      0 |      0 |    0 |          1 |
+|     MULTIP_BLOCK[2].multip |                         Multip_1 |         52 |         52 |       0 |    0 |    0 |      0 |      0 |    0 |          1 |
+|     MULTIP_BLOCK[3].multip |                         Multip_2 |         52 |         52 |       0 |    0 |    0 |      0 |      0 |    0 |          1 |
+|     MULTIP_BLOCK[4].multip |                         Multip_3 |         51 |         51 |       0 |    0 |    0 |      0 |      0 |    0 |          1 |
+|     MULTIP_BLOCK[5].multip |                         Multip_4 |         45 |         45 |       0 |    0 |    0 |      0 |      0 |    0 |          1 |
+|     MULTIP_BLOCK[6].multip |                         Multip_5 |         47 |         47 |       0 |    0 |    0 |      0 |      0 |    0 |          1 |
+|     MULTIP_BLOCK[7].multip |                         Multip_6 |         46 |         46 |       0 |    0 |    0 |      0 |      0 |    0 |          1 |
+|     inv                    |                          Inverse |        232 |        232 |       0 |    0 |    0 |      0 |      0 |    0 |          0 |
+|       matrix_a0            |                         MatrixA0 |         66 |         66 |       0 |    0 |    0 |      0 |      0 |    0 |          0 |
+|       matrix_a1            |                         MatrixA1 |        166 |        166 |       0 |    0 |    0 |      0 |      0 |    0 |          0 |
+|     trf                    |                        Transform |        667 |        667 |       0 |    0 |    0 |      0 |      0 |    0 |          0 |
+|       matrix_c0            |                         MatrixC0 |        448 |        448 |       0 |    0 |    0 |      0 |      0 |    0 |          0 |
+|       matrix_c1            |                         MatrixC1 |        236 |        236 |       0 |    0 |    0 |      0 |      0 |    0 |          0 |
+|   input_memory             |                 xpm_memory_sprom |          0 |          0 |       0 |    0 |    0 |      2 |      1 |    0 |          0 |
+|     xpm_memory_base_inst   |                  xpm_memory_base |          0 |          0 |       0 |    0 |    0 |      2 |      1 |    0 |          0 |
+|   output_memory            |                xpm_memory_sdpram |         95 |         95 |       0 |    0 |    0 |      2 |      1 |    0 |          0 |
+|     (output_memory)        |                xpm_memory_sdpram |         94 |         94 |       0 |    0 |    0 |      0 |      0 |    0 |          0 |
+|     xpm_memory_base_inst   |  xpm_memory_base__parameterized1 |          1 |          1 |       0 |    0 |    0 |      2 |      1 |    0 |          0 |
+|   weight_memory            | xpm_memory_sprom__parameterized0 |         20 |         20 |       0 |    0 |    0 |      0 |      1 |    0 |          0 |
+|     (weight_memory)        | xpm_memory_sprom__parameterized0 |         20 |         20 |       0 |    0 |    0 |      0 |      0 |    0 |          0 |
+|     xpm_memory_base_inst   |  xpm_memory_base__parameterized0 |          0 |          0 |       0 |    0 |    0 |      0 |      1 |    0 |          0 |
++----------------------------+----------------------------------+------------+------------+---------+------+------+--------+--------+------+------------+
+* Note: The sum of lower-level cells may be larger than their parent cells total, due to cross-hierarchy LUT combining
+
+
