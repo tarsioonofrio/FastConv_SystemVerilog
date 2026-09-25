@@ -1,0 +1,2268 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2023 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version      : Vivado v.2023.2 (lin64) Build 4029153 Fri Oct 13 20:13:54 MDT 2023
+| Date              : Thu Sep 24 19:51:28 2026
+| Host              : paxos.inf.pucrs.br running 64-bit Rocky Linux release 8.10 (Green Obsidian)
+| Command           : report_timing -from [all_registers -clock [get_clocks clk]] -to [all_registers -clock [get_clocks clk]] -max_paths 30 -path_type full_clock_expanded -file /tmp/fastconv-ooc-52fb8b83/rtl/conv2x2/fpga_zcu104/conv-i16-h16-t16-o4-m08-std/ooc/reports/317mhz/timing_reg_to_reg.rpt
+| Design            : Conv
+| Device            : xczu7ev-ffvc1156
+| Speed File        : -2  PRODUCTION 1.30 05-15-2022
+| Design State      : Routed
+| Temperature Grade : E
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Timing Report
+
+Slack (MET) :             0.247ns  (required time - arrival time)
+  Source:                 r_input_weight_reg[0][4]/C
+                            (rising edge-triggered cell FDCE clocked by clk  {rise@0.000ns fall@1.577ns period=3.155ns})
+  Destination:            r_conv_temp_reg[8][14]/D
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@1.577ns period=3.155ns})
+  Path Group:             clk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            3.155ns  (clk rise@3.155ns - clk rise@0.000ns)
+  Data Path Delay:        2.889ns  (logic 2.070ns (71.661%)  route 0.819ns (28.339%))
+  Logic Levels:           9  (CARRY8=1 DSP_A_B_DATA=1 DSP_ALU=1 DSP_M_DATA=1 DSP_MULTIPLIER=1 DSP_OUTPUT=1 DSP_PREADD_DATA=1 LUT2=1 LUT3=1)
+  Clock Path Skew:        -0.009ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.021ns = ( 3.176 - 3.155 ) 
+    Source Clock Delay      (SCD):    0.030ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  
+                                                      0.000     0.000 r  clk (IN)
+                         net (fo=1310, unset)         0.030     0.030    clk
+    SLICE_X63Y184        FDCE                                         r  r_input_weight_reg[0][4]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X63Y184        FDCE (Prop_CFF_SLICEM_C_Q)
+                                                      0.078     0.108 f  r_input_weight_reg[0][4]/Q
+                         net (fo=8, routed)           0.324     0.432    MULTIP_BLOCK[0].multip/partial_product/A[4]
+    DSP48E2_X6Y74        DSP_A_B_DATA (Prop_DSP_A_B_DATA_DSP48E2_A[4]_A2_DATA[4])
+                                                      0.192     0.624 r  MULTIP_BLOCK[0].multip/partial_product/DSP_A_B_DATA_INST/A2_DATA[4]
+                         net (fo=1, routed)           0.000     0.624    MULTIP_BLOCK[0].multip/partial_product/DSP_A_B_DATA.A2_DATA<4>
+    DSP48E2_X6Y74        DSP_PREADD_DATA (Prop_DSP_PREADD_DATA_DSP48E2_A2_DATA[4]_A2A1[4])
+                                                      0.076     0.700 r  MULTIP_BLOCK[0].multip/partial_product/DSP_PREADD_DATA_INST/A2A1[4]
+                         net (fo=1, routed)           0.000     0.700    MULTIP_BLOCK[0].multip/partial_product/DSP_PREADD_DATA.A2A1<4>
+    DSP48E2_X6Y74        DSP_MULTIPLIER (Prop_DSP_MULTIPLIER_DSP48E2_A2A1[4]_U[18])
+                                                      0.505     1.205 f  MULTIP_BLOCK[0].multip/partial_product/DSP_MULTIPLIER_INST/U[18]
+                         net (fo=1, routed)           0.000     1.205    MULTIP_BLOCK[0].multip/partial_product/DSP_MULTIPLIER.U<18>
+    DSP48E2_X6Y74        DSP_M_DATA (Prop_DSP_M_DATA_DSP48E2_U[18]_U_DATA[18])
+                                                      0.047     1.252 r  MULTIP_BLOCK[0].multip/partial_product/DSP_M_DATA_INST/U_DATA[18]
+                         net (fo=1, routed)           0.000     1.252    MULTIP_BLOCK[0].multip/partial_product/DSP_M_DATA.U_DATA<18>
+    DSP48E2_X6Y74        DSP_ALU (Prop_DSP_ALU_DSP48E2_U_DATA[18]_ALU_OUT[18])
+                                                      0.585     1.837 f  MULTIP_BLOCK[0].multip/partial_product/DSP_ALU_INST/ALU_OUT[18]
+                         net (fo=1, routed)           0.000     1.837    MULTIP_BLOCK[0].multip/partial_product/DSP_ALU.ALU_OUT<18>
+    DSP48E2_X6Y74        DSP_OUTPUT (Prop_DSP_OUTPUT_DSP48E2_ALU_OUT[18]_P[18])
+                                                      0.109     1.946 r  MULTIP_BLOCK[0].multip/partial_product/DSP_OUTPUT_INST/P[18]
+                         net (fo=2, routed)           0.262     2.209    MULTIP_BLOCK[0].multip/partial_product_n_87
+    SLICE_X63Y185        LUT2 (Prop_B6LUT_SLICEM_I0_O)
+                                                      0.089     2.298 r  MULTIP_BLOCK[0].multip/i__carry_i_7/O
+                         net (fo=1, routed)           0.016     2.314    MULTIP_BLOCK[0].multip/i__carry_i_7_n_0
+    SLICE_X63Y185        CARRY8 (Prop_CARRY8_SLICEM_S[1]_O[5])
+                                                      0.237     2.551 r  MULTIP_BLOCK[0].multip/partial_product_inferred__0/i__carry/O[5]
+                         net (fo=1, routed)           0.158     2.709    MULTIP_BLOCK[0].multip/partial_product0_out[5]
+    SLICE_X63Y184        LUT3 (Prop_H6LUT_SLICEM_I0_O)
+                                                      0.152     2.861 r  MULTIP_BLOCK[0].multip/r_conv_temp[8][14]_i_1/O
+                         net (fo=1, routed)           0.058     2.919    r_conv_temp[14]
+    SLICE_X63Y184        FDRE                                         r  r_conv_temp_reg[8][14]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)        3.155     3.155 r  
+                                                      0.000     3.155 r  clk (IN)
+                         net (fo=1310, unset)         0.021     3.176    clk
+    SLICE_X63Y184        FDRE                                         r  r_conv_temp_reg[8][14]/C
+                         clock pessimism              0.000     3.176    
+                         clock uncertainty           -0.035     3.141    
+    SLICE_X63Y184        FDRE (Setup_HFF_SLICEM_C_D)
+                                                      0.025     3.166    r_conv_temp_reg[8][14]
+  -------------------------------------------------------------------
+                         required time                          3.166    
+                         arrival time                          -2.919    
+  -------------------------------------------------------------------
+                         slack                                  0.247    
+
+Slack (MET) :             0.300ns  (required time - arrival time)
+  Source:                 r_input_weight_reg[3][7]/C
+                            (rising edge-triggered cell FDCE clocked by clk  {rise@0.000ns fall@1.577ns period=3.155ns})
+  Destination:            r_conv_temp_reg[11][15]/D
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@1.577ns period=3.155ns})
+  Path Group:             clk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            3.155ns  (clk rise@3.155ns - clk rise@0.000ns)
+  Data Path Delay:        2.835ns  (logic 1.840ns (64.907%)  route 0.995ns (35.093%))
+  Logic Levels:           8  (CARRY8=1 DSP_A_B_DATA=1 DSP_ALU=1 DSP_M_DATA=1 DSP_MULTIPLIER=1 DSP_OUTPUT=1 DSP_PREADD_DATA=1 LUT3=1)
+  Clock Path Skew:        -0.010ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.020ns = ( 3.175 - 3.155 ) 
+    Source Clock Delay      (SCD):    0.030ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  
+                                                      0.000     0.000 r  clk (IN)
+                         net (fo=1310, unset)         0.030     0.030    clk
+    SLICE_X63Y169        FDCE                                         r  r_input_weight_reg[3][7]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X63Y169        FDCE (Prop_AFF2_SLICEM_C_Q)
+                                                      0.080     0.110 f  r_input_weight_reg[3][7]/Q
+                         net (fo=8, routed)           0.298     0.408    MULTIP_BLOCK[3].multip/partial_product/A[7]
+    DSP48E2_X6Y68        DSP_A_B_DATA (Prop_DSP_A_B_DATA_DSP48E2_A[7]_A2_DATA[7])
+                                                      0.192     0.600 r  MULTIP_BLOCK[3].multip/partial_product/DSP_A_B_DATA_INST/A2_DATA[7]
+                         net (fo=1, routed)           0.000     0.600    MULTIP_BLOCK[3].multip/partial_product/DSP_A_B_DATA.A2_DATA<7>
+    DSP48E2_X6Y68        DSP_PREADD_DATA (Prop_DSP_PREADD_DATA_DSP48E2_A2_DATA[7]_A2A1[7])
+                                                      0.076     0.676 r  MULTIP_BLOCK[3].multip/partial_product/DSP_PREADD_DATA_INST/A2A1[7]
+                         net (fo=1, routed)           0.000     0.676    MULTIP_BLOCK[3].multip/partial_product/DSP_PREADD_DATA.A2A1<7>
+    DSP48E2_X6Y68        DSP_MULTIPLIER (Prop_DSP_MULTIPLIER_DSP48E2_A2A1[7]_U[17])
+                                                      0.505     1.181 f  MULTIP_BLOCK[3].multip/partial_product/DSP_MULTIPLIER_INST/U[17]
+                         net (fo=1, routed)           0.000     1.181    MULTIP_BLOCK[3].multip/partial_product/DSP_MULTIPLIER.U<17>
+    DSP48E2_X6Y68        DSP_M_DATA (Prop_DSP_M_DATA_DSP48E2_U[17]_U_DATA[17])
+                                                      0.047     1.228 r  MULTIP_BLOCK[3].multip/partial_product/DSP_M_DATA_INST/U_DATA[17]
+                         net (fo=1, routed)           0.000     1.228    MULTIP_BLOCK[3].multip/partial_product/DSP_M_DATA.U_DATA<17>
+    DSP48E2_X6Y68        DSP_ALU (Prop_DSP_ALU_DSP48E2_U_DATA[17]_ALU_OUT[17])
+                                                      0.585     1.813 f  MULTIP_BLOCK[3].multip/partial_product/DSP_ALU_INST/ALU_OUT[17]
+                         net (fo=1, routed)           0.000     1.813    MULTIP_BLOCK[3].multip/partial_product/DSP_ALU.ALU_OUT<17>
+    DSP48E2_X6Y68        DSP_OUTPUT (Prop_DSP_OUTPUT_DSP48E2_ALU_OUT[17]_P[17])
+                                                      0.109     1.922 r  MULTIP_BLOCK[3].multip/partial_product/DSP_OUTPUT_INST/P[17]
+                         net (fo=2, routed)           0.341     2.263    MULTIP_BLOCK[3].multip/partial_product_n_88
+    SLICE_X63Y172        CARRY8 (Prop_CARRY8_SLICEM_DI[0]_O[6])
+                                                      0.196     2.459 r  MULTIP_BLOCK[3].multip/partial_product_inferred__0/i__carry/O[6]
+                         net (fo=1, routed)           0.306     2.765    MULTIP_BLOCK[3].multip/partial_product_inferred__0/i__carry_n_9
+    SLICE_X60Y172        LUT3 (Prop_C6LUT_SLICEL_I0_O)
+                                                      0.050     2.815 r  MULTIP_BLOCK[3].multip/r_conv_temp[11][15]_i_1/O
+                         net (fo=1, routed)           0.050     2.865    MULTIP_BLOCK[3].multip_n_4
+    SLICE_X60Y172        FDRE                                         r  r_conv_temp_reg[11][15]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)        3.155     3.155 r  
+                                                      0.000     3.155 r  clk (IN)
+                         net (fo=1310, unset)         0.020     3.175    clk
+    SLICE_X60Y172        FDRE                                         r  r_conv_temp_reg[11][15]/C
+                         clock pessimism              0.000     3.175    
+                         clock uncertainty           -0.035     3.140    
+    SLICE_X60Y172        FDRE (Setup_CFF_SLICEL_C_D)
+                                                      0.025     3.165    r_conv_temp_reg[11][15]
+  -------------------------------------------------------------------
+                         required time                          3.165    
+                         arrival time                          -2.865    
+  -------------------------------------------------------------------
+                         slack                                  0.300    
+
+Slack (MET) :             0.300ns  (required time - arrival time)
+  Source:                 r_input_weight_reg[5][9]/C
+                            (rising edge-triggered cell FDCE clocked by clk  {rise@0.000ns fall@1.577ns period=3.155ns})
+  Destination:            r_conv_temp_reg[13][12]/D
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@1.577ns period=3.155ns})
+  Path Group:             clk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            3.155ns  (clk rise@3.155ns - clk rise@0.000ns)
+  Data Path Delay:        2.836ns  (logic 1.974ns (69.614%)  route 0.862ns (30.386%))
+  Logic Levels:           9  (CARRY8=1 DSP_A_B_DATA=1 DSP_ALU=1 DSP_M_DATA=1 DSP_MULTIPLIER=1 DSP_OUTPUT=1 DSP_PREADD_DATA=1 LUT2=1 LUT3=1)
+  Clock Path Skew:        -0.009ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.021ns = ( 3.176 - 3.155 ) 
+    Source Clock Delay      (SCD):    0.030ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  
+                                                      0.000     0.000 r  clk (IN)
+                         net (fo=1310, unset)         0.030     0.030    clk
+    SLICE_X54Y163        FDCE                                         r  r_input_weight_reg[5][9]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X54Y163        FDCE (Prop_DFF2_SLICEM_C_Q)
+                                                      0.080     0.110 f  r_input_weight_reg[5][9]/Q
+                         net (fo=5, routed)           0.324     0.434    MULTIP_BLOCK[5].multip/partial_product/A[9]
+    DSP48E2_X5Y66        DSP_A_B_DATA (Prop_DSP_A_B_DATA_DSP48E2_A[9]_A2_DATA[9])
+                                                      0.192     0.626 r  MULTIP_BLOCK[5].multip/partial_product/DSP_A_B_DATA_INST/A2_DATA[9]
+                         net (fo=1, routed)           0.000     0.626    MULTIP_BLOCK[5].multip/partial_product/DSP_A_B_DATA.A2_DATA<9>
+    DSP48E2_X5Y66        DSP_PREADD_DATA (Prop_DSP_PREADD_DATA_DSP48E2_A2_DATA[9]_A2A1[9])
+                                                      0.076     0.702 r  MULTIP_BLOCK[5].multip/partial_product/DSP_PREADD_DATA_INST/A2A1[9]
+                         net (fo=1, routed)           0.000     0.702    MULTIP_BLOCK[5].multip/partial_product/DSP_PREADD_DATA.A2A1<9>
+    DSP48E2_X5Y66        DSP_MULTIPLIER (Prop_DSP_MULTIPLIER_DSP48E2_A2A1[9]_U[17])
+                                                      0.505     1.207 f  MULTIP_BLOCK[5].multip/partial_product/DSP_MULTIPLIER_INST/U[17]
+                         net (fo=1, routed)           0.000     1.207    MULTIP_BLOCK[5].multip/partial_product/DSP_MULTIPLIER.U<17>
+    DSP48E2_X5Y66        DSP_M_DATA (Prop_DSP_M_DATA_DSP48E2_U[17]_U_DATA[17])
+                                                      0.047     1.254 r  MULTIP_BLOCK[5].multip/partial_product/DSP_M_DATA_INST/U_DATA[17]
+                         net (fo=1, routed)           0.000     1.254    MULTIP_BLOCK[5].multip/partial_product/DSP_M_DATA.U_DATA<17>
+    DSP48E2_X5Y66        DSP_ALU (Prop_DSP_ALU_DSP48E2_U_DATA[17]_ALU_OUT[17])
+                                                      0.585     1.839 f  MULTIP_BLOCK[5].multip/partial_product/DSP_ALU_INST/ALU_OUT[17]
+                         net (fo=1, routed)           0.000     1.839    MULTIP_BLOCK[5].multip/partial_product/DSP_ALU.ALU_OUT<17>
+    DSP48E2_X5Y66        DSP_OUTPUT (Prop_DSP_OUTPUT_DSP48E2_ALU_OUT[17]_P[17])
+                                                      0.109     1.948 r  MULTIP_BLOCK[5].multip/partial_product/DSP_OUTPUT_INST/P[17]
+                         net (fo=2, routed)           0.213     2.161    MULTIP_BLOCK[5].multip/partial_product_n_88
+    SLICE_X55Y166        LUT2 (Prop_A6LUT_SLICEL_I0_O)
+                                                      0.090     2.251 r  MULTIP_BLOCK[5].multip/i__carry_i_8__4/O
+                         net (fo=1, routed)           0.009     2.260    MULTIP_BLOCK[5].multip/i__carry_i_8__4_n_0
+    SLICE_X55Y166        CARRY8 (Prop_CARRY8_SLICEL_S[0]_O[3])
+                                                      0.138     2.398 r  MULTIP_BLOCK[5].multip/partial_product_inferred__0/i__carry/O[3]
+                         net (fo=1, routed)           0.258     2.656    MULTIP_BLOCK[5].multip/partial_product_inferred__0/i__carry_n_12
+    SLICE_X53Y168        LUT3 (Prop_H6LUT_SLICEM_I0_O)
+                                                      0.152     2.808 r  MULTIP_BLOCK[5].multip/r_conv_temp[13][12]_i_1/O
+                         net (fo=1, routed)           0.058     2.866    MULTIP_BLOCK[5].multip_n_7
+    SLICE_X53Y168        FDRE                                         r  r_conv_temp_reg[13][12]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)        3.155     3.155 r  
+                                                      0.000     3.155 r  clk (IN)
+                         net (fo=1310, unset)         0.021     3.176    clk
+    SLICE_X53Y168        FDRE                                         r  r_conv_temp_reg[13][12]/C
+                         clock pessimism              0.000     3.176    
+                         clock uncertainty           -0.035     3.141    
+    SLICE_X53Y168        FDRE (Setup_HFF_SLICEM_C_D)
+                                                      0.025     3.166    r_conv_temp_reg[13][12]
+  -------------------------------------------------------------------
+                         required time                          3.166    
+                         arrival time                          -2.866    
+  -------------------------------------------------------------------
+                         slack                                  0.300    
+
+Slack (MET) :             0.315ns  (required time - arrival time)
+  Source:                 r_input_weight_reg[0][4]/C
+                            (rising edge-triggered cell FDCE clocked by clk  {rise@0.000ns fall@1.577ns period=3.155ns})
+  Destination:            r_conv_temp_reg[8][18]/D
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@1.577ns period=3.155ns})
+  Path Group:             clk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            3.155ns  (clk rise@3.155ns - clk rise@0.000ns)
+  Data Path Delay:        2.821ns  (logic 1.999ns (70.872%)  route 0.822ns (29.128%))
+  Logic Levels:           10  (CARRY8=2 DSP_A_B_DATA=1 DSP_ALU=1 DSP_M_DATA=1 DSP_MULTIPLIER=1 DSP_OUTPUT=1 DSP_PREADD_DATA=1 LUT2=1 LUT3=1)
+  Clock Path Skew:        -0.009ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.021ns = ( 3.176 - 3.155 ) 
+    Source Clock Delay      (SCD):    0.030ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  
+                                                      0.000     0.000 r  clk (IN)
+                         net (fo=1310, unset)         0.030     0.030    clk
+    SLICE_X63Y184        FDCE                                         r  r_input_weight_reg[0][4]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X63Y184        FDCE (Prop_CFF_SLICEM_C_Q)
+                                                      0.078     0.108 f  r_input_weight_reg[0][4]/Q
+                         net (fo=8, routed)           0.324     0.432    MULTIP_BLOCK[0].multip/partial_product/A[4]
+    DSP48E2_X6Y74        DSP_A_B_DATA (Prop_DSP_A_B_DATA_DSP48E2_A[4]_A2_DATA[4])
+                                                      0.192     0.624 r  MULTIP_BLOCK[0].multip/partial_product/DSP_A_B_DATA_INST/A2_DATA[4]
+                         net (fo=1, routed)           0.000     0.624    MULTIP_BLOCK[0].multip/partial_product/DSP_A_B_DATA.A2_DATA<4>
+    DSP48E2_X6Y74        DSP_PREADD_DATA (Prop_DSP_PREADD_DATA_DSP48E2_A2_DATA[4]_A2A1[4])
+                                                      0.076     0.700 r  MULTIP_BLOCK[0].multip/partial_product/DSP_PREADD_DATA_INST/A2A1[4]
+                         net (fo=1, routed)           0.000     0.700    MULTIP_BLOCK[0].multip/partial_product/DSP_PREADD_DATA.A2A1<4>
+    DSP48E2_X6Y74        DSP_MULTIPLIER (Prop_DSP_MULTIPLIER_DSP48E2_A2A1[4]_U[18])
+                                                      0.505     1.205 f  MULTIP_BLOCK[0].multip/partial_product/DSP_MULTIPLIER_INST/U[18]
+                         net (fo=1, routed)           0.000     1.205    MULTIP_BLOCK[0].multip/partial_product/DSP_MULTIPLIER.U<18>
+    DSP48E2_X6Y74        DSP_M_DATA (Prop_DSP_M_DATA_DSP48E2_U[18]_U_DATA[18])
+                                                      0.047     1.252 r  MULTIP_BLOCK[0].multip/partial_product/DSP_M_DATA_INST/U_DATA[18]
+                         net (fo=1, routed)           0.000     1.252    MULTIP_BLOCK[0].multip/partial_product/DSP_M_DATA.U_DATA<18>
+    DSP48E2_X6Y74        DSP_ALU (Prop_DSP_ALU_DSP48E2_U_DATA[18]_ALU_OUT[18])
+                                                      0.585     1.837 f  MULTIP_BLOCK[0].multip/partial_product/DSP_ALU_INST/ALU_OUT[18]
+                         net (fo=1, routed)           0.000     1.837    MULTIP_BLOCK[0].multip/partial_product/DSP_ALU.ALU_OUT<18>
+    DSP48E2_X6Y74        DSP_OUTPUT (Prop_DSP_OUTPUT_DSP48E2_ALU_OUT[18]_P[18])
+                                                      0.109     1.946 r  MULTIP_BLOCK[0].multip/partial_product/DSP_OUTPUT_INST/P[18]
+                         net (fo=2, routed)           0.262     2.209    MULTIP_BLOCK[0].multip/partial_product_n_87
+    SLICE_X63Y185        LUT2 (Prop_B6LUT_SLICEM_I0_O)
+                                                      0.089     2.298 r  MULTIP_BLOCK[0].multip/i__carry_i_7/O
+                         net (fo=1, routed)           0.016     2.314    MULTIP_BLOCK[0].multip/i__carry_i_7_n_0
+    SLICE_X63Y185        CARRY8 (Prop_CARRY8_SLICEM_S[1]_CO[7])
+                                                      0.190     2.504 r  MULTIP_BLOCK[0].multip/partial_product_inferred__0/i__carry/CO[7]
+                         net (fo=1, routed)           0.026     2.530    MULTIP_BLOCK[0].multip/partial_product_inferred__0/i__carry_n_0
+    SLICE_X63Y186        CARRY8 (Prop_CARRY8_SLICEM_CI_O[1])
+                                                      0.076     2.606 r  MULTIP_BLOCK[0].multip/partial_product_inferred__0/i__carry__0/O[1]
+                         net (fo=1, routed)           0.134     2.740    MULTIP_BLOCK[0].multip/partial_product0_out[9]
+    SLICE_X63Y184        LUT3 (Prop_G6LUT_SLICEM_I0_O)
+                                                      0.052     2.792 r  MULTIP_BLOCK[0].multip/r_conv_temp[8][18]_i_1/O
+                         net (fo=1, routed)           0.059     2.851    r_conv_temp[18]
+    SLICE_X63Y184        FDRE                                         r  r_conv_temp_reg[8][18]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)        3.155     3.155 r  
+                                                      0.000     3.155 r  clk (IN)
+                         net (fo=1310, unset)         0.021     3.176    clk
+    SLICE_X63Y184        FDRE                                         r  r_conv_temp_reg[8][18]/C
+                         clock pessimism              0.000     3.176    
+                         clock uncertainty           -0.035     3.141    
+    SLICE_X63Y184        FDRE (Setup_GFF_SLICEM_C_D)
+                                                      0.025     3.166    r_conv_temp_reg[8][18]
+  -------------------------------------------------------------------
+                         required time                          3.166    
+                         arrival time                          -2.851    
+  -------------------------------------------------------------------
+                         slack                                  0.315    
+
+Slack (MET) :             0.320ns  (required time - arrival time)
+  Source:                 r_input_weight_reg[0][4]/C
+                            (rising edge-triggered cell FDCE clocked by clk  {rise@0.000ns fall@1.577ns period=3.155ns})
+  Destination:            r_conv_temp_reg[8][19]/D
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@1.577ns period=3.155ns})
+  Path Group:             clk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            3.155ns  (clk rise@3.155ns - clk rise@0.000ns)
+  Data Path Delay:        2.816ns  (logic 1.989ns (70.642%)  route 0.827ns (29.358%))
+  Logic Levels:           10  (CARRY8=2 DSP_A_B_DATA=1 DSP_ALU=1 DSP_M_DATA=1 DSP_MULTIPLIER=1 DSP_OUTPUT=1 DSP_PREADD_DATA=1 LUT2=1 LUT3=1)
+  Clock Path Skew:        -0.009ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.021ns = ( 3.176 - 3.155 ) 
+    Source Clock Delay      (SCD):    0.030ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  
+                                                      0.000     0.000 r  clk (IN)
+                         net (fo=1310, unset)         0.030     0.030    clk
+    SLICE_X63Y184        FDCE                                         r  r_input_weight_reg[0][4]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X63Y184        FDCE (Prop_CFF_SLICEM_C_Q)
+                                                      0.078     0.108 f  r_input_weight_reg[0][4]/Q
+                         net (fo=8, routed)           0.324     0.432    MULTIP_BLOCK[0].multip/partial_product/A[4]
+    DSP48E2_X6Y74        DSP_A_B_DATA (Prop_DSP_A_B_DATA_DSP48E2_A[4]_A2_DATA[4])
+                                                      0.192     0.624 r  MULTIP_BLOCK[0].multip/partial_product/DSP_A_B_DATA_INST/A2_DATA[4]
+                         net (fo=1, routed)           0.000     0.624    MULTIP_BLOCK[0].multip/partial_product/DSP_A_B_DATA.A2_DATA<4>
+    DSP48E2_X6Y74        DSP_PREADD_DATA (Prop_DSP_PREADD_DATA_DSP48E2_A2_DATA[4]_A2A1[4])
+                                                      0.076     0.700 r  MULTIP_BLOCK[0].multip/partial_product/DSP_PREADD_DATA_INST/A2A1[4]
+                         net (fo=1, routed)           0.000     0.700    MULTIP_BLOCK[0].multip/partial_product/DSP_PREADD_DATA.A2A1<4>
+    DSP48E2_X6Y74        DSP_MULTIPLIER (Prop_DSP_MULTIPLIER_DSP48E2_A2A1[4]_U[18])
+                                                      0.505     1.205 f  MULTIP_BLOCK[0].multip/partial_product/DSP_MULTIPLIER_INST/U[18]
+                         net (fo=1, routed)           0.000     1.205    MULTIP_BLOCK[0].multip/partial_product/DSP_MULTIPLIER.U<18>
+    DSP48E2_X6Y74        DSP_M_DATA (Prop_DSP_M_DATA_DSP48E2_U[18]_U_DATA[18])
+                                                      0.047     1.252 r  MULTIP_BLOCK[0].multip/partial_product/DSP_M_DATA_INST/U_DATA[18]
+                         net (fo=1, routed)           0.000     1.252    MULTIP_BLOCK[0].multip/partial_product/DSP_M_DATA.U_DATA<18>
+    DSP48E2_X6Y74        DSP_ALU (Prop_DSP_ALU_DSP48E2_U_DATA[18]_ALU_OUT[18])
+                                                      0.585     1.837 f  MULTIP_BLOCK[0].multip/partial_product/DSP_ALU_INST/ALU_OUT[18]
+                         net (fo=1, routed)           0.000     1.837    MULTIP_BLOCK[0].multip/partial_product/DSP_ALU.ALU_OUT<18>
+    DSP48E2_X6Y74        DSP_OUTPUT (Prop_DSP_OUTPUT_DSP48E2_ALU_OUT[18]_P[18])
+                                                      0.109     1.946 r  MULTIP_BLOCK[0].multip/partial_product/DSP_OUTPUT_INST/P[18]
+                         net (fo=2, routed)           0.262     2.209    MULTIP_BLOCK[0].multip/partial_product_n_87
+    SLICE_X63Y185        LUT2 (Prop_B6LUT_SLICEM_I0_O)
+                                                      0.089     2.298 r  MULTIP_BLOCK[0].multip/i__carry_i_7/O
+                         net (fo=1, routed)           0.016     2.314    MULTIP_BLOCK[0].multip/i__carry_i_7_n_0
+    SLICE_X63Y185        CARRY8 (Prop_CARRY8_SLICEM_S[1]_CO[7])
+                                                      0.190     2.504 r  MULTIP_BLOCK[0].multip/partial_product_inferred__0/i__carry/CO[7]
+                         net (fo=1, routed)           0.026     2.530    MULTIP_BLOCK[0].multip/partial_product_inferred__0/i__carry_n_0
+    SLICE_X63Y186        CARRY8 (Prop_CARRY8_SLICEM_CI_O[2])
+                                                      0.067     2.597 r  MULTIP_BLOCK[0].multip/partial_product_inferred__0/i__carry__0/O[2]
+                         net (fo=1, routed)           0.131     2.728    MULTIP_BLOCK[0].multip/partial_product0_out[10]
+    SLICE_X63Y184        LUT3 (Prop_F6LUT_SLICEM_I0_O)
+                                                      0.051     2.779 r  MULTIP_BLOCK[0].multip/r_conv_temp[8][19]_i_1/O
+                         net (fo=1, routed)           0.067     2.846    r_conv_temp[19]
+    SLICE_X63Y184        FDRE                                         r  r_conv_temp_reg[8][19]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)        3.155     3.155 r  
+                                                      0.000     3.155 r  clk (IN)
+                         net (fo=1310, unset)         0.021     3.176    clk
+    SLICE_X63Y184        FDRE                                         r  r_conv_temp_reg[8][19]/C
+                         clock pessimism              0.000     3.176    
+                         clock uncertainty           -0.035     3.141    
+    SLICE_X63Y184        FDRE (Setup_FFF_SLICEM_C_D)
+                                                      0.025     3.166    r_conv_temp_reg[8][19]
+  -------------------------------------------------------------------
+                         required time                          3.166    
+                         arrival time                          -2.846    
+  -------------------------------------------------------------------
+                         slack                                  0.320    
+
+Slack (MET) :             0.321ns  (required time - arrival time)
+  Source:                 r_input_weight_reg[0][4]/C
+                            (rising edge-triggered cell FDCE clocked by clk  {rise@0.000ns fall@1.577ns period=3.155ns})
+  Destination:            r_conv_temp_reg[8][13]/D
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@1.577ns period=3.155ns})
+  Path Group:             clk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            3.155ns  (clk rise@3.155ns - clk rise@0.000ns)
+  Data Path Delay:        2.815ns  (logic 2.007ns (71.307%)  route 0.808ns (28.693%))
+  Logic Levels:           9  (CARRY8=1 DSP_A_B_DATA=1 DSP_ALU=1 DSP_M_DATA=1 DSP_MULTIPLIER=1 DSP_OUTPUT=1 DSP_PREADD_DATA=1 LUT2=1 LUT3=1)
+  Clock Path Skew:        -0.009ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.021ns = ( 3.176 - 3.155 ) 
+    Source Clock Delay      (SCD):    0.030ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  
+                                                      0.000     0.000 r  clk (IN)
+                         net (fo=1310, unset)         0.030     0.030    clk
+    SLICE_X63Y184        FDCE                                         r  r_input_weight_reg[0][4]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X63Y184        FDCE (Prop_CFF_SLICEM_C_Q)
+                                                      0.078     0.108 f  r_input_weight_reg[0][4]/Q
+                         net (fo=8, routed)           0.324     0.432    MULTIP_BLOCK[0].multip/partial_product/A[4]
+    DSP48E2_X6Y74        DSP_A_B_DATA (Prop_DSP_A_B_DATA_DSP48E2_A[4]_A2_DATA[4])
+                                                      0.192     0.624 r  MULTIP_BLOCK[0].multip/partial_product/DSP_A_B_DATA_INST/A2_DATA[4]
+                         net (fo=1, routed)           0.000     0.624    MULTIP_BLOCK[0].multip/partial_product/DSP_A_B_DATA.A2_DATA<4>
+    DSP48E2_X6Y74        DSP_PREADD_DATA (Prop_DSP_PREADD_DATA_DSP48E2_A2_DATA[4]_A2A1[4])
+                                                      0.076     0.700 r  MULTIP_BLOCK[0].multip/partial_product/DSP_PREADD_DATA_INST/A2A1[4]
+                         net (fo=1, routed)           0.000     0.700    MULTIP_BLOCK[0].multip/partial_product/DSP_PREADD_DATA.A2A1<4>
+    DSP48E2_X6Y74        DSP_MULTIPLIER (Prop_DSP_MULTIPLIER_DSP48E2_A2A1[4]_U[18])
+                                                      0.505     1.205 f  MULTIP_BLOCK[0].multip/partial_product/DSP_MULTIPLIER_INST/U[18]
+                         net (fo=1, routed)           0.000     1.205    MULTIP_BLOCK[0].multip/partial_product/DSP_MULTIPLIER.U<18>
+    DSP48E2_X6Y74        DSP_M_DATA (Prop_DSP_M_DATA_DSP48E2_U[18]_U_DATA[18])
+                                                      0.047     1.252 r  MULTIP_BLOCK[0].multip/partial_product/DSP_M_DATA_INST/U_DATA[18]
+                         net (fo=1, routed)           0.000     1.252    MULTIP_BLOCK[0].multip/partial_product/DSP_M_DATA.U_DATA<18>
+    DSP48E2_X6Y74        DSP_ALU (Prop_DSP_ALU_DSP48E2_U_DATA[18]_ALU_OUT[18])
+                                                      0.585     1.837 f  MULTIP_BLOCK[0].multip/partial_product/DSP_ALU_INST/ALU_OUT[18]
+                         net (fo=1, routed)           0.000     1.837    MULTIP_BLOCK[0].multip/partial_product/DSP_ALU.ALU_OUT<18>
+    DSP48E2_X6Y74        DSP_OUTPUT (Prop_DSP_OUTPUT_DSP48E2_ALU_OUT[18]_P[18])
+                                                      0.109     1.946 r  MULTIP_BLOCK[0].multip/partial_product/DSP_OUTPUT_INST/P[18]
+                         net (fo=2, routed)           0.262     2.209    MULTIP_BLOCK[0].multip/partial_product_n_87
+    SLICE_X63Y185        LUT2 (Prop_B6LUT_SLICEM_I0_O)
+                                                      0.089     2.298 r  MULTIP_BLOCK[0].multip/i__carry_i_7/O
+                         net (fo=1, routed)           0.016     2.314    MULTIP_BLOCK[0].multip/i__carry_i_7_n_0
+    SLICE_X63Y185        CARRY8 (Prop_CARRY8_SLICEM_S[1]_O[4])
+                                                      0.204     2.518 r  MULTIP_BLOCK[0].multip/partial_product_inferred__0/i__carry/O[4]
+                         net (fo=1, routed)           0.133     2.651    MULTIP_BLOCK[0].multip/partial_product0_out[4]
+    SLICE_X63Y183        LUT3 (Prop_D6LUT_SLICEM_I0_O)
+                                                      0.122     2.773 r  MULTIP_BLOCK[0].multip/r_conv_temp[8][13]_i_1/O
+                         net (fo=1, routed)           0.072     2.845    r_conv_temp[13]
+    SLICE_X63Y183        FDRE                                         r  r_conv_temp_reg[8][13]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)        3.155     3.155 r  
+                                                      0.000     3.155 r  clk (IN)
+                         net (fo=1310, unset)         0.021     3.176    clk
+    SLICE_X63Y183        FDRE                                         r  r_conv_temp_reg[8][13]/C
+                         clock pessimism              0.000     3.176    
+                         clock uncertainty           -0.035     3.141    
+    SLICE_X63Y183        FDRE (Setup_DFF_SLICEM_C_D)
+                                                      0.025     3.166    r_conv_temp_reg[8][13]
+  -------------------------------------------------------------------
+                         required time                          3.166    
+                         arrival time                          -2.845    
+  -------------------------------------------------------------------
+                         slack                                  0.321    
+
+Slack (MET) :             0.339ns  (required time - arrival time)
+  Source:                 r_input_weight_reg[6][2]/C
+                            (rising edge-triggered cell FDCE clocked by clk  {rise@0.000ns fall@1.577ns period=3.155ns})
+  Destination:            r_conv_temp_reg[14][14]/D
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@1.577ns period=3.155ns})
+  Path Group:             clk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            3.155ns  (clk rise@3.155ns - clk rise@0.000ns)
+  Data Path Delay:        2.799ns  (logic 1.927ns (68.852%)  route 0.872ns (31.148%))
+  Logic Levels:           9  (CARRY8=1 DSP_A_B_DATA=1 DSP_ALU=1 DSP_M_DATA=1 DSP_MULTIPLIER=1 DSP_OUTPUT=1 DSP_PREADD_DATA=1 LUT2=1 LUT3=1)
+  Clock Path Skew:        -0.007ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.021ns = ( 3.176 - 3.155 ) 
+    Source Clock Delay      (SCD):    0.028ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  
+                                                      0.000     0.000 r  clk (IN)
+                         net (fo=1310, unset)         0.028     0.028    clk
+    SLICE_X51Y180        FDCE                                         r  r_input_weight_reg[6][2]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X51Y180        FDCE (Prop_DFF2_SLICEL_C_Q)
+                                                      0.081     0.109 f  r_input_weight_reg[6][2]/Q
+                         net (fo=7, routed)           0.296     0.405    MULTIP_BLOCK[6].multip/partial_product/A[2]
+    DSP48E2_X4Y72        DSP_A_B_DATA (Prop_DSP_A_B_DATA_DSP48E2_A[2]_A2_DATA[2])
+                                                      0.192     0.597 r  MULTIP_BLOCK[6].multip/partial_product/DSP_A_B_DATA_INST/A2_DATA[2]
+                         net (fo=1, routed)           0.000     0.597    MULTIP_BLOCK[6].multip/partial_product/DSP_A_B_DATA.A2_DATA<2>
+    DSP48E2_X4Y72        DSP_PREADD_DATA (Prop_DSP_PREADD_DATA_DSP48E2_A2_DATA[2]_A2A1[2])
+                                                      0.076     0.673 r  MULTIP_BLOCK[6].multip/partial_product/DSP_PREADD_DATA_INST/A2A1[2]
+                         net (fo=1, routed)           0.000     0.673    MULTIP_BLOCK[6].multip/partial_product/DSP_PREADD_DATA.A2A1<2>
+    DSP48E2_X4Y72        DSP_MULTIPLIER (Prop_DSP_MULTIPLIER_DSP48E2_A2A1[2]_U[17])
+                                                      0.505     1.178 f  MULTIP_BLOCK[6].multip/partial_product/DSP_MULTIPLIER_INST/U[17]
+                         net (fo=1, routed)           0.000     1.178    MULTIP_BLOCK[6].multip/partial_product/DSP_MULTIPLIER.U<17>
+    DSP48E2_X4Y72        DSP_M_DATA (Prop_DSP_M_DATA_DSP48E2_U[17]_U_DATA[17])
+                                                      0.047     1.225 r  MULTIP_BLOCK[6].multip/partial_product/DSP_M_DATA_INST/U_DATA[17]
+                         net (fo=1, routed)           0.000     1.225    MULTIP_BLOCK[6].multip/partial_product/DSP_M_DATA.U_DATA<17>
+    DSP48E2_X4Y72        DSP_ALU (Prop_DSP_ALU_DSP48E2_U_DATA[17]_ALU_OUT[17])
+                                                      0.585     1.810 f  MULTIP_BLOCK[6].multip/partial_product/DSP_ALU_INST/ALU_OUT[17]
+                         net (fo=1, routed)           0.000     1.810    MULTIP_BLOCK[6].multip/partial_product/DSP_ALU.ALU_OUT<17>
+    DSP48E2_X4Y72        DSP_OUTPUT (Prop_DSP_OUTPUT_DSP48E2_ALU_OUT[17]_P[17])
+                                                      0.109     1.919 r  MULTIP_BLOCK[6].multip/partial_product/DSP_OUTPUT_INST/P[17]
+                         net (fo=2, routed)           0.249     2.169    MULTIP_BLOCK[6].multip/partial_product_n_88
+    SLICE_X53Y185        LUT2 (Prop_A6LUT_SLICEM_I0_O)
+                                                      0.053     2.222 r  MULTIP_BLOCK[6].multip/i__carry_i_8__5/O
+                         net (fo=1, routed)           0.013     2.235    MULTIP_BLOCK[6].multip/i__carry_i_8__5_n_0
+    SLICE_X53Y185        CARRY8 (Prop_CARRY8_SLICEM_S[0]_O[5])
+                                                      0.240     2.475 r  MULTIP_BLOCK[6].multip/partial_product_inferred__0/i__carry/O[5]
+                         net (fo=1, routed)           0.255     2.730    MULTIP_BLOCK[6].multip/partial_product_inferred__0/i__carry_n_10
+    SLICE_X53Y178        LUT3 (Prop_H6LUT_SLICEM_I0_O)
+                                                      0.039     2.769 r  MULTIP_BLOCK[6].multip/r_conv_temp[14][14]_i_1/O
+                         net (fo=1, routed)           0.058     2.827    MULTIP_BLOCK[6].multip_n_5
+    SLICE_X53Y178        FDRE                                         r  r_conv_temp_reg[14][14]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)        3.155     3.155 r  
+                                                      0.000     3.155 r  clk (IN)
+                         net (fo=1310, unset)         0.021     3.176    clk
+    SLICE_X53Y178        FDRE                                         r  r_conv_temp_reg[14][14]/C
+                         clock pessimism              0.000     3.176    
+                         clock uncertainty           -0.035     3.141    
+    SLICE_X53Y178        FDRE (Setup_HFF_SLICEM_C_D)
+                                                      0.025     3.166    r_conv_temp_reg[14][14]
+  -------------------------------------------------------------------
+                         required time                          3.166    
+                         arrival time                          -2.827    
+  -------------------------------------------------------------------
+                         slack                                  0.339    
+
+Slack (MET) :             0.339ns  (required time - arrival time)
+  Source:                 r_input_weight_reg[0][4]/C
+                            (rising edge-triggered cell FDCE clocked by clk  {rise@0.000ns fall@1.577ns period=3.155ns})
+  Destination:            r_conv_temp_reg[8][16]/D
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@1.577ns period=3.155ns})
+  Path Group:             clk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            3.155ns  (clk rise@3.155ns - clk rise@0.000ns)
+  Data Path Delay:        2.796ns  (logic 1.970ns (70.468%)  route 0.826ns (29.532%))
+  Logic Levels:           9  (CARRY8=1 DSP_A_B_DATA=1 DSP_ALU=1 DSP_M_DATA=1 DSP_MULTIPLIER=1 DSP_OUTPUT=1 DSP_PREADD_DATA=1 LUT2=1 LUT3=1)
+  Clock Path Skew:        -0.010ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.020ns = ( 3.175 - 3.155 ) 
+    Source Clock Delay      (SCD):    0.030ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  
+                                                      0.000     0.000 r  clk (IN)
+                         net (fo=1310, unset)         0.030     0.030    clk
+    SLICE_X63Y184        FDCE                                         r  r_input_weight_reg[0][4]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X63Y184        FDCE (Prop_CFF_SLICEM_C_Q)
+                                                      0.078     0.108 f  r_input_weight_reg[0][4]/Q
+                         net (fo=8, routed)           0.324     0.432    MULTIP_BLOCK[0].multip/partial_product/A[4]
+    DSP48E2_X6Y74        DSP_A_B_DATA (Prop_DSP_A_B_DATA_DSP48E2_A[4]_A2_DATA[4])
+                                                      0.192     0.624 r  MULTIP_BLOCK[0].multip/partial_product/DSP_A_B_DATA_INST/A2_DATA[4]
+                         net (fo=1, routed)           0.000     0.624    MULTIP_BLOCK[0].multip/partial_product/DSP_A_B_DATA.A2_DATA<4>
+    DSP48E2_X6Y74        DSP_PREADD_DATA (Prop_DSP_PREADD_DATA_DSP48E2_A2_DATA[4]_A2A1[4])
+                                                      0.076     0.700 r  MULTIP_BLOCK[0].multip/partial_product/DSP_PREADD_DATA_INST/A2A1[4]
+                         net (fo=1, routed)           0.000     0.700    MULTIP_BLOCK[0].multip/partial_product/DSP_PREADD_DATA.A2A1<4>
+    DSP48E2_X6Y74        DSP_MULTIPLIER (Prop_DSP_MULTIPLIER_DSP48E2_A2A1[4]_U[18])
+                                                      0.505     1.205 f  MULTIP_BLOCK[0].multip/partial_product/DSP_MULTIPLIER_INST/U[18]
+                         net (fo=1, routed)           0.000     1.205    MULTIP_BLOCK[0].multip/partial_product/DSP_MULTIPLIER.U<18>
+    DSP48E2_X6Y74        DSP_M_DATA (Prop_DSP_M_DATA_DSP48E2_U[18]_U_DATA[18])
+                                                      0.047     1.252 r  MULTIP_BLOCK[0].multip/partial_product/DSP_M_DATA_INST/U_DATA[18]
+                         net (fo=1, routed)           0.000     1.252    MULTIP_BLOCK[0].multip/partial_product/DSP_M_DATA.U_DATA<18>
+    DSP48E2_X6Y74        DSP_ALU (Prop_DSP_ALU_DSP48E2_U_DATA[18]_ALU_OUT[18])
+                                                      0.585     1.837 f  MULTIP_BLOCK[0].multip/partial_product/DSP_ALU_INST/ALU_OUT[18]
+                         net (fo=1, routed)           0.000     1.837    MULTIP_BLOCK[0].multip/partial_product/DSP_ALU.ALU_OUT<18>
+    DSP48E2_X6Y74        DSP_OUTPUT (Prop_DSP_OUTPUT_DSP48E2_ALU_OUT[18]_P[18])
+                                                      0.109     1.946 r  MULTIP_BLOCK[0].multip/partial_product/DSP_OUTPUT_INST/P[18]
+                         net (fo=2, routed)           0.262     2.209    MULTIP_BLOCK[0].multip/partial_product_n_87
+    SLICE_X63Y185        LUT2 (Prop_B6LUT_SLICEM_I0_O)
+                                                      0.089     2.298 r  MULTIP_BLOCK[0].multip/i__carry_i_7/O
+                         net (fo=1, routed)           0.016     2.314    MULTIP_BLOCK[0].multip/i__carry_i_7_n_0
+    SLICE_X63Y185        CARRY8 (Prop_CARRY8_SLICEM_S[1]_O[7])
+                                                      0.238     2.552 r  MULTIP_BLOCK[0].multip/partial_product_inferred__0/i__carry/O[7]
+                         net (fo=1, routed)           0.174     2.726    MULTIP_BLOCK[0].multip/partial_product0_out[7]
+    SLICE_X62Y184        LUT3 (Prop_B6LUT_SLICEL_I0_O)
+                                                      0.051     2.777 r  MULTIP_BLOCK[0].multip/r_conv_temp[8][16]_i_1/O
+                         net (fo=1, routed)           0.049     2.826    r_conv_temp[16]
+    SLICE_X62Y184        FDRE                                         r  r_conv_temp_reg[8][16]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)        3.155     3.155 r  
+                                                      0.000     3.155 r  clk (IN)
+                         net (fo=1310, unset)         0.020     3.175    clk
+    SLICE_X62Y184        FDRE                                         r  r_conv_temp_reg[8][16]/C
+                         clock pessimism              0.000     3.175    
+                         clock uncertainty           -0.035     3.140    
+    SLICE_X62Y184        FDRE (Setup_BFF_SLICEL_C_D)
+                                                      0.025     3.165    r_conv_temp_reg[8][16]
+  -------------------------------------------------------------------
+                         required time                          3.165    
+                         arrival time                          -2.826    
+  -------------------------------------------------------------------
+                         slack                                  0.339    
+
+Slack (MET) :             0.339ns  (required time - arrival time)
+  Source:                 r_input_weight_reg[5][9]/C
+                            (rising edge-triggered cell FDCE clocked by clk  {rise@0.000ns fall@1.577ns period=3.155ns})
+  Destination:            r_conv_temp_reg[13][19]/D
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@1.577ns period=3.155ns})
+  Path Group:             clk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            3.155ns  (clk rise@3.155ns - clk rise@0.000ns)
+  Data Path Delay:        2.795ns  (logic 2.025ns (72.443%)  route 0.770ns (27.557%))
+  Logic Levels:           10  (CARRY8=2 DSP_A_B_DATA=1 DSP_ALU=1 DSP_M_DATA=1 DSP_MULTIPLIER=1 DSP_OUTPUT=1 DSP_PREADD_DATA=1 LUT2=1 LUT3=1)
+  Clock Path Skew:        -0.010ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.020ns = ( 3.175 - 3.155 ) 
+    Source Clock Delay      (SCD):    0.030ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  
+                                                      0.000     0.000 r  clk (IN)
+                         net (fo=1310, unset)         0.030     0.030    clk
+    SLICE_X54Y163        FDCE                                         r  r_input_weight_reg[5][9]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X54Y163        FDCE (Prop_DFF2_SLICEM_C_Q)
+                                                      0.080     0.110 f  r_input_weight_reg[5][9]/Q
+                         net (fo=5, routed)           0.324     0.434    MULTIP_BLOCK[5].multip/partial_product/A[9]
+    DSP48E2_X5Y66        DSP_A_B_DATA (Prop_DSP_A_B_DATA_DSP48E2_A[9]_A2_DATA[9])
+                                                      0.192     0.626 r  MULTIP_BLOCK[5].multip/partial_product/DSP_A_B_DATA_INST/A2_DATA[9]
+                         net (fo=1, routed)           0.000     0.626    MULTIP_BLOCK[5].multip/partial_product/DSP_A_B_DATA.A2_DATA<9>
+    DSP48E2_X5Y66        DSP_PREADD_DATA (Prop_DSP_PREADD_DATA_DSP48E2_A2_DATA[9]_A2A1[9])
+                                                      0.076     0.702 r  MULTIP_BLOCK[5].multip/partial_product/DSP_PREADD_DATA_INST/A2A1[9]
+                         net (fo=1, routed)           0.000     0.702    MULTIP_BLOCK[5].multip/partial_product/DSP_PREADD_DATA.A2A1<9>
+    DSP48E2_X5Y66        DSP_MULTIPLIER (Prop_DSP_MULTIPLIER_DSP48E2_A2A1[9]_U[24])
+                                                      0.505     1.207 f  MULTIP_BLOCK[5].multip/partial_product/DSP_MULTIPLIER_INST/U[24]
+                         net (fo=1, routed)           0.000     1.207    MULTIP_BLOCK[5].multip/partial_product/DSP_MULTIPLIER.U<24>
+    DSP48E2_X5Y66        DSP_M_DATA (Prop_DSP_M_DATA_DSP48E2_U[24]_U_DATA[24])
+                                                      0.047     1.254 r  MULTIP_BLOCK[5].multip/partial_product/DSP_M_DATA_INST/U_DATA[24]
+                         net (fo=1, routed)           0.000     1.254    MULTIP_BLOCK[5].multip/partial_product/DSP_M_DATA.U_DATA<24>
+    DSP48E2_X5Y66        DSP_ALU (Prop_DSP_ALU_DSP48E2_U_DATA[24]_ALU_OUT[24])
+                                                      0.585     1.839 f  MULTIP_BLOCK[5].multip/partial_product/DSP_ALU_INST/ALU_OUT[24]
+                         net (fo=1, routed)           0.000     1.839    MULTIP_BLOCK[5].multip/partial_product/DSP_ALU.ALU_OUT<24>
+    DSP48E2_X5Y66        DSP_OUTPUT (Prop_DSP_OUTPUT_DSP48E2_ALU_OUT[24]_P[24])
+                                                      0.109     1.948 r  MULTIP_BLOCK[5].multip/partial_product/DSP_OUTPUT_INST/P[24]
+                         net (fo=2, routed)           0.234     2.182    MULTIP_BLOCK[5].multip/partial_product_n_81
+    SLICE_X55Y166        LUT2 (Prop_H6LUT_SLICEL_I0_O)
+                                                      0.150     2.332 r  MULTIP_BLOCK[5].multip/i__carry_i_1__4/O
+                         net (fo=1, routed)           0.010     2.342    MULTIP_BLOCK[5].multip/i__carry_i_1__4_n_0
+    SLICE_X55Y166        CARRY8 (Prop_CARRY8_SLICEL_S[7]_CO[7])
+                                                      0.115     2.457 r  MULTIP_BLOCK[5].multip/partial_product_inferred__0/i__carry/CO[7]
+                         net (fo=1, routed)           0.026     2.483    MULTIP_BLOCK[5].multip/partial_product_inferred__0/i__carry_n_0
+    SLICE_X55Y167        CARRY8 (Prop_CARRY8_SLICEL_CI_O[2])
+                                                      0.067     2.550 r  MULTIP_BLOCK[5].multip/partial_product_inferred__0/i__carry__0/O[2]
+                         net (fo=1, routed)           0.127     2.677    MULTIP_BLOCK[5].multip/partial_product_inferred__0/i__carry__0_n_13
+    SLICE_X55Y167        LUT3 (Prop_D6LUT_SLICEL_I0_O)
+                                                      0.099     2.776 r  MULTIP_BLOCK[5].multip/r_conv_temp[13][19]_i_1/O
+                         net (fo=1, routed)           0.049     2.825    MULTIP_BLOCK[5].multip_n_0
+    SLICE_X55Y167        FDRE                                         r  r_conv_temp_reg[13][19]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)        3.155     3.155 r  
+                                                      0.000     3.155 r  clk (IN)
+                         net (fo=1310, unset)         0.020     3.175    clk
+    SLICE_X55Y167        FDRE                                         r  r_conv_temp_reg[13][19]/C
+                         clock pessimism              0.000     3.175    
+                         clock uncertainty           -0.035     3.140    
+    SLICE_X55Y167        FDRE (Setup_DFF_SLICEL_C_D)
+                                                      0.025     3.165    r_conv_temp_reg[13][19]
+  -------------------------------------------------------------------
+                         required time                          3.165    
+                         arrival time                          -2.825    
+  -------------------------------------------------------------------
+                         slack                                  0.339    
+
+Slack (MET) :             0.353ns  (required time - arrival time)
+  Source:                 r_input_weight_reg[0][4]/C
+                            (rising edge-triggered cell FDCE clocked by clk  {rise@0.000ns fall@1.577ns period=3.155ns})
+  Destination:            r_conv_temp_reg[8][17]/D
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@1.577ns period=3.155ns})
+  Path Group:             clk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            3.155ns  (clk rise@3.155ns - clk rise@0.000ns)
+  Data Path Delay:        2.782ns  (logic 1.977ns (71.074%)  route 0.805ns (28.926%))
+  Logic Levels:           10  (CARRY8=2 DSP_A_B_DATA=1 DSP_ALU=1 DSP_M_DATA=1 DSP_MULTIPLIER=1 DSP_OUTPUT=1 DSP_PREADD_DATA=1 LUT2=1 LUT3=1)
+  Clock Path Skew:        -0.010ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.020ns = ( 3.175 - 3.155 ) 
+    Source Clock Delay      (SCD):    0.030ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  
+                                                      0.000     0.000 r  clk (IN)
+                         net (fo=1310, unset)         0.030     0.030    clk
+    SLICE_X63Y184        FDCE                                         r  r_input_weight_reg[0][4]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X63Y184        FDCE (Prop_CFF_SLICEM_C_Q)
+                                                      0.078     0.108 f  r_input_weight_reg[0][4]/Q
+                         net (fo=8, routed)           0.324     0.432    MULTIP_BLOCK[0].multip/partial_product/A[4]
+    DSP48E2_X6Y74        DSP_A_B_DATA (Prop_DSP_A_B_DATA_DSP48E2_A[4]_A2_DATA[4])
+                                                      0.192     0.624 r  MULTIP_BLOCK[0].multip/partial_product/DSP_A_B_DATA_INST/A2_DATA[4]
+                         net (fo=1, routed)           0.000     0.624    MULTIP_BLOCK[0].multip/partial_product/DSP_A_B_DATA.A2_DATA<4>
+    DSP48E2_X6Y74        DSP_PREADD_DATA (Prop_DSP_PREADD_DATA_DSP48E2_A2_DATA[4]_A2A1[4])
+                                                      0.076     0.700 r  MULTIP_BLOCK[0].multip/partial_product/DSP_PREADD_DATA_INST/A2A1[4]
+                         net (fo=1, routed)           0.000     0.700    MULTIP_BLOCK[0].multip/partial_product/DSP_PREADD_DATA.A2A1<4>
+    DSP48E2_X6Y74        DSP_MULTIPLIER (Prop_DSP_MULTIPLIER_DSP48E2_A2A1[4]_U[18])
+                                                      0.505     1.205 f  MULTIP_BLOCK[0].multip/partial_product/DSP_MULTIPLIER_INST/U[18]
+                         net (fo=1, routed)           0.000     1.205    MULTIP_BLOCK[0].multip/partial_product/DSP_MULTIPLIER.U<18>
+    DSP48E2_X6Y74        DSP_M_DATA (Prop_DSP_M_DATA_DSP48E2_U[18]_U_DATA[18])
+                                                      0.047     1.252 r  MULTIP_BLOCK[0].multip/partial_product/DSP_M_DATA_INST/U_DATA[18]
+                         net (fo=1, routed)           0.000     1.252    MULTIP_BLOCK[0].multip/partial_product/DSP_M_DATA.U_DATA<18>
+    DSP48E2_X6Y74        DSP_ALU (Prop_DSP_ALU_DSP48E2_U_DATA[18]_ALU_OUT[18])
+                                                      0.585     1.837 f  MULTIP_BLOCK[0].multip/partial_product/DSP_ALU_INST/ALU_OUT[18]
+                         net (fo=1, routed)           0.000     1.837    MULTIP_BLOCK[0].multip/partial_product/DSP_ALU.ALU_OUT<18>
+    DSP48E2_X6Y74        DSP_OUTPUT (Prop_DSP_OUTPUT_DSP48E2_ALU_OUT[18]_P[18])
+                                                      0.109     1.946 r  MULTIP_BLOCK[0].multip/partial_product/DSP_OUTPUT_INST/P[18]
+                         net (fo=2, routed)           0.262     2.209    MULTIP_BLOCK[0].multip/partial_product_n_87
+    SLICE_X63Y185        LUT2 (Prop_B6LUT_SLICEM_I0_O)
+                                                      0.089     2.298 r  MULTIP_BLOCK[0].multip/i__carry_i_7/O
+                         net (fo=1, routed)           0.016     2.314    MULTIP_BLOCK[0].multip/i__carry_i_7_n_0
+    SLICE_X63Y185        CARRY8 (Prop_CARRY8_SLICEM_S[1]_CO[7])
+                                                      0.190     2.504 r  MULTIP_BLOCK[0].multip/partial_product_inferred__0/i__carry/CO[7]
+                         net (fo=1, routed)           0.026     2.530    MULTIP_BLOCK[0].multip/partial_product_inferred__0/i__carry_n_0
+    SLICE_X63Y186        CARRY8 (Prop_CARRY8_SLICEM_CI_O[0])
+                                                      0.056     2.586 r  MULTIP_BLOCK[0].multip/partial_product_inferred__0/i__carry__0/O[0]
+                         net (fo=1, routed)           0.127     2.713    MULTIP_BLOCK[0].multip/partial_product0_out[8]
+    SLICE_X62Y186        LUT3 (Prop_D6LUT_SLICEL_I0_O)
+                                                      0.050     2.763 r  MULTIP_BLOCK[0].multip/r_conv_temp[8][17]_i_1/O
+                         net (fo=1, routed)           0.049     2.812    r_conv_temp[17]
+    SLICE_X62Y186        FDRE                                         r  r_conv_temp_reg[8][17]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)        3.155     3.155 r  
+                                                      0.000     3.155 r  clk (IN)
+                         net (fo=1310, unset)         0.020     3.175    clk
+    SLICE_X62Y186        FDRE                                         r  r_conv_temp_reg[8][17]/C
+                         clock pessimism              0.000     3.175    
+                         clock uncertainty           -0.035     3.140    
+    SLICE_X62Y186        FDRE (Setup_DFF_SLICEL_C_D)
+                                                      0.025     3.165    r_conv_temp_reg[8][17]
+  -------------------------------------------------------------------
+                         required time                          3.165    
+                         arrival time                          -2.812    
+  -------------------------------------------------------------------
+                         slack                                  0.353    
+
+Slack (MET) :             0.353ns  (required time - arrival time)
+  Source:                 r_input_weight_reg[5][9]/C
+                            (rising edge-triggered cell FDCE clocked by clk  {rise@0.000ns fall@1.577ns period=3.155ns})
+  Destination:            r_conv_temp_reg[13][17]/D
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@1.577ns period=3.155ns})
+  Path Group:             clk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            3.155ns  (clk rise@3.155ns - clk rise@0.000ns)
+  Data Path Delay:        2.781ns  (logic 1.965ns (70.650%)  route 0.816ns (29.350%))
+  Logic Levels:           10  (CARRY8=2 DSP_A_B_DATA=1 DSP_ALU=1 DSP_M_DATA=1 DSP_MULTIPLIER=1 DSP_OUTPUT=1 DSP_PREADD_DATA=1 LUT2=1 LUT3=1)
+  Clock Path Skew:        -0.010ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.020ns = ( 3.175 - 3.155 ) 
+    Source Clock Delay      (SCD):    0.030ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  
+                                                      0.000     0.000 r  clk (IN)
+                         net (fo=1310, unset)         0.030     0.030    clk
+    SLICE_X54Y163        FDCE                                         r  r_input_weight_reg[5][9]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X54Y163        FDCE (Prop_DFF2_SLICEM_C_Q)
+                                                      0.080     0.110 f  r_input_weight_reg[5][9]/Q
+                         net (fo=5, routed)           0.324     0.434    MULTIP_BLOCK[5].multip/partial_product/A[9]
+    DSP48E2_X5Y66        DSP_A_B_DATA (Prop_DSP_A_B_DATA_DSP48E2_A[9]_A2_DATA[9])
+                                                      0.192     0.626 r  MULTIP_BLOCK[5].multip/partial_product/DSP_A_B_DATA_INST/A2_DATA[9]
+                         net (fo=1, routed)           0.000     0.626    MULTIP_BLOCK[5].multip/partial_product/DSP_A_B_DATA.A2_DATA<9>
+    DSP48E2_X5Y66        DSP_PREADD_DATA (Prop_DSP_PREADD_DATA_DSP48E2_A2_DATA[9]_A2A1[9])
+                                                      0.076     0.702 r  MULTIP_BLOCK[5].multip/partial_product/DSP_PREADD_DATA_INST/A2A1[9]
+                         net (fo=1, routed)           0.000     0.702    MULTIP_BLOCK[5].multip/partial_product/DSP_PREADD_DATA.A2A1<9>
+    DSP48E2_X5Y66        DSP_MULTIPLIER (Prop_DSP_MULTIPLIER_DSP48E2_A2A1[9]_U[24])
+                                                      0.505     1.207 f  MULTIP_BLOCK[5].multip/partial_product/DSP_MULTIPLIER_INST/U[24]
+                         net (fo=1, routed)           0.000     1.207    MULTIP_BLOCK[5].multip/partial_product/DSP_MULTIPLIER.U<24>
+    DSP48E2_X5Y66        DSP_M_DATA (Prop_DSP_M_DATA_DSP48E2_U[24]_U_DATA[24])
+                                                      0.047     1.254 r  MULTIP_BLOCK[5].multip/partial_product/DSP_M_DATA_INST/U_DATA[24]
+                         net (fo=1, routed)           0.000     1.254    MULTIP_BLOCK[5].multip/partial_product/DSP_M_DATA.U_DATA<24>
+    DSP48E2_X5Y66        DSP_ALU (Prop_DSP_ALU_DSP48E2_U_DATA[24]_ALU_OUT[24])
+                                                      0.585     1.839 f  MULTIP_BLOCK[5].multip/partial_product/DSP_ALU_INST/ALU_OUT[24]
+                         net (fo=1, routed)           0.000     1.839    MULTIP_BLOCK[5].multip/partial_product/DSP_ALU.ALU_OUT<24>
+    DSP48E2_X5Y66        DSP_OUTPUT (Prop_DSP_OUTPUT_DSP48E2_ALU_OUT[24]_P[24])
+                                                      0.109     1.948 r  MULTIP_BLOCK[5].multip/partial_product/DSP_OUTPUT_INST/P[24]
+                         net (fo=2, routed)           0.234     2.182    MULTIP_BLOCK[5].multip/partial_product_n_81
+    SLICE_X55Y166        LUT2 (Prop_H6LUT_SLICEL_I0_O)
+                                                      0.150     2.332 r  MULTIP_BLOCK[5].multip/i__carry_i_1__4/O
+                         net (fo=1, routed)           0.010     2.342    MULTIP_BLOCK[5].multip/i__carry_i_1__4_n_0
+    SLICE_X55Y166        CARRY8 (Prop_CARRY8_SLICEL_S[7]_CO[7])
+                                                      0.115     2.457 r  MULTIP_BLOCK[5].multip/partial_product_inferred__0/i__carry/CO[7]
+                         net (fo=1, routed)           0.026     2.483    MULTIP_BLOCK[5].multip/partial_product_inferred__0/i__carry_n_0
+    SLICE_X55Y167        CARRY8 (Prop_CARRY8_SLICEL_CI_O[0])
+                                                      0.056     2.539 r  MULTIP_BLOCK[5].multip/partial_product_inferred__0/i__carry__0/O[0]
+                         net (fo=1, routed)           0.174     2.713    MULTIP_BLOCK[5].multip/partial_product_inferred__0/i__carry__0_n_15
+    SLICE_X55Y171        LUT3 (Prop_G6LUT_SLICEL_I0_O)
+                                                      0.050     2.763 r  MULTIP_BLOCK[5].multip/r_conv_temp[13][17]_i_1/O
+                         net (fo=1, routed)           0.048     2.811    MULTIP_BLOCK[5].multip_n_2
+    SLICE_X55Y171        FDRE                                         r  r_conv_temp_reg[13][17]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)        3.155     3.155 r  
+                                                      0.000     3.155 r  clk (IN)
+                         net (fo=1310, unset)         0.020     3.175    clk
+    SLICE_X55Y171        FDRE                                         r  r_conv_temp_reg[13][17]/C
+                         clock pessimism              0.000     3.175    
+                         clock uncertainty           -0.035     3.140    
+    SLICE_X55Y171        FDRE (Setup_GFF_SLICEL_C_D)
+                                                      0.025     3.165    r_conv_temp_reg[13][17]
+  -------------------------------------------------------------------
+                         required time                          3.165    
+                         arrival time                          -2.811    
+  -------------------------------------------------------------------
+                         slack                                  0.353    
+
+Slack (MET) :             0.363ns  (required time - arrival time)
+  Source:                 r_input_weight_reg[1][0]/C
+                            (rising edge-triggered cell FDCE clocked by clk  {rise@0.000ns fall@1.577ns period=3.155ns})
+  Destination:            r_conv_temp_reg[9][18]/D
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@1.577ns period=3.155ns})
+  Path Group:             clk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            3.155ns  (clk rise@3.155ns - clk rise@0.000ns)
+  Data Path Delay:        2.772ns  (logic 1.961ns (70.756%)  route 0.811ns (29.244%))
+  Logic Levels:           10  (CARRY8=2 DSP_A_B_DATA=1 DSP_ALU=1 DSP_M_DATA=1 DSP_MULTIPLIER=1 DSP_OUTPUT=1 DSP_PREADD_DATA=1 LUT2=1 LUT3=1)
+  Clock Path Skew:        -0.010ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.020ns = ( 3.175 - 3.155 ) 
+    Source Clock Delay      (SCD):    0.030ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  
+                                                      0.000     0.000 r  clk (IN)
+                         net (fo=1310, unset)         0.030     0.030    clk
+    SLICE_X63Y166        FDCE                                         r  r_input_weight_reg[1][0]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X63Y166        FDCE (Prop_HFF_SLICEM_C_Q)
+                                                      0.079     0.109 f  r_input_weight_reg[1][0]/Q
+                         net (fo=7, routed)           0.218     0.327    MULTIP_BLOCK[1].multip/partial_product/A[0]
+    DSP48E2_X6Y67        DSP_A_B_DATA (Prop_DSP_A_B_DATA_DSP48E2_A[0]_A2_DATA[0])
+                                                      0.192     0.519 r  MULTIP_BLOCK[1].multip/partial_product/DSP_A_B_DATA_INST/A2_DATA[0]
+                         net (fo=1, routed)           0.000     0.519    MULTIP_BLOCK[1].multip/partial_product/DSP_A_B_DATA.A2_DATA<0>
+    DSP48E2_X6Y67        DSP_PREADD_DATA (Prop_DSP_PREADD_DATA_DSP48E2_A2_DATA[0]_A2A1[0])
+                                                      0.076     0.595 r  MULTIP_BLOCK[1].multip/partial_product/DSP_PREADD_DATA_INST/A2A1[0]
+                         net (fo=1, routed)           0.000     0.595    MULTIP_BLOCK[1].multip/partial_product/DSP_PREADD_DATA.A2A1<0>
+    DSP48E2_X6Y67        DSP_MULTIPLIER (Prop_DSP_MULTIPLIER_DSP48E2_A2A1[0]_U[18])
+                                                      0.505     1.100 f  MULTIP_BLOCK[1].multip/partial_product/DSP_MULTIPLIER_INST/U[18]
+                         net (fo=1, routed)           0.000     1.100    MULTIP_BLOCK[1].multip/partial_product/DSP_MULTIPLIER.U<18>
+    DSP48E2_X6Y67        DSP_M_DATA (Prop_DSP_M_DATA_DSP48E2_U[18]_U_DATA[18])
+                                                      0.047     1.147 r  MULTIP_BLOCK[1].multip/partial_product/DSP_M_DATA_INST/U_DATA[18]
+                         net (fo=1, routed)           0.000     1.147    MULTIP_BLOCK[1].multip/partial_product/DSP_M_DATA.U_DATA<18>
+    DSP48E2_X6Y67        DSP_ALU (Prop_DSP_ALU_DSP48E2_U_DATA[18]_ALU_OUT[18])
+                                                      0.585     1.732 f  MULTIP_BLOCK[1].multip/partial_product/DSP_ALU_INST/ALU_OUT[18]
+                         net (fo=1, routed)           0.000     1.732    MULTIP_BLOCK[1].multip/partial_product/DSP_ALU.ALU_OUT<18>
+    DSP48E2_X6Y67        DSP_OUTPUT (Prop_DSP_OUTPUT_DSP48E2_ALU_OUT[18]_P[18])
+                                                      0.109     1.841 r  MULTIP_BLOCK[1].multip/partial_product/DSP_OUTPUT_INST/P[18]
+                         net (fo=2, routed)           0.260     2.102    MULTIP_BLOCK[1].multip/partial_product_n_87
+    SLICE_X64Y167        LUT2 (Prop_B6LUT_SLICEM_I0_O)
+                                                      0.052     2.154 r  MULTIP_BLOCK[1].multip/i__carry_i_7__0/O
+                         net (fo=1, routed)           0.016     2.170    MULTIP_BLOCK[1].multip/i__carry_i_7__0_n_0
+    SLICE_X64Y167        CARRY8 (Prop_CARRY8_SLICEM_S[1]_CO[7])
+                                                      0.190     2.360 r  MULTIP_BLOCK[1].multip/partial_product_inferred__0/i__carry/CO[7]
+                         net (fo=1, routed)           0.026     2.386    MULTIP_BLOCK[1].multip/partial_product_inferred__0/i__carry_n_0
+    SLICE_X64Y168        CARRY8 (Prop_CARRY8_SLICEM_CI_O[1])
+                                                      0.076     2.462 r  MULTIP_BLOCK[1].multip/partial_product_inferred__0/i__carry__0/O[1]
+                         net (fo=1, routed)           0.240     2.702    MULTIP_BLOCK[1].multip/partial_product_inferred__0/i__carry__0_n_14
+    SLICE_X62Y170        LUT3 (Prop_C6LUT_SLICEL_I0_O)
+                                                      0.050     2.752 r  MULTIP_BLOCK[1].multip/r_conv_temp[9][18]_i_1/O
+                         net (fo=1, routed)           0.050     2.802    MULTIP_BLOCK[1].multip_n_9
+    SLICE_X62Y170        FDRE                                         r  r_conv_temp_reg[9][18]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)        3.155     3.155 r  
+                                                      0.000     3.155 r  clk (IN)
+                         net (fo=1310, unset)         0.020     3.175    clk
+    SLICE_X62Y170        FDRE                                         r  r_conv_temp_reg[9][18]/C
+                         clock pessimism              0.000     3.175    
+                         clock uncertainty           -0.035     3.140    
+    SLICE_X62Y170        FDRE (Setup_CFF_SLICEL_C_D)
+                                                      0.025     3.165    r_conv_temp_reg[9][18]
+  -------------------------------------------------------------------
+                         required time                          3.165    
+                         arrival time                          -2.802    
+  -------------------------------------------------------------------
+                         slack                                  0.363    
+
+Slack (MET) :             0.371ns  (required time - arrival time)
+  Source:                 r_input_weight_reg[5][9]/C
+                            (rising edge-triggered cell FDCE clocked by clk  {rise@0.000ns fall@1.577ns period=3.155ns})
+  Destination:            r_conv_temp_reg[13][18]/D
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@1.577ns period=3.155ns})
+  Path Group:             clk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            3.155ns  (clk rise@3.155ns - clk rise@0.000ns)
+  Data Path Delay:        2.764ns  (logic 1.987ns (71.880%)  route 0.777ns (28.120%))
+  Logic Levels:           10  (CARRY8=2 DSP_A_B_DATA=1 DSP_ALU=1 DSP_M_DATA=1 DSP_MULTIPLIER=1 DSP_OUTPUT=1 DSP_PREADD_DATA=1 LUT2=1 LUT3=1)
+  Clock Path Skew:        -0.009ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.021ns = ( 3.176 - 3.155 ) 
+    Source Clock Delay      (SCD):    0.030ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  
+                                                      0.000     0.000 r  clk (IN)
+                         net (fo=1310, unset)         0.030     0.030    clk
+    SLICE_X54Y163        FDCE                                         r  r_input_weight_reg[5][9]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X54Y163        FDCE (Prop_DFF2_SLICEM_C_Q)
+                                                      0.080     0.110 f  r_input_weight_reg[5][9]/Q
+                         net (fo=5, routed)           0.324     0.434    MULTIP_BLOCK[5].multip/partial_product/A[9]
+    DSP48E2_X5Y66        DSP_A_B_DATA (Prop_DSP_A_B_DATA_DSP48E2_A[9]_A2_DATA[9])
+                                                      0.192     0.626 r  MULTIP_BLOCK[5].multip/partial_product/DSP_A_B_DATA_INST/A2_DATA[9]
+                         net (fo=1, routed)           0.000     0.626    MULTIP_BLOCK[5].multip/partial_product/DSP_A_B_DATA.A2_DATA<9>
+    DSP48E2_X5Y66        DSP_PREADD_DATA (Prop_DSP_PREADD_DATA_DSP48E2_A2_DATA[9]_A2A1[9])
+                                                      0.076     0.702 r  MULTIP_BLOCK[5].multip/partial_product/DSP_PREADD_DATA_INST/A2A1[9]
+                         net (fo=1, routed)           0.000     0.702    MULTIP_BLOCK[5].multip/partial_product/DSP_PREADD_DATA.A2A1<9>
+    DSP48E2_X5Y66        DSP_MULTIPLIER (Prop_DSP_MULTIPLIER_DSP48E2_A2A1[9]_U[24])
+                                                      0.505     1.207 f  MULTIP_BLOCK[5].multip/partial_product/DSP_MULTIPLIER_INST/U[24]
+                         net (fo=1, routed)           0.000     1.207    MULTIP_BLOCK[5].multip/partial_product/DSP_MULTIPLIER.U<24>
+    DSP48E2_X5Y66        DSP_M_DATA (Prop_DSP_M_DATA_DSP48E2_U[24]_U_DATA[24])
+                                                      0.047     1.254 r  MULTIP_BLOCK[5].multip/partial_product/DSP_M_DATA_INST/U_DATA[24]
+                         net (fo=1, routed)           0.000     1.254    MULTIP_BLOCK[5].multip/partial_product/DSP_M_DATA.U_DATA<24>
+    DSP48E2_X5Y66        DSP_ALU (Prop_DSP_ALU_DSP48E2_U_DATA[24]_ALU_OUT[24])
+                                                      0.585     1.839 f  MULTIP_BLOCK[5].multip/partial_product/DSP_ALU_INST/ALU_OUT[24]
+                         net (fo=1, routed)           0.000     1.839    MULTIP_BLOCK[5].multip/partial_product/DSP_ALU.ALU_OUT<24>
+    DSP48E2_X5Y66        DSP_OUTPUT (Prop_DSP_OUTPUT_DSP48E2_ALU_OUT[24]_P[24])
+                                                      0.109     1.948 r  MULTIP_BLOCK[5].multip/partial_product/DSP_OUTPUT_INST/P[24]
+                         net (fo=2, routed)           0.234     2.182    MULTIP_BLOCK[5].multip/partial_product_n_81
+    SLICE_X55Y166        LUT2 (Prop_H6LUT_SLICEL_I0_O)
+                                                      0.150     2.332 r  MULTIP_BLOCK[5].multip/i__carry_i_1__4/O
+                         net (fo=1, routed)           0.010     2.342    MULTIP_BLOCK[5].multip/i__carry_i_1__4_n_0
+    SLICE_X55Y166        CARRY8 (Prop_CARRY8_SLICEL_S[7]_CO[7])
+                                                      0.115     2.457 r  MULTIP_BLOCK[5].multip/partial_product_inferred__0/i__carry/CO[7]
+                         net (fo=1, routed)           0.026     2.483    MULTIP_BLOCK[5].multip/partial_product_inferred__0/i__carry_n_0
+    SLICE_X55Y167        CARRY8 (Prop_CARRY8_SLICEL_CI_O[1])
+                                                      0.076     2.559 r  MULTIP_BLOCK[5].multip/partial_product_inferred__0/i__carry__0/O[1]
+                         net (fo=1, routed)           0.124     2.683    MULTIP_BLOCK[5].multip/partial_product_inferred__0/i__carry__0_n_14
+    SLICE_X54Y167        LUT3 (Prop_G6LUT_SLICEM_I0_O)
+                                                      0.052     2.735 r  MULTIP_BLOCK[5].multip/r_conv_temp[13][18]_i_1/O
+                         net (fo=1, routed)           0.059     2.794    MULTIP_BLOCK[5].multip_n_1
+    SLICE_X54Y167        FDRE                                         r  r_conv_temp_reg[13][18]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)        3.155     3.155 r  
+                                                      0.000     3.155 r  clk (IN)
+                         net (fo=1310, unset)         0.021     3.176    clk
+    SLICE_X54Y167        FDRE                                         r  r_conv_temp_reg[13][18]/C
+                         clock pessimism              0.000     3.176    
+                         clock uncertainty           -0.035     3.141    
+    SLICE_X54Y167        FDRE (Setup_GFF_SLICEM_C_D)
+                                                      0.025     3.166    r_conv_temp_reg[13][18]
+  -------------------------------------------------------------------
+                         required time                          3.166    
+                         arrival time                          -2.794    
+  -------------------------------------------------------------------
+                         slack                                  0.371    
+
+Slack (MET) :             0.372ns  (required time - arrival time)
+  Source:                 r_input_weight_reg[7][7]/C
+                            (rising edge-triggered cell FDCE clocked by clk  {rise@0.000ns fall@1.577ns period=3.155ns})
+  Destination:            r_conv_temp_reg[15][16]/D
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@1.577ns period=3.155ns})
+  Path Group:             clk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            3.155ns  (clk rise@3.155ns - clk rise@0.000ns)
+  Data Path Delay:        2.764ns  (logic 1.978ns (71.566%)  route 0.786ns (28.434%))
+  Logic Levels:           9  (CARRY8=1 DSP_A_B_DATA=1 DSP_ALU=1 DSP_M_DATA=1 DSP_MULTIPLIER=1 DSP_OUTPUT=1 DSP_PREADD_DATA=1 LUT2=1 LUT3=1)
+  Clock Path Skew:        -0.009ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.021ns = ( 3.176 - 3.155 ) 
+    Source Clock Delay      (SCD):    0.030ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  
+                                                      0.000     0.000 r  clk (IN)
+                         net (fo=1310, unset)         0.030     0.030    clk
+    SLICE_X53Y164        FDCE                                         r  r_input_weight_reg[7][7]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X53Y164        FDCE (Prop_GFF2_SLICEM_C_Q)
+                                                      0.079     0.109 f  r_input_weight_reg[7][7]/Q
+                         net (fo=8, routed)           0.283     0.392    MULTIP_BLOCK[7].multip/partial_product/A[7]
+    DSP48E2_X4Y66        DSP_A_B_DATA (Prop_DSP_A_B_DATA_DSP48E2_A[7]_A2_DATA[7])
+                                                      0.192     0.584 r  MULTIP_BLOCK[7].multip/partial_product/DSP_A_B_DATA_INST/A2_DATA[7]
+                         net (fo=1, routed)           0.000     0.584    MULTIP_BLOCK[7].multip/partial_product/DSP_A_B_DATA.A2_DATA<7>
+    DSP48E2_X4Y66        DSP_PREADD_DATA (Prop_DSP_PREADD_DATA_DSP48E2_A2_DATA[7]_A2A1[7])
+                                                      0.076     0.660 r  MULTIP_BLOCK[7].multip/partial_product/DSP_PREADD_DATA_INST/A2A1[7]
+                         net (fo=1, routed)           0.000     0.660    MULTIP_BLOCK[7].multip/partial_product/DSP_PREADD_DATA.A2A1<7>
+    DSP48E2_X4Y66        DSP_MULTIPLIER (Prop_DSP_MULTIPLIER_DSP48E2_A2A1[7]_U[18])
+                                                      0.505     1.165 f  MULTIP_BLOCK[7].multip/partial_product/DSP_MULTIPLIER_INST/U[18]
+                         net (fo=1, routed)           0.000     1.165    MULTIP_BLOCK[7].multip/partial_product/DSP_MULTIPLIER.U<18>
+    DSP48E2_X4Y66        DSP_M_DATA (Prop_DSP_M_DATA_DSP48E2_U[18]_U_DATA[18])
+                                                      0.047     1.212 r  MULTIP_BLOCK[7].multip/partial_product/DSP_M_DATA_INST/U_DATA[18]
+                         net (fo=1, routed)           0.000     1.212    MULTIP_BLOCK[7].multip/partial_product/DSP_M_DATA.U_DATA<18>
+    DSP48E2_X4Y66        DSP_ALU (Prop_DSP_ALU_DSP48E2_U_DATA[18]_ALU_OUT[18])
+                                                      0.585     1.797 f  MULTIP_BLOCK[7].multip/partial_product/DSP_ALU_INST/ALU_OUT[18]
+                         net (fo=1, routed)           0.000     1.797    MULTIP_BLOCK[7].multip/partial_product/DSP_ALU.ALU_OUT<18>
+    DSP48E2_X4Y66        DSP_OUTPUT (Prop_DSP_OUTPUT_DSP48E2_ALU_OUT[18]_P[18])
+                                                      0.109     1.906 r  MULTIP_BLOCK[7].multip/partial_product/DSP_OUTPUT_INST/P[18]
+                         net (fo=2, routed)           0.166     2.072    MULTIP_BLOCK[7].multip/partial_product_n_87
+    SLICE_X52Y167        LUT2 (Prop_B6LUT_SLICEL_I0_O)
+                                                      0.098     2.170 r  MULTIP_BLOCK[7].multip/i__carry_i_7__6/O
+                         net (fo=1, routed)           0.009     2.179    MULTIP_BLOCK[7].multip/i__carry_i_7__6_n_0
+    SLICE_X52Y167        CARRY8 (Prop_CARRY8_SLICEL_S[1]_O[7])
+                                                      0.234     2.413 r  MULTIP_BLOCK[7].multip/partial_product_inferred__0/i__carry/O[7]
+                         net (fo=1, routed)           0.270     2.683    MULTIP_BLOCK[7].multip/partial_product_inferred__0/i__carry_n_8
+    SLICE_X53Y170        LUT3 (Prop_H6LUT_SLICEM_I0_O)
+                                                      0.053     2.736 r  MULTIP_BLOCK[7].multip/r_conv_temp[15][16]_i_1/O
+                         net (fo=1, routed)           0.058     2.794    MULTIP_BLOCK[7].multip_n_4
+    SLICE_X53Y170        FDRE                                         r  r_conv_temp_reg[15][16]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)        3.155     3.155 r  
+                                                      0.000     3.155 r  clk (IN)
+                         net (fo=1310, unset)         0.021     3.176    clk
+    SLICE_X53Y170        FDRE                                         r  r_conv_temp_reg[15][16]/C
+                         clock pessimism              0.000     3.176    
+                         clock uncertainty           -0.035     3.141    
+    SLICE_X53Y170        FDRE (Setup_HFF_SLICEM_C_D)
+                                                      0.025     3.166    r_conv_temp_reg[15][16]
+  -------------------------------------------------------------------
+                         required time                          3.166    
+                         arrival time                          -2.794    
+  -------------------------------------------------------------------
+                         slack                                  0.372    
+
+Slack (MET) :             0.372ns  (required time - arrival time)
+  Source:                 r_input_weight_reg[6][2]/C
+                            (rising edge-triggered cell FDCE clocked by clk  {rise@0.000ns fall@1.577ns period=3.155ns})
+  Destination:            r_conv_temp_reg[14][18]/D
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@1.577ns period=3.155ns})
+  Path Group:             clk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            3.155ns  (clk rise@3.155ns - clk rise@0.000ns)
+  Data Path Delay:        2.766ns  (logic 1.974ns (71.375%)  route 0.792ns (28.625%))
+  Logic Levels:           10  (CARRY8=2 DSP_A_B_DATA=1 DSP_ALU=1 DSP_M_DATA=1 DSP_MULTIPLIER=1 DSP_OUTPUT=1 DSP_PREADD_DATA=1 LUT2=1 LUT3=1)
+  Clock Path Skew:        -0.007ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.021ns = ( 3.176 - 3.155 ) 
+    Source Clock Delay      (SCD):    0.028ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  
+                                                      0.000     0.000 r  clk (IN)
+                         net (fo=1310, unset)         0.028     0.028    clk
+    SLICE_X51Y180        FDCE                                         r  r_input_weight_reg[6][2]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X51Y180        FDCE (Prop_DFF2_SLICEL_C_Q)
+                                                      0.081     0.109 f  r_input_weight_reg[6][2]/Q
+                         net (fo=7, routed)           0.296     0.405    MULTIP_BLOCK[6].multip/partial_product/A[2]
+    DSP48E2_X4Y72        DSP_A_B_DATA (Prop_DSP_A_B_DATA_DSP48E2_A[2]_A2_DATA[2])
+                                                      0.192     0.597 r  MULTIP_BLOCK[6].multip/partial_product/DSP_A_B_DATA_INST/A2_DATA[2]
+                         net (fo=1, routed)           0.000     0.597    MULTIP_BLOCK[6].multip/partial_product/DSP_A_B_DATA.A2_DATA<2>
+    DSP48E2_X4Y72        DSP_PREADD_DATA (Prop_DSP_PREADD_DATA_DSP48E2_A2_DATA[2]_A2A1[2])
+                                                      0.076     0.673 r  MULTIP_BLOCK[6].multip/partial_product/DSP_PREADD_DATA_INST/A2A1[2]
+                         net (fo=1, routed)           0.000     0.673    MULTIP_BLOCK[6].multip/partial_product/DSP_PREADD_DATA.A2A1<2>
+    DSP48E2_X4Y72        DSP_MULTIPLIER (Prop_DSP_MULTIPLIER_DSP48E2_A2A1[2]_U[20])
+                                                      0.505     1.178 f  MULTIP_BLOCK[6].multip/partial_product/DSP_MULTIPLIER_INST/U[20]
+                         net (fo=1, routed)           0.000     1.178    MULTIP_BLOCK[6].multip/partial_product/DSP_MULTIPLIER.U<20>
+    DSP48E2_X4Y72        DSP_M_DATA (Prop_DSP_M_DATA_DSP48E2_U[20]_U_DATA[20])
+                                                      0.047     1.225 r  MULTIP_BLOCK[6].multip/partial_product/DSP_M_DATA_INST/U_DATA[20]
+                         net (fo=1, routed)           0.000     1.225    MULTIP_BLOCK[6].multip/partial_product/DSP_M_DATA.U_DATA<20>
+    DSP48E2_X4Y72        DSP_ALU (Prop_DSP_ALU_DSP48E2_U_DATA[20]_ALU_OUT[20])
+                                                      0.585     1.810 f  MULTIP_BLOCK[6].multip/partial_product/DSP_ALU_INST/ALU_OUT[20]
+                         net (fo=1, routed)           0.000     1.810    MULTIP_BLOCK[6].multip/partial_product/DSP_ALU.ALU_OUT<20>
+    DSP48E2_X4Y72        DSP_OUTPUT (Prop_DSP_OUTPUT_DSP48E2_ALU_OUT[20]_P[20])
+                                                      0.109     1.919 r  MULTIP_BLOCK[6].multip/partial_product/DSP_OUTPUT_INST/P[20]
+                         net (fo=2, routed)           0.242     2.162    MULTIP_BLOCK[6].multip/partial_product_n_85
+    SLICE_X53Y185        LUT2 (Prop_D6LUT_SLICEM_I0_O)
+                                                      0.088     2.250 r  MULTIP_BLOCK[6].multip/i__carry_i_5__5/O
+                         net (fo=1, routed)           0.025     2.275    MULTIP_BLOCK[6].multip/i__carry_i_5__5_n_0
+    SLICE_X53Y185        CARRY8 (Prop_CARRY8_SLICEM_S[3]_CO[7])
+                                                      0.163     2.438 r  MULTIP_BLOCK[6].multip/partial_product_inferred__0/i__carry/CO[7]
+                         net (fo=1, routed)           0.026     2.464    MULTIP_BLOCK[6].multip/partial_product_inferred__0/i__carry_n_0
+    SLICE_X53Y186        CARRY8 (Prop_CARRY8_SLICEM_CI_O[1])
+                                                      0.076     2.540 r  MULTIP_BLOCK[6].multip/partial_product_inferred__0/i__carry__0/O[1]
+                         net (fo=1, routed)           0.143     2.683    MULTIP_BLOCK[6].multip/partial_product_inferred__0/i__carry__0_n_14
+    SLICE_X54Y186        LUT3 (Prop_B6LUT_SLICEM_I0_O)
+                                                      0.052     2.735 r  MULTIP_BLOCK[6].multip/r_conv_temp[14][18]_i_1/O
+                         net (fo=1, routed)           0.059     2.794    MULTIP_BLOCK[6].multip_n_1
+    SLICE_X54Y186        FDRE                                         r  r_conv_temp_reg[14][18]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)        3.155     3.155 r  
+                                                      0.000     3.155 r  clk (IN)
+                         net (fo=1310, unset)         0.021     3.176    clk
+    SLICE_X54Y186        FDRE                                         r  r_conv_temp_reg[14][18]/C
+                         clock pessimism              0.000     3.176    
+                         clock uncertainty           -0.035     3.141    
+    SLICE_X54Y186        FDRE (Setup_BFF_SLICEM_C_D)
+                                                      0.025     3.166    r_conv_temp_reg[14][18]
+  -------------------------------------------------------------------
+                         required time                          3.166    
+                         arrival time                          -2.794    
+  -------------------------------------------------------------------
+                         slack                                  0.372    
+
+Slack (MET) :             0.380ns  (required time - arrival time)
+  Source:                 r_input_weight_reg[0][4]/C
+                            (rising edge-triggered cell FDCE clocked by clk  {rise@0.000ns fall@1.577ns period=3.155ns})
+  Destination:            r_conv_temp_reg[8][15]/D
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@1.577ns period=3.155ns})
+  Path Group:             clk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            3.155ns  (clk rise@3.155ns - clk rise@0.000ns)
+  Data Path Delay:        2.756ns  (logic 1.956ns (70.983%)  route 0.800ns (29.017%))
+  Logic Levels:           9  (CARRY8=1 DSP_A_B_DATA=1 DSP_ALU=1 DSP_M_DATA=1 DSP_MULTIPLIER=1 DSP_OUTPUT=1 DSP_PREADD_DATA=1 LUT2=1 LUT3=1)
+  Clock Path Skew:        -0.009ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.021ns = ( 3.176 - 3.155 ) 
+    Source Clock Delay      (SCD):    0.030ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  
+                                                      0.000     0.000 r  clk (IN)
+                         net (fo=1310, unset)         0.030     0.030    clk
+    SLICE_X63Y184        FDCE                                         r  r_input_weight_reg[0][4]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X63Y184        FDCE (Prop_CFF_SLICEM_C_Q)
+                                                      0.078     0.108 f  r_input_weight_reg[0][4]/Q
+                         net (fo=8, routed)           0.324     0.432    MULTIP_BLOCK[0].multip/partial_product/A[4]
+    DSP48E2_X6Y74        DSP_A_B_DATA (Prop_DSP_A_B_DATA_DSP48E2_A[4]_A2_DATA[4])
+                                                      0.192     0.624 r  MULTIP_BLOCK[0].multip/partial_product/DSP_A_B_DATA_INST/A2_DATA[4]
+                         net (fo=1, routed)           0.000     0.624    MULTIP_BLOCK[0].multip/partial_product/DSP_A_B_DATA.A2_DATA<4>
+    DSP48E2_X6Y74        DSP_PREADD_DATA (Prop_DSP_PREADD_DATA_DSP48E2_A2_DATA[4]_A2A1[4])
+                                                      0.076     0.700 r  MULTIP_BLOCK[0].multip/partial_product/DSP_PREADD_DATA_INST/A2A1[4]
+                         net (fo=1, routed)           0.000     0.700    MULTIP_BLOCK[0].multip/partial_product/DSP_PREADD_DATA.A2A1<4>
+    DSP48E2_X6Y74        DSP_MULTIPLIER (Prop_DSP_MULTIPLIER_DSP48E2_A2A1[4]_U[18])
+                                                      0.505     1.205 f  MULTIP_BLOCK[0].multip/partial_product/DSP_MULTIPLIER_INST/U[18]
+                         net (fo=1, routed)           0.000     1.205    MULTIP_BLOCK[0].multip/partial_product/DSP_MULTIPLIER.U<18>
+    DSP48E2_X6Y74        DSP_M_DATA (Prop_DSP_M_DATA_DSP48E2_U[18]_U_DATA[18])
+                                                      0.047     1.252 r  MULTIP_BLOCK[0].multip/partial_product/DSP_M_DATA_INST/U_DATA[18]
+                         net (fo=1, routed)           0.000     1.252    MULTIP_BLOCK[0].multip/partial_product/DSP_M_DATA.U_DATA<18>
+    DSP48E2_X6Y74        DSP_ALU (Prop_DSP_ALU_DSP48E2_U_DATA[18]_ALU_OUT[18])
+                                                      0.585     1.837 f  MULTIP_BLOCK[0].multip/partial_product/DSP_ALU_INST/ALU_OUT[18]
+                         net (fo=1, routed)           0.000     1.837    MULTIP_BLOCK[0].multip/partial_product/DSP_ALU.ALU_OUT<18>
+    DSP48E2_X6Y74        DSP_OUTPUT (Prop_DSP_OUTPUT_DSP48E2_ALU_OUT[18]_P[18])
+                                                      0.109     1.946 r  MULTIP_BLOCK[0].multip/partial_product/DSP_OUTPUT_INST/P[18]
+                         net (fo=2, routed)           0.262     2.209    MULTIP_BLOCK[0].multip/partial_product_n_87
+    SLICE_X63Y185        LUT2 (Prop_B6LUT_SLICEM_I0_O)
+                                                      0.089     2.298 r  MULTIP_BLOCK[0].multip/i__carry_i_7/O
+                         net (fo=1, routed)           0.016     2.314    MULTIP_BLOCK[0].multip/i__carry_i_7_n_0
+    SLICE_X63Y185        CARRY8 (Prop_CARRY8_SLICEM_S[1]_O[6])
+                                                      0.224     2.538 r  MULTIP_BLOCK[0].multip/partial_product_inferred__0/i__carry/O[6]
+                         net (fo=1, routed)           0.131     2.669    MULTIP_BLOCK[0].multip/partial_product0_out[6]
+    SLICE_X63Y183        LUT3 (Prop_C6LUT_SLICEM_I0_O)
+                                                      0.051     2.720 r  MULTIP_BLOCK[0].multip/r_conv_temp[8][15]_i_1/O
+                         net (fo=1, routed)           0.066     2.786    r_conv_temp[15]
+    SLICE_X63Y183        FDRE                                         r  r_conv_temp_reg[8][15]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)        3.155     3.155 r  
+                                                      0.000     3.155 r  clk (IN)
+                         net (fo=1310, unset)         0.021     3.176    clk
+    SLICE_X63Y183        FDRE                                         r  r_conv_temp_reg[8][15]/C
+                         clock pessimism              0.000     3.176    
+                         clock uncertainty           -0.035     3.141    
+    SLICE_X63Y183        FDRE (Setup_CFF_SLICEM_C_D)
+                                                      0.025     3.166    r_conv_temp_reg[8][15]
+  -------------------------------------------------------------------
+                         required time                          3.166    
+                         arrival time                          -2.786    
+  -------------------------------------------------------------------
+                         slack                                  0.380    
+
+Slack (MET) :             0.381ns  (required time - arrival time)
+  Source:                 r_input_weight_reg[1][0]/C
+                            (rising edge-triggered cell FDCE clocked by clk  {rise@0.000ns fall@1.577ns period=3.155ns})
+  Destination:            r_conv_temp_reg[9][16]/D
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@1.577ns period=3.155ns})
+  Path Group:             clk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            3.155ns  (clk rise@3.155ns - clk rise@0.000ns)
+  Data Path Delay:        2.754ns  (logic 1.919ns (69.693%)  route 0.835ns (30.307%))
+  Logic Levels:           9  (CARRY8=1 DSP_A_B_DATA=1 DSP_ALU=1 DSP_M_DATA=1 DSP_MULTIPLIER=1 DSP_OUTPUT=1 DSP_PREADD_DATA=1 LUT2=1 LUT3=1)
+  Clock Path Skew:        -0.010ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.020ns = ( 3.175 - 3.155 ) 
+    Source Clock Delay      (SCD):    0.030ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  
+                                                      0.000     0.000 r  clk (IN)
+                         net (fo=1310, unset)         0.030     0.030    clk
+    SLICE_X63Y166        FDCE                                         r  r_input_weight_reg[1][0]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X63Y166        FDCE (Prop_HFF_SLICEM_C_Q)
+                                                      0.079     0.109 f  r_input_weight_reg[1][0]/Q
+                         net (fo=7, routed)           0.218     0.327    MULTIP_BLOCK[1].multip/partial_product/A[0]
+    DSP48E2_X6Y67        DSP_A_B_DATA (Prop_DSP_A_B_DATA_DSP48E2_A[0]_A2_DATA[0])
+                                                      0.192     0.519 r  MULTIP_BLOCK[1].multip/partial_product/DSP_A_B_DATA_INST/A2_DATA[0]
+                         net (fo=1, routed)           0.000     0.519    MULTIP_BLOCK[1].multip/partial_product/DSP_A_B_DATA.A2_DATA<0>
+    DSP48E2_X6Y67        DSP_PREADD_DATA (Prop_DSP_PREADD_DATA_DSP48E2_A2_DATA[0]_A2A1[0])
+                                                      0.076     0.595 r  MULTIP_BLOCK[1].multip/partial_product/DSP_PREADD_DATA_INST/A2A1[0]
+                         net (fo=1, routed)           0.000     0.595    MULTIP_BLOCK[1].multip/partial_product/DSP_PREADD_DATA.A2A1<0>
+    DSP48E2_X6Y67        DSP_MULTIPLIER (Prop_DSP_MULTIPLIER_DSP48E2_A2A1[0]_U[18])
+                                                      0.505     1.100 f  MULTIP_BLOCK[1].multip/partial_product/DSP_MULTIPLIER_INST/U[18]
+                         net (fo=1, routed)           0.000     1.100    MULTIP_BLOCK[1].multip/partial_product/DSP_MULTIPLIER.U<18>
+    DSP48E2_X6Y67        DSP_M_DATA (Prop_DSP_M_DATA_DSP48E2_U[18]_U_DATA[18])
+                                                      0.047     1.147 r  MULTIP_BLOCK[1].multip/partial_product/DSP_M_DATA_INST/U_DATA[18]
+                         net (fo=1, routed)           0.000     1.147    MULTIP_BLOCK[1].multip/partial_product/DSP_M_DATA.U_DATA<18>
+    DSP48E2_X6Y67        DSP_ALU (Prop_DSP_ALU_DSP48E2_U_DATA[18]_ALU_OUT[18])
+                                                      0.585     1.732 f  MULTIP_BLOCK[1].multip/partial_product/DSP_ALU_INST/ALU_OUT[18]
+                         net (fo=1, routed)           0.000     1.732    MULTIP_BLOCK[1].multip/partial_product/DSP_ALU.ALU_OUT<18>
+    DSP48E2_X6Y67        DSP_OUTPUT (Prop_DSP_OUTPUT_DSP48E2_ALU_OUT[18]_P[18])
+                                                      0.109     1.841 r  MULTIP_BLOCK[1].multip/partial_product/DSP_OUTPUT_INST/P[18]
+                         net (fo=2, routed)           0.260     2.102    MULTIP_BLOCK[1].multip/partial_product_n_87
+    SLICE_X64Y167        LUT2 (Prop_B6LUT_SLICEM_I0_O)
+                                                      0.052     2.154 r  MULTIP_BLOCK[1].multip/i__carry_i_7__0/O
+                         net (fo=1, routed)           0.016     2.170    MULTIP_BLOCK[1].multip/i__carry_i_7__0_n_0
+    SLICE_X64Y167        CARRY8 (Prop_CARRY8_SLICEM_S[1]_O[7])
+                                                      0.238     2.408 r  MULTIP_BLOCK[1].multip/partial_product_inferred__0/i__carry/O[7]
+                         net (fo=1, routed)           0.291     2.699    MULTIP_BLOCK[1].multip/partial_product_inferred__0/i__carry_n_8
+    SLICE_X62Y170        LUT3 (Prop_D6LUT_SLICEL_I0_O)
+                                                      0.036     2.735 r  MULTIP_BLOCK[1].multip/r_conv_temp[9][16]_i_1/O
+                         net (fo=1, routed)           0.049     2.784    MULTIP_BLOCK[1].multip_n_11
+    SLICE_X62Y170        FDRE                                         r  r_conv_temp_reg[9][16]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)        3.155     3.155 r  
+                                                      0.000     3.155 r  clk (IN)
+                         net (fo=1310, unset)         0.020     3.175    clk
+    SLICE_X62Y170        FDRE                                         r  r_conv_temp_reg[9][16]/C
+                         clock pessimism              0.000     3.175    
+                         clock uncertainty           -0.035     3.140    
+    SLICE_X62Y170        FDRE (Setup_DFF_SLICEL_C_D)
+                                                      0.025     3.165    r_conv_temp_reg[9][16]
+  -------------------------------------------------------------------
+                         required time                          3.165    
+                         arrival time                          -2.784    
+  -------------------------------------------------------------------
+                         slack                                  0.381    
+
+Slack (MET) :             0.383ns  (required time - arrival time)
+  Source:                 r_input_weight_reg[4][6]/C
+                            (rising edge-triggered cell FDCE clocked by clk  {rise@0.000ns fall@1.577ns period=3.155ns})
+  Destination:            r_conv_temp_reg[12][13]/D
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@1.577ns period=3.155ns})
+  Path Group:             clk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            3.155ns  (clk rise@3.155ns - clk rise@0.000ns)
+  Data Path Delay:        2.752ns  (logic 2.013ns (73.140%)  route 0.739ns (26.860%))
+  Logic Levels:           9  (CARRY8=1 DSP_A_B_DATA=1 DSP_ALU=1 DSP_M_DATA=1 DSP_MULTIPLIER=1 DSP_OUTPUT=1 DSP_PREADD_DATA=1 LUT2=1 LUT3=1)
+  Clock Path Skew:        -0.009ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.020ns = ( 3.175 - 3.155 ) 
+    Source Clock Delay      (SCD):    0.029ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  
+                                                      0.000     0.000 r  clk (IN)
+                         net (fo=1310, unset)         0.029     0.029    clk
+    SLICE_X52Y175        FDCE                                         r  r_input_weight_reg[4][6]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X52Y175        FDCE (Prop_EFF2_SLICEL_C_Q)
+                                                      0.081     0.110 f  r_input_weight_reg[4][6]/Q
+                         net (fo=8, routed)           0.260     0.370    MULTIP_BLOCK[4].multip/partial_product/A[6]
+    DSP48E2_X4Y70        DSP_A_B_DATA (Prop_DSP_A_B_DATA_DSP48E2_A[6]_A2_DATA[6])
+                                                      0.192     0.562 r  MULTIP_BLOCK[4].multip/partial_product/DSP_A_B_DATA_INST/A2_DATA[6]
+                         net (fo=1, routed)           0.000     0.562    MULTIP_BLOCK[4].multip/partial_product/DSP_A_B_DATA.A2_DATA<6>
+    DSP48E2_X4Y70        DSP_PREADD_DATA (Prop_DSP_PREADD_DATA_DSP48E2_A2_DATA[6]_A2A1[6])
+                                                      0.076     0.638 r  MULTIP_BLOCK[4].multip/partial_product/DSP_PREADD_DATA_INST/A2A1[6]
+                         net (fo=1, routed)           0.000     0.638    MULTIP_BLOCK[4].multip/partial_product/DSP_PREADD_DATA.A2A1<6>
+    DSP48E2_X4Y70        DSP_MULTIPLIER (Prop_DSP_MULTIPLIER_DSP48E2_A2A1[6]_U[17])
+                                                      0.505     1.143 f  MULTIP_BLOCK[4].multip/partial_product/DSP_MULTIPLIER_INST/U[17]
+                         net (fo=1, routed)           0.000     1.143    MULTIP_BLOCK[4].multip/partial_product/DSP_MULTIPLIER.U<17>
+    DSP48E2_X4Y70        DSP_M_DATA (Prop_DSP_M_DATA_DSP48E2_U[17]_U_DATA[17])
+                                                      0.047     1.190 r  MULTIP_BLOCK[4].multip/partial_product/DSP_M_DATA_INST/U_DATA[17]
+                         net (fo=1, routed)           0.000     1.190    MULTIP_BLOCK[4].multip/partial_product/DSP_M_DATA.U_DATA<17>
+    DSP48E2_X4Y70        DSP_ALU (Prop_DSP_ALU_DSP48E2_U_DATA[17]_ALU_OUT[17])
+                                                      0.585     1.775 f  MULTIP_BLOCK[4].multip/partial_product/DSP_ALU_INST/ALU_OUT[17]
+                         net (fo=1, routed)           0.000     1.775    MULTIP_BLOCK[4].multip/partial_product/DSP_ALU.ALU_OUT<17>
+    DSP48E2_X4Y70        DSP_OUTPUT (Prop_DSP_OUTPUT_DSP48E2_ALU_OUT[17]_P[17])
+                                                      0.109     1.884 r  MULTIP_BLOCK[4].multip/partial_product/DSP_OUTPUT_INST/P[17]
+                         net (fo=2, routed)           0.240     2.124    MULTIP_BLOCK[4].multip/partial_product_n_88
+    SLICE_X53Y175        LUT2 (Prop_A6LUT_SLICEM_I0_O)
+                                                      0.090     2.214 r  MULTIP_BLOCK[4].multip/i__carry_i_8__3/O
+                         net (fo=1, routed)           0.013     2.227    MULTIP_BLOCK[4].multip/i__carry_i_8__3_n_0
+    SLICE_X53Y175        CARRY8 (Prop_CARRY8_SLICEM_S[0]_O[4])
+                                                      0.206     2.433 r  MULTIP_BLOCK[4].multip/partial_product_inferred__0/i__carry/O[4]
+                         net (fo=1, routed)           0.177     2.610    MULTIP_BLOCK[4].multip/partial_product_inferred__0/i__carry_n_11
+    SLICE_X52Y174        LUT3 (Prop_D6LUT_SLICEL_I0_O)
+                                                      0.122     2.732 r  MULTIP_BLOCK[4].multip/r_conv_temp[12][13]_i_1/O
+                         net (fo=1, routed)           0.049     2.781    MULTIP_BLOCK[4].multip_n_6
+    SLICE_X52Y174        FDRE                                         r  r_conv_temp_reg[12][13]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)        3.155     3.155 r  
+                                                      0.000     3.155 r  clk (IN)
+                         net (fo=1310, unset)         0.020     3.175    clk
+    SLICE_X52Y174        FDRE                                         r  r_conv_temp_reg[12][13]/C
+                         clock pessimism              0.000     3.175    
+                         clock uncertainty           -0.035     3.140    
+    SLICE_X52Y174        FDRE (Setup_DFF_SLICEL_C_D)
+                                                      0.025     3.165    r_conv_temp_reg[12][13]
+  -------------------------------------------------------------------
+                         required time                          3.165    
+                         arrival time                          -2.781    
+  -------------------------------------------------------------------
+                         slack                                  0.383    
+
+Slack (MET) :             0.386ns  (required time - arrival time)
+  Source:                 r_input_weight_reg[6][2]/C
+                            (rising edge-triggered cell FDCE clocked by clk  {rise@0.000ns fall@1.577ns period=3.155ns})
+  Destination:            r_conv_temp_reg[14][19]/D
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@1.577ns period=3.155ns})
+  Path Group:             clk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            3.155ns  (clk rise@3.155ns - clk rise@0.000ns)
+  Data Path Delay:        2.752ns  (logic 1.964ns (71.375%)  route 0.788ns (28.625%))
+  Logic Levels:           10  (CARRY8=2 DSP_A_B_DATA=1 DSP_ALU=1 DSP_M_DATA=1 DSP_MULTIPLIER=1 DSP_OUTPUT=1 DSP_PREADD_DATA=1 LUT2=1 LUT3=1)
+  Clock Path Skew:        -0.007ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.021ns = ( 3.176 - 3.155 ) 
+    Source Clock Delay      (SCD):    0.028ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  
+                                                      0.000     0.000 r  clk (IN)
+                         net (fo=1310, unset)         0.028     0.028    clk
+    SLICE_X51Y180        FDCE                                         r  r_input_weight_reg[6][2]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X51Y180        FDCE (Prop_DFF2_SLICEL_C_Q)
+                                                      0.081     0.109 f  r_input_weight_reg[6][2]/Q
+                         net (fo=7, routed)           0.296     0.405    MULTIP_BLOCK[6].multip/partial_product/A[2]
+    DSP48E2_X4Y72        DSP_A_B_DATA (Prop_DSP_A_B_DATA_DSP48E2_A[2]_A2_DATA[2])
+                                                      0.192     0.597 r  MULTIP_BLOCK[6].multip/partial_product/DSP_A_B_DATA_INST/A2_DATA[2]
+                         net (fo=1, routed)           0.000     0.597    MULTIP_BLOCK[6].multip/partial_product/DSP_A_B_DATA.A2_DATA<2>
+    DSP48E2_X4Y72        DSP_PREADD_DATA (Prop_DSP_PREADD_DATA_DSP48E2_A2_DATA[2]_A2A1[2])
+                                                      0.076     0.673 r  MULTIP_BLOCK[6].multip/partial_product/DSP_PREADD_DATA_INST/A2A1[2]
+                         net (fo=1, routed)           0.000     0.673    MULTIP_BLOCK[6].multip/partial_product/DSP_PREADD_DATA.A2A1<2>
+    DSP48E2_X4Y72        DSP_MULTIPLIER (Prop_DSP_MULTIPLIER_DSP48E2_A2A1[2]_U[20])
+                                                      0.505     1.178 f  MULTIP_BLOCK[6].multip/partial_product/DSP_MULTIPLIER_INST/U[20]
+                         net (fo=1, routed)           0.000     1.178    MULTIP_BLOCK[6].multip/partial_product/DSP_MULTIPLIER.U<20>
+    DSP48E2_X4Y72        DSP_M_DATA (Prop_DSP_M_DATA_DSP48E2_U[20]_U_DATA[20])
+                                                      0.047     1.225 r  MULTIP_BLOCK[6].multip/partial_product/DSP_M_DATA_INST/U_DATA[20]
+                         net (fo=1, routed)           0.000     1.225    MULTIP_BLOCK[6].multip/partial_product/DSP_M_DATA.U_DATA<20>
+    DSP48E2_X4Y72        DSP_ALU (Prop_DSP_ALU_DSP48E2_U_DATA[20]_ALU_OUT[20])
+                                                      0.585     1.810 f  MULTIP_BLOCK[6].multip/partial_product/DSP_ALU_INST/ALU_OUT[20]
+                         net (fo=1, routed)           0.000     1.810    MULTIP_BLOCK[6].multip/partial_product/DSP_ALU.ALU_OUT<20>
+    DSP48E2_X4Y72        DSP_OUTPUT (Prop_DSP_OUTPUT_DSP48E2_ALU_OUT[20]_P[20])
+                                                      0.109     1.919 r  MULTIP_BLOCK[6].multip/partial_product/DSP_OUTPUT_INST/P[20]
+                         net (fo=2, routed)           0.242     2.162    MULTIP_BLOCK[6].multip/partial_product_n_85
+    SLICE_X53Y185        LUT2 (Prop_D6LUT_SLICEM_I0_O)
+                                                      0.088     2.250 r  MULTIP_BLOCK[6].multip/i__carry_i_5__5/O
+                         net (fo=1, routed)           0.025     2.275    MULTIP_BLOCK[6].multip/i__carry_i_5__5_n_0
+    SLICE_X53Y185        CARRY8 (Prop_CARRY8_SLICEM_S[3]_CO[7])
+                                                      0.163     2.438 r  MULTIP_BLOCK[6].multip/partial_product_inferred__0/i__carry/CO[7]
+                         net (fo=1, routed)           0.026     2.464    MULTIP_BLOCK[6].multip/partial_product_inferred__0/i__carry_n_0
+    SLICE_X53Y186        CARRY8 (Prop_CARRY8_SLICEM_CI_O[2])
+                                                      0.067     2.531 r  MULTIP_BLOCK[6].multip/partial_product_inferred__0/i__carry__0/O[2]
+                         net (fo=1, routed)           0.131     2.662    MULTIP_BLOCK[6].multip/partial_product_inferred__0/i__carry__0_n_13
+    SLICE_X53Y188        LUT3 (Prop_F6LUT_SLICEM_I0_O)
+                                                      0.051     2.713 r  MULTIP_BLOCK[6].multip/r_conv_temp[14][19]_i_1/O
+                         net (fo=1, routed)           0.067     2.780    MULTIP_BLOCK[6].multip_n_0
+    SLICE_X53Y188        FDRE                                         r  r_conv_temp_reg[14][19]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)        3.155     3.155 r  
+                                                      0.000     3.155 r  clk (IN)
+                         net (fo=1310, unset)         0.021     3.176    clk
+    SLICE_X53Y188        FDRE                                         r  r_conv_temp_reg[14][19]/C
+                         clock pessimism              0.000     3.176    
+                         clock uncertainty           -0.035     3.141    
+    SLICE_X53Y188        FDRE (Setup_FFF_SLICEM_C_D)
+                                                      0.025     3.166    r_conv_temp_reg[14][19]
+  -------------------------------------------------------------------
+                         required time                          3.166    
+                         arrival time                          -2.780    
+  -------------------------------------------------------------------
+                         slack                                  0.386    
+
+Slack (MET) :             0.386ns  (required time - arrival time)
+  Source:                 r_input_weight_reg[2][3]/C
+                            (rising edge-triggered cell FDCE clocked by clk  {rise@0.000ns fall@1.577ns period=3.155ns})
+  Destination:            r_conv_temp_reg[10][16]/D
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@1.577ns period=3.155ns})
+  Path Group:             clk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            3.155ns  (clk rise@3.155ns - clk rise@0.000ns)
+  Data Path Delay:        2.751ns  (logic 1.915ns (69.605%)  route 0.836ns (30.395%))
+  Logic Levels:           8  (CARRY8=1 DSP_A_B_DATA=1 DSP_ALU=1 DSP_M_DATA=1 DSP_MULTIPLIER=1 DSP_OUTPUT=1 DSP_PREADD_DATA=1 LUT3=1)
+  Clock Path Skew:        -0.007ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.021ns = ( 3.176 - 3.155 ) 
+    Source Clock Delay      (SCD):    0.028ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  
+                                                      0.000     0.000 r  clk (IN)
+                         net (fo=1310, unset)         0.028     0.028    clk
+    SLICE_X55Y185        FDCE                                         r  r_input_weight_reg[2][3]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X55Y185        FDCE (Prop_CFF2_SLICEL_C_Q)
+                                                      0.080     0.108 f  r_input_weight_reg[2][3]/Q
+                         net (fo=8, routed)           0.303     0.411    MULTIP_BLOCK[2].multip/partial_product/A[3]
+    DSP48E2_X5Y74        DSP_A_B_DATA (Prop_DSP_A_B_DATA_DSP48E2_A[3]_A2_DATA[3])
+                                                      0.192     0.603 r  MULTIP_BLOCK[2].multip/partial_product/DSP_A_B_DATA_INST/A2_DATA[3]
+                         net (fo=1, routed)           0.000     0.603    MULTIP_BLOCK[2].multip/partial_product/DSP_A_B_DATA.A2_DATA<3>
+    DSP48E2_X5Y74        DSP_PREADD_DATA (Prop_DSP_PREADD_DATA_DSP48E2_A2_DATA[3]_A2A1[3])
+                                                      0.076     0.679 r  MULTIP_BLOCK[2].multip/partial_product/DSP_PREADD_DATA_INST/A2A1[3]
+                         net (fo=1, routed)           0.000     0.679    MULTIP_BLOCK[2].multip/partial_product/DSP_PREADD_DATA.A2A1<3>
+    DSP48E2_X5Y74        DSP_MULTIPLIER (Prop_DSP_MULTIPLIER_DSP48E2_A2A1[3]_U[18])
+                                                      0.505     1.184 f  MULTIP_BLOCK[2].multip/partial_product/DSP_MULTIPLIER_INST/U[18]
+                         net (fo=1, routed)           0.000     1.184    MULTIP_BLOCK[2].multip/partial_product/DSP_MULTIPLIER.U<18>
+    DSP48E2_X5Y74        DSP_M_DATA (Prop_DSP_M_DATA_DSP48E2_U[18]_U_DATA[18])
+                                                      0.047     1.231 r  MULTIP_BLOCK[2].multip/partial_product/DSP_M_DATA_INST/U_DATA[18]
+                         net (fo=1, routed)           0.000     1.231    MULTIP_BLOCK[2].multip/partial_product/DSP_M_DATA.U_DATA<18>
+    DSP48E2_X5Y74        DSP_ALU (Prop_DSP_ALU_DSP48E2_U_DATA[18]_ALU_OUT[18])
+                                                      0.585     1.816 f  MULTIP_BLOCK[2].multip/partial_product/DSP_ALU_INST/ALU_OUT[18]
+                         net (fo=1, routed)           0.000     1.816    MULTIP_BLOCK[2].multip/partial_product/DSP_ALU.ALU_OUT<18>
+    DSP48E2_X5Y74        DSP_OUTPUT (Prop_DSP_OUTPUT_DSP48E2_ALU_OUT[18]_P[18])
+                                                      0.109     1.925 r  MULTIP_BLOCK[2].multip/partial_product/DSP_OUTPUT_INST/P[18]
+                         net (fo=2, routed)           0.285     2.210    MULTIP_BLOCK[2].multip/partial_product_n_87
+    SLICE_X56Y187        CARRY8 (Prop_CARRY8_SLICEM_DI[1]_O[7])
+                                                      0.198     2.408 r  MULTIP_BLOCK[2].multip/partial_product_inferred__0/i__carry/O[7]
+                         net (fo=1, routed)           0.189     2.597    MULTIP_BLOCK[2].multip/partial_product_inferred__0/i__carry_n_8
+    SLICE_X56Y184        LUT3 (Prop_G6LUT_SLICEM_I0_O)
+                                                      0.123     2.720 r  MULTIP_BLOCK[2].multip/r_conv_temp[10][16]_i_1/O
+                         net (fo=1, routed)           0.059     2.779    MULTIP_BLOCK[2].multip_n_3
+    SLICE_X56Y184        FDRE                                         r  r_conv_temp_reg[10][16]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)        3.155     3.155 r  
+                                                      0.000     3.155 r  clk (IN)
+                         net (fo=1310, unset)         0.021     3.176    clk
+    SLICE_X56Y184        FDRE                                         r  r_conv_temp_reg[10][16]/C
+                         clock pessimism              0.000     3.176    
+                         clock uncertainty           -0.035     3.141    
+    SLICE_X56Y184        FDRE (Setup_GFF_SLICEM_C_D)
+                                                      0.025     3.166    r_conv_temp_reg[10][16]
+  -------------------------------------------------------------------
+                         required time                          3.166    
+                         arrival time                          -2.779    
+  -------------------------------------------------------------------
+                         slack                                  0.386    
+
+Slack (MET) :             0.387ns  (required time - arrival time)
+  Source:                 r_input_weight_reg[4][6]/C
+                            (rising edge-triggered cell FDCE clocked by clk  {rise@0.000ns fall@1.577ns period=3.155ns})
+  Destination:            r_conv_temp_reg[12][15]/D
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@1.577ns period=3.155ns})
+  Path Group:             clk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            3.155ns  (clk rise@3.155ns - clk rise@0.000ns)
+  Data Path Delay:        2.748ns  (logic 2.008ns (73.064%)  route 0.740ns (26.936%))
+  Logic Levels:           9  (CARRY8=1 DSP_A_B_DATA=1 DSP_ALU=1 DSP_M_DATA=1 DSP_MULTIPLIER=1 DSP_OUTPUT=1 DSP_PREADD_DATA=1 LUT2=1 LUT3=1)
+  Clock Path Skew:        -0.009ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.020ns = ( 3.175 - 3.155 ) 
+    Source Clock Delay      (SCD):    0.029ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  
+                                                      0.000     0.000 r  clk (IN)
+                         net (fo=1310, unset)         0.029     0.029    clk
+    SLICE_X52Y175        FDCE                                         r  r_input_weight_reg[4][6]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X52Y175        FDCE (Prop_EFF2_SLICEL_C_Q)
+                                                      0.081     0.110 f  r_input_weight_reg[4][6]/Q
+                         net (fo=8, routed)           0.260     0.370    MULTIP_BLOCK[4].multip/partial_product/A[6]
+    DSP48E2_X4Y70        DSP_A_B_DATA (Prop_DSP_A_B_DATA_DSP48E2_A[6]_A2_DATA[6])
+                                                      0.192     0.562 r  MULTIP_BLOCK[4].multip/partial_product/DSP_A_B_DATA_INST/A2_DATA[6]
+                         net (fo=1, routed)           0.000     0.562    MULTIP_BLOCK[4].multip/partial_product/DSP_A_B_DATA.A2_DATA<6>
+    DSP48E2_X4Y70        DSP_PREADD_DATA (Prop_DSP_PREADD_DATA_DSP48E2_A2_DATA[6]_A2A1[6])
+                                                      0.076     0.638 r  MULTIP_BLOCK[4].multip/partial_product/DSP_PREADD_DATA_INST/A2A1[6]
+                         net (fo=1, routed)           0.000     0.638    MULTIP_BLOCK[4].multip/partial_product/DSP_PREADD_DATA.A2A1<6>
+    DSP48E2_X4Y70        DSP_MULTIPLIER (Prop_DSP_MULTIPLIER_DSP48E2_A2A1[6]_U[17])
+                                                      0.505     1.143 f  MULTIP_BLOCK[4].multip/partial_product/DSP_MULTIPLIER_INST/U[17]
+                         net (fo=1, routed)           0.000     1.143    MULTIP_BLOCK[4].multip/partial_product/DSP_MULTIPLIER.U<17>
+    DSP48E2_X4Y70        DSP_M_DATA (Prop_DSP_M_DATA_DSP48E2_U[17]_U_DATA[17])
+                                                      0.047     1.190 r  MULTIP_BLOCK[4].multip/partial_product/DSP_M_DATA_INST/U_DATA[17]
+                         net (fo=1, routed)           0.000     1.190    MULTIP_BLOCK[4].multip/partial_product/DSP_M_DATA.U_DATA<17>
+    DSP48E2_X4Y70        DSP_ALU (Prop_DSP_ALU_DSP48E2_U_DATA[17]_ALU_OUT[17])
+                                                      0.585     1.775 f  MULTIP_BLOCK[4].multip/partial_product/DSP_ALU_INST/ALU_OUT[17]
+                         net (fo=1, routed)           0.000     1.775    MULTIP_BLOCK[4].multip/partial_product/DSP_ALU.ALU_OUT<17>
+    DSP48E2_X4Y70        DSP_OUTPUT (Prop_DSP_OUTPUT_DSP48E2_ALU_OUT[17]_P[17])
+                                                      0.109     1.884 r  MULTIP_BLOCK[4].multip/partial_product/DSP_OUTPUT_INST/P[17]
+                         net (fo=2, routed)           0.240     2.124    MULTIP_BLOCK[4].multip/partial_product_n_88
+    SLICE_X53Y175        LUT2 (Prop_A6LUT_SLICEM_I0_O)
+                                                      0.090     2.214 r  MULTIP_BLOCK[4].multip/i__carry_i_8__3/O
+                         net (fo=1, routed)           0.013     2.227    MULTIP_BLOCK[4].multip/i__carry_i_8__3_n_0
+    SLICE_X53Y175        CARRY8 (Prop_CARRY8_SLICEM_S[0]_O[6])
+                                                      0.226     2.453 r  MULTIP_BLOCK[4].multip/partial_product_inferred__0/i__carry/O[6]
+                         net (fo=1, routed)           0.176     2.629    MULTIP_BLOCK[4].multip/partial_product_inferred__0/i__carry_n_9
+    SLICE_X52Y174        LUT3 (Prop_F6LUT_SLICEL_I0_O)
+                                                      0.097     2.726 r  MULTIP_BLOCK[4].multip/r_conv_temp[12][15]_i_1/O
+                         net (fo=1, routed)           0.051     2.777    MULTIP_BLOCK[4].multip_n_4
+    SLICE_X52Y174        FDRE                                         r  r_conv_temp_reg[12][15]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)        3.155     3.155 r  
+                                                      0.000     3.155 r  clk (IN)
+                         net (fo=1310, unset)         0.020     3.175    clk
+    SLICE_X52Y174        FDRE                                         r  r_conv_temp_reg[12][15]/C
+                         clock pessimism              0.000     3.175    
+                         clock uncertainty           -0.035     3.140    
+    SLICE_X52Y174        FDRE (Setup_FFF_SLICEL_C_D)
+                                                      0.025     3.165    r_conv_temp_reg[12][15]
+  -------------------------------------------------------------------
+                         required time                          3.165    
+                         arrival time                          -2.777    
+  -------------------------------------------------------------------
+                         slack                                  0.387    
+
+Slack (MET) :             0.388ns  (required time - arrival time)
+  Source:                 r_input_weight_reg[4][6]/C
+                            (rising edge-triggered cell FDCE clocked by clk  {rise@0.000ns fall@1.577ns period=3.155ns})
+  Destination:            r_conv_temp_reg[12][17]/D
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@1.577ns period=3.155ns})
+  Path Group:             clk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            3.155ns  (clk rise@3.155ns - clk rise@0.000ns)
+  Data Path Delay:        2.747ns  (logic 1.983ns (72.181%)  route 0.764ns (27.819%))
+  Logic Levels:           10  (CARRY8=2 DSP_A_B_DATA=1 DSP_ALU=1 DSP_M_DATA=1 DSP_MULTIPLIER=1 DSP_OUTPUT=1 DSP_PREADD_DATA=1 LUT2=1 LUT3=1)
+  Clock Path Skew:        -0.009ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.020ns = ( 3.175 - 3.155 ) 
+    Source Clock Delay      (SCD):    0.029ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  
+                                                      0.000     0.000 r  clk (IN)
+                         net (fo=1310, unset)         0.029     0.029    clk
+    SLICE_X52Y175        FDCE                                         r  r_input_weight_reg[4][6]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X52Y175        FDCE (Prop_EFF2_SLICEL_C_Q)
+                                                      0.081     0.110 f  r_input_weight_reg[4][6]/Q
+                         net (fo=8, routed)           0.260     0.370    MULTIP_BLOCK[4].multip/partial_product/A[6]
+    DSP48E2_X4Y70        DSP_A_B_DATA (Prop_DSP_A_B_DATA_DSP48E2_A[6]_A2_DATA[6])
+                                                      0.192     0.562 r  MULTIP_BLOCK[4].multip/partial_product/DSP_A_B_DATA_INST/A2_DATA[6]
+                         net (fo=1, routed)           0.000     0.562    MULTIP_BLOCK[4].multip/partial_product/DSP_A_B_DATA.A2_DATA<6>
+    DSP48E2_X4Y70        DSP_PREADD_DATA (Prop_DSP_PREADD_DATA_DSP48E2_A2_DATA[6]_A2A1[6])
+                                                      0.076     0.638 r  MULTIP_BLOCK[4].multip/partial_product/DSP_PREADD_DATA_INST/A2A1[6]
+                         net (fo=1, routed)           0.000     0.638    MULTIP_BLOCK[4].multip/partial_product/DSP_PREADD_DATA.A2A1<6>
+    DSP48E2_X4Y70        DSP_MULTIPLIER (Prop_DSP_MULTIPLIER_DSP48E2_A2A1[6]_U[17])
+                                                      0.505     1.143 f  MULTIP_BLOCK[4].multip/partial_product/DSP_MULTIPLIER_INST/U[17]
+                         net (fo=1, routed)           0.000     1.143    MULTIP_BLOCK[4].multip/partial_product/DSP_MULTIPLIER.U<17>
+    DSP48E2_X4Y70        DSP_M_DATA (Prop_DSP_M_DATA_DSP48E2_U[17]_U_DATA[17])
+                                                      0.047     1.190 r  MULTIP_BLOCK[4].multip/partial_product/DSP_M_DATA_INST/U_DATA[17]
+                         net (fo=1, routed)           0.000     1.190    MULTIP_BLOCK[4].multip/partial_product/DSP_M_DATA.U_DATA<17>
+    DSP48E2_X4Y70        DSP_ALU (Prop_DSP_ALU_DSP48E2_U_DATA[17]_ALU_OUT[17])
+                                                      0.585     1.775 f  MULTIP_BLOCK[4].multip/partial_product/DSP_ALU_INST/ALU_OUT[17]
+                         net (fo=1, routed)           0.000     1.775    MULTIP_BLOCK[4].multip/partial_product/DSP_ALU.ALU_OUT<17>
+    DSP48E2_X4Y70        DSP_OUTPUT (Prop_DSP_OUTPUT_DSP48E2_ALU_OUT[17]_P[17])
+                                                      0.109     1.884 r  MULTIP_BLOCK[4].multip/partial_product/DSP_OUTPUT_INST/P[17]
+                         net (fo=2, routed)           0.240     2.124    MULTIP_BLOCK[4].multip/partial_product_n_88
+    SLICE_X53Y175        LUT2 (Prop_A6LUT_SLICEM_I0_O)
+                                                      0.090     2.214 r  MULTIP_BLOCK[4].multip/i__carry_i_8__3/O
+                         net (fo=1, routed)           0.013     2.227    MULTIP_BLOCK[4].multip/i__carry_i_8__3_n_0
+    SLICE_X53Y175        CARRY8 (Prop_CARRY8_SLICEM_S[0]_CO[7])
+                                                      0.192     2.419 r  MULTIP_BLOCK[4].multip/partial_product_inferred__0/i__carry/CO[7]
+                         net (fo=1, routed)           0.026     2.445    MULTIP_BLOCK[4].multip/partial_product_inferred__0/i__carry_n_0
+    SLICE_X53Y176        CARRY8 (Prop_CARRY8_SLICEM_CI_O[0])
+                                                      0.056     2.501 r  MULTIP_BLOCK[4].multip/partial_product_inferred__0/i__carry__0/O[0]
+                         net (fo=1, routed)           0.175     2.676    MULTIP_BLOCK[4].multip/partial_product_inferred__0/i__carry__0_n_15
+    SLICE_X52Y174        LUT3 (Prop_C6LUT_SLICEL_I0_O)
+                                                      0.050     2.726 r  MULTIP_BLOCK[4].multip/r_conv_temp[12][17]_i_1/O
+                         net (fo=1, routed)           0.050     2.776    MULTIP_BLOCK[4].multip_n_2
+    SLICE_X52Y174        FDRE                                         r  r_conv_temp_reg[12][17]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)        3.155     3.155 r  
+                                                      0.000     3.155 r  clk (IN)
+                         net (fo=1310, unset)         0.020     3.175    clk
+    SLICE_X52Y174        FDRE                                         r  r_conv_temp_reg[12][17]/C
+                         clock pessimism              0.000     3.175    
+                         clock uncertainty           -0.035     3.140    
+    SLICE_X52Y174        FDRE (Setup_CFF_SLICEL_C_D)
+                                                      0.025     3.165    r_conv_temp_reg[12][17]
+  -------------------------------------------------------------------
+                         required time                          3.165    
+                         arrival time                          -2.776    
+  -------------------------------------------------------------------
+                         slack                                  0.388    
+
+Slack (MET) :             0.389ns  (required time - arrival time)
+  Source:                 r_input_weight_reg[3][7]/C
+                            (rising edge-triggered cell FDCE clocked by clk  {rise@0.000ns fall@1.577ns period=3.155ns})
+  Destination:            r_conv_temp_reg[11][18]/D
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@1.577ns period=3.155ns})
+  Path Group:             clk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            3.155ns  (clk rise@3.155ns - clk rise@0.000ns)
+  Data Path Delay:        2.746ns  (logic 1.853ns (67.484%)  route 0.893ns (32.516%))
+  Logic Levels:           9  (CARRY8=2 DSP_A_B_DATA=1 DSP_ALU=1 DSP_M_DATA=1 DSP_MULTIPLIER=1 DSP_OUTPUT=1 DSP_PREADD_DATA=1 LUT3=1)
+  Clock Path Skew:        -0.010ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.020ns = ( 3.175 - 3.155 ) 
+    Source Clock Delay      (SCD):    0.030ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  
+                                                      0.000     0.000 r  clk (IN)
+                         net (fo=1310, unset)         0.030     0.030    clk
+    SLICE_X63Y169        FDCE                                         r  r_input_weight_reg[3][7]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X63Y169        FDCE (Prop_AFF2_SLICEM_C_Q)
+                                                      0.080     0.110 f  r_input_weight_reg[3][7]/Q
+                         net (fo=8, routed)           0.298     0.408    MULTIP_BLOCK[3].multip/partial_product/A[7]
+    DSP48E2_X6Y68        DSP_A_B_DATA (Prop_DSP_A_B_DATA_DSP48E2_A[7]_A2_DATA[7])
+                                                      0.192     0.600 r  MULTIP_BLOCK[3].multip/partial_product/DSP_A_B_DATA_INST/A2_DATA[7]
+                         net (fo=1, routed)           0.000     0.600    MULTIP_BLOCK[3].multip/partial_product/DSP_A_B_DATA.A2_DATA<7>
+    DSP48E2_X6Y68        DSP_PREADD_DATA (Prop_DSP_PREADD_DATA_DSP48E2_A2_DATA[7]_A2A1[7])
+                                                      0.076     0.676 r  MULTIP_BLOCK[3].multip/partial_product/DSP_PREADD_DATA_INST/A2A1[7]
+                         net (fo=1, routed)           0.000     0.676    MULTIP_BLOCK[3].multip/partial_product/DSP_PREADD_DATA.A2A1<7>
+    DSP48E2_X6Y68        DSP_MULTIPLIER (Prop_DSP_MULTIPLIER_DSP48E2_A2A1[7]_U[17])
+                                                      0.505     1.181 f  MULTIP_BLOCK[3].multip/partial_product/DSP_MULTIPLIER_INST/U[17]
+                         net (fo=1, routed)           0.000     1.181    MULTIP_BLOCK[3].multip/partial_product/DSP_MULTIPLIER.U<17>
+    DSP48E2_X6Y68        DSP_M_DATA (Prop_DSP_M_DATA_DSP48E2_U[17]_U_DATA[17])
+                                                      0.047     1.228 r  MULTIP_BLOCK[3].multip/partial_product/DSP_M_DATA_INST/U_DATA[17]
+                         net (fo=1, routed)           0.000     1.228    MULTIP_BLOCK[3].multip/partial_product/DSP_M_DATA.U_DATA<17>
+    DSP48E2_X6Y68        DSP_ALU (Prop_DSP_ALU_DSP48E2_U_DATA[17]_ALU_OUT[17])
+                                                      0.585     1.813 f  MULTIP_BLOCK[3].multip/partial_product/DSP_ALU_INST/ALU_OUT[17]
+                         net (fo=1, routed)           0.000     1.813    MULTIP_BLOCK[3].multip/partial_product/DSP_ALU.ALU_OUT<17>
+    DSP48E2_X6Y68        DSP_OUTPUT (Prop_DSP_OUTPUT_DSP48E2_ALU_OUT[17]_P[17])
+                                                      0.109     1.922 r  MULTIP_BLOCK[3].multip/partial_product/DSP_OUTPUT_INST/P[17]
+                         net (fo=2, routed)           0.341     2.263    MULTIP_BLOCK[3].multip/partial_product_n_88
+    SLICE_X63Y172        CARRY8 (Prop_CARRY8_SLICEM_DI[0]_CO[7])
+                                                      0.133     2.396 r  MULTIP_BLOCK[3].multip/partial_product_inferred__0/i__carry/CO[7]
+                         net (fo=1, routed)           0.026     2.422    MULTIP_BLOCK[3].multip/partial_product_inferred__0/i__carry_n_0
+    SLICE_X63Y173        CARRY8 (Prop_CARRY8_SLICEM_CI_O[1])
+                                                      0.076     2.498 r  MULTIP_BLOCK[3].multip/partial_product_inferred__0/i__carry__0/O[1]
+                         net (fo=1, routed)           0.178     2.676    MULTIP_BLOCK[3].multip/partial_product_inferred__0/i__carry__0_n_14
+    SLICE_X62Y173        LUT3 (Prop_C6LUT_SLICEL_I0_O)
+                                                      0.050     2.726 r  MULTIP_BLOCK[3].multip/r_conv_temp[11][18]_i_1/O
+                         net (fo=1, routed)           0.050     2.776    MULTIP_BLOCK[3].multip_n_1
+    SLICE_X62Y173        FDRE                                         r  r_conv_temp_reg[11][18]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)        3.155     3.155 r  
+                                                      0.000     3.155 r  clk (IN)
+                         net (fo=1310, unset)         0.020     3.175    clk
+    SLICE_X62Y173        FDRE                                         r  r_conv_temp_reg[11][18]/C
+                         clock pessimism              0.000     3.175    
+                         clock uncertainty           -0.035     3.140    
+    SLICE_X62Y173        FDRE (Setup_CFF_SLICEL_C_D)
+                                                      0.025     3.165    r_conv_temp_reg[11][18]
+  -------------------------------------------------------------------
+                         required time                          3.165    
+                         arrival time                          -2.776    
+  -------------------------------------------------------------------
+                         slack                                  0.389    
+
+Slack (MET) :             0.403ns  (required time - arrival time)
+  Source:                 r_input_weight_reg[3][7]/C
+                            (rising edge-triggered cell FDCE clocked by clk  {rise@0.000ns fall@1.577ns period=3.155ns})
+  Destination:            r_conv_temp_reg[11][19]/D
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@1.577ns period=3.155ns})
+  Path Group:             clk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            3.155ns  (clk rise@3.155ns - clk rise@0.000ns)
+  Data Path Delay:        2.732ns  (logic 1.845ns (67.537%)  route 0.887ns (32.463%))
+  Logic Levels:           9  (CARRY8=2 DSP_A_B_DATA=1 DSP_ALU=1 DSP_M_DATA=1 DSP_MULTIPLIER=1 DSP_OUTPUT=1 DSP_PREADD_DATA=1 LUT3=1)
+  Clock Path Skew:        -0.010ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.020ns = ( 3.175 - 3.155 ) 
+    Source Clock Delay      (SCD):    0.030ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  
+                                                      0.000     0.000 r  clk (IN)
+                         net (fo=1310, unset)         0.030     0.030    clk
+    SLICE_X63Y169        FDCE                                         r  r_input_weight_reg[3][7]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X63Y169        FDCE (Prop_AFF2_SLICEM_C_Q)
+                                                      0.080     0.110 f  r_input_weight_reg[3][7]/Q
+                         net (fo=8, routed)           0.298     0.408    MULTIP_BLOCK[3].multip/partial_product/A[7]
+    DSP48E2_X6Y68        DSP_A_B_DATA (Prop_DSP_A_B_DATA_DSP48E2_A[7]_A2_DATA[7])
+                                                      0.192     0.600 r  MULTIP_BLOCK[3].multip/partial_product/DSP_A_B_DATA_INST/A2_DATA[7]
+                         net (fo=1, routed)           0.000     0.600    MULTIP_BLOCK[3].multip/partial_product/DSP_A_B_DATA.A2_DATA<7>
+    DSP48E2_X6Y68        DSP_PREADD_DATA (Prop_DSP_PREADD_DATA_DSP48E2_A2_DATA[7]_A2A1[7])
+                                                      0.076     0.676 r  MULTIP_BLOCK[3].multip/partial_product/DSP_PREADD_DATA_INST/A2A1[7]
+                         net (fo=1, routed)           0.000     0.676    MULTIP_BLOCK[3].multip/partial_product/DSP_PREADD_DATA.A2A1<7>
+    DSP48E2_X6Y68        DSP_MULTIPLIER (Prop_DSP_MULTIPLIER_DSP48E2_A2A1[7]_U[17])
+                                                      0.505     1.181 f  MULTIP_BLOCK[3].multip/partial_product/DSP_MULTIPLIER_INST/U[17]
+                         net (fo=1, routed)           0.000     1.181    MULTIP_BLOCK[3].multip/partial_product/DSP_MULTIPLIER.U<17>
+    DSP48E2_X6Y68        DSP_M_DATA (Prop_DSP_M_DATA_DSP48E2_U[17]_U_DATA[17])
+                                                      0.047     1.228 r  MULTIP_BLOCK[3].multip/partial_product/DSP_M_DATA_INST/U_DATA[17]
+                         net (fo=1, routed)           0.000     1.228    MULTIP_BLOCK[3].multip/partial_product/DSP_M_DATA.U_DATA<17>
+    DSP48E2_X6Y68        DSP_ALU (Prop_DSP_ALU_DSP48E2_U_DATA[17]_ALU_OUT[17])
+                                                      0.585     1.813 f  MULTIP_BLOCK[3].multip/partial_product/DSP_ALU_INST/ALU_OUT[17]
+                         net (fo=1, routed)           0.000     1.813    MULTIP_BLOCK[3].multip/partial_product/DSP_ALU.ALU_OUT<17>
+    DSP48E2_X6Y68        DSP_OUTPUT (Prop_DSP_OUTPUT_DSP48E2_ALU_OUT[17]_P[17])
+                                                      0.109     1.922 r  MULTIP_BLOCK[3].multip/partial_product/DSP_OUTPUT_INST/P[17]
+                         net (fo=2, routed)           0.341     2.263    MULTIP_BLOCK[3].multip/partial_product_n_88
+    SLICE_X63Y172        CARRY8 (Prop_CARRY8_SLICEM_DI[0]_CO[7])
+                                                      0.133     2.396 r  MULTIP_BLOCK[3].multip/partial_product_inferred__0/i__carry/CO[7]
+                         net (fo=1, routed)           0.026     2.422    MULTIP_BLOCK[3].multip/partial_product_inferred__0/i__carry_n_0
+    SLICE_X63Y173        CARRY8 (Prop_CARRY8_SLICEM_CI_O[2])
+                                                      0.067     2.489 r  MULTIP_BLOCK[3].multip/partial_product_inferred__0/i__carry__0/O[2]
+                         net (fo=1, routed)           0.173     2.662    MULTIP_BLOCK[3].multip/partial_product_inferred__0/i__carry__0_n_13
+    SLICE_X62Y173        LUT3 (Prop_B6LUT_SLICEL_I0_O)
+                                                      0.051     2.713 r  MULTIP_BLOCK[3].multip/r_conv_temp[11][19]_i_1/O
+                         net (fo=1, routed)           0.049     2.762    MULTIP_BLOCK[3].multip_n_0
+    SLICE_X62Y173        FDRE                                         r  r_conv_temp_reg[11][19]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)        3.155     3.155 r  
+                                                      0.000     3.155 r  clk (IN)
+                         net (fo=1310, unset)         0.020     3.175    clk
+    SLICE_X62Y173        FDRE                                         r  r_conv_temp_reg[11][19]/C
+                         clock pessimism              0.000     3.175    
+                         clock uncertainty           -0.035     3.140    
+    SLICE_X62Y173        FDRE (Setup_BFF_SLICEL_C_D)
+                                                      0.025     3.165    r_conv_temp_reg[11][19]
+  -------------------------------------------------------------------
+                         required time                          3.165    
+                         arrival time                          -2.762    
+  -------------------------------------------------------------------
+                         slack                                  0.403    
+
+Slack (MET) :             0.405ns  (required time - arrival time)
+  Source:                 r_input_weight_reg[7][7]/C
+                            (rising edge-triggered cell FDCE clocked by clk  {rise@0.000ns fall@1.577ns period=3.155ns})
+  Destination:            r_conv_temp_reg[15][18]/D
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@1.577ns period=3.155ns})
+  Path Group:             clk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            3.155ns  (clk rise@3.155ns - clk rise@0.000ns)
+  Data Path Delay:        2.731ns  (logic 2.004ns (73.382%)  route 0.727ns (26.618%))
+  Logic Levels:           10  (CARRY8=2 DSP_A_B_DATA=1 DSP_ALU=1 DSP_M_DATA=1 DSP_MULTIPLIER=1 DSP_OUTPUT=1 DSP_PREADD_DATA=1 LUT2=1 LUT3=1)
+  Clock Path Skew:        -0.009ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.021ns = ( 3.176 - 3.155 ) 
+    Source Clock Delay      (SCD):    0.030ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  
+                                                      0.000     0.000 r  clk (IN)
+                         net (fo=1310, unset)         0.030     0.030    clk
+    SLICE_X53Y164        FDCE                                         r  r_input_weight_reg[7][7]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X53Y164        FDCE (Prop_GFF2_SLICEM_C_Q)
+                                                      0.079     0.109 f  r_input_weight_reg[7][7]/Q
+                         net (fo=8, routed)           0.283     0.392    MULTIP_BLOCK[7].multip/partial_product/A[7]
+    DSP48E2_X4Y66        DSP_A_B_DATA (Prop_DSP_A_B_DATA_DSP48E2_A[7]_A2_DATA[7])
+                                                      0.192     0.584 r  MULTIP_BLOCK[7].multip/partial_product/DSP_A_B_DATA_INST/A2_DATA[7]
+                         net (fo=1, routed)           0.000     0.584    MULTIP_BLOCK[7].multip/partial_product/DSP_A_B_DATA.A2_DATA<7>
+    DSP48E2_X4Y66        DSP_PREADD_DATA (Prop_DSP_PREADD_DATA_DSP48E2_A2_DATA[7]_A2A1[7])
+                                                      0.076     0.660 r  MULTIP_BLOCK[7].multip/partial_product/DSP_PREADD_DATA_INST/A2A1[7]
+                         net (fo=1, routed)           0.000     0.660    MULTIP_BLOCK[7].multip/partial_product/DSP_PREADD_DATA.A2A1<7>
+    DSP48E2_X4Y66        DSP_MULTIPLIER (Prop_DSP_MULTIPLIER_DSP48E2_A2A1[7]_U[18])
+                                                      0.505     1.165 f  MULTIP_BLOCK[7].multip/partial_product/DSP_MULTIPLIER_INST/U[18]
+                         net (fo=1, routed)           0.000     1.165    MULTIP_BLOCK[7].multip/partial_product/DSP_MULTIPLIER.U<18>
+    DSP48E2_X4Y66        DSP_M_DATA (Prop_DSP_M_DATA_DSP48E2_U[18]_U_DATA[18])
+                                                      0.047     1.212 r  MULTIP_BLOCK[7].multip/partial_product/DSP_M_DATA_INST/U_DATA[18]
+                         net (fo=1, routed)           0.000     1.212    MULTIP_BLOCK[7].multip/partial_product/DSP_M_DATA.U_DATA<18>
+    DSP48E2_X4Y66        DSP_ALU (Prop_DSP_ALU_DSP48E2_U_DATA[18]_ALU_OUT[18])
+                                                      0.585     1.797 f  MULTIP_BLOCK[7].multip/partial_product/DSP_ALU_INST/ALU_OUT[18]
+                         net (fo=1, routed)           0.000     1.797    MULTIP_BLOCK[7].multip/partial_product/DSP_ALU.ALU_OUT<18>
+    DSP48E2_X4Y66        DSP_OUTPUT (Prop_DSP_OUTPUT_DSP48E2_ALU_OUT[18]_P[18])
+                                                      0.109     1.906 r  MULTIP_BLOCK[7].multip/partial_product/DSP_OUTPUT_INST/P[18]
+                         net (fo=2, routed)           0.166     2.072    MULTIP_BLOCK[7].multip/partial_product_n_87
+    SLICE_X52Y167        LUT2 (Prop_B6LUT_SLICEL_I0_O)
+                                                      0.098     2.170 r  MULTIP_BLOCK[7].multip/i__carry_i_7__6/O
+                         net (fo=1, routed)           0.009     2.179    MULTIP_BLOCK[7].multip/i__carry_i_7__6_n_0
+    SLICE_X52Y167        CARRY8 (Prop_CARRY8_SLICEL_S[1]_CO[7])
+                                                      0.186     2.365 r  MULTIP_BLOCK[7].multip/partial_product_inferred__0/i__carry/CO[7]
+                         net (fo=1, routed)           0.026     2.391    MULTIP_BLOCK[7].multip/partial_product_inferred__0/i__carry_n_0
+    SLICE_X52Y168        CARRY8 (Prop_CARRY8_SLICEL_CI_O[1])
+                                                      0.076     2.467 r  MULTIP_BLOCK[7].multip/partial_product_inferred__0/i__carry__0/O[1]
+                         net (fo=1, routed)           0.171     2.638    MULTIP_BLOCK[7].multip/partial_product_inferred__0/i__carry__0_n_14
+    SLICE_X53Y170        LUT3 (Prop_D6LUT_SLICEM_I0_O)
+                                                      0.051     2.689 r  MULTIP_BLOCK[7].multip/r_conv_temp[15][18]_i_1/O
+                         net (fo=1, routed)           0.072     2.761    MULTIP_BLOCK[7].multip_n_2
+    SLICE_X53Y170        FDRE                                         r  r_conv_temp_reg[15][18]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)        3.155     3.155 r  
+                                                      0.000     3.155 r  clk (IN)
+                         net (fo=1310, unset)         0.021     3.176    clk
+    SLICE_X53Y170        FDRE                                         r  r_conv_temp_reg[15][18]/C
+                         clock pessimism              0.000     3.176    
+                         clock uncertainty           -0.035     3.141    
+    SLICE_X53Y170        FDRE (Setup_DFF_SLICEM_C_D)
+                                                      0.025     3.166    r_conv_temp_reg[15][18]
+  -------------------------------------------------------------------
+                         required time                          3.166    
+                         arrival time                          -2.761    
+  -------------------------------------------------------------------
+                         slack                                  0.405    
+
+Slack (MET) :             0.412ns  (required time - arrival time)
+  Source:                 r_input_weight_reg[5][9]/C
+                            (rising edge-triggered cell FDCE clocked by clk  {rise@0.000ns fall@1.577ns period=3.155ns})
+  Destination:            r_conv_temp_reg[13][16]/D
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@1.577ns period=3.155ns})
+  Path Group:             clk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            3.155ns  (clk rise@3.155ns - clk rise@0.000ns)
+  Data Path Delay:        2.723ns  (logic 1.959ns (71.953%)  route 0.764ns (28.047%))
+  Logic Levels:           9  (CARRY8=1 DSP_A_B_DATA=1 DSP_ALU=1 DSP_M_DATA=1 DSP_MULTIPLIER=1 DSP_OUTPUT=1 DSP_PREADD_DATA=1 LUT2=1 LUT3=1)
+  Clock Path Skew:        -0.010ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.020ns = ( 3.175 - 3.155 ) 
+    Source Clock Delay      (SCD):    0.030ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  
+                                                      0.000     0.000 r  clk (IN)
+                         net (fo=1310, unset)         0.030     0.030    clk
+    SLICE_X54Y163        FDCE                                         r  r_input_weight_reg[5][9]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X54Y163        FDCE (Prop_DFF2_SLICEM_C_Q)
+                                                      0.080     0.110 f  r_input_weight_reg[5][9]/Q
+                         net (fo=5, routed)           0.324     0.434    MULTIP_BLOCK[5].multip/partial_product/A[9]
+    DSP48E2_X5Y66        DSP_A_B_DATA (Prop_DSP_A_B_DATA_DSP48E2_A[9]_A2_DATA[9])
+                                                      0.192     0.626 r  MULTIP_BLOCK[5].multip/partial_product/DSP_A_B_DATA_INST/A2_DATA[9]
+                         net (fo=1, routed)           0.000     0.626    MULTIP_BLOCK[5].multip/partial_product/DSP_A_B_DATA.A2_DATA<9>
+    DSP48E2_X5Y66        DSP_PREADD_DATA (Prop_DSP_PREADD_DATA_DSP48E2_A2_DATA[9]_A2A1[9])
+                                                      0.076     0.702 r  MULTIP_BLOCK[5].multip/partial_product/DSP_PREADD_DATA_INST/A2A1[9]
+                         net (fo=1, routed)           0.000     0.702    MULTIP_BLOCK[5].multip/partial_product/DSP_PREADD_DATA.A2A1<9>
+    DSP48E2_X5Y66        DSP_MULTIPLIER (Prop_DSP_MULTIPLIER_DSP48E2_A2A1[9]_U[17])
+                                                      0.505     1.207 f  MULTIP_BLOCK[5].multip/partial_product/DSP_MULTIPLIER_INST/U[17]
+                         net (fo=1, routed)           0.000     1.207    MULTIP_BLOCK[5].multip/partial_product/DSP_MULTIPLIER.U<17>
+    DSP48E2_X5Y66        DSP_M_DATA (Prop_DSP_M_DATA_DSP48E2_U[17]_U_DATA[17])
+                                                      0.047     1.254 r  MULTIP_BLOCK[5].multip/partial_product/DSP_M_DATA_INST/U_DATA[17]
+                         net (fo=1, routed)           0.000     1.254    MULTIP_BLOCK[5].multip/partial_product/DSP_M_DATA.U_DATA<17>
+    DSP48E2_X5Y66        DSP_ALU (Prop_DSP_ALU_DSP48E2_U_DATA[17]_ALU_OUT[17])
+                                                      0.585     1.839 f  MULTIP_BLOCK[5].multip/partial_product/DSP_ALU_INST/ALU_OUT[17]
+                         net (fo=1, routed)           0.000     1.839    MULTIP_BLOCK[5].multip/partial_product/DSP_ALU.ALU_OUT<17>
+    DSP48E2_X5Y66        DSP_OUTPUT (Prop_DSP_OUTPUT_DSP48E2_ALU_OUT[17]_P[17])
+                                                      0.109     1.948 r  MULTIP_BLOCK[5].multip/partial_product/DSP_OUTPUT_INST/P[17]
+                         net (fo=2, routed)           0.213     2.161    MULTIP_BLOCK[5].multip/partial_product_n_88
+    SLICE_X55Y166        LUT2 (Prop_A6LUT_SLICEL_I0_O)
+                                                      0.090     2.251 r  MULTIP_BLOCK[5].multip/i__carry_i_8__4/O
+                         net (fo=1, routed)           0.009     2.260    MULTIP_BLOCK[5].multip/i__carry_i_8__4_n_0
+    SLICE_X55Y166        CARRY8 (Prop_CARRY8_SLICEL_S[0]_O[7])
+                                                      0.239     2.499 r  MULTIP_BLOCK[5].multip/partial_product_inferred__0/i__carry/O[7]
+                         net (fo=1, routed)           0.169     2.668    MULTIP_BLOCK[5].multip/partial_product_inferred__0/i__carry_n_8
+    SLICE_X55Y162        LUT3 (Prop_D6LUT_SLICEL_I0_O)
+                                                      0.036     2.704 r  MULTIP_BLOCK[5].multip/r_conv_temp[13][16]_i_1/O
+                         net (fo=1, routed)           0.049     2.753    MULTIP_BLOCK[5].multip_n_3
+    SLICE_X55Y162        FDRE                                         r  r_conv_temp_reg[13][16]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)        3.155     3.155 r  
+                                                      0.000     3.155 r  clk (IN)
+                         net (fo=1310, unset)         0.020     3.175    clk
+    SLICE_X55Y162        FDRE                                         r  r_conv_temp_reg[13][16]/C
+                         clock pessimism              0.000     3.175    
+                         clock uncertainty           -0.035     3.140    
+    SLICE_X55Y162        FDRE (Setup_DFF_SLICEL_C_D)
+                                                      0.025     3.165    r_conv_temp_reg[13][16]
+  -------------------------------------------------------------------
+                         required time                          3.165    
+                         arrival time                          -2.753    
+  -------------------------------------------------------------------
+                         slack                                  0.412    
+
+Slack (MET) :             0.412ns  (required time - arrival time)
+  Source:                 r_input_weight_reg[4][6]/C
+                            (rising edge-triggered cell FDCE clocked by clk  {rise@0.000ns fall@1.577ns period=3.155ns})
+  Destination:            r_conv_temp_reg[12][19]/D
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@1.577ns period=3.155ns})
+  Path Group:             clk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            3.155ns  (clk rise@3.155ns - clk rise@0.000ns)
+  Data Path Delay:        2.724ns  (logic 1.995ns (73.231%)  route 0.729ns (26.769%))
+  Logic Levels:           10  (CARRY8=2 DSP_A_B_DATA=1 DSP_ALU=1 DSP_M_DATA=1 DSP_MULTIPLIER=1 DSP_OUTPUT=1 DSP_PREADD_DATA=1 LUT2=1 LUT3=1)
+  Clock Path Skew:        -0.008ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.021ns = ( 3.176 - 3.155 ) 
+    Source Clock Delay      (SCD):    0.029ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  
+                                                      0.000     0.000 r  clk (IN)
+                         net (fo=1310, unset)         0.029     0.029    clk
+    SLICE_X52Y175        FDCE                                         r  r_input_weight_reg[4][6]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X52Y175        FDCE (Prop_EFF2_SLICEL_C_Q)
+                                                      0.081     0.110 f  r_input_weight_reg[4][6]/Q
+                         net (fo=8, routed)           0.260     0.370    MULTIP_BLOCK[4].multip/partial_product/A[6]
+    DSP48E2_X4Y70        DSP_A_B_DATA (Prop_DSP_A_B_DATA_DSP48E2_A[6]_A2_DATA[6])
+                                                      0.192     0.562 r  MULTIP_BLOCK[4].multip/partial_product/DSP_A_B_DATA_INST/A2_DATA[6]
+                         net (fo=1, routed)           0.000     0.562    MULTIP_BLOCK[4].multip/partial_product/DSP_A_B_DATA.A2_DATA<6>
+    DSP48E2_X4Y70        DSP_PREADD_DATA (Prop_DSP_PREADD_DATA_DSP48E2_A2_DATA[6]_A2A1[6])
+                                                      0.076     0.638 r  MULTIP_BLOCK[4].multip/partial_product/DSP_PREADD_DATA_INST/A2A1[6]
+                         net (fo=1, routed)           0.000     0.638    MULTIP_BLOCK[4].multip/partial_product/DSP_PREADD_DATA.A2A1<6>
+    DSP48E2_X4Y70        DSP_MULTIPLIER (Prop_DSP_MULTIPLIER_DSP48E2_A2A1[6]_U[17])
+                                                      0.505     1.143 f  MULTIP_BLOCK[4].multip/partial_product/DSP_MULTIPLIER_INST/U[17]
+                         net (fo=1, routed)           0.000     1.143    MULTIP_BLOCK[4].multip/partial_product/DSP_MULTIPLIER.U<17>
+    DSP48E2_X4Y70        DSP_M_DATA (Prop_DSP_M_DATA_DSP48E2_U[17]_U_DATA[17])
+                                                      0.047     1.190 r  MULTIP_BLOCK[4].multip/partial_product/DSP_M_DATA_INST/U_DATA[17]
+                         net (fo=1, routed)           0.000     1.190    MULTIP_BLOCK[4].multip/partial_product/DSP_M_DATA.U_DATA<17>
+    DSP48E2_X4Y70        DSP_ALU (Prop_DSP_ALU_DSP48E2_U_DATA[17]_ALU_OUT[17])
+                                                      0.585     1.775 f  MULTIP_BLOCK[4].multip/partial_product/DSP_ALU_INST/ALU_OUT[17]
+                         net (fo=1, routed)           0.000     1.775    MULTIP_BLOCK[4].multip/partial_product/DSP_ALU.ALU_OUT<17>
+    DSP48E2_X4Y70        DSP_OUTPUT (Prop_DSP_OUTPUT_DSP48E2_ALU_OUT[17]_P[17])
+                                                      0.109     1.884 r  MULTIP_BLOCK[4].multip/partial_product/DSP_OUTPUT_INST/P[17]
+                         net (fo=2, routed)           0.240     2.124    MULTIP_BLOCK[4].multip/partial_product_n_88
+    SLICE_X53Y175        LUT2 (Prop_A6LUT_SLICEM_I0_O)
+                                                      0.090     2.214 r  MULTIP_BLOCK[4].multip/i__carry_i_8__3/O
+                         net (fo=1, routed)           0.013     2.227    MULTIP_BLOCK[4].multip/i__carry_i_8__3_n_0
+    SLICE_X53Y175        CARRY8 (Prop_CARRY8_SLICEM_S[0]_CO[7])
+                                                      0.192     2.419 r  MULTIP_BLOCK[4].multip/partial_product_inferred__0/i__carry/CO[7]
+                         net (fo=1, routed)           0.026     2.445    MULTIP_BLOCK[4].multip/partial_product_inferred__0/i__carry_n_0
+    SLICE_X53Y176        CARRY8 (Prop_CARRY8_SLICEM_CI_O[2])
+                                                      0.067     2.512 r  MULTIP_BLOCK[4].multip/partial_product_inferred__0/i__carry__0/O[2]
+                         net (fo=1, routed)           0.123     2.635    MULTIP_BLOCK[4].multip/partial_product_inferred__0/i__carry__0_n_13
+    SLICE_X53Y177        LUT3 (Prop_F6LUT_SLICEM_I0_O)
+                                                      0.051     2.686 r  MULTIP_BLOCK[4].multip/r_conv_temp[12][19]_i_1/O
+                         net (fo=1, routed)           0.067     2.753    MULTIP_BLOCK[4].multip_n_0
+    SLICE_X53Y177        FDRE                                         r  r_conv_temp_reg[12][19]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)        3.155     3.155 r  
+                                                      0.000     3.155 r  clk (IN)
+                         net (fo=1310, unset)         0.021     3.176    clk
+    SLICE_X53Y177        FDRE                                         r  r_conv_temp_reg[12][19]/C
+                         clock pessimism              0.000     3.176    
+                         clock uncertainty           -0.035     3.141    
+    SLICE_X53Y177        FDRE (Setup_FFF_SLICEM_C_D)
+                                                      0.025     3.166    r_conv_temp_reg[12][19]
+  -------------------------------------------------------------------
+                         required time                          3.166    
+                         arrival time                          -2.753    
+  -------------------------------------------------------------------
+                         slack                                  0.412    
+
+Slack (MET) :             0.416ns  (required time - arrival time)
+  Source:                 r_input_weight_reg[2][3]/C
+                            (rising edge-triggered cell FDCE clocked by clk  {rise@0.000ns fall@1.577ns period=3.155ns})
+  Destination:            r_conv_temp_reg[10][18]/D
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@1.577ns period=3.155ns})
+  Path Group:             clk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            3.155ns  (clk rise@3.155ns - clk rise@0.000ns)
+  Data Path Delay:        2.722ns  (logic 1.984ns (72.891%)  route 0.738ns (27.109%))
+  Logic Levels:           10  (CARRY8=2 DSP_A_B_DATA=1 DSP_ALU=1 DSP_M_DATA=1 DSP_MULTIPLIER=1 DSP_OUTPUT=1 DSP_PREADD_DATA=1 LUT2=1 LUT3=1)
+  Clock Path Skew:        -0.007ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.021ns = ( 3.176 - 3.155 ) 
+    Source Clock Delay      (SCD):    0.028ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  
+                                                      0.000     0.000 r  clk (IN)
+                         net (fo=1310, unset)         0.028     0.028    clk
+    SLICE_X55Y185        FDCE                                         r  r_input_weight_reg[2][3]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X55Y185        FDCE (Prop_CFF2_SLICEL_C_Q)
+                                                      0.080     0.108 f  r_input_weight_reg[2][3]/Q
+                         net (fo=8, routed)           0.303     0.411    MULTIP_BLOCK[2].multip/partial_product/A[3]
+    DSP48E2_X5Y74        DSP_A_B_DATA (Prop_DSP_A_B_DATA_DSP48E2_A[3]_A2_DATA[3])
+                                                      0.192     0.603 r  MULTIP_BLOCK[2].multip/partial_product/DSP_A_B_DATA_INST/A2_DATA[3]
+                         net (fo=1, routed)           0.000     0.603    MULTIP_BLOCK[2].multip/partial_product/DSP_A_B_DATA.A2_DATA<3>
+    DSP48E2_X5Y74        DSP_PREADD_DATA (Prop_DSP_PREADD_DATA_DSP48E2_A2_DATA[3]_A2A1[3])
+                                                      0.076     0.679 r  MULTIP_BLOCK[2].multip/partial_product/DSP_PREADD_DATA_INST/A2A1[3]
+                         net (fo=1, routed)           0.000     0.679    MULTIP_BLOCK[2].multip/partial_product/DSP_PREADD_DATA.A2A1<3>
+    DSP48E2_X5Y74        DSP_MULTIPLIER (Prop_DSP_MULTIPLIER_DSP48E2_A2A1[3]_U[20])
+                                                      0.505     1.184 f  MULTIP_BLOCK[2].multip/partial_product/DSP_MULTIPLIER_INST/U[20]
+                         net (fo=1, routed)           0.000     1.184    MULTIP_BLOCK[2].multip/partial_product/DSP_MULTIPLIER.U<20>
+    DSP48E2_X5Y74        DSP_M_DATA (Prop_DSP_M_DATA_DSP48E2_U[20]_U_DATA[20])
+                                                      0.047     1.231 r  MULTIP_BLOCK[2].multip/partial_product/DSP_M_DATA_INST/U_DATA[20]
+                         net (fo=1, routed)           0.000     1.231    MULTIP_BLOCK[2].multip/partial_product/DSP_M_DATA.U_DATA<20>
+    DSP48E2_X5Y74        DSP_ALU (Prop_DSP_ALU_DSP48E2_U_DATA[20]_ALU_OUT[20])
+                                                      0.585     1.816 f  MULTIP_BLOCK[2].multip/partial_product/DSP_ALU_INST/ALU_OUT[20]
+                         net (fo=1, routed)           0.000     1.816    MULTIP_BLOCK[2].multip/partial_product/DSP_ALU.ALU_OUT<20>
+    DSP48E2_X5Y74        DSP_OUTPUT (Prop_DSP_OUTPUT_DSP48E2_ALU_OUT[20]_P[20])
+                                                      0.109     1.925 r  MULTIP_BLOCK[2].multip/partial_product/DSP_OUTPUT_INST/P[20]
+                         net (fo=2, routed)           0.199     2.125    MULTIP_BLOCK[2].multip/partial_product_n_85
+    SLICE_X56Y187        LUT2 (Prop_D6LUT_SLICEM_I0_O)
+                                                      0.051     2.176 r  MULTIP_BLOCK[2].multip/i__carry_i_5__1/O
+                         net (fo=1, routed)           0.025     2.201    MULTIP_BLOCK[2].multip/i__carry_i_5__1_n_0
+    SLICE_X56Y187        CARRY8 (Prop_CARRY8_SLICEM_S[3]_CO[7])
+                                                      0.163     2.364 r  MULTIP_BLOCK[2].multip/partial_product_inferred__0/i__carry/CO[7]
+                         net (fo=1, routed)           0.026     2.390    MULTIP_BLOCK[2].multip/partial_product_inferred__0/i__carry_n_0
+    SLICE_X56Y188        CARRY8 (Prop_CARRY8_SLICEM_CI_O[1])
+                                                      0.076     2.466 r  MULTIP_BLOCK[2].multip/partial_product_inferred__0/i__carry__0/O[1]
+                         net (fo=1, routed)           0.125     2.591    MULTIP_BLOCK[2].multip/partial_product_inferred__0/i__carry__0_n_14
+    SLICE_X56Y189        LUT3 (Prop_G6LUT_SLICEM_I0_O)
+                                                      0.100     2.691 r  MULTIP_BLOCK[2].multip/r_conv_temp[10][18]_i_1/O
+                         net (fo=1, routed)           0.059     2.750    MULTIP_BLOCK[2].multip_n_1
+    SLICE_X56Y189        FDRE                                         r  r_conv_temp_reg[10][18]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)        3.155     3.155 r  
+                                                      0.000     3.155 r  clk (IN)
+                         net (fo=1310, unset)         0.021     3.176    clk
+    SLICE_X56Y189        FDRE                                         r  r_conv_temp_reg[10][18]/C
+                         clock pessimism              0.000     3.176    
+                         clock uncertainty           -0.035     3.141    
+    SLICE_X56Y189        FDRE (Setup_GFF_SLICEM_C_D)
+                                                      0.025     3.166    r_conv_temp_reg[10][18]
+  -------------------------------------------------------------------
+                         required time                          3.166    
+                         arrival time                          -2.750    
+  -------------------------------------------------------------------
+                         slack                                  0.416    
+
+Slack (MET) :             0.416ns  (required time - arrival time)
+  Source:                 r_input_weight_reg[1][0]/C
+                            (rising edge-triggered cell FDCE clocked by clk  {rise@0.000ns fall@1.577ns period=3.155ns})
+  Destination:            r_conv_temp_reg[9][15]/D
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@1.577ns period=3.155ns})
+  Path Group:             clk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            3.155ns  (clk rise@3.155ns - clk rise@0.000ns)
+  Data Path Delay:        2.720ns  (logic 1.920ns (70.601%)  route 0.800ns (29.399%))
+  Logic Levels:           9  (CARRY8=1 DSP_A_B_DATA=1 DSP_ALU=1 DSP_M_DATA=1 DSP_MULTIPLIER=1 DSP_OUTPUT=1 DSP_PREADD_DATA=1 LUT2=1 LUT3=1)
+  Clock Path Skew:        -0.009ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.021ns = ( 3.176 - 3.155 ) 
+    Source Clock Delay      (SCD):    0.030ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  
+                                                      0.000     0.000 r  clk (IN)
+                         net (fo=1310, unset)         0.030     0.030    clk
+    SLICE_X63Y166        FDCE                                         r  r_input_weight_reg[1][0]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X63Y166        FDCE (Prop_HFF_SLICEM_C_Q)
+                                                      0.079     0.109 f  r_input_weight_reg[1][0]/Q
+                         net (fo=7, routed)           0.218     0.327    MULTIP_BLOCK[1].multip/partial_product/A[0]
+    DSP48E2_X6Y67        DSP_A_B_DATA (Prop_DSP_A_B_DATA_DSP48E2_A[0]_A2_DATA[0])
+                                                      0.192     0.519 r  MULTIP_BLOCK[1].multip/partial_product/DSP_A_B_DATA_INST/A2_DATA[0]
+                         net (fo=1, routed)           0.000     0.519    MULTIP_BLOCK[1].multip/partial_product/DSP_A_B_DATA.A2_DATA<0>
+    DSP48E2_X6Y67        DSP_PREADD_DATA (Prop_DSP_PREADD_DATA_DSP48E2_A2_DATA[0]_A2A1[0])
+                                                      0.076     0.595 r  MULTIP_BLOCK[1].multip/partial_product/DSP_PREADD_DATA_INST/A2A1[0]
+                         net (fo=1, routed)           0.000     0.595    MULTIP_BLOCK[1].multip/partial_product/DSP_PREADD_DATA.A2A1<0>
+    DSP48E2_X6Y67        DSP_MULTIPLIER (Prop_DSP_MULTIPLIER_DSP48E2_A2A1[0]_U[18])
+                                                      0.505     1.100 f  MULTIP_BLOCK[1].multip/partial_product/DSP_MULTIPLIER_INST/U[18]
+                         net (fo=1, routed)           0.000     1.100    MULTIP_BLOCK[1].multip/partial_product/DSP_MULTIPLIER.U<18>
+    DSP48E2_X6Y67        DSP_M_DATA (Prop_DSP_M_DATA_DSP48E2_U[18]_U_DATA[18])
+                                                      0.047     1.147 r  MULTIP_BLOCK[1].multip/partial_product/DSP_M_DATA_INST/U_DATA[18]
+                         net (fo=1, routed)           0.000     1.147    MULTIP_BLOCK[1].multip/partial_product/DSP_M_DATA.U_DATA<18>
+    DSP48E2_X6Y67        DSP_ALU (Prop_DSP_ALU_DSP48E2_U_DATA[18]_ALU_OUT[18])
+                                                      0.585     1.732 f  MULTIP_BLOCK[1].multip/partial_product/DSP_ALU_INST/ALU_OUT[18]
+                         net (fo=1, routed)           0.000     1.732    MULTIP_BLOCK[1].multip/partial_product/DSP_ALU.ALU_OUT<18>
+    DSP48E2_X6Y67        DSP_OUTPUT (Prop_DSP_OUTPUT_DSP48E2_ALU_OUT[18]_P[18])
+                                                      0.109     1.841 r  MULTIP_BLOCK[1].multip/partial_product/DSP_OUTPUT_INST/P[18]
+                         net (fo=2, routed)           0.260     2.102    MULTIP_BLOCK[1].multip/partial_product_n_87
+    SLICE_X64Y167        LUT2 (Prop_B6LUT_SLICEM_I0_O)
+                                                      0.052     2.154 r  MULTIP_BLOCK[1].multip/i__carry_i_7__0/O
+                         net (fo=1, routed)           0.016     2.170    MULTIP_BLOCK[1].multip/i__carry_i_7__0_n_0
+    SLICE_X64Y167        CARRY8 (Prop_CARRY8_SLICEM_S[1]_O[6])
+                                                      0.224     2.394 r  MULTIP_BLOCK[1].multip/partial_product_inferred__0/i__carry/O[6]
+                         net (fo=1, routed)           0.233     2.627    MULTIP_BLOCK[1].multip/partial_product_inferred__0/i__carry_n_9
+    SLICE_X63Y170        LUT3 (Prop_D6LUT_SLICEM_I0_O)
+                                                      0.051     2.678 r  MULTIP_BLOCK[1].multip/r_conv_temp[9][15]_i_1/O
+                         net (fo=1, routed)           0.072     2.750    MULTIP_BLOCK[1].multip_n_12
+    SLICE_X63Y170        FDRE                                         r  r_conv_temp_reg[9][15]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)        3.155     3.155 r  
+                                                      0.000     3.155 r  clk (IN)
+                         net (fo=1310, unset)         0.021     3.176    clk
+    SLICE_X63Y170        FDRE                                         r  r_conv_temp_reg[9][15]/C
+                         clock pessimism              0.000     3.176    
+                         clock uncertainty           -0.035     3.141    
+    SLICE_X63Y170        FDRE (Setup_DFF_SLICEM_C_D)
+                                                      0.025     3.166    r_conv_temp_reg[9][15]
+  -------------------------------------------------------------------
+                         required time                          3.166    
+                         arrival time                          -2.750    
+  -------------------------------------------------------------------
+                         slack                                  0.416    
+
+Slack (MET) :             0.419ns  (required time - arrival time)
+  Source:                 r_input_weight_reg[3][7]/C
+                            (rising edge-triggered cell FDCE clocked by clk  {rise@0.000ns fall@1.577ns period=3.155ns})
+  Destination:            r_conv_temp_reg[11][10]/D
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@1.577ns period=3.155ns})
+  Path Group:             clk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            3.155ns  (clk rise@3.155ns - clk rise@0.000ns)
+  Data Path Delay:        2.716ns  (logic 1.725ns (63.516%)  route 0.991ns (36.484%))
+  Logic Levels:           8  (CARRY8=1 DSP_A_B_DATA=1 DSP_ALU=1 DSP_M_DATA=1 DSP_MULTIPLIER=1 DSP_OUTPUT=1 DSP_PREADD_DATA=1 LUT3=1)
+  Clock Path Skew:        -0.010ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.020ns = ( 3.175 - 3.155 ) 
+    Source Clock Delay      (SCD):    0.030ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  
+                                                      0.000     0.000 r  clk (IN)
+                         net (fo=1310, unset)         0.030     0.030    clk
+    SLICE_X63Y169        FDCE                                         r  r_input_weight_reg[3][7]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X63Y169        FDCE (Prop_AFF2_SLICEM_C_Q)
+                                                      0.080     0.110 f  r_input_weight_reg[3][7]/Q
+                         net (fo=8, routed)           0.298     0.408    MULTIP_BLOCK[3].multip/partial_product/A[7]
+    DSP48E2_X6Y68        DSP_A_B_DATA (Prop_DSP_A_B_DATA_DSP48E2_A[7]_A2_DATA[7])
+                                                      0.192     0.600 r  MULTIP_BLOCK[3].multip/partial_product/DSP_A_B_DATA_INST/A2_DATA[7]
+                         net (fo=1, routed)           0.000     0.600    MULTIP_BLOCK[3].multip/partial_product/DSP_A_B_DATA.A2_DATA<7>
+    DSP48E2_X6Y68        DSP_PREADD_DATA (Prop_DSP_PREADD_DATA_DSP48E2_A2_DATA[7]_A2A1[7])
+                                                      0.076     0.676 r  MULTIP_BLOCK[3].multip/partial_product/DSP_PREADD_DATA_INST/A2A1[7]
+                         net (fo=1, routed)           0.000     0.676    MULTIP_BLOCK[3].multip/partial_product/DSP_PREADD_DATA.A2A1<7>
+    DSP48E2_X6Y68        DSP_MULTIPLIER (Prop_DSP_MULTIPLIER_DSP48E2_A2A1[7]_U[17])
+                                                      0.505     1.181 f  MULTIP_BLOCK[3].multip/partial_product/DSP_MULTIPLIER_INST/U[17]
+                         net (fo=1, routed)           0.000     1.181    MULTIP_BLOCK[3].multip/partial_product/DSP_MULTIPLIER.U<17>
+    DSP48E2_X6Y68        DSP_M_DATA (Prop_DSP_M_DATA_DSP48E2_U[17]_U_DATA[17])
+                                                      0.047     1.228 r  MULTIP_BLOCK[3].multip/partial_product/DSP_M_DATA_INST/U_DATA[17]
+                         net (fo=1, routed)           0.000     1.228    MULTIP_BLOCK[3].multip/partial_product/DSP_M_DATA.U_DATA<17>
+    DSP48E2_X6Y68        DSP_ALU (Prop_DSP_ALU_DSP48E2_U_DATA[17]_ALU_OUT[17])
+                                                      0.585     1.813 f  MULTIP_BLOCK[3].multip/partial_product/DSP_ALU_INST/ALU_OUT[17]
+                         net (fo=1, routed)           0.000     1.813    MULTIP_BLOCK[3].multip/partial_product/DSP_ALU.ALU_OUT<17>
+    DSP48E2_X6Y68        DSP_OUTPUT (Prop_DSP_OUTPUT_DSP48E2_ALU_OUT[17]_P[17])
+                                                      0.109     1.922 r  MULTIP_BLOCK[3].multip/partial_product/DSP_OUTPUT_INST/P[17]
+                         net (fo=2, routed)           0.341     2.263    MULTIP_BLOCK[3].multip/partial_product_n_88
+    SLICE_X63Y172        CARRY8 (Prop_CARRY8_SLICEM_DI[0]_O[1])
+                                                      0.081     2.344 r  MULTIP_BLOCK[3].multip/partial_product_inferred__0/i__carry/O[1]
+                         net (fo=1, routed)           0.303     2.647    MULTIP_BLOCK[3].multip/partial_product_inferred__0/i__carry_n_14
+    SLICE_X60Y172        LUT3 (Prop_D6LUT_SLICEL_I0_O)
+                                                      0.050     2.697 r  MULTIP_BLOCK[3].multip/r_conv_temp[11][10]_i_1/O
+                         net (fo=1, routed)           0.049     2.746    MULTIP_BLOCK[3].multip_n_9
+    SLICE_X60Y172        FDRE                                         r  r_conv_temp_reg[11][10]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)        3.155     3.155 r  
+                                                      0.000     3.155 r  clk (IN)
+                         net (fo=1310, unset)         0.020     3.175    clk
+    SLICE_X60Y172        FDRE                                         r  r_conv_temp_reg[11][10]/C
+                         clock pessimism              0.000     3.175    
+                         clock uncertainty           -0.035     3.140    
+    SLICE_X60Y172        FDRE (Setup_DFF_SLICEL_C_D)
+                                                      0.025     3.165    r_conv_temp_reg[11][10]
+  -------------------------------------------------------------------
+                         required time                          3.165    
+                         arrival time                          -2.746    
+  -------------------------------------------------------------------
+                         slack                                  0.419    
+
+
+
+

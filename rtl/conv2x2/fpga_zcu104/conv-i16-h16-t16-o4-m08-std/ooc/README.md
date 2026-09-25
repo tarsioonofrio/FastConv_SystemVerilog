@@ -68,3 +68,18 @@ The generated DCP, functional netlist, mapping reports and power reports are
 stored under `ooc/reports/317mhz/`. Do not calculate IP/system GOPS/W or
 energy from an OOC report until the report's power categories and static-power
 semantics have been inspected and documented.
+
+## Completed pilot result
+
+The first OOC campaign completed on Paxos from commit
+`52fb8b8342d47f3c586609f8fcd8dfab59207923`. The measured implementation,
+functional-simulation, SAIF and power results, including their limitations,
+are recorded in [results/summary_317mhz.md](results/summary_317mhz.md). Raw
+artifacts are preserved under `reports/317mhz/`.
+
+The result is an IP-level pilot, not a board-level estimate. In particular,
+OOC retains 101 logical top-level interface bits in `report_io`, while the
+post-route cell audit finds zero IBUF/OBUF/IOBUF primitives. Boundary timing
+is reported under explicit zero-delay assumptions, but route warnings state
+that timing to/from ports is not accurate without `HD.PARTPIN_LOCS`; only the
+internal register-to-register result is used as the timing-closure evidence.
