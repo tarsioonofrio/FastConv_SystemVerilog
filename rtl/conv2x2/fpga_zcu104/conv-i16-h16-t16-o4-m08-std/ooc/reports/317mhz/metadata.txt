@@ -1,0 +1,8 @@
+vivado_version=2023.2
+part=xczu7ev-ffvc1156-2-e
+top=Conv
+synthesis_mode=out_of_context
+target_period_ns=3.154574
+target_frequency_mhz=317.000
+boundary_assumption=0 ns external input/output delay
+reset_exception=asynchronous reset paths excluded from synchronous data-path closure
