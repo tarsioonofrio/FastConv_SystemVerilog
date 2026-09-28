@@ -78,6 +78,7 @@ module Conv
 
   // REGISTER BANK FOR THE WEIGHTS ////////////////////////////////////////////
   localparam WEIGHT_CYCLES = HADAMARD_SIZE * HADAMARD_SIZE;
+  localparam WEIGHT_WORDS_PER_BEAT = CONV_INPUT_SIZE;
   localparam WEIGHT_WIDTH = f_width_min1(WEIGHT_CYCLES + 1);
   logic [NBITS-1:0] r_input_weight[WEIGHT_CYCLES-1:0];
   logic [WEIGHT_CYCLES-1:0] w_input_weight_en;
@@ -174,8 +175,8 @@ module Conv
   // ----------------------------------------------------------------------------------------------------
 
   assign p_input_en   = (st_input_current inside {READ_WEIGHTS, READ_IN_10A, READ_IN_10B, READ_IN_8C, READ_IN_8D});
-  // Feature reads return CONV_INPUT_SIZE consecutive samples as one logical column.
-  // Weight reads remain scalar and use the least-significant data lane.
+  // Feature reads return one consecutive input column per beat. Weight reads
+  // use the same lanes to return four consecutive transformed weights per beat.
   assign p_input_addr = (st_input_current == READ_WEIGHTS) ? r_input_addr_kernel : r_input_addr_feat;
 
   always_ff @(posedge clk or posedge reset) begin: INPUT_ADDR_POINTER_BLOCK
@@ -212,7 +213,7 @@ module Conv
     else if (st_input_current == WAIT_INPUT && st_input_next == ADDRESS_INPUT)    // initializes only ONCE the weight p_input_addr (after the IFMAPs in the memory) (CAUTION: PE)
       r_input_addr_kernel <= NADDR'(N_CHANNEL_IN * FEAT_INPUT_SIZE * FEAT_INPUT_WIDTH);
     else if (st_input_current == READ_WEIGHTS)
-      r_input_addr_kernel <= r_input_addr_kernel + 1;  // next weight
+      r_input_addr_kernel <= r_input_addr_kernel + NADDR'(WEIGHT_WORDS_PER_BEAT);
   end
 
   // ----------------------------------------------------------------------------------------------------
@@ -250,7 +251,8 @@ module Conv
     endcase
   end
 
-  assign w_input_weight_done = (r_input_count_kernel == WEIGHT_WIDTH'(WEIGHT_CYCLES - 1));
+  assign w_input_weight_done =
+      (r_input_count_kernel == WEIGHT_WIDTH'(WEIGHT_CYCLES - WEIGHT_WORDS_PER_BEAT));
   assign w_input_write_done = r_output_write_count == 0 || r_output_write_count == OUTPUT_RW_COUNT_MAX;  // compare to zero for the first write test or the last value (8) in the next convolutions
 
   assign w_input_last_window_col = (r_input_window_counter_col == WINDOW_ROW_COUNTER_WIDTH'(WINDOW_COUNT_PER_LINE));
@@ -319,7 +321,7 @@ module Conv
       end
 
       if (st_input_current == READ_WEIGHTS) begin
-        r_input_count_kernel <= r_input_count_kernel + 1;
+        r_input_count_kernel <= r_input_count_kernel + WEIGHT_WIDTH'(WEIGHT_WORDS_PER_BEAT);
       end
     end
   end
@@ -375,11 +377,15 @@ module Conv
           r_input_feat[i] <= w_input_feat_next[i];
   end
 
-  // Weight register bank with per-entry write-enable.
+  // Load four consecutive transformed weights from the four input-data lanes.
   always_comb begin: WEIGHT_WE_BLOCK
     w_input_weight_en = '0;
-    if (st_input_current == READ_WEIGHTS)
-      w_input_weight_en[r_input_count_kernel] = 1'b1;
+    if (st_input_current == READ_WEIGHTS) begin
+      for (int unsigned i = 0; i < WEIGHT_CYCLES; i++)
+        if ((i >= int'(r_input_count_kernel)) &&
+            (i < (int'(r_input_count_kernel) + WEIGHT_WORDS_PER_BEAT)))
+          w_input_weight_en[i] = 1'b1;
+    end
   end
 
   always_ff @(posedge clk or posedge reset) begin: WEIGHT_REG_BLOCK
@@ -390,7 +396,7 @@ module Conv
       // A new weight load has priority over the final HADAMARD rotation.
       for (int unsigned i = 0; i < WEIGHT_CYCLES; i++)
         if (w_input_weight_en[i])
-          r_input_weight[i] <= p_input_data[NBITS-1:0];
+          r_input_weight[i] <= p_input_data[(i % WEIGHT_WORDS_PER_BEAT)*NBITS +: NBITS];
     end else if (st_conv_current == HADAMARD) begin         // transform weights into a circular queue
       // Advance by one multiplier group.  For NUM_MULT=4 this is one
       // Hadamard row; for NUM_MULT=8 it advances by two rows so that the

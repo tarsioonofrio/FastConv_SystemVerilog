@@ -126,9 +126,10 @@ gate-level result is overwritten by the `m08` conversion.
 conventional scalar `std` source and uses the dedicated `testbench_column.sv`.
 Feature reads transfer four adjacent words in one beat and map them into one
 internal feature column. Output reads and writes transfer two pixels in one
-beat, with the second lane addressing the next output row. Weight reads remain
-scalar on input lane zero. The dedicated testbench models those parallel lanes
-from the canonical dataset and checks the same golden outputs. This experiment
+beat, with the second lane addressing the next output row. Weight reads also
+use four adjacent input-data lanes per beat, loading all 16 transformed weights
+in four cycles. The dedicated testbench models those parallel lanes from the
+canonical dataset and checks the same golden outputs. This experiment
 validates functional equivalence and cycle reduction only; it has not yet been
 synthesized or mapped to a specific multi-bank memory implementation.
 

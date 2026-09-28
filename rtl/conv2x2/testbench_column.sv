@@ -16,6 +16,8 @@ module tb_column;
       (FEAT_OUTPUT_SIZE + CONV_OUTPUT_SIZE - 1) / CONV_OUTPUT_SIZE;
   localparam int unsigned EXPECTED_INVERSE_COUNT =
       N_CHANNEL_IN * N_CHANNEL_OUT * INPUT_TILES_PER_AXIS * INPUT_TILES_PER_AXIS;
+  localparam int unsigned EXPECTED_WEIGHT_READ_BEATS =
+      N_CHANNEL_IN * N_CHANNEL_OUT * (HADAMARD_SIZE * HADAMARD_SIZE / CONV_INPUT_SIZE);
 
   logic clk = 1'b0;
   logic reset;
@@ -43,6 +45,8 @@ module tb_column;
   int output_out_of_range_count;
   int input_out_of_range_count;
   int valid_output_word_count;
+  int weight_read_beat_count;
+  int useful_weight_read_beat_count;
   int cycle_count;
   logic conv_end_d;
 
@@ -83,11 +87,8 @@ module tb_column;
 
   always_comb begin: COLUMN_INPUT_ADDRESS_BLOCK
     for (int unsigned lane = 0; lane < CONV_INPUT_SIZE; lane++) begin
-      // Feature lanes are adjacent memory words; weights use lane zero only.
-      if (dut.st_input_current == 4'd2) // READ_WEIGHTS
-        column_input_addr[lane] = p_input_addr;
-      else
-        column_input_addr[lane] = p_input_addr + NADDR'(lane);
+      // Both feature and weight reads use adjacent memory words per beat.
+      column_input_addr[lane] = p_input_addr + NADDR'(lane);
     end
   end
 
@@ -148,11 +149,18 @@ module tb_column;
       output_out_of_range_count <= 0;
       input_out_of_range_count <= 0;
       valid_output_word_count <= 0;
+      weight_read_beat_count <= 0;
+      useful_weight_read_beat_count <= 0;
       cycle_count <= 0;
       conv_end_d <= 1'b0;
       output_bank <= '{default: '0};
     end else begin
       cycle_count <= cycle_count + 1;
+      if (dut.st_input_current == 4'd2) begin // READ_WEIGHTS
+        weight_read_beat_count <= weight_read_beat_count + 1;
+        if (!dut.w_input_last_channel_output)
+          useful_weight_read_beat_count <= useful_weight_read_beat_count + 1;
+      end
       conv_end_d <= dut.w_conv_end;
       if (dut.w_conv_end && !conv_end_d)
         inverse_tile_count <= inverse_tile_count + 1;
@@ -207,13 +215,19 @@ module tb_column;
              inverse_tile_count, EXPECTED_INVERSE_COUNT);
     if (valid_output_word_count != N_CHANNEL_IN * N_CHANNEL_OUT * FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE)
       $fatal(1, "unexpected valid write count: got %0d", valid_output_word_count);
+    if (useful_weight_read_beat_count != EXPECTED_WEIGHT_READ_BEATS)
+      $fatal(1, "unexpected useful weight read beat count: got %0d expected %0d",
+             useful_weight_read_beat_count, EXPECTED_WEIGHT_READ_BEATS);
+    if (weight_read_beat_count != (EXPECTED_WEIGHT_READ_BEATS + 1))
+      $fatal(1, "unexpected total weight read beat count: got %0d expected %0d",
+             weight_read_beat_count, EXPECTED_WEIGHT_READ_BEATS + 1);
     if (input_out_of_range_count != 0 || output_out_of_range_count != 0)
       $fatal(1, "out-of-range accesses: input=%0d output=%0d",
              input_out_of_range_count, output_out_of_range_count);
 
-    $display("std-column simulation passed: inverse_tiles=%0d cycles=%0d valid_writes=%0d input_oob=%0d output_oob=%0d",
-             inverse_tile_count, cycle_count, valid_output_word_count,
-             input_out_of_range_count, output_out_of_range_count);
+    $display("std-column simulation passed: inverse_tiles=%0d cycles=%0d weight_read_beats=%0d useful_weight_beats=%0d valid_writes=%0d input_oob=%0d output_oob=%0d",
+             inverse_tile_count, cycle_count, weight_read_beat_count, useful_weight_read_beat_count,
+             valid_output_word_count, input_out_of_range_count, output_out_of_range_count);
     $finish;
   end
 endmodule
