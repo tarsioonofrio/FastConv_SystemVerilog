@@ -39,10 +39,9 @@ module tb_power;
   logic p_output_valid;
 
   logic [NBITS-1:0] output_scoreboard [0:OUTPUT_MEMORY_SIZE-1];
-  integer output_write_words = 0;
-  integer active_cycles = 0;
-  integer output_errors = 0;
-  logic measuring = 1'b0;
+  integer output_write_words;
+  integer active_cycles;
+  logic measuring;
 
   always #(HALF_PERIOD_NS) clk = ~clk;
 
@@ -110,7 +109,6 @@ module tb_power;
     if (reset) begin
       output_write_words <= 0;
       active_cycles <= 0;
-      output_errors <= 0;
       measuring <= 1'b0;
       output_scoreboard <= '{default: '0};
     end else begin
@@ -139,8 +137,7 @@ module tb_power;
     end
   end
 
-  task automatic check_final_output;
-    integer errors;
+  task automatic check_final_output(output integer errors);
     begin
       errors = 0;
       for (int unsigned address = 0; address < OUTPUT_MEMORY_SIZE; address++) begin
@@ -151,11 +148,11 @@ module tb_power;
                      address, $signed(output_scoreboard[address]), $signed(const_feat_out[address]));
         end
       end
-      output_errors = errors;
     end
   endtask
 
   initial begin: TEST_SEQUENCE_BLOCK
+    integer final_output_errors;
     // Hold reset through the FPGA global startup interval (GSR is 100 ns).
     repeat (70) @(negedge clk);
     reset = 1'b0;
@@ -165,14 +162,14 @@ module tb_power;
     p_start = 1'b0;
     @(posedge p_end);
     repeat (2) @(negedge clk);
-    check_final_output();
+    check_final_output(final_output_errors);
     if (output_write_words != N_CHANNEL_IN * OUTPUT_MEMORY_SIZE)
       $fatal(1, "POWER_RESULT_BAD_WRITE_COUNT got=%0d expected=%0d",
              output_write_words, N_CHANNEL_IN * OUTPUT_MEMORY_SIZE);
-    if (output_errors != 0)
-      $fatal(1, "POWER_RESULT_GOLDEN_FAIL mismatches=%0d", output_errors);
+    if (final_output_errors != 0)
+      $fatal(1, "POWER_RESULT_GOLDEN_FAIL mismatches=%0d", final_output_errors);
     $display("POWER_RESULT PASS writes=%0d final_words=%0d mismatches=%0d active_cycles=%0d",
-             output_write_words, OUTPUT_MEMORY_SIZE, output_errors, active_cycles);
+             output_write_words, OUTPUT_MEMORY_SIZE, final_output_errors, active_cycles);
     $finish;
   end
 
