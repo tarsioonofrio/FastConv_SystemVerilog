@@ -33,7 +33,8 @@ run_impl() {
 
 # Resolve glbl.v from the active Vivado installation without depending on a
 # previously compiled simulator library.
-vivado_root=$(cd -- "$(dirname -- "$(command -v vivado)")/../.." && pwd)
+vivado_exe=$(readlink -f "$(command -v vivado)")
+vivado_root=$(cd -- "$(dirname -- "$vivado_exe")/.." && pwd)
 glbl_v="$vivado_root/data/verilog/src/glbl.v"
 [[ -f "$glbl_v" ]] || { printf 'cannot locate glbl.v under %s\n' "$vivado_root" >&2; exit 1; }
 
