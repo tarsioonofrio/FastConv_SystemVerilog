@@ -119,9 +119,13 @@ module Conv
   // for the TC2x2 transform (16 total Hadamard products).
   localparam int ROW_INDEX_WIDTH = f_width_min1(HADAMARD_SIZE);
   localparam int PRODUCT_INDEX_WIDTH = f_width_min1(WEIGHT_CYCLES);
-  logic [NBITS-1:0] r_transform_row [HADAMARD_SIZE-1:0];
+  logic [NBITS-1:0] r_transform_feature_reg [FIXED_NUM_MULT-1:0];
   logic [NBITS-1:0] r_inverse_row [HADAMARD_SIZE-1:0];
   logic [ROW_INDEX_WIDTH-1:0] r_inverse_row_idx;
+  logic [NBITS-1:0] r_inverse_partial_current [CONV_OUTPUT_SIZE-1:0];
+  logic [NBITS-1:0] r_inverse_partial_lane1 [CONV_OUTPUT_SIZE-1:0];
+  logic [ROW_INDEX_WIDTH-1:0] r_inverse_row_idx_acc;
+  logic r_inverse_partial_valid;
   logic [PRODUCT_INDEX_WIDTH-1:0] r_transform_product_idx;
   logic [NBITS-1:0] w_inverse_partial [CONV_OUTPUT_SIZE-1:0];
   logic [NBITS-1:0] w_inverse_partial_current [CONV_OUTPUT_SIZE-1:0];
@@ -294,7 +298,8 @@ module Conv
       READ_IN_10B: if (r_input_addr_count == (CONV_INPUT_SIZE - 1)) st_input_next = READ_IN_8C;
       READ_IN_8C: if (r_input_addr_count == (CONV_INPUT_SIZE - 1)) st_input_next = READ_IN_8D;
       READ_IN_8D: if (r_input_addr_count == (CONV_INPUT_SIZE - 1)) st_input_next = CONV_INPUT;
-      CONV_INPUT: st_input_next = TRANSFER;
+      CONV_INPUT: if ((st_conv_current == WAIT_CONV) && (st_output_next != WRITE_OUTPUT))
+                    st_input_next = TRANSFER;
       TRANSFER: st_input_next = HOLD_WRITE;  // p_start the convolution
       HOLD_WRITE:
         if ((st_conv_current == TRANSFORM) && !r_weight_tile_valid)
@@ -531,7 +536,7 @@ module Conv
     st_conv_next = st_conv_current;  // default prevents latch inference
     priority case (st_conv_current)
       WAIT_CONV: begin
-        if (st_input_current == CONV_INPUT) begin
+        if ((st_input_current == CONV_INPUT) && (st_output_next != WRITE_OUTPUT)) begin
           st_conv_next = TRANSFORM;  // starts the convolution after moving data to the convolution register bank
         end
       end
@@ -564,7 +569,7 @@ module Conv
     if (reset)
       w_conv_end <= 0;
     else begin
-      if (st_conv_next == INVERSE)  // *** CAUTION: PE
+      if (st_conv_current == INVERSE)
         w_conv_end <= 1;
       else if (st_output_current == WRITE_OUTPUT)
         w_conv_end <= 0;
@@ -584,13 +589,16 @@ module Conv
     end
   end
 
-  // Transform produces the complete combinational matrix, but only one row
-  // (or a partial row) is consumed at a time. FIXED_NUM_MULT is one of the
-  // supported factors of the 16 Hadamard products.
+  // Register the eight feature-transform lanes before Hadamard, then register
+  // inverse partial rows before the output-bank accumulation stage.
   always_ff @(posedge clk or posedge reset) begin: STREAMING_DATAPATH_BLOCK
     if (reset) begin
-      r_transform_row          <= '{default: '0};
+      r_transform_feature_reg <= '{default: '0};
       r_inverse_row          <= '{default: '0};
+      r_inverse_partial_current <= '{default: '0};
+      r_inverse_partial_lane1 <= '{default: '0};
+      r_inverse_row_idx_acc <= '0;
+      r_inverse_partial_valid <= 1'b0;
       r_input_weight          <= '{default: '0};
       // The output-write bank also carries the streaming accumulation state.
       // Sharing this bank removes the duplicate four-word accumulator bank.
@@ -603,10 +611,8 @@ module Conv
     end else begin
       unique case (st_conv_current)
         TRANSFORM: begin
-          r_transform_row[0] <= w_conv_transform[0];
-          r_transform_row[1] <= w_conv_transform[1];
-          r_transform_row[2] <= w_conv_transform[2];
-          r_transform_row[3] <= w_conv_transform[3];
+          for (int unsigned lane = 0; lane < FIXED_NUM_MULT; lane++)
+            r_transform_feature_reg[lane] <= w_conv_transform[lane];
           // Capture the first transformed weight row only after the raw
           // spatial tile is complete.  TRANSFORM is held while that tile is
           // being read on the first window of a channel pair.
@@ -617,6 +623,7 @@ module Conv
             r_input_weight[6] <= w_weight_row_next[2]; r_input_weight[7] <= w_weight_row_next[3];
           end
           r_inverse_row              <= '{default: '0};
+          r_inverse_partial_valid <= 1'b0;
           r_output_write              <= '{default: '0};
           r_inverse_row_idx     <= '0;
           r_transform_product_idx <= '0;
@@ -630,10 +637,8 @@ module Conv
         HADAMARD: begin
           r_transform_product_idx <= r_transform_product_idx + PRODUCT_INDEX_WIDTH'(FIXED_NUM_MULT);
           if (r_transform_product_idx == 0) begin
-            r_transform_row[0] <= w_conv_transform[8];
-            r_transform_row[1] <= w_conv_transform[9];
-            r_transform_row[2] <= w_conv_transform[10];
-            r_transform_row[3] <= w_conv_transform[11];
+            for (int unsigned lane = 0; lane < FIXED_NUM_MULT; lane++)
+              r_transform_feature_reg[lane] <= w_conv_transform[FIXED_NUM_MULT + lane];
           end
           // Capture the next transformed weight row at the same pipeline
           // boundary used by the feature transform.  The current Hadamard
@@ -645,8 +650,12 @@ module Conv
             r_input_weight[4] <= w_weight_row3[0]; r_input_weight[5] <= w_weight_row3[1];
             r_input_weight[6] <= w_weight_row3[2]; r_input_weight[7] <= w_weight_row3[3];
           end
-          // Advance the accumulated tile in the existing output-write bank.
-          r_output_write              <= w_output_acc_next;
+          r_inverse_partial_current <= w_inverse_partial_current;
+          r_inverse_partial_lane1 <= w_inverse_partial_lane1;
+          r_inverse_row_idx_acc <= r_inverse_row_idx;
+          r_inverse_partial_valid <= 1'b1;
+          if (r_inverse_partial_valid)
+            r_output_write <= w_output_acc_next;
           r_inverse_row_idx <= r_inverse_row_idx + 2;
           r_inverse_row          <= w_inverse_product_row_lane1;
 `ifdef STREAM_DEBUG
@@ -659,6 +668,9 @@ module Conv
 `endif
         end
         INVERSE: begin
+          if (r_inverse_partial_valid)
+            r_output_write <= w_output_acc_next;
+          r_inverse_partial_valid <= 1'b0;
 `ifdef STREAM_DEBUG
           $display("STREAM FINAL");
           $write("  ACC:"); for (int unsigned d = 0; d < CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE; d++) $write(" %0d", $signed(r_output_write[d])); $write("\n");
@@ -715,14 +727,9 @@ module Conv
   WeightTransformRow #(.ROW_INDEX(2'd2)) weight_row_two (.row_index(2'd2), .pin(w_weight_transform), .pout(w_weight_row2));
   WeightTransformRow #(.ROW_INDEX(2'd3)) weight_row_three (.row_index(2'd3), .pin(w_weight_transform), .pout(w_weight_row3));
 
-  assign w_transform_feature[0] = r_transform_row[0];
-  assign w_transform_feature[1] = r_transform_row[1];
-  assign w_transform_feature[2] = r_transform_row[2];
-  assign w_transform_feature[3] = r_transform_row[3];
-  assign w_transform_feature[4] = w_conv_transform[r_transform_product_idx + 4];
-  assign w_transform_feature[5] = w_conv_transform[r_transform_product_idx + 5];
-  assign w_transform_feature[6] = w_conv_transform[r_transform_product_idx + 6];
-  assign w_transform_feature[7] = w_conv_transform[r_transform_product_idx + 7];
+  for (genvar lane = 0; lane < FIXED_NUM_MULT; lane++) begin: TRANSFORM_FEATURE_REGISTER_OUTPUT
+    assign w_transform_feature[lane] = r_transform_feature_reg[lane];
+  end
   Multip #(.QUANT(QUANT), .NBITS(NBITS)) multip0(
     .feature(w_transform_feature[0]), .weight(r_input_weight[0]), .product(w_conv_product[0]));
   Multip #(.QUANT(QUANT), .NBITS(NBITS)) multip1(
@@ -746,9 +753,9 @@ module Conv
   InverseRow inverse_row_current(.inverse_input_row(w_inverse_product_row), .inverse_partial(w_inverse_partial_current));
   InverseRow inverse_row_lane1(.inverse_input_row(w_inverse_product_row_lane1), .inverse_partial(w_inverse_partial_lane1));
   InverseRowAccumulate inverse_row_acc(
-    .inverse_row_idx(r_inverse_row_idx), .accumulator_in(r_output_write), .inverse_partial(w_inverse_partial_current), .accumulator_out(w_output_acc_after_lane0));
+    .inverse_row_idx(r_inverse_row_idx_acc), .accumulator_in(r_output_write), .inverse_partial(r_inverse_partial_current), .accumulator_out(w_output_acc_after_lane0));
   InverseRowAccumulate inverse_row_acc_second(
-    .inverse_row_idx(r_inverse_row_idx + 1'b1), .accumulator_in(w_output_acc_after_lane0), .inverse_partial(w_inverse_partial_lane1), .accumulator_out(w_output_acc_next));
+    .inverse_row_idx(r_inverse_row_idx_acc + 1'b1), .accumulator_in(w_output_acc_after_lane0), .inverse_partial(r_inverse_partial_lane1), .accumulator_out(w_output_acc_next));
   assign w_output_final = (st_conv_current == INVERSE) ? r_output_write : w_output_acc_next;
 
 

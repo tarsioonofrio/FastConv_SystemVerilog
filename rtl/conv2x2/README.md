@@ -21,7 +21,7 @@ file is compiled separately because every file declares the top-level module
 | `archive/m04/conv-i16-h16-t08-o4-m04-stream08.sv` / `conv-i16-h16-t08-o4-m08-stream08.sv` | Fixed-MAC compatibility sources from the `stream08` family | Archived 4 / active 8 MACs |
 | `archive/m04/conv-i16-h13-t08-o4-m04-stream08-wstream4.sv` | Weight-row streaming path: registers the raw 3x3 tile, computes one Winograd row per pass, and stores the active four-word transformed row | Archived 4 MACs |
 | `conv-i16-h13-t08-o4-m08-stream08-wstream4.sv` | Same weight-row streaming path with two Hadamard rows and eight products per cycle | Fixed 8 MACs |
-| `archive/m08/conv-i16-h13-t08-o4-m08-stream08-rowconst4.sv` | Constant-row weight transform with paired rows and dual inverse accumulation | Archived 8 MACs |
+| `conv-i16-h13-t08-o4-m08-stream08-rowconst4.sv` | Constant-row weight transform with paired rows and registered transform/inverse pipeline barriers | Fixed 8 MACs |
 | `archive/m08/conv-i16-h13-t08-o4-m08-stream08-rowconst4-exact.sv` | Exact scaled constant-row transform with paired rows and dual inverse accumulation | Archived 8 MACs |
 | `archive/m04/conv-i16-h13-t08-o4-m04-stream08-rowconst4-exact.sv` | Spatial-weight row streaming with exact scaled numerators: reads the raw 3x3 tile and removes the row rounding/remainder network | Archived 4 MACs |
 | `archive/m04/conv-i20-h16-t08-o4-m04-stream08-prefetch4.sv` | Four-word prefetch variant: captures the first new column while the current tile is processed, then commits it before reading the second column | Archived 4 MACs |
@@ -59,18 +59,26 @@ For the current 2x2 sources, the recount is:
 | stream00, 4/8 MACs, shared output bank | 16 | 0 | `r_input_weight[16]`; `r_output_write[4]` is also the inverse accumulator |
 | stream08, 4/8 MACs | 16 | 8 | `r_input_weight[16]` + `r_transform_row[4]` + `r_inverse_row[4]` |
 | stream08-wstream4, 4 MACs | 13 | 8 | `r_weight_spatial[9]` + `r_input_weight[4]` + `r_transform_row[4]` + `r_inverse_row[4]` |
-| stream08-wstream4, 8 MACs | 13 | 8 | `r_weight_spatial[9]` + `r_input_weight[8]` + `r_transform_row[8]` + two inverse-row banks |
+| stream08-wstream4, 8 MACs | 13 | 20 | `r_weight_spatial[9]` + `r_input_weight[8]` + `r_transform_feature_reg[8]` + `r_inverse_row[4]` + registered inverse partials `[4]+[4]` |
 | stream08-rowconst4-exact, 4 MACs | 13 | 8 | Same 13-word spatial/active-weight structure as `wstream4`, but the active weight row and accumulation use the exact scaled representation |
-| stream08-rowconst4, 8 MACs | 13 | 8 | `r_weight_spatial[9]` + paired active-weight rows + two inverse-row accumulators |
+| stream08-rowconst4, 8 MACs | 13 | 20 | `r_weight_spatial[9]` + paired active-weight rows + `r_transform_feature_reg[8]` + `r_inverse_row[4]` + registered inverse partials `[4]+[4]` |
 | stream08-rowconst4-exact, 8 MACs | 13 | 8 | Same paired-row structure using exact scaled numerators |
 | stream08-prefetch4, 4 MACs | 20 (16 core + 4 prefetch) | 8 | `r_input_weight[16]` + `r_transform_row[4]` + `r_inverse_row[4]` + `r_input_prefetch[4]` |
-| stream08-prefetch4, 8 MACs | 20 (16 core + 4 prefetch) | 8 | `r_input_weight[16]` + two transform rows + two inverse-row accumulators + `r_input_prefetch[4]` |
-| stream08-prefetch4-rowconst4, 8 MACs | 20 (16 input + 4 prefetch) | 8 | `r_weight_spatial[9]` + `r_input_weight[8]` + paired constant-row transforms + two inverse-row accumulators + `r_input_prefetch[4]` |
+| stream08-prefetch4, 8 MACs | 20 (16 core + 4 prefetch) | 20 | `r_input_weight[8]` + `r_transform_feature_reg[8]` + `r_inverse_row[4]` + registered inverse partials `[4]+[4]` + `r_input_prefetch[4]` |
+| stream08-prefetch4-rowconst4, 8 MACs | 20 (16 input + 4 prefetch) | 20 | `r_weight_spatial[9]` + `r_input_weight[8]` + paired constant-row transforms + `r_transform_feature_reg[8]` + `r_inverse_row[4]` + registered inverse partials `[4]+[4]` + `r_input_prefetch[4]` |
+| stream08-prefetch8-rowconst4, 8 MACs | 24 (16 input + 8 prefetch) | 20 | `r_weight_spatial[9]` + `r_input_weight[8]` + paired constant-row transforms + `r_transform_feature_reg[8]` + `r_inverse_row[4]` + registered inverse partials `[4]+[4]` + `r_input_prefetch[8]` |
 | stream08-exact, 8 MACs | 20 | 8 | Exact-scaled weight bank plus two transform rows and two inverse-row accumulators |
 
 The output accumulator is part of the `o4` output bank, and all `w_conv_*`,
 `w_transform_*`, and `w_inverse_*` vectors remain wires; none of them is
 silently counted as storage.
+
+The fixed eight-MAC `stream08` variants listed above use the same datapath
+barriers: the eight feature-transform products are registered before the
+Hadamard multipliers, and the two four-word inverse partial rows are
+registered before `InverseRowAccumulate`. The registered inverse-partial bank
+is included in `t`; `r_inverse_row[4]` is retained separately for the existing
+trace/debug path.
 
 The `stream08-exact` variant is paired with the generator's
 ``sim ... --exact-scaled`` mode. It deliberately has a wider internal
