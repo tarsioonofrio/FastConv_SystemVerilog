@@ -4,7 +4,8 @@ module tb #(
   // The same testbench is used for the parameterized, fixed-streaming and
   // fully-parallel Conv sources. The DUT source supplies its own default when
   // this parameter is not overridden by a simulator or Make target.
-  parameter int unsigned NUM_MULT = 4
+  parameter int unsigned NUM_MULT = 4,
+  parameter bit ALLOW_GOLDEN_MISMATCH = 1'b0
 );
   import pack_data::*;
   import pack_param::*;
@@ -220,16 +221,19 @@ module tb #(
       // espera mais 200 ns
     #200;
 
-    if (output_error_count != 0)
+    if ((output_error_count != 0) && !ALLOW_GOLDEN_MISMATCH)
       $fatal(1, "output golden mismatch count: %0d", output_error_count);
     if (conv_inverse_check_idx != EXPECTED_INVERSE_COUNT)
       $fatal(1, "unexpected inverse count: got %0d expected %0d",
              conv_inverse_check_idx, EXPECTED_INVERSE_COUNT);
     if (write_count != N_CHANNEL_IN * N_CHANNEL_OUT * FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE)
       $fatal(1, "unexpected valid write count: got %0d", write_count);
-    $display("2x2 simulation passed: inverse_tiles=%0d cycles=%0d valid_writes=%0d input_samples_clipped=%0d invalid_output_beats=%0d",
+    $display("2x2 simulation completed: golden_mismatches=%0d inverse_tiles=%0d cycles=%0d valid_writes=%0d input_samples_clipped=%0d invalid_output_beats=%0d",
+             output_error_count,
              conv_inverse_check_idx, cycle_count, write_count,
              input_out_of_range_count, output_out_of_range_count);
+    if (output_error_count != 0)
+      $display("GOLDEN_MISMATCHES_ALLOWED only for explicit approximation experiments");
     $finish;
   end
 
