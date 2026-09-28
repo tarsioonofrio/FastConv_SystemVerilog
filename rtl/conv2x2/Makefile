@@ -98,6 +98,8 @@ stream08-rowconst4-exact-8mac:
 	  $(COMMON) $(MATRICES_STREAM) archive/m08/conv-i16-h13-t08-o4-m08-stream08-rowconst4-exact.sv $(TB) --build
 
 # Corrected exact-arithmetic variant with registered feature and inverse stages.
+# This RTL uses the matching golden package with scaled exact spatial weights.
+stream08-rowconst4-exact-pipelined-8mac: DATA = data/tcn4/sim/sim-032-3-3-normal-exact/pack_data.sv
 stream08-rowconst4-exact-pipelined-8mac:
 	$(VERILATOR) --binary --exe --Mdir obj_dir/stream08-rowconst4-exact-pipelined-8mac \
 	  $(COMMON) $(MATRICES_STREAM) archive/m08/conv-i16-h13-t08-o4-m08-stream08-rowconst4-exact-pipelined.sv $(TB) --build \
