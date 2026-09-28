@@ -1057,6 +1057,31 @@ síntese preserva `list-file.txt`, logs do Genus, netlist, simulação anotada e
 `power_evaluation.txt`; os caminhos dos fontes arquivados foram corrigidos para
 que a reprodução histórica não dependa de arquivos ativos.
 
+#### 6.9 `stream08-prefetch8-rowconst4`
+
+Arquivo experimental: `conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4.sv`.
+
+Esta variante parte de `prefetch4-rowconst4` e amplia o banco de prefetch de
+quatro para oito amostras, capturando as duas colunas novas da próxima janela.
+O primeiro grupo de quatro valores corresponde à primeira linha e o segundo
+grupo à linha seguinte, usando `FEAT_INPUT_WIDTH` como stride. Quando o banco
+fica completo, as duas colunas são aplicadas juntas à janela de entrada; assim,
+o caminho de prefetch não precisa fazer depois a leitura separada da segunda
+coluna. A transformação constante das linhas de peso, os oito MACs e a
+interface externa do core permanecem iguais.
+
+```text
+prefetch4: 16 palavras da janela + 4 palavras antecipadas = 20
+prefetch8: 16 palavras da janela + 8 palavras antecipadas = 24
+```
+
+A regressão Verilator com o dataset canônico passou: `inverse_tiles=2025`,
+`cycles=21892`, `valid_writes=8100`, `input_samples_clipped=0` e
+`invalid_output_beats=0`. O número de ciclos coincide com o resultado
+registrado para `prefetch4-rowconst4`; portanto, esta primeira validação
+confirma a equivalência funcional, mas ainda não demonstra ganho de latência.
+Não há resultado de síntese, área, timing ou potência para esta variante.
+
 ### 7. Comparativo de registradores de dados
 
 A tabela usa a contagem integral, incluindo `r_output_read`, porque o objetivo
@@ -1076,6 +1101,7 @@ encerrados.
 | `stream08-rowconst4`                        |      16 |    17 |                 8 |                         0 |               8 |            **49** |
 | `stream08-prefetch4`                        |      20 |    16 |                 8 |                         0 |               8 |            **52** |
 | `stream08-prefetch4-rowconst4`              |      20 |    17 |                 8 |                         0 |               8 |            **53** |
+| `stream08-prefetch8-rowconst4` (experimental) |      24 |    17 |                 8 |                         0 |               8 |            **57** |
 | `stream08-prefetch4-rowconst4-latch-single` |      20 |    17 |                 8 |                         0 |               8 |            **53** |
 
 Essa tabela mostra três lições importantes:
