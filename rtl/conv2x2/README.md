@@ -11,6 +11,7 @@ file is compiled separately because every file declares the top-level module
 | --- | --- | --- |
 | `archive/m04/conv-i16-h16-t16-o4-m04-std.sv` / `conv-i16-h16-t16-o4-m08-std.sv` | Conventional transform / Hadamard / full inverse path | Archived 4-MAC baseline / default 8 MACs |
 | `conv-i16-h16-t16-o4-m08-std-column.sv` | Experimental `std` memory interface transferring four adjacent input words and two output pixels per beat | Fixed 8 MACs; experimental |
+| `conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-column.sv` | Experimental prefetch8 column interface; transfers four input words and two output pixels per beat, and reads each 3-word raw-weight row in one beat | Fixed 8 MACs; experimental |
 | `conv-i16-h16-t00-o4-m16-all.sv` | Fully parallel path, all 16 Hadamard products in one cycle | Fixed 16 MACs |
 | `archive/m04/conv-i16-h16-t00-o4-m04-stream00.sv` | Four-MAC streaming path using direct transform-row selection and reusing `r_output_write[4]` as the inverse accumulator | Archived 4 MACs |
 | `archive/m04/conv-i16-h16-t04-o4-m04-stream04.sv` | Four-MAC streaming path using the registered transform-row schedule | Archived 4 MACs |
@@ -25,7 +26,7 @@ file is compiled separately because every file declares the top-level module
 | `archive/m04/conv-i16-h13-t08-o4-m04-stream08-rowconst4-exact.sv` | Spatial-weight row streaming with exact scaled numerators: reads the raw 3x3 tile and removes the row rounding/remainder network | Archived 4 MACs |
 | `archive/m04/conv-i20-h16-t08-o4-m04-stream08-prefetch4.sv` | Four-word prefetch variant: captures the first new column while the current tile is processed, then commits it before reading the second column | Archived 4 MACs |
 | `conv-i20-h16-t08-o4-m08-stream08-prefetch4.sv` | Prefetch variant with two Hadamard rows and eight physical multipliers | Fixed 8 MACs |
-| `conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4.sv` | Four-word input prefetch combined with constant-row weight transforms; keeps nine spatial weights and eight active transformed weights | Fixed 8 MACs |
+| `conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4.sv` | Four-word input prefetch combined with constant-row weight transforms; retains nine spatial weights and eight active transformed weights | Fixed 8 MACs |
 | `conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4.sv` | Experimental eight-word prefetch of both new feature columns, combined with constant-row weight transforms | Fixed 8 MACs; experimental |
 | `conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-latch.sv` | Experimental latch-bank alternative: uses level-sensitive storage for the spatial-weight, prefetch-data and output-read banks while preserving edge-triggered control and feedback state | Fixed 8 MACs; experimental |
 | `archive/m08/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-temporal1.sv` | One shared constant-row transformer captured at four pre-existing schedule edges, with temporal row caches | Archived 8 MACs |
@@ -137,6 +138,23 @@ Run its simulation without creating waveform files with:
 
 ```bash
 make run-std-column
+```
+
+`stream08-prefetch8-rowconst4-column` applies the same column-wide memory
+interface to the prefetch8 architecture. The ordinary feature reads and the
+prefetch bank each transfer four adjacent input words per beat; the eight
+prefetched words are therefore collected in two beats. During weight reads,
+the first three lanes carry one complete raw 3x3 kernel row per beat. Output
+memory transfers two vertically adjacent pixels per beat. Its dedicated
+`testbench_prefetch8_column.sv` models the parallel memory lanes from the same
+canonical dataset, counts useful weight beats and checks the golden outputs.
+This remains a functional interface experiment; synthesis and mapping to a
+specific multi-bank memory implementation have not been evaluated.
+
+Run its simulation without creating waveform files with:
+
+```bash
+make run-stream08-prefetch8-rowconst4-column
 ```
 
 Run the local Verilator flows from this directory:
