@@ -10,6 +10,7 @@ file is compiled separately because every file declares the top-level module
 | Source | Architecture | MAC configurations |
 | --- | --- | --- |
 | `archive/m04/conv-i16-h16-t16-o4-m04-std.sv` / `conv-i16-h16-t16-o4-m08-std.sv` | Conventional transform / Hadamard / full inverse path | Archived 4-MAC baseline / default 8 MACs |
+| `conv-i16-h16-t16-o4-m08-std-column.sv` | Experimental `std` memory interface transferring four adjacent input words and two output pixels per beat | Fixed 8 MACs; experimental |
 | `conv-i16-h16-t00-o4-m16-all.sv` | Fully parallel path, all 16 Hadamard products in one cycle | Fixed 16 MACs |
 | `archive/m04/conv-i16-h16-t00-o4-m04-stream00.sv` | Four-MAC streaming path using direct transform-row selection and reusing `r_output_write[4]` as the inverse accumulator | Archived 4 MACs |
 | `archive/m04/conv-i16-h16-t04-o4-m04-stream04.sv` | Four-MAC streaming path using the registered transform-row schedule | Archived 4 MACs |
@@ -121,10 +122,27 @@ All `m04` sources and their synthesis directories are preserved under
 `archive/m04/` as the historical baseline; no old power, area, timing, or
 gate-level result is overwritten by the `m08` conversion.
 
+`std-column` is a separate interface experiment; it does not modify the
+conventional scalar `std` source and uses the dedicated `testbench_column.sv`.
+Feature reads transfer four adjacent words in one beat and map them into one
+internal feature column. Output reads and writes transfer two pixels in one
+beat, with the second lane addressing the next output row. Weight reads remain
+scalar on input lane zero. The dedicated testbench models those parallel lanes
+from the canonical dataset and checks the same golden outputs. This experiment
+validates functional equivalence and cycle reduction only; it has not yet been
+synthesized or mapped to a specific multi-bank memory implementation.
+
+Run its simulation without creating waveform files with:
+
+```bash
+make run-std-column
+```
+
 Run the local Verilator flows from this directory:
 
 ```bash
 make run-std
+make run-std-column
 make run-all16
 make run-stream04-4mac
 make run-stream00-8mac

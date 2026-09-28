@@ -1,5 +1,5 @@
-# Unified local simulation entry point for every 2x2 architecture.
-# Each target selects exactly one source file; all targets share testbench.sv.
+# Local simulation entry points for the 2x2 architectures.
+# Standard targets share testbench.sv; std-column has a dedicated testbench.
 
 DATA = data/tcn4/sim/sim-032-3-3-normal/pack_data.sv
 PARAM = pack-param/tcn4/pack_param.sv
@@ -9,13 +9,15 @@ MATRICES_STREAM = mult-matrices/stream/tcn4/mult_matrices.sv
 MEM = ../mem/mem.sv
 COMMON = $(DATA) $(PARAM) $(MEM) ../csa/csa_lib.sv ../multip/multip.sv
 TB = testbench.sv
+TB_COLUMN = testbench_column.sv
 
 VERILATOR = verilator -j 0 -DSIMULATION --trace-fst --trace-max-array 4096 \
             --top-module tb -Wno-fatal
+VERILATOR_COLUMN_NO_TRACE = verilator -j 0 -DSIMULATION --top-module tb_column -Wno-fatal
 
-.PHONY: all std all16 stream04-4mac stream04-8mac stream00-8mac stream08 stream08-wstream4 stream08-wstream4-8mac \
+.PHONY: all std std-column all16 stream04-4mac stream04-8mac stream00-8mac stream08 stream08-wstream4 stream08-wstream4-8mac \
 	stream08-rowconst4-8mac stream08-rowconst4-exact-8mac stream08-prefetch4-8mac stream08-prefetch4-rowconst4-8mac stream08-prefetch8-rowconst4-8mac stream08-prefetch4-rowconst4-latch-8mac stream08-prefetch4-rowconst4-temporal1-8mac stream08-exact-8mac \
-	        run run-std run-all16 run-stream04-4mac run-stream00-8mac \
+	        run run-std run-std-column run-all16 run-stream04-4mac run-stream00-8mac \
 	        run-stream08 run-stream08-wstream4 run-stream08-prefetch4 run-stream08-prefetch4-rowconst4 run-stream08-prefetch8-rowconst4 run-stream08-prefetch4-rowconst4-latch run-stream08-prefetch4-rowconst4-temporal1 lint clean
 
 all: std
@@ -24,6 +26,12 @@ std:
 	$(VERILATOR) --binary --exe --Mdir obj_dir/std \
 	  $(COMMON) $(MUX) $(MATRICES_STD) conv-i16-h16-t16-o4-m08-std.sv $(TB) --build \
 	  -GNUM_MULT=8
+
+# Experimental std variant that transfers one 4-sample feature column and one
+# 2-pixel output column per memory transaction. It has a dedicated testbench.
+std-column:
+	$(VERILATOR_COLUMN_NO_TRACE) --binary --exe --Mdir obj_dir/std-column \
+	  $(COMMON) $(MUX) $(MATRICES_STD) conv-i16-h16-t16-o4-m08-std-column.sv $(TB_COLUMN) --build
 
 all16:
 	$(VERILATOR) --binary --exe --Mdir obj_dir/all16 \
@@ -56,6 +64,8 @@ stream08:
 run: run-std
 run-std: std
 	obj_dir/std/Vtb
+run-std-column: std-column
+	obj_dir/std-column/Vtb_column
 run-all16: all16
 	obj_dir/all16/Vtb
 run-stream04-4mac: stream04-4mac
@@ -131,6 +141,7 @@ run-stream08-prefetch4-rowconst4-temporal1: stream08-prefetch4-rowconst4-tempora
 lint:
 	$(VERILATOR) --timing --lint-only $(COMMON) $(MUX) $(MATRICES_STD) archive/m04/conv-i16-h16-t16-o4-m04-std.sv $(TB)
 	$(VERILATOR) --timing --lint-only $(COMMON) $(MUX) $(MATRICES_STD) conv-i16-h16-t16-o4-m08-std.sv $(TB) -GNUM_MULT=8
+	verilator -DSIMULATION --top-module tb_column -Wno-fatal --timing --lint-only $(COMMON) $(MUX) $(MATRICES_STD) conv-i16-h16-t16-o4-m08-std-column.sv $(TB_COLUMN)
 	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STD) conv-i16-h16-t00-o4-m16-all.sv $(TB)
 	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) archive/m04/conv-i16-h16-t04-o4-m04-stream04.sv $(TB)
 	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i16-h16-t04-o4-m08-stream04.sv $(TB) -GNUM_MULT=8
