@@ -305,7 +305,7 @@ preservados em `archive/m04/` para não apagar a linha de base histórica.
 | `conv-i16-h13-t08-o4-m08-stream08-rowconst4.sv`                        | ativo                        |              8 |                                    2 |
 | `conv-i20-h16-t08-o4-m08-stream08-prefetch4.sv`                        | ativo                        |              8 |                                    2 |
 | `conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4.sv`              | ativo                        |              8 |                                    2 |
-| `conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-latch-single.sv` | ativo experimental           |              8 |                                    2 |
+| `archive/m08/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-latch-single.sv` | arquivado, experimental      |              8 |                                    2 |
 
 O contrato funcional que não pode mudar durante a redução é:
 
@@ -990,7 +990,7 @@ campanha. O ganho de energia é marginal.
 
 #### 6.6 `stream08-prefetch4-rowconst4-latch-single`
 
-Arquivo ativo experimental: `conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-latch-single.sv`.
+Arquivo arquivado em `archive/m08/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-latch-single.sv`.
 
 Esta variante parte de `prefetch4-rowconst4` e troca alguns bancos
 selecionados para armazenamento sensivel a nivel. O prefetch e os pesos
@@ -1253,7 +1253,7 @@ conv-i16-h13-t08-o4-m08-stream08-wstream4.sv
 conv-i16-h13-t08-o4-m08-stream08-rowconst4.sv
 conv-i20-h16-t08-o4-m08-stream08-prefetch4.sv
 conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4.sv
-conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-latch-single.sv
+archive/m08/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-latch-single.sv
 ```
 
 As variantes `rowconst4-exact`, `stream08-exact`, `shared` e `temporal1` foram
@@ -2105,7 +2105,7 @@ Anexo A e entram no relatório agregado apenas com `--include-archived`.
 | Stream08 rowconst4 8 MACs               | `conv-i16-h13-t08-o4-m08-stream08-rowconst4.sv`                        |  PASS   |  11.959 |       18.885,876 | 25.654 |   0,671548 |      172,294 |
 | Prefetch4 8 MACs                        | `conv-i20-h16-t08-o4-m08-stream08-prefetch4.sv`                        |  PASS   |  10.506 |       16.073,141 | 21.919 |   0,776661 |      170,256 |
 | Prefetch4 rowconst4 8 MACs              | `conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4.sv`              |  PASS   |  12.222 |       19.311,310 | 21.892 |   0,776556 |      170,023 |
-| Prefetch4 rowconst4 latch-single 8 MACs | `conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-latch-single.sv` |  PASS   |  12.372 |       19.019,773 | 27.688 |   0,641520 |      177,624 |
+| Prefetch4 rowconst4 latch-single 8 MACs | `archive/m08/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-latch-single.sv` |  PASS   |  12.372 |       19.019,773 | 27.688 |   0,641520 |      177,624 |
 
 #### 12.1 Leitura dos resultados
 
