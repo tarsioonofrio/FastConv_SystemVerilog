@@ -1,0 +1,6 @@
+vivado_version=2023.2
+part=xczu7ev-ffvc1156-2-e
+top=Conv
+target_period_ns=3.154574
+target_frequency_mhz=317
+manifest=/tmp/fastconv-trunc-pipe-0ff2cf1/repo/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/manifests/prefetch8-rowconst4-trunc-pipe.txt
