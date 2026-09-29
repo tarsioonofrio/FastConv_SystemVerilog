@@ -12,10 +12,19 @@ For every variant the runner performs implementation, post-route vectorless
 power at typical/maximum corners, post-route functional simulation (no SDF),
 golden checking, DUT/top SAIF capture, and P3F power at both corners.
 
-The five candidates are `rowconst4`, `wstream4`, `prefetch4-rowconst4`,
-`prefetch4`, and `prefetch8-rowconst4`. The detailed source list for each is in
-`manifests/`. All long runs must be launched in `tmux` on Paxos. Do not reuse or
-overwrite reports from the scalar/column campaign.
+The five original candidates are `rowconst4`, `wstream4`,
+`prefetch4-rowconst4`, `prefetch4`, and `prefetch8-rowconst4`. The detailed
+source list for each is in `manifests/`. All long runs must be launched in
+`tmux` on Paxos. Do not reuse or overwrite reports from the scalar/column
+campaign.
+
+The four-MAC truncated column variant
+`prefetch8-rowconst4-trunc-column-4mac` is an additional candidate with a
+dedicated manifest and runner (`scripts/run_trunc_column_4mac.sh`). It uses the
+same canonical truncated workload and column-I/O testbench as the eight-MAC
+truncated column version, but synthesizes the four-MAC RTL. Its reports are
+stored under a separate run directory and must not overwrite either column
+campaign.
 
 The final comparison includes utilization, post-route timing at 317 MHz,
 functional result/cycle checks, SAIF mapping, P0/P3F power categories, and

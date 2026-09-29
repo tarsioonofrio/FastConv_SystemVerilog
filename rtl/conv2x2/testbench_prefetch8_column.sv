@@ -1,6 +1,8 @@
 `timescale 1ns/1ps
 
-module tb_prefetch8_column;
+module tb_prefetch8_column #(
+  parameter int unsigned MAC_COUNT = 8
+);
   import pack_data::*;
   import pack_param::*;
 
@@ -70,7 +72,7 @@ module tb_prefetch8_column;
     .CONV_OUTPUT_SIZE(CONV_OUTPUT_SIZE),
     .CONV_INPUT_SIZE(CONV_INPUT_SIZE),
     .HADAMARD_SIZE(HADAMARD_SIZE),
-    .NUM_MULT(8)
+    .NUM_MULT(MAC_COUNT)
   ) dut (
     .clk(clk),
     .reset(reset),
