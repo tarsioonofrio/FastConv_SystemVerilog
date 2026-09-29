@@ -144,10 +144,10 @@ module Conv
   logic [NBITS-1:0] r_transform_feature_reg [FIXED_NUM_MULT-1:0];
   logic [NBITS-1:0] r_inverse_row [HADAMARD_SIZE-1:0];
   logic [ROW_INDEX_WIDTH-1:0] r_inverse_row_idx;
-  logic [NBITS-1:0] r_inverse_partial_current [CONV_OUTPUT_SIZE-1:0];
-  logic [NBITS-1:0] r_inverse_partial_lane1 [CONV_OUTPUT_SIZE-1:0];
-  logic [ROW_INDEX_WIDTH-1:0] r_inverse_row_idx_acc;
-  logic r_inverse_partial_valid;
+  // Pipeline register separating the DSP Hadamard products from InverseRow.
+  logic [NBITS-1:0] r_hadamard_product_reg [FIXED_NUM_MULT-1:0];
+  logic [ROW_INDEX_WIDTH-1:0] r_hadamard_product_row_idx_reg;
+  logic r_hadamard_product_valid;
   logic [PRODUCT_INDEX_WIDTH-1:0] r_transform_product_idx;
   logic [NBITS-1:0] w_inverse_partial [CONV_OUTPUT_SIZE-1:0];
   logic [NBITS-1:0] w_inverse_partial_current [CONV_OUTPUT_SIZE-1:0];
@@ -155,6 +155,7 @@ module Conv
   logic [NBITS-1:0] w_output_final [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
   logic [NBITS-1:0] w_inverse_product_row [HADAMARD_SIZE-1:0];
   logic [NBITS-1:0] w_inverse_product_row_lane1 [HADAMARD_SIZE-1:0];
+  logic [NBITS-1:0] w_hadamard_product_current [FIXED_NUM_MULT-1:0];
   logic [NBITS-1:0] w_inverse_partial_lane1 [CONV_OUTPUT_SIZE-1:0];
   logic [NBITS-1:0] w_output_acc_after_lane0 [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
   logic [NBITS-1:0] w_transform_feature [FIXED_NUM_MULT-1:0];
@@ -723,16 +724,16 @@ module Conv
     end
   end
 
-  // Register the eight feature-transform lanes before Hadamard, then register
-  // inverse partial rows before the output-bank accumulation stage.
+  // Register transformed features before Hadamard and register Hadamard
+  // products before InverseRow. The product-valid/index state keeps the
+  // streamed rows aligned while inverse and accumulation overlap.
   always_ff @(posedge clk or posedge reset) begin: STREAMING_DATAPATH_BLOCK
     if (reset) begin
       r_transform_feature_reg <= '{default: '0};
       r_inverse_row          <= '{default: '0};
-      r_inverse_partial_current <= '{default: '0};
-      r_inverse_partial_lane1 <= '{default: '0};
-      r_inverse_row_idx_acc <= '0;
-      r_inverse_partial_valid <= 1'b0;
+      r_hadamard_product_reg <= '{default: '0};
+      r_hadamard_product_row_idx_reg <= '0;
+      r_hadamard_product_valid <= 1'b0;
       r_input_weight          <= '{default: '0};
       // The output-write bank also carries the streaming accumulation state.
       // Sharing this bank removes the duplicate four-word accumulator bank.
@@ -759,7 +760,7 @@ module Conv
             r_input_weight[6] <= w_weight_row1[2]; r_input_weight[7] <= w_weight_row1[3];
           end
           r_inverse_row              <= '{default: '0};
-          r_inverse_partial_valid <= 1'b0;
+          r_hadamard_product_valid <= 1'b0;
           r_output_write              <= '{default: '0};
           r_inverse_row_idx     <= '0;
           r_transform_product_idx <= '0;
@@ -786,15 +787,19 @@ module Conv
             r_input_weight[4] <= w_weight_row3[0]; r_input_weight[5] <= w_weight_row3[1];
             r_input_weight[6] <= w_weight_row3[2]; r_input_weight[7] <= w_weight_row3[3];
           end
-          // Advance the accumulated tile in the existing output-write bank.
-          r_inverse_partial_current <= w_inverse_partial_current;
-          r_inverse_partial_lane1 <= w_inverse_partial_lane1;
-          r_inverse_row_idx_acc <= r_inverse_row_idx;
-          r_inverse_partial_valid <= 1'b1;
-          if (r_inverse_partial_valid)
+          // Register the current Hadamard products. InverseRow consumes this
+          // bank during the following cycle, while the next product row runs.
+          for (int unsigned lane = 0; lane < FIXED_NUM_MULT; lane++)
+            r_hadamard_product_reg[lane] <= w_hadamard_product_current[lane];
+          r_hadamard_product_row_idx_reg <= r_inverse_row_idx;
+          r_hadamard_product_valid <= 1'b1;
+          if (r_hadamard_product_valid)
             r_output_write <= w_output_acc_next;
           r_inverse_row_idx <= r_inverse_row_idx + 2;
-          r_inverse_row          <= w_inverse_product_row_lane1;
+          r_inverse_row[0] <= w_hadamard_product_current[4];
+          r_inverse_row[1] <= w_hadamard_product_current[5];
+          r_inverse_row[2] <= w_hadamard_product_current[6];
+          r_inverse_row[3] <= w_hadamard_product_current[7];
 `ifdef STREAM_DEBUG
           $display("STREAM HAD product_base=%0d row=%0d", r_transform_product_idx, r_inverse_row_idx);
           $write("  F:"); for (int unsigned d = 0; d < FIXED_NUM_MULT; d++) $write(" %0d", $signed(w_transform_feature[d])); $write("\n");
@@ -805,9 +810,9 @@ module Conv
 `endif
         end
         INVERSE: begin
-          if (r_inverse_partial_valid)
+          if (r_hadamard_product_valid)
             r_output_write <= w_output_acc_next;
-          r_inverse_partial_valid <= 1'b0;
+          r_hadamard_product_valid <= 1'b0;
 `ifdef STREAM_DEBUG
           $display("STREAM FINAL");
           $write("  ACC:"); for (int unsigned d = 0; d < CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE; d++) $write(" %0d", $signed(r_output_write[d])); $write("\n");
@@ -878,6 +883,7 @@ module Conv
 
   for (genvar lane = 0; lane < FIXED_NUM_MULT; lane++) begin: TRANSFORM_FEATURE_REGISTER_OUTPUT
     assign w_transform_feature[lane] = r_transform_feature_reg[lane];
+    assign w_hadamard_product_current[lane] = w_conv_product[lane][NBITS-1:0];
   end
   Multip #(.QUANT(QUANT), .NBITS(NBITS)) multip0(
     .feature(w_transform_feature[0]), .weight(r_input_weight[0]), .product(w_conv_product[0]));
@@ -893,18 +899,18 @@ module Conv
   Multip #(.QUANT(QUANT), .NBITS(NBITS)) multip7(.feature(w_transform_feature[7]), .weight(r_input_weight[7]), .product(w_conv_product[7]));
 
   InverseRow inverse_row(.inverse_input_row(r_inverse_row), .inverse_partial(w_inverse_partial));
-  assign w_inverse_product_row[0] = w_conv_product[0];
-  assign w_inverse_product_row[1] = w_conv_product[1];
-  assign w_inverse_product_row[2] = w_conv_product[2];
-  assign w_inverse_product_row[3] = w_conv_product[3];
-  assign w_inverse_product_row_lane1[0] = w_conv_product[4]; assign w_inverse_product_row_lane1[1] = w_conv_product[5];
-  assign w_inverse_product_row_lane1[2] = w_conv_product[6]; assign w_inverse_product_row_lane1[3] = w_conv_product[7];
+  assign w_inverse_product_row[0] = r_hadamard_product_reg[0];
+  assign w_inverse_product_row[1] = r_hadamard_product_reg[1];
+  assign w_inverse_product_row[2] = r_hadamard_product_reg[2];
+  assign w_inverse_product_row[3] = r_hadamard_product_reg[3];
+  assign w_inverse_product_row_lane1[0] = r_hadamard_product_reg[4]; assign w_inverse_product_row_lane1[1] = r_hadamard_product_reg[5];
+  assign w_inverse_product_row_lane1[2] = r_hadamard_product_reg[6]; assign w_inverse_product_row_lane1[3] = r_hadamard_product_reg[7];
   InverseRow inverse_row_current(.inverse_input_row(w_inverse_product_row), .inverse_partial(w_inverse_partial_current));
   InverseRow inverse_row_lane1(.inverse_input_row(w_inverse_product_row_lane1), .inverse_partial(w_inverse_partial_lane1));
   InverseRowAccumulate inverse_row_acc(
-    .inverse_row_idx(r_inverse_row_idx_acc), .accumulator_in(r_output_write), .inverse_partial(r_inverse_partial_current), .accumulator_out(w_output_acc_after_lane0));
+    .inverse_row_idx(r_hadamard_product_row_idx_reg), .accumulator_in(r_output_write), .inverse_partial(w_inverse_partial_current), .accumulator_out(w_output_acc_after_lane0));
   InverseRowAccumulate inverse_row_acc_second(
-    .inverse_row_idx(r_inverse_row_idx_acc + 1'b1), .accumulator_in(w_output_acc_after_lane0), .inverse_partial(r_inverse_partial_lane1), .accumulator_out(w_output_acc_next));
+    .inverse_row_idx(r_hadamard_product_row_idx_reg + 1'b1), .accumulator_in(w_output_acc_after_lane0), .inverse_partial(w_inverse_partial_lane1), .accumulator_out(w_output_acc_next));
   assign w_output_final = (st_conv_current == INVERSE) ? r_output_write : w_output_acc_next;
 
 

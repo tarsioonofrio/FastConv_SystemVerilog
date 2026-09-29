@@ -15,7 +15,7 @@ run_name=prefetch8-rowconst4-exact
 out="$reports_dir/$run_name"
 simlib_dir="$reports_dir/simlibs_unisim"
 workload="$repo_root/rtl/conv2x2/data/tcn4/sim/sim-032-3-3-normal-exact/pack_data.sv"
-rtl="$repo_root/rtl/conv2x2/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-exact.sv"
+rtl="$repo_root/rtl/conv2x2/archive/m08/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-exact.sv"
 manifest="$bench_dir/manifests/prefetch8-rowconst4-exact.txt"
 
 expected_commit=${1:?usage: run_exact_prefetch8.sh <published-commit>}
@@ -57,7 +57,7 @@ part=xczu7ev-ffvc1156-2-e
 target_clock_mhz=317
 clock_period_ns=3.154574
 workload=rtl/conv2x2/data/tcn4/sim/sim-032-3-3-normal-exact/pack_data.sv
-rtl=rtl/conv2x2/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-exact.sv
+rtl=rtl/conv2x2/archive/m08/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-exact.sv
 EOF
 sha256sum "$workload" "$rtl" "$manifest" \
   "$bench_dir/constraints/zcu104_317mhz.xdc" >"$out/input_hashes.sha256"

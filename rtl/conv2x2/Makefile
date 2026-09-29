@@ -3,6 +3,7 @@
 
 DATA = data/tcn4/sim/sim-032-3-3-normal/pack_data.sv
 DATA_EXACT = data/tcn4/sim/sim-032-3-3-normal-exact/pack_data.sv
+DATA_TRUNC = data/tcn4/sim/sim-032-3-3-normal-trunc/pack_data.sv
 PARAM = pack-param/tcn4/pack_param.sv
 MUX = mux-mult/tcn4/mux_mult_04.sv
 MATRICES_STD = mult-matrices/tcn4/mult_matrices.sv
@@ -131,17 +132,18 @@ stream08-prefetch8-rowconst4-8mac:
 	$(VERILATOR) --binary --exe --Mdir obj_dir/stream08-prefetch8-rowconst4-8mac \
 	  $(COMMON) $(MATRICES_STREAM) conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4.sv $(TB) --build
 
-# Experimental prefetch8 rowconst variant without weight-transform rounding.
+# Truncated prefetch8 rowconst variant uses its matching truncation golden.
+stream08-prefetch8-rowconst4-trunc-8mac: DATA = $(DATA_TRUNC)
 stream08-prefetch8-rowconst4-trunc-8mac:
 	$(VERILATOR) --binary --exe --Mdir obj_dir/stream08-prefetch8-rowconst4-trunc-8mac \
 	  $(COMMON) $(MATRICES_STREAM) conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc.sv $(TB) --build \
-	  -GNUM_MULT=8 -GALLOW_GOLDEN_MISMATCH=1
+	  -GNUM_MULT=8 -GALLOW_GOLDEN_MISMATCH=$(ALLOW_GOLDEN_MISMATCH)
 
 # Exact-arithmetic prefetch8 variant uses the matching exact-weight golden.
 stream08-prefetch8-rowconst4-exact-8mac: DATA = $(DATA_EXACT)
 stream08-prefetch8-rowconst4-exact-8mac:
 	$(VERILATOR) --binary --exe --Mdir obj_dir/stream08-prefetch8-rowconst4-exact-8mac \
-	  $(COMMON) $(MATRICES_STREAM) conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-exact.sv $(TB) --build \
+	  $(COMMON) $(MATRICES_STREAM) archive/m08/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-exact.sv $(TB) --build \
 	  -GNUM_MULT=8 -GALLOW_GOLDEN_MISMATCH=$(ALLOW_GOLDEN_MISMATCH)
 
 # Column-wide memory interface with the eight-word prefetch grouped into two
@@ -199,8 +201,8 @@ lint:
 	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i20-h16-t08-o4-m08-stream08-prefetch4.sv $(TB)
 	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4.sv $(TB)
 	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4.sv $(TB)
-	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc.sv $(TB)
-	$(VERILATOR) --timing --lint-only $(DATA_EXACT) $(PARAM) $(MEM) ../csa/csa_lib.sv ../multip/multip.sv $(MATRICES_STREAM) conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-exact.sv $(TB)
+	$(VERILATOR) --timing --lint-only $(DATA_TRUNC) $(PARAM) $(MEM) ../csa/csa_lib.sv ../multip/multip.sv $(MATRICES_STREAM) conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc.sv $(TB)
+	$(VERILATOR) --timing --lint-only $(DATA_EXACT) $(PARAM) $(MEM) ../csa/csa_lib.sv ../multip/multip.sv $(MATRICES_STREAM) archive/m08/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-exact.sv $(TB)
 	$(VERILATOR_PREFETCH8_COLUMN_NO_TRACE) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-column.sv $(TB_PREFETCH8_COLUMN)
 	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-latch.sv $(TB)
 	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) archive/m08/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-temporal1.sv $(TB)
