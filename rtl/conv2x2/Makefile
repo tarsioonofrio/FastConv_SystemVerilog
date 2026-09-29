@@ -2,6 +2,7 @@
 # Standard targets share testbench.sv; wide-memory experiments have dedicated testbenches.
 
 DATA = data/tcn4/sim/sim-032-3-3-normal/pack_data.sv
+DATA_EXACT = data/tcn4/sim/sim-032-3-3-normal-exact/pack_data.sv
 PARAM = pack-param/tcn4/pack_param.sv
 MUX = mux-mult/tcn4/mux_mult_04.sv
 MATRICES_STD = mult-matrices/tcn4/mult_matrices.sv
@@ -19,8 +20,9 @@ VERILATOR_PREFETCH8_COLUMN_NO_TRACE = verilator -j 0 -DSIMULATION --top-module t
 
 .PHONY: all std std-column all16 stream04-4mac stream04-8mac stream00-8mac stream08 stream08-wstream4 stream08-wstream4-8mac \
 	stream08-rowconst4-8mac stream08-rowconst4-exact-8mac stream08-rowconst4-exact-pipelined-8mac stream08-prefetch4-8mac stream08-prefetch4-rowconst4-8mac stream08-prefetch8-rowconst4-8mac stream08-prefetch4-rowconst4-latch-8mac stream08-prefetch4-rowconst4-temporal1-8mac stream08-exact-8mac \
-	stream08-prefetch8-rowconst4-column stream08-prefetch8-rowconst4-trunc-8mac run run-std run-std-column run-all16 run-stream04-4mac run-stream00-8mac \
+	stream08-prefetch8-rowconst4-column stream08-prefetch8-rowconst4-trunc-8mac stream08-prefetch8-rowconst4-exact-8mac run run-std run-std-column run-all16 run-stream04-4mac run-stream00-8mac \
 	        run-stream08-prefetch8-rowconst4-column run-stream08-rowconst4-exact-pipelined \
+	        run-stream08-prefetch8-rowconst4-exact \
 	        run-stream08 run-stream08-wstream4 run-stream08-prefetch4 run-stream08-prefetch4-rowconst4 run-stream08-prefetch8-rowconst4 run-stream08-prefetch4-rowconst4-latch run-stream08-prefetch4-rowconst4-temporal1 lint clean
 
 all: std
@@ -135,6 +137,13 @@ stream08-prefetch8-rowconst4-trunc-8mac:
 	  $(COMMON) $(MATRICES_STREAM) conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc.sv $(TB) --build \
 	  -GNUM_MULT=8 -GALLOW_GOLDEN_MISMATCH=1
 
+# Exact-arithmetic prefetch8 variant uses the matching exact-weight golden.
+stream08-prefetch8-rowconst4-exact-8mac: DATA = $(DATA_EXACT)
+stream08-prefetch8-rowconst4-exact-8mac:
+	$(VERILATOR) --binary --exe --Mdir obj_dir/stream08-prefetch8-rowconst4-exact-8mac \
+	  $(COMMON) $(MATRICES_STREAM) conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-exact.sv $(TB) --build \
+	  -GNUM_MULT=8 -GALLOW_GOLDEN_MISMATCH=$(ALLOW_GOLDEN_MISMATCH)
+
 # Column-wide memory interface with the eight-word prefetch grouped into two
 # four-word beats. Uses a dedicated no-waveform testbench.
 stream08-prefetch8-rowconst4-column:
@@ -161,6 +170,8 @@ run-stream08-prefetch8-rowconst4: stream08-prefetch8-rowconst4-8mac
 	obj_dir/stream08-prefetch8-rowconst4-8mac/Vtb
 run-stream08-prefetch8-rowconst4-trunc: stream08-prefetch8-rowconst4-trunc-8mac
 	obj_dir/stream08-prefetch8-rowconst4-trunc-8mac/Vtb
+run-stream08-prefetch8-rowconst4-exact: stream08-prefetch8-rowconst4-exact-8mac
+	obj_dir/stream08-prefetch8-rowconst4-exact-8mac/Vtb
 run-stream08-prefetch8-rowconst4-column: stream08-prefetch8-rowconst4-column
 	obj_dir/stream08-prefetch8-rowconst4-column/Vtb_prefetch8_column
 
@@ -189,6 +200,7 @@ lint:
 	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4.sv $(TB)
 	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4.sv $(TB)
 	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc.sv $(TB)
+	$(VERILATOR) --timing --lint-only $(DATA_EXACT) $(PARAM) $(MEM) ../csa/csa_lib.sv ../multip/multip.sv $(MATRICES_STREAM) conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-exact.sv $(TB)
 	$(VERILATOR_PREFETCH8_COLUMN_NO_TRACE) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-column.sv $(TB_PREFETCH8_COLUMN)
 	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-latch.sv $(TB)
 	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) archive/m08/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-temporal1.sv $(TB)
