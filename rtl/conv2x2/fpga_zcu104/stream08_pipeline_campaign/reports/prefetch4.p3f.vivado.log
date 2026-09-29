@@ -1,0 +1,126 @@
+#-----------------------------------------------------------
+# Vivado v2023.2 (64-bit)
+# SW Build 4029153 on Fri Oct 13 20:13:54 MDT 2023
+# IP Build 4028589 on Sat Oct 14 00:45:43 MDT 2023
+# SharedData Build 4025554 on Tue Oct 10 17:18:54 MDT 2023
+# Start of session at: Mon Sep 28 15:26:28 2026
+# Process ID: 2015644
+# Current directory: /tmp/fastconv-stream08-49e2a22b/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/prefetch4/top
+# Command line: vivado -mode batch -source /tmp/fastconv-stream08-49e2a22b/rtl/conv2x2/fpga_zcu104/column_power_comparison/scripts/power_p3f.tcl -log /tmp/fastconv-stream08-49e2a22b/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/prefetch4.p3f.vivado.log -journal /tmp/fastconv-stream08-49e2a22b/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/prefetch4.p3f.vivado.jou -tclargs /tmp/fastconv-stream08-49e2a22b/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign prefetch4 /tmp/fastconv-stream08-49e2a22b/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/prefetch4/dut/activity_dut.saif /tmp/fastconv-stream08-49e2a22b/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/prefetch4/top/activity_top.saif
+# Log file: /tmp/fastconv-stream08-49e2a22b/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/prefetch4.p3f.vivado.log
+# Journal file: /tmp/fastconv-stream08-49e2a22b/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/prefetch4.p3f.vivado.jou
+# Running On: paxos.inf.pucrs.br, OS: Linux, CPU Frequency: 3100.000 MHz, CPU Physical cores: 14, Host memory: 134319 MB
+#-----------------------------------------------------------
+source /tmp/fastconv-stream08-49e2a22b/rtl/conv2x2/fpga_zcu104/column_power_comparison/scripts/power_p3f.tcl
+# if {$argc != 4} { error "usage: power_p3f.tcl <bench-dir> <run> <dut-saif> <top-saif>" }
+# set bench_dir [file normalize [lindex $argv 0]]
+# set run_name [lindex $argv 1]
+# set dut_saif [file normalize [lindex $argv 2]]
+# set top_saif [file normalize [lindex $argv 3]]
+# set run_dir [file join $bench_dir reports $run_name]
+# foreach corner {typical maximum} {
+#   open_checkpoint [file join $run_dir design_routed.dcp]
+#   reset_switching_activity -all
+#   read_saif -strip_path tb_power/dut -out_file [file join $run_dir p3f_mapping_internal_${corner}.rpt] $dut_saif
+#   read_saif -strip_path tb_power -out_file [file join $run_dir p3f_mapping_ports_${corner}.rpt] $top_saif
+#   reset_operating_conditions
+#   set_operating_conditions -process $corner -ambient_temp 25
+#   report_operating_conditions -file [file join $run_dir operating_conditions_p3f_${corner}.rpt]
+#   report_power -hier all -file [file join $run_dir power_p3f_${corner}.rpt]
+#   close_design
+# }
+Command: open_checkpoint /tmp/fastconv-stream08-49e2a22b/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/prefetch4/design_routed.dcp
+
+Starting open_checkpoint Task
+
+Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.02 . Memory (MB): peak = 1360.066 ; gain = 0.000 ; free physical = 45070 ; free virtual = 126220
+INFO: [Device 21-403] Loading part xczu7ev-ffvc1156-2-e
+Netlist sorting complete. Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.01 . Memory (MB): peak = 2417.145 ; gain = 0.000 ; free physical = 44020 ; free virtual = 125171
+INFO: [Netlist 29-17] Analyzing 229 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-479] Netlist was created with Vivado 2023.2
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Read ShapeDB Complete: Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00.01 . Memory (MB): peak = 2417.145 ; gain = 0.000 ; free physical = 44021 ; free virtual = 125171
+INFO: [Timing 38-478] Restoring timing data from binary archive.
+INFO: [Timing 38-479] Binary timing data restore complete.
+INFO: [Project 1-856] Restoring constraints from binary archive.
+INFO: [Project 1-853] Binary constraint restore complete.
+INFO: [Designutils 20-5722] Start Reading Physical Databases.
+Reading placement.
+Read Netlist Cache: Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00 . Memory (MB): peak = 2844.223 ; gain = 0.000 ; free physical = 43762 ; free virtual = 124912
+Reading placer database...
+Read Device Cache: Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.03 . Memory (MB): peak = 2844.223 ; gain = 0.000 ; free physical = 43756 ; free virtual = 124907
+Read PlaceDB: Time (s): cpu = 00:00:00.11 ; elapsed = 00:00:00.11 . Memory (MB): peak = 2844.223 ; gain = 0.000 ; free physical = 43754 ; free virtual = 124905
+Read PulsedLatchDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2844.223 ; gain = 0.000 ; free physical = 43754 ; free virtual = 124905
+Reading routing.
+Read RouteStorage: Time (s): cpu = 00:00:00.07 ; elapsed = 00:00:00.07 . Memory (MB): peak = 2860.098 ; gain = 15.875 ; free physical = 43753 ; free virtual = 124903
+Read Physdb Files: Time (s): cpu = 00:00:00.21 ; elapsed = 00:00:00.21 . Memory (MB): peak = 2860.098 ; gain = 15.875 ; free physical = 43753 ; free virtual = 124903
+Restored from archive | CPU: 0.250000 secs | Memory: 5.822472 MB |
+Finished XDEF File Restore: Time (s): cpu = 00:00:00.25 ; elapsed = 00:00:00.24 . Memory (MB): peak = 2860.098 ; gain = 15.875 ; free physical = 43753 ; free virtual = 124903
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 3249.348 ; gain = 0.000 ; free physical = 43347 ; free virtual = 124498
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 53 instances were transformed.
+  DSP48E2 => DSP48E2 (DSP_ALU, DSP_A_B_DATA, DSP_C_DATA, DSP_MULTIPLIER, DSP_M_DATA, DSP_OUTPUT, DSP_PREADD, DSP_PREADD_DATA): 8 instances
+  IBUF => IBUF (IBUFCTRL, INBUF): 45 instances
+
+INFO: [Project 1-604] Checkpoint was created with Vivado v2023.2 (64-bit) build 4029153
+open_checkpoint: Time (s): cpu = 00:00:20 ; elapsed = 00:00:21 . Memory (MB): peak = 3249.383 ; gain = 1889.316 ; free physical = 43347 ; free virtual = 124498
+INFO: [Power 33-167] Parsing SAIF file /tmp/fastconv-stream08-49e2a22b/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/prefetch4/dut/activity_dut.saif
+WARNING: [Power 33-330] Read_saif is trying to annotate activities on clock net and this will be ignored. Users shall manually specify clock net frequency using sdc timing constraints(e.g. create_clock)
+INFO: [Power 33-177] SAIF annotation done from file /tmp/fastconv-stream08-49e2a22b/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/prefetch4/dut/activity_dut.saif
+INFO: [Power 33-26] Design nets matched = 5335 of 5435
+INFO: [Power 33-167] Parsing SAIF file /tmp/fastconv-stream08-49e2a22b/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/prefetch4/top/activity_top.saif
+WARNING: [Power 33-330] Read_saif is trying to annotate activities on clock net and this will be ignored. Users shall manually specify clock net frequency using sdc timing constraints(e.g. create_clock)
+INFO: [Power 33-177] SAIF annotation done from file /tmp/fastconv-stream08-49e2a22b/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/prefetch4/top/activity_top.saif
+INFO: [Power 33-26] Design nets matched = 5435 of 5435
+Command: report_power -hier all -file /tmp/fastconv-stream08-49e2a22b/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/prefetch4/power_p3f_typical.rpt
+18 Infos, 2 Warnings, 0 Critical Warnings and 0 Errors encountered.
+report_power completed successfully
+report_power: Time (s): cpu = 00:00:10 ; elapsed = 00:00:07 . Memory (MB): peak = 3607.676 ; gain = 177.191 ; free physical = 43186 ; free virtual = 124347
+Command: open_checkpoint /tmp/fastconv-stream08-49e2a22b/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/prefetch4/design_routed.dcp
+
+Starting open_checkpoint Task
+
+Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 3607.676 ; gain = 0.000 ; free physical = 43187 ; free virtual = 124348
+Netlist sorting complete. Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00.01 . Memory (MB): peak = 3607.676 ; gain = 0.000 ; free physical = 43187 ; free virtual = 124348
+INFO: [Netlist 29-17] Analyzing 229 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-479] Netlist was created with Vivado 2023.2
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Read ShapeDB Complete: Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00.01 . Memory (MB): peak = 3607.676 ; gain = 0.000 ; free physical = 43186 ; free virtual = 124348
+INFO: [Timing 38-478] Restoring timing data from binary archive.
+INFO: [Timing 38-479] Binary timing data restore complete.
+INFO: [Project 1-856] Restoring constraints from binary archive.
+INFO: [Project 1-853] Binary constraint restore complete.
+INFO: [Designutils 20-5722] Start Reading Physical Databases.
+Reading placement.
+Read Netlist Cache: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.01 . Memory (MB): peak = 3607.676 ; gain = 0.000 ; free physical = 43172 ; free virtual = 124333
+Reading placer database...
+Read Device Cache: Time (s): cpu = 00:00:00.03 ; elapsed = 00:00:00.03 . Memory (MB): peak = 3607.676 ; gain = 0.000 ; free physical = 43172 ; free virtual = 124333
+Read PlaceDB: Time (s): cpu = 00:00:00.11 ; elapsed = 00:00:00.11 . Memory (MB): peak = 3607.676 ; gain = 0.000 ; free physical = 43172 ; free virtual = 124333
+Read PulsedLatchDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 3607.676 ; gain = 0.000 ; free physical = 43172 ; free virtual = 124333
+Reading routing.
+Read RouteStorage: Time (s): cpu = 00:00:00.07 ; elapsed = 00:00:00.07 . Memory (MB): peak = 3607.676 ; gain = 0.000 ; free physical = 43172 ; free virtual = 124333
+Read Physdb Files: Time (s): cpu = 00:00:00.21 ; elapsed = 00:00:00.22 . Memory (MB): peak = 3607.676 ; gain = 0.000 ; free physical = 43172 ; free virtual = 124333
+Restored from archive | CPU: 0.210000 secs | Memory: 4.762093 MB |
+Finished XDEF File Restore: Time (s): cpu = 00:00:00.21 ; elapsed = 00:00:00.22 . Memory (MB): peak = 3607.676 ; gain = 0.000 ; free physical = 43172 ; free virtual = 124333
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 3607.676 ; gain = 0.000 ; free physical = 43172 ; free virtual = 124333
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 53 instances were transformed.
+  DSP48E2 => DSP48E2 (DSP_ALU, DSP_A_B_DATA, DSP_C_DATA, DSP_MULTIPLIER, DSP_M_DATA, DSP_OUTPUT, DSP_PREADD, DSP_PREADD_DATA): 8 instances
+  IBUF => IBUF (IBUFCTRL, INBUF): 45 instances
+
+INFO: [Project 1-604] Checkpoint was created with Vivado v2023.2 (64-bit) build 4029153
+INFO: [Power 33-167] Parsing SAIF file /tmp/fastconv-stream08-49e2a22b/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/prefetch4/dut/activity_dut.saif
+WARNING: [Power 33-330] Read_saif is trying to annotate activities on clock net and this will be ignored. Users shall manually specify clock net frequency using sdc timing constraints(e.g. create_clock)
+INFO: [Power 33-177] SAIF annotation done from file /tmp/fastconv-stream08-49e2a22b/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/prefetch4/dut/activity_dut.saif
+INFO: [Power 33-26] Design nets matched = 5335 of 5435
+INFO: [Power 33-167] Parsing SAIF file /tmp/fastconv-stream08-49e2a22b/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/prefetch4/top/activity_top.saif
+WARNING: [Power 33-330] Read_saif is trying to annotate activities on clock net and this will be ignored. Users shall manually specify clock net frequency using sdc timing constraints(e.g. create_clock)
+INFO: [Power 33-177] SAIF annotation done from file /tmp/fastconv-stream08-49e2a22b/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/prefetch4/top/activity_top.saif
+INFO: [Power 33-26] Design nets matched = 5435 of 5435
+Command: report_power -hier all -file /tmp/fastconv-stream08-49e2a22b/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/prefetch4/power_p3f_maximum.rpt
+17 Infos, 2 Warnings, 0 Critical Warnings and 0 Errors encountered.
+report_power completed successfully
+# exit
+INFO: [Common 17-206] Exiting Vivado at Mon Sep 28 15:27:11 2026...

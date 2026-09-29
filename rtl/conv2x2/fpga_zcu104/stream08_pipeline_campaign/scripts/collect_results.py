@@ -67,10 +67,19 @@ def collect(bench: Path, name: str) -> dict:
     p3_max = parse_power(root / "power_p3f_maximum.rpt")
     gops = OPS_PER_JOB * FREQ_MHZ / (cycles * 1000.0)
     job_s = cycles / (FREQ_MHZ * 1e6)
+    critical = re.search(
+        r"Slack \((?:VIOLATED|MET)\).*?\n\s*Source:\s*(.*?)\n\s*Destination:\s*(.*?)\n"
+        r".*?Data Path Delay:\s*([0-9.]+)ns.*?\n\s*Logic Levels:\s*([0-9]+)",
+        timing, re.S,
+    )
     return {
         "variant": name, "dsp": int(cells[10]), "lut": int(cells[2]), "ff": int(cells[6]),
         "ramb36": int(cells[7]), "ramb18": int(cells[8]), "wns_ns": float(match.group(1)),
         "tns_ns": float(match.group(2)), "timing_pass_317mhz": float(match.group(1)) >= 0 and float(match.group(2)) >= 0,
+        "critical_source": critical.group(1).strip().splitlines()[0].strip() if critical else "not parsed",
+        "critical_destination": critical.group(2).strip().splitlines()[0].strip() if critical else "not parsed",
+        "critical_data_path_ns": float(critical.group(3)) if critical else 0.0,
+        "critical_logic_levels": int(critical.group(4)) if critical else 0,
         "writes": writes, "final_words": output_words, "mismatches": mismatches, "active_cycles": cycles,
         "active_job_gops_at_317": gops, "active_job_us_at_317": job_s * 1e6,
         "p0_typical": p0_typ, "p0_maximum": p0_max, "p3f_typical": p3_typ, "p3f_maximum": p3_max,
@@ -87,6 +96,7 @@ def main() -> None:
     bench = parser.parse_args().bench_dir.resolve()
     records = [collect(bench, name) for name in RUNS]
     fields = ["variant", "DSP", "LUT", "FF", "RAMB36", "RAMB18", "WNS_ns", "TNS_ns", "timing_pass_317MHz",
+              "critical_source", "critical_destination", "critical_data_path_ns", "critical_logic_levels",
               "output_writes", "final_words", "mismatches", "active_cycles", "active_job_GOPS_at_317",
               "P0_typ_dynamic_W", "P0_typ_static_W", "P0_typ_total_W", "P0_max_dynamic_W", "P0_max_static_W", "P0_max_total_W",
               "P3F_typ_dynamic_W", "P3F_typ_static_W", "P3F_typ_total_W", "P3F_typ_dynamic_energy_uJ", "P3F_typ_total_energy_uJ",
@@ -102,6 +112,8 @@ def main() -> None:
             writer.writerow({
                 "variant": item["variant"], "DSP": item["dsp"], "LUT": item["lut"], "FF": item["ff"],
                 "RAMB36": item["ramb36"], "RAMB18": item["ramb18"], "WNS_ns": item["wns_ns"], "TNS_ns": item["tns_ns"],
+                "critical_source": item["critical_source"], "critical_destination": item["critical_destination"],
+                "critical_data_path_ns": item["critical_data_path_ns"], "critical_logic_levels": item["critical_logic_levels"],
                 "timing_pass_317MHz": item["timing_pass_317mhz"], "output_writes": item["writes"],
                 "final_words": item["final_words"], "mismatches": item["mismatches"], "active_cycles": item["active_cycles"],
                 "active_job_GOPS_at_317": item["active_job_gops_at_317"],
@@ -121,7 +133,10 @@ def main() -> None:
         "# FPGA power results: registered-pipeline stream08 variants", "",
         "ZCU104 / XCZU7EV, Vivado 2023.2, 317 MHz constraint, canonical 32x32, Cin=3, Cout=3, 3x3 workload.",
         "Power is a Vivado estimate, not a physical board measurement. P0 is post-route vectorless; P3F is post-route functional Xcelium SAIF without SDF.",
-        "Rows with negative WNS did not close timing at 317 MHz; throughput/energy at the common target are not achieved operating-point results.", "",
+        "Rows with negative WNS did not close timing at 317 MHz; throughput/energy at the common target are not achieved operating-point results.",
+        "The XDC requested 3.154574 ns, which Vivado rounded to 3.155 ns at 1 ps resolution (316.957 MHz). `prefetch4` is the only timing PASS and has only 0.003 ns slack, so it has effectively no timing margin.",
+        "The reported WNS is for the clocked internal paths; no input/output delay model was supplied for the external ports, so this is not an interface timing certification.",
+        "The worst path in `rowconst4`, `wstream4`, `prefetch4-rowconst4`, and `prefetch8-rowconst4` runs from `r_weight_spatial` to `r_input_weight` through the combinational weight transform (16–17 logic levels). `prefetch4` instead has a 10-level path from `r_input_weight` through the multiply/inverse datapath to `r_inverse_partial_current`.", "",
         "| Variant | DSP | LUT | FF | WNS ns | 317 MHz | Cycles | Active GOPS | P0 typ D/S/T W | P3F typ D/S/T W | P3F SAIF | P3F max D/S/T W |",
         "|---|---:|---:|---:|---:|:---:|---:|---:|---:|---:|---:|---:|",
     ]
@@ -132,6 +147,12 @@ def main() -> None:
     lines += ["", "P3F typical category breakdown (W):", "", "| Variant | Clock | CLB logic | Signals | DSP | BRAM | I/O |", "|---|---:|---:|---:|---:|---:|---:|"]
     for x in records:
         p = x["p3f_typical"]; lines.append(f"| {x['variant']} | {p['clock_w']:.3f} | {p['logic_w']:.3f} | {p['signals_w']:.3f} | {p['dsp_w']:.3f} | {p['bram_w']:.3f} | {p['io_w']:.3f} |")
+    lines += ["", "Active-job energy and power-normalized throughput at the common 317 MHz point (estimates; not achieved operating metrics when WNS is negative):", "", "| Variant | Dynamic energy/job (uJ) | Total energy/job (uJ) | Dynamic GOPS/W | Total GOPS/W |", "|---|---:|---:|---:|---:|"]
+    for x in records:
+        lines.append(f"| {x['variant']} | {x['p3f_dynamic_energy_uj']:.3f} | {x['p3f_total_energy_uj']:.3f} | {x['p3f_dynamic_gops_per_w']:.3f} | {x['p3f_total_gops_per_w']:.3f} |")
+    lines += ["", "Worst post-route max-delay path at the 317 MHz constraint:", "", "| Variant | Source register | Destination register | Data path delay (ns) | Logic levels |", "|---|---|---|---:|---:|"]
+    for x in records:
+        lines.append(f"| {x['variant']} | `{x['critical_source']}` | `{x['critical_destination']}` | {x['critical_data_path_ns']:.3f} | {x['critical_logic_levels']} |")
     (bench / "comparison.md").write_text("\n".join(lines) + "\n")
 
 

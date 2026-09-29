@@ -655,10 +655,14 @@ module Conv
           // cycle still uses r_input_weight; the new row is consumed only
           // after this clock edge.
           if (r_conv_multiply_count < $bits(r_conv_multiply_count)'(STREAM_CYCLES - 1)) begin
-            r_input_weight[0] <= w_weight_row2[0]; r_input_weight[1] <= w_weight_row2[1];
-            r_input_weight[2] <= w_weight_row2[2]; r_input_weight[3] <= w_weight_row2[3];
-            r_input_weight[4] <= w_weight_row3[0]; r_input_weight[5] <= w_weight_row3[1];
-            r_input_weight[6] <= w_weight_row3[2]; r_input_weight[7] <= w_weight_row3[3];
+            r_input_weight[0] <= w_weight_row2[0];
+            r_input_weight[1] <= w_weight_row2[1];
+            r_input_weight[2] <= w_weight_row2[2];
+            r_input_weight[3] <= w_weight_row2[3];
+            r_input_weight[4] <= w_weight_row3[0];
+            r_input_weight[5] <= w_weight_row3[1];
+            r_input_weight[6] <= w_weight_row3[2];
+            r_input_weight[7] <= w_weight_row3[3];
           end
           r_inverse_partial_current <= w_inverse_partial_current;
           r_inverse_partial_lane1 <= w_inverse_partial_lane1;
@@ -1022,13 +1026,31 @@ module WeightTransformRowConst #(
   logic signed [TRANSFORM_WIDTH-1:0] remainder [0:3];
 
   always_comb begin: WEIGHT_TRANSFORM_ROW_CONST_BLOCK
-    weight[0] = '0; weight[1] = '0; weight[2] = '0;
-    weight[3] = '0; weight[4] = '0; weight[5] = '0;
-    weight[6] = '0; weight[7] = '0; weight[8] = '0;
-    sum[0] = '0; sum[1] = '0; sum[2] = '0; sum[3] = '0;
-    rounded[0] = '0; rounded[1] = '0; rounded[2] = '0; rounded[3] = '0;
-    remainder[0] = '0; remainder[1] = '0; remainder[2] = '0; remainder[3] = '0;
-    pout[0] = '0; pout[1] = '0; pout[2] = '0; pout[3] = '0;
+    weight[0] = '0;
+    weight[1] = '0;
+    weight[2] = '0;
+    weight[3] = '0;
+    weight[4] = '0;
+    weight[5] = '0;
+    weight[6] = '0;
+    weight[7] = '0;
+    weight[8] = '0;
+    sum[0] = '0;
+    sum[1] = '0;
+    sum[2] = '0;
+    sum[3] = '0;
+    rounded[0] = '0;
+    rounded[1] = '0;
+    rounded[2] = '0;
+    rounded[3] = '0;
+    remainder[0] = '0;
+    remainder[1] = '0;
+    remainder[2] = '0;
+    remainder[3] = '0;
+    pout[0] = '0;
+    pout[1] = '0;
+    pout[2] = '0;
+    pout[3] = '0;
 
     if (enable) begin
       // Sign-extend before arithmetic so additions do not overflow at NBITS.

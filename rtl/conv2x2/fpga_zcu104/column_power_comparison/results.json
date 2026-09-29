@@ -1,0 +1,378 @@
+[
+  {
+    "run": "std_scalar",
+    "pair": "std",
+    "interface": "scalar",
+    "utilization": {
+      "lut": 2087,
+      "ff": 1266,
+      "ramb36": 0,
+      "ramb18": 0,
+      "uram": 0,
+      "dsp": 8
+    },
+    "user_io": 101,
+    "timing": {
+      "wns_ns": 0.221,
+      "tns_ns": 0.0,
+      "meets_317_mhz": true
+    },
+    "p0_vectorless_typical": {
+      "total_w": 0.844,
+      "dynamic_w": 0.251,
+      "static_w": 0.593,
+      "confidence": "Low",
+      "coverage": null,
+      "categories_w": {
+        "clock": 0.012,
+        "clb_logic": 0.03,
+        "signals": 0.032,
+        "dsp": 0.009,
+        "bram": 0.0,
+        "io": 0.169
+      }
+    },
+    "p0_vectorless_maximum": {
+      "total_w": 1.065,
+      "dynamic_w": 0.251,
+      "static_w": 0.814,
+      "confidence": "Low",
+      "coverage": null,
+      "categories_w": {
+        "clock": 0.012,
+        "clb_logic": 0.03,
+        "signals": 0.032,
+        "dsp": 0.009,
+        "bram": 0.0,
+        "io": 0.169
+      }
+    },
+    "p3f_typical": {
+      "total_w": 0.874,
+      "dynamic_w": 0.281,
+      "static_w": 0.593,
+      "confidence": "High",
+      "coverage": {
+        "matched": 5442,
+        "total": 5442
+      },
+      "categories_w": {
+        "clock": 0.01,
+        "clb_logic": 0.034,
+        "signals": 0.046,
+        "dsp": 0.01,
+        "bram": 0.0,
+        "io": 0.182
+      }
+    },
+    "p3f_maximum": {
+      "total_w": 1.095,
+      "dynamic_w": 0.281,
+      "static_w": 0.814,
+      "confidence": "High",
+      "coverage": {
+        "matched": 5442,
+        "total": 5442
+      },
+      "categories_w": {
+        "clock": 0.01,
+        "clb_logic": 0.034,
+        "signals": 0.046,
+        "dsp": 0.01,
+        "bram": 0.0,
+        "io": 0.182
+      }
+    },
+    "mapping_report_lines": 147097,
+    "workload": {
+      "writes": 8100,
+      "final_words": 2700,
+      "mismatches": 0,
+      "active_cycles": 23648,
+      "active_job_gops": 1.9544401217861975,
+      "active_job_us": 74.59936908517349
+    }
+  },
+  {
+    "run": "std_column",
+    "pair": "std",
+    "interface": "column",
+    "utilization": {
+      "lut": 2143,
+      "ff": 1263,
+      "ramb36": 0,
+      "ramb18": 0,
+      "uram": 0,
+      "dsp": 8
+    },
+    "user_io": 201,
+    "timing": {
+      "wns_ns": 0.166,
+      "tns_ns": 0.0,
+      "meets_317_mhz": true
+    },
+    "p0_vectorless_typical": {
+      "total_w": 0.925,
+      "dynamic_w": 0.332,
+      "static_w": 0.593,
+      "confidence": "Low",
+      "coverage": null,
+      "categories_w": {
+        "clock": 0.014,
+        "clb_logic": 0.031,
+        "signals": 0.04,
+        "dsp": 0.01,
+        "bram": 0.0,
+        "io": 0.237
+      }
+    },
+    "p0_vectorless_maximum": {
+      "total_w": 1.146,
+      "dynamic_w": 0.332,
+      "static_w": 0.815,
+      "confidence": "Low",
+      "coverage": null,
+      "categories_w": {
+        "clock": 0.014,
+        "clb_logic": 0.031,
+        "signals": 0.04,
+        "dsp": 0.01,
+        "bram": 0.0,
+        "io": 0.237
+      }
+    },
+    "p3f_typical": {
+      "total_w": 1.046,
+      "dynamic_w": 0.452,
+      "static_w": 0.594,
+      "confidence": "High",
+      "coverage": {
+        "matched": 5680,
+        "total": 5680
+      },
+      "categories_w": {
+        "clock": 0.014,
+        "clb_logic": 0.054,
+        "signals": 0.082,
+        "dsp": 0.015,
+        "bram": 0.0,
+        "io": 0.287
+      }
+    },
+    "p3f_maximum": {
+      "total_w": 1.269,
+      "dynamic_w": 0.452,
+      "static_w": 0.817,
+      "confidence": "High",
+      "coverage": {
+        "matched": 5680,
+        "total": 5680
+      },
+      "categories_w": {
+        "clock": 0.014,
+        "clb_logic": 0.054,
+        "signals": 0.082,
+        "dsp": 0.015,
+        "bram": 0.0,
+        "io": 0.287
+      }
+    },
+    "mapping_report_lines": 157057,
+    "workload": {
+      "writes": 8100,
+      "final_words": 2700,
+      "mismatches": 0,
+      "active_cycles": 10578,
+      "active_job_gops": 4.369313669880885,
+      "active_job_us": 33.36908517350158
+    }
+  },
+  {
+    "run": "prefetch8_scalar",
+    "pair": "prefetch8-rowconst4",
+    "interface": "scalar",
+    "utilization": {
+      "lut": 4503,
+      "ff": 1244,
+      "ramb36": 0,
+      "ramb18": 0,
+      "uram": 0,
+      "dsp": 8
+    },
+    "user_io": 101,
+    "timing": {
+      "wns_ns": -2.322,
+      "tns_ns": -345.31,
+      "meets_317_mhz": false
+    },
+    "p0_vectorless_typical": {
+      "total_w": 0.729,
+      "dynamic_w": 0.137,
+      "static_w": 0.592,
+      "confidence": "Low",
+      "coverage": null,
+      "categories_w": {
+        "clock": 0.014,
+        "clb_logic": 0.027,
+        "signals": 0.032,
+        "dsp": 0.006,
+        "bram": 0.0,
+        "io": 0.058
+      }
+    },
+    "p0_vectorless_maximum": {
+      "total_w": 0.949,
+      "dynamic_w": 0.137,
+      "static_w": 0.812,
+      "confidence": "Low",
+      "coverage": null,
+      "categories_w": {
+        "clock": 0.014,
+        "clb_logic": 0.027,
+        "signals": 0.032,
+        "dsp": 0.006,
+        "bram": 0.0,
+        "io": 0.058
+      }
+    },
+    "p3f_typical": {
+      "total_w": 0.839,
+      "dynamic_w": 0.246,
+      "static_w": 0.593,
+      "confidence": "High",
+      "coverage": {
+        "matched": 9676,
+        "total": 9676
+      },
+      "categories_w": {
+        "clock": 0.015,
+        "clb_logic": 0.042,
+        "signals": 0.062,
+        "dsp": 0.009,
+        "bram": 0.0,
+        "io": 0.118
+      }
+    },
+    "p3f_maximum": {
+      "total_w": 1.059,
+      "dynamic_w": 0.246,
+      "static_w": 0.814,
+      "confidence": "High",
+      "coverage": {
+        "matched": 9676,
+        "total": 9676
+      },
+      "categories_w": {
+        "clock": 0.015,
+        "clb_logic": 0.042,
+        "signals": 0.062,
+        "dsp": 0.009,
+        "bram": 0.0,
+        "io": 0.118
+      }
+    },
+    "mapping_report_lines": 271745,
+    "workload": {
+      "writes": 8100,
+      "final_words": 2700,
+      "mismatches": 0,
+      "active_cycles": 21865,
+      "active_job_gops": 2.1138166018751425,
+      "active_job_us": 68.97476340694006
+    }
+  },
+  {
+    "run": "prefetch8_column",
+    "pair": "prefetch8-rowconst4",
+    "interface": "column",
+    "utilization": {
+      "lut": 4719,
+      "ff": 1247,
+      "ramb36": 0,
+      "ramb18": 0,
+      "uram": 0,
+      "dsp": 8
+    },
+    "user_io": 201,
+    "timing": {
+      "wns_ns": -2.242,
+      "tns_ns": -339.441,
+      "meets_317_mhz": false
+    },
+    "p0_vectorless_typical": {
+      "total_w": 0.908,
+      "dynamic_w": 0.314,
+      "static_w": 0.593,
+      "confidence": "Low",
+      "coverage": null,
+      "categories_w": {
+        "clock": 0.015,
+        "clb_logic": 0.044,
+        "signals": 0.055,
+        "dsp": 0.008,
+        "bram": 0.0,
+        "io": 0.193
+      }
+    },
+    "p0_vectorless_maximum": {
+      "total_w": 1.129,
+      "dynamic_w": 0.314,
+      "static_w": 0.815,
+      "confidence": "Low",
+      "coverage": null,
+      "categories_w": {
+        "clock": 0.015,
+        "clb_logic": 0.044,
+        "signals": 0.055,
+        "dsp": 0.008,
+        "bram": 0.0,
+        "io": 0.193
+      }
+    },
+    "p3f_typical": {
+      "total_w": 1.132,
+      "dynamic_w": 0.537,
+      "static_w": 0.595,
+      "confidence": "High",
+      "coverage": {
+        "matched": 10115,
+        "total": 10115
+      },
+      "categories_w": {
+        "clock": 0.015,
+        "clb_logic": 0.063,
+        "signals": 0.092,
+        "dsp": 0.013,
+        "bram": 0.0,
+        "io": 0.354
+      }
+    },
+    "p3f_maximum": {
+      "total_w": 1.355,
+      "dynamic_w": 0.537,
+      "static_w": 0.818,
+      "confidence": "High",
+      "coverage": {
+        "matched": 10115,
+        "total": 10115
+      },
+      "categories_w": {
+        "clock": 0.015,
+        "clb_logic": 0.063,
+        "signals": 0.092,
+        "dsp": 0.013,
+        "bram": 0.0,
+        "io": 0.354
+      }
+    },
+    "mapping_report_lines": 287922,
+    "workload": {
+      "writes": 8100,
+      "final_words": 2700,
+      "mismatches": 0,
+      "active_cycles": 10730,
+      "active_job_gops": 4.3074184529356945,
+      "active_job_us": 33.84858044164038
+    }
+  }
+]

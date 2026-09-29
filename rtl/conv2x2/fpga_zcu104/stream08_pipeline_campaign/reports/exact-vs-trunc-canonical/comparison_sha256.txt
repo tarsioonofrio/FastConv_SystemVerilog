@@ -1,0 +1,13 @@
+3ced5c4527374898e1f8d65c275403e1366e2bb09f466542915656b263356da0  /tmp/fastconv-exact-trunc.syAEwG/checkout/rtl/conv2x2/data/tcn4/sim/sim-032-3-3-normal/pack_data.sv
+e3e75bd666d0cda56aa5d206a325c82cc9d32632063595db8d311b2ef6ffbab2  /tmp/fastconv-exact-trunc.syAEwG/checkout/rtl/conv2x2/archive/m08/conv-i16-h13-t08-o4-m08-stream08-rowconst4-exact.sv
+b03f343866e775579d4effb12cac0e62966d06037e8c8a2898cec6711e2a9560  /tmp/fastconv-exact-trunc.syAEwG/checkout/rtl/conv2x2/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc.sv
+
+Campaign artifact hashes (paths relative to this directory):
+88f9cca5e25fff2eab02c27655e76cb892608855b91497d5b0290f7a5a154878  exact/design_routed.dcp
+8a2fc9abb66e94e96c509c91994b8a7c7a694570b9bb93a78c3da9a1fc2e64ad  exact/design_routed_funcsim.v
+819b56a835fb601c4a99bda0e08e703fce45ccd18c10165eaa7a5ef09e33b394  exact/top/activity_top.saif
+a17d954f6964eca766a3f69b73723aaa0a72a3e8bf668f10b2f9077bc22ddfe2  exact/dut/activity_dut.saif
+d4364ed31fb0f5d99dd133dcb9407359d8de31ff41f8af1c47a32de0d57bc453  trunc/design_routed.dcp
+d275b67995fe64cfdc9e8f65e9ab48635e0512cb062c5d85b8eac9f77f743ea2  trunc/design_routed_funcsim.v
+0a279b28b285255aa63fc142288e5f5ad4a0c57ba15da3e21d9e5f6d438e48a5  trunc/top/activity_top.saif
+c9659a4314ea9ad9ca33d2542dabd0d624a0d2c4351adeec5cc8dff9cb050cf1  trunc/dut/activity_dut.saif

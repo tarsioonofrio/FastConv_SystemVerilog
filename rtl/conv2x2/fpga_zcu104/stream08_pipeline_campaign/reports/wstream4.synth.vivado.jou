@@ -1,0 +1,14 @@
+#-----------------------------------------------------------
+# Vivado v2023.2 (64-bit)
+# SW Build 4029153 on Fri Oct 13 20:13:54 MDT 2023
+# IP Build 4028589 on Sat Oct 14 00:45:43 MDT 2023
+# SharedData Build 4025554 on Tue Oct 10 17:18:54 MDT 2023
+# Start of session at: Mon Sep 28 15:06:31 2026
+# Process ID: 1825136
+# Current directory: /tmp/fastconv-stream08-49e2a22b/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/rowconst4/top
+# Command line: vivado -mode batch -source /tmp/fastconv-stream08-49e2a22b/rtl/conv2x2/fpga_zcu104/column_power_comparison/scripts/synth_impl.tcl -log /tmp/fastconv-stream08-49e2a22b/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/wstream4.synth.vivado.log -journal /tmp/fastconv-stream08-49e2a22b/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/wstream4.synth.vivado.jou -tclargs /tmp/fastconv-stream08-49e2a22b/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign /tmp/fastconv-stream08-49e2a22b wstream4 /tmp/fastconv-stream08-49e2a22b/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/manifests/wstream4.txt
+# Log file: /tmp/fastconv-stream08-49e2a22b/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/wstream4.synth.vivado.log
+# Journal file: /tmp/fastconv-stream08-49e2a22b/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/wstream4.synth.vivado.jou
+# Running On: paxos.inf.pucrs.br, OS: Linux, CPU Frequency: 3100.000 MHz, CPU Physical cores: 14, Host memory: 134319 MB
+#-----------------------------------------------------------
+source /tmp/fastconv-stream08-49e2a22b/rtl/conv2x2/fpga_zcu104/column_power_comparison/scripts/synth_impl.tcl

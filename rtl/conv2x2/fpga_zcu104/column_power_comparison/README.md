@@ -47,3 +47,27 @@ The comparison table must report each scalar/column pair side-by-side, with
 LUT, FF, DSP, BRAM, WNS, dynamic/static/total power for both P0 vectorless and
 P3F functional-SAIF, plus SAIF mapping coverage and active-job cycles. Keep
 the distinction between estimated power and physical board measurement.
+
+## Results
+
+The four-run campaign was executed on Paxos from commit
+`ced7840ba8faf8353ed1675742294411ebd3dc44` using Vivado 2023.2 and Xcelium
+23.03-s003. All four post-route functional simulations passed the canonical
+golden check (8,100 output writes, 2,700 final words, zero mismatches), and
+all four P3F SAIF imports matched every net reported by Vivado. The complete
+pairwise table and category breakdown are in [comparison.md](comparison.md);
+machine-readable values are in [results.csv](results.csv) and
+[results.json](results.json). The checkpoints, netlists, SAIFs, reports and
+logs are retained in `reports/`; compiled simulator libraries and transient
+Xcelium databases are excluded.
+
+Important interpretation: the four designs are constrained to 317 MHz, but
+the two `prefetch8-rowconst4` implementations fail timing there (post-route
+WNS is about -2.3 ns). Their GOPS and energy/job at 317 MHz are common-point
+estimates, not achievable 317 MHz operating results. Also, `report_io` lists
+101 user-I/O bits for each scalar top and 201 for each column top; these ports
+are marked `UNFIXED` in `report_io`. P3F includes Vivado-estimated I/O power
+at this top-level boundary with inferred defaults, not a board pinout/load
+model. The I/O category is shown separately, so scalar/column power
+differences must not be attributed solely to datapath switching. No VCD/FST
+was generated.

@@ -1,0 +1,10 @@
+commit=a37f1df2ec065b408ba3915d028628f193746f59
+host=paxos.inf.pucrs.br
+vivado=vivado v2023.2 (64-bit)
+xrun=TOOL:	xrun(64)	23.03-s003
+part=xczu7ev-ffvc1156-2-e
+clock_target_mhz=317
+workload=rtl/conv2x2/data/tcn4/sim/sim-032-3-3-normal/pack_data.sv
+exact_rtl=rtl/conv2x2/archive/m08/conv-i16-h13-t08-o4-m08-stream08-rowconst4-exact.sv
+trunc_rtl=rtl/conv2x2/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc.sv
+activity_method=post-implementation-functional-SAIF; output is intentionally compared to canonical golden but expected to mismatch

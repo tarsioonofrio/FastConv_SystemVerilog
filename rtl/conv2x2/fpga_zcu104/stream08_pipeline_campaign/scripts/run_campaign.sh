@@ -74,8 +74,9 @@ part=xczu7ev-ffvc1156-2-e
 clock_target_mhz=317
 workload=rtl/conv2x2/data/tcn4/sim/sim-032-3-3-normal/pack_data.sv
 EOF
-sha256sum "$repo_root/rtl/conv2x2/data/tcn4/sim/sim-032-3-3-normal/pack_data.sv" \
-  > "$reports_dir/workload.sha256"
+workload_path=rtl/conv2x2/data/tcn4/sim/sim-032-3-3-normal/pack_data.sv
+workload_hash=$(sha256sum "$repo_root/$workload_path" | cut -d ' ' -f 1)
+printf '%s  %s\n' "$workload_hash" "$workload_path" > "$reports_dir/workload.sha256"
 
 run_impl rowconst4 manifests/rowconst4.txt
 run_p3f rowconst4

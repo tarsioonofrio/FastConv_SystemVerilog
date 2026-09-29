@@ -749,8 +749,10 @@ module Conv
             r_input_weight[1] <= w_weight_row0[1];
             r_input_weight[2] <= w_weight_row0[2];
             r_input_weight[3] <= w_weight_row0[3];
-            r_input_weight[4] <= w_weight_row1[0]; r_input_weight[5] <= w_weight_row1[1];
-            r_input_weight[6] <= w_weight_row1[2]; r_input_weight[7] <= w_weight_row1[3];
+            r_input_weight[4] <= w_weight_row1[0];
+            r_input_weight[5] <= w_weight_row1[1];
+            r_input_weight[6] <= w_weight_row1[2];
+            r_input_weight[7] <= w_weight_row1[3];
           end
           r_inverse_row              <= '{default: '0};
           r_inverse_partial_valid <= 1'b0;
@@ -775,10 +777,14 @@ module Conv
           // cycle still uses r_input_weight; the new row is consumed only
           // after this clock edge.
           if (r_conv_multiply_count < $bits(r_conv_multiply_count)'(STREAM_CYCLES - 1)) begin
-            r_input_weight[0] <= w_weight_row2[0]; r_input_weight[1] <= w_weight_row2[1];
-            r_input_weight[2] <= w_weight_row2[2]; r_input_weight[3] <= w_weight_row2[3];
-            r_input_weight[4] <= w_weight_row3[0]; r_input_weight[5] <= w_weight_row3[1];
-            r_input_weight[6] <= w_weight_row3[2]; r_input_weight[7] <= w_weight_row3[3];
+            r_input_weight[0] <= w_weight_row2[0];
+            r_input_weight[1] <= w_weight_row2[1];
+            r_input_weight[2] <= w_weight_row2[2];
+            r_input_weight[3] <= w_weight_row2[3];
+            r_input_weight[4] <= w_weight_row3[0];
+            r_input_weight[5] <= w_weight_row3[1];
+            r_input_weight[6] <= w_weight_row3[2];
+            r_input_weight[7] <= w_weight_row3[3];
           end
           // Advance the accumulated tile in the existing output-write bank.
           r_inverse_partial_current <= w_inverse_partial_current;

@@ -1,0 +1,112 @@
+#-----------------------------------------------------------
+# Vivado v2023.2 (64-bit)
+# SW Build 4029153 on Fri Oct 13 20:13:54 MDT 2023
+# IP Build 4028589 on Sat Oct 14 00:45:43 MDT 2023
+# SharedData Build 4025554 on Tue Oct 10 17:18:54 MDT 2023
+# Start of session at: Mon Sep 28 15:18:58 2026
+# Process ID: 1971258
+# Current directory: /tmp/fastconv-stream08-49e2a22b/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/wstream4/top
+# Command line: vivado -mode batch -source /tmp/fastconv-stream08-49e2a22b/rtl/conv2x2/fpga_zcu104/column_power_comparison/scripts/power_vectorless.tcl -log /tmp/fastconv-stream08-49e2a22b/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/prefetch4-rowconst4.vectorless.vivado.log -journal /tmp/fastconv-stream08-49e2a22b/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/prefetch4-rowconst4.vectorless.vivado.jou -tclargs /tmp/fastconv-stream08-49e2a22b/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign prefetch4-rowconst4
+# Log file: /tmp/fastconv-stream08-49e2a22b/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/prefetch4-rowconst4.vectorless.vivado.log
+# Journal file: /tmp/fastconv-stream08-49e2a22b/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/prefetch4-rowconst4.vectorless.vivado.jou
+# Running On: paxos.inf.pucrs.br, OS: Linux, CPU Frequency: 3100.000 MHz, CPU Physical cores: 14, Host memory: 134319 MB
+#-----------------------------------------------------------
+source /tmp/fastconv-stream08-49e2a22b/rtl/conv2x2/fpga_zcu104/column_power_comparison/scripts/power_vectorless.tcl
+# if {$argc != 2} { error "usage: power_vectorless.tcl <bench-dir> <run>" }
+# set bench_dir [file normalize [lindex $argv 0]]
+# set run_name [lindex $argv 1]
+# set run_dir [file join $bench_dir reports $run_name]
+# foreach corner {typical maximum} {
+#   open_checkpoint [file join $run_dir design_routed.dcp]
+#   reset_switching_activity -all
+#   reset_operating_conditions
+#   set_operating_conditions -process $corner -ambient_temp 25
+#   report_operating_conditions -file [file join $run_dir operating_conditions_vectorless_${corner}.rpt]
+#   report_power -hier all -file [file join $run_dir power_vectorless_${corner}.rpt]
+#   close_design
+# }
+Command: open_checkpoint /tmp/fastconv-stream08-49e2a22b/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/prefetch4-rowconst4/design_routed.dcp
+
+Starting open_checkpoint Task
+
+Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.02 . Memory (MB): peak = 1358.098 ; gain = 0.000 ; free physical = 45540 ; free virtual = 126219
+INFO: [Device 21-403] Loading part xczu7ev-ffvc1156-2-e
+Netlist sorting complete. Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.02 . Memory (MB): peak = 2417.176 ; gain = 0.000 ; free physical = 44486 ; free virtual = 125165
+INFO: [Netlist 29-17] Analyzing 452 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-479] Netlist was created with Vivado 2023.2
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Read ShapeDB Complete: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2417.176 ; gain = 0.000 ; free physical = 44487 ; free virtual = 125166
+INFO: [Timing 38-478] Restoring timing data from binary archive.
+INFO: [Timing 38-479] Binary timing data restore complete.
+INFO: [Project 1-856] Restoring constraints from binary archive.
+INFO: [Project 1-853] Binary constraint restore complete.
+INFO: [Designutils 20-5722] Start Reading Physical Databases.
+Reading placement.
+Read Netlist Cache: Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00.01 . Memory (MB): peak = 2873.684 ; gain = 0.000 ; free physical = 44196 ; free virtual = 124875
+Reading placer database...
+Read Device Cache: Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.02 . Memory (MB): peak = 2873.684 ; gain = 0.000 ; free physical = 44195 ; free virtual = 124874
+Read PlaceDB: Time (s): cpu = 00:00:00.2 ; elapsed = 00:00:00.19 . Memory (MB): peak = 2873.684 ; gain = 0.000 ; free physical = 44190 ; free virtual = 124870
+Read PulsedLatchDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2873.684 ; gain = 0.000 ; free physical = 44190 ; free virtual = 124870
+Reading routing.
+Read RouteStorage: Time (s): cpu = 00:00:00.12 ; elapsed = 00:00:00.12 . Memory (MB): peak = 2889.559 ; gain = 15.875 ; free physical = 44188 ; free virtual = 124868
+Read Physdb Files: Time (s): cpu = 00:00:00.36 ; elapsed = 00:00:00.36 . Memory (MB): peak = 2889.559 ; gain = 15.875 ; free physical = 44188 ; free virtual = 124868
+Restored from archive | CPU: 0.390000 secs | Memory: 9.293159 MB |
+Finished XDEF File Restore: Time (s): cpu = 00:00:00.39 ; elapsed = 00:00:00.4 . Memory (MB): peak = 2889.559 ; gain = 15.875 ; free physical = 44188 ; free virtual = 124868
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 3267.137 ; gain = 0.000 ; free physical = 43792 ; free virtual = 124471
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 53 instances were transformed.
+  DSP48E2 => DSP48E2 (DSP_ALU, DSP_A_B_DATA, DSP_C_DATA, DSP_MULTIPLIER, DSP_M_DATA, DSP_OUTPUT, DSP_PREADD, DSP_PREADD_DATA): 8 instances
+  IBUF => IBUF (IBUFCTRL, INBUF): 45 instances
+
+INFO: [Project 1-604] Checkpoint was created with Vivado v2023.2 (64-bit) build 4029153
+open_checkpoint: Time (s): cpu = 00:00:20 ; elapsed = 00:00:21 . Memory (MB): peak = 3267.172 ; gain = 1909.074 ; free physical = 43791 ; free virtual = 124470
+Command: report_power -hier all -file /tmp/fastconv-stream08-49e2a22b/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/prefetch4-rowconst4/power_vectorless_typical.rpt
+Running Vector-less Activity Propagation...
+
+Finished Running Vector-less Activity Propagation
+12 Infos, 0 Warnings, 0 Critical Warnings and 0 Errors encountered.
+report_power completed successfully
+report_power: Time (s): cpu = 00:00:12 ; elapsed = 00:00:08 . Memory (MB): peak = 3649.387 ; gain = 186.066 ; free physical = 43630 ; free virtual = 124310
+Command: open_checkpoint /tmp/fastconv-stream08-49e2a22b/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/prefetch4-rowconst4/design_routed.dcp
+
+Starting open_checkpoint Task
+
+Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 3649.387 ; gain = 0.000 ; free physical = 43630 ; free virtual = 124310
+Netlist sorting complete. Time (s): cpu = 00:00:00.03 ; elapsed = 00:00:00.03 . Memory (MB): peak = 3649.387 ; gain = 0.000 ; free physical = 43630 ; free virtual = 124310
+INFO: [Netlist 29-17] Analyzing 452 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-479] Netlist was created with Vivado 2023.2
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Read ShapeDB Complete: Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00.01 . Memory (MB): peak = 3649.387 ; gain = 0.000 ; free physical = 43624 ; free virtual = 124304
+INFO: [Timing 38-478] Restoring timing data from binary archive.
+INFO: [Timing 38-479] Binary timing data restore complete.
+INFO: [Project 1-856] Restoring constraints from binary archive.
+INFO: [Project 1-853] Binary constraint restore complete.
+INFO: [Designutils 20-5722] Start Reading Physical Databases.
+Reading placement.
+Read Netlist Cache: Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00 . Memory (MB): peak = 3649.387 ; gain = 0.000 ; free physical = 43608 ; free virtual = 124288
+Reading placer database...
+Read Device Cache: Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.02 . Memory (MB): peak = 3649.387 ; gain = 0.000 ; free physical = 43608 ; free virtual = 124287
+Read PlaceDB: Time (s): cpu = 00:00:00.2 ; elapsed = 00:00:00.2 . Memory (MB): peak = 3649.387 ; gain = 0.000 ; free physical = 43608 ; free virtual = 124288
+Read PulsedLatchDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 3649.387 ; gain = 0.000 ; free physical = 43608 ; free virtual = 124288
+Reading routing.
+Read RouteStorage: Time (s): cpu = 00:00:00.12 ; elapsed = 00:00:00.12 . Memory (MB): peak = 3649.387 ; gain = 0.000 ; free physical = 43608 ; free virtual = 124288
+Read Physdb Files: Time (s): cpu = 00:00:00.36 ; elapsed = 00:00:00.36 . Memory (MB): peak = 3649.387 ; gain = 0.000 ; free physical = 43608 ; free virtual = 124288
+Restored from archive | CPU: 0.360000 secs | Memory: 8.232780 MB |
+Finished XDEF File Restore: Time (s): cpu = 00:00:00.36 ; elapsed = 00:00:00.37 . Memory (MB): peak = 3649.387 ; gain = 0.000 ; free physical = 43608 ; free virtual = 124288
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 3649.387 ; gain = 0.000 ; free physical = 43608 ; free virtual = 124288
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 53 instances were transformed.
+  DSP48E2 => DSP48E2 (DSP_ALU, DSP_A_B_DATA, DSP_C_DATA, DSP_MULTIPLIER, DSP_M_DATA, DSP_OUTPUT, DSP_PREADD, DSP_PREADD_DATA): 8 instances
+  IBUF => IBUF (IBUFCTRL, INBUF): 45 instances
+
+INFO: [Project 1-604] Checkpoint was created with Vivado v2023.2 (64-bit) build 4029153
+Command: report_power -hier all -file /tmp/fastconv-stream08-49e2a22b/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/prefetch4-rowconst4/power_vectorless_maximum.rpt
+Running Vector-less Activity Propagation...
+
+Finished Running Vector-less Activity Propagation
+11 Infos, 0 Warnings, 0 Critical Warnings and 0 Errors encountered.
+report_power completed successfully
+# exit
+INFO: [Common 17-206] Exiting Vivado at Mon Sep 28 15:19:38 2026...
