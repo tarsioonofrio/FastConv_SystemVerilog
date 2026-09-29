@@ -281,10 +281,22 @@ rowconst  reduz pesos transformados, chegando a 49
 prefetch  adiciona estado de entrada para ganhar overlap, chegando a 52
 ```
 
+### 0.7 Variação ortogonal: interface `column`
+
+Depois das explorações de armazenamento, surgiu uma linha separada de
+experimentos: transferir uma coluna de palavras por operação de memória, em
+vez de uma palavra escalar. A matemática e o número de MACs não mudam; muda a
+largura da interface e, com isso, o número de ciclos de leitura/escrita e a
+quantidade de I/Os do top-level. A variante começou em `std-column` e depois
+foi aplicada à arquitetura `prefetch8-rowconst4`, incluindo uma versão
+truncada com barreiras de pipeline explícitas. Os detalhes estão na seção
+lógica e no diário cronológico abaixo.
+
 Essa seção encerra a visão geral da trajetória. Depois do escopo e do contrato
 da seção 1, o documento se divide em duas leituras complementares. Primeiro,
 **Alterações em ordem lógica** organiza as arquiteturas pela sequência didática
-`std -> stream08 -> stream04 -> stream00 -> all -> stream08-*`. No final,
+`std -> stream08 -> stream04 -> stream00 -> all -> stream08-*`, seguida pela
+variação ortogonal da interface `column`. No final,
 **Alterações em ordem cronológica** preserva o diário de implementação, os
 ajustes do fluxo e as campanhas na ordem em que ocorreram.
 
@@ -326,17 +338,20 @@ de `../conv2x2/pack-param/tcn4/pack_param.sv`.
 
 Esta parte explica a arquitetura pela vida dos dados: começa no `std`, percorre
 as reduções `stream08`, `stream04` e `stream00`, apresenta `all` como referência
-paralela e termina com os experimentos `stream08-*`. A ordem é conceitual, não
-uma cronologia dos commits. O bloco cronológico no final preserva essa
-cronologia e os relatórios das campanhas.
+paralela e apresenta os experimentos `stream08-*`. Em seguida, trata a interface
+`column` como uma variação ortogonal de transferência, não como outra etapa de
+redução de registradores. A ordem é conceitual, não uma cronologia dos commits.
+O bloco cronológico no final preserva essa cronologia e os relatórios das
+campanhas.
 
 ### 1. Ponto de partida: `std` e redução dos registradores
 
 Encerrada a visão geral e definido o contrato, começamos pelo `std`: seus
 bancos estabelecem a referência para entender as reduções seguintes. Esta
 subseção também define o que significa contar armazenamento no RTL. Depois, a
-leitura percorre `stream08 -> stream04 -> stream00 -> all` e termina nos
-experimentos `stream08-*`. A sequência é arquitetural, não a data dos commits.
+leitura percorre `stream08 -> stream04 -> stream00 -> all`, os experimentos
+`stream08-*` e, por fim, a variação `column`. A sequência é arquitetural, não a
+data dos commits.
 
 Aqui a pergunta é: quais palavras precisam sobreviver a cada borda de clock em
 cada arquitetura?
@@ -1082,7 +1097,79 @@ registrado para `prefetch4-rowconst4`; portanto, esta primeira validação
 confirma a equivalência funcional, mas ainda não demonstra ganho de latência.
 Não há resultado de síntese, área, timing ou potência para esta variante.
 
-### 7. Comparativo de registradores de dados
+### 7. Variação ortogonal: interface multiword `column`
+
+As variantes `column` mudam a granularidade da interface de memória, não o
+algoritmo Winograd nem a contagem de MACs. Na interface escalar, cada beat
+transfere uma palavra; na interface `column`, o barramento de entrada carrega
+quatro palavras consecutivas da coluna da janela (`CONV_INPUT_SIZE=4`) e o de
+saída carrega duas palavras da coluna produzida (`CONV_OUTPUT_SIZE=2`). O
+barramento de entrada também é reutilizado para carregar pesos em paralelo.
+Assim, a alteração reduz ciclos de tráfego, mas amplia os ports físicos do
+top-level.
+
+A primeira implementação foi `conv-i16-h16-t16-o4-m08-std-column.sv`, com um
+testbench dedicado. Depois, a leitura dos pesos transformados também foi
+vetorizada: quatro pesos por beat, em quatro beats para preencher os 16 pesos
+transformados do `std`. Na família `prefetch8-rowconst4`, os nove pesos
+espaciais são lidos em beats de três palavras (três beats); a transformação
+`rowconst4` continua produzindo a linha de pesos ativa para os oito MACs.
+
+O ganho de ciclos vem acompanhado por maior atividade e contagem de I/Os. Na
+campanha pareada da interface original, os quatro projetos mantiveram oito
+DSPs e zero BRAMs; o total de user-I/O passou de 101 para 201 bits. A tabela
+mostra as comparações escalares/column sob a mesma restrição de 317 MHz e o
+mesmo workload `sim-032-3-3-normal`:
+
+| Arquitetura | Interface | LUT | FF | DSP | User I/O | WNS @317 MHz | Ciclos ativos | GOPS ativo | P3F dinâmico / total típico |
+| ----------- | --------- | --: | -: | --: | -------: | -----------: | ------------: | ---------: | --------------------------: |
+| `std` | escalar | 2.087 | 1.266 | 8 | 101 | +0,221 ns PASS | 23.648 | 1,954 | 0,281 / 0,874 W |
+| `std` | `column` | 2.143 | 1.263 | 8 | 201 | +0,166 ns PASS | 10.578 | 4,369 | 0,452 / 1,046 W |
+| `prefetch8-rowconst4` | escalar | 4.503 | 1.244 | 8 | 101 | -2,322 ns FAIL | 21.865 | 2,114 | 0,246 / 0,839 W |
+| `prefetch8-rowconst4` | `column` | 4.719 | 1.247 | 8 | 201 | -2,242 ns FAIL | 10.730 | 4,307 | 0,537 / 1,132 W |
+
+O `std-column` reduziu os ciclos ativos em 55,3% e fechou timing no ponto
+comum. A variante `prefetch8-rowconst4-column` também reduziu os ciclos em
+50,9%, mas ambas as versões desse par falharam timing a 317 MHz; seus valores
+de throughput no ponto comum são estimativas comparativas, não desempenho
+atingível nessa frequência. Nos dois pares, o P3F dinâmico aumentou com a
+interface `column`, em especial pela categoria I/O: no `std`, 0,182 W para
+0,287 W; em `prefetch8-rowconst4`, 0,118 W para 0,354 W. O modelo inclui
+ports top-level sem pinout/carga de placa especificados, portanto esse aumento
+não deve ser atribuído somente ao datapath.
+
+Uma segunda comparação pareada usou o workload truncado e a separação temporal
+registrada entre transformação, Hadamard, inversa e acumulação. O banco
+registrado na fronteira `Transform -> Hadamard` e os registradores entre
+`InverseRow -> acumulador` preservam a sequência
+`Transform -> reg -> Hadamard -> InverseRow -> reg -> acc -> output`. A
+variante escalar `trunc-pipe` e a variante `trunc-column` passaram a simulação
+funcional pós-route contra o golden truncado. A interface column manteve os
+oito DSPs, reduziu os ciclos ativos de 23.747 para 14.502 (38,9% menos) e
+melhorou o WNS de +0,129 ns para +0,185 ns, ao custo de 243 LUT adicionais e
+I/O dinâmico maior:
+
+| Arquitetura truncada pipelineada | LUT | FF | DSP | WNS @317 MHz | Ciclos ativos | P3F dinâmico / total típico | SAIF direto (DUT / top) |
+| --------------------------------- | --: | -: | --: | -----------: | ------------: | --------------------------: | ----------------------: |
+| escalar `trunc-pipe` | 2.913 | 1.489 | 8 | +0,129 ns PASS | 23.747 | 0,201 / 0,793 W | 98,64% / 100% |
+| `trunc-column` | 3.156 | 1.484 | 8 | +0,185 ns PASS | 14.502 | 0,389 / 0,983 W | 97,42% / 100% |
+
+Essa comparação usa o mesmo workload truncado, XCZU7EV, Vivado 2023.2,
+restrição de 317 MHz e método P3F. O aumento de dinâmica de 0,188 W é
+explicado em grande parte pelo I/O estimado: 0,108 W na escalar e 0,277 W na
+column. P3F é atividade funcional pós-route, sem glitches de SDF; 100% de
+correspondência SAIF no top-level indica anotação de atividade, não precisão
+física de 100%. Os detalhes e a proveniência ficam nos relatórios das
+campanhas `column_power_comparison/` e `stream08_pipeline_campaign/`.
+
+Portanto, `column` é uma direção ortogonal de projeto: troca ciclos de
+transferência por largura de barramento, I/Os e potência estimada de I/O. O
+resultado precisa ser lido junto com a fronteira do sistema; se as palavras
+forem transferidas internamente em BRAM, os ports externos e a potência de I/O
+serão diferentes. Não se deve tratar o `std-column` como uma redução de
+registradores nem misturar as comparações de workload normal e truncado.
+
+### 8. Comparativo de registradores de dados
 
 A tabela usa a contagem integral, incluindo `r_output_read`, porque o objetivo
 é enxergar o armazenamento real das variantes que ainda orientam o
@@ -1122,7 +1209,7 @@ pós-síntese contabiliza 1.401 flip-flops, e não uma simples multiplicação d
 contagem nominal de palavras. Essa diferença entre estado declarado e estado
 retido é parte do motivo para sempre conferir o relatório de área.
 
-### 8. O que a contagem não mostra
+### 9. O que a contagem não mostra
 
 A contagem de palavras é uma ferramenta de raciocínio arquitetural, não um
 substituto para Genus. Ela não mostra:
@@ -1146,7 +1233,7 @@ Se uma redução remove quatro palavras, mas cria uma árvore de muxes maior que
 o banco removido, a síntese pode ficar pior. O registro da decisão deve mostrar
 os dois lados: palavras removidas e lógica adicionada.
 
-### 9. Mapa mental final
+### 10. Mapa mental final
 
 ```text
 STD (72 palavras)
@@ -1183,7 +1270,7 @@ precisa sobreviver a uma borda de clock. Todo o restante deve ser consumido no
 ciclo em que é produzido, desde que a ordem, o valor bit-exato e o contrato de
 memória permaneçam inalterados.
 
-### 10. Comparações metodológicas
+### 11. Comparações metodológicas
 
 As referências que só existem em `archive/` não interrompem a narrativa das
 variantes ativas. A descrição do `std` m04 e do `stream08` genérico, incluindo
@@ -1193,7 +1280,7 @@ registradores (`std`, `stream08`, `stream04`, `stream00`), apresenta `all16`
 como comparação paralela e então registra a escolha de `stream08` como base
 PPA para os testes de pesos `stream08-*`.
 
-### 11. Como comparar duas alterações sem se enganar
+### 12. Como comparar duas alterações sem se enganar
 
 Ao comparar duas fontes, preencha esta sequência antes de olhar para área:
 
@@ -1224,7 +1311,7 @@ O segundo caso é seguro somente depois de procurar todos os consumidores do
 sinal. Uma linha usada apenas por `$display` é diferente de uma linha usada
 como entrada de `InverseRowAccumulate`.
 
-### 12. Regra prática para as próximas reduções
+### 13. Regra prática para as próximas reduções
 
 A sequência de redução que este inventário recomenda é:
 
@@ -1252,7 +1339,7 @@ mesmos resultados + mesma interface de memória + menor custo medido
 Uma contagem menor que falha no golden, perde uma contribuição de canal ou
 precisa de uma árvore de muxes maior não é uma redução arquitetural válida.
 
-### 13. Conversão dos modelos m04 para m08
+### 14. Conversão dos modelos m04 para m08
 
 Na rodada de setembro de 2026, os modelos ativos que só tinham quatro MACs
 receberam uma variante `m08` separada. Os arquivos e diretórios `m04` foram
@@ -1327,7 +1414,7 @@ tabela acima destaca os valores nominais de total.
 Os resultados `m04` e os relatórios de síntese anteriores permanecem sob
 `archive/m04/`; nenhum arquivo `m04` foi sobrescrito pelos artefatos `m08`.
 
-### 14. Diagrama de ondas das FSMs e do prefetch
+### 15. Diagrama de ondas das FSMs e do prefetch
 
 O diagrama abaixo mostra a relação temporal entre as três FSMs do
 `stream08-prefetch4` e o leitor auxiliar de entrada. Cada coluna representa
@@ -1343,7 +1430,7 @@ portável: `PREFETCH_PHASES = STREAM_CYCLES + 2`, com uma fase para
 Por isso, no diagrama ele aparece como uma quarta faixa paralela à FSM de
 entrada, sem acrescentar estados enumerados à FSM principal.
 
-#### 14.1 Carregamento do primeiro tile
+#### 15.1 Carregamento do primeiro tile
 
 Antes do primeiro `CONV_INPUT`, a FSM de entrada ainda precisa carregar as
 quatro linhas completas da janela 4x4. A notação `[4]` significa quatro
@@ -1375,7 +1462,7 @@ estável. O prefetch do próximo tile começa somente depois que o tile atual
 foi carregado em `CONV_INPUT`; a emissão do endereço antecipado usa a borda
 anterior para que a primeira amostra fique disponível em `TRANSFORM`.
 
-#### 14.2 Regime estacionário com prefetch
+#### 15.2 Regime estacionário com prefetch
 
 A partir do tile seguinte, a coluna necessária para o próximo tile é lida
 durante o uso do tile corrente. A sequência abaixo não fixa a duração de
@@ -1430,7 +1517,7 @@ Essa proteção impede que a coluna pré-carregada sobrescreva
 consultar o tile corrente. Depois do commit, `READ_IN_8D` captura a segunda
 coluna nova e a janela seguinte fica completa.
 
-#### 14.3 Transições de controle
+#### 15.3 Transições de controle
 
 ```text
 FSM de entrada:
@@ -1464,7 +1551,7 @@ convolução usa `r_input_feat`; o prefetch usa `r_input_prefetch`. Essa é a
 razão pela qual a implementação precisa de alguns registradores adicionais,
 mas não de uma segunda cópia da FSM de endereçamento completa.
 
-### 15. Alternativas arquivadas
+### 16. Alternativas arquivadas
 
 As experiências com latches foram deslocadas para o **Anexo A**, junto com as
 demais versões que não fazem parte da árvore ativa. O baseline
@@ -2163,3 +2250,84 @@ artefatos completos de `rowconst4-exact` e `temporal1` foram movidos para
 `archive/m08/`, sem apagar os resultados. A proveniência do HDL usado pelo
 Genus e da simulação anotada permanece nos respectivos `logical/genus.log` e
 `sim/xrun.log`.
+
+### 13. Experimentos de interface multiword `column`
+
+Esta linha cronológica registra a mudança da interface escalar para beats que
+transportam colunas inteiras. O objetivo foi reduzir ciclos de acesso à
+memória sem mudar a matemática da convolução; por isso, os resultados são
+separados das reduções de armazenamento descritas na parte lógica.
+
+#### 13.1 Primeiro protótipo: `std-column` (27/09/2026)
+
+O commit `6ac749ce` criou `conv-i16-h16-t16-o4-m08-std-column.sv` e um
+testbench dedicado. O barramento de entrada passou a receber quatro palavras
+consecutivas por beat, correspondentes a uma coluna da janela 4x4; o de saída
+passou a ler/escrever duas palavras por beat, uma coluna de saída 2x2. A
+FSM passou a consumir/produzir os lanes do beat em paralelo. O core mantém os
+mesmos oito MACs e a mesma operação matemática. O testbench dedicado verificou
+a interface vetorial sem alterar o testbench padrão escalar.
+
+#### 13.2 Vetorização da leitura de pesos do `std` (28/09/2026)
+
+O commit `091f0b27` estendeu a transferência multiword aos pesos: como o
+barramento de entrada tem quatro lanes, quatro pesos transformados podem ser
+lidos por beat, preenchendo os 16 valores em quatro beats em vez de uma
+palavra por beat. Isso completou o uso vetorial da interface de entrada para
+features e pesos.
+
+#### 13.3 Aplicação ao `prefetch8-rowconst4` e correção do pipeline
+
+O commit `6ba3cce9` introduziu a variante
+`conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-column.sv`. Além do
+banco de oito palavras antecipadas, a leitura de features transferia colunas
+de quatro palavras. Como `rowconst4` mantém os nove pesos espaciais, eles eram
+lidos em beats de três palavras (três beats), e somente a linha transformada
+ativa alimentava o banco de pesos dos oito MACs.
+
+Na revisão seguinte, `f59c69ec`, foram explicitadas fronteiras de pipeline no
+caminho de dados: um banco entre `Transform` e `Hadamard`, e registradores
+para separar `InverseRow` da acumulação. Também se impediu que a janela
+seguinte sobrescrevesse o banco compartilhado antes de a escrita do tile
+anterior terminar. A sequência passou a ser
+`Transform -> reg -> Hadamard -> InverseRow -> reg -> acc -> output`, com a
+finalização ocorrendo depois da drenagem do último parcial registrado.
+
+#### 13.4 Campanha pareada escalar/column (28/09/2026)
+
+A campanha `column_power_comparison/` sintetizou, roteou, simulou
+funcionalmente e mediu P0/P3F para os pares `std`/`std-column` e
+`prefetch8-rowconst4`/`prefetch8-rowconst4-column` na ZCU104, com Vivado 2023.2,
+workload normal 32x32 e alvo de 317 MHz. A simulação funcional pós-route
+passou para os quatro casos e a importação SAIF P3F teve correspondência
+completa no escopo usado pelo relatório. Não foi usada anotação SDF.
+
+O `std-column` fechou timing com WNS de +0,166 ns e completou o job em 10.578
+ciclos, contra 23.648 no escalar. Já o par `prefetch8-rowconst4` reduziu os
+ciclos de 21.865 para 10.730, mas ambas as versões falharam timing a 317 MHz.
+Em todos os casos o número de DSPs permaneceu oito. A interface aumentou de
+101 para 201 user-I/O bits; a potência dinâmica P3F subiu nos dois pares,
+principalmente pela estimativa de I/O. Os relatórios identificam as portas
+como `UNFIXED`, portanto não representam um pinout ou carga elétrica de placa.
+
+#### 13.5 Variante `trunc-column` e campanha FPGA (29/09/2026)
+
+O commit `9d79ad4b` criou
+`conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column.sv`,
+derivada da variante pipelineada e usando o pacote canônico truncado
+`sim-032-3-3-normal-trunc/pack_data.sv`. A campanha pós-route foi executada em
+`tmux` na Paxos; o commit `70616d4e` preservou os relatórios no checkout local.
+O Xcelium funcional terminou com 8.100 escritas, 2.700 palavras finais e zero
+mismatches. A implementação usou 3.156 LUT, 1.484 FF e oito DSPs, com WNS
+de +0,185 ns na constraint arredondada pelo Vivado para 3,155 ns. O job levou
+14.502 ciclos, contra 23.747 na variante escalar `trunc-pipe` sob o mesmo
+workload; ambos passaram timing a 317 MHz.
+
+No P3F típico, `trunc-column` reportou 0,389 W dinâmico e 0,983 W total, contra
+0,201 W e 0,793 W na `trunc-pipe` escalar. A correspondência SAIF foi 7.754/7.754
+no top-level e 7.554/7.754 no escopo DUT. O aumento inclui I/O do top-level
+(0,277 W em column contra 0,108 W escalar), não apenas comutação interna. São
+estimativas Vivado, sem SDF e sem medição física da placa. Os dados completos,
+incluindo vetorless, corners Typical/Maximum e proveniência, estão em
+`stream08_pipeline_campaign/reports/prefetch8-rowconst4-trunc-column/summary.md`;
+a comparação pareada anterior está em `column_power_comparison/comparison.md`.
