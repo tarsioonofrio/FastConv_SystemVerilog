@@ -21,8 +21,8 @@ VERILATOR_PREFETCH8_COLUMN_NO_TRACE = verilator -j 0 -DSIMULATION --top-module t
 
 .PHONY: all std std-column all16 stream04-4mac stream04-8mac stream00-8mac stream08 stream08-wstream4 stream08-wstream4-8mac \
 	stream08-rowconst4-8mac stream08-rowconst4-exact-8mac stream08-rowconst4-exact-pipelined-8mac stream08-prefetch4-8mac stream08-prefetch4-rowconst4-8mac stream08-prefetch8-rowconst4-8mac stream08-prefetch4-rowconst4-latch-8mac stream08-prefetch4-rowconst4-temporal1-8mac stream08-exact-8mac \
-	stream08-prefetch8-rowconst4-column stream08-prefetch8-rowconst4-trunc-8mac stream08-prefetch8-rowconst4-exact-8mac run run-std run-std-column run-all16 run-stream04-4mac run-stream00-8mac \
-	        run-stream08-prefetch8-rowconst4-column run-stream08-rowconst4-exact-pipelined \
+	stream08-prefetch8-rowconst4-column stream08-prefetch8-rowconst4-trunc-column stream08-prefetch8-rowconst4-trunc-8mac stream08-prefetch8-rowconst4-exact-8mac run run-std run-std-column run-all16 run-stream04-4mac run-stream00-8mac \
+	        run-stream08-prefetch8-rowconst4-column run-stream08-prefetch8-rowconst4-trunc-column run-stream08-rowconst4-exact-pipelined \
 	        run-stream08-prefetch8-rowconst4-exact \
 	        run-stream08 run-stream08-wstream4 run-stream08-prefetch4 run-stream08-prefetch4-rowconst4 run-stream08-prefetch8-rowconst4 run-stream08-prefetch4-rowconst4-latch run-stream08-prefetch4-rowconst4-temporal1 lint clean
 
@@ -152,6 +152,12 @@ stream08-prefetch8-rowconst4-column:
 	$(VERILATOR_PREFETCH8_COLUMN_NO_TRACE) --binary --exe --Mdir obj_dir/stream08-prefetch8-rowconst4-column \
 	  $(COMMON) $(MATRICES_STREAM) conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-column.sv $(TB_PREFETCH8_COLUMN) --build
 
+# Truncated-arithmetic variant with the same column-wide memory protocol.
+stream08-prefetch8-rowconst4-trunc-column: DATA = $(DATA_TRUNC)
+stream08-prefetch8-rowconst4-trunc-column:
+	$(VERILATOR_PREFETCH8_COLUMN_NO_TRACE) --binary --exe --Mdir obj_dir/stream08-prefetch8-rowconst4-trunc-column \
+	  $(COMMON) $(MATRICES_STREAM) conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column.sv $(TB_PREFETCH8_COLUMN) --build
+
 stream08-prefetch4-rowconst4-latch-8mac:
 	$(VERILATOR) --binary --exe --Mdir obj_dir/stream08-prefetch4-rowconst4-latch-8mac \
 	  $(COMMON) $(MATRICES_STREAM) conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-latch.sv $(TB) --build
@@ -176,6 +182,9 @@ run-stream08-prefetch8-rowconst4-exact: stream08-prefetch8-rowconst4-exact-8mac
 	obj_dir/stream08-prefetch8-rowconst4-exact-8mac/Vtb
 run-stream08-prefetch8-rowconst4-column: stream08-prefetch8-rowconst4-column
 	obj_dir/stream08-prefetch8-rowconst4-column/Vtb_prefetch8_column
+
+run-stream08-prefetch8-rowconst4-trunc-column: stream08-prefetch8-rowconst4-trunc-column
+	obj_dir/stream08-prefetch8-rowconst4-trunc-column/Vtb_prefetch8_column
 
 run-stream08-prefetch4-rowconst4-latch: stream08-prefetch4-rowconst4-latch-8mac
 	obj_dir/stream08-prefetch4-rowconst4-latch-8mac/Vtb
@@ -204,6 +213,7 @@ lint:
 	$(VERILATOR) --timing --lint-only $(DATA_TRUNC) $(PARAM) $(MEM) ../csa/csa_lib.sv ../multip/multip.sv $(MATRICES_STREAM) conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc.sv $(TB)
 	$(VERILATOR) --timing --lint-only $(DATA_EXACT) $(PARAM) $(MEM) ../csa/csa_lib.sv ../multip/multip.sv $(MATRICES_STREAM) archive/m08/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-exact.sv $(TB)
 	$(VERILATOR_PREFETCH8_COLUMN_NO_TRACE) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-column.sv $(TB_PREFETCH8_COLUMN)
+	$(VERILATOR_PREFETCH8_COLUMN_NO_TRACE) --timing --lint-only $(DATA_TRUNC) $(PARAM) $(MEM) ../csa/csa_lib.sv ../multip/multip.sv $(MATRICES_STREAM) conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column.sv $(TB_PREFETCH8_COLUMN)
 	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-latch.sv $(TB)
 	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) archive/m08/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-temporal1.sv $(TB)
 	$(VERILATOR) --timing --lint-only $(COMMON) $(MATRICES_STREAM) conv-i16-h20-t08-o4-m08-stream08-exact.sv $(TB)
