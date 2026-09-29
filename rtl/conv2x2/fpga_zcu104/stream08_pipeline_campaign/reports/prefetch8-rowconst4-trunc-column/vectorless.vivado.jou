@@ -1,0 +1,14 @@
+#-----------------------------------------------------------
+# Vivado v2023.2 (64-bit)
+# SW Build 4029153 on Fri Oct 13 20:13:54 MDT 2023
+# IP Build 4028589 on Sat Oct 14 00:45:43 MDT 2023
+# SharedData Build 4025554 on Tue Oct 10 17:18:54 MDT 2023
+# Start of session at: Tue Sep 29 15:05:11 2026
+# Process ID: 2890377
+# Current directory: /tmp/fastconv-trunc-column-9d79ad4b
+# Command line: vivado -mode batch -source /tmp/fastconv-trunc-column-9d79ad4b/rtl/conv2x2/fpga_zcu104/column_power_comparison/scripts/power_vectorless.tcl -log /tmp/fastconv-trunc-column-9d79ad4b/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/prefetch8-rowconst4-trunc-column/vectorless.vivado.log -journal /tmp/fastconv-trunc-column-9d79ad4b/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/prefetch8-rowconst4-trunc-column/vectorless.vivado.jou -tclargs /tmp/fastconv-trunc-column-9d79ad4b/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign prefetch8-rowconst4-trunc-column
+# Log file: /tmp/fastconv-trunc-column-9d79ad4b/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/prefetch8-rowconst4-trunc-column/vectorless.vivado.log
+# Journal file: /tmp/fastconv-trunc-column-9d79ad4b/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/prefetch8-rowconst4-trunc-column/vectorless.vivado.jou
+# Running On: paxos.inf.pucrs.br, OS: Linux, CPU Frequency: 3100.000 MHz, CPU Physical cores: 14, Host memory: 134319 MB
+#-----------------------------------------------------------
+source /tmp/fastconv-trunc-column-9d79ad4b/rtl/conv2x2/fpga_zcu104/column_power_comparison/scripts/power_vectorless.tcl

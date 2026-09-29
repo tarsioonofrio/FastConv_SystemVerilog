@@ -127,9 +127,6 @@ module Conv
   logic w_weight_row_enable1;
   logic w_weight_row_enable2;
   logic w_weight_row_enable3;
-  logic [NBITS-1:0] w_weight_row [FIXED_NUM_MULT-1:0];
-  logic [NBITS-1:0] w_weight_row_lane1 [3:0];
-  logic [1:0] w_weight_row_index_next;
   logic signed [NBITS-1+QUANT:0] w_conv_product [FIXED_NUM_MULT-1:0];  // QUANT more bits for the multipliers
   logic w_conv_end;
   logic w_conv_input_release;
@@ -139,17 +136,14 @@ module Conv
   localparam int ROW_INDEX_WIDTH = f_width_min1(HADAMARD_SIZE);
   localparam int PRODUCT_INDEX_WIDTH = f_width_min1(WEIGHT_CYCLES);
   logic [NBITS-1:0] r_transform_feature_reg [FIXED_NUM_MULT-1:0];
-  logic [NBITS-1:0] r_inverse_row [HADAMARD_SIZE-1:0];
   logic [ROW_INDEX_WIDTH-1:0] r_inverse_row_idx;
   // Pipeline register separating the DSP Hadamard products from InverseRow.
   logic [NBITS-1:0] r_hadamard_product_reg [FIXED_NUM_MULT-1:0];
   logic [ROW_INDEX_WIDTH-1:0] r_hadamard_product_row_idx_reg;
   logic r_hadamard_product_valid;
   logic [PRODUCT_INDEX_WIDTH-1:0] r_transform_product_idx;
-  logic [NBITS-1:0] w_inverse_partial [CONV_OUTPUT_SIZE-1:0];
   logic [NBITS-1:0] w_inverse_partial_current [CONV_OUTPUT_SIZE-1:0];
   logic [NBITS-1:0] w_output_acc_next [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
-  logic [NBITS-1:0] w_output_final [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
   logic [NBITS-1:0] w_inverse_product_row [HADAMARD_SIZE-1:0];
   logic [NBITS-1:0] w_inverse_product_row_lane1 [HADAMARD_SIZE-1:0];
   logic [NBITS-1:0] w_hadamard_product_current [FIXED_NUM_MULT-1:0];
@@ -684,7 +678,6 @@ module Conv
   always_ff @(posedge clk or posedge reset) begin: STREAMING_DATAPATH_BLOCK
     if (reset) begin
       r_transform_feature_reg <= '{default: '0};
-      r_inverse_row          <= '{default: '0};
       r_hadamard_product_reg <= '{default: '0};
       r_hadamard_product_row_idx_reg <= '0;
       r_hadamard_product_valid <= 1'b0;
@@ -713,7 +706,6 @@ module Conv
             r_input_weight[4] <= w_weight_row1[0]; r_input_weight[5] <= w_weight_row1[1];
             r_input_weight[6] <= w_weight_row1[2]; r_input_weight[7] <= w_weight_row1[3];
           end
-          r_inverse_row              <= '{default: '0};
           r_hadamard_product_valid <= 1'b0;
           r_output_write              <= '{default: '0};
           r_inverse_row_idx     <= '0;
@@ -750,10 +742,6 @@ module Conv
           if (r_hadamard_product_valid)
             r_output_write <= w_output_acc_next;
           r_inverse_row_idx <= r_inverse_row_idx + 2;
-          r_inverse_row[0] <= w_hadamard_product_current[4];
-          r_inverse_row[1] <= w_hadamard_product_current[5];
-          r_inverse_row[2] <= w_hadamard_product_current[6];
-          r_inverse_row[3] <= w_hadamard_product_current[7];
 `ifdef STREAM_DEBUG
           $display("STREAM HAD product_base=%0d row=%0d", r_transform_product_idx, r_inverse_row_idx);
           $write("  F:"); for (int unsigned d = 0; d < FIXED_NUM_MULT; d++) $write(" %0d", $signed(w_transform_feature[d])); $write("\n");
@@ -770,9 +758,6 @@ module Conv
 `ifdef STREAM_DEBUG
           $display("STREAM FINAL");
           $write("  ACC:"); for (int unsigned d = 0; d < CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE; d++) $write(" %0d", $signed(r_output_write[d])); $write("\n");
-          $write("  Slast:"); for (int unsigned d = 0; d < HADAMARD_SIZE; d++) $write(" %0d", $signed(r_inverse_row[d])); $write("\n");
-          $write("  SIG:"); for (int unsigned d = 0; d < CONV_OUTPUT_SIZE; d++) $write(" %0d", $signed(w_inverse_partial[d])); $write("\n");
-          $write("  OUT:"); for (int unsigned d = 0; d < CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE; d++) $write(" %0d", $signed(w_output_final[d])); $write("\n");
 `endif
         end
         default: begin end
@@ -792,12 +777,10 @@ module Conv
   );
 
   // The existing multiply counter selects the next row.  It is also the
-  // scheduling FSM for the four constant-row transforms below: row zero is
-  // enabled when the raw tile first becomes valid, then rows one through three
-  // are enabled in successive Hadamard cycles.  No additional state is needed.
-  always_comb begin: WEIGHT_ROW_INDEX_NEXT_BLOCK
-    w_weight_row_index_next = 2'd0;
-  end
+  // scheduling FSM for the four constant-row transforms below: rows zero and
+  // one are enabled together when the raw tile becomes valid, then rows two
+  // and three are enabled together in the first Hadamard cycle. No extra state
+  // is needed.
 
   always_comb begin: WEIGHT_ROW_ENABLE_BLOCK
     w_weight_row_enable0 = 1'b0;
@@ -815,8 +798,8 @@ module Conv
   end
 
   // Each instance contains only one constant row of the Winograd weight
-  // transform.  The OR reduction is safe because WEIGHT_ROW_ENABLE_BLOCK
-  // enables at most one instance in a cycle.
+  // transform. The two active rows in each phase feed separate groups of four
+  // MAC lanes; inactive rows drive zero to isolate their arithmetic.
   WeightTransformRowConst #(.NBITS(NBITS), .ROW_INDEX(0)) weight_trf_row0 (
     .pin(r_weight_spatial), .enable(w_weight_row_enable0), .pout(w_weight_row0));
   WeightTransformRowConst #(.NBITS(NBITS), .ROW_INDEX(1)) weight_trf_row1 (
@@ -825,15 +808,6 @@ module Conv
     .pin(r_weight_spatial), .enable(w_weight_row_enable2), .pout(w_weight_row2));
   WeightTransformRowConst #(.NBITS(NBITS), .ROW_INDEX(3)) weight_trf_row3 (
     .pin(r_weight_spatial), .enable(w_weight_row_enable3), .pout(w_weight_row3));
-
-  assign w_weight_row[0] = w_weight_row0[0] | w_weight_row1[0] |
-                           w_weight_row2[0] | w_weight_row3[0];
-  assign w_weight_row[1] = w_weight_row0[1] | w_weight_row1[1] |
-                           w_weight_row2[1] | w_weight_row3[1];
-  assign w_weight_row[2] = w_weight_row0[2] | w_weight_row1[2] |
-                           w_weight_row2[2] | w_weight_row3[2];
-  assign w_weight_row[3] = w_weight_row0[3] | w_weight_row1[3] |
-                           w_weight_row2[3] | w_weight_row3[3];
 
   for (genvar lane = 0; lane < FIXED_NUM_MULT; lane++) begin: TRANSFORM_FEATURE_REGISTER_OUTPUT
     assign w_transform_feature[lane] = r_transform_feature_reg[lane];
@@ -852,7 +826,6 @@ module Conv
   Multip #(.QUANT(QUANT), .NBITS(NBITS)) multip6(.feature(w_transform_feature[6]), .weight(r_input_weight[6]), .product(w_conv_product[6]));
   Multip #(.QUANT(QUANT), .NBITS(NBITS)) multip7(.feature(w_transform_feature[7]), .weight(r_input_weight[7]), .product(w_conv_product[7]));
 
-  InverseRow inverse_row(.inverse_input_row(r_inverse_row), .inverse_partial(w_inverse_partial));
   assign w_inverse_product_row[0] = r_hadamard_product_reg[0];
   assign w_inverse_product_row[1] = r_hadamard_product_reg[1];
   assign w_inverse_product_row[2] = r_hadamard_product_reg[2];
@@ -865,9 +838,6 @@ module Conv
     .inverse_row_idx(r_hadamard_product_row_idx_reg), .accumulator_in(r_output_write), .inverse_partial(w_inverse_partial_current), .accumulator_out(w_output_acc_after_lane0));
   InverseRowAccumulate inverse_row_acc_second(
     .inverse_row_idx(r_hadamard_product_row_idx_reg + 1'b1), .accumulator_in(w_output_acc_after_lane0), .inverse_partial(w_inverse_partial_lane1), .accumulator_out(w_output_acc_next));
-  assign w_output_final = (st_conv_current == INVERSE) ? r_output_write : w_output_acc_next;
-
-
   // ----------------------------------------------------------------------------------------------------
   // -------  PART 4 - OUTPUT FSM AND READ/WRITE COUNTER -------------------------------------------------
   // ----------------------------------------------------------------------------------------------------

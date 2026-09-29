@@ -1,0 +1,272 @@
+----------------------------- /soft64/modulefiles ------------------------------
+altera/quartus/11.1                        synopsys/starrc/J-2014.12-SP3-3     
+altera/quartus/12.0                        synopsys/starrc/K-2015.12-SP2       
+altera/quartus/12.0-SP2                    synopsys/synopsys-installer/3.0.1   
+altera/quartus/18.1                        synopsys/synopsys-installer/3.1     
+async/3d/3.13                              synopsys/synopsys-installer/3.2     
+async/balsa/3.5.1-x32                      synopsys/synopsys-installer/4.1     
+async/balsa/4.0(default)                   synopsys/tetramax/G-2012.06-SP2     
+async/balsa/4.0-rhel-x64                   synopsys/tetramax/M-2016.12-SP5-5   
+async/balsa/4.0-ubuntu-x64                 synopsys/virtualizer/F-2011.06-SP2  
+async/minimalist/2.0                       synopsys/zoix/N-2017.12-SP2-1       
+async/petrify/4.0                          xilinx/digilent/adept-2.1           
+async/petrify/4.2                          xilinx/ise/13.2                     
+async/petrify/5.0                          xilinx/ise/14.1                     
+async/pulsar/1.0                           xilinx/ise/14.6                     
+async/pulsar/1.1                           xilinx/ise/14.7                     
+async/pulsar/1.2                           xilinx/petalinux/2018.2             
+async/pulsar/2.0                           xilinx/sdk/2018.2                   
+async/sagaas/1.0                           xilinx/vitis/2024.2                 
+async/uncle/1.0                            xilinx/vivado/2018.2                
+cadence/assura/4.15-5.1.41                 xilinx/vivado/2019.2                
+cadence/assura/4.15-6.1.6                  xilinx/vivado/2021.1                
+cadence/cerebrus/211                       xilinx/vivado/2023.2                
+cadence/conformal/101                      xilinx/vivado/2024.2                
+cadence/conformal/141                      xilinx/vivado/2025.2                
+cadence/conformal/152                      xilinx/vivado/lab                   
+cadence/conformal/232                      
+cadence/conformal/242                      
+cadence/ddi/221                            
+cadence/ddi/231                            
+cadence/edi/101                            
+cadence/edi/110                            
+cadence/et/101(default)                    
+cadence/et/111                             
+cadence/et/141                             
+cadence/et/151                             
+cadence/ets/101                            
+cadence/ets/131                            
+cadence/ets/131hf                          
+cadence/ext/91                             
+cadence/ext/191(default)                   
+cadence/genus/152                          
+cadence/genus/161                          
+cadence/genus/171                          
+cadence/genus/181                          
+cadence/genus/191                          
+cadence/genus/211                          
+cadence/ic/5.1.41                          
+cadence/ic/5.1.41-151                      
+cadence/ic/6.1.5                           
+cadence/ic/6.1.6                           
+cadence/ic/6.1.8(default)                  
+cadence/ic/23.1                            
+cadence/incisive/10.2                      
+cadence/incisive/11.10                     
+cadence/incisive/13.20                     
+cadence/incisive/14.10                     
+cadence/incisive/15.10                     
+cadence/incisive/15.20                     
+cadence/innovus/152                        
+cadence/innovus/161                        
+cadence/innovus/171                        
+cadence/innovus/181                        
+cadence/innovus/191                        
+cadence/innovus/211                        
+cadence/iscape/05.01                       
+cadence/jasper/1806                        
+cadence/jasper/2412                        
+cadence/jls/16.10                          
+cadence/liberate/151                       
+cadence/liberate/161                       
+cadence/liberate/181                       
+cadence/liberate/192                       
+cadence/liberate/217                       
+cadence/liberate/231                       
+cadence/mmsim/71                           
+cadence/mmsim/101                          
+cadence/mmsim/131                          
+cadence/mmsim/141                          
+cadence/mmsim/151(default)                 
+cadence/modus/16.10                        
+cadence/modus/21.10                        
+cadence/pvs/222                            
+cadence/quantus/221                        
+cadence/quantus/241                        
+cadence/spb/16.5                           
+cadence/spectre/181                        
+cadence/spectre/191                        
+cadence/spectre/231(default)               
+cadence/ssv/161                            
+cadence/ssv/221                            
+cadence/ssv/231                            
+cadence/xcelium/183                        
+cadence/xcelium/1803                       
+cadence/xcelium/1903                       
+cadence/xcelium/2203                       
+cadence/xcelium/2303(default)              
+cadence/xcelium/2403                       
+design-kits/dkdocs/1.0                     
+design-kits/dkdocs/1.1                     
+design-kits/stm/cmos28fdsoi-2.5f           
+design-kits/stm/cmos65bulk-536             
+imperas/ovp/2017                           
+imperas/ovp/2019                           
+imperas/ovp/2021                           
+imperas/ovp/2022                           
+mentor/adms/09.2                           
+mentor/adms/11.1                           
+mentor/adms/15.3                           
+mentor/calibre/2011.3                      
+mentor/calibre/2012.2                      
+mentor/calibre/2015.1                      
+mentor/calibre/2017.4                      
+mentor/calibre/2019.1(default)             
+mentor/calibre/2022.3                      
+mentor/calibre/2024.2                      
+mentor/catapult/10.5a(default)             
+mentor/modelsim/10.3c                      
+mentor/modelsim/2021                       
+mentor/questa-cdc/10.5g                    
+mentor/questa/10.4a                        
+mentor/questa/10.6e                        
+mentor/questa/2023b                        
+mentor/questa/2025.3(default)              
+mentor/tessent/2012.2                      
+mentor/visualizer/2025.3                   
+others/abc/1.01                            
+others/apache-ant/1.8.2                    
+others/archc/mips                          
+others/archc/v2.1(default)                 
+others/arm-none-eabi/9-2019-q4-major       
+others/arm-none-eabi/12.2.0                
+others/astran/3.10(default)                
+others/astran/3.20                         
+others/bak/click/7.1.2                     
+others/bak/DataProperty/1.0.1              
+others/bak/GitPython/3.1.17                
+others/bak/mbstrdecoder/1.0.0              
+others/bak/pathvalidate/2.3.0              
+others/bak/pyelftools/0.26                 
+others/bak/pytablewriter/1.2.0             
+others/bak/pytz/2019.1                     
+others/bak/pyyaml/5.2                      
+others/bak/riscof/1.25.3                   
+others/bak/riscv-config/3.17.1             
+others/bak/riscv-isac/0.18.0               
+others/bak/tabledata/1.3.1                 
+others/bak/tcolorpy/0.0.5                  
+others/bak/typepy/1.3.2                    
+others/boost/1.55                          
+others/cheddar/2.1                         
+others/Cython/0.29.37.1                    
+others/dfu-util/0.11                       
+others/gcc/4.9.3                           
+others/ghdl/2.0.0                          
+others/gtkwave/3.3.111                     
+others/gtkwave/3.3.120                     
+others/gurobi/5.6                          
+others/gurobi/6.0                          
+others/gurobi/6.0.4                        
+others/gurobi/6.0.5                        
+others/gurobi/6.5                          
+others/gurobi/6.5.2                        
+others/gurobi/7.0.0                        
+others/gurobi/8.1.1                        
+others/gurobi/9.1.1                        
+others/jdk/1.7.0                           
+others/mars/4.1                            
+others/mars/4.5                            
+others/master-pdf-editor/1.9.12            
+others/matlab/R2014a                       
+others/memphis-v/baseline                  
+others/memphis/baseline                    
+others/metaace/2.11                        
+others/metaace/2.13                        
+others/mips-elf/4.1.1                      
+others/mips-elf/4.1.1-hemps                
+others/mips-elf/4.6.1                      
+others/mips-elf/4.9.3                      
+others/mips-sde/6.06.01                    
+others/mysqlcppapi/2.0                     
+others/ngspice/44                          
+others/ocpip/2.2x2.2                       
+others/opam/2.3.0                          
+others/riscv-gnu-toolchain/2023.05.14      
+others/riscv-isa-sim/1.1.0                 
+others/riscv32-elf/8.1.0                   
+others/riscv32-elf/8.3.0                   
+others/riscv64-elf/12.1.0                  
+others/riscv64-elf/12.2.0                  
+others/riscv64-elf/13.2.0                  
+others/riscv64-elf/14.1.0                  
+others/riscv64-elf/14.2.0                  
+others/riscv64-elf/15.1.0                  
+others/riscv64-elf/15.2.0                  
+others/riscv64-elf/15.2.0-gaph             
+others/riscv64-elf/16.1.0-gaph             
+others/sail-riscv/0.7                      
+others/sail-riscv/0.8                      
+others/sail-riscv/0.12                     
+others/sail/0.19                           
+others/sge/6.2u7                           
+others/spike/1.1.0                         
+others/srecord/1.65.0                      
+others/stm32cubeide/1.10.1                 
+others/stm32cubemx/6.6.1                   
+others/stm32cubeprog/2.11.0                
+others/systemc-port-naming/2003.10.11      
+others/systemc/2.2.0                       
+others/systemc/2.3.0                       
+others/systemc/2.3.0-32bits                
+others/systemc/2.3.1                       
+others/systemc/2.3.3                       
+others/systemc/2.3.3-CXX17                 
+others/systemc/2.3.3b                      
+others/systemc/2.3.4                       
+others/systemc/2.3.4-CXX20                 
+others/systemc/2.3.4-el8(default)          
+others/tlm/1.0                             
+others/tlm/2.0.1                           
+others/tsmc/1.0.0                          
+others/ut/4.2                              
+others/verilator/4.224                     
+others/verilator/5.008                     
+others/verilator/5.024                     
+others/verilator/5.024-CXX20               
+others/verilator/5.028                     
+others/verilator/5.052                     
+others/wfdb/10.7.0                         
+others/xorriso/1.5.6                       
+proj/wimed/1.0                             
+sesd/atlas/v1.0.1                          
+sesd/atlas/v1.0.2                          
+sesd/cafes/v3.9.9                          
+sesd/hemps-glp/4.1                         
+sesd/hemps/4.0                             
+sesd/hemps/4.1                             
+sesd/hemps/4.2                             
+sesd/hemps/5.0                             
+sesd/hemps/5.2                             
+sesd/hemps/7.0                             
+sesd/hemps/7.2                             
+sesd/hemps/8.2                             
+sesd/lichen/v1                             
+sesd/nocaddress/1.1                        
+sesd/paloma/trunk                          
+sesd/rogen/v1                              
+silvaco/cello/2019.5                       
+silvaco/viola/v2019_03-QR01sp1             
+synopsys/ccss/D-2009.12-SP1                
+synopsys/customdesigner/J-2014.12-SP2-2    
+synopsys/customwave/J-2014.09-SP2-1        
+synopsys/dc/G-2012.06-SP2                  
+synopsys/dc/I-2013.12-SP3                  
+synopsys/dc/O-2018.06-SP2                  
+synopsys/hspice/J-2014.09-1                
+synopsys/iccompiler/H-2013.03-SP4          
+synopsys/iccompiler/J-2014.09-SP1          
+synopsys/laker-adp/2015.03-3               
+synopsys/laker-blitz/2015.03-SP3           
+synopsys/laker/K-2015.06-SP2-3             
+synopsys/LibraryCompiler/2018.06-SP3       
+synopsys/milkyway/H-2013.03-SP4            
+synopsys/nanotime/J-2014.06                
+synopsys/ncx/F-2011.06-SP2                 
+synopsys/primetime/F-2011.12               
+synopsys/primetime/J-2014.12-SP2           
+synopsys/primetime/O-2018.06-SP2           
+synopsys/processor_designer/F-2011.06-SP3  
+
+------------------------ /usr/share/Modules/modulefiles ------------------------
+dot  module-git  module-info  modules  null  use.own  

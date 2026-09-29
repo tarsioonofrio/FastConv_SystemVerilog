@@ -1,0 +1,14 @@
+#-----------------------------------------------------------
+# Vivado v2023.2 (64-bit)
+# SW Build 4029153 on Fri Oct 13 20:13:54 MDT 2023
+# IP Build 4028589 on Sat Oct 14 00:45:43 MDT 2023
+# SharedData Build 4025554 on Tue Oct 10 17:18:54 MDT 2023
+# Start of session at: Tue Sep 29 12:53:45 2026
+# Process ID: 2830763
+# Current directory: /tmp/fastconv-trunc-pipe-0ff2cf1/repo/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/prefetch8-rowconst4-trunc-pipe/top
+# Command line: vivado -mode batch -source /tmp/fastconv-trunc-pipe-0ff2cf1/repo/rtl/conv2x2/fpga_zcu104/column_power_comparison/scripts/power_p3f.tcl -log /tmp/fastconv-trunc-pipe-0ff2cf1/repo/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/prefetch8-rowconst4-trunc-pipe/p3f.vivado.log -journal /tmp/fastconv-trunc-pipe-0ff2cf1/repo/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/prefetch8-rowconst4-trunc-pipe/p3f.vivado.jou -tclargs /tmp/fastconv-trunc-pipe-0ff2cf1/repo/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign prefetch8-rowconst4-trunc-pipe /tmp/fastconv-trunc-pipe-0ff2cf1/repo/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/prefetch8-rowconst4-trunc-pipe/dut/activity_dut.saif /tmp/fastconv-trunc-pipe-0ff2cf1/repo/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/prefetch8-rowconst4-trunc-pipe/top/activity_top.saif
+# Log file: /tmp/fastconv-trunc-pipe-0ff2cf1/repo/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/prefetch8-rowconst4-trunc-pipe/p3f.vivado.log
+# Journal file: /tmp/fastconv-trunc-pipe-0ff2cf1/repo/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/prefetch8-rowconst4-trunc-pipe/p3f.vivado.jou
+# Running On: paxos.inf.pucrs.br, OS: Linux, CPU Frequency: 3100.000 MHz, CPU Physical cores: 14, Host memory: 134319 MB
+#-----------------------------------------------------------
+source /tmp/fastconv-trunc-pipe-0ff2cf1/repo/rtl/conv2x2/fpga_zcu104/column_power_comparison/scripts/power_p3f.tcl
