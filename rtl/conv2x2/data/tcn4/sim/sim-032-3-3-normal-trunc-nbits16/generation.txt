@@ -1,0 +1,27 @@
+Dataset generation provenance
+
+Architecture: tcn4, 2-D Winograd F(2,3)
+Image side: 32
+Input channels: 3
+Output channels: 3
+Kernel: 3x3
+Quantization bits: 8
+Signed datapath width: NBITS=16
+Weight transform: truncated, arithmetic divide by scale 4
+Seed: 0
+
+Generated with the fast-convolution-rtl command:
+
+`python -m fast_convolution.cli -p <tcn4-config-copy> sim normal --image-side 32 --channel-in 3 --channel-out 3 --seed 0 --name 032-3-3-normal-trunc-nbits16 --truncated-weight-transform --nbits 16 --no-c`
+
+The same seed/configuration at NBITS=20 was compared against the existing
+canonical truncation workload; its `d.txt`, `g.txt`, and `s.txt` matched
+byte-for-byte before creating this 16-bit variant. The actual FPGA runs
+separately synthesize `Conv` with `NBITS=16` and compile the power testbench
+with `NBITS16` defined.
+
+The generator checkout had local uncommitted changes during generation. The
+generator HEAD was `cbe17748b9f18dd5dbe0312150dec5ed2e65d236`; its working tree
+was dirty. SHA-256 hashes of the relevant code and tcn4 configuration files
+are recorded in `generation_sources.sha256`. The generated package declares
+signed 16-bit arrays.

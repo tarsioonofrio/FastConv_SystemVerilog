@@ -832,11 +832,11 @@ module Conv
   assign w_inverse_product_row[3] = r_hadamard_product_reg[3];
   assign w_inverse_product_row_lane1[0] = r_hadamard_product_reg[4]; assign w_inverse_product_row_lane1[1] = r_hadamard_product_reg[5];
   assign w_inverse_product_row_lane1[2] = r_hadamard_product_reg[6]; assign w_inverse_product_row_lane1[3] = r_hadamard_product_reg[7];
-  InverseRow inverse_row_current(.inverse_input_row(w_inverse_product_row), .inverse_partial(w_inverse_partial_current));
-  InverseRow inverse_row_lane1(.inverse_input_row(w_inverse_product_row_lane1), .inverse_partial(w_inverse_partial_lane1));
-  InverseRowAccumulate inverse_row_acc(
+  InverseRow #(.NBITS(NBITS)) inverse_row_current(.inverse_input_row(w_inverse_product_row), .inverse_partial(w_inverse_partial_current));
+  InverseRow #(.NBITS(NBITS)) inverse_row_lane1(.inverse_input_row(w_inverse_product_row_lane1), .inverse_partial(w_inverse_partial_lane1));
+  InverseRowAccumulate #(.NBITS(NBITS)) inverse_row_acc(
     .inverse_row_idx(r_hadamard_product_row_idx_reg), .accumulator_in(r_output_write), .inverse_partial(w_inverse_partial_current), .accumulator_out(w_output_acc_after_lane0));
-  InverseRowAccumulate inverse_row_acc_second(
+  InverseRowAccumulate #(.NBITS(NBITS)) inverse_row_acc_second(
     .inverse_row_idx(r_hadamard_product_row_idx_reg + 1'b1), .accumulator_in(w_output_acc_after_lane0), .inverse_partial(w_inverse_partial_lane1), .accumulator_out(w_output_acc_next));
   // ----------------------------------------------------------------------------------------------------
   // -------  PART 4 - OUTPUT FSM AND READ/WRITE COUNTER -------------------------------------------------

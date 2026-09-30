@@ -816,8 +816,8 @@ module Conv
     .feature(w_transform_feature[2]), .weight(r_input_weight[2]), .product(w_conv_product[2]));
   Multip #(.QUANT(QUANT), .NBITS(NBITS)) multip3(
     .feature(w_transform_feature[3]), .weight(r_input_weight[3]), .product(w_conv_product[3]));
-  InverseRow inverse_row_current(.inverse_input_row(w_inverse_product_row), .inverse_partial(w_inverse_partial_current));
-  InverseRowAccumulate inverse_row_acc(
+  InverseRow #(.NBITS(NBITS)) inverse_row_current(.inverse_input_row(w_inverse_product_row), .inverse_partial(w_inverse_partial_current));
+  InverseRowAccumulate #(.NBITS(NBITS)) inverse_row_acc(
     .inverse_row_idx(r_hadamard_product_row_idx_reg), .accumulator_in(r_output_write), .inverse_partial(w_inverse_partial_current), .accumulator_out(w_output_acc_next));
   // ----------------------------------------------------------------------------------------------------
   // -------  PART 4 - OUTPUT FSM AND READ/WRITE COUNTER -------------------------------------------------

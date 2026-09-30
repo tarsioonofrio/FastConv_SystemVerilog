@@ -7,7 +7,11 @@ module tb_power;
   import pack_data::*;
   import pack_param::*;
 
+`ifdef NBITS16
+  localparam int unsigned NBITS = 16;
+`else
   localparam int unsigned NBITS = 20;
+`endif
   localparam int unsigned INPUT_MEMORY_SIZE = $size(const_data);
   localparam int unsigned OUTPUT_MEMORY_SIZE = FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE * N_CHANNEL_OUT;
   // Keep address width identical across all four candidates and aligned with

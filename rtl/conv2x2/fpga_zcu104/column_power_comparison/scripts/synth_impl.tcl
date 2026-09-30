@@ -1,10 +1,12 @@
 # Synthesize and route one scalar/column Conv variant at the common 317 MHz point.
-# Usage: vivado -mode batch -source synth_impl.tcl -tclargs <bench-dir> <repo-root> <run> <manifest>
-if {$argc != 4} { error "usage: synth_impl.tcl <bench-dir> <repo-root> <run> <manifest>" }
+# Usage: vivado -mode batch -source synth_impl.tcl -tclargs <bench-dir> <repo-root> <run> <manifest> ?<parameter=value>?
+if {$argc < 4 || $argc > 5} { error "usage: synth_impl.tcl <bench-dir> <repo-root> <run> <manifest> ?<parameter=value>?" }
 set bench_dir [file normalize [lindex $argv 0]]
 set repo_root [file normalize [lindex $argv 1]]
 set run_name [lindex $argv 2]
 set manifest [file normalize [lindex $argv 3]]
+set generic_override ""
+if {$argc == 5} { set generic_override [lindex $argv 4] }
 set run_dir [file join $bench_dir reports $run_name]
 file mkdir $run_dir
 
@@ -15,6 +17,7 @@ puts $fp "top=Conv"
 puts $fp "target_period_ns=3.154574"
 puts $fp "target_frequency_mhz=317"
 puts $fp "manifest=$manifest"
+if {$generic_override ne ""} { puts $fp "generic_override=$generic_override" }
 close $fp
 
 set sources [open $manifest r]
@@ -28,7 +31,11 @@ while {[gets $sources line] >= 0} {
 close $sources
 
 read_xdc [file join $bench_dir constraints zcu104_317mhz.xdc]
-synth_design -top Conv -part xczu7ev-ffvc1156-2-e
+if {$generic_override eq ""} {
+  synth_design -top Conv -part xczu7ev-ffvc1156-2-e
+} else {
+  synth_design -top Conv -part xczu7ev-ffvc1156-2-e -generic $generic_override
+}
 write_checkpoint -force [file join $run_dir design_synth.dcp]
 opt_design
 place_design
