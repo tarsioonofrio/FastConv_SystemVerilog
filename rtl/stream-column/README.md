@@ -15,10 +15,10 @@ Os RTL gerados ficam na pasta do tamanho, com o algoritmo no nome:
 
 | Algoritmo | Tile de entrada | Hadamard | Saída | MACs | Escala dos pesos | Arquivo |
 | --------- | --------------: | -------: | ----: | ---: | ---------------: | ------- |
-| `tcn9` | 5x5 | 5x5 | 3x3 | 5 | 36 | `../conv3x3/conv-i40-h14-t10-o9-m05-tcn9-stream10-prefetch15-rowconst5-trunc-column.sv` |
-| `ifn9` | 5x5 | 6x6 | 3x3 | 6 | 1 | `../conv3x3/conv-i40-h15-t12-o9-m06-ifn9-stream12-prefetch15-rowconst6-trunc-column.sv` |
-| `tcn16` | 6x6 | 6x6 | 4x4 | 6 | 576 | `../conv4x4/conv-i60-h15-t12-o16-m06-tcn16-stream12-prefetch24-rowconst6-trunc-column.sv` |
-| `wpn16` | 6x6 | 8x8 | 4x4 | 8 | 4 | `../conv4x4/conv-i60-h17-t16-o16-m08-wpn16-stream16-prefetch24-rowconst8-trunc-column.sv` |
+| `tcn9` | 5x5 | 5x5 | 3x3 | 5 | 36 | `../conv3x3/conv-tcn9-i40-h14-t10-o9-m05-stream10-prefetch15-rowconst5-trunc-column.sv` |
+| `ifn9` | 5x5 | 6x6 | 3x3 | 6 | 1 | `../conv3x3/conv-ifn9-i40-h15-t12-o9-m06-stream12-prefetch15-rowconst6-trunc-column.sv` |
+| `tcn16` | 6x6 | 6x6 | 4x4 | 6 | 576 | `../conv4x4/conv-tcn16-i60-h15-t12-o16-m06-stream12-prefetch24-rowconst6-trunc-column.sv` |
+| `wpn16` | 6x6 | 8x8 | 4x4 | 8 | 4 | `../conv4x4/conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv` |
 
 O nome segue a convenção do 2x2: `i` são as palavras de entrada guardadas (banco
 do tile mais banco de prefetch), `h` as de pesos (nove espaciais mais a linha
