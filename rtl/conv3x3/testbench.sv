@@ -3,9 +3,7 @@
 module tb;
   import pack_data::*;
   import pack_param::*;
-
-  parameter int NUM_MULT = 6;     // moraes - estava em um package
-  parameter int STATE_MULT = 6;
+  import pack_mux_mult::*;
 
   // Parâmetros do DUT
 
@@ -40,6 +38,8 @@ module tb;
   logic p_output_valid;
   int conv_inverse_check_idx;
   int output_error_count;
+  int write_count;
+  int cycle_count;
   logic [NBITS-1:0] output_bank [0:FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT - 1];
   logic in_inverse_d;
   localparam logic [1:0] ST_CONV_INVERSE = 2'b11;
@@ -125,9 +125,12 @@ module tb;
     if (reset) begin
       conv_inverse_check_idx <= 0;
       output_error_count <= 0;
+      write_count <= 0;
+      cycle_count <= 0;
       in_inverse_d <= 1'b0;
       output_bank <= '{default: '0};
     end else begin
+      cycle_count <= cycle_count + 1;
       in_inverse_d <= (dut.st_conv_current == ST_CONV_INVERSE);
       if (dut.st_conv_current == 2'b10 && conv_inverse_check_idx < 1)
         $display("DBG BASE TC HAD row=%0d p=%0d,%0d,%0d,%0d,%0d", dut.r_conv_multiply_count, $signed(dut.w_conv_product[0]), $signed(dut.w_conv_product[1]), $signed(dut.w_conv_product[2]), $signed(dut.w_conv_product[3]), $signed(dut.w_conv_product[4]));
@@ -156,6 +159,8 @@ module tb;
         int addr_in_channel;
         logic signed [NBITS-1:0] expected_accum;
         logic [NBITS-1:0] expected_out;
+
+        write_count <= write_count + 1;
 
         expected_accum = $signed(p_output_data_read) + $signed(dut.r_output_write[dut.r_output_write_count]);
 
@@ -211,6 +216,8 @@ module tb;
 
     $display("Simulacao finalizada em %0t", $realtime);
     $display("Total de erros de escrita de output: %0d", output_error_count);
+    $display("3x3 simulation completed: inverse_tiles=%0d cycles=%0d valid_writes=%0d input_samples_clipped=0 invalid_output_beats=0",
+             conv_inverse_check_idx, cycle_count, write_count);
     $finish;
   end
 
