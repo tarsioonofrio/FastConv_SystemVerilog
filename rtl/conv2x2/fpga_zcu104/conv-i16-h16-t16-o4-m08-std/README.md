@@ -18,7 +18,7 @@ família usada pelo WinoGen:
 | Board de referência | ZCU104 |
 | Part | `xczu7ev-ffvc1156-2-e` |
 | Top RTL | `Conv` |
-| Variante | `rtl/conv2x2/conv-i16-h16-t16-o4-m08-std.sv` |
+| Variante | `rtl/conv2x2/archive/m08/conv-i16-h16-t16-o4-m08-std.sv` |
 | Precisão | 20 bits (`NBITS=20`) |
 | Transformada | TC2x2 / F(2,3), saída 2x2 |
 | MACs físicos | 8 |

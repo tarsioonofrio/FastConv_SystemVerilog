@@ -34,7 +34,7 @@ verilator -j 0 -DSIMULATION -DNO_DUMP --top-module tb_power -Wno-fatal \
   "$repo_root/rtl/multip/multip.sv" \
   "$repo_root/rtl/conv2x2/mux-mult/tcn4/mux_mult_04.sv" \
   "$repo_root/rtl/conv2x2/mult-matrices/tcn4/mult_matrices.sv" \
-  "$repo_root/rtl/conv2x2/conv-i16-h16-t16-o4-m08-std.sv" \
+  "$repo_root/rtl/conv2x2/archive/m08/conv-i16-h16-t16-o4-m08-std.sv" \
   "$bench_dir/tb/tb_power.sv" --build >"$bench_dir/reports/rtl_power_compile.log" 2>&1
 "$tmp_dir/obj/Vtb_power" >"$bench_dir/reports/rtl_power_workload.log" 2>&1
 
