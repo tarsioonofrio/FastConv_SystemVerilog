@@ -1414,6 +1414,11 @@ tabela acima destaca os valores nominais de total.
 Os resultados `m04` e os relatórios de síntese anteriores permanecem sob
 `archive/m04/`; nenhum arquivo `m04` foi sobrescrito pelos artefatos `m08`.
 
+Exceção: `conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column.sv`
+(commit `c3e7c3ae`) permanece no diretório ativo, ao lado da versão m08. Ele
+não é uma referência histórica: foi criado depois da conversão acima para
+medir o custo de metade dos DSPs na linha `trunc-column`. Ver §13.6.
+
 ### 15. Diagrama de ondas das FSMs e do prefetch
 
 O diagrama abaixo mostra a relação temporal entre as três FSMs do
@@ -2331,3 +2336,94 @@ estimativas Vivado, sem SDF e sem medição física da placa. Os dados completos
 incluindo vetorless, corners Typical/Maximum e proveniência, estão em
 `stream08_pipeline_campaign/reports/prefetch8-rowconst4-trunc-column/summary.md`;
 a comparação pareada anterior está em `column_power_comparison/comparison.md`.
+
+#### 13.6 Variante `m04` de `trunc-column`, largura de 16 bits e revisão do prefetch (30/09/2026)
+
+**Motivação.** O commit `c3e7c3ae` criou
+`conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column.sv`, com
+quatro MACs. A pergunta era quanto se perde ao usar metade dos DSPs na
+`trunc-column`. Na m04 o Hadamard tem `STREAM_CYCLES = 4` ciclos de uma linha
+de quatro produtos, `r_inverse_row_idx` avança de um em um e há um único par
+`InverseRow`/`InverseRowAccumulate`. Na m08 são dois ciclos, o índice avança de
+dois em dois e o segundo acumulador recebe `idx + 1`. O restante (interface
+column, prefetch de oito palavras, `WeightTransformRowConst` com truncamento)
+é idêntico nos dois arquivos. O `Makefile` compila a m04 com o alvo
+`stream08-prefetch8-rowconst4-trunc-column-4mac`.
+
+**Campanha 16/20 bits.** A comparação
+`stream08_pipeline_campaign/results-nbits16-trunc-column.md` executou m04 e
+m08 em `NBITS` = 16 e 20, todas no commit `b96155529160`, ZCU104, Vivado 2023.2,
+Xcelium 23.03, 317 MHz, workload truncado 32x32 (seed 0). Os quatro casos
+passaram na simulação funcional pós-route (8.100 escritas, 2.700 palavras
+finais, zero mismatches). O 20 bits da m08 foi reexecutado: o relatório anterior
+(§13.5, 3.156 LUT, WNS +0,185 ns) veio de uma revisão anterior do RTL e não é a
+linha de base pareada.
+
+| Métrica                     | m08 20 b | m08 16 b | m04 20 b | m04 16 b |
+| --------------------------- | -------: | -------: | -------: | -------: |
+| DSP                         |        8 |        8 |        4 |        4 |
+| LUT                         |    3.170 |    2.332 |    2.980 |    2.358 |
+| FF                          |    1.484 |    1.156 |    1.243 |      969 |
+| WNS @317 MHz                | +0,048 ns | +0,369 ns | +0,289 ns | +0,370 ns |
+| Ciclos ativos               |   14.502 |   14.502 |   18.552 |   18.552 |
+| P3F dinâmico típico         |  0,388 W |  0,295 W |  0,343 W |  0,288 W |
+| Energia dinâmica por job    | 17,75 uJ | 13,50 uJ | 20,07 uJ | 16,85 uJ |
+| Energia total por job       | 44,92 uJ | 40,67 uJ | 54,78 uJ | 51,56 uJ |
+
+Leitura: a m04 troca 28% mais ciclos (18.552 contra 14.502) por metade dos
+DSPs, cerca de 6% menos LUT e 16% menos FF em 20 bits. Como o job dura mais,
+a energia por job é maior que a da m08 nas duas larguras, e a potência estática
+(cerca de 0,59 W) e o I/O (0,26 a 0,28 W em 20 bits) são quase iguais. Em 16
+bits a diferença de LUT entre m04 e m08 praticamente desaparece (2.358 contra
+2.332). A m04 só se justifica quando o número de DSPs for o recurso limitante.
+Passar de 20 para 16 bits reduz LUT em 26,4% (m08) e 20,9% (m04) sem alterar
+ciclos, e o WNS da m08 sobe de 48 ps para 369 ps. Os valores são estimativas
+Vivado (P3F, sem SDF), com portas `UNFIXED`; não são medição de placa. Como a
+validação usa um único seed, a equivalência funcional em 16 bits (onde `Multip`
+e `Transform` descartam bits altos por wrap) não foi testada em faixas
+dinâmicas extremas.
+
+**Revisão do RTL (30/09/2026).** A revisão dos dois arquivos encontrou e
+corrigiu, sem alterar ciclos nem resultados:
+
+- **Prefetch reiniciado dentro de `CONV_INPUT`.** O gatilho do prefetch
+  testava apenas `st_input_current == CONV_INPUT`, o peso já em cache e a
+  coluna. Como `CONV_INPUT` pode durar vários ciclos (convolução ocupada ou
+  `st_output_next == WRITE_OUTPUT`), a busca das duas colunas era reemitida a
+  cada ciclo, zerando `r_input_prefetch_full` e relendo o mesmo endereço. O
+  resultado era correto porque o endereço não mudava, mas o barramento de
+  entrada era usado à toa. O gatilho agora também exige
+  `!r_input_prefetch_active && !r_input_prefetch_full`, e `full` é zerado em
+  `NEXT_ROW_INPUT`/`ADDRESS_INPUT` para que um valor antigo nunca bloqueie a
+  busca seguinte.
+- Removido o `if/else` de `r_input_addr_kernel` com ramos idênticos; corrigidos
+  comentários desatualizados; a multiplicação `fase * FEAT_INPUT_WIDTH` do
+  endereço de prefetch virou uma seleção entre 0 e uma coluna; o
+  `OUTPUT_DATA_BLOCK` passou a usar reset assíncrono como os demais blocos; um
+  `$error` de elaboração passou a exigir `NUM_MULT == FIXED_NUM_MULT`.
+
+**Como o efeito foi medido.** No Verilator (Verilator 5.050, testbench
+`testbench_prefetch8_column.sv`, workload truncado), um contador temporário de
+ciclos com `p_input_en` alto, fora do RTL versionado, deu:
+
+| Variante | Ciclos com `p_input_en` (antes) | (depois) | Ciclos totais do testbench |
+| -------- | ------------------------------: | -------: | -------------------------: |
+| m08      |                           9.606 |    4.359 | 14.529 (iguais)            |
+| m04      |                           9.605 |    4.358 | 18.579 (iguais)            |
+
+A queda é de cerca de 55% nas leituras da memória de entrada. As duas versões
+seguem com 2.025 tiles inversos, 8.100 escritas válidas e zero acessos fora dos
+limites. Os ciclos impressos pelo testbench Verilator (14.529 e 18.579) diferem
+dos "ciclos ativos" da campanha FPGA (14.502 e 18.552) por 27 ciclos nas duas
+variantes; a diferença vem de contagens distintas e não foi investigada, então
+os dois conjuntos não devem ser misturados numa mesma tabela.
+
+Limites: este ajuste ainda não passou por Xcelium, síntese ou uma nova medição
+P3F. Todos os números FPGA acima correspondem ao RTL anterior a ele, então o
+efeito sobre potência de I/O e comutação é uma expectativa, não um resultado.
+O mesmo gatilho existe em `prefetch8-rowconst4`, `-column` e `-trunc`, que não
+foram alterados. Também ficam pendentes: a duplicação do módulo
+`WeightTransformRowConst` entre as variantes trunc, as multiplicações herdadas
+de `channel * FEAT_INPUT_SIZE * FEAT_INPUT_WIDTH` no gerador de endereços e o
+nome `w_conv_end` para um registrador (mantido porque o testbench e o
+`wave.do` o referenciam).

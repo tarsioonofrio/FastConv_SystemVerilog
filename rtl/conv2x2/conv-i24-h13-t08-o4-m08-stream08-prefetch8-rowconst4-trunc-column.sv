@@ -47,6 +47,11 @@ module Conv
       f_width_min1 = $clog2(x);
   endfunction
 
+  // Guard the fixed-MAC datapath against a mismatching compatibility parameter.
+  if (NUM_MULT != FIXED_NUM_MULT) begin: NUM_MULT_CHECK
+    $error("NUM_MULT (%0d) must equal FIXED_NUM_MULT (%0d) for this variant", NUM_MULT, FIXED_NUM_MULT);
+  end
+
   logic [NBITS-1:0] r_input_feat[(CONV_INPUT_SIZE * CONV_INPUT_SIZE) - 1:0];  // input feature register bank
   logic [NBITS-1:0] w_input_feat_next[(CONV_INPUT_SIZE * CONV_INPUT_SIZE) - 1:0];  // next values for feature shift bank
   logic [NADDR-1:0] r_input_addr_feat;
@@ -98,15 +103,13 @@ module Conv
   localparam STREAM_CYCLES = 2;
   localparam PREFETCH_PHASES = PREFETCH_WORDS / CONV_INPUT_SIZE;
   localparam PREFETCH_PHASE_WIDTH = f_width_min1(PREFETCH_PHASES);
-  // Counter-coded prefetch phase: TRANSFORM, HADAMARD cycles, INVERSE.
+  // Prefetch beat index: each beat carries one input column (CONV_INPUT_SIZE words).
   logic [PREFETCH_PHASE_WIDTH-1:0] r_input_prefetch_phase;
   logic [(f_width_min1(STREAM_CYCLES + 1))-1:0] r_conv_multiply_count;
-  // Only the four transformed weights used by the current Hadamard row are
-  // stored.  The next row is generated combinationally from the registered
-  // spatial tile and captured at the end of the current Hadamard cycle.
   // The nine spatial weights are retained for the complete tile.  The MAC
-  // bank below still contains only the four transformed values for the row
-  // currently consumed by the Hadamard stage.
+  // weight bank below holds only the transformed values consumed by the
+  // current Hadamard cycle; the next rows are generated combinationally from
+  // the spatial tile and captured at the end of the current Hadamard cycle.
   logic signed [NBITS-1:0] r_weight_spatial[RAW_WEIGHT_WORDS-1:0];
   logic [NBITS-1:0] r_input_weight[FIXED_NUM_MULT-1:0];
   localparam WEIGHT_ROW_COUNT_WIDTH = RAW_WEIGHT_COUNT_WIDTH;
@@ -236,7 +239,8 @@ module Conv
   assign p_input_en = r_input_prefetch_active ||
                       (st_input_current inside {READ_WEIGHTS, READ_IN_10A, READ_IN_10B, READ_IN_8C, READ_IN_8D});
   assign p_input_addr = r_input_prefetch_active
-                      ? r_input_prefetch_addr + NADDR'(int'(r_input_prefetch_phase) * FEAT_INPUT_WIDTH)
+                      // Two column beats: offset is 0 or one column (no multiplier).
+                      ? r_input_prefetch_addr + ((r_input_prefetch_phase == '0) ? NADDR'(0) : NADDR'(FEAT_INPUT_WIDTH))
                       : (st_input_current == READ_WEIGHTS)
                       ? r_input_addr_kernel
                       : r_input_addr_feat;  // One input-column address per beat.
@@ -285,10 +289,7 @@ module Conv
     end else if (st_input_current == HOLD_WRITE && st_input_next == READ_WEIGHTS) begin
       // Restart at the first raw-weight vector for each spatial window or
       // Hadamard cycle. Each vector contains one row of the 3x3 kernel.
-      if (st_conv_current == HADAMARD)
-        r_input_addr_kernel <= r_input_addr_kernel_base;
-      else
-        r_input_addr_kernel <= r_input_addr_kernel_base;
+      r_input_addr_kernel <= r_input_addr_kernel_base;
     end else if (st_input_current == READ_WEIGHTS) begin
       r_input_addr_kernel <= r_input_addr_kernel + NADDR'(CONV_KERNEL_SIZE);
     end
@@ -531,7 +532,10 @@ module Conv
       // The row-constant variant loads its nine spatial weights after the
       // first input tile.  Do not let the prefetch port steal those reads;
       // start overlapping only once the weight tile is cached.
+      // Issue the prefetch once per tile: CONV_INPUT may last several cycles
+      // while the convolution drains, and re-issuing would repeat the reads.
       if (st_input_current == CONV_INPUT && r_weight_tile_valid &&
+          !r_input_prefetch_active && !r_input_prefetch_full &&
           (r_input_window_counter_col < WINDOW_ROW_COUNTER_WIDTH'(WINDOW_COUNT_PER_LINE - 1))) begin
         r_input_prefetch_active <= 1'b1;
         r_input_prefetch_addr <= r_input_addr_feat + NADDR'(FEAT_INPUT_WIDTH);
@@ -548,8 +552,10 @@ module Conv
           r_input_prefetch_phase <= r_input_prefetch_phase + 1'b1;
         end
       end
-      if (st_input_current == NEXT_ROW_INPUT || st_input_current == ADDRESS_INPUT)
+      if (st_input_current == NEXT_ROW_INPUT || st_input_current == ADDRESS_INPUT) begin
         r_input_prefetch_active <= 1'b0;
+        r_input_prefetch_full <= 1'b0;
+      end
       if (st_input_current == ADDRESS_INPUT || st_input_current == NEXT_ROW_INPUT)
         r_input_prefetch_enabled <= 1'b0;
       else if (st_input_current == CONV_INPUT && st_conv_current == WAIT_CONV)
@@ -956,7 +962,7 @@ module Conv
     end
   end
 
-  always_ff @(posedge clk) begin: OUTPUT_DATA_BLOCK
+  always_ff @(posedge clk or posedge reset) begin: OUTPUT_DATA_BLOCK
     if (reset) begin
       r_output_read <= '{default: '0};
     end else begin
