@@ -1,0 +1,119 @@
+#-----------------------------------------------------------
+# Vivado v2023.2 (64-bit)
+# SW Build 4029153 on Fri Oct 13 20:13:54 MDT 2023
+# IP Build 4028589 on Sat Oct 14 00:45:43 MDT 2023
+# SharedData Build 4025554 on Tue Oct 10 17:18:54 MDT 2023
+# Start of session at: Wed Sep 30 02:03:53 2026
+# Process ID: 3198410
+# Current directory: /tmp/fastconv-trunc-column-refresh-4184991
+# Command line: vivado -mode batch -source /tmp/fastconv-trunc-column-refresh-4184991/rtl/conv2x2/fpga_zcu104/column_power_comparison/scripts/prepare_funcsim.tcl -log /tmp/fastconv-trunc-column-refresh-4184991/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/refresh-4184991-m08-nbits20/funcsim_prepare.vivado.log -journal /tmp/fastconv-trunc-column-refresh-4184991/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/refresh-4184991-m08-nbits20/funcsim_prepare.vivado.jou -tclargs /tmp/fastconv-trunc-column-refresh-4184991/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/refresh-4184991-m08-nbits20/design_routed.dcp /tmp/fastconv-trunc-column-refresh-4184991/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/refresh-4184991-m08-nbits20/design_routed_funcsim.v /tmp/fastconv-trunc-column-refresh-4184991/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/simlibs_unisim
+# Log file: /tmp/fastconv-trunc-column-refresh-4184991/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/refresh-4184991-m08-nbits20/funcsim_prepare.vivado.log
+# Journal file: /tmp/fastconv-trunc-column-refresh-4184991/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/refresh-4184991-m08-nbits20/funcsim_prepare.vivado.jou
+# Running On: paxos.inf.pucrs.br, OS: Linux, CPU Frequency: 3100.000 MHz, CPU Physical cores: 14, Host memory: 134319 MB
+#-----------------------------------------------------------
+source /tmp/fastconv-trunc-column-refresh-4184991/rtl/conv2x2/fpga_zcu104/column_power_comparison/scripts/prepare_funcsim.tcl
+# if {$argc != 3} { error "usage: prepare_funcsim.tcl <dcp> <netlist> <simlib-dir>" }
+# set dcp [file normalize [lindex $argv 0]]
+# set netlist [file normalize [lindex $argv 1]]
+# set simlib_dir [file normalize [lindex $argv 2]]
+# open_checkpoint $dcp
+Command: open_checkpoint /tmp/fastconv-trunc-column-refresh-4184991/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/refresh-4184991-m08-nbits20/design_routed.dcp
+
+Starting open_checkpoint Task
+
+Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.02 . Memory (MB): peak = 1358.645 ; gain = 0.000 ; free physical = 18626 ; free virtual = 117970
+INFO: [Device 21-403] Loading part xczu7ev-ffvc1156-2-e
+Netlist sorting complete. Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.02 . Memory (MB): peak = 2416.723 ; gain = 0.000 ; free physical = 17597 ; free virtual = 116941
+INFO: [Netlist 29-17] Analyzing 394 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-479] Netlist was created with Vivado 2023.2
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Read ShapeDB Complete: Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00.01 . Memory (MB): peak = 2416.723 ; gain = 0.000 ; free physical = 17577 ; free virtual = 116922
+INFO: [Timing 38-478] Restoring timing data from binary archive.
+INFO: [Timing 38-479] Binary timing data restore complete.
+INFO: [Project 1-856] Restoring constraints from binary archive.
+INFO: [Project 1-853] Binary constraint restore complete.
+INFO: [Designutils 20-5722] Start Reading Physical Databases.
+Reading placement.
+Read Netlist Cache: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.01 . Memory (MB): peak = 2864.309 ; gain = 0.000 ; free physical = 17300 ; free virtual = 116645
+Reading placer database...
+Read Device Cache: Time (s): cpu = 00:00:00.03 ; elapsed = 00:00:00.03 . Memory (MB): peak = 2864.309 ; gain = 0.000 ; free physical = 17297 ; free virtual = 116641
+Read PlaceDB: Time (s): cpu = 00:00:00.14 ; elapsed = 00:00:00.15 . Memory (MB): peak = 2864.309 ; gain = 0.000 ; free physical = 17293 ; free virtual = 116638
+Read PulsedLatchDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2864.309 ; gain = 0.000 ; free physical = 17293 ; free virtual = 116638
+Reading routing.
+Read RouteStorage: Time (s): cpu = 00:00:00.09 ; elapsed = 00:00:00.1 . Memory (MB): peak = 2882.121 ; gain = 17.812 ; free physical = 17292 ; free virtual = 116637
+Read Physdb Files: Time (s): cpu = 00:00:00.28 ; elapsed = 00:00:00.29 . Memory (MB): peak = 2882.121 ; gain = 17.812 ; free physical = 17292 ; free virtual = 116637
+Restored from archive | CPU: 0.320000 secs | Memory: 7.692566 MB |
+Finished XDEF File Restore: Time (s): cpu = 00:00:00.31 ; elapsed = 00:00:00.32 . Memory (MB): peak = 2882.121 ; gain = 17.812 ; free physical = 17292 ; free virtual = 116637
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 3259.699 ; gain = 0.000 ; free physical = 16893 ; free virtual = 116238
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 133 instances were transformed.
+  DSP48E2 => DSP48E2 (DSP_ALU, DSP_A_B_DATA, DSP_C_DATA, DSP_MULTIPLIER, DSP_M_DATA, DSP_OUTPUT, DSP_PREADD, DSP_PREADD_DATA): 8 instances
+  IBUF => IBUF (IBUFCTRL, INBUF): 125 instances
+
+INFO: [Project 1-604] Checkpoint was created with Vivado v2023.2 (64-bit) build 4029153
+open_checkpoint: Time (s): cpu = 00:00:20 ; elapsed = 00:00:21 . Memory (MB): peak = 3259.734 ; gain = 1901.090 ; free physical = 16893 ; free virtual = 116238
+# write_verilog -force -mode funcsim $netlist
+# close_design
+# if {![file exists [file join $simlib_dir cds.lib]]} {
+#   compile_simlib -simulator xcelium -family zynquplus -language verilog -library unisim -directory $simlib_dir -no_ip_compile -force
+# } else {
+#   puts "Reusing compiled Xcelium UNISIM library: $simlib_dir"
+# }
+INFO: [Vivado 12-5496] Finding simulator executables and checking version...
+INFO: [Vivado 12-12197] Finding GCC compiler executables...
+INFO: [Vivado 12-12200] Using GCC executables set by -gcc_exec_path from '/soft64/cadence/ferramentas/XCELIUM2303/tools/cdsgcc/gcc/9.3/bin'
+INFO: [Vivado 12-12198] GCC version '9.3.0'
+INFO: [Vivado 12-5498] Processing source library information for the selected device family (default:all) ...
+
+Compiling libraries for 'xcelium' simulator in '/tmp/fastconv-trunc-column-refresh-4184991/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/simlibs_unisim'
+Creating cds.lib file...
+Creating hdl.var file...
+--> Compiling 'verilog.secureip' library...
+    > Source Library = '/soft64/xilinx/ferramentas/Vivado/2023.2/Vivado/2023.2/data/secureip'
+    > Compiled Path  = '/tmp/fastconv-trunc-column-refresh-4184991/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/simlibs_unisim/secureip'
+    > Log File       = '/tmp/fastconv-trunc-column-refresh-4184991/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/simlibs_unisim/secureip/.cxl.ver.secureip.secureip.log'
+
+compile_simlib[verilog.secureip]: 0 error(s), 1 warning(s), 50.00 % complete
+--> Compiling 'verilog.unisim' library...
+    > Source Library = '/soft64/xilinx/ferramentas/Vivado/2023.2/Vivado/2023.2/data/verilog/src'
+    > Compiled Path  = '/tmp/fastconv-trunc-column-refresh-4184991/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/simlibs_unisim/unisims_ver'
+    > Log File       = '/tmp/fastconv-trunc-column-refresh-4184991/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/simlibs_unisim/unisims_ver/.cxl.ver.unisim.unisims_ver.log'
+--> Compiling 'verilog.unisim:verilog.unimacro' library...
+    > Source Library = '/soft64/xilinx/ferramentas/Vivado/2023.2/Vivado/2023.2/data/verilog/src/unimacro'
+    > Compiled Path  = '/tmp/fastconv-trunc-column-refresh-4184991/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/simlibs_unisim/unimacro_ver'
+    > Log File       = '/tmp/fastconv-trunc-column-refresh-4184991/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/simlibs_unisim/unimacro_ver/.cxl.ver.unimacro.unimacro_ver.log'
+compile_simlib[verilog.unisim:verilog.unimacro]: 0 error(s), 0 warning(s)
+--> Compiling 'verilog.unisim:verilog.unifast' library...
+    > Source Library = '/soft64/xilinx/ferramentas/Vivado/2023.2/Vivado/2023.2/data/verilog/src/unifast'
+    > Compiled Path  = '/tmp/fastconv-trunc-column-refresh-4184991/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/simlibs_unisim/unifast_ver'
+    > Log File       = '/tmp/fastconv-trunc-column-refresh-4184991/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/simlibs_unisim/unifast_ver/.cxl.ver.unifast.unifast_ver.log'
+compile_simlib[verilog.unisim:verilog.unifast]: 0 error(s), 0 warning(s)
+
+compile_simlib[verilog.unisim]: 0 error(s), 2 warning(s), 100.00 % complete
+Copying setup file 'cds.lib' to '/tmp/fastconv-trunc-column-refresh-4184991/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/simlibs_unisim' ...
+Copying setup file 'hdl.var' to '/tmp/fastconv-trunc-column-refresh-4184991/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/simlibs_unisim' ...
+
+***********************************************************************************************************************
+*                                             COMPILATION SUMMARY                                                     *
+*                                                                                                                     *
+*  Simulator used: xcelium                                                                                            *
+*  Compiled on: Wed Sep 30 02:04:16 2026                                                                              *
+*                                                                                                                     *
+***********************************************************************************************************************
+*  Library                                | Language |          Mapped Library Name           | Error(s) | Warning(s) *
+*---------------------------------------------------------------------------------------------------------------------*
+*  secureip                               | verilog  | secureip                               | 0        | 1          *
+-----------------------------------------------------------------------------------------------------------------------
+*  unisim                                 | verilog  | unisims_ver                            | 0        | 2          *
+-----------------------------------------------------------------------------------------------------------------------
+*  unimacro                               | verilog  | unimacro_ver                           | 0        | 0          *
+-----------------------------------------------------------------------------------------------------------------------
+*  unifast                                | verilog  | unifast_ver                            | 0        | 0          *
+-----------------------------------------------------------------------------------------------------------------------
+
+INFO: [Vivado 12-7167] Writing compiled library information...
+INFO: [Vivado 12-7165] Finished writing compiled library information.
+compile_simlib: Time (s): cpu = 00:00:18 ; elapsed = 00:00:21 . Memory (MB): peak = 3259.734 ; gain = 0.000 ; free physical = 16321 ; free virtual = 116224
+# exit
+INFO: [Common 17-206] Exiting Vivado at Wed Sep 30 02:04:37 2026...

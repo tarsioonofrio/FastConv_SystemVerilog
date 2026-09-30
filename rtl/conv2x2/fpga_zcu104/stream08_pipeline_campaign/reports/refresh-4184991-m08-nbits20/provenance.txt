@@ -1,0 +1,12 @@
+commit=4184991c425803b5bd11adc591b864e6a876b5eb
+host=paxos.inf.pucrs.br
+vivado=vivado v2023.2 (64-bit)
+xrun=TOOL:	xrun(64)	23.03-s003
+part=xczu7ev-ffvc1156-2-e
+target_clock_mhz=317
+clock_period_ns=3.154574
+variant=m08
+NBITS=20
+rtl=rtl/conv2x2/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column.sv
+manifest=rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/manifests/prefetch8-rowconst4-trunc-column.txt
+workload=rtl/conv2x2/data/tcn4/sim/sim-032-3-3-normal-trunc/pack_data.sv
