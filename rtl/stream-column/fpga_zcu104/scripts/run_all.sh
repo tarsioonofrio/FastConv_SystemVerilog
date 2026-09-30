@@ -73,7 +73,7 @@ run_one() {
     grep -q 'STREAM_COLUMN_POWER_PASS' "$capture_dir/xrun.log" || {
       printf 'functional golden marker missing for %s/%s\n' "$algorithm" "$capture" >&2; return 1;
     }
-    ! grep -q 'P3F_TIMEOUT_BEFORE_P_END' "$capture_dir/xrun.log" || {
+    ! grep -q '^P3F_TIMEOUT_BEFORE_P_END$' "$capture_dir/xrun.log" || {
       printf 'SAIF capture timed out for %s/%s\n' "$algorithm" "$capture" >&2; return 1;
     }
     sha256sum "$capture_dir/activity_${capture}.saif" >> "$output_root/checksums.sha256"
