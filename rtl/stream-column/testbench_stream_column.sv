@@ -197,8 +197,8 @@ module tb_stream_column;
           useful_weight_read_beat_count <= useful_weight_read_beat_count + 1;
       end
 
-      // Count clipped beats of the real job only (the terminal tile after p_end
-      // also reads outside the maps).
+      // Count clipped beats only through completion; lanes crossing a feature
+      // row/channel boundary are padded as part of the real workload.
       if (p_input_en && (column_input_in_bounds != '1) && (end_cycle == 0))
         input_clipped_beat_count <= input_clipped_beat_count + 1;
 
@@ -252,11 +252,10 @@ module tb_stream_column;
 
     if (p_end !== 1'b1)
       @(posedge p_end);
-    // After the last real write the controller still runs one terminal (unused)
-    // tile started by the input FSM ahead of the output FSM.  Give it time to
-    // finish (several Hadamard rows plus its weight and column reads) before
-    // the final checks; its result is never written.
-    repeat (500) @(posedge clk);
+    // Let the final write handshake drain, then require the three controllers
+    // to be idle without launching an unused terminal tile or issuing another
+    // memory request.
+    repeat (3) @(posedge clk);
 
     if (output_error_count != 0)
       $fatal(1, "output golden mismatch count: %0d", output_error_count);
@@ -265,9 +264,16 @@ module tb_stream_column;
     if (inverse_tile_count != EXPECTED_INVERSE_COUNT)
       $fatal(1, "unexpected inverse count: got %0d expected %0d",
              inverse_tile_count, EXPECTED_INVERSE_COUNT);
-    if (terminal_inverse_event_count != 1)
-      $fatal(1, "unexpected terminal inverse event count: got %0d expected 1",
+    if (terminal_inverse_event_count != 0)
+      $fatal(1, "unexpected terminal inverse event count: got %0d expected 0",
              terminal_inverse_event_count);
+    if (dut.st_input_current.name() != "WAIT_INPUT" ||
+        dut.st_conv_current.name() != "WAIT_CONV" ||
+        dut.st_output_current.name() != "WAIT_OUTPUT")
+      $fatal(1, "controller did not return idle: input=%s conv=%s output=%s",
+             dut.st_input_current.name(), dut.st_conv_current.name(), dut.st_output_current.name());
+    if (p_input_en || p_output_en || p_output_wr)
+      $fatal(1, "memory request or write remains active after job completion");
     if (useful_weight_read_beat_count != EXPECTED_USEFUL_WEIGHT_BEATS)
       $fatal(1, "unexpected useful weight read beats: got %0d expected %0d",
              useful_weight_read_beat_count, EXPECTED_USEFUL_WEIGHT_BEATS);

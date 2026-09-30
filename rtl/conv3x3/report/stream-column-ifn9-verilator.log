@@ -6,35 +6,35 @@ verilator -j 0 -DSIMULATION --top-module tb_stream_column -Wno-fatal --Mdir obj_
       |                           ^
                       ... For warning description see https://verilator.org/warn/WIDTHEXPAND?v=5.050
                       ... Use "/* verilator lint_off WIDTHEXPAND */" and lint_on around source to disable this message.
-%Warning-WIDTHTRUNC: conv-i40-h15-t12-o9-m06-ifn9-stream12-prefetch15-rowconst6-trunc-column.sv:261:27: Operator ASSIGNDLY expects 12 bits on the Assign RHS, but Assign RHS's VARREF 'CONV_OUTPUT_SIZE' generates 32 bits.
+%Warning-WIDTHTRUNC: conv-i40-h15-t12-o9-m06-ifn9-stream12-prefetch15-rowconst6-trunc-column.sv:264:27: Operator ASSIGNDLY expects 12 bits on the Assign RHS, but Assign RHS's VARREF 'CONV_OUTPUT_SIZE' generates 32 bits.
                                                                                                       : ... note: In instance 'tb_stream_column.dut'
-  261 |       r_input_window_next <= CONV_OUTPUT_SIZE;
+  264 |       r_input_window_next <= CONV_OUTPUT_SIZE;
       |                           ^~
                      ... For warning description see https://verilator.org/warn/WIDTHTRUNC?v=5.050
                      ... Use "/* verilator lint_off WIDTHTRUNC */" and lint_on around source to disable this message.
-%Warning-WIDTHEXPAND: conv-i40-h15-t12-o9-m06-ifn9-stream12-prefetch15-rowconst6-trunc-column.sv:271:50: Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'r_input_window_next' generates 12 bits.
+%Warning-WIDTHEXPAND: conv-i40-h15-t12-o9-m06-ifn9-stream12-prefetch15-rowconst6-trunc-column.sv:274:50: Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'r_input_window_next' generates 12 bits.
                                                                                                        : ... note: In instance 'tb_stream_column.dut'
-  271 |       r_input_window_next <= r_input_window_next + CONV_OUTPUT_SIZE;
+  274 |       r_input_window_next <= r_input_window_next + CONV_OUTPUT_SIZE;
       |                                                  ^
-%Warning-WIDTHTRUNC: conv-i40-h15-t12-o9-m06-ifn9-stream12-prefetch15-rowconst6-trunc-column.sv:271:27: Operator ASSIGNDLY expects 12 bits on the Assign RHS, but Assign RHS's ADD generates 32 bits.
+%Warning-WIDTHTRUNC: conv-i40-h15-t12-o9-m06-ifn9-stream12-prefetch15-rowconst6-trunc-column.sv:274:27: Operator ASSIGNDLY expects 12 bits on the Assign RHS, but Assign RHS's ADD generates 32 bits.
                                                                                                       : ... note: In instance 'tb_stream_column.dut'
-  271 |       r_input_window_next <= r_input_window_next + CONV_OUTPUT_SIZE;
+  274 |       r_input_window_next <= r_input_window_next + CONV_OUTPUT_SIZE;
       |                           ^~
-%Warning-WIDTHTRUNC: conv-i40-h15-t12-o9-m06-ifn9-stream12-prefetch15-rowconst6-trunc-column.sv:273:27: Operator ASSIGNDLY expects 12 bits on the Assign RHS, but Assign RHS's VARREF 'CONV_OUTPUT_SIZE' generates 32 bits.
+%Warning-WIDTHTRUNC: conv-i40-h15-t12-o9-m06-ifn9-stream12-prefetch15-rowconst6-trunc-column.sv:276:27: Operator ASSIGNDLY expects 12 bits on the Assign RHS, but Assign RHS's VARREF 'CONV_OUTPUT_SIZE' generates 32 bits.
                                                                                                       : ... note: In instance 'tb_stream_column.dut'
-  273 |       r_input_window_next <= CONV_OUTPUT_SIZE;
+  276 |       r_input_window_next <= CONV_OUTPUT_SIZE;
       |                           ^~
-%Warning-WIDTHEXPAND: conv-i40-h15-t12-o9-m06-ifn9-stream12-prefetch15-rowconst6-trunc-column.sv:284:68: Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'r_input_channel_counter_input' generates 2 bits.
+%Warning-WIDTHEXPAND: conv-i40-h15-t12-o9-m06-ifn9-stream12-prefetch15-rowconst6-trunc-column.sv:288:70: Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'r_input_channel_counter_input' generates 2 bits.
                                                                                                        : ... note: In instance 'tb_stream_column.dut'
-  284 |         r_input_addr_feat <= NADDR'((r_input_channel_counter_input + 1) *
-      |                                                                    ^
-%Warning-WIDTHEXPAND: conv-i40-h15-t12-o9-m06-ifn9-stream12-prefetch15-rowconst6-trunc-column.sv:362:81: Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'r_output_write_count' generates 2 bits.
+  288 |           r_input_addr_feat <= NADDR'((r_input_channel_counter_input + 1) *
+      |                                                                      ^
+%Warning-WIDTHEXPAND: conv-i40-h15-t12-o9-m06-ifn9-stream12-prefetch15-rowconst6-trunc-column.sv:368:81: Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'r_output_write_count' generates 2 bits.
                                                                                                        : ... note: In instance 'tb_stream_column.dut'
-  362 |   assign w_input_write_done = r_output_write_count == 0 || r_output_write_count == OUTPUT_RW_COUNT_MAX;   
+  368 |   assign w_input_write_done = r_output_write_count == 0 || r_output_write_count == OUTPUT_RW_COUNT_MAX;
       |                                                                                 ^~
-%Warning-WIDTHEXPAND: conv-i40-h15-t12-o9-m06-ifn9-stream12-prefetch15-rowconst6-trunc-column.sv:554:36: Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'r_input_prefetch_phase' generates 2 bits.
+%Warning-WIDTHEXPAND: conv-i40-h15-t12-o9-m06-ifn9-stream12-prefetch15-rowconst6-trunc-column.sv:572:36: Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'r_input_prefetch_phase' generates 2 bits.
                                                                                                        : ... note: In instance 'tb_stream_column.dut'
-  554 |         if (r_input_prefetch_phase == (NEW_COLUMNS - 1)) begin
+  572 |         if (r_input_prefetch_phase == (NEW_COLUMNS - 1)) begin
       |                                    ^~
 %Warning-WIDTHEXPAND: ../stream-column/testbench_stream_column.sv:70:27: Operator ASSIGN expects 32 bits on the Assign RHS, but Assign RHS's ARRAYSEL generates 20 bits.
                                                                        : ... note: In instance 'tb_stream_column'
@@ -78,14 +78,13 @@ g++    verilated.o verilated_timing.o verilated_threads.o Vtb_stream_column__ALL
 rm Vtb_stream_column__ALL.verilator_deplist.tmp
 make[1]: Leaving directory '/home/tarsio/gaph/FastConv_SystemVerilog/rtl/conv3x3/obj_dir/stream-column-ifn9'
 - V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
-- Verilator: Built from 1.066 MB sources in 29 modules, into 0.768 MB in 14 C++ files needing 0.002 MB
-- Verilator: Walltime 29.615 s (elab=0.416, cvt=1.690, bld=27.210); cpu 0.930 s on 4 threads; allocated 383.395 MB
+- Verilator: Built from 1.067 MB sources in 29 modules, into 0.772 MB in 14 C++ files needing 0.002 MB
+- Verilator: Walltime 9.599 s (elab=0.105, cvt=0.383, bld=9.036); cpu 0.570 s on 4 threads; allocated 501.438 MB
 obj_dir/stream-column-ifn9/Vtb_stream_column
 RESETANDO PARA O CANAL 0 - DEU A VOLTA NOS IFMAPS time=36895000 2 (3) st_input_current = ADDRESS_INPUT
 RESETANDO PARA O CANAL 0 - DEU A VOLTA NOS IFMAPS time=73675000 2 (3) st_input_current = ADDRESS_INPUT
-RESETANDO PARA O CANAL 0 - DEU A VOLTA NOS IFMAPS time=110455000 2 (3) st_input_current = ADDRESS_INPUT
-stream-column simulation passed: tile=5x5 hadamard=6 out=3 inverse_tiles=900 terminal_inverse_events=1 cycles_to_end=11046 cycles=11545 weight_read_beats=30 useful_weight_beats=27 valid_writes=8100 input_clipped_beats=0 output_clipped_words=0
-- ../stream-column/testbench_stream_column.sv:280: Verilog $finish
+stream-column simulation passed: tile=5x5 hadamard=6 out=3 inverse_tiles=900 terminal_inverse_events=0 cycles_to_end=11046 cycles=11048 weight_read_beats=27 useful_weight_beats=27 valid_writes=8100 input_clipped_beats=0 output_clipped_words=0
+- ../stream-column/testbench_stream_column.sv:286: Verilog $finish
 - S i m u l a t i o n   R e p o r t: Verilator 5.050 2026-07-01
-- Verilator: $finish at 115us; walltime 0.017 s; speed 6.703 ms/s
-- Verilator: cpu 0.017 s on 1 threads; allocated 7 MB
+- Verilator: $finish at 111us; walltime 0.008 s; speed 13.037 ms/s
+- Verilator: cpu 0.008 s on 1 threads; allocated 7 MB

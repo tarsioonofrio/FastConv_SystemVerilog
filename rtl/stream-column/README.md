@@ -89,7 +89,8 @@ Todas as execuções abaixo são do Verilator, com o dataset `sim-032-3-3-normal
 (32x32, 3 canais de entrada e 3 de saída, seed 0, NBITS = 20, QUANT = 8), e o
 testbench compara cada palavra escrita com o golden. Os quatro casos terminam com
 zero divergências, 8.100 escritas válidas e o número esperado de tiles inversos
-(900 no 3x3, 576 no 4x4). Os transcritos estão em `../conv3x3/report/` e
+(900 no 3x3, 576 no 4x4). Depois de `p_end`, não há inversa terminal, novo acesso
+às memórias nem FSM presa fora de `WAIT_*`. Os transcritos estão em `../conv3x3/report/` e
 `../conv4x4/report/` (`stream-column-<algoritmo>-verilator.log`).
 
 | Algoritmo | MACs | Ciclos até `p_end` (streaming) | Base `std`: MACs / ciclos | Variação de ciclos |
@@ -124,14 +125,10 @@ expected=-1613`), então o testbench de fato detecta erro numérico.
    do `wpn16`), embora o golden coincida com o modelo de ponto fixo. Os pesos
    transformados ficam divididos por 576 e perdem bits fracionários. É uma
    propriedade do algoritmo com essa largura, não do RTL.
-3. **Tile terminal.** Depois do último canal a FSM de entrada ainda inicia um
-   tile que nunca é escrito (o testbench conta um "evento inverso terminal" e
-   espera 500 ciclos após o `p_end`). Isso vem do RTL do 2x2 (cujo testbench também
-   espera exatamente um desses eventos), e o `p_end` só mascara o efeito. Observei
-   dois sintomas: as leituras fora dos mapas continuam depois do `p_end` (no `tcn16`,
-   os beats recortados sobem de 432 para 454 quando a espera é maior) e, no `wpn16`,
-   a FSM de entrada fica em `HOLD_WRITE` sem voltar a `WAIT_INPUT`. Não conferi se
-   os outros três param no mesmo estado.
+3. **Tile terminal (corrigido).** A FSM agora reconhece o limite depois da
+   última combinação de canal de entrada/saída antes de avançar os contadores ou
+   iniciar outra leitura. O testbench exige zero eventos inversos terminais,
+   ausência de acessos às memórias após `p_end` e retorno das FSMs a `WAIT_*`.
 4. **Reemissão do prefetch.** O gatilho do prefetch corrigido no commit
    `4184991c` do 2x2 (só emitir se estiver ocioso e sem `full`) já nasce
    corrigido aqui.

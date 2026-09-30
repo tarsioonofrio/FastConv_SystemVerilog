@@ -91,7 +91,9 @@ module Conv
   logic w_input_prefetch_mode;
   logic w_input_last_window_col;
   logic w_input_last_window_acc;
-  logic w_input_last_channel_output;
+  logic w_input_last_channel;
+  logic w_input_last_output_channel;
+  logic w_input_job_complete;
   logic w_input_read_weights;  // debug/testbench visibility of the weight-read state
 
   localparam WINDOW_COUNT_PER_LINE = (FEAT_INPUT_SIZE - 2 + CONV_OUTPUT_SIZE - 1) / CONV_OUTPUT_SIZE;
@@ -197,6 +199,7 @@ module Conv
   logic w_output_last_window_col;
   logic w_output_last_channel_input;
   logic w_output_last_channel_output;
+  logic w_output_job_complete;
   logic w_output_last_window_acc;
 
 
@@ -272,17 +275,19 @@ module Conv
     end else if (st_input_current == ADDRESS_INPUT && w_input_last_window_acc) begin
       r_input_window_next <= CONV_OUTPUT_SIZE;
 
-      if (r_input_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN-1) ) begin               // change the IFMAP
-        r_input_addr_feat <= 0;
+      if (st_input_next != WAIT_INPUT) begin
+        if (r_input_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN-1) ) begin               // change the IFMAP
+          r_input_addr_feat <= 0;
 `ifdef SIMULATION
-        $display(
+          $display(
             "RESETANDO PARA O CANAL 0 - DEU A VOLTA NOS IFMAPS time=%0t %d (%0d) st_input_current = %s",
             $time, r_input_channel_counter_input, N_CHANNEL_IN, st_input_current.name()
-        );
+          );
 `endif
-      end else begin
-        r_input_addr_feat <= NADDR'((r_input_channel_counter_input + 1) *
-                                    FEAT_INPUT_SIZE * FEAT_INPUT_WIDTH);
+        end else begin
+          r_input_addr_feat <= NADDR'((r_input_channel_counter_input + 1) *
+                                      FEAT_INPUT_SIZE * FEAT_INPUT_WIDTH);
+        end
       end
     end
   end
@@ -295,7 +300,8 @@ module Conv
       // The first weight tile starts immediately after all input feature maps.
       r_input_addr_kernel <= NADDR'(RAW_WEIGHT_BASE);
       r_input_addr_kernel_base <= NADDR'(RAW_WEIGHT_BASE);
-    end else if (st_input_current == ADDRESS_INPUT && !((r_input_channel_counter_input == '1) && (r_input_channel_counter_output == '0))) begin
+    end else if (st_input_current == ADDRESS_INPUT && st_input_next != WAIT_INPUT &&
+                 !((r_input_channel_counter_input == '1) && (r_input_channel_counter_output == '0))) begin
       // Advance to the next input/output-channel weight tile.  A tile is
       // revisited for every spatial window, so keep its base address separate.
       r_input_addr_kernel_base <= r_input_addr_kernel_base + NADDR'(RAW_WEIGHT_WORDS);
@@ -324,7 +330,7 @@ module Conv
     priority case (st_input_current)
       WAIT_INPUT: if (p_start) st_input_next = ADDRESS_INPUT;
       ADDRESS_INPUT:
-        if (w_input_last_channel_output) st_input_next = WAIT_INPUT;
+        if (w_input_job_complete) st_input_next = WAIT_INPUT;
         else st_input_next = READ_IN;
       READ_WEIGHTS:
         if (r_weight_row_count == WEIGHT_ROW_COUNT_WIDTH'(RAW_WEIGHT_WORDS - CONV_KERNEL_SIZE)) st_input_next = HOLD_WRITE;
@@ -363,7 +369,17 @@ module Conv
 
   assign w_input_last_window_col = (r_input_window_counter_col == WINDOW_ROW_COUNTER_WIDTH'(WINDOW_COUNT_PER_LINE));
   assign w_input_last_window_acc = (r_input_window_counter_acc == WINDOW_COUNTER_WIDTH'(WINDOW_COUNT_PER_LINE * WINDOW_COUNT_PER_COLUMN));
-  assign w_input_last_channel_output = (r_input_channel_counter_output == CHANNEL_OUTPUT_COUNTER_WIDTH'(N_CHANNEL_OUT));
+  assign w_input_last_channel =
+      (r_input_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1));
+  assign w_input_last_output_channel =
+      (r_input_channel_counter_output == CHANNEL_OUTPUT_COUNTER_WIDTH'(N_CHANNEL_OUT - 1));
+  // ADDRESS_INPUT is reached after the final spatial window of each input
+  // channel. Stop at the boundary after the final input/output-channel pair,
+  // instead of incrementing the output counter and launching an unused tile.
+  assign w_input_job_complete = w_input_last_channel && w_input_last_output_channel;
+  assign w_output_job_complete = w_output_last_channel_input &&
+                                 w_output_last_channel_output &&
+                                 w_output_last_window_acc;
 
   assign w_input_prefetch_mode = r_input_prefetch_enabled;
 
@@ -389,7 +405,7 @@ module Conv
 
   assign p_end = (st_output_current == WRITE_OUTPUT) &&
                  (r_output_write_count == OUTPUT_RW_COUNT_WIDTH'(OUTPUT_RW_COUNT_MAX)) &&
-                 w_input_last_channel_output;  // Signal completion only after the final output write.
+                 w_output_job_complete;  // Signal completion only after the final output write.
 
   // -------------------------------------------------------------------------
   // READING REGISTER BANK
@@ -413,11 +429,13 @@ module Conv
       r_input_beat                   <= '0;
     end else begin
       if (st_input_current == ADDRESS_INPUT) begin
-        if (r_input_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1)) begin
-          r_input_channel_counter_input  <= '0;
-          r_input_channel_counter_output <= r_input_channel_counter_output + 1;
-        end else begin
-          r_input_channel_counter_input <= r_input_channel_counter_input + 1;
+        if (!w_input_job_complete) begin
+          if (r_input_channel_counter_input == CHANNEL_INPUT_COUNTER_WIDTH'(N_CHANNEL_IN - 1)) begin
+            r_input_channel_counter_input  <= '0;
+            r_input_channel_counter_output <= r_input_channel_counter_output + 1;
+          end else begin
+            r_input_channel_counter_input <= r_input_channel_counter_input + 1;
+          end
         end
         r_input_window_counter_acc <= 0;  // reset counters
         r_input_window_counter_col <= 0;
@@ -792,7 +810,7 @@ module Conv
             st_output_next = READ_OUTPUT;      // accumulate next input channel
           else if ((r_output_channel_counter_input) == 0 && !w_output_last_window_row)
             st_output_next = RESET_OUTPUT;     // next window, same output channel
-          else if (w_input_last_channel_output)
+          else if (w_output_job_complete)
             st_output_next = WAIT_OUTPUT;      // global termination from input traversal
           else if (w_output_last_window_row)
             st_output_next = NEXT_ROW_OUTPUT;   // change output channel only
