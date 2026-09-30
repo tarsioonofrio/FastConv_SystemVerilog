@@ -1,0 +1,195 @@
+xrun(64): 23.03-s003: (c) Copyright 1995-2023 Cadence Design Systems, Inc.
+TOOL:	xrun(64)	23.03-s003: Started on Sep 29, 2026 at 23:43:14 -03
+xrun
+	-64bit
+	-sv
+	-access +r
+	-cdslib /tmp/fastconv-nbits16-b9615552/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/simlibs_unisim/cds.lib
+	-hdlvar /tmp/fastconv-nbits16-b9615552/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/simlibs_unisim/hdl.var
+	-reflib /tmp/fastconv-nbits16-b9615552/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/simlibs_unisim/unisims_ver:unisims_ver
+	-define GATE_LEVEL
+	-define COLUMN_IO
+	-define NBITS16
+	-top tb_power
+	-top glbl
+	-timescale 1ns/1ps
+	-input /tmp/fastconv-nbits16-b9615552/rtl/conv2x2/fpga_zcu104/column_power_comparison/scripts/capture_top_saif.tcl
+	-l xrun.log
+	/tmp/fastconv-nbits16-b9615552/rtl/conv2x2/pack-param/tcn4/pack_param.sv
+	/tmp/fastconv-nbits16-b9615552/rtl/conv2x2/data/tcn4/sim/sim-032-3-3-normal-trunc-nbits16/pack_data.sv
+	/tmp/fastconv-nbits16-b9615552/rtl/mem/mem.sv
+	/tmp/fastconv-nbits16-b9615552/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/prefetch8-rowconst4-trunc-column-nbits16/design_routed_funcsim.v
+	/soft64/xilinx/ferramentas/Vivado/2023.2/Vivado/2023.2/data/verilog/src/glbl.v
+	/tmp/fastconv-nbits16-b9615552/rtl/conv2x2/fpga_zcu104/column_power_comparison/tb/tb_power.sv
+file: /tmp/fastconv-nbits16-b9615552/rtl/conv2x2/pack-param/tcn4/pack_param.sv
+	package worklib.pack_param:sv
+		errors: 0, warnings: 0
+file: /tmp/fastconv-nbits16-b9615552/rtl/conv2x2/data/tcn4/sim/sim-032-3-3-normal-trunc-nbits16/pack_data.sv
+	package worklib.pack_data:sv
+		errors: 0, warnings: 0
+file: /tmp/fastconv-nbits16-b9615552/rtl/mem/mem.sv
+	module worklib.Memory:sv
+		errors: 0, warnings: 0
+file: /tmp/fastconv-nbits16-b9615552/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/prefetch8-rowconst4-trunc-column-nbits16/design_routed_funcsim.v
+	module worklib.Conv:v
+		errors: 0, warnings: 0
+	module worklib.MatrixC0:v
+		errors: 0, warnings: 0
+	module worklib.MatrixC1:v
+		errors: 0, warnings: 0
+	module worklib.Multip:v
+		errors: 0, warnings: 0
+	module worklib.Multip_0:v
+		errors: 0, warnings: 0
+	module worklib.Multip_1:v
+		errors: 0, warnings: 0
+	module worklib.Multip_2:v
+		errors: 0, warnings: 0
+	module worklib.Multip_3:v
+		errors: 0, warnings: 0
+	module worklib.Multip_4:v
+		errors: 0, warnings: 0
+	module worklib.Multip_5:v
+		errors: 0, warnings: 0
+	module worklib.Multip_6:v
+		errors: 0, warnings: 0
+	module worklib.Transform:v
+		errors: 0, warnings: 0
+	module worklib.WeightTransformRowConst:v
+		errors: 0, warnings: 0
+	module worklib.WeightTransformRowConst__parameterized0:v
+		errors: 0, warnings: 0
+	module worklib.WeightTransformRowConst__parameterized1:v
+		errors: 0, warnings: 0
+	module worklib.WeightTransformRowConst__parameterized2:v
+		errors: 0, warnings: 0
+	module worklib.glbl:v
+		errors: 0, warnings: 0
+file: /soft64/xilinx/ferramentas/Vivado/2023.2/Vivado/2023.2/data/verilog/src/glbl.v
+file: /tmp/fastconv-nbits16-b9615552/rtl/conv2x2/fpga_zcu104/column_power_comparison/tb/tb_power.sv
+	module worklib.tb_power:sv
+		errors: 0, warnings: 0
+	Elaborating the design hierarchy:
+		Caching library 'worklib' ....... Done
+		Caching library 'unisims_ver' ....... Done
+xmelab: *W,CUSRCH: Resolved design unit 'BUFGCE' at 'clk_IBUF_BUFG_inst' to 'unisims_ver.BUFGCE:module' through a global search of all libraries.
+xmelab: *W,CUSRCH: Resolved design unit 'IBUF' at 'clk_IBUF_inst' to 'unisims_ver.IBUF:module' through a global search of all libraries.
+xmelab: *W,CUSRCH: Resolved design unit 'GND' at 'GND' to 'unisims_ver.GND:module' through a global search of all libraries.
+xmelab: *W,CUSRCH: Resolved design unit 'DSP48E2' at 'partial_product' to 'unisims_ver.DSP48E2:module' through a global search of all libraries.
+xmelab: *W,CUSRCH: Resolved design unit 'LUT2' at 'r_hadamard_product_row_idx_reg[1]_i_1' to 'unisims_ver.LUT2:module' through a global search of all libraries.
+xmelab: *W,CUSRCH: Resolved design unit 'x_lut2_mux4' at '' to 'unisims_ver.x_lut2_mux4:udp' through a global search of all libraries.
+xmelab: *W,CUSRCH: Resolved design unit 'LUT5' at 'r_output_write[0][15]_i_36' to 'unisims_ver.LUT5:module' through a global search of all libraries.
+xmelab: *W,CUSRCH: Resolved design unit 'FDRE' at 'r_output_write[0][15]_i_36_psdsp' to 'unisims_ver.FDRE:module' through a global search of all libraries.
+xmelab: *W,CUSRCH: Resolved design unit 'LUT4' at 'r_output_write[0][15]_i_44' to 'unisims_ver.LUT4:module' through a global search of all libraries.
+xmelab: *W,CUSRCH: Resolved design unit 'LUT3' at 'r_output_write[0][15]_i_13' to 'unisims_ver.LUT3:module' through a global search of all libraries.
+xmelab: *W,CUSRCH: Resolved design unit 'x_lut3_mux8' at '' to 'unisims_ver.x_lut3_mux8:udp' through a global search of all libraries.
+xmelab: *W,CUSRCH: Resolved design unit 'CARRY8' at 'r_output_write_reg[0][15]_i_28' to 'unisims_ver.CARRY8:module' through a global search of all libraries.
+xmelab: *W,CUSRCH: Resolved design unit 'LUT6' at 'r_output_write[1][7]_i_43' to 'unisims_ver.LUT6:module' through a global search of all libraries.
+xmelab: *W,CUSRCH: Resolved design unit 'OBUF' at 'p_end_OBUF_inst' to 'unisims_ver.OBUF:module' through a global search of all libraries.
+xmelab: *W,CUSRCH: Resolved design unit 'FDCE' at 'r_conv_multiply_count_reg[0]' to 'unisims_ver.FDCE:module' through a global search of all libraries.
+xmelab: *W,CUSRCH: Resolved design unit 'FDPE' at 'r_input_channel_counter_input_reg[0]' to 'unisims_ver.FDPE:module' through a global search of all libraries.
+xmelab: *W,CUSRCH: Resolved design unit 'LUT1' at 'r_input_channel_counter_output[0]_i_1' to 'unisims_ver.LUT1:module' through a global search of all libraries.
+xmelab: *W,CUSRCH: Resolved design unit 'x_lut1_mux2' at '' to 'unisims_ver.x_lut1_mux2:udp' through a global search of all libraries.
+	Top level design units:
+		pack_data
+		pack_param
+		tb_power
+		glbl
+	Building instance overlay tables: .................... Done
+	Generating native compiled code:
+		worklib.Memory:sv <0x7934831d>
+			streams:   6, words:  2578
+		worklib.WeightTransformRowConst__parameterized2:v <0x34c30c49>
+			streams:   4, words:   575
+		worklib.WeightTransformRowConst__parameterized1:v <0x25e034c0>
+			streams:  20, words:  3201
+		worklib.WeightTransformRowConst__parameterized0:v <0x0bcc82c8>
+			streams:  23, words:  3760
+		worklib.WeightTransformRowConst:v <0x31a8689b>
+			streams:   7, words:  1137
+		worklib.MatrixC1:v <0x1f2ba078>
+			streams:   0, words:     0
+		worklib.MatrixC0:v <0x6a748f70>
+			streams:   0, words:     0
+		worklib.Transform:v <0x56866f80>
+			streams:   0, words:     0
+		worklib.Multip_6:v <0x580953ec>
+			streams:   1, words:   868
+		worklib.Multip_5:v <0x6b59d8bb>
+			streams:   1, words:   868
+		worklib.Multip_4:v <0x062c920e>
+			streams:   1, words:   868
+		worklib.Multip_3:v <0x7ebe5874>
+			streams:   1, words:   868
+		worklib.Multip_2:v <0x09a5c2e3>
+			streams:   1, words:   868
+		worklib.Multip_1:v <0x60fa6c20>
+			streams:   1, words:   868
+		worklib.Multip_0:v <0x595f81fb>
+			streams:   1, words:   868
+		worklib.Multip:v <0x2c262321>
+			streams:   1, words:   868
+		worklib.Conv:v <0x4b4b502c>
+			streams:   6, words:  1063
+		worklib.glbl:v <0x3a6ea307>
+			streams:  12, words:  3717
+		worklib.tb_power:sv <0x12cd4799>
+			streams:  35, words: 21050
+		worklib.pack_data:sv <0x1cc75972>
+			streams:   5, words:  2186
+		worklib.pack_param:sv <0x50887ffe>
+			streams:   1, words:   708
+		unisims_ver.FDPE:module <0x23d00bfa>
+			streams:  12, words:  8281
+		unisims_ver.FDCE:module <0x4c8351b7>
+			streams:  12, words:  8244
+		unisims_ver.OBUF:module <0x5290dd3e>
+			streams:   2, words:  1453
+		unisims_ver.DSP48E2:module <0x240ced36>
+			streams: 217, words: 159169
+		unisims_ver.FDRE:module <0x47e8d405>
+			streams:   9, words:  3925
+		unisims_ver.DSP48E2:module <0x29b33dba>
+			streams: 217, words: 159159
+		unisims_ver.BUFGCE:module <0x7e77d314>
+			streams:  22, words: 17792
+	Building instance specific data structures.
+	Loading native compiled code:     .................... Done
+	Design hierarchy summary:
+		                   Instances  Unique
+		Modules:                4372      34
+		Verilog packages:          2       2
+		UDPs:                   1356       3
+		Primitives:              169       2
+		Registers:             19614     237
+		Scalar wires:          18755       -
+		Expanded wires:         2872     304
+		Vectored wires:          786       -
+		Always blocks:          4470      65
+		Initial blocks:        10613     106
+		Cont. assignments:      5339     452
+		Pseudo assignments:      106       -
+		Simulation timescale:    1ps
+	Writing initial simulation snapshot: worklib.tb_power:sv
+Loading snapshot worklib.tb_power:sv .................... Done
+xcelium> source /soft64/cadence/ferramentas/XCELIUM2303/tools/xcelium/files/xmsimrc
+xcelium> stop -condition {#%d/tb_power/p_start == 1}
+Created stop 1
+xcelium> run
+246012 PS + 0 (stop 1: tb_power.p_start = 1)
+/tmp/fastconv-nbits16-b9615552/rtl/conv2x2/fpga_zcu104/column_power_comparison/tb/tb_power.sv:164     p_start = 1'b1;
+xcelium> dumpsaif -scope tb_power -internal -divider / -overwrite -output activity_top.saif
+xcelium> stop -condition {#%d/tb_power/p_end == 1}
+Created stop 2
+xcelium> stop -time 90 us -execute {puts "P3F_TIMEOUT_BEFORE_P_END"; exit}
+Created stop 3
+xcelium> run
+45983843 PS + 1 (stop 2: tb_power.p_end = 1)
+/tmp/fastconv-nbits16-b9615552/rtl/conv2x2/fpga_zcu104/column_power_comparison/tb/tb_power.sv:69     .clk(clk), .reset(reset), .p_start(p_start), .p_end(p_end),
+xcelium> dumpsaif -end
+xcelium> run
+POWER_RESULT PASS writes=8100 final_words=2700 mismatches=0 active_cycles=14502
+Simulation complete via $finish(1) at time 45988474 PS + 0
+/tmp/fastconv-nbits16-b9615552/rtl/conv2x2/fpga_zcu104/column_power_comparison/tb/tb_power.sv:177     $finish;
+xcelium> quit
+TOOL:	xrun(64)	23.03-s003: Exiting on Sep 29, 2026 at 23:43:24 -03  (total: 00:00:10)

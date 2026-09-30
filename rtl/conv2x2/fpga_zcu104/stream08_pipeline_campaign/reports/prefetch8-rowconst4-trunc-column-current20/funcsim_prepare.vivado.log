@@ -1,0 +1,65 @@
+#-----------------------------------------------------------
+# Vivado v2023.2 (64-bit)
+# SW Build 4029153 on Fri Oct 13 20:13:54 MDT 2023
+# IP Build 4028589 on Sat Oct 14 00:45:43 MDT 2023
+# SharedData Build 4025554 on Tue Oct 10 17:18:54 MDT 2023
+# Start of session at: Wed Sep 30 00:34:32 2026
+# Process ID: 3120397
+# Current directory: /tmp/fastconv-nbits16-b9615552
+# Command line: vivado -mode batch -source /tmp/fastconv-nbits16-b9615552/rtl/conv2x2/fpga_zcu104/column_power_comparison/scripts/prepare_funcsim.tcl -log /tmp/fastconv-nbits16-b9615552/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/prefetch8-rowconst4-trunc-column-current20/funcsim_prepare.vivado.log -journal /tmp/fastconv-nbits16-b9615552/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/prefetch8-rowconst4-trunc-column-current20/funcsim_prepare.vivado.jou -tclargs /tmp/fastconv-nbits16-b9615552/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/prefetch8-rowconst4-trunc-column-current20/design_routed.dcp /tmp/fastconv-nbits16-b9615552/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/prefetch8-rowconst4-trunc-column-current20/design_routed_funcsim.v /tmp/fastconv-nbits16-b9615552/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/simlibs_unisim
+# Log file: /tmp/fastconv-nbits16-b9615552/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/prefetch8-rowconst4-trunc-column-current20/funcsim_prepare.vivado.log
+# Journal file: /tmp/fastconv-nbits16-b9615552/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/prefetch8-rowconst4-trunc-column-current20/funcsim_prepare.vivado.jou
+# Running On: paxos.inf.pucrs.br, OS: Linux, CPU Frequency: 3100.000 MHz, CPU Physical cores: 14, Host memory: 134319 MB
+#-----------------------------------------------------------
+source /tmp/fastconv-nbits16-b9615552/rtl/conv2x2/fpga_zcu104/column_power_comparison/scripts/prepare_funcsim.tcl
+# if {$argc != 3} { error "usage: prepare_funcsim.tcl <dcp> <netlist> <simlib-dir>" }
+# set dcp [file normalize [lindex $argv 0]]
+# set netlist [file normalize [lindex $argv 1]]
+# set simlib_dir [file normalize [lindex $argv 2]]
+# open_checkpoint $dcp
+Command: open_checkpoint /tmp/fastconv-nbits16-b9615552/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/prefetch8-rowconst4-trunc-column-current20/design_routed.dcp
+
+Starting open_checkpoint Task
+
+Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.02 . Memory (MB): peak = 1358.652 ; gain = 0.000 ; free physical = 18747 ; free virtual = 118076
+INFO: [Device 21-403] Loading part xczu7ev-ffvc1156-2-e
+Netlist sorting complete. Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00.02 . Memory (MB): peak = 2416.730 ; gain = 0.000 ; free physical = 17718 ; free virtual = 117047
+INFO: [Netlist 29-17] Analyzing 394 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-479] Netlist was created with Vivado 2023.2
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Read ShapeDB Complete: Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00.02 . Memory (MB): peak = 2416.730 ; gain = 0.000 ; free physical = 17700 ; free virtual = 117028
+INFO: [Timing 38-478] Restoring timing data from binary archive.
+INFO: [Timing 38-479] Binary timing data restore complete.
+INFO: [Project 1-856] Restoring constraints from binary archive.
+INFO: [Project 1-853] Binary constraint restore complete.
+INFO: [Designutils 20-5722] Start Reading Physical Databases.
+Reading placement.
+Read Netlist Cache: Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00 . Memory (MB): peak = 2863.715 ; gain = 0.000 ; free physical = 17422 ; free virtual = 116751
+Reading placer database...
+Read Device Cache: Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.03 . Memory (MB): peak = 2863.715 ; gain = 0.000 ; free physical = 17417 ; free virtual = 116746
+Read PlaceDB: Time (s): cpu = 00:00:00.15 ; elapsed = 00:00:00.15 . Memory (MB): peak = 2863.715 ; gain = 0.000 ; free physical = 17414 ; free virtual = 116743
+Read PulsedLatchDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2863.715 ; gain = 0.000 ; free physical = 17414 ; free virtual = 116743
+Reading routing.
+Read RouteStorage: Time (s): cpu = 00:00:00.09 ; elapsed = 00:00:00.09 . Memory (MB): peak = 2863.715 ; gain = 0.000 ; free physical = 17412 ; free virtual = 116741
+Read Physdb Files: Time (s): cpu = 00:00:00.28 ; elapsed = 00:00:00.28 . Memory (MB): peak = 2863.715 ; gain = 0.000 ; free physical = 17412 ; free virtual = 116741
+Restored from archive | CPU: 0.300000 secs | Memory: 7.637787 MB |
+Finished XDEF File Restore: Time (s): cpu = 00:00:00.3 ; elapsed = 00:00:00.31 . Memory (MB): peak = 2863.715 ; gain = 0.000 ; free physical = 17412 ; free virtual = 116741
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 3268.074 ; gain = 0.000 ; free physical = 17012 ; free virtual = 116341
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 133 instances were transformed.
+  DSP48E2 => DSP48E2 (DSP_ALU, DSP_A_B_DATA, DSP_C_DATA, DSP_MULTIPLIER, DSP_M_DATA, DSP_OUTPUT, DSP_PREADD, DSP_PREADD_DATA): 8 instances
+  IBUF => IBUF (IBUFCTRL, INBUF): 125 instances
+
+INFO: [Project 1-604] Checkpoint was created with Vivado v2023.2 (64-bit) build 4029153
+open_checkpoint: Time (s): cpu = 00:00:20 ; elapsed = 00:00:21 . Memory (MB): peak = 3268.109 ; gain = 1909.457 ; free physical = 17012 ; free virtual = 116340
+# write_verilog -force -mode funcsim $netlist
+# close_design
+# if {![file exists [file join $simlib_dir cds.lib]]} {
+#   compile_simlib -simulator xcelium -family zynquplus -language verilog -library unisim -directory $simlib_dir -no_ip_compile -force
+# } else {
+#   puts "Reusing compiled Xcelium UNISIM library: $simlib_dir"
+# }
+Reusing compiled Xcelium UNISIM library: /tmp/fastconv-nbits16-b9615552/rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/reports/simlibs_unisim
+# exit
+INFO: [Common 17-206] Exiting Vivado at Wed Sep 30 00:34:55 2026...
