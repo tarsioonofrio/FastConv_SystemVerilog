@@ -6,7 +6,9 @@
 // words per beat.  The output memory is a physical grid of whole windows (its
 // row stride is OUTPUT_PHYSICAL_SIZE); only its FEAT_OUTPUT_SIZE corner is the
 // logical result, and out-of-range window samples are clipped.
-module tb_stream_column;
+module tb_stream_column #(
+  parameter int unsigned NUM_MULT = pack_param::HADAMARD_SIZE
+);
   import pack_data::*;
   import pack_param::*;
 
@@ -84,7 +86,7 @@ module tb_stream_column;
     .CONV_OUTPUT_SIZE(CONV_OUTPUT_SIZE),
     .CONV_INPUT_SIZE(CONV_INPUT_SIZE),
     .HADAMARD_SIZE(HADAMARD_SIZE),
-    .NUM_MULT(HADAMARD_SIZE)
+    .NUM_MULT(NUM_MULT)
   ) dut (
     .clk(clk),
     .reset(reset),

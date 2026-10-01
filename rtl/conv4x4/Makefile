@@ -36,19 +36,21 @@ clean:
 	rm -rf $(OBJDIR) dump.fst dump.vcd
 
 # ---------------------------------------------------------------------------
-# Streaming truncated-column variants: one row of MACs per cycle and the column
+# Streaming truncated-column variants: configurable row batches and the column
 # memory interface (see ../stream-column).  CONFIG selects the algorithm and
 # therefore the RTL file (conv-$(CONFIG)-*-stream*-trunc-column.sv), the matrices
 # and the truncated dataset with raw spatial weights.
-#   make run-stream-column CONFIG=<algorithm>
+#   make run-stream-column CONFIG=<algorithm> [STREAM_COLUMN_NUM_MULT=<multiple>]
 STREAM_COLUMN_DATASET ?= sim-032-3-3-normal-trunc
+STREAM_COLUMN_NUM_MULT ?= $(if $(filter wpn16,$(CONFIG)),8,6)
+STREAM_COLUMN_NUM_MULT_PADDED = $(shell printf '%02d' $(STREAM_COLUMN_NUM_MULT))
 STREAM_COLUMN_DATA = $(SRCDIR)/data/$(CONFIG)/sim/$(STREAM_COLUMN_DATASET)/pack_data.sv
-STREAM_COLUMN_SRC = $(wildcard $(SRCDIR)/conv-$(CONFIG)-*-stream*-trunc-column.sv)
+STREAM_COLUMN_SRC = $(wildcard $(SRCDIR)/conv-$(CONFIG)-*-m$(STREAM_COLUMN_NUM_MULT_PADDED)-stream*-trunc-column.sv)
 STREAM_COLUMN_TB = $(SRCDIR)/../stream-column/testbench_stream_column.sv
-STREAM_COLUMN_OBJDIR = obj_dir/stream-column-$(CONFIG)
+STREAM_COLUMN_OBJDIR = obj_dir/stream-column-$(CONFIG)-m$(STREAM_COLUMN_NUM_MULT)
 STREAM_COLUMN_BIN = $(STREAM_COLUMN_OBJDIR)/Vtb_stream_column
 STREAM_COLUMN_FILES = $(STREAM_COLUMN_DATA) $(PARAM) $(MEM) $(CSA) $(MULTIP) $(MATRICES) $(STREAM_COLUMN_SRC) $(STREAM_COLUMN_TB)
-STREAM_COLUMN_VERILATOR = verilator -j 0 -DSIMULATION --top-module tb_stream_column -Wno-fatal --Mdir $(STREAM_COLUMN_OBJDIR)
+STREAM_COLUMN_VERILATOR = verilator -j 0 -DSIMULATION --top-module tb_stream_column -GNUM_MULT=$(STREAM_COLUMN_NUM_MULT) -Wno-fatal --Mdir $(STREAM_COLUMN_OBJDIR)
 
 stream-column: $(STREAM_COLUMN_BIN)
 

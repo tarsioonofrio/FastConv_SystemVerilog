@@ -22,9 +22,23 @@ Os RTL gerados ficam na pasta do tamanho, com o algoritmo no nome:
 
 O nome segue a convenção do 2x2: `i` são as palavras de entrada guardadas (banco
 do tile mais banco de prefetch), `h` as de pesos (nove espaciais mais a linha
-transformada), `t` as da fronteira de transformação (aqui, a linha de features mais
-a de produtos registradas, 2*H, como no m04 do 2x2), `o` as de saída e `m` os MACs. O número de MACs é uma linha de
-Hadamard por ciclo, ou seja, `HADAMARD_SIZE`.
+transformada), `t` as palavras da fronteira de transformação (features e produtos
+registrados, 2*NUM_MULT), `o` as de saída e `m` os MACs. O número de MACs é uma linha de
+Hadamard por ciclo na configuração padrão (`HADAMARD_SIZE`). Variantes com mais
+MACs processam um número inteiro maior de linhas Hadamard em paralelo.
+
+### Variantes WPN16 com mais MACs
+
+As variantes abaixo mantêm o mesmo workload, datapath matemático e interface de
+colunas. `m16` processa 2 linhas Hadamard por ciclo e `m32` processa 4. Como
+cada lane adicional recebe um produto distinto, também crescem os bancos
+registrados de pesos, features transformadas e produtos Hadamard.
+
+| Variante | MACs | Linhas Hadamard/ciclo | Arquivo |
+| --- | ---: | ---: | --- |
+| WPN16 m08 | 8 | 1 | `../conv4x4/conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv` |
+| WPN16 m16 | 16 | 2 | `../conv4x4/conv-wpn16-i60-h25-t32-o16-m16-stream16-prefetch24-rowconst8-trunc-column.sv` |
+| WPN16 m32 | 32 | 4 | `../conv4x4/conv-wpn16-i60-h41-t64-o16-m32-stream16-prefetch24-rowconst8-trunc-column.sv` |
 
 ## Como usar
 
@@ -32,8 +46,12 @@ Regerar um RTL (não editar os arquivos gerados à mão):
 
 ```bash
 python3 stream-column/gen_stream_column.py <tamanho>/data/<algoritmo>/config/build.json \
-        <algoritmo> <tamanho>/<arquivo>.sv
+        <algoritmo> <tamanho>/<arquivo>.sv [num-mult]
 ```
+
+O argumento opcional `num-mult` deve ser múltiplo da dimensão Hadamard. Para
+WPN16, passe `16` ou `32` para gerar as variantes acima; sem esse argumento o
+gerador mantém o padrão de 8 MACs.
 
 Simular (Verilator; a partir de `conv3x3/` ou `conv4x4/`):
 
@@ -41,6 +59,10 @@ Simular (Verilator; a partir de `conv3x3/` ou `conv4x4/`):
 make run-stream-column CONFIG=<algoritmo>     # constroi, roda e checa o golden
 make lint-stream-column CONFIG=<algoritmo>
 make clean-stream-column CONFIG=<algoritmo>   # apaga o obj_dir (AGENTS.md, 2.3)
+
+# WPN16 com mais paralelismo:
+make run-stream-column CONFIG=wpn16 STREAM_COLUMN_NUM_MULT=16
+make run-stream-column CONFIG=wpn16 STREAM_COLUMN_NUM_MULT=32
 ```
 
 O dataset é `data/<algoritmo>/sim/sim-032-3-3-normal-trunc/pack_data.sv` (pesos
@@ -99,6 +121,20 @@ zero divergências, 8.100 escritas válidas e o número esperado de tiles invers
 | `tcn9` | 5 | 10.146 | 5 / 17.464 | -41,9% |
 | `tcn16` | 6 | 7.699 | 18 / 19.262 | -60,0% |
 | `wpn16` | 8 | 8.851 | 64 / 19.274 | -54,1% |
+
+As variantes WPN16 com 16 e 32 MACs também passaram o testbench de colunas
+Verilator no mesmo pacote truncado: ambas tiveram 576 tiles inversos, 8.100
+escritas válidas e zero divergências contra o golden.
+
+| Variante | MACs | Linhas/ciclo | Ciclos até `p_end` | Redução vs m08 |
+| --- | ---: | ---: | ---: | ---: |
+| WPN16 m08 | 8 | 1 | 8.851 | — |
+| WPN16 m16 | 16 | 2 | 6.547 | 26,0% |
+| WPN16 m32 | 32 | 4 | 5.395 | 39,0% |
+
+Esses são resultados de simulação RTL/Verilator, não de implementação FPGA.
+Como a inversa acumula várias linhas por ciclo nas variantes m16/m32, ainda é
+necessário medir timing, utilização e power no Vivado antes de comparar PPA.
 
 Esses ciclos não comparam só o controle: a base `std` usa interface escalar e
 os pesos já transformados na memória, e a nova usa interface de colunas e pesos

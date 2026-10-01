@@ -8,7 +8,10 @@ depends on the algorithm is derived from its build.json:
   spatial weights with integer coefficients and divided by the weight scale (floor).
 * InverseRow / InverseRowAccumulate: row-streamed inverse transform.
 
-Usage: gen_stream_column.py <build.json> <algo-name> <output.sv>
+Usage: gen_stream_column.py <build.json> <algo-name> <output.sv> [num-mult]
+num-mult defaults to the Hadamard size (one complete row per cycle). Larger
+values must be whole multiples of the Hadamard size and process multiple rows
+in parallel per cycle.
 """
 import json
 import math
@@ -204,11 +207,12 @@ def inverse_modules(a, hadamard, out):
     lines.append("    parameter int NBITS = 20,")
     lines.append(f"    parameter int HADAMARD_SIZE = {hadamard},")
     lines.append(f"    parameter int CONV_OUTPUT_SIZE = {out},")
+    lines.append("    parameter int ROWS_PER_CYCLE = 1,")
     lines.append("    parameter int ROW_INDEX_WIDTH = (HADAMARD_SIZE <= 1) ? 1 : $clog2(HADAMARD_SIZE)")
     lines.append("  ) (")
     lines.append("    input  logic [ROW_INDEX_WIDTH-1:0] inverse_row_idx,")
     lines.append("    input  logic [NBITS-1:0] accumulator_in [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0],")
-    lines.append("    input  logic [NBITS-1:0] inverse_partial [CONV_OUTPUT_SIZE-1:0],")
+    lines.append("    input  logic [NBITS-1:0] inverse_partial [ROWS_PER_CYCLE*CONV_OUTPUT_SIZE-1:0],")
     lines.append("    output logic [NBITS-1:0] accumulator_out [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0]")
     lines.append("  );")
     lines.append("  timeunit 1ns;")
@@ -217,7 +221,8 @@ def inverse_modules(a, hadamard, out):
     lines.append("  always_comb begin: INVERSE_ROW_ACCUMULATE_BLOCK")
     lines.append("    for (int unsigned i = 0; i < CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE; i++)")
     lines.append("      accumulator_out[i] = accumulator_in[i];")
-    lines.append("    case (inverse_row_idx)")
+    lines.append("    for (int unsigned batch = 0; batch < ROWS_PER_CYCLE; batch++) begin")
+    lines.append("      case (inverse_row_idx + ROW_INDEX_WIDTH'(batch))")
     for r in range(hadamard):
         body = []
         for i in range(out):
@@ -226,41 +231,50 @@ def inverse_modules(a, hadamard, out):
                 continue
             for j in range(out):
                 index = i * out + j
-                rhs = f"accumulator_in[{index}]"
-                t = term(coef, f"inverse_partial[{j}]")
+                t = term(coef, f"inverse_partial[batch*CONV_OUTPUT_SIZE + {j}]")
                 sign, text = t
-                body.append(f"        accumulator_out[{index}] = {rhs} {sign} {text};")
-        lines.append(f"      {r}: begin")
+                body.append(
+                    f"        accumulator_out[{index}] = accumulator_out[{index}] {sign} {text};"
+                )
+        lines.append(f"        {r}: begin")
         lines.extend(body)
-        lines.append("      end")
-    lines.append("      default: begin end")
-    lines.append("    endcase")
+        lines.append("        end")
+    lines.append("        default: begin end")
+    lines.append("      endcase")
+    lines.append("    end")
     lines.append("  end")
     lines.append("endmodule")
     return "\n".join(lines)
 
 
 def main():
+    if len(sys.argv) not in (4, 5):
+        raise SystemExit("usage: gen_stream_column.py <build.json> <algo-name> <output.sv> [num-mult]")
     build_json, algo, output = sys.argv[1:4]
+    num_mult = int(sys.argv[4]) if len(sys.argv) == 5 else None
     c, a, b, q = load_build(build_json)
     in_size = len(c[0])
     hadamard = len(c[0][0])
     out = len(a[0][0])
+    num_mult = hadamard if num_mult is None else num_mult
     assert in_size == out + KERNEL - 1, (in_size, out)
     assert len(b[0]) == hadamard and len(a[0]) == hadamard
+    assert num_mult >= hadamard and num_mult % hadamard == 0, (num_mult, hadamard)
+    assert hadamard * hadamard % num_mult == 0, (num_mult, hadamard)
     weight_text, scale, max_abs_sum, guard = weight_module(c, a, b, q, hadamard)
-    generated = weight_text + "\n\n" + inverse_modules(a, hadamard, out) + "\n"
+    generated = weight_text + "\n\n" + inverse_modules(a, hadamard, out)
     template = (Path(__file__).parent / "conv_stream_column_core.svtmpl").read_text()
     text = (
         template.replace("@ALGO@", algo)
         .replace("@IN@", str(in_size))
         .replace("@H@", str(hadamard))
         .replace("@OUT@", str(out))
+        .replace("@NUM_MULT@", str(num_mult))
         .replace("@@GENERATED_MODULES@@", generated)
     )
     Path(output).write_text(text)
     print(
-        f"{algo}: IN={in_size} H={hadamard} OUT={out} scale={scale} "
+        f"{algo}: IN={in_size} H={hadamard} OUT={out} NUM_MULT={num_mult} scale={scale} "
         f"max_abs_coef_sum={max_abs_sum} guard_bits={guard} -> {output}"
     )
 
