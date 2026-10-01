@@ -23,7 +23,7 @@ module Conv
     parameter int unsigned CONV_INPUT_SIZE     = 5,
     parameter int unsigned HADAMARD_SIZE       = 6,
     // Number of parallel multipliers; must be a whole number of Hadamard rows.
-    parameter int unsigned NUM_MULT            = 6
+    parameter int unsigned NUM_MULT            = 12
   ) (
     input  logic clk,
     input  logic reset,

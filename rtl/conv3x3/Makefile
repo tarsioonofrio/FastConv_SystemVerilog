@@ -46,12 +46,13 @@ view: run
 #   make run-stream-column CONFIG=<algorithm>
 STREAM_COLUMN_DATASET ?= sim-032-3-3-normal-trunc
 STREAM_COLUMN_DATA = $(SRCDIR)/data/$(CONFIG)/sim/$(STREAM_COLUMN_DATASET)/pack_data.sv
-STREAM_COLUMN_SRC = $(wildcard $(SRCDIR)/conv-$(CONFIG)-*-stream*-trunc-column.sv)
+STREAM_COLUMN_NUM_MULT = $(shell printf '%02d' $(NUM_MULT))
+STREAM_COLUMN_SRC = $(wildcard $(SRCDIR)/conv-$(CONFIG)-*-m$(STREAM_COLUMN_NUM_MULT)-*trunc-column.sv)
 STREAM_COLUMN_TB = $(SRCDIR)/../stream-column/testbench_stream_column.sv
-STREAM_COLUMN_OBJDIR = obj_dir/stream-column-$(CONFIG)
+STREAM_COLUMN_OBJDIR = obj_dir/stream-column-$(CONFIG)-m$(STREAM_COLUMN_NUM_MULT)
 STREAM_COLUMN_BIN = $(STREAM_COLUMN_OBJDIR)/Vtb_stream_column
 STREAM_COLUMN_FILES = $(STREAM_COLUMN_DATA) $(PARAM) $(MEM) $(CSA) $(MULTIP) $(MATRICES) $(STREAM_COLUMN_SRC) $(STREAM_COLUMN_TB)
-STREAM_COLUMN_VERILATOR = verilator -j 0 -DSIMULATION --top-module tb_stream_column -Wno-fatal --Mdir $(STREAM_COLUMN_OBJDIR)
+STREAM_COLUMN_VERILATOR = verilator -j 0 -DSIMULATION --top-module tb_stream_column -GNUM_MULT=$(NUM_MULT) -Wno-fatal --Mdir $(STREAM_COLUMN_OBJDIR)
 
 stream-column: $(STREAM_COLUMN_BIN)
 

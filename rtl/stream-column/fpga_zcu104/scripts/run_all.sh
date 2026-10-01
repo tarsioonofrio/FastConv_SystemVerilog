@@ -100,6 +100,7 @@ if [[ $# -gt 1 ]]; then
     case "$algorithm" in
       wpn16_m16|wpn16_m32) run_one "$algorithm" 4 wpn16 ;;
       tcn9|ifn9) run_one "$algorithm" 3 ;;
+      ifn9_m12|ifn9_m18) run_one "$algorithm" 3 ifn9 ;;
       tcn16|wpn16) run_one "$algorithm" 4 ;;
       *) printf 'unknown algorithm variant: %s\n' "$algorithm" >&2; exit 2 ;;
     esac

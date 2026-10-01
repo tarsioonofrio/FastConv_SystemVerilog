@@ -88,15 +88,19 @@ def weight_module(c, a, b, q, hadamard):
     lines.append(f"// One instance per transformed row (ROW_INDEX), each producing {hadamard} values.")
     lines.append("// The row-th equations are elaboration-time constants, so only the selected row")
     lines.append("// remains after constant propagation.  Disabled rows drive zero (operand isolation).")
-    lines.append(f"// The exact transform is an integer combination of the raw weights divided by")
-    lines.append(f"// WEIGHT_SCALE = {scale}; the result is the FLOOR of that division (arithmetic")
-    if pow2:
-        lines.append("// shift), wrapped to NBITS, matching the truncated golden dataset.")
+    lines.append("// The exact transform is an integer combination of the raw weights.")
+    if scale == 1:
+        lines.append("// WEIGHT_SCALE = 1, so the numerator is already the transformed weight.")
+    elif pow2:
+        lines.append(f"// WEIGHT_SCALE = {scale}; arithmetic right shift by {shift} computes the floor.")
+        lines.append("// The result is wrapped to NBITS, matching the truncated golden dataset.")
     else:
-        lines.append("// division by a constant, left to the synthesis tool), wrapped to NBITS, matching")
-        lines.append("// the truncated golden dataset.  SystemVerilog '/' truncates toward zero, so the")
-        lines.append("// quotient is decremented when the remainder is negative to obtain the floor.")
+        lines.append(f"// WEIGHT_SCALE = {scale}; divide by a constant and correct toward floor.")
+        lines.append("// The result is wrapped to NBITS, matching the truncated golden dataset.")
+        lines.append("// SystemVerilog '/' truncates toward zero, so negative remainders decrement the quotient.")
     lines.append("// -----------------------------------------------------------------------------")
+    lines.append("// Keep constant-transform arithmetic in fabric; reserve DSPs for the MAC lanes.")
+    lines.append("(* use_dsp = \"no\" *)")
     lines.append("module WeightTransformRowConst #(")
     lines.append("    parameter int NBITS = 20,")
     lines.append("    parameter int ROW_INDEX = 0")
