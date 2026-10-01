@@ -1,0 +1,113 @@
+#-----------------------------------------------------------
+# Vivado v2023.2 (64-bit)
+# SW Build 4029153 on Fri Oct 13 20:13:54 MDT 2023
+# IP Build 4028589 on Sat Oct 14 00:45:43 MDT 2023
+# SharedData Build 4025554 on Tue Oct 10 17:18:54 MDT 2023
+# Start of session at: Thu Oct  1 11:01:21 2026
+# Process ID: 704106
+# Current directory: /sim/tarsio/fastconv-wpn16-m16-m32-7e5ad192
+# Command line: vivado -mode batch -source /sim/tarsio/fastconv-wpn16-m16-m32-7e5ad192/rtl/stream-column/fpga_zcu104/scripts/power_vectorless.tcl -log /sim/tarsio/reports-wpn16-m16-m32-7e5ad192/wpn16_m16.vectorless.vivado.log -journal /sim/tarsio/reports-wpn16-m16-m32-7e5ad192/wpn16_m16.vectorless.vivado.jou -tclargs /sim/tarsio/reports-wpn16-m16-m32-7e5ad192 wpn16_m16
+# Log file: /sim/tarsio/reports-wpn16-m16-m32-7e5ad192/wpn16_m16.vectorless.vivado.log
+# Journal file: /sim/tarsio/reports-wpn16-m16-m32-7e5ad192/wpn16_m16.vectorless.vivado.jou
+# Running On: paxos.inf.pucrs.br, OS: Linux, CPU Frequency: 3100.000 MHz, CPU Physical cores: 14, Host memory: 134319 MB
+#-----------------------------------------------------------
+source /sim/tarsio/fastconv-wpn16-m16-m32-7e5ad192/rtl/stream-column/fpga_zcu104/scripts/power_vectorless.tcl
+# if {$argc != 2} { error "usage: power_vectorless.tcl <output-root> <algorithm>" }
+# set output_root [file normalize [lindex $argv 0]]
+# set algorithm [lindex $argv 1]
+# set run_dir [file join $output_root $algorithm]
+# foreach corner {typical maximum} {
+#   open_checkpoint [file join $run_dir design_routed.dcp]
+#   reset_switching_activity -all
+#   reset_operating_conditions
+#   set_operating_conditions -process $corner -ambient_temp 25
+#   report_operating_conditions -file [file join $run_dir operating_conditions_vectorless_${corner}.rpt]
+#   report_power -hier all -file [file join $run_dir power_vectorless_${corner}.rpt]
+#   close_design
+# }
+Command: open_checkpoint /sim/tarsio/reports-wpn16-m16-m32-7e5ad192/wpn16_m16/design_routed.dcp
+
+Starting open_checkpoint Task
+
+Time (s): cpu = 00:00:00.04 ; elapsed = 00:00:00.03 . Memory (MB): peak = 1256.598 ; gain = 0.000 ; free physical = 24862 ; free virtual = 107648
+INFO: [Device 21-403] Loading part xczu7ev-ffvc1156-2-e
+Netlist sorting complete. Time (s): cpu = 00:00:00.05 ; elapsed = 00:00:00.05 . Memory (MB): peak = 2417.254 ; gain = 0.000 ; free physical = 23762 ; free virtual = 106548
+INFO: [Netlist 29-17] Analyzing 900 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-479] Netlist was created with Vivado 2023.2
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Read ShapeDB Complete: Time (s): cpu = 00:00:00.03 ; elapsed = 00:00:00.03 . Memory (MB): peak = 2417.254 ; gain = 0.000 ; free physical = 23761 ; free virtual = 106548
+INFO: [Timing 38-478] Restoring timing data from binary archive.
+INFO: [Timing 38-479] Binary timing data restore complete.
+INFO: [Project 1-856] Restoring constraints from binary archive.
+INFO: [Project 1-853] Binary constraint restore complete.
+INFO: [Designutils 20-5722] Start Reading Physical Databases.
+Reading placement.
+Read Netlist Cache: Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.01 . Memory (MB): peak = 2890.113 ; gain = 0.000 ; free physical = 23457 ; free virtual = 106243
+Reading placer database...
+Read Device Cache: Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.03 . Memory (MB): peak = 2890.113 ; gain = 0.000 ; free physical = 23450 ; free virtual = 106236
+Read PlaceDB: Time (s): cpu = 00:00:00.4 ; elapsed = 00:00:00.41 . Memory (MB): peak = 2890.113 ; gain = 0.000 ; free physical = 23440 ; free virtual = 106226
+Read PulsedLatchDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2890.113 ; gain = 0.000 ; free physical = 23440 ; free virtual = 106226
+Reading routing.
+Read RouteStorage: Time (s): cpu = 00:00:00.27 ; elapsed = 00:00:00.27 . Memory (MB): peak = 2916.926 ; gain = 26.812 ; free physical = 23436 ; free virtual = 106222
+Read Physdb Files: Time (s): cpu = 00:00:00.72 ; elapsed = 00:00:00.73 . Memory (MB): peak = 2916.926 ; gain = 26.812 ; free physical = 23436 ; free virtual = 106222
+Restored from archive | CPU: 0.760000 secs | Memory: 18.985497 MB |
+Finished XDEF File Restore: Time (s): cpu = 00:00:00.76 ; elapsed = 00:00:00.77 . Memory (MB): peak = 2916.926 ; gain = 26.812 ; free physical = 23436 ; free virtual = 106222
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.01 . Memory (MB): peak = 3295.504 ; gain = 0.000 ; free physical = 23041 ; free virtual = 105827
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 221 instances were transformed.
+  DSP48E2 => DSP48E2 (DSP_ALU, DSP_A_B_DATA, DSP_C_DATA, DSP_MULTIPLIER, DSP_M_DATA, DSP_OUTPUT, DSP_PREADD, DSP_PREADD_DATA): 16 instances
+  IBUF => IBUF (IBUFCTRL, INBUF): 205 instances
+
+INFO: [Project 1-604] Checkpoint was created with Vivado v2023.2 (64-bit) build 4029153
+open_checkpoint: Time (s): cpu = 00:00:22 ; elapsed = 00:00:23 . Memory (MB): peak = 3295.539 ; gain = 2038.941 ; free physical = 23041 ; free virtual = 105827
+Command: report_power -hier all -file /sim/tarsio/reports-wpn16-m16-m32-7e5ad192/wpn16_m16/power_vectorless_typical.rpt
+Running Vector-less Activity Propagation...
+
+Finished Running Vector-less Activity Propagation
+12 Infos, 0 Warnings, 0 Critical Warnings and 0 Errors encountered.
+report_power completed successfully
+report_power: Time (s): cpu = 00:00:18 ; elapsed = 00:00:08 . Memory (MB): peak = 3709.676 ; gain = 208.988 ; free physical = 22845 ; free virtual = 105631
+Command: open_checkpoint /sim/tarsio/reports-wpn16-m16-m32-7e5ad192/wpn16_m16/design_routed.dcp
+
+Starting open_checkpoint Task
+
+Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 3709.676 ; gain = 0.000 ; free physical = 22845 ; free virtual = 105631
+Netlist sorting complete. Time (s): cpu = 00:00:00.05 ; elapsed = 00:00:00.05 . Memory (MB): peak = 3709.676 ; gain = 0.000 ; free physical = 22844 ; free virtual = 105631
+INFO: [Netlist 29-17] Analyzing 900 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-479] Netlist was created with Vivado 2023.2
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Read ShapeDB Complete: Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.03 . Memory (MB): peak = 3709.676 ; gain = 0.000 ; free physical = 22844 ; free virtual = 105631
+INFO: [Timing 38-478] Restoring timing data from binary archive.
+INFO: [Timing 38-479] Binary timing data restore complete.
+INFO: [Project 1-856] Restoring constraints from binary archive.
+INFO: [Project 1-853] Binary constraint restore complete.
+INFO: [Designutils 20-5722] Start Reading Physical Databases.
+Reading placement.
+Read Netlist Cache: Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.02 . Memory (MB): peak = 3709.676 ; gain = 0.000 ; free physical = 22835 ; free virtual = 105621
+Reading placer database...
+Read Device Cache: Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.03 . Memory (MB): peak = 3709.676 ; gain = 0.000 ; free physical = 22835 ; free virtual = 105621
+Read PlaceDB: Time (s): cpu = 00:00:00.4 ; elapsed = 00:00:00.4 . Memory (MB): peak = 3709.676 ; gain = 0.000 ; free physical = 22835 ; free virtual = 105621
+Read PulsedLatchDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 3709.676 ; gain = 0.000 ; free physical = 22835 ; free virtual = 105621
+Reading routing.
+Read RouteStorage: Time (s): cpu = 00:00:00.28 ; elapsed = 00:00:00.27 . Memory (MB): peak = 3709.676 ; gain = 0.000 ; free physical = 22835 ; free virtual = 105621
+Read Physdb Files: Time (s): cpu = 00:00:00.73 ; elapsed = 00:00:00.73 . Memory (MB): peak = 3709.676 ; gain = 0.000 ; free physical = 22835 ; free virtual = 105621
+Restored from archive | CPU: 0.730000 secs | Memory: 17.925117 MB |
+Finished XDEF File Restore: Time (s): cpu = 00:00:00.73 ; elapsed = 00:00:00.73 . Memory (MB): peak = 3709.676 ; gain = 0.000 ; free physical = 22835 ; free virtual = 105621
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 3709.676 ; gain = 0.000 ; free physical = 22835 ; free virtual = 105621
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 221 instances were transformed.
+  DSP48E2 => DSP48E2 (DSP_ALU, DSP_A_B_DATA, DSP_C_DATA, DSP_MULTIPLIER, DSP_M_DATA, DSP_OUTPUT, DSP_PREADD, DSP_PREADD_DATA): 16 instances
+  IBUF => IBUF (IBUFCTRL, INBUF): 205 instances
+
+INFO: [Project 1-604] Checkpoint was created with Vivado v2023.2 (64-bit) build 4029153
+open_checkpoint: Time (s): cpu = 00:00:06 ; elapsed = 00:00:06 . Memory (MB): peak = 3709.676 ; gain = 0.000 ; free physical = 22834 ; free virtual = 105621
+Command: report_power -hier all -file /sim/tarsio/reports-wpn16-m16-m32-7e5ad192/wpn16_m16/power_vectorless_maximum.rpt
+Running Vector-less Activity Propagation...
+
+Finished Running Vector-less Activity Propagation
+11 Infos, 0 Warnings, 0 Critical Warnings and 0 Errors encountered.
+report_power completed successfully
+# exit
+INFO: [Common 17-206] Exiting Vivado at Thu Oct  1 11:02:06 2026...

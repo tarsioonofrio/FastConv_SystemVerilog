@@ -1,10 +1,11 @@
 # Synthesize and route a streaming-column core at the shared 317 MHz point.
-# Usage: synth_impl.tcl <repo-root> <output-root> <algorithm> <manifest>
-if {$argc != 4} { error "usage: synth_impl.tcl <repo-root> <output-root> <algorithm> <manifest>" }
+# Usage: synth_impl.tcl <repo-root> <output-root> <algorithm> <manifest> <constraints>
+if {$argc != 5} { error "usage: synth_impl.tcl <repo-root> <output-root> <algorithm> <manifest> <constraints>" }
 set repo_root [file normalize [lindex $argv 0]]
 set output_root [file normalize [lindex $argv 1]]
 set algorithm [lindex $argv 2]
 set manifest [file normalize [lindex $argv 3]]
+set constraints [file normalize [lindex $argv 4]]
 set run_dir [file join $output_root $algorithm]
 file mkdir $run_dir
 
@@ -29,7 +30,7 @@ while {[gets $sources line] >= 0} {
 }
 close $sources
 
-read_xdc [file join $repo_root rtl stream-column fpga_zcu104 constraints zcu104_317mhz.xdc]
+read_xdc $constraints
 synth_design -top Conv -part xczu7ev-ffvc1156-2-e -generic {NADDR=12}
 write_checkpoint -force [file join $run_dir design_synth.dcp]
 opt_design

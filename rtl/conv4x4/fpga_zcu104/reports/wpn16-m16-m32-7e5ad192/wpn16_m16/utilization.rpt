@@ -1,0 +1,53 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2023 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2023.2 (lin64) Build 4029153 Fri Oct 13 20:13:54 MDT 2023
+| Date         : Thu Oct  1 11:01:00 2026
+| Host         : paxos.inf.pucrs.br running 64-bit Rocky Linux release 8.10 (Green Obsidian)
+| Command      : report_utilization -hierarchical -file /sim/tarsio/reports-wpn16-m16-m32-7e5ad192/wpn16_m16/utilization.rpt
+| Design       : Conv
+| Device       : xczu7ev-ffvc1156-2-e
+| Speed File   : -2
+| Design State : Routed
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+Utilization Design Information
+
+Table of Contents
+-----------------
+1. Utilization by Hierarchy
+
+1. Utilization by Hierarchy
+---------------------------
+
++-------------------------------------------+-----------------------------------------+------------+------------+---------+------+------+--------+--------+------+------------+
+|                  Instance                 |                  Module                 | Total LUTs | Logic LUTs | LUTRAMs | SRLs |  FFs | RAMB36 | RAMB18 | URAM | DSP Blocks |
++-------------------------------------------+-----------------------------------------+------------+------------+---------+------+------+--------+--------+------+------------+
+| Conv                                      |                                   (top) |       9885 |       9885 |       0 |    0 | 3121 |      0 |      0 |    0 |         16 |
+|   (Conv)                                  |                                   (top) |       6176 |       6176 |       0 |    0 | 3121 |      0 |      0 |    0 |          0 |
+|   MAC_LANES[0].multip                     |                                  Multip |         38 |         38 |       0 |    0 |    0 |      0 |      0 |    0 |          1 |
+|   MAC_LANES[10].multip                    |                                Multip_0 |         38 |         38 |       0 |    0 |    0 |      0 |      0 |    0 |          1 |
+|   MAC_LANES[11].multip                    |                                Multip_1 |         38 |         38 |       0 |    0 |    0 |      0 |      0 |    0 |          1 |
+|   MAC_LANES[12].multip                    |                                Multip_2 |         38 |         38 |       0 |    0 |    0 |      0 |      0 |    0 |          1 |
+|   MAC_LANES[13].multip                    |                                Multip_3 |         38 |         38 |       0 |    0 |    0 |      0 |      0 |    0 |          1 |
+|   MAC_LANES[14].multip                    |                                Multip_4 |         38 |         38 |       0 |    0 |    0 |      0 |      0 |    0 |          1 |
+|   MAC_LANES[15].multip                    |                                Multip_5 |         38 |         38 |       0 |    0 |    0 |      0 |      0 |    0 |          1 |
+|   MAC_LANES[1].multip                     |                                Multip_6 |         38 |         38 |       0 |    0 |    0 |      0 |      0 |    0 |          1 |
+|   MAC_LANES[2].multip                     |                                Multip_7 |         38 |         38 |       0 |    0 |    0 |      0 |      0 |    0 |          1 |
+|   MAC_LANES[3].multip                     |                                Multip_8 |         38 |         38 |       0 |    0 |    0 |      0 |      0 |    0 |          1 |
+|   MAC_LANES[4].multip                     |                                Multip_9 |         38 |         38 |       0 |    0 |    0 |      0 |      0 |    0 |          1 |
+|   MAC_LANES[5].multip                     |                               Multip_10 |         38 |         38 |       0 |    0 |    0 |      0 |      0 |    0 |          1 |
+|   MAC_LANES[6].multip                     |                               Multip_11 |         38 |         38 |       0 |    0 |    0 |      0 |      0 |    0 |          1 |
+|   MAC_LANES[7].multip                     |                               Multip_12 |         38 |         38 |       0 |    0 |    0 |      0 |      0 |    0 |          1 |
+|   MAC_LANES[8].multip                     |                               Multip_13 |         38 |         38 |       0 |    0 |    0 |      0 |      0 |    0 |          1 |
+|   MAC_LANES[9].multip                     |                               Multip_14 |         38 |         38 |       0 |    0 |    0 |      0 |      0 |    0 |          1 |
+|   WEIGHT_TRANSFORM_ROWS[0].weight_trf_row |                 WeightTransformRowConst |        123 |        123 |       0 |    0 |    0 |      0 |      0 |    0 |          0 |
+|   WEIGHT_TRANSFORM_ROWS[1].weight_trf_row | WeightTransformRowConst__parameterized0 |        355 |        355 |       0 |    0 |    0 |      0 |      0 |    0 |          0 |
+|   WEIGHT_TRANSFORM_ROWS[2].weight_trf_row | WeightTransformRowConst__parameterized1 |        833 |        833 |       0 |    0 |    0 |      0 |      0 |    0 |          0 |
+|   WEIGHT_TRANSFORM_ROWS[4].weight_trf_row | WeightTransformRowConst__parameterized3 |        501 |        501 |       0 |    0 |    0 |      0 |      0 |    0 |          0 |
+|   WEIGHT_TRANSFORM_ROWS[5].weight_trf_row | WeightTransformRowConst__parameterized4 |        842 |        842 |       0 |    0 |    0 |      0 |      0 |    0 |          0 |
+|   WEIGHT_TRANSFORM_ROWS[6].weight_trf_row | WeightTransformRowConst__parameterized5 |        245 |        245 |       0 |    0 |    0 |      0 |      0 |    0 |          0 |
+|   WEIGHT_TRANSFORM_ROWS[7].weight_trf_row | WeightTransformRowConst__parameterized6 |        269 |        269 |       0 |    0 |    0 |      0 |      0 |    0 |          0 |
++-------------------------------------------+-----------------------------------------+------------+------------+---------+------+------+--------+--------+------+------------+
+* Note: The sum of lower-level cells may be larger than their parent cells total, due to cross-hierarchy LUT combining
+
+

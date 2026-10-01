@@ -10,6 +10,8 @@ fi
 script_dir=$(cd -- "$(dirname -- "$0")" && pwd)
 bench_dir=$(cd -- "$script_dir/.." && pwd)
 repo_root=$(cd -- "$bench_dir/../../.." && pwd)
+config_dir=${STREAM_COLUMN_FPGA_CONFIG_DIR:-$bench_dir}
+constraints=${STREAM_COLUMN_FPGA_XDC:-$config_dir/constraints/zcu104_317mhz.xdc}
 output_root=$(mkdir -p -- "$1" && cd -- "$1" && pwd)
 simlib_dir="$output_root/simlibs_unisim"
 mkdir -p "$output_root"
@@ -26,7 +28,7 @@ glbl_v="$vivado_root/data/verilog/src/glbl.v"
 run_one() {
   local algorithm=$1 family=$2 data_algorithm=${3:-$1}
   local run_dir="$output_root/$algorithm"
-  local manifest="$bench_dir/manifests/$algorithm.rtl"
+  local manifest="$config_dir/manifests/$algorithm.rtl"
   local params="$repo_root/rtl/conv${family}x${family}/pack-param/$data_algorithm/pack_param.sv"
   local data="$repo_root/rtl/conv${family}x${family}/data/$data_algorithm/sim/sim-032-3-3-normal-trunc/pack_data.sv"
   local matrices="$repo_root/rtl/conv${family}x${family}/mult-matrices/$data_algorithm/mult_matrices.sv"
@@ -41,7 +43,7 @@ run_one() {
   vivado -mode batch -source "$script_dir/synth_impl.tcl" \
     -log "$output_root/${algorithm}.synth.vivado.log" \
     -journal "$output_root/${algorithm}.synth.vivado.jou" \
-    -tclargs "$repo_root" "$output_root" "$algorithm" "$manifest"
+    -tclargs "$repo_root" "$output_root" "$algorithm" "$manifest" "$constraints"
   vivado -mode batch -source "$script_dir/power_vectorless.tcl" \
     -log "$output_root/${algorithm}.vectorless.vivado.log" \
     -journal "$output_root/${algorithm}.vectorless.vivado.jou" \

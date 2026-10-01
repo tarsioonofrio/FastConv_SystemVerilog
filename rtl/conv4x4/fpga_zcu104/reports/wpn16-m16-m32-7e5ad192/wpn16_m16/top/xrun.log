@@ -1,0 +1,219 @@
+xrun(64): 23.03-s003: (c) Copyright 1995-2023 Cadence Design Systems, Inc.
+TOOL:	xrun(64)	23.03-s003: Started on Oct 01, 2026 at 11:03:28 -03
+xrun
+	-64bit
+	-sv
+	-access +r
+	-cdslib /sim/tarsio/reports-wpn16-m16-m32-7e5ad192/simlibs_unisim/cds.lib
+	-hdlvar /sim/tarsio/reports-wpn16-m16-m32-7e5ad192/simlibs_unisim/hdl.var
+	-reflib /sim/tarsio/reports-wpn16-m16-m32-7e5ad192/simlibs_unisim/unisims_ver:unisims_ver
+	-define GATE_LEVEL
+	-top tb_power_stream_column
+	-top glbl
+	-timescale 1ns/1ps
+	-input /sim/tarsio/fastconv-wpn16-m16-m32-7e5ad192/rtl/stream-column/fpga_zcu104/scripts/capture_top_saif.tcl
+	-l xrun.log
+	/sim/tarsio/fastconv-wpn16-m16-m32-7e5ad192/rtl/conv4x4/pack-param/wpn16/pack_param.sv
+	/sim/tarsio/fastconv-wpn16-m16-m32-7e5ad192/rtl/conv4x4/data/wpn16/sim/sim-032-3-3-normal-trunc/pack_data.sv
+	/sim/tarsio/fastconv-wpn16-m16-m32-7e5ad192/rtl/mem/mem.sv
+	/sim/tarsio/reports-wpn16-m16-m32-7e5ad192/wpn16_m16/design_routed_funcsim.v
+	/soft64/xilinx/ferramentas/Vivado/2023.2/Vivado/2023.2/data/verilog/src/glbl.v
+	/sim/tarsio/fastconv-wpn16-m16-m32-7e5ad192/rtl/stream-column/fpga_zcu104/tb/tb_power_stream_column.sv
+file: /sim/tarsio/fastconv-wpn16-m16-m32-7e5ad192/rtl/conv4x4/pack-param/wpn16/pack_param.sv
+	package worklib.pack_param:sv
+		errors: 0, warnings: 0
+file: /sim/tarsio/fastconv-wpn16-m16-m32-7e5ad192/rtl/conv4x4/data/wpn16/sim/sim-032-3-3-normal-trunc/pack_data.sv
+	package worklib.pack_data:sv
+		errors: 0, warnings: 0
+file: /sim/tarsio/fastconv-wpn16-m16-m32-7e5ad192/rtl/mem/mem.sv
+	module worklib.Memory:sv
+		errors: 0, warnings: 0
+file: /sim/tarsio/reports-wpn16-m16-m32-7e5ad192/wpn16_m16/design_routed_funcsim.v
+	module worklib.Conv:v
+		errors: 0, warnings: 0
+	module worklib.Multip:v
+		errors: 0, warnings: 0
+	module worklib.Multip_0:v
+		errors: 0, warnings: 0
+	module worklib.Multip_1:v
+		errors: 0, warnings: 0
+	module worklib.Multip_10:v
+		errors: 0, warnings: 0
+	module worklib.Multip_11:v
+		errors: 0, warnings: 0
+	module worklib.Multip_12:v
+		errors: 0, warnings: 0
+	module worklib.Multip_13:v
+		errors: 0, warnings: 0
+	module worklib.Multip_14:v
+		errors: 0, warnings: 0
+	module worklib.Multip_2:v
+		errors: 0, warnings: 0
+	module worklib.Multip_3:v
+		errors: 0, warnings: 0
+	module worklib.Multip_4:v
+		errors: 0, warnings: 0
+	module worklib.Multip_5:v
+		errors: 0, warnings: 0
+	module worklib.Multip_6:v
+		errors: 0, warnings: 0
+	module worklib.Multip_7:v
+		errors: 0, warnings: 0
+	module worklib.Multip_8:v
+		errors: 0, warnings: 0
+	module worklib.Multip_9:v
+		errors: 0, warnings: 0
+	module worklib.WeightTransformRowConst:v
+		errors: 0, warnings: 0
+	module worklib.WeightTransformRowConst__parameterized0:v
+		errors: 0, warnings: 0
+	module worklib.WeightTransformRowConst__parameterized1:v
+		errors: 0, warnings: 0
+	module worklib.WeightTransformRowConst__parameterized3:v
+		errors: 0, warnings: 0
+	module worklib.WeightTransformRowConst__parameterized4:v
+		errors: 0, warnings: 0
+	module worklib.WeightTransformRowConst__parameterized5:v
+		errors: 0, warnings: 0
+	module worklib.WeightTransformRowConst__parameterized6:v
+		errors: 0, warnings: 0
+	module worklib.glbl:v
+		errors: 0, warnings: 0
+file: /soft64/xilinx/ferramentas/Vivado/2023.2/Vivado/2023.2/data/verilog/src/glbl.v
+file: /sim/tarsio/fastconv-wpn16-m16-m32-7e5ad192/rtl/stream-column/fpga_zcu104/tb/tb_power_stream_column.sv
+	module worklib.tb_power_stream_column:sv
+		errors: 0, warnings: 0
+	Elaborating the design hierarchy:
+		Caching library 'worklib' ....... Done
+		Caching library 'unisims_ver' ....... Done
+xmelab: *W,CUSRCH: Resolved design unit 'DSP48E2' at 'partial_product' to 'unisims_ver.DSP48E2:module' through a global search of all libraries.
+xmelab: *W,CUSRCH: Resolved design unit 'CARRY8' at 'partial_product__0_carry' to 'unisims_ver.CARRY8:module' through a global search of all libraries.
+xmelab: *W,CUSRCH: Resolved design unit 'LUT6' at 'partial_product__0_carry__0_i_1' to 'unisims_ver.LUT6:module' through a global search of all libraries.
+xmelab: *W,CUSRCH: Resolved design unit 'LUT3' at 'partial_product__0_carry__0_i_3' to 'unisims_ver.LUT3:module' through a global search of all libraries.
+xmelab: *W,CUSRCH: Resolved design unit 'x_lut3_mux8' at '' to 'unisims_ver.x_lut3_mux8:udp' through a global search of all libraries.
+xmelab: *W,CUSRCH: Resolved design unit 'LUT2' at 'partial_product__0_carry__0_i_4' to 'unisims_ver.LUT2:module' through a global search of all libraries.
+xmelab: *W,CUSRCH: Resolved design unit 'x_lut2_mux4' at '' to 'unisims_ver.x_lut2_mux4:udp' through a global search of all libraries.
+xmelab: *W,CUSRCH: Resolved design unit 'LUT5' at 'partial_product__0_carry__0_i_7' to 'unisims_ver.LUT5:module' through a global search of all libraries.
+xmelab: *W,CUSRCH: Resolved design unit 'LUT4' at 'partial_product__0_carry_i_14' to 'unisims_ver.LUT4:module' through a global search of all libraries.
+xmelab: *W,CUSRCH: Resolved design unit 'LUT1' at 'pout1__120_carry__0_i_10' to 'unisims_ver.LUT1:module' through a global search of all libraries.
+xmelab: *W,CUSRCH: Resolved design unit 'x_lut1_mux2' at '' to 'unisims_ver.x_lut1_mux2:udp' through a global search of all libraries.
+xmelab: *W,CUSRCH: Resolved design unit 'BUFGCE' at 'clk_IBUF_BUFG_inst' to 'unisims_ver.BUFGCE:module' through a global search of all libraries.
+xmelab: *W,CUSRCH: Resolved design unit 'IBUF' at 'clk_IBUF_inst' to 'unisims_ver.IBUF:module' through a global search of all libraries.
+xmelab: *W,CUSRCH: Resolved design unit 'OBUF' at 'p_end_OBUF_inst' to 'unisims_ver.OBUF:module' through a global search of all libraries.
+xmelab: *W,CUSRCH: Resolved design unit 'FDCE' at 'r_conv_multiply_count_reg[0]' to 'unisims_ver.FDCE:module' through a global search of all libraries.
+xmelab: *W,CUSRCH: Resolved design unit 'FDPE' at 'r_input_channel_counter_input_reg[0]' to 'unisims_ver.FDPE:module' through a global search of all libraries.
+	Top level design units:
+		pack_data
+		pack_param
+		tb_power_stream_column
+		glbl
+	Building instance overlay tables: .................... Done
+	Generating native compiled code:
+		worklib.Memory:sv <0x249dfcb3>
+			streams:   6, words:  2810
+		worklib.WeightTransformRowConst__parameterized6:v <0x377c0b34>
+			streams:  13, words:  3414
+		worklib.WeightTransformRowConst__parameterized5:v <0x5bed4e75>
+			streams:   6, words:  1652
+		worklib.WeightTransformRowConst__parameterized4:v <0x6fc4857e>
+			streams:  37, words: 10160
+		worklib.WeightTransformRowConst__parameterized3:v <0x08195457>
+			streams:  23, words:  6250
+		worklib.WeightTransformRowConst__parameterized1:v <0x1ad45df9>
+			streams:  30, words:  8734
+		worklib.WeightTransformRowConst__parameterized0:v <0x43683253>
+			streams:  14, words:  4009
+		worklib.WeightTransformRowConst:v <0x563061fe>
+			streams:  13, words:  3353
+		worklib.Multip_14:v <0x6bb86db7>
+			streams:   5, words:  1698
+		worklib.Multip_13:v <0x1c55140a>
+			streams:   5, words:  1698
+		worklib.Multip_12:v <0x447b503a>
+			streams:   5, words:  1698
+		worklib.Multip_11:v <0x7e224ddc>
+			streams:   5, words:  1698
+		worklib.Multip_10:v <0x260c09ec>
+			streams:   5, words:  1698
+		worklib.Multip_9:v <0x23022bb5>
+			streams:   5, words:  1698
+		worklib.Multip_8:v <0x5127cd67>
+			streams:   5, words:  1698
+		worklib.Multip_7:v <0x4284f198>
+			streams:   5, words:  1698
+		worklib.Multip_6:v <0x30a1174a>
+			streams:   5, words:  1698
+		worklib.Multip_5:v <0x26cf3c3c>
+			streams:   5, words:  1698
+		worklib.Multip_4:v <0x54eadaee>
+			streams:   5, words:  1698
+		worklib.Multip_3:v <0x6084dc03>
+			streams:   5, words:  1698
+		worklib.Multip_2:v <0x12a13ad1>
+			streams:   5, words:  1698
+		worklib.Multip_1:v <0x04cf11a7>
+			streams:   5, words:  1698
+		worklib.Multip_0:v <0x76eaf775>
+			streams:   5, words:  1698
+		worklib.Multip:v <0x16b4c3d2>
+			streams:   5, words:  1698
+		worklib.glbl:v <0x3a6ea307>
+			streams:  12, words:  3717
+		worklib.tb_power_stream_column:sv <0x45d720f6>
+			streams:  37, words: 25585
+		worklib.pack_data:sv <0x1405b75f>
+			streams:   5, words:  3336
+		worklib.pack_param:sv <0x11bbd098>
+			streams:   1, words:   708
+		worklib.Conv:v <0x150771f1>
+			streams: 280, words: 66932
+		unisims_ver.FDPE:module <0x74be874c>
+			streams:  12, words:  8281
+		unisims_ver.FDCE:module <0x1beddd01>
+			streams:  12, words:  8244
+		unisims_ver.OBUF:module <0x5290dd3e>
+			streams:   2, words:  1453
+		unisims_ver.BUFGCE:module <0x12953bdd>
+			streams:  22, words: 17948
+		unisims_ver.DSP48E2:module <0x37c963c4>
+			streams: 217, words: 159159
+	Building instance specific data structures.
+	Loading native compiled code:     .................... Done
+	Design hierarchy summary:
+		                   Instances  Unique
+		Modules:               15189      40
+		Verilog packages:          2       2
+		UDPs:                   4774       3
+		Primitives:              313       2
+		Registers:             72667     247
+		Scalar wires:          61385       -
+		Expanded wires:        10368    1183
+		Vectored wires:         2674       -
+		Always blocks:         14485      63
+		Initial blocks:        35938     103
+		Cont. assignments:     15266     333
+		Pseudo assignments:      548       -
+		Simulation timescale:    1ps
+	Writing initial simulation snapshot: worklib.tb_power_stream_column:sv
+Loading snapshot worklib.tb_power_stream_column:sv .................... Done
+xcelium> source /soft64/cadence/ferramentas/XCELIUM2303/tools/xcelium/files/xmsimrc
+xcelium> stop -condition {#%d/tb_power_stream_column/p_start == 1}
+Created stop 1
+xcelium> run
+120 NS + 0 (stop 1: tb_power_stream_column.p_start = 1)
+/sim/tarsio/fastconv-wpn16-m16-m32-7e5ad192/rtl/stream-column/fpga_zcu104/tb/tb_power_stream_column.sv:203     p_start = 1'b1;
+xcelium> dumpsaif -scope tb_power_stream_column -internal -divider / -overwrite -output activity_top.saif
+xcelium> stop -condition {#%d/tb_power_stream_column/p_end == 1}
+Created stop 2
+xcelium> stop -time 90 us -execute {puts "P3F_TIMEOUT_BEFORE_P_END"; exit}
+Created stop 3
+xcelium> run
+20742381 PS + 2 (stop 2: tb_power_stream_column.p_end = 1)
+/sim/tarsio/fastconv-wpn16-m16-m32-7e5ad192/rtl/stream-column/fpga_zcu104/tb/tb_power_stream_column.sv:75     .clk(clk), .reset(reset), .p_start(p_start), .p_end(p_end),
+xcelium> dumpsaif -end
+xcelium> run
+STREAM_COLUMN_POWER_PASS writes=2304 physical_words=9216 final_words=2700 mismatches=0 active_cycles=6539
+Simulation complete via $finish(1) at time 20751743 PS + 0
+/sim/tarsio/fastconv-wpn16-m16-m32-7e5ad192/rtl/stream-column/fpga_zcu104/tb/tb_power_stream_column.sv:218     $finish;
+xcelium> quit
+TOOL:	xrun(64)	23.03-s003: Exiting on Oct 01, 2026 at 11:03:52 -03  (total: 00:00:24)

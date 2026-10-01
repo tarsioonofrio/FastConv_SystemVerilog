@@ -1,9 +1,10 @@
 # FPGA flow for streaming-column cores
 
-This directory defines the common ZCU104/XCZU7EV implementation and power
-flow for the four generated `trunc-column` cores: `tcn9`, `ifn9`, `tcn16`, and
-`wpn16`. The RTL sources remain in `rtl/conv3x3/` and `rtl/conv4x4/`; manifests
-select one design and its transform/multiply modules.
+This directory defines the shared ZCU104/XCZU7EV implementation and power
+engine for the generated `trunc-column` cores. Family-specific manifests,
+constraints, launchers, reports, and result summaries live under
+`rtl/conv3x3/fpga_zcu104/` and `rtl/conv4x4/fpga_zcu104/`; this shared directory
+retains the common scripts and testbench.
 
 All variants use the same workload packages (`sim-032-3-3-normal-trunc`),
 Vivado 2023.2 flow, 317 MHz clock, XCZU7EV part, `NADDR=12`, and output checker.

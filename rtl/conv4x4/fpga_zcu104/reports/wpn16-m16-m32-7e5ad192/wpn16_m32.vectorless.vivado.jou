@@ -1,0 +1,14 @@
+#-----------------------------------------------------------
+# Vivado v2023.2 (64-bit)
+# SW Build 4029153 on Fri Oct 13 20:13:54 MDT 2023
+# IP Build 4028589 on Sat Oct 14 00:45:43 MDT 2023
+# SharedData Build 4025554 on Tue Oct 10 17:18:54 MDT 2023
+# Start of session at: Thu Oct  1 11:12:01 2026
+# Process ID: 787516
+# Current directory: /sim/tarsio/fastconv-wpn16-m16-m32-7e5ad192
+# Command line: vivado -mode batch -source /sim/tarsio/fastconv-wpn16-m16-m32-7e5ad192/rtl/stream-column/fpga_zcu104/scripts/power_vectorless.tcl -log /sim/tarsio/reports-wpn16-m16-m32-7e5ad192/wpn16_m32.vectorless.vivado.log -journal /sim/tarsio/reports-wpn16-m16-m32-7e5ad192/wpn16_m32.vectorless.vivado.jou -tclargs /sim/tarsio/reports-wpn16-m16-m32-7e5ad192 wpn16_m32
+# Log file: /sim/tarsio/reports-wpn16-m16-m32-7e5ad192/wpn16_m32.vectorless.vivado.log
+# Journal file: /sim/tarsio/reports-wpn16-m16-m32-7e5ad192/wpn16_m32.vectorless.vivado.jou
+# Running On: paxos.inf.pucrs.br, OS: Linux, CPU Frequency: 3100.000 MHz, CPU Physical cores: 14, Host memory: 134319 MB
+#-----------------------------------------------------------
+source /sim/tarsio/fastconv-wpn16-m16-m32-7e5ad192/rtl/stream-column/fpga_zcu104/scripts/power_vectorless.tcl
