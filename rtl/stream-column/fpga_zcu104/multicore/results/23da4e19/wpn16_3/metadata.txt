@@ -1,0 +1,17 @@
+vivado_version=2023.2
+part=xczu7ev-ffvc1156-2-e
+implementation_mode=out_of_context
+top=WPN16ReplicaTop
+algorithm=wpn16
+cores=3
+core_variant=WPN16_m08
+mac_lanes_per_core=8
+target_period_ns=3.154574
+target_frequency_mhz=317
+NADDR=12
+memory_model=independent_logical_boundary_per_core
+package_io_buffers=disabled_by_ooc
+implementation=opt_default_place_Explore_physopt_Explore_route_Explore
+manifest=/sim/tarsio/fastconv-capacity-23da4e19/rtl/conv4x4/fpga_zcu104/manifests/wpn16.rtl
+wrapper=/sim/tarsio/fastconv-capacity-23da4e19/rtl/stream-column/fpga_zcu104/multicore/wpn16_replica_top.sv
+xdc=/sim/tarsio/fastconv-capacity-23da4e19/rtl/stream-column/fpga_zcu104/constraints/zcu104_317mhz.xdc

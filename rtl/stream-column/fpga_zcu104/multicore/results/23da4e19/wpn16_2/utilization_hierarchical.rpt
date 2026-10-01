@@ -1,0 +1,67 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2023 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2023.2 (lin64) Build 4029153 Fri Oct 13 20:13:54 MDT 2023
+| Date         : Thu Oct  1 17:23:54 2026
+| Host         : paxos.inf.pucrs.br running 64-bit Rocky Linux release 8.10 (Green Obsidian)
+| Command      : report_utilization -hierarchical -file /sim/tarsio/reports-multicore-23da4e19/wpn16_2/utilization_hierarchical.rpt
+| Design       : WPN16ReplicaTop
+| Device       : xczu7ev-ffvc1156-2-e
+| Speed File   : -2
+| Design State : Routed
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+Utilization Design Information
+
+Table of Contents
+-----------------
+1. Utilization by Hierarchy
+
+1. Utilization by Hierarchy
+---------------------------
+
++---------------------------------------------+--------------------------------------------+------------+------------+---------+------+------+--------+--------+------+------------+
+|                   Instance                  |                   Module                   | Total LUTs | Logic LUTs | LUTRAMs | SRLs |  FFs | RAMB36 | RAMB18 | URAM | DSP Blocks |
++---------------------------------------------+--------------------------------------------+------------+------------+---------+------+------+--------+--------+------+------------+
+| WPN16ReplicaTop                             |                                      (top) |      17243 |      17243 |       0 |    0 | 5294 |      0 |      0 |    0 |         16 |
+|   CORES[0].core_inst                        |                                       Conv |       8598 |       8598 |       0 |    0 | 2647 |      0 |      0 |    0 |          8 |
+|     (CORES[0].core_inst)                    |                                       Conv |       5055 |       5055 |       0 |    0 | 2647 |      0 |      0 |    0 |          0 |
+|     MAC_LANES[0].multip                     |                                   Multip_8 |         29 |         29 |       0 |    0 |    0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[1].multip                     |                                   Multip_9 |         29 |         29 |       0 |    0 |    0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[2].multip                     |                                  Multip_10 |         29 |         29 |       0 |    0 |    0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[3].multip                     |                                  Multip_11 |         29 |         29 |       0 |    0 |    0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[4].multip                     |                                  Multip_12 |         29 |         29 |       0 |    0 |    0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[5].multip                     |                                  Multip_13 |         29 |         29 |       0 |    0 |    0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[6].multip                     |                                  Multip_14 |         29 |         29 |       0 |    0 |    0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[7].multip                     |                                  Multip_15 |         29 |         29 |       0 |    0 |    0 |      0 |      0 |    0 |          1 |
+|     WEIGHT_TRANSFORM_ROWS[0].weight_trf_row |                 WeightTransformRowConst_16 |        130 |        130 |       0 |    0 |    0 |      0 |      0 |    0 |          0 |
+|     WEIGHT_TRANSFORM_ROWS[1].weight_trf_row | WeightTransformRowConst__parameterized0_17 |        215 |        215 |       0 |    0 |    0 |      0 |      0 |    0 |          0 |
+|     WEIGHT_TRANSFORM_ROWS[2].weight_trf_row | WeightTransformRowConst__parameterized1_18 |        836 |        836 |       0 |    0 |    0 |      0 |      0 |    0 |          0 |
+|     WEIGHT_TRANSFORM_ROWS[4].weight_trf_row | WeightTransformRowConst__parameterized3_19 |        394 |        394 |       0 |    0 |    0 |      0 |      0 |    0 |          0 |
+|     WEIGHT_TRANSFORM_ROWS[5].weight_trf_row | WeightTransformRowConst__parameterized4_20 |        805 |        805 |       0 |    0 |    0 |      0 |      0 |    0 |          0 |
+|     WEIGHT_TRANSFORM_ROWS[6].weight_trf_row | WeightTransformRowConst__parameterized5_21 |        109 |        109 |       0 |    0 |    0 |      0 |      0 |    0 |          0 |
+|     WEIGHT_TRANSFORM_ROWS[7].weight_trf_row | WeightTransformRowConst__parameterized6_22 |        152 |        152 |       0 |    0 |    0 |      0 |      0 |    0 |          0 |
+|     inverse_row_acc                         |                    InverseRowAccumulate_23 |        221 |        221 |       0 |    0 |    0 |      0 |      0 |    0 |          0 |
+|     inverse_row_current                     |                              InverseRow_24 |        557 |        557 |       0 |    0 |    0 |      0 |      0 |    0 |          0 |
+|   CORES[1].core_inst                        |                                     Conv_0 |       8645 |       8645 |       0 |    0 | 2647 |      0 |      0 |    0 |          8 |
+|     (CORES[1].core_inst)                    |                                     Conv_0 |       5077 |       5077 |       0 |    0 | 2647 |      0 |      0 |    0 |          0 |
+|     MAC_LANES[0].multip                     |                                     Multip |         29 |         29 |       0 |    0 |    0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[1].multip                     |                                   Multip_1 |         29 |         29 |       0 |    0 |    0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[2].multip                     |                                   Multip_2 |         29 |         29 |       0 |    0 |    0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[3].multip                     |                                   Multip_3 |         29 |         29 |       0 |    0 |    0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[4].multip                     |                                   Multip_4 |         29 |         29 |       0 |    0 |    0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[5].multip                     |                                   Multip_5 |         29 |         29 |       0 |    0 |    0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[6].multip                     |                                   Multip_6 |         29 |         29 |       0 |    0 |    0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[7].multip                     |                                   Multip_7 |         29 |         29 |       0 |    0 |    0 |      0 |      0 |    0 |          1 |
+|     WEIGHT_TRANSFORM_ROWS[0].weight_trf_row |                    WeightTransformRowConst |        130 |        130 |       0 |    0 |    0 |      0 |      0 |    0 |          0 |
+|     WEIGHT_TRANSFORM_ROWS[1].weight_trf_row |    WeightTransformRowConst__parameterized0 |        183 |        183 |       0 |    0 |    0 |      0 |      0 |    0 |          0 |
+|     WEIGHT_TRANSFORM_ROWS[2].weight_trf_row |    WeightTransformRowConst__parameterized1 |        860 |        860 |       0 |    0 |    0 |      0 |      0 |    0 |          0 |
+|     WEIGHT_TRANSFORM_ROWS[4].weight_trf_row |    WeightTransformRowConst__parameterized3 |        347 |        347 |       0 |    0 |    0 |      0 |      0 |    0 |          0 |
+|     WEIGHT_TRANSFORM_ROWS[5].weight_trf_row |    WeightTransformRowConst__parameterized4 |        861 |        861 |       0 |    0 |    0 |      0 |      0 |    0 |          0 |
+|     WEIGHT_TRANSFORM_ROWS[6].weight_trf_row |    WeightTransformRowConst__parameterized5 |        107 |        107 |       0 |    0 |    0 |      0 |      0 |    0 |          0 |
+|     WEIGHT_TRANSFORM_ROWS[7].weight_trf_row |    WeightTransformRowConst__parameterized6 |        152 |        152 |       0 |    0 |    0 |      0 |      0 |    0 |          0 |
+|     inverse_row_acc                         |                       InverseRowAccumulate |        224 |        224 |       0 |    0 |    0 |      0 |      0 |    0 |          0 |
+|     inverse_row_current                     |                                 InverseRow |        526 |        526 |       0 |    0 |    0 |      0 |      0 |    0 |          0 |
++---------------------------------------------+--------------------------------------------+------------+------------+---------+------+------+--------+--------+------+------------+
+* Note: The sum of lower-level cells may be larger than their parent cells total, due to cross-hierarchy LUT combining
+
+

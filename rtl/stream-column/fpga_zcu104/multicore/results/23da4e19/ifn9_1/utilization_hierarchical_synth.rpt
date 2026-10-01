@@ -1,0 +1,36 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2023 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2023.2 (lin64) Build 4029153 Fri Oct 13 20:13:54 MDT 2023
+| Date         : Thu Oct  1 16:43:22 2026
+| Host         : paxos.inf.pucrs.br running 64-bit Rocky Linux release 8.10 (Green Obsidian)
+| Command      : report_utilization -hierarchical -file /sim/tarsio/reports-multicore-23da4e19/ifn9_1/utilization_hierarchical_synth.rpt
+| Design       : IFN9ReplicaTop
+| Device       : xczu7ev-ffvc1156-2-e
+| Speed File   : -2
+| Design State : Synthesized
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+Utilization Design Information
+
+Table of Contents
+-----------------
+1. Utilization by Hierarchy
+
+1. Utilization by Hierarchy
+---------------------------
+
++--------------------------+----------+------------+------------+---------+------+------+--------+--------+------+------------+
+|         Instance         |  Module  | Total LUTs | Logic LUTs | LUTRAMs | SRLs |  FFs | RAMB36 | RAMB18 | URAM | DSP Blocks |
++--------------------------+----------+------------+------------+---------+------+------+--------+--------+------+------------+
+| IFN9ReplicaTop           |    (top) |       4939 |       4939 |       0 |    0 | 1885 |      0 |      0 |    0 |          6 |
+|   CORES[0].core_inst     |     Conv |       4939 |       4939 |       0 |    0 | 1885 |      0 |      0 |    0 |          6 |
+|     (CORES[0].core_inst) |     Conv |       4765 |       4765 |       0 |    0 | 1885 |      0 |      0 |    0 |          0 |
+|     MAC_LANES[0].multip  |   Multip |         29 |         29 |       0 |    0 |    0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[1].multip  | Multip_0 |         29 |         29 |       0 |    0 |    0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[2].multip  | Multip_1 |         29 |         29 |       0 |    0 |    0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[3].multip  | Multip_2 |         29 |         29 |       0 |    0 |    0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[4].multip  | Multip_3 |         29 |         29 |       0 |    0 |    0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[5].multip  | Multip_4 |         29 |         29 |       0 |    0 |    0 |      0 |      0 |    0 |          1 |
++--------------------------+----------+------------+------------+---------+------+------+--------+--------+------+------------+
+
+

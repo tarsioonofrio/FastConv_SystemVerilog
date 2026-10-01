@@ -1,0 +1,345 @@
+#-----------------------------------------------------------
+# Vivado v2023.2 (64-bit)
+# SW Build 4029153 on Fri Oct 13 20:13:54 MDT 2023
+# IP Build 4028589 on Sat Oct 14 00:45:43 MDT 2023
+# SharedData Build 4025554 on Tue Oct 10 17:18:54 MDT 2023
+# Start of session at: Thu Oct  1 17:24:12 2026
+# Process ID: 1401206
+# Current directory: /sim/tarsio/fastconv-capacity-23da4e19
+# Command line: vivado -mode batch -notrace -log /sim/tarsio/reports-multicore-23da4e19/wpn16_3/vivado.log -journal /sim/tarsio/reports-multicore-23da4e19/wpn16_3/vivado.jou -source /sim/tarsio/fastconv-capacity-23da4e19/rtl/stream-column/fpga_zcu104/multicore/synth_replicas.tcl -tclargs /sim/tarsio/fastconv-capacity-23da4e19 /sim/tarsio/reports-multicore-23da4e19/wpn16_3 wpn16 3 /sim/tarsio/fastconv-capacity-23da4e19/rtl/stream-column/fpga_zcu104/constraints/zcu104_317mhz.xdc
+# Log file: /sim/tarsio/reports-multicore-23da4e19/wpn16_3/vivado.log
+# Journal file: /sim/tarsio/reports-multicore-23da4e19/wpn16_3/vivado.jou
+# Running On: paxos.inf.pucrs.br, OS: Linux, CPU Frequency: 3100.000 MHz, CPU Physical cores: 14, Host memory: 134319 MB
+#-----------------------------------------------------------
+source /sim/tarsio/fastconv-capacity-23da4e19/rtl/stream-column/fpga_zcu104/multicore/synth_replicas.tcl -notrace
+read_verilog: Time (s): cpu = 00:00:06 ; elapsed = 00:00:06 . Memory (MB): peak = 1362.074 ; gain = 2.016 ; free physical = 12764 ; free virtual = 96930
+Command: synth_design -mode out_of_context -top WPN16ReplicaTop -part xczu7ev-ffvc1156-2-e -generic {N_CORES=3 NADDR=12}
+Starting synth_design
+Attempting to get a license for feature 'Synthesis' and/or device 'xczu7ev'
+INFO: [Common 17-349] Got license for feature 'Synthesis' and/or device 'xczu7ev'
+INFO: [Device 21-403] Loading part xczu7ev-ffvc1156-2-e
+INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 4 processes.
+INFO: [Synth 8-7078] Launching helper process for spawning children vivado processes
+INFO: [Synth 8-7075] Helper process launched with PID 1402066
+---------------------------------------------------------------------------------
+Starting RTL Elaboration : Time (s): cpu = 00:00:03 ; elapsed = 00:00:03 . Memory (MB): peak = 2705.461 ; gain = 290.699 ; free physical = 11163 ; free virtual = 95330
+---------------------------------------------------------------------------------
+INFO: [Synth 8-6157] synthesizing module 'WPN16ReplicaTop' [/sim/tarsio/fastconv-capacity-23da4e19/rtl/stream-column/fpga_zcu104/multicore/wpn16_replica_top.sv:6]
+	Parameter N_CORES bound to: 32'b00000000000000000000000000000011 
+	Parameter NADDR bound to: 32'b00000000000000000000000000001100 
+INFO: [Synth 8-6157] synthesizing module 'Conv' [/sim/tarsio/fastconv-capacity-23da4e19/rtl/conv4x4/conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv:12]
+	Parameter NADDR bound to: 32'b00000000000000000000000000001100 
+INFO: [Synth 8-6157] synthesizing module 'WeightTransformRowConst' [/sim/tarsio/fastconv-capacity-23da4e19/rtl/conv4x4/conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv:1004]
+	Parameter NBITS bound to: 32'sb00000000000000000000000000010100 
+	Parameter ROW_INDEX bound to: 32'sb00000000000000000000000000000000 
+INFO: [Synth 8-6155] done synthesizing module 'WeightTransformRowConst' (0#1) [/sim/tarsio/fastconv-capacity-23da4e19/rtl/conv4x4/conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv:1004]
+INFO: [Synth 8-6157] synthesizing module 'WeightTransformRowConst__parameterized0' [/sim/tarsio/fastconv-capacity-23da4e19/rtl/conv4x4/conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv:1004]
+	Parameter NBITS bound to: 32'sb00000000000000000000000000010100 
+	Parameter ROW_INDEX bound to: 32'sb00000000000000000000000000000001 
+INFO: [Synth 8-6155] done synthesizing module 'WeightTransformRowConst__parameterized0' (0#1) [/sim/tarsio/fastconv-capacity-23da4e19/rtl/conv4x4/conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv:1004]
+INFO: [Synth 8-6157] synthesizing module 'WeightTransformRowConst__parameterized1' [/sim/tarsio/fastconv-capacity-23da4e19/rtl/conv4x4/conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv:1004]
+	Parameter NBITS bound to: 32'sb00000000000000000000000000010100 
+	Parameter ROW_INDEX bound to: 32'sb00000000000000000000000000000010 
+INFO: [Synth 8-6155] done synthesizing module 'WeightTransformRowConst__parameterized1' (0#1) [/sim/tarsio/fastconv-capacity-23da4e19/rtl/conv4x4/conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv:1004]
+INFO: [Synth 8-6157] synthesizing module 'WeightTransformRowConst__parameterized2' [/sim/tarsio/fastconv-capacity-23da4e19/rtl/conv4x4/conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv:1004]
+	Parameter NBITS bound to: 32'sb00000000000000000000000000010100 
+	Parameter ROW_INDEX bound to: 32'sb00000000000000000000000000000011 
+INFO: [Synth 8-6155] done synthesizing module 'WeightTransformRowConst__parameterized2' (0#1) [/sim/tarsio/fastconv-capacity-23da4e19/rtl/conv4x4/conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv:1004]
+INFO: [Synth 8-6157] synthesizing module 'WeightTransformRowConst__parameterized3' [/sim/tarsio/fastconv-capacity-23da4e19/rtl/conv4x4/conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv:1004]
+	Parameter NBITS bound to: 32'sb00000000000000000000000000010100 
+	Parameter ROW_INDEX bound to: 32'sb00000000000000000000000000000100 
+INFO: [Synth 8-6155] done synthesizing module 'WeightTransformRowConst__parameterized3' (0#1) [/sim/tarsio/fastconv-capacity-23da4e19/rtl/conv4x4/conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv:1004]
+INFO: [Synth 8-6157] synthesizing module 'WeightTransformRowConst__parameterized4' [/sim/tarsio/fastconv-capacity-23da4e19/rtl/conv4x4/conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv:1004]
+	Parameter NBITS bound to: 32'sb00000000000000000000000000010100 
+	Parameter ROW_INDEX bound to: 32'sb00000000000000000000000000000101 
+INFO: [Synth 8-6155] done synthesizing module 'WeightTransformRowConst__parameterized4' (0#1) [/sim/tarsio/fastconv-capacity-23da4e19/rtl/conv4x4/conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv:1004]
+INFO: [Synth 8-6157] synthesizing module 'WeightTransformRowConst__parameterized5' [/sim/tarsio/fastconv-capacity-23da4e19/rtl/conv4x4/conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv:1004]
+	Parameter NBITS bound to: 32'sb00000000000000000000000000010100 
+	Parameter ROW_INDEX bound to: 32'sb00000000000000000000000000000110 
+INFO: [Synth 8-6155] done synthesizing module 'WeightTransformRowConst__parameterized5' (0#1) [/sim/tarsio/fastconv-capacity-23da4e19/rtl/conv4x4/conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv:1004]
+INFO: [Synth 8-6157] synthesizing module 'WeightTransformRowConst__parameterized6' [/sim/tarsio/fastconv-capacity-23da4e19/rtl/conv4x4/conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv:1004]
+	Parameter NBITS bound to: 32'sb00000000000000000000000000010100 
+	Parameter ROW_INDEX bound to: 32'sb00000000000000000000000000000111 
+INFO: [Synth 8-6155] done synthesizing module 'WeightTransformRowConst__parameterized6' (0#1) [/sim/tarsio/fastconv-capacity-23da4e19/rtl/conv4x4/conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv:1004]
+INFO: [Synth 8-6157] synthesizing module 'Multip' [/sim/tarsio/fastconv-capacity-23da4e19/rtl/multip/multip.sv:1]
+	Parameter QUANT bound to: 32'sb00000000000000000000000000001000 
+	Parameter NBITS bound to: 32'sb00000000000000000000000000010100 
+INFO: [Synth 8-6155] done synthesizing module 'Multip' (0#1) [/sim/tarsio/fastconv-capacity-23da4e19/rtl/multip/multip.sv:1]
+INFO: [Synth 8-293] found qualifier priority on case statement: implementing as full_case [/sim/tarsio/fastconv-capacity-23da4e19/rtl/conv4x4/conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv:330]
+INFO: [Synth 8-293] found qualifier priority on case statement: implementing as full_case [/sim/tarsio/fastconv-capacity-23da4e19/rtl/conv4x4/conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv:627]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [/sim/tarsio/fastconv-capacity-23da4e19/rtl/conv4x4/conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv:692]
+INFO: [Synth 8-6157] synthesizing module 'Transform' [/sim/tarsio/fastconv-capacity-23da4e19/rtl/conv4x4/mult-matrices/wpn16/mult_matrices.sv:1]
+	Parameter NBITS bound to: 32'sb00000000000000000000000000010100 
+	Parameter CONV_OUTPUT_SIZE bound to: 32'sb00000000000000000000000000000100 
+	Parameter CONV_INPUT_SIZE bound to: 32'sb00000000000000000000000000000110 
+	Parameter HADAMARD_SIZE bound to: 32'sb00000000000000000000000000001000 
+INFO: [Synth 8-6157] synthesizing module 'MatrixC0' [/sim/tarsio/fastconv-capacity-23da4e19/rtl/conv4x4/mult-matrices/wpn16/mult_matrices.sv:69]
+	Parameter NBITS bound to: 32'sb00000000000000000000000000010100 
+	Parameter CONV_INPUT_SIZE bound to: 32'sb00000000000000000000000000000110 
+	Parameter HADAMARD_SIZE bound to: 32'sb00000000000000000000000000001000 
+INFO: [Synth 8-6155] done synthesizing module 'MatrixC0' (0#1) [/sim/tarsio/fastconv-capacity-23da4e19/rtl/conv4x4/mult-matrices/wpn16/mult_matrices.sv:69]
+INFO: [Synth 8-6157] synthesizing module 'MatrixC1' [/sim/tarsio/fastconv-capacity-23da4e19/rtl/conv4x4/mult-matrices/wpn16/mult_matrices.sv:131]
+	Parameter NBITS bound to: 32'sb00000000000000000000000000010100 
+	Parameter CONV_INPUT_SIZE bound to: 32'sb00000000000000000000000000000110 
+	Parameter HADAMARD_SIZE bound to: 32'sb00000000000000000000000000001000 
+INFO: [Synth 8-6155] done synthesizing module 'MatrixC1' (0#1) [/sim/tarsio/fastconv-capacity-23da4e19/rtl/conv4x4/mult-matrices/wpn16/mult_matrices.sv:131]
+INFO: [Synth 8-6155] done synthesizing module 'Transform' (0#1) [/sim/tarsio/fastconv-capacity-23da4e19/rtl/conv4x4/mult-matrices/wpn16/mult_matrices.sv:1]
+INFO: [Synth 8-6157] synthesizing module 'InverseRow' [/sim/tarsio/fastconv-capacity-23da4e19/rtl/conv4x4/conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv:1143]
+	Parameter NBITS bound to: 32'sb00000000000000000000000000010100 
+INFO: [Synth 8-6155] done synthesizing module 'InverseRow' (0#1) [/sim/tarsio/fastconv-capacity-23da4e19/rtl/conv4x4/conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv:1143]
+INFO: [Synth 8-6157] synthesizing module 'InverseRowAccumulate' [/sim/tarsio/fastconv-capacity-23da4e19/rtl/conv4x4/conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv:1160]
+	Parameter NBITS bound to: 32'sb00000000000000000000000000010100 
+INFO: [Synth 8-226] default block is never used [/sim/tarsio/fastconv-capacity-23da4e19/rtl/conv4x4/conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv:1177]
+INFO: [Synth 8-6155] done synthesizing module 'InverseRowAccumulate' (0#1) [/sim/tarsio/fastconv-capacity-23da4e19/rtl/conv4x4/conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv:1160]
+INFO: [Synth 8-293] found qualifier priority on case statement: implementing as full_case [/sim/tarsio/fastconv-capacity-23da4e19/rtl/conv4x4/conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv:797]
+INFO: [Synth 8-6155] done synthesizing module 'Conv' (0#1) [/sim/tarsio/fastconv-capacity-23da4e19/rtl/conv4x4/conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv:12]
+INFO: [Synth 8-6155] done synthesizing module 'WPN16ReplicaTop' (0#1) [/sim/tarsio/fastconv-capacity-23da4e19/rtl/stream-column/fpga_zcu104/multicore/wpn16_replica_top.sv:6]
+WARNING: [Synth 8-7129] Port pin[5][19] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[5][18] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[5][17] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[5][16] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[5][15] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[5][14] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[5][13] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[5][12] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[5][11] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[5][10] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[5][9] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[5][8] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[5][7] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[5][6] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[5][5] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[5][4] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[5][3] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[5][2] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[5][1] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[5][0] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[4][19] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[4][18] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[4][17] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[4][16] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[4][15] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[4][14] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[4][13] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[4][12] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[4][11] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[4][10] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[4][9] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[4][8] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[4][7] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[4][6] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[4][5] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[4][4] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[4][3] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[4][2] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[4][1] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[4][0] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[3][19] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[3][18] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[3][17] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[3][16] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[3][15] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[3][14] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[3][13] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[3][12] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[3][11] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[3][10] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[3][9] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[3][8] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[3][7] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[3][6] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[3][5] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[3][4] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[3][3] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[3][2] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[3][1] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[3][0] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[2][19] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[2][18] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[2][17] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[2][16] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[2][15] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[2][14] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[2][13] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[2][12] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[2][11] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[2][10] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[2][9] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[2][8] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[2][7] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[2][6] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[2][5] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[2][4] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[2][3] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[2][2] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[2][1] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[2][0] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[1][19] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[1][18] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[1][17] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[1][16] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[1][15] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[1][14] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[1][13] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[1][12] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[1][11] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[1][10] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[1][9] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[1][8] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[1][7] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[1][6] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[1][5] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[1][4] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[1][3] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[1][2] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[1][1] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[1][0] in module WeightTransformRowConst__parameterized6 is either unconnected or has no load
+INFO: [Common 17-14] Message 'Synth 8-7129' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
+---------------------------------------------------------------------------------
+Finished RTL Elaboration : Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 2817.398 ; gain = 402.637 ; free physical = 11030 ; free virtual = 95197
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:05 ; elapsed = 00:00:06 . Memory (MB): peak = 2823.336 ; gain = 408.574 ; free physical = 11029 ; free virtual = 95196
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 1 : Time (s): cpu = 00:00:05 ; elapsed = 00:00:06 . Memory (MB): peak = 2823.336 ; gain = 408.574 ; free physical = 11029 ; free virtual = 95196
+---------------------------------------------------------------------------------
+Netlist sorting complete. Time (s): cpu = 00:00:00.21 ; elapsed = 00:00:00.22 . Memory (MB): peak = 2823.336 ; gain = 0.000 ; free physical = 11029 ; free virtual = 95195
+INFO: [Project 1-570] Preparing netlist for logic optimization
+
+Processing XDC Constraints
+Initializing timing engine
+Parsing XDC File [/sim/tarsio/fastconv-capacity-23da4e19/rtl/stream-column/fpga_zcu104/constraints/zcu104_317mhz.xdc]
+WARNING: [Vivado 12-2489] -period contains time 3.154574 which will be rounded to 3.155 to ensure it is an integer multiple of 1 picosecond [/sim/tarsio/fastconv-capacity-23da4e19/rtl/stream-column/fpga_zcu104/constraints/zcu104_317mhz.xdc:1]
+Finished Parsing XDC File [/sim/tarsio/fastconv-capacity-23da4e19/rtl/stream-column/fpga_zcu104/constraints/zcu104_317mhz.xdc]
+Completed Processing XDC Constraints
+
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2956.992 ; gain = 0.000 ; free physical = 10994 ; free virtual = 95161
+INFO: [Project 1-111] Unisim Transformation Summary:
+No Unisim elements were transformed.
+
+Constraint Validation Runtime : Time (s): cpu = 00:00:00.34 ; elapsed = 00:00:00.1 . Memory (MB): peak = 2957.027 ; gain = 0.000 ; free physical = 10993 ; free virtual = 95160
+---------------------------------------------------------------------------------
+Finished Constraint Validation : Time (s): cpu = 00:00:17 ; elapsed = 00:00:16 . Memory (MB): peak = 2957.027 ; gain = 542.266 ; free physical = 11020 ; free virtual = 95184
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Loading Part and Timing Information
+---------------------------------------------------------------------------------
+Loading part: xczu7ev-ffvc1156-2-e
+INFO: [Synth 8-6742] Reading net delay rules and data
+---------------------------------------------------------------------------------
+Finished Loading Part and Timing Information : Time (s): cpu = 00:00:17 ; elapsed = 00:00:16 . Memory (MB): peak = 2957.027 ; gain = 542.266 ; free physical = 11020 ; free virtual = 95184
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Applying 'set_property' XDC Constraints
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished applying 'set_property' XDC Constraints : Time (s): cpu = 00:00:17 ; elapsed = 00:00:16 . Memory (MB): peak = 2957.027 ; gain = 542.266 ; free physical = 11020 ; free virtual = 95184
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 2 : Time (s): cpu = 00:00:19 ; elapsed = 00:00:18 . Memory (MB): peak = 2957.027 ; gain = 542.266 ; free physical = 11019 ; free virtual = 95183
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start RTL Component Statistics 
+---------------------------------------------------------------------------------
+Detailed RTL Component Info : 
++---Adders : 
+	   4 Input   25 Bit       Adders := 12    
+	   3 Input   25 Bit       Adders := 18    
+	   2 Input   25 Bit       Adders := 21    
+	   9 Input   25 Bit       Adders := 9     
+	   7 Input   25 Bit       Adders := 9     
+	   6 Input   25 Bit       Adders := 12    
+	   5 Input   25 Bit       Adders := 12    
+	   8 Input   25 Bit       Adders := 3     
+	   3 Input   20 Bit       Adders := 153   
+	   5 Input   20 Bit       Adders := 93    
+	   2 Input   20 Bit       Adders := 81    
+	   4 Input   20 Bit       Adders := 42    
+	   2 Input   12 Bit       Adders := 21    
+	   4 Input   12 Bit       Adders := 3     
+	   2 Input   10 Bit       Adders := 3     
+	   2 Input    8 Bit       Adders := 6     
+	   2 Input    6 Bit       Adders := 12    
+	   2 Input    5 Bit       Adders := 3     
+	   2 Input    4 Bit       Adders := 12    
+	   2 Input    3 Bit       Adders := 6     
+	   2 Input    2 Bit       Adders := 21    
++---Registers : 
+	               20 Bit    Registers := 375   
+	               12 Bit    Registers := 18    
+	               10 Bit    Registers := 3     
+	                8 Bit    Registers := 6     
+	                6 Bit    Registers := 12    
+	                5 Bit    Registers := 3     
+	                4 Bit    Registers := 15    
+	                3 Bit    Registers := 12    
+	                2 Bit    Registers := 21    
+	                1 Bit    Registers := 21    
++---Muxes : 
+	   2 Input   36 Bit        Muxes := 6     
+	   2 Input   20 Bit        Muxes := 639   
+	   3 Input   20 Bit        Muxes := 33    
+	   4 Input   20 Bit        Muxes := 96    
+	   8 Input   20 Bit        Muxes := 75    
+	   2 Input   12 Bit        Muxes := 39    
+	   2 Input   10 Bit        Muxes := 9     
+	   2 Input    8 Bit        Muxes := 9     
+	  10 Input    8 Bit        Muxes := 3     
+	   2 Input    6 Bit        Muxes := 12    
+	   4 Input    6 Bit        Muxes := 3     
+	   2 Input    5 Bit        Muxes := 9     
+	   2 Input    4 Bit        Muxes := 27    
+	   7 Input    3 Bit        Muxes := 3     
+	   2 Input    3 Bit        Muxes := 42    
+	   3 Input    3 Bit        Muxes := 3     
+	   4 Input    3 Bit        Muxes := 3     
+	   2 Input    2 Bit        Muxes := 33    
+	   4 Input    2 Bit        Muxes := 3     
+	   2 Input    1 Bit        Muxes := 273   
+	   4 Input    1 Bit        Muxes := 51    
+	   3 Input    1 Bit        Muxes := 9     
+	   8 Input    1 Bit        Muxes := 3     
+---------------------------------------------------------------------------------
+Finished RTL Component Statistics 
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Part Resource Summary
+---------------------------------------------------------------------------------
+Part Resources:
+DSPs: 1728 (col length:144)
+BRAMs: 624 (col length: RAMB18 144 RAMB36 72)
+---------------------------------------------------------------------------------
+Finished Part Resource Summary
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Cross Boundary and Area Optimization
+---------------------------------------------------------------------------------
+WARNING: [Synth 8-7080] Parallel synthesis criteria is not met
+DSP Report: Generating DSP MAC_LANES[0].multip/partial_product, operation Mode is: A*B.
+DSP Report: operator MAC_LANES[0].multip/partial_product is absorbed into DSP MAC_LANES[0].multip/partial_product.
+DSP Report: operator MAC_LANES[0].multip/partial_product is absorbed into DSP MAC_LANES[0].multip/partial_product.
+DSP Report: Generating DSP MAC_LANES[1].multip/partial_product, operation Mode is: A*B.
+DSP Report: operator MAC_LANES[1].multip/partial_product is absorbed into DSP MAC_LANES[1].multip/partial_product.
+DSP Report: operator MAC_LANES[1].multip/partial_product is absorbed into DSP MAC_LANES[1].multip/partial_product.
+DSP Report: Generating DSP MAC_LANES[2].multip/partial_product, operation Mode is: A*B.
+DSP Report: operator MAC_LANES[2].multip/partial_product is absorbed into DSP MAC_LANES[2].multip/partial_product.
+DSP Report: operator MAC_LANES[2].multip/partial_product is absorbed into DSP MAC_LANES[2].multip/partial_product.
+DSP Report: Generating DSP MAC_LANES[3].multip/partial_product, operation Mode is: A*B.
+DSP Report: operator MAC_LANES[3].multip/partial_product is absorbed into DSP MAC_LANES[3].multip/partial_product.
+DSP Report: operator MAC_LANES[3].multip/partial_product is absorbed into DSP MAC_LANES[3].multip/partial_product.
+DSP Report: Generating DSP MAC_LANES[4].multip/partial_product, operation Mode is: A*B.
+DSP Report: operator MAC_LANES[4].multip/partial_product is absorbed into DSP MAC_LANES[4].multip/partial_product.
+DSP Report: operator MAC_LANES[4].multip/partial_product is absorbed into DSP MAC_LANES[4].multip/partial_product.
+DSP Report: Generating DSP MAC_LANES[5].multip/partial_product, operation Mode is: A*B.
+DSP Report: operator MAC_LANES[5].multip/partial_product is absorbed into DSP MAC_LANES[5].multip/partial_product.
+DSP Report: operator MAC_LANES[5].multip/partial_product is absorbed into DSP MAC_LANES[5].multip/partial_product.
+DSP Report: Generating DSP MAC_LANES[6].multip/partial_product, operation Mode is: A*B.
+DSP Report: operator MAC_LANES[6].multip/partial_product is absorbed into DSP MAC_LANES[6].multip/partial_product.
+DSP Report: operator MAC_LANES[6].multip/partial_product is absorbed into DSP MAC_LANES[6].multip/partial_product.
+DSP Report: Generating DSP MAC_LANES[7].multip/partial_product, operation Mode is: A*B.
+DSP Report: operator MAC_LANES[7].multip/partial_product is absorbed into DSP MAC_LANES[7].multip/partial_product.
+DSP Report: operator MAC_LANES[7].multip/partial_product is absorbed into DSP MAC_LANES[7].multip/partial_product.

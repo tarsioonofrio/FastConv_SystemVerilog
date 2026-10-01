@@ -1,0 +1,14 @@
+#-----------------------------------------------------------
+# Vivado v2023.2 (64-bit)
+# SW Build 4029153 on Fri Oct 13 20:13:54 MDT 2023
+# IP Build 4028589 on Sat Oct 14 00:45:43 MDT 2023
+# SharedData Build 4025554 on Tue Oct 10 17:18:54 MDT 2023
+# Start of session at: Thu Oct  1 19:19:38 2026
+# Process ID: 1623696
+# Current directory: /sim/tarsio/fastconv-capacity-23da4e19
+# Command line: vivado -mode batch -notrace -log /sim/tarsio/reports-multicore-23da4e19/wpn16_3/vivado.log -journal /sim/tarsio/reports-multicore-23da4e19/wpn16_3/vivado.jou -source /sim/tarsio/fastconv-capacity-23da4e19/rtl/stream-column/fpga_zcu104/multicore/synth_replicas.tcl -tclargs /sim/tarsio/fastconv-capacity-23da4e19 /sim/tarsio/reports-multicore-23da4e19/wpn16_3 wpn16 3 /sim/tarsio/fastconv-capacity-23da4e19/rtl/stream-column/fpga_zcu104/constraints/zcu104_317mhz.xdc
+# Log file: /sim/tarsio/reports-multicore-23da4e19/wpn16_3/vivado.log
+# Journal file: /sim/tarsio/reports-multicore-23da4e19/wpn16_3/vivado.jou
+# Running On: paxos.inf.pucrs.br, OS: Linux, CPU Frequency: 3100.000 MHz, CPU Physical cores: 14, Host memory: 134319 MB
+#-----------------------------------------------------------
+source /sim/tarsio/fastconv-capacity-23da4e19/rtl/stream-column/fpga_zcu104/multicore/synth_replicas.tcl -notrace

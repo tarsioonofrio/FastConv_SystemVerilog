@@ -1,0 +1,17 @@
+vivado_version=2023.2
+part=xczu7ev-ffvc1156-2-e
+implementation_mode=out_of_context
+top=IFN9ReplicaTop
+algorithm=ifn9
+cores=21
+core_variant=IFN9_m06
+mac_lanes_per_core=6
+target_period_ns=3.154574
+target_frequency_mhz=317
+NADDR=12
+memory_model=independent_logical_boundary_per_core
+package_io_buffers=disabled_by_ooc
+implementation=opt_default_place_Explore_physopt_Explore_route_Explore
+manifest=/sim/tarsio/fastconv-capacity-23da4e19/rtl/conv3x3/fpga_zcu104/manifests/ifn9.rtl
+wrapper=/sim/tarsio/fastconv-capacity-23da4e19/rtl/stream-column/fpga_zcu104/multicore/ifn9_replica_top.sv
+xdc=/sim/tarsio/fastconv-capacity-23da4e19/rtl/stream-column/fpga_zcu104/constraints/zcu104_317mhz.xdc
