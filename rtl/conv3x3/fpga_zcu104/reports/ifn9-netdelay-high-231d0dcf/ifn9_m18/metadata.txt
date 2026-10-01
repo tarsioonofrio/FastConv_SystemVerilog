@@ -1,0 +1,14 @@
+vivado_version=2023.2
+part=xczu7ev-ffvc1156-2-e
+top=Conv
+algorithm=ifn9_m18
+target_period_ns=3.154574
+target_frequency_mhz=317
+NADDR=12
+experiment=Performance_NetDelay_high
+opt_design=Default
+place_design=ExtraNetDelay_high
+phys_opt_design=AggressiveExplore_post_place_and_post_route
+route_design=NoTimingRelaxation
+manifest=/tmp/fastconv-ifn9-netdelay-231d0dcf/rtl/conv3x3/fpga_zcu104/manifests/ifn9_m18.rtl
+constraints=/tmp/fastconv-ifn9-netdelay-231d0dcf/rtl/conv3x3/fpga_zcu104/constraints/zcu104_317mhz.xdc
