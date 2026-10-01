@@ -1,0 +1,128 @@
+#-----------------------------------------------------------
+# Vivado v2023.2 (64-bit)
+# SW Build 4029153 on Fri Oct 13 20:13:54 MDT 2023
+# IP Build 4028589 on Sat Oct 14 00:45:43 MDT 2023
+# SharedData Build 4025554 on Tue Oct 10 17:18:54 MDT 2023
+# Start of session at: Thu Oct  1 12:44:24 2026
+# Process ID: 917898
+# Current directory: /home/tarsio.onofrio
+# Command line: vivado -mode batch -source /sim/tarsio/fastconv-ifn9-explore-bfb5ba8a/rtl/stream-column/fpga_zcu104/scripts/power_p3f.tcl -log /sim/tarsio/reports-conv3x3-ifn9-explore-149bd5be/ifn9_m12.p3f.vivado.log -journal /sim/tarsio/reports-conv3x3-ifn9-explore-149bd5be/ifn9_m12.p3f.vivado.jou -tclargs /sim/tarsio/reports-conv3x3-ifn9-explore-149bd5be ifn9_m12 /sim/tarsio/reports-conv3x3-ifn9-explore-149bd5be/ifn9_m12/dut/activity_dut.saif /sim/tarsio/reports-conv3x3-ifn9-explore-149bd5be/ifn9_m12/top/activity_top.saif
+# Log file: /sim/tarsio/reports-conv3x3-ifn9-explore-149bd5be/ifn9_m12.p3f.vivado.log
+# Journal file: /sim/tarsio/reports-conv3x3-ifn9-explore-149bd5be/ifn9_m12.p3f.vivado.jou
+# Running On: paxos.inf.pucrs.br, OS: Linux, CPU Frequency: 3100.000 MHz, CPU Physical cores: 14, Host memory: 134319 MB
+#-----------------------------------------------------------
+source /sim/tarsio/fastconv-ifn9-explore-bfb5ba8a/rtl/stream-column/fpga_zcu104/scripts/power_p3f.tcl
+# if {$argc != 4} { error "usage: power_p3f.tcl <output-root> <algorithm> <dut-saif> <top-saif>" }
+# set output_root [file normalize [lindex $argv 0]]
+# set algorithm [lindex $argv 1]
+# set dut_saif [file normalize [lindex $argv 2]]
+# set top_saif [file normalize [lindex $argv 3]]
+# set run_dir [file join $output_root $algorithm]
+# foreach corner {typical maximum} {
+#   open_checkpoint [file join $run_dir design_routed.dcp]
+#   reset_switching_activity -all
+#   read_saif -strip_path tb_power_stream_column/dut -out_file [file join $run_dir p3f_mapping_internal_${corner}.rpt] $dut_saif
+#   read_saif -strip_path tb_power_stream_column -out_file [file join $run_dir p3f_mapping_ports_${corner}.rpt] $top_saif
+#   reset_operating_conditions
+#   set_operating_conditions -process $corner -ambient_temp 25
+#   report_operating_conditions -file [file join $run_dir operating_conditions_p3f_${corner}.rpt]
+#   report_power -hier all -file [file join $run_dir power_p3f_${corner}.rpt]
+#   close_design
+# }
+Command: open_checkpoint /sim/tarsio/reports-conv3x3-ifn9-explore-149bd5be/ifn9_m12/design_routed.dcp
+
+Starting open_checkpoint Task
+
+Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.02 . Memory (MB): peak = 1360.617 ; gain = 0.000 ; free physical = 25046 ; free virtual = 107798
+INFO: [Device 21-403] Loading part xczu7ev-ffvc1156-2-e
+Netlist sorting complete. Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.02 . Memory (MB): peak = 2417.695 ; gain = 0.000 ; free physical = 24003 ; free virtual = 106755
+INFO: [Netlist 29-17] Analyzing 528 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+WARNING: [Netlist 29-101] Netlist 'Conv' is not ideal for floorplanning, since the cellview 'Conv' contains a large number of primitives.  Please consider enabling hierarchy in synthesis if you want to do floorplanning.
+INFO: [Project 1-479] Netlist was created with Vivado 2023.2
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Read ShapeDB Complete: Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00.02 . Memory (MB): peak = 2417.695 ; gain = 0.000 ; free physical = 24003 ; free virtual = 106755
+INFO: [Timing 38-478] Restoring timing data from binary archive.
+INFO: [Timing 38-479] Binary timing data restore complete.
+INFO: [Project 1-856] Restoring constraints from binary archive.
+INFO: [Project 1-853] Binary constraint restore complete.
+INFO: [Designutils 20-5722] Start Reading Physical Databases.
+Reading placement.
+Read Netlist Cache: Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00.01 . Memory (MB): peak = 2874.250 ; gain = 0.000 ; free physical = 23714 ; free virtual = 106466
+Reading placer database...
+Read Device Cache: Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.03 . Memory (MB): peak = 2874.250 ; gain = 0.000 ; free physical = 23708 ; free virtual = 106460
+Read PlaceDB: Time (s): cpu = 00:00:00.24 ; elapsed = 00:00:00.24 . Memory (MB): peak = 2874.250 ; gain = 0.000 ; free physical = 23703 ; free virtual = 106455
+Read PulsedLatchDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2874.250 ; gain = 0.000 ; free physical = 23703 ; free virtual = 106455
+Reading routing.
+Read RouteStorage: Time (s): cpu = 00:00:00.17 ; elapsed = 00:00:00.17 . Memory (MB): peak = 2898.031 ; gain = 23.781 ; free physical = 23700 ; free virtual = 106452
+Read Physdb Files: Time (s): cpu = 00:00:00.44 ; elapsed = 00:00:00.45 . Memory (MB): peak = 2898.031 ; gain = 23.781 ; free physical = 23700 ; free virtual = 106452
+Restored from archive | CPU: 0.490000 secs | Memory: 12.252800 MB |
+Finished XDEF File Restore: Time (s): cpu = 00:00:00.48 ; elapsed = 00:00:00.49 . Memory (MB): peak = 2898.031 ; gain = 23.781 ; free physical = 23700 ; free virtual = 106452
+Netlist sorting complete. Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00 . Memory (MB): peak = 3273.609 ; gain = 0.000 ; free physical = 23303 ; free virtual = 106055
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 177 instances were transformed.
+  DSP48E2 => DSP48E2 (DSP_ALU, DSP_A_B_DATA, DSP_C_DATA, DSP_MULTIPLIER, DSP_M_DATA, DSP_OUTPUT, DSP_PREADD, DSP_PREADD_DATA): 12 instances
+  IBUF => IBUF (IBUFCTRL, INBUF): 165 instances
+
+INFO: [Project 1-604] Checkpoint was created with Vivado v2023.2 (64-bit) build 4029153
+open_checkpoint: Time (s): cpu = 00:00:21 ; elapsed = 00:00:22 . Memory (MB): peak = 3273.645 ; gain = 1913.027 ; free physical = 23302 ; free virtual = 106054
+INFO: [Power 33-167] Parsing SAIF file /sim/tarsio/reports-conv3x3-ifn9-explore-149bd5be/ifn9_m12/dut/activity_dut.saif
+WARNING: [Power 33-330] Read_saif is trying to annotate activities on clock net and this will be ignored. Users shall manually specify clock net frequency using sdc timing constraints(e.g. create_clock)
+INFO: [Power 33-177] SAIF annotation done from file /sim/tarsio/reports-conv3x3-ifn9-explore-149bd5be/ifn9_m12/dut/activity_dut.saif
+INFO: [Power 33-26] Design nets matched = 11243 of 11495
+INFO: [Power 33-167] Parsing SAIF file /sim/tarsio/reports-conv3x3-ifn9-explore-149bd5be/ifn9_m12/top/activity_top.saif
+WARNING: [Power 33-330] Read_saif is trying to annotate activities on clock net and this will be ignored. Users shall manually specify clock net frequency using sdc timing constraints(e.g. create_clock)
+INFO: [Power 33-177] SAIF annotation done from file /sim/tarsio/reports-conv3x3-ifn9-explore-149bd5be/ifn9_m12/top/activity_top.saif
+INFO: [Power 33-26] Design nets matched = 11495 of 11495
+Command: report_power -hier all -file /sim/tarsio/reports-conv3x3-ifn9-explore-149bd5be/ifn9_m12/power_p3f_typical.rpt
+18 Infos, 3 Warnings, 0 Critical Warnings and 0 Errors encountered.
+report_power completed successfully
+Command: open_checkpoint /sim/tarsio/reports-conv3x3-ifn9-explore-149bd5be/ifn9_m12/design_routed.dcp
+
+Starting open_checkpoint Task
+
+Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 3565.930 ; gain = 0.000 ; free physical = 23228 ; free virtual = 105980
+Netlist sorting complete. Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.03 . Memory (MB): peak = 3565.930 ; gain = 0.000 ; free physical = 23228 ; free virtual = 105980
+INFO: [Netlist 29-17] Analyzing 528 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+WARNING: [Netlist 29-101] Netlist 'Conv' is not ideal for floorplanning, since the cellview 'Conv' contains a large number of primitives.  Please consider enabling hierarchy in synthesis if you want to do floorplanning.
+INFO: [Project 1-479] Netlist was created with Vivado 2023.2
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Read ShapeDB Complete: Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.01 . Memory (MB): peak = 3565.930 ; gain = 0.000 ; free physical = 23228 ; free virtual = 105981
+INFO: [Timing 38-478] Restoring timing data from binary archive.
+INFO: [Timing 38-479] Binary timing data restore complete.
+INFO: [Project 1-856] Restoring constraints from binary archive.
+INFO: [Project 1-853] Binary constraint restore complete.
+INFO: [Designutils 20-5722] Start Reading Physical Databases.
+Reading placement.
+Read Netlist Cache: Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00.01 . Memory (MB): peak = 3565.930 ; gain = 0.000 ; free physical = 23217 ; free virtual = 105969
+Reading placer database...
+Read Device Cache: Time (s): cpu = 00:00:00.03 ; elapsed = 00:00:00.02 . Memory (MB): peak = 3565.930 ; gain = 0.000 ; free physical = 23217 ; free virtual = 105969
+Read PlaceDB: Time (s): cpu = 00:00:00.24 ; elapsed = 00:00:00.24 . Memory (MB): peak = 3565.930 ; gain = 0.000 ; free physical = 23217 ; free virtual = 105969
+Read PulsedLatchDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 3565.930 ; gain = 0.000 ; free physical = 23217 ; free virtual = 105969
+Reading routing.
+Read RouteStorage: Time (s): cpu = 00:00:00.16 ; elapsed = 00:00:00.17 . Memory (MB): peak = 3565.930 ; gain = 0.000 ; free physical = 23217 ; free virtual = 105969
+Read Physdb Files: Time (s): cpu = 00:00:00.44 ; elapsed = 00:00:00.45 . Memory (MB): peak = 3565.930 ; gain = 0.000 ; free physical = 23217 ; free virtual = 105969
+Restored from archive | CPU: 0.460000 secs | Memory: 11.192696 MB |
+Finished XDEF File Restore: Time (s): cpu = 00:00:00.45 ; elapsed = 00:00:00.46 . Memory (MB): peak = 3565.930 ; gain = 0.000 ; free physical = 23217 ; free virtual = 105969
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 3565.930 ; gain = 0.000 ; free physical = 23217 ; free virtual = 105969
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 177 instances were transformed.
+  DSP48E2 => DSP48E2 (DSP_ALU, DSP_A_B_DATA, DSP_C_DATA, DSP_MULTIPLIER, DSP_M_DATA, DSP_OUTPUT, DSP_PREADD, DSP_PREADD_DATA): 12 instances
+  IBUF => IBUF (IBUFCTRL, INBUF): 165 instances
+
+INFO: [Project 1-604] Checkpoint was created with Vivado v2023.2 (64-bit) build 4029153
+open_checkpoint: Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 3565.930 ; gain = 0.000 ; free physical = 23216 ; free virtual = 105968
+INFO: [Power 33-167] Parsing SAIF file /sim/tarsio/reports-conv3x3-ifn9-explore-149bd5be/ifn9_m12/dut/activity_dut.saif
+WARNING: [Power 33-330] Read_saif is trying to annotate activities on clock net and this will be ignored. Users shall manually specify clock net frequency using sdc timing constraints(e.g. create_clock)
+INFO: [Power 33-177] SAIF annotation done from file /sim/tarsio/reports-conv3x3-ifn9-explore-149bd5be/ifn9_m12/dut/activity_dut.saif
+INFO: [Power 33-26] Design nets matched = 11243 of 11495
+INFO: [Power 33-167] Parsing SAIF file /sim/tarsio/reports-conv3x3-ifn9-explore-149bd5be/ifn9_m12/top/activity_top.saif
+WARNING: [Power 33-330] Read_saif is trying to annotate activities on clock net and this will be ignored. Users shall manually specify clock net frequency using sdc timing constraints(e.g. create_clock)
+INFO: [Power 33-177] SAIF annotation done from file /sim/tarsio/reports-conv3x3-ifn9-explore-149bd5be/ifn9_m12/top/activity_top.saif
+INFO: [Power 33-26] Design nets matched = 11495 of 11495
+Command: report_power -hier all -file /sim/tarsio/reports-conv3x3-ifn9-explore-149bd5be/ifn9_m12/power_p3f_maximum.rpt
+17 Infos, 3 Warnings, 0 Critical Warnings and 0 Errors encountered.
+report_power completed successfully
+# exit
+INFO: [Common 17-206] Exiting Vivado at Thu Oct  1 12:45:19 2026...

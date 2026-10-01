@@ -1,0 +1,835 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2023 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2023.2 (lin64) Build 4029153 Fri Oct 13 20:13:54 MDT 2023
+| Date         : Thu Oct  1 12:42:28 2026
+| Host         : paxos.inf.pucrs.br running 64-bit Rocky Linux release 8.10 (Green Obsidian)
+| Command      : report_drc -file /sim/tarsio/reports-conv3x3-ifn9-explore-149bd5be/ifn9_m12/drc.rpt
+| Design       : Conv
+| Device       : xczu7ev-ffvc1156-2-e
+| Speed File   : -2
+| Design State : Fully Routed
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+Report DRC
+
+Table of Contents
+-----------------
+1. REPORT SUMMARY
+2. REPORT DETAILS
+
+1. REPORT SUMMARY
+-----------------
+            Netlist: Conv
+          Floorplan: design_1
+      Design limits: <entire design considered>
+           Ruledeck: default
+             Max violations: <unlimited>
+             Violations found: 158
++--------+------------------+----------------------------+------------+
+| Rule   | Severity         | Description                | Violations |
++--------+------------------+----------------------------+------------+
+| NSTD-1 | Critical Warning | Unspecified I/O Standard   | 1          |
+| UCIO-1 | Critical Warning | Unconstrained Logical Port | 1          |
+| DPIP-2 | Warning          | Input pipelining           | 24         |
+| DPOP-3 | Warning          | PREG Output pipelining     | 12         |
+| DPOP-4 | Warning          | MREG Output pipelining     | 12         |
+| DPOR-2 | Warning          | Asynchronous load check    | 108        |
++--------+------------------+----------------------------+------------+
+
+2. REPORT DETAILS
+-----------------
+NSTD-1#1 Critical Warning
+Unspecified I/O Standard
+253 out of 253 logical ports use I/O standard (IOSTANDARD) value 'DEFAULT', instead of a user assigned specific value. This may cause I/O contention or incompatibility with the board power or connectivity affecting performance, signal integrity or in extreme cases cause damage to the device or the components to which it is connected. To correct this violation, specify all I/O standards. This design will fail to generate a bitstream unless all logical ports have a user specified I/O standard value defined. To allow bitstream creation with unspecified I/O standard values (not recommended), use this command: set_property SEVERITY {Warning} [get_drc_checks NSTD-1].  NOTE: When using the Vivado Runs infrastructure (e.g. launch_runs Tcl command), add this command to a .tcl file and add that file as a pre-hook for write_bitstream step for the implementation run. Problem ports: clk, p_end, p_input_addr[11:0], p_input_data[99:0], p_input_en,
+p_input_valid, p_output_addr[11:0], p_output_data_read[59:0],
+p_output_data_write[59:0], p_output_en, p_output_valid, p_output_wr,
+p_start, reset.
+Related violations: <none>
+
+UCIO-1#1 Critical Warning
+Unconstrained Logical Port
+253 out of 253 logical ports have no user assigned specific location constraint (LOC). This may cause I/O contention or incompatibility with the board power or connectivity affecting performance, signal integrity or in extreme cases cause damage to the device or the components to which it is connected. To correct this violation, specify all pin locations. This design will fail to generate a bitstream unless all logical ports have a user specified site LOC constraint defined.  To allow bitstream creation with unspecified pin locations (not recommended), use this command: set_property SEVERITY {Warning} [get_drc_checks UCIO-1].  NOTE: When using the Vivado Runs infrastructure (e.g. launch_runs Tcl command), add this command to a .tcl file and add that file as a pre-hook for write_bitstream step for the implementation run.  Problem ports: clk, p_end, p_input_addr[11:0], p_input_data[99:0], p_input_en,
+p_input_valid, p_output_addr[11:0], p_output_data_read[59:0],
+p_output_data_write[59:0], p_output_en, p_output_valid, p_output_wr,
+p_start, reset.
+Related violations: <none>
+
+DPIP-2#1 Warning
+Input pipelining
+DSP MAC_LANES[0].multip/partial_product input MAC_LANES[0].multip/partial_product/A[29:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-2#2 Warning
+Input pipelining
+DSP MAC_LANES[0].multip/partial_product input MAC_LANES[0].multip/partial_product/B[17:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-2#3 Warning
+Input pipelining
+DSP MAC_LANES[10].multip/partial_product input MAC_LANES[10].multip/partial_product/A[29:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-2#4 Warning
+Input pipelining
+DSP MAC_LANES[10].multip/partial_product input MAC_LANES[10].multip/partial_product/B[17:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-2#5 Warning
+Input pipelining
+DSP MAC_LANES[11].multip/partial_product input MAC_LANES[11].multip/partial_product/A[29:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-2#6 Warning
+Input pipelining
+DSP MAC_LANES[11].multip/partial_product input MAC_LANES[11].multip/partial_product/B[17:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-2#7 Warning
+Input pipelining
+DSP MAC_LANES[1].multip/partial_product input MAC_LANES[1].multip/partial_product/A[29:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-2#8 Warning
+Input pipelining
+DSP MAC_LANES[1].multip/partial_product input MAC_LANES[1].multip/partial_product/B[17:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-2#9 Warning
+Input pipelining
+DSP MAC_LANES[2].multip/partial_product input MAC_LANES[2].multip/partial_product/A[29:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-2#10 Warning
+Input pipelining
+DSP MAC_LANES[2].multip/partial_product input MAC_LANES[2].multip/partial_product/B[17:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-2#11 Warning
+Input pipelining
+DSP MAC_LANES[3].multip/partial_product input MAC_LANES[3].multip/partial_product/A[29:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-2#12 Warning
+Input pipelining
+DSP MAC_LANES[3].multip/partial_product input MAC_LANES[3].multip/partial_product/B[17:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-2#13 Warning
+Input pipelining
+DSP MAC_LANES[4].multip/partial_product input MAC_LANES[4].multip/partial_product/A[29:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-2#14 Warning
+Input pipelining
+DSP MAC_LANES[4].multip/partial_product input MAC_LANES[4].multip/partial_product/B[17:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-2#15 Warning
+Input pipelining
+DSP MAC_LANES[5].multip/partial_product input MAC_LANES[5].multip/partial_product/A[29:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-2#16 Warning
+Input pipelining
+DSP MAC_LANES[5].multip/partial_product input MAC_LANES[5].multip/partial_product/B[17:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-2#17 Warning
+Input pipelining
+DSP MAC_LANES[6].multip/partial_product input MAC_LANES[6].multip/partial_product/A[29:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-2#18 Warning
+Input pipelining
+DSP MAC_LANES[6].multip/partial_product input MAC_LANES[6].multip/partial_product/B[17:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-2#19 Warning
+Input pipelining
+DSP MAC_LANES[7].multip/partial_product input MAC_LANES[7].multip/partial_product/A[29:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-2#20 Warning
+Input pipelining
+DSP MAC_LANES[7].multip/partial_product input MAC_LANES[7].multip/partial_product/B[17:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-2#21 Warning
+Input pipelining
+DSP MAC_LANES[8].multip/partial_product input MAC_LANES[8].multip/partial_product/A[29:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-2#22 Warning
+Input pipelining
+DSP MAC_LANES[8].multip/partial_product input MAC_LANES[8].multip/partial_product/B[17:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-2#23 Warning
+Input pipelining
+DSP MAC_LANES[9].multip/partial_product input MAC_LANES[9].multip/partial_product/A[29:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-2#24 Warning
+Input pipelining
+DSP MAC_LANES[9].multip/partial_product input MAC_LANES[9].multip/partial_product/B[17:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPOP-3#1 Warning
+PREG Output pipelining
+DSP MAC_LANES[0].multip/partial_product output MAC_LANES[0].multip/partial_product/P[47:0] is not pipelined (PREG=0). Pipelining the DSP48 output will improve performance and often saves power so it is suggested whenever possible to fully pipeline this function.  If this DSP48 function was inferred, it is suggested to describe an additional register stage after this function.  If the DSP48 was instantiated in the design, it is suggested to set the PREG attribute to 1.
+Related violations: <none>
+
+DPOP-3#2 Warning
+PREG Output pipelining
+DSP MAC_LANES[10].multip/partial_product output MAC_LANES[10].multip/partial_product/P[47:0] is not pipelined (PREG=0). Pipelining the DSP48 output will improve performance and often saves power so it is suggested whenever possible to fully pipeline this function.  If this DSP48 function was inferred, it is suggested to describe an additional register stage after this function.  If the DSP48 was instantiated in the design, it is suggested to set the PREG attribute to 1.
+Related violations: <none>
+
+DPOP-3#3 Warning
+PREG Output pipelining
+DSP MAC_LANES[11].multip/partial_product output MAC_LANES[11].multip/partial_product/P[47:0] is not pipelined (PREG=0). Pipelining the DSP48 output will improve performance and often saves power so it is suggested whenever possible to fully pipeline this function.  If this DSP48 function was inferred, it is suggested to describe an additional register stage after this function.  If the DSP48 was instantiated in the design, it is suggested to set the PREG attribute to 1.
+Related violations: <none>
+
+DPOP-3#4 Warning
+PREG Output pipelining
+DSP MAC_LANES[1].multip/partial_product output MAC_LANES[1].multip/partial_product/P[47:0] is not pipelined (PREG=0). Pipelining the DSP48 output will improve performance and often saves power so it is suggested whenever possible to fully pipeline this function.  If this DSP48 function was inferred, it is suggested to describe an additional register stage after this function.  If the DSP48 was instantiated in the design, it is suggested to set the PREG attribute to 1.
+Related violations: <none>
+
+DPOP-3#5 Warning
+PREG Output pipelining
+DSP MAC_LANES[2].multip/partial_product output MAC_LANES[2].multip/partial_product/P[47:0] is not pipelined (PREG=0). Pipelining the DSP48 output will improve performance and often saves power so it is suggested whenever possible to fully pipeline this function.  If this DSP48 function was inferred, it is suggested to describe an additional register stage after this function.  If the DSP48 was instantiated in the design, it is suggested to set the PREG attribute to 1.
+Related violations: <none>
+
+DPOP-3#6 Warning
+PREG Output pipelining
+DSP MAC_LANES[3].multip/partial_product output MAC_LANES[3].multip/partial_product/P[47:0] is not pipelined (PREG=0). Pipelining the DSP48 output will improve performance and often saves power so it is suggested whenever possible to fully pipeline this function.  If this DSP48 function was inferred, it is suggested to describe an additional register stage after this function.  If the DSP48 was instantiated in the design, it is suggested to set the PREG attribute to 1.
+Related violations: <none>
+
+DPOP-3#7 Warning
+PREG Output pipelining
+DSP MAC_LANES[4].multip/partial_product output MAC_LANES[4].multip/partial_product/P[47:0] is not pipelined (PREG=0). Pipelining the DSP48 output will improve performance and often saves power so it is suggested whenever possible to fully pipeline this function.  If this DSP48 function was inferred, it is suggested to describe an additional register stage after this function.  If the DSP48 was instantiated in the design, it is suggested to set the PREG attribute to 1.
+Related violations: <none>
+
+DPOP-3#8 Warning
+PREG Output pipelining
+DSP MAC_LANES[5].multip/partial_product output MAC_LANES[5].multip/partial_product/P[47:0] is not pipelined (PREG=0). Pipelining the DSP48 output will improve performance and often saves power so it is suggested whenever possible to fully pipeline this function.  If this DSP48 function was inferred, it is suggested to describe an additional register stage after this function.  If the DSP48 was instantiated in the design, it is suggested to set the PREG attribute to 1.
+Related violations: <none>
+
+DPOP-3#9 Warning
+PREG Output pipelining
+DSP MAC_LANES[6].multip/partial_product output MAC_LANES[6].multip/partial_product/P[47:0] is not pipelined (PREG=0). Pipelining the DSP48 output will improve performance and often saves power so it is suggested whenever possible to fully pipeline this function.  If this DSP48 function was inferred, it is suggested to describe an additional register stage after this function.  If the DSP48 was instantiated in the design, it is suggested to set the PREG attribute to 1.
+Related violations: <none>
+
+DPOP-3#10 Warning
+PREG Output pipelining
+DSP MAC_LANES[7].multip/partial_product output MAC_LANES[7].multip/partial_product/P[47:0] is not pipelined (PREG=0). Pipelining the DSP48 output will improve performance and often saves power so it is suggested whenever possible to fully pipeline this function.  If this DSP48 function was inferred, it is suggested to describe an additional register stage after this function.  If the DSP48 was instantiated in the design, it is suggested to set the PREG attribute to 1.
+Related violations: <none>
+
+DPOP-3#11 Warning
+PREG Output pipelining
+DSP MAC_LANES[8].multip/partial_product output MAC_LANES[8].multip/partial_product/P[47:0] is not pipelined (PREG=0). Pipelining the DSP48 output will improve performance and often saves power so it is suggested whenever possible to fully pipeline this function.  If this DSP48 function was inferred, it is suggested to describe an additional register stage after this function.  If the DSP48 was instantiated in the design, it is suggested to set the PREG attribute to 1.
+Related violations: <none>
+
+DPOP-3#12 Warning
+PREG Output pipelining
+DSP MAC_LANES[9].multip/partial_product output MAC_LANES[9].multip/partial_product/P[47:0] is not pipelined (PREG=0). Pipelining the DSP48 output will improve performance and often saves power so it is suggested whenever possible to fully pipeline this function.  If this DSP48 function was inferred, it is suggested to describe an additional register stage after this function.  If the DSP48 was instantiated in the design, it is suggested to set the PREG attribute to 1.
+Related violations: <none>
+
+DPOP-4#1 Warning
+MREG Output pipelining
+DSP MAC_LANES[0].multip/partial_product multiplier stage MAC_LANES[0].multip/partial_product/P[47:0] is not pipelined (MREG=0). Pipelining the multiplier function will improve performance and will save significant power so it is suggested whenever possible to fully pipeline this function.  If this multiplier was inferred, it is suggested to describe an additional register stage after this function.  If there is no registered adder/accumulator following the multiply function, two pipeline stages are suggested to allow both the MREG and PREG registers to be used.  If the DSP48 was instantiated in the design, it is suggested to set both the MREG and PREG attributes to 1 when performing multiply functions.
+Related violations: <none>
+
+DPOP-4#2 Warning
+MREG Output pipelining
+DSP MAC_LANES[10].multip/partial_product multiplier stage MAC_LANES[10].multip/partial_product/P[47:0] is not pipelined (MREG=0). Pipelining the multiplier function will improve performance and will save significant power so it is suggested whenever possible to fully pipeline this function.  If this multiplier was inferred, it is suggested to describe an additional register stage after this function.  If there is no registered adder/accumulator following the multiply function, two pipeline stages are suggested to allow both the MREG and PREG registers to be used.  If the DSP48 was instantiated in the design, it is suggested to set both the MREG and PREG attributes to 1 when performing multiply functions.
+Related violations: <none>
+
+DPOP-4#3 Warning
+MREG Output pipelining
+DSP MAC_LANES[11].multip/partial_product multiplier stage MAC_LANES[11].multip/partial_product/P[47:0] is not pipelined (MREG=0). Pipelining the multiplier function will improve performance and will save significant power so it is suggested whenever possible to fully pipeline this function.  If this multiplier was inferred, it is suggested to describe an additional register stage after this function.  If there is no registered adder/accumulator following the multiply function, two pipeline stages are suggested to allow both the MREG and PREG registers to be used.  If the DSP48 was instantiated in the design, it is suggested to set both the MREG and PREG attributes to 1 when performing multiply functions.
+Related violations: <none>
+
+DPOP-4#4 Warning
+MREG Output pipelining
+DSP MAC_LANES[1].multip/partial_product multiplier stage MAC_LANES[1].multip/partial_product/P[47:0] is not pipelined (MREG=0). Pipelining the multiplier function will improve performance and will save significant power so it is suggested whenever possible to fully pipeline this function.  If this multiplier was inferred, it is suggested to describe an additional register stage after this function.  If there is no registered adder/accumulator following the multiply function, two pipeline stages are suggested to allow both the MREG and PREG registers to be used.  If the DSP48 was instantiated in the design, it is suggested to set both the MREG and PREG attributes to 1 when performing multiply functions.
+Related violations: <none>
+
+DPOP-4#5 Warning
+MREG Output pipelining
+DSP MAC_LANES[2].multip/partial_product multiplier stage MAC_LANES[2].multip/partial_product/P[47:0] is not pipelined (MREG=0). Pipelining the multiplier function will improve performance and will save significant power so it is suggested whenever possible to fully pipeline this function.  If this multiplier was inferred, it is suggested to describe an additional register stage after this function.  If there is no registered adder/accumulator following the multiply function, two pipeline stages are suggested to allow both the MREG and PREG registers to be used.  If the DSP48 was instantiated in the design, it is suggested to set both the MREG and PREG attributes to 1 when performing multiply functions.
+Related violations: <none>
+
+DPOP-4#6 Warning
+MREG Output pipelining
+DSP MAC_LANES[3].multip/partial_product multiplier stage MAC_LANES[3].multip/partial_product/P[47:0] is not pipelined (MREG=0). Pipelining the multiplier function will improve performance and will save significant power so it is suggested whenever possible to fully pipeline this function.  If this multiplier was inferred, it is suggested to describe an additional register stage after this function.  If there is no registered adder/accumulator following the multiply function, two pipeline stages are suggested to allow both the MREG and PREG registers to be used.  If the DSP48 was instantiated in the design, it is suggested to set both the MREG and PREG attributes to 1 when performing multiply functions.
+Related violations: <none>
+
+DPOP-4#7 Warning
+MREG Output pipelining
+DSP MAC_LANES[4].multip/partial_product multiplier stage MAC_LANES[4].multip/partial_product/P[47:0] is not pipelined (MREG=0). Pipelining the multiplier function will improve performance and will save significant power so it is suggested whenever possible to fully pipeline this function.  If this multiplier was inferred, it is suggested to describe an additional register stage after this function.  If there is no registered adder/accumulator following the multiply function, two pipeline stages are suggested to allow both the MREG and PREG registers to be used.  If the DSP48 was instantiated in the design, it is suggested to set both the MREG and PREG attributes to 1 when performing multiply functions.
+Related violations: <none>
+
+DPOP-4#8 Warning
+MREG Output pipelining
+DSP MAC_LANES[5].multip/partial_product multiplier stage MAC_LANES[5].multip/partial_product/P[47:0] is not pipelined (MREG=0). Pipelining the multiplier function will improve performance and will save significant power so it is suggested whenever possible to fully pipeline this function.  If this multiplier was inferred, it is suggested to describe an additional register stage after this function.  If there is no registered adder/accumulator following the multiply function, two pipeline stages are suggested to allow both the MREG and PREG registers to be used.  If the DSP48 was instantiated in the design, it is suggested to set both the MREG and PREG attributes to 1 when performing multiply functions.
+Related violations: <none>
+
+DPOP-4#9 Warning
+MREG Output pipelining
+DSP MAC_LANES[6].multip/partial_product multiplier stage MAC_LANES[6].multip/partial_product/P[47:0] is not pipelined (MREG=0). Pipelining the multiplier function will improve performance and will save significant power so it is suggested whenever possible to fully pipeline this function.  If this multiplier was inferred, it is suggested to describe an additional register stage after this function.  If there is no registered adder/accumulator following the multiply function, two pipeline stages are suggested to allow both the MREG and PREG registers to be used.  If the DSP48 was instantiated in the design, it is suggested to set both the MREG and PREG attributes to 1 when performing multiply functions.
+Related violations: <none>
+
+DPOP-4#10 Warning
+MREG Output pipelining
+DSP MAC_LANES[7].multip/partial_product multiplier stage MAC_LANES[7].multip/partial_product/P[47:0] is not pipelined (MREG=0). Pipelining the multiplier function will improve performance and will save significant power so it is suggested whenever possible to fully pipeline this function.  If this multiplier was inferred, it is suggested to describe an additional register stage after this function.  If there is no registered adder/accumulator following the multiply function, two pipeline stages are suggested to allow both the MREG and PREG registers to be used.  If the DSP48 was instantiated in the design, it is suggested to set both the MREG and PREG attributes to 1 when performing multiply functions.
+Related violations: <none>
+
+DPOP-4#11 Warning
+MREG Output pipelining
+DSP MAC_LANES[8].multip/partial_product multiplier stage MAC_LANES[8].multip/partial_product/P[47:0] is not pipelined (MREG=0). Pipelining the multiplier function will improve performance and will save significant power so it is suggested whenever possible to fully pipeline this function.  If this multiplier was inferred, it is suggested to describe an additional register stage after this function.  If there is no registered adder/accumulator following the multiply function, two pipeline stages are suggested to allow both the MREG and PREG registers to be used.  If the DSP48 was instantiated in the design, it is suggested to set both the MREG and PREG attributes to 1 when performing multiply functions.
+Related violations: <none>
+
+DPOP-4#12 Warning
+MREG Output pipelining
+DSP MAC_LANES[9].multip/partial_product multiplier stage MAC_LANES[9].multip/partial_product/P[47:0] is not pipelined (MREG=0). Pipelining the multiplier function will improve performance and will save significant power so it is suggested whenever possible to fully pipeline this function.  If this multiplier was inferred, it is suggested to describe an additional register stage after this function.  If there is no registered adder/accumulator following the multiply function, two pipeline stages are suggested to allow both the MREG and PREG registers to be used.  If the DSP48 was instantiated in the design, it is suggested to set both the MREG and PREG attributes to 1 when performing multiply functions.
+Related violations: <none>
+
+DPOR-2#1 Warning
+Asynchronous load check
+DSP MAC_LANES[0].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[0][0]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#2 Warning
+Asynchronous load check
+DSP MAC_LANES[0].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[0][1]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#3 Warning
+Asynchronous load check
+DSP MAC_LANES[0].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[0][2]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#4 Warning
+Asynchronous load check
+DSP MAC_LANES[0].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[0][3]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#5 Warning
+Asynchronous load check
+DSP MAC_LANES[0].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[0][4]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#6 Warning
+Asynchronous load check
+DSP MAC_LANES[0].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[0][5]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#7 Warning
+Asynchronous load check
+DSP MAC_LANES[0].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[0][6]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#8 Warning
+Asynchronous load check
+DSP MAC_LANES[0].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[0][7]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#9 Warning
+Asynchronous load check
+DSP MAC_LANES[0].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[0][8]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#10 Warning
+Asynchronous load check
+DSP MAC_LANES[10].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[10][0]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#11 Warning
+Asynchronous load check
+DSP MAC_LANES[10].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[10][1]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#12 Warning
+Asynchronous load check
+DSP MAC_LANES[10].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[10][2]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#13 Warning
+Asynchronous load check
+DSP MAC_LANES[10].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[10][3]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#14 Warning
+Asynchronous load check
+DSP MAC_LANES[10].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[10][4]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#15 Warning
+Asynchronous load check
+DSP MAC_LANES[10].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[10][5]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#16 Warning
+Asynchronous load check
+DSP MAC_LANES[10].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[10][6]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#17 Warning
+Asynchronous load check
+DSP MAC_LANES[10].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[10][7]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#18 Warning
+Asynchronous load check
+DSP MAC_LANES[10].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[10][8]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#19 Warning
+Asynchronous load check
+DSP MAC_LANES[11].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[11][0]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#20 Warning
+Asynchronous load check
+DSP MAC_LANES[11].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[11][1]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#21 Warning
+Asynchronous load check
+DSP MAC_LANES[11].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[11][2]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#22 Warning
+Asynchronous load check
+DSP MAC_LANES[11].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[11][3]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#23 Warning
+Asynchronous load check
+DSP MAC_LANES[11].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[11][4]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#24 Warning
+Asynchronous load check
+DSP MAC_LANES[11].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[11][5]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#25 Warning
+Asynchronous load check
+DSP MAC_LANES[11].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[11][6]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#26 Warning
+Asynchronous load check
+DSP MAC_LANES[11].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[11][7]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#27 Warning
+Asynchronous load check
+DSP MAC_LANES[11].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[11][8]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#28 Warning
+Asynchronous load check
+DSP MAC_LANES[1].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[1][0]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#29 Warning
+Asynchronous load check
+DSP MAC_LANES[1].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[1][1]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#30 Warning
+Asynchronous load check
+DSP MAC_LANES[1].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[1][2]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#31 Warning
+Asynchronous load check
+DSP MAC_LANES[1].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[1][3]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#32 Warning
+Asynchronous load check
+DSP MAC_LANES[1].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[1][4]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#33 Warning
+Asynchronous load check
+DSP MAC_LANES[1].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[1][5]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#34 Warning
+Asynchronous load check
+DSP MAC_LANES[1].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[1][6]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#35 Warning
+Asynchronous load check
+DSP MAC_LANES[1].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[1][7]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#36 Warning
+Asynchronous load check
+DSP MAC_LANES[1].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[1][8]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#37 Warning
+Asynchronous load check
+DSP MAC_LANES[2].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[2][0]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#38 Warning
+Asynchronous load check
+DSP MAC_LANES[2].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[2][1]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#39 Warning
+Asynchronous load check
+DSP MAC_LANES[2].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[2][2]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#40 Warning
+Asynchronous load check
+DSP MAC_LANES[2].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[2][3]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#41 Warning
+Asynchronous load check
+DSP MAC_LANES[2].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[2][4]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#42 Warning
+Asynchronous load check
+DSP MAC_LANES[2].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[2][5]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#43 Warning
+Asynchronous load check
+DSP MAC_LANES[2].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[2][6]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#44 Warning
+Asynchronous load check
+DSP MAC_LANES[2].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[2][7]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#45 Warning
+Asynchronous load check
+DSP MAC_LANES[2].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[2][8]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#46 Warning
+Asynchronous load check
+DSP MAC_LANES[3].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[3][0]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#47 Warning
+Asynchronous load check
+DSP MAC_LANES[3].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[3][1]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#48 Warning
+Asynchronous load check
+DSP MAC_LANES[3].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[3][2]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#49 Warning
+Asynchronous load check
+DSP MAC_LANES[3].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[3][3]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#50 Warning
+Asynchronous load check
+DSP MAC_LANES[3].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[3][4]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#51 Warning
+Asynchronous load check
+DSP MAC_LANES[3].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[3][5]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#52 Warning
+Asynchronous load check
+DSP MAC_LANES[3].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[3][6]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#53 Warning
+Asynchronous load check
+DSP MAC_LANES[3].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[3][7]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#54 Warning
+Asynchronous load check
+DSP MAC_LANES[3].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[3][8]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#55 Warning
+Asynchronous load check
+DSP MAC_LANES[4].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[4][0]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#56 Warning
+Asynchronous load check
+DSP MAC_LANES[4].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[4][1]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#57 Warning
+Asynchronous load check
+DSP MAC_LANES[4].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[4][2]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#58 Warning
+Asynchronous load check
+DSP MAC_LANES[4].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[4][3]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#59 Warning
+Asynchronous load check
+DSP MAC_LANES[4].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[4][4]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#60 Warning
+Asynchronous load check
+DSP MAC_LANES[4].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[4][5]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#61 Warning
+Asynchronous load check
+DSP MAC_LANES[4].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[4][6]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#62 Warning
+Asynchronous load check
+DSP MAC_LANES[4].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[4][7]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#63 Warning
+Asynchronous load check
+DSP MAC_LANES[4].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[4][8]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#64 Warning
+Asynchronous load check
+DSP MAC_LANES[5].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[5][0]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#65 Warning
+Asynchronous load check
+DSP MAC_LANES[5].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[5][1]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#66 Warning
+Asynchronous load check
+DSP MAC_LANES[5].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[5][2]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#67 Warning
+Asynchronous load check
+DSP MAC_LANES[5].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[5][3]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#68 Warning
+Asynchronous load check
+DSP MAC_LANES[5].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[5][4]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#69 Warning
+Asynchronous load check
+DSP MAC_LANES[5].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[5][5]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#70 Warning
+Asynchronous load check
+DSP MAC_LANES[5].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[5][6]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#71 Warning
+Asynchronous load check
+DSP MAC_LANES[5].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[5][7]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#72 Warning
+Asynchronous load check
+DSP MAC_LANES[5].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[5][8]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#73 Warning
+Asynchronous load check
+DSP MAC_LANES[6].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[6][0]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#74 Warning
+Asynchronous load check
+DSP MAC_LANES[6].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[6][1]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#75 Warning
+Asynchronous load check
+DSP MAC_LANES[6].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[6][2]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#76 Warning
+Asynchronous load check
+DSP MAC_LANES[6].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[6][3]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#77 Warning
+Asynchronous load check
+DSP MAC_LANES[6].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[6][4]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#78 Warning
+Asynchronous load check
+DSP MAC_LANES[6].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[6][5]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#79 Warning
+Asynchronous load check
+DSP MAC_LANES[6].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[6][6]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#80 Warning
+Asynchronous load check
+DSP MAC_LANES[6].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[6][7]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#81 Warning
+Asynchronous load check
+DSP MAC_LANES[6].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[6][8]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#82 Warning
+Asynchronous load check
+DSP MAC_LANES[7].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[7][0]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#83 Warning
+Asynchronous load check
+DSP MAC_LANES[7].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[7][1]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#84 Warning
+Asynchronous load check
+DSP MAC_LANES[7].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[7][2]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#85 Warning
+Asynchronous load check
+DSP MAC_LANES[7].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[7][3]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#86 Warning
+Asynchronous load check
+DSP MAC_LANES[7].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[7][4]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#87 Warning
+Asynchronous load check
+DSP MAC_LANES[7].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[7][5]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#88 Warning
+Asynchronous load check
+DSP MAC_LANES[7].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[7][6]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#89 Warning
+Asynchronous load check
+DSP MAC_LANES[7].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[7][7]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#90 Warning
+Asynchronous load check
+DSP MAC_LANES[7].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[7][8]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#91 Warning
+Asynchronous load check
+DSP MAC_LANES[8].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[8][0]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#92 Warning
+Asynchronous load check
+DSP MAC_LANES[8].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[8][1]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#93 Warning
+Asynchronous load check
+DSP MAC_LANES[8].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[8][2]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#94 Warning
+Asynchronous load check
+DSP MAC_LANES[8].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[8][3]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#95 Warning
+Asynchronous load check
+DSP MAC_LANES[8].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[8][4]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#96 Warning
+Asynchronous load check
+DSP MAC_LANES[8].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[8][5]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#97 Warning
+Asynchronous load check
+DSP MAC_LANES[8].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[8][6]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#98 Warning
+Asynchronous load check
+DSP MAC_LANES[8].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[8][7]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#99 Warning
+Asynchronous load check
+DSP MAC_LANES[8].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[8][8]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#100 Warning
+Asynchronous load check
+DSP MAC_LANES[9].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[9][0]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#101 Warning
+Asynchronous load check
+DSP MAC_LANES[9].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[9][1]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#102 Warning
+Asynchronous load check
+DSP MAC_LANES[9].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[9][2]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#103 Warning
+Asynchronous load check
+DSP MAC_LANES[9].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[9][3]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#104 Warning
+Asynchronous load check
+DSP MAC_LANES[9].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[9][4]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#105 Warning
+Asynchronous load check
+DSP MAC_LANES[9].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[9][5]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#106 Warning
+Asynchronous load check
+DSP MAC_LANES[9].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[9][6]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#107 Warning
+Asynchronous load check
+DSP MAC_LANES[9].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[9][7]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+DPOR-2#108 Warning
+Asynchronous load check
+DSP MAC_LANES[9].multip/partial_product output is connected to registers with an asynchronous reset (r_hadamard_product_reg_reg[9][8]). This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>

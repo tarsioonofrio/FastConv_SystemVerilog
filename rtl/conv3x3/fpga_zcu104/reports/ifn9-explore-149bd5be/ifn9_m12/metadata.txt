@@ -1,0 +1,14 @@
+vivado_version=2023.2
+part=xczu7ev-ffvc1156-2-e
+top=Conv
+algorithm=ifn9_m12
+target_period_ns=3.154574
+target_frequency_mhz=317
+NADDR=12
+experiment=Performance_ExplorePostRoutePhysOpt
+opt_design=Default
+place_design=Explore
+phys_opt_design=Explore_post_place_and_post_route
+route_design=Explore
+manifest=/sim/tarsio/fastconv-ifn9-explore-bfb5ba8a/rtl/conv3x3/fpga_zcu104/manifests/ifn9_m12.rtl
+constraints=/sim/tarsio/fastconv-ifn9-explore-bfb5ba8a/rtl/conv3x3/fpga_zcu104/constraints/zcu104_317mhz.xdc

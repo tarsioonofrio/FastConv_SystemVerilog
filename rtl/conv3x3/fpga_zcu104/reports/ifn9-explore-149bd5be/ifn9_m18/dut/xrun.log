@@ -1,0 +1,820 @@
+xrun(64): 23.03-s003: (c) Copyright 1995-2023 Cadence Design Systems, Inc.
+TOOL:	xrun(64)	23.03-s003: Started on Oct 01, 2026 at 12:55:19 -03
+xrun
+	-64bit
+	-sv
+	-access +r
+	-cdslib /sim/tarsio/reports-conv3x3-ifn9-explore-149bd5be/simlibs_unisim/cds.lib
+	-hdlvar /sim/tarsio/reports-conv3x3-ifn9-explore-149bd5be/simlibs_unisim/hdl.var
+	-reflib /sim/tarsio/reports-conv3x3-ifn9-explore-149bd5be/simlibs_unisim/unisims_ver:unisims_ver
+	-define GATE_LEVEL
+	-top tb_power_stream_column
+	-top glbl
+	-timescale 1ns/1ps
+	-input /sim/tarsio/fastconv-ifn9-explore-bfb5ba8a/rtl/stream-column/fpga_zcu104/scripts/capture_dut_saif.tcl
+	-l xrun.log
+	/sim/tarsio/fastconv-ifn9-explore-bfb5ba8a/rtl/conv3x3/pack-param/ifn9/pack_param.sv
+	/sim/tarsio/fastconv-ifn9-explore-bfb5ba8a/rtl/conv3x3/data/ifn9/sim/sim-032-3-3-normal-trunc/pack_data.sv
+	/sim/tarsio/fastconv-ifn9-explore-bfb5ba8a/rtl/mem/mem.sv
+	/sim/tarsio/reports-conv3x3-ifn9-explore-149bd5be/ifn9_m18/design_routed_funcsim.v
+	/soft64/xilinx/ferramentas/Vivado/2023.2/Vivado/2023.2/data/verilog/src/glbl.v
+	/sim/tarsio/fastconv-ifn9-explore-bfb5ba8a/rtl/stream-column/fpga_zcu104/tb/tb_power_stream_column.sv
+file: /sim/tarsio/fastconv-ifn9-explore-bfb5ba8a/rtl/conv3x3/pack-param/ifn9/pack_param.sv
+	package worklib.pack_param:sv
+		errors: 0, warnings: 0
+file: /sim/tarsio/fastconv-ifn9-explore-bfb5ba8a/rtl/conv3x3/data/ifn9/sim/sim-032-3-3-normal-trunc/pack_data.sv
+	package worklib.pack_data:sv
+		errors: 0, warnings: 0
+file: /sim/tarsio/fastconv-ifn9-explore-bfb5ba8a/rtl/mem/mem.sv
+	module worklib.Memory:sv
+		errors: 0, warnings: 0
+file: /sim/tarsio/reports-conv3x3-ifn9-explore-149bd5be/ifn9_m18/design_routed_funcsim.v
+	module worklib.Conv:v
+		errors: 0, warnings: 0
+	module worklib.Multip:v
+		errors: 0, warnings: 0
+	module worklib.Multip_0:v
+		errors: 0, warnings: 0
+	module worklib.Multip_1:v
+		errors: 0, warnings: 0
+	module worklib.Multip_10:v
+		errors: 0, warnings: 0
+	module worklib.Multip_11:v
+		errors: 0, warnings: 0
+	module worklib.Multip_12:v
+		errors: 0, warnings: 0
+	module worklib.Multip_13:v
+		errors: 0, warnings: 0
+	module worklib.Multip_14:v
+		errors: 0, warnings: 0
+	module worklib.Multip_15:v
+		errors: 0, warnings: 0
+	module worklib.Multip_16:v
+		errors: 0, warnings: 0
+	module worklib.Multip_2:v
+		errors: 0, warnings: 0
+	module worklib.Multip_3:v
+		errors: 0, warnings: 0
+	module worklib.Multip_4:v
+		errors: 0, warnings: 0
+	module worklib.Multip_5:v
+		errors: 0, warnings: 0
+	module worklib.Multip_6:v
+		errors: 0, warnings: 0
+	module worklib.Multip_7:v
+		errors: 0, warnings: 0
+	module worklib.Multip_8:v
+		errors: 0, warnings: 0
+	module worklib.Multip_9:v
+		errors: 0, warnings: 0
+	module worklib.glbl:v
+		errors: 0, warnings: 0
+file: /soft64/xilinx/ferramentas/Vivado/2023.2/Vivado/2023.2/data/verilog/src/glbl.v
+file: /sim/tarsio/fastconv-ifn9-explore-bfb5ba8a/rtl/stream-column/fpga_zcu104/tb/tb_power_stream_column.sv
+	module worklib.tb_power_stream_column:sv
+		errors: 0, warnings: 0
+	Elaborating the design hierarchy:
+		Caching library 'worklib' ....... Done
+		Caching library 'unisims_ver' ....... Done
+xmelab: *W,CUSRCH: Resolved design unit 'LUT2' at 'i__carry__0_i_1__16' to 'unisims_ver.LUT2:module' through a global search of all libraries.
+xmelab: *W,CUSRCH: Resolved design unit 'x_lut2_mux4' at '' to 'unisims_ver.x_lut2_mux4:udp' through a global search of all libraries.
+xmelab: *W,CUSRCH: Resolved design unit 'DSP48E2' at 'partial_product' to 'unisims_ver.DSP48E2:module' through a global search of all libraries.
+xmelab: *W,CUSRCH: Resolved design unit 'CARRY8' at 'partial_product__0_carry' to 'unisims_ver.CARRY8:module' through a global search of all libraries.
+xmelab: *W,CUSRCH: Resolved design unit 'LUT6' at 'partial_product__0_carry__0_i_1__16' to 'unisims_ver.LUT6:module' through a global search of all libraries.
+xmelab: *W,CUSRCH: Resolved design unit 'LUT3' at 'partial_product__0_carry__0_i_3__16' to 'unisims_ver.LUT3:module' through a global search of all libraries.
+xmelab: *W,CUSRCH: Resolved design unit 'x_lut3_mux8' at '' to 'unisims_ver.x_lut3_mux8:udp' through a global search of all libraries.
+xmelab: *W,CUSRCH: Resolved design unit 'LUT5' at 'partial_product__0_carry__0_i_7__16' to 'unisims_ver.LUT5:module' through a global search of all libraries.
+xmelab: *W,CUSRCH: Resolved design unit 'LUT4' at 'partial_product__0_carry_i_14__16' to 'unisims_ver.LUT4:module' through a global search of all libraries.
+xmelab: *W,CUSRCH: Resolved design unit 'BUFGCE' at 'clk_IBUF_BUFG_inst' to 'unisims_ver.BUFGCE:module' through a global search of all libraries.
+xmelab: *W,CUSRCH: Resolved design unit 'IBUF' at 'clk_IBUF_inst' to 'unisims_ver.IBUF:module' through a global search of all libraries.
+xmelab: *W,CUSRCH: Resolved design unit 'OBUF' at 'p_end_OBUF_inst' to 'unisims_ver.OBUF:module' through a global search of all libraries.
+xmelab: *W,CUSRCH: Resolved design unit 'FDCE' at 'r_conv_multiply_count_reg[0]' to 'unisims_ver.FDCE:module' through a global search of all libraries.
+xmelab: *W,CUSRCH: Resolved design unit 'FDPE' at 'r_input_channel_counter_input_reg[0]' to 'unisims_ver.FDPE:module' through a global search of all libraries.
+xmelab: *W,CUSRCH: Resolved design unit 'LUT1' at 'r_input_channel_counter_output[0]_i_1' to 'unisims_ver.LUT1:module' through a global search of all libraries.
+xmelab: *W,CUSRCH: Resolved design unit 'x_lut1_mux2' at '' to 'unisims_ver.x_lut1_mux2:udp' through a global search of all libraries.
+xmelab: *W,CUSRCH: Resolved design unit 'MUXF7' at 'r_transform_feature_reg_reg[0][0]_i_2' to 'unisims_ver.MUXF7:module' through a global search of all libraries.
+	Top level design units:
+		pack_data
+		pack_param
+		tb_power_stream_column
+		glbl
+	Building instance overlay tables: .................... Done
+	Generating native compiled code:
+		worklib.Memory:sv <0x0affb958>
+			streams:   6, words:  2810
+		worklib.Multip_16:v <0x6a104aa1>
+			streams:   5, words:  1698
+		worklib.Multip_15:v <0x50495747>
+			streams:   5, words:  1698
+		worklib.Multip_14:v <0x08671377>
+			streams:   5, words:  1698
+		worklib.Multip_13:v <0x7f8a6aca>
+			streams:   5, words:  1698
+		worklib.Multip_12:v <0x27a42efa>
+			streams:   5, words:  1698
+		worklib.Multip_11:v <0x1dfd331c>
+			streams:   5, words:  1698
+		worklib.Multip_10:v <0x45d3772c>
+			streams:   5, words:  1698
+		worklib.Multip_9:v <0x40dd5575>
+			streams:   5, words:  1698
+		worklib.Multip_8:v <0x32f8b3a7>
+			streams:   5, words:  1698
+		worklib.Multip_7:v <0x2efab5bc>
+			streams:   5, words:  1698
+		worklib.Multip_6:v <0x537e698a>
+			streams:   5, words:  1698
+		worklib.Multip_5:v <0x451042fc>
+			streams:   5, words:  1698
+		worklib.Multip_4:v <0x3735a42e>
+			streams:   5, words:  1698
+		worklib.Multip_3:v <0x035ba2c3>
+			streams:   5, words:  1698
+		worklib.Multip_2:v <0x717e4411>
+			streams:   5, words:  1698
+		worklib.Multip_1:v <0x67106f67>
+			streams:   5, words:  1698
+		worklib.Multip_0:v <0x153589b5>
+			streams:   5, words:  1698
+		worklib.Multip:v <0x02ed0a6d>
+			streams:   5, words:  1698
+		worklib.glbl:v <0x3a6ea307>
+			streams:  12, words:  3717
+		worklib.tb_power_stream_column:sv <0x60309e09>
+			streams:  37, words: 25629
+		worklib.pack_data:sv <0x0fd6e3f1>
+			streams:   5, words:  3336
+		worklib.pack_param:sv <0x48376b33>
+			streams:   1, words:   708
+		worklib.Conv:v <0x26dc6872>
+			streams: 166, words: 39853
+		unisims_ver.LUT6:module <0x5a41c1e0>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x592a569d>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x6b21796f>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x66ac23cd>
+			streams:   4, words: 36075
+		unisims_ver.LUT4:module <0x70039ef9>
+			streams:   4, words:  9137
+		unisims_ver.LUT6:module <0x442fffd7>
+			streams:   4, words: 36075
+		unisims_ver.LUT3:module <0x5560ff8b>
+			streams:   2, words:   895
+		unisims_ver.LUT6:module <0x71e2e056>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x4ce3e2f7>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x0ab77a01>
+			streams:   4, words: 36075
+		unisims_ver.LUT4:module <0x6cfbc18b>
+			streams:   4, words:  9137
+		unisims_ver.LUT4:module <0x10104c60>
+			streams:   4, words:  9137
+		unisims_ver.LUT6:module <0x3231ecae>
+			streams:   4, words: 36075
+		unisims_ver.LUT5:module <0x279bde5a>
+			streams:   5, words: 20986
+		unisims_ver.LUT6:module <0x1e8173f6>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x0d881b7f>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x662f6dc0>
+			streams:   4, words: 36061
+		unisims_ver.LUT6:module <0x3792fe38>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x3109b5e1>
+			streams:   4, words: 36061
+		unisims_ver.LUT6:module <0x06bf0cbc>
+			streams:   4, words: 36075
+		unisims_ver.LUT4:module <0x58da3a94>
+			streams:   4, words:  9137
+		unisims_ver.LUT6:module <0x46904756>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x2bd6ad4f>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x6b75900b>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x465bb66e>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x493b2c3a>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x454ed649>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x5234d273>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x047a3b6c>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x046bccef>
+			streams:   4, words: 36061
+		unisims_ver.LUT6:module <0x4c9e048c>
+			streams:   4, words: 36075
+		unisims_ver.LUT5:module <0x03b73fbe>
+			streams:   5, words: 20986
+		unisims_ver.LUT6:module <0x4a5bee90>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x0abafddf>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x51dc5f59>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x2f3b34d5>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x5ad7c7d6>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x37ae05a3>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x1f04f3dc>
+			streams:   4, words: 36075
+		unisims_ver.LUT5:module <0x7bccd00b>
+			streams:   5, words: 20986
+		unisims_ver.LUT6:module <0x2ed8f420>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x19ced2f6>
+			streams:   4, words: 36075
+		unisims_ver.LUT5:module <0x0b9a5406>
+			streams:   5, words: 20986
+		unisims_ver.LUT4:module <0x0a5d551b>
+			streams:   4, words:  9137
+		unisims_ver.LUT3:module <0x3e231b48>
+			streams:   2, words:   887
+		unisims_ver.LUT3:module <0x70efb223>
+			streams:   2, words:   891
+		unisims_ver.LUT6:module <0x652e2156>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x41c15abc>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x72ba76bd>
+			streams:   4, words: 36061
+		unisims_ver.LUT6:module <0x1c7a651c>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x7355115f>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x4e331bda>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x00c9b6d9>
+			streams:   4, words: 36075
+		unisims_ver.LUT5:module <0x546c43c3>
+			streams:   5, words: 20986
+		unisims_ver.LUT6:module <0x7f980c9e>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x1cee7326>
+			streams:   4, words: 36061
+		unisims_ver.LUT6:module <0x1de5eb76>
+			streams:   4, words: 36075
+		unisims_ver.LUT4:module <0x5186a0b6>
+			streams:   4, words:  9137
+		unisims_ver.LUT6:module <0x57d555a7>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x1d715037>
+			streams:   4, words: 36075
+		unisims_ver.LUT5:module <0x1df62755>
+			streams:   5, words: 20992
+		unisims_ver.LUT5:module <0x5f0003bc>
+			streams:   5, words: 20986
+		unisims_ver.LUT5:module <0x07ddc04e>
+			streams:   5, words: 20986
+		unisims_ver.LUT6:module <0x5ef713ad>
+			streams:   4, words: 36075
+		unisims_ver.LUT3:module <0x377797fc>
+			streams:   2, words:   894
+		unisims_ver.LUT6:module <0x3cd7859a>
+			streams:   4, words: 36075
+		unisims_ver.LUT5:module <0x761cfc10>
+			streams:   5, words: 20992
+		unisims_ver.LUT3:module <0x715b89a3>
+			streams:   2, words:   891
+		unisims_ver.LUT6:module <0x115d7b24>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x0048e71e>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x4b921151>
+			streams:   4, words: 36075
+		unisims_ver.LUT5:module <0x6daff5bb>
+			streams:   5, words: 20986
+		unisims_ver.LUT5:module <0x27f7a490>
+			streams:   5, words: 20986
+		unisims_ver.LUT6:module <0x10ed3f4e>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x2e355236>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x271e4b75>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x3bcb44d3>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x23d20c37>
+			streams:   4, words: 36075
+		unisims_ver.LUT4:module <0x48c4fd2b>
+			streams:   4, words:  9137
+		unisims_ver.LUT6:module <0x344c719d>
+			streams:   4, words: 36075
+		unisims_ver.LUT4:module <0x44f393c4>
+			streams:   4, words:  9137
+		unisims_ver.LUT6:module <0x69ba5de1>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x5e8df637>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x67036098>
+			streams:   4, words: 36075
+		unisims_ver.LUT5:module <0x390e75bb>
+			streams:   5, words: 20986
+		unisims_ver.LUT5:module <0x5da4c95c>
+			streams:   5, words: 20986
+		unisims_ver.LUT6:module <0x5cc8af47>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x1a89ab3e>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x2afa1576>
+			streams:   4, words: 36075
+		unisims_ver.LUT5:module <0x00a797d7>
+			streams:   5, words: 20986
+		unisims_ver.LUT6:module <0x0ec57acb>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x6f3adaba>
+			streams:   4, words: 36075
+		unisims_ver.LUT5:module <0x750469ef>
+			streams:   5, words: 20986
+		unisims_ver.LUT4:module <0x5080c7b6>
+			streams:   4, words:  9137
+		unisims_ver.LUT6:module <0x091c477b>
+			streams:   4, words: 36075
+		unisims_ver.LUT4:module <0x0cca24a6>
+			streams:   4, words:  9137
+		unisims_ver.LUT6:module <0x5d02fcc5>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x0ce8eb33>
+			streams:   4, words: 36075
+		unisims_ver.LUT3:module <0x6c20f754>
+			streams:   2, words:   898
+		unisims_ver.LUT6:module <0x3bbeb191>
+			streams:   4, words: 36075
+		unisims_ver.LUT5:module <0x7cd12425>
+			streams:   5, words: 20992
+		unisims_ver.LUT6:module <0x6433475e>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x3dba9b8d>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x559b65ec>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x1e4af1c8>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x52ea8072>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x5231c9ad>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x32d68f43>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x5d723272>
+			streams:   4, words: 36075
+		unisims_ver.LUT4:module <0x34901bbb>
+			streams:   4, words:  9137
+		unisims_ver.LUT4:module <0x58e773a4>
+			streams:   4, words:  9137
+		unisims_ver.LUT5:module <0x7617f8ef>
+			streams:   5, words: 20986
+		unisims_ver.LUT6:module <0x2f889087>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x32863af8>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x407c980d>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x3a6f6d66>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x4444a844>
+			streams:   4, words: 36075
+		unisims_ver.LUT5:module <0x519533bb>
+			streams:   5, words: 20986
+		unisims_ver.LUT6:module <0x05576e40>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x0b4491b1>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x4ccc5a38>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x66b88ca2>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x64b0993b>
+			streams:   4, words: 36075
+		unisims_ver.LUT5:module <0x7487b860>
+			streams:   5, words: 20986
+		unisims_ver.LUT6:module <0x23c80fc3>
+			streams:   4, words: 36075
+		unisims_ver.LUT5:module <0x3df28e11>
+			streams:   5, words: 20992
+		unisims_ver.LUT5:module <0x30557085>
+			streams:   5, words: 20992
+		unisims_ver.LUT3:module <0x7f017bac>
+			streams:   2, words:   898
+		unisims_ver.LUT6:module <0x5164082a>
+			streams:   4, words: 36075
+		unisims_ver.LUT4:module <0x2bfde0b4>
+			streams:   4, words:  9137
+		unisims_ver.LUT6:module <0x5255b2fc>
+			streams:   4, words: 36075
+		unisims_ver.LUT5:module <0x62cf0c41>
+			streams:   5, words: 20986
+		unisims_ver.LUT6:module <0x3f8b57f3>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x0bdafb22>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x2375233c>
+			streams:   4, words: 36075
+		unisims_ver.LUT4:module <0x290b3c6a>
+			streams:   4, words:  9137
+		unisims_ver.LUT5:module <0x24a5540b>
+			streams:   5, words: 20986
+		unisims_ver.LUT5:module <0x51fb9043>
+			streams:   5, words: 20986
+		unisims_ver.LUT5:module <0x6320438d>
+			streams:   5, words: 20986
+		unisims_ver.LUT6:module <0x6ab29670>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x66bee5ca>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x6d285123>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x006ad818>
+			streams:   4, words: 36075
+		unisims_ver.LUT5:module <0x0872e472>
+			streams:   5, words: 20986
+		unisims_ver.LUT6:module <0x321e8713>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x3d1e88f8>
+			streams:   4, words: 36075
+		unisims_ver.LUT4:module <0x2e581dbc>
+			streams:   4, words:  9134
+		unisims_ver.LUT4:module <0x271d0b43>
+			streams:   4, words:  9137
+		unisims_ver.LUT6:module <0x33831a04>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x54be2dc0>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x4ddf2871>
+			streams:   4, words: 36075
+		unisims_ver.LUT3:module <0x15f6a4ef>
+			streams:   2, words:   898
+		unisims_ver.LUT6:module <0x140681fa>
+			streams:   4, words: 36075
+		unisims_ver.LUT5:module <0x1538ac20>
+			streams:   5, words: 20986
+		unisims_ver.LUT6:module <0x5afa4885>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x75d2f7f0>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x324213f4>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x1d7782f8>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x31de6de8>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x13afdc75>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x3e0a573c>
+			streams:   4, words: 36075
+		unisims_ver.LUT4:module <0x454ece6a>
+			streams:   4, words:  9137
+		unisims_ver.LUT5:module <0x29fcc98b>
+			streams:   5, words: 20986
+		unisims_ver.LUT4:module <0x460050c2>
+			streams:   4, words:  9137
+		unisims_ver.LUT6:module <0x52b01b1e>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x0f92dcfb>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x7e1a22be>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x2d4972aa>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x08e3bd95>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x3c645d46>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x7bf28970>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x331852b2>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x3d441394>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x3b4a254a>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x7401320d>
+			streams:   4, words: 36075
+		unisims_ver.LUT5:module <0x15f76bc6>
+			streams:   5, words: 20992
+		unisims_ver.LUT6:module <0x52fc3fe4>
+			streams:   4, words: 36075
+		unisims_ver.LUT5:module <0x086e5e56>
+			streams:   5, words: 20986
+		unisims_ver.LUT5:module <0x00e60dcd>
+			streams:   5, words: 20992
+		unisims_ver.LUT4:module <0x036fd303>
+			streams:   4, words:  9137
+		unisims_ver.LUT5:module <0x07332926>
+			streams:   5, words: 20986
+		unisims_ver.LUT5:module <0x4bc88eb3>
+			streams:   5, words: 20986
+		unisims_ver.LUT5:module <0x01041fb3>
+			streams:   5, words: 20986
+		unisims_ver.LUT6:module <0x287c62a9>
+			streams:   4, words: 36061
+		unisims_ver.LUT5:module <0x774a3633>
+			streams:   5, words: 20986
+		unisims_ver.LUT4:module <0x26a83996>
+			streams:   4, words:  9137
+		unisims_ver.LUT5:module <0x10be9d59>
+			streams:   5, words: 20986
+		unisims_ver.LUT6:module <0x68584ebb>
+			streams:   4, words: 36052
+		unisims_ver.LUT5:module <0x478d8a61>
+			streams:   5, words: 20986
+		unisims_ver.LUT5:module <0x1a3d5574>
+			streams:   5, words: 20986
+		unisims_ver.LUT6:module <0x1975d677>
+			streams:   4, words: 36052
+		unisims_ver.LUT6:module <0x2161aaa3>
+			streams:   4, words: 36052
+		unisims_ver.LUT6:module <0x22a0a66f>
+			streams:   4, words: 36061
+		unisims_ver.LUT6:module <0x0c4a5de5>
+			streams:   4, words: 36052
+		unisims_ver.LUT6:module <0x41bd076f>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x70b322f4>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x610bb499>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x60df70ce>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x5b225d81>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x3d450bfa>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x57a087d5>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x258e404a>
+			streams:   4, words: 36075
+		unisims_ver.LUT5:module <0x1bc04d84>
+			streams:   5, words: 20986
+		unisims_ver.LUT6:module <0x7ac4a2a8>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x06b030f7>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x1779675c>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x7b3a75a7>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x6c2bb378>
+			streams:   4, words: 36075
+		unisims_ver.LUT3:module <0x75dfac39>
+			streams:   2, words:   886
+		unisims_ver.LUT6:module <0x7761bf84>
+			streams:   4, words: 36061
+		unisims_ver.LUT6:module <0x588760fa>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x7842ef97>
+			streams:   4, words: 36052
+		unisims_ver.LUT6:module <0x1cf77bb3>
+			streams:   4, words: 36075
+		unisims_ver.LUT4:module <0x34144aca>
+			streams:   4, words:  9137
+		unisims_ver.LUT6:module <0x4a87d408>
+			streams:   4, words: 36075
+		unisims_ver.LUT3:module <0x2942f8e2>
+			streams:   2, words:   883
+		unisims_ver.LUT6:module <0x5feb9920>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x439b8466>
+			streams:   4, words: 36075
+		unisims_ver.LUT3:module <0x562eee62>
+			streams:   2, words:   883
+		unisims_ver.LUT6:module <0x5c64430c>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x52fe97d5>
+			streams:   4, words: 36061
+		unisims_ver.LUT6:module <0x4c259c28>
+			streams:   4, words: 36049
+		unisims_ver.LUT6:module <0x78167039>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x3eb4fd6e>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x4deffdfe>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x6c168af0>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x335d89b9>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x147863d0>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x2cdc38bc>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x65c9e7b7>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x24f56391>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x76b3e559>
+			streams:   4, words: 36061
+		unisims_ver.LUT6:module <0x28aeed8a>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x081759ed>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x672f50f6>
+			streams:   4, words: 36075
+		unisims_ver.LUT4:module <0x5d664b41>
+			streams:   4, words:  9137
+		unisims_ver.LUT6:module <0x2f6547a8>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x65b6a8ea>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x056bab3b>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x13ba7bb0>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x3f8b4325>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x5640ed72>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x3cfd9140>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x4188c657>
+			streams:   4, words: 36075
+		unisims_ver.LUT5:module <0x1f8a35c0>
+			streams:   5, words: 20986
+		unisims_ver.FDPE:module <0x74be874c>
+			streams:  12, words:  8281
+		unisims_ver.LUT5:module <0x28820387>
+			streams:   5, words: 20992
+		unisims_ver.LUT5:module <0x085aacbd>
+			streams:   5, words: 20986
+		unisims_ver.LUT6:module <0x33ca73bc>
+			streams:   4, words: 36052
+		unisims_ver.LUT5:module <0x1686911e>
+			streams:   5, words: 20986
+		unisims_ver.LUT6:module <0x70b704d8>
+			streams:   4, words: 36052
+		unisims_ver.LUT6:module <0x2627da3d>
+			streams:   4, words: 36052
+		unisims_ver.LUT6:module <0x08a9317d>
+			streams:   4, words: 36075
+		unisims_ver.LUT5:module <0x41da3340>
+			streams:   5, words: 20986
+		unisims_ver.LUT6:module <0x58fcfcd4>
+			streams:   4, words: 36052
+		unisims_ver.LUT6:module <0x1dffc35f>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x02ecb41e>
+			streams:   4, words: 36061
+		unisims_ver.LUT5:module <0x4449eb5d>
+			streams:   5, words: 20986
+		unisims_ver.LUT4:module <0x78b77f45>
+			streams:   4, words:  9137
+		unisims_ver.LUT5:module <0x7767a0b5>
+			streams:   5, words: 20986
+		unisims_ver.LUT6:module <0x1addc193>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x6240eed6>
+			streams:   4, words: 36052
+		unisims_ver.LUT6:module <0x5f6397cd>
+			streams:   4, words: 36075
+		unisims_ver.LUT4:module <0x6ba8e05d>
+			streams:   4, words:  9134
+		unisims_ver.LUT5:module <0x73e6b607>
+			streams:   5, words: 20992
+		unisims_ver.LUT4:module <0x3572acd2>
+			streams:   4, words:  9137
+		unisims_ver.LUT5:module <0x131a4e79>
+			streams:   5, words: 20986
+		unisims_ver.LUT6:module <0x2ab5847f>
+			streams:   4, words: 36075
+		unisims_ver.LUT5:module <0x12489888>
+			streams:   5, words: 20992
+		unisims_ver.LUT3:module <0x64040aa8>
+			streams:   2, words:   906
+		unisims_ver.LUT4:module <0x52fb6b6f>
+			streams:   4, words:  9137
+		unisims_ver.LUT6:module <0x79c93732>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x27e8490d>
+			streams:   4, words: 36075
+		unisims_ver.LUT5:module <0x5441d249>
+			streams:   5, words: 20986
+		unisims_ver.LUT4:module <0x3bed3b4a>
+			streams:   4, words:  9137
+		unisims_ver.LUT6:module <0x145677ad>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x4ffb7c9e>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x7b9f6690>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x7ce51556>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x55031c60>
+			streams:   4, words: 36075
+		unisims_ver.LUT5:module <0x6f429fe8>
+			streams:   5, words: 20986
+		unisims_ver.LUT6:module <0x58b52694>
+			streams:   4, words: 36075
+		unisims_ver.LUT3:module <0x52aacbf8>
+			streams:   2, words:   902
+		unisims_ver.LUT5:module <0x3369c650>
+			streams:   5, words: 20986
+		unisims_ver.LUT6:module <0x451be8aa>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x14441184>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x51387087>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x0569fb7d>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x263abe29>
+			streams:   4, words: 36075
+		unisims_ver.LUT5:module <0x5847b6a8>
+			streams:   5, words: 20992
+		unisims_ver.LUT5:module <0x03313234>
+			streams:   5, words: 20986
+		unisims_ver.LUT3:module <0x5c34733f>
+			streams:   2, words:   902
+		unisims_ver.LUT6:module <0x7398b2ab>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x5b36a7d4>
+			streams:   4, words: 36075
+		unisims_ver.LUT3:module <0x6910e94e>
+			streams:   2, words:   887
+		unisims_ver.FDCE:module <0x1beddd01>
+			streams:  12, words:  8244
+		unisims_ver.LUT5:module <0x0633b6bf>
+			streams:   5, words: 20986
+		unisims_ver.LUT5:module <0x4a51907e>
+			streams:   5, words: 20986
+		unisims_ver.LUT6:module <0x12f50cb0>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x33b09389>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x13c8573b>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x41994471>
+			streams:   4, words: 36075
+		unisims_ver.LUT5:module <0x1967305d>
+			streams:   5, words: 20986
+		unisims_ver.LUT6:module <0x253b3222>
+			streams:   4, words: 36075
+		unisims_ver.LUT6:module <0x49f2ae0c>
+			streams:   4, words: 36061
+		unisims_ver.LUT5:module <0x06b2269d>
+			streams:   5, words: 20986
+		unisims_ver.LUT6:module <0x25ea6c5f>
+			streams:   4, words: 36075
+		unisims_ver.LUT5:module <0x754898d3>
+			streams:   5, words: 20992
+		unisims_ver.LUT5:module <0x7cf6b0a3>
+			streams:   5, words: 20992
+		unisims_ver.LUT5:module <0x4b1596f3>
+			streams:   5, words: 20986
+		unisims_ver.LUT5:module <0x623712a6>
+			streams:   5, words: 20992
+		unisims_ver.LUT5:module <0x4765f070>
+			streams:   5, words: 20986
+		unisims_ver.OBUF:module <0x5290dd3e>
+			streams:   2, words:  1453
+		unisims_ver.BUFGCE:module <0x12953bdd>
+			streams:  22, words: 17948
+		unisims_ver.DSP48E2:module <0x37c963c4>
+			streams: 217, words: 159159
+	Building instance specific data structures.
+	Loading native compiled code:     .................... Done
+	Design hierarchy summary:
+		                   Instances  Unique
+		Modules:               12147      36
+		Verilog packages:          2       2
+		UDPs:                   2977       3
+		Primitives:              253       2
+		Registers:             59530     248
+		Scalar wires:          43632       -
+		Expanded wires:         5260     542
+		Vectored wires:         1854       -
+		Always blocks:         12585      64
+		Initial blocks:        28432     103
+		Cont. assignments:     12016     333
+		Pseudo assignments:      301       -
+		Simulation timescale:    1ps
+	Writing initial simulation snapshot: worklib.tb_power_stream_column:sv
+Loading snapshot worklib.tb_power_stream_column:sv .................... Done
+xcelium> source /soft64/cadence/ferramentas/XCELIUM2303/tools/xcelium/files/xmsimrc
+xcelium> stop -condition {#%d/tb_power_stream_column/p_start == 1}
+Created stop 1
+xcelium> run
+120 NS + 0 (stop 1: tb_power_stream_column.p_start = 1)
+/sim/tarsio/fastconv-ifn9-explore-bfb5ba8a/rtl/stream-column/fpga_zcu104/tb/tb_power_stream_column.sv:203     p_start = 1'b1;
+xcelium> dumpsaif -scope tb_power_stream_column.dut -internal -divider / -overwrite -output activity_dut.saif
+xcelium> stop -condition {#%d/tb_power_stream_column/p_end == 1}
+Created stop 2
+xcelium> stop -time 90 us -execute {puts "P3F_TIMEOUT_BEFORE_P_END"; exit}
+Created stop 3
+xcelium> run
+23577827 PS + 1 (stop 2: tb_power_stream_column.p_end = 1)
+/sim/tarsio/fastconv-ifn9-explore-bfb5ba8a/rtl/stream-column/fpga_zcu104/tb/tb_power_stream_column.sv:75     .clk(clk), .reset(reset), .p_start(p_start), .p_end(p_end),
+xcelium> dumpsaif -end
+xcelium> run
+STREAM_COLUMN_POWER_PASS writes=2700 physical_words=8100 final_words=2700 mismatches=0 active_cycles=7438
+Simulation complete via $finish(1) at time 23587189 PS + 0
+/sim/tarsio/fastconv-ifn9-explore-bfb5ba8a/rtl/stream-column/fpga_zcu104/tb/tb_power_stream_column.sv:218     $finish;
+xcelium> quit
+TOOL:	xrun(64)	23.03-s003: Exiting on Oct 01, 2026 at 12:55:44 -03  (total: 00:00:25)
