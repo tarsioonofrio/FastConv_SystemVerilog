@@ -1003,6 +1003,9 @@ endmodule
 // the truncated golden dataset.  SystemVerilog '/' truncates toward zero, so the
 // quotient is decremented when the remainder is negative to obtain the floor.
 // -----------------------------------------------------------------------------
+// Keep constant weight-transform arithmetic in fabric logic; the MAC_LANES
+// multipliers remain eligible for DSP inference.
+(* use_dsp = "no" *)
 module WeightTransformRowConst #(
     parameter int NBITS = 20,
     parameter int ROW_INDEX = 0
@@ -1186,4 +1189,3 @@ module InverseRowAccumulate #(
     endcase
   end
 endmodule
-
