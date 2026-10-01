@@ -15,12 +15,16 @@ if {$algorithm eq "ifn9"} {
   set top "IFN9ReplicaTop"
   set manifest [file join $repo_root rtl/conv3x3/fpga_zcu104/manifests/ifn9.rtl]
   set wrapper [file join $repo_root rtl/stream-column/fpga_zcu104/multicore/ifn9_replica_top.sv]
+} elseif {$algorithm eq "ifn9_m18"} {
+  set top "IFN9M18ReplicaTop"
+  set manifest [file join $repo_root rtl/conv3x3/fpga_zcu104/manifests/ifn9_m18.rtl]
+  set wrapper [file join $repo_root rtl/stream-column/fpga_zcu104/multicore/ifn9_m18_replica_top.sv]
 } elseif {$algorithm eq "wpn16"} {
   set top "WPN16ReplicaTop"
   set manifest [file join $repo_root rtl/conv4x4/fpga_zcu104/manifests/wpn16.rtl]
   set wrapper [file join $repo_root rtl/stream-column/fpga_zcu104/multicore/wpn16_replica_top.sv]
 } else {
-  error "unsupported algorithm: $algorithm (expected ifn9 or wpn16)"
+  error "unsupported algorithm: $algorithm (expected ifn9, ifn9_m18, or wpn16)"
 }
 file mkdir $out_dir
 
@@ -34,6 +38,9 @@ puts $metadata "cores=$n_cores"
 if {$algorithm eq "ifn9"} {
   puts $metadata "core_variant=IFN9_m06"
   puts $metadata "mac_lanes_per_core=6"
+} elseif {$algorithm eq "ifn9_m18"} {
+  puts $metadata "core_variant=IFN9_m18"
+  puts $metadata "mac_lanes_per_core=18"
 } else {
   puts $metadata "core_variant=WPN16_m08"
   puts $metadata "mac_lanes_per_core=8"

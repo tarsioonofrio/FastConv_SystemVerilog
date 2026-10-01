@@ -1,7 +1,7 @@
 # OOC multicore capacity experiment
 
-This experiment estimates how many independent IFN9 m06 and WPN16 m08 cores
-fit and meet the common 317 MHz register-to-register timing target on the
+This experiment estimates how many independent IFN9 m06, IFN9 m18, and WPN16
+m08 cores fit and meet the common 317 MHz register-to-register timing target on the
 XCZU7EV. It is an IP/fabric capacity result, not a complete board-level system
 result: each replica has its own logical memory boundary, while clock, reset,
 and start are shared. The top is synthesized Out-of-Context, so package I/O
@@ -19,6 +19,8 @@ worktree pinned to it:
 ```bash
 bash rtl/stream-column/fpga_zcu104/multicore/run_capacity_sweep.sh \
   "$PWD" /sim/tarsio/reports-multicore-<commit> ifn9 1 8 16 24 32 40 44 48
+bash rtl/stream-column/fpga_zcu104/multicore/run_capacity_sweep.sh \
+  "$PWD" /sim/tarsio/reports-multicore-<commit> ifn9_m18 1 2 4 8 12 16 20
 bash rtl/stream-column/fpga_zcu104/multicore/run_capacity_sweep.sh \
   "$PWD" /sim/tarsio/reports-multicore-<commit> wpn16 1 4 8 12 16 20 24
 ```
