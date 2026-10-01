@@ -3,8 +3,8 @@ set -euo pipefail
 
 # Full ZCU104/XCZU7EV post-route functional-SAIF power campaign.
 # Run this script inside tmux on the Paxos. Outputs are kept outside Git.
-if [[ $# -ne 1 ]]; then
-  printf 'usage: %s <output-root>\n' "$0" >&2
+if [[ $# -lt 1 ]]; then
+  printf 'usage: %s <output-root> [algorithm ...]\n' "$0" >&2
   exit 2
 fi
 script_dir=$(cd -- "$(dirname -- "$0")" && pwd)
@@ -24,12 +24,12 @@ glbl_v="$vivado_root/data/verilog/src/glbl.v"
 [[ -f "$glbl_v" ]] || { printf 'cannot locate glbl.v under %s\n' "$vivado_root" >&2; exit 1; }
 
 run_one() {
-  local algorithm=$1 family=$2
+  local algorithm=$1 family=$2 data_algorithm=${3:-$1}
   local run_dir="$output_root/$algorithm"
   local manifest="$bench_dir/manifests/$algorithm.rtl"
-  local params="$repo_root/rtl/conv${family}x${family}/pack-param/$algorithm/pack_param.sv"
-  local data="$repo_root/rtl/conv${family}x${family}/data/$algorithm/sim/sim-032-3-3-normal-trunc/pack_data.sv"
-  local matrices="$repo_root/rtl/conv${family}x${family}/mult-matrices/$algorithm/mult_matrices.sv"
+  local params="$repo_root/rtl/conv${family}x${family}/pack-param/$data_algorithm/pack_param.sv"
+  local data="$repo_root/rtl/conv${family}x${family}/data/$data_algorithm/sim/sim-032-3-3-normal-trunc/pack_data.sv"
+  local matrices="$repo_root/rtl/conv${family}x${family}/mult-matrices/$data_algorithm/mult_matrices.sv"
   mkdir -p "$run_dir"
   [[ -s "$manifest" && -s "$params" && -s "$data" && -s "$matrices" ]] || {
     printf 'missing source inputs for %s\n' "$algorithm" >&2; return 1;
@@ -92,8 +92,20 @@ printf 'host=%s\nrepo_root=%s\ncommit=%s\nvivado=%s\nxrun=%s\n' \
   "$(vivado -version | sed -n '1p')" "$(xrun -version 2>&1 | sed -n '1p')" \
   | tee "$output_root/campaign_metadata.txt"
 
-run_one tcn9 3
-run_one ifn9 3
-run_one tcn16 4
-run_one wpn16 4
+if [[ $# -gt 1 ]]; then
+  shift
+  for algorithm in "$@"; do
+    case "$algorithm" in
+      wpn16_m16|wpn16_m32) run_one "$algorithm" 4 wpn16 ;;
+      tcn9|ifn9) run_one "$algorithm" 3 ;;
+      tcn16|wpn16) run_one "$algorithm" 4 ;;
+      *) printf 'unknown algorithm variant: %s\n' "$algorithm" >&2; exit 2 ;;
+    esac
+  done
+else
+  run_one tcn9 3
+  run_one ifn9 3
+  run_one tcn16 4
+  run_one wpn16 4
+fi
 printf 'FPGA_POWER_CAMPAIGN_COMPLETE output_root=%s\n' "$output_root"

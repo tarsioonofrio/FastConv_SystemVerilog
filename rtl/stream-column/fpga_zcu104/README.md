@@ -42,6 +42,16 @@ tmux new -s stream-column-fpga
 rtl/stream-column/fpga_zcu104/scripts/run_all.sh /tmp/stream-column-fpga-<commit>
 ```
 
+To run selected configurations instead of the four standard algorithms, pass
+their manifest IDs after the output directory. WPN16 m16/m32 use the canonical
+`wpn16` parameter, matrix, and workload packages, while their manifests select
+the corresponding RTL source:
+
+```bash
+rtl/stream-column/fpga_zcu104/scripts/run_all.sh \
+  /sim/tarsio/reports-wpn16-m16-m32-<commit> wpn16_m16 wpn16_m32
+```
+
 Per algorithm, the script runs post-route implementation and reports, P0
 vectorless power, post-implementation functional netlist simulation under
 Xcelium, DUT and top-level SAIF captures between `p_start` and `p_end`, then
