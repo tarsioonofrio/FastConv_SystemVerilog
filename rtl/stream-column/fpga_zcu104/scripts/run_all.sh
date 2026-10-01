@@ -12,6 +12,12 @@ bench_dir=$(cd -- "$script_dir/.." && pwd)
 repo_root=$(cd -- "$bench_dir/../../.." && pwd)
 config_dir=${STREAM_COLUMN_FPGA_CONFIG_DIR:-$bench_dir}
 constraints=${STREAM_COLUMN_FPGA_XDC:-$config_dir/constraints/zcu104_317mhz.xdc}
+impl_flow=${STREAM_COLUMN_FPGA_IMPL_FLOW:-default}
+case "$impl_flow" in
+  default) synth_script="$script_dir/synth_impl.tcl" ;;
+  explore_postroute_physopt) synth_script="$script_dir/synth_impl_explore_postroute_physopt.tcl" ;;
+  *) printf 'unknown implementation flow: %s\n' "$impl_flow" >&2; exit 2 ;;
+esac
 output_root=$(mkdir -p -- "$1" && cd -- "$1" && pwd)
 simlib_dir="$output_root/simlibs_unisim"
 mkdir -p "$output_root"
@@ -40,7 +46,7 @@ run_one() {
     "$repo_root/$(tail -n 1 "$manifest")" "$bench_dir/tb/tb_power_stream_column.sv" \
     >> "$output_root/checksums.sha256"
 
-  vivado -mode batch -source "$script_dir/synth_impl.tcl" \
+  vivado -mode batch -source "$synth_script" \
     -log "$output_root/${algorithm}.synth.vivado.log" \
     -journal "$output_root/${algorithm}.synth.vivado.jou" \
     -tclargs "$repo_root" "$output_root" "$algorithm" "$manifest" "$constraints"
@@ -86,12 +92,13 @@ run_one() {
     -journal "$output_root/${algorithm}.p3f.vivado.jou" \
     -tclargs "$output_root" "$algorithm" \
       "$run_dir/dut/activity_dut.saif" "$run_dir/top/activity_top.saif"
-  printf 'FPGA_POWER_VARIANT_COMPLETE algorithm=%s\n' "$algorithm"
+  printf 'FPGA_POWER_VARIANT_COMPLETE algorithm=%s implementation_flow=%s\n' \
+    "$algorithm" "$impl_flow"
 }
 
-printf 'host=%s\nrepo_root=%s\ncommit=%s\nvivado=%s\nxrun=%s\n' \
+printf 'host=%s\nrepo_root=%s\ncommit=%s\nvivado=%s\nxrun=%s\nimplementation_flow=%s\n' \
   "$(hostname)" "$repo_root" "$(git -C "$repo_root" rev-parse HEAD)" \
-  "$(vivado -version | sed -n '1p')" "$(xrun -version 2>&1 | sed -n '1p')" \
+  "$(vivado -version | sed -n '1p')" "$(xrun -version 2>&1 | sed -n '1p')" "$impl_flow" \
   | tee "$output_root/campaign_metadata.txt"
 
 if [[ $# -gt 1 ]]; then
@@ -111,4 +118,5 @@ else
   run_one tcn16 4
   run_one wpn16 4
 fi
-printf 'FPGA_POWER_CAMPAIGN_COMPLETE output_root=%s\n' "$output_root"
+printf 'FPGA_POWER_CAMPAIGN_COMPLETE output_root=%s implementation_flow=%s\n' \
+  "$output_root" "$impl_flow"

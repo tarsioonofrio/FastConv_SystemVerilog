@@ -32,7 +32,20 @@ rtl/conv3x3/fpga_zcu104/scripts/run_campaign.sh \
 ```
 
 The campaign uses the local manifests and constraints in this directory while
-calling the shared implementation engine. IFN9 m12 and m18 are generated from
+calling the shared implementation engine. Set
+`STREAM_COLUMN_FPGA_IMPL_FLOW=explore_postroute_physopt` to use the same
+implementation directives as the WPN16 Explore experiment:
+`place_design -directive Explore`, `phys_opt_design -directive Explore`,
+`route_design -directive Explore`, then a second
+`phys_opt_design -directive Explore` after route. For example:
+
+```bash
+STREAM_COLUMN_FPGA_IMPL_FLOW=explore_postroute_physopt \
+  rtl/conv3x3/fpga_zcu104/scripts/run_campaign.sh \
+  /sim/tarsio/reports-conv3x3-ifn9-explore-<commit> ifn9 ifn9_m12 ifn9_m18
+```
+
+IFN9 m12 and m18 are generated from
 the same canonical `build.json`; they evaluate two and three adjacent
 Hadamard rows per cycle, respectively. The IFN9 constant weight-transform
 module carries `use_dsp = "no"`, matching the Conv4x4 TCN16 FPGA mapping
