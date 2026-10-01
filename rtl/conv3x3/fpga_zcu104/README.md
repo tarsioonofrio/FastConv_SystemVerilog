@@ -36,8 +36,11 @@ calling the shared implementation engine. Set
 `STREAM_COLUMN_FPGA_IMPL_FLOW=explore_postroute_physopt` to use the same
 implementation directives as the WPN16 Explore experiment:
 `place_design -directive Explore`, `phys_opt_design -directive Explore`,
-`route_design -directive Explore`, then a second
-`phys_opt_design -directive Explore` after route. For example:
+and `route_design -directive Explore`. The final
+`phys_opt_design -directive Explore` after route is skipped for IFN9 m06
+(`ifn9`) and m12 (`ifn9_m12`): their earlier post-route WNS was positive, and
+Vivado reported that the final step would not modify the netlist. It remains
+enabled for m18 and other algorithms. For example:
 
 ```bash
 STREAM_COLUMN_FPGA_IMPL_FLOW=explore_postroute_physopt \

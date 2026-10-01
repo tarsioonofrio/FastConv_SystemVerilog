@@ -8,6 +8,16 @@ set output_root [file normalize [lindex $argv 1]]
 set algorithm [lindex $argv 2]
 set manifest [file normalize [lindex $argv 3]]
 set constraints [file normalize [lindex $argv 4]]
+# The earlier IFN9 m06/m12 runs had positive post-route WNS, and Vivado's
+# final Explore phys-opt reported that it would not modify either netlist.
+set skip_postroute_phys_opt [expr {[lsearch -exact {ifn9 ifn9_m12} $algorithm] >= 0}]
+if {$skip_postroute_phys_opt} {
+  set implementation_strategy "Performance_ExplorePostPlacePhysOpt"
+  set postroute_phys_opt_metadata "Skipped_timing_already_closed"
+} else {
+  set implementation_strategy "Performance_ExplorePostRoutePhysOpt"
+  set postroute_phys_opt_metadata "Explore"
+}
 set run_dir [file join $output_root $algorithm]
 file mkdir $run_dir
 
@@ -19,10 +29,11 @@ puts $fp "algorithm=$algorithm"
 puts $fp "target_period_ns=3.154574"
 puts $fp "target_frequency_mhz=317"
 puts $fp "NADDR=12"
-puts $fp "experiment=Performance_ExplorePostRoutePhysOpt"
+puts $fp "experiment=$implementation_strategy"
 puts $fp "opt_design=Default"
 puts $fp "place_design=Explore"
-puts $fp "phys_opt_design=Explore_post_place_and_post_route"
+puts $fp "phys_opt_design_post_place=Explore"
+puts $fp "phys_opt_design_post_route=$postroute_phys_opt_metadata"
 puts $fp "route_design=Explore"
 puts $fp "manifest=$manifest"
 puts $fp "constraints=$constraints"
@@ -47,7 +58,11 @@ opt_design
 place_design -directive Explore
 phys_opt_design -directive Explore
 route_design -directive Explore
-phys_opt_design -directive Explore
+if {$skip_postroute_phys_opt} {
+  puts "Skipping explicit post-route phys_opt_design -directive Explore for $algorithm: previous routed WNS was positive and Vivado made no netlist changes."
+} else {
+  phys_opt_design -directive Explore
+}
 
 write_checkpoint -force [file join $run_dir design_routed.dcp]
 write_verilog -force -mode funcsim [file join $run_dir design_routed_funcsim.v]
@@ -59,5 +74,5 @@ report_timing -delay_type max -max_paths 30 -path_type full_clock_expanded \
 report_clock_utilization -file [file join $run_dir clock_utilization.rpt]
 report_io -file [file join $run_dir io.rpt]
 report_drc -file [file join $run_dir drc.rpt]
-puts "IMPLEMENTATION_COMPLETE algorithm=$algorithm strategy=Performance_ExplorePostRoutePhysOpt"
+puts "IMPLEMENTATION_COMPLETE algorithm=$algorithm strategy=$implementation_strategy"
 exit
