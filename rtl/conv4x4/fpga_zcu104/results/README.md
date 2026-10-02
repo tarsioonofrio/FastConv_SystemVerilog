@@ -25,3 +25,12 @@ high-fanout transform-register enable is documented in
 It improved WNS from `+0.043 ns` to `+0.062 ns` from a common post-place
 checkpoint, with 311 additional FFs and no LUT/DSP change. This is a modest
 OOC timing improvement; the critical path moved into the DSP/MAC datapath.
+
+The subsequent DSP-internal-pipeline experiment is documented in
+[wpn16-n32-dsp-pipeline-317mhz-9ea006cd.md](wpn16-n32-dsp-pipeline-317mhz-9ea006cd.md).
+With the multiplier pipeline enabled, the standard Explore route closed at
+317 MHz with `+0.124 ns` WNS. All 256 DSPs inferred `MREG`, but only 156
+inferred `PREG`; the remaining critical path is the inverse/output-accumulate
+logic after a registered DSP output. Forced enable replication did not improve
+the result (`+0.123 ns`). No post-route functional simulation or power analysis
+was run for this experiment.
