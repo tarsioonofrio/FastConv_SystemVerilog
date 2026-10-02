@@ -1,0 +1,14 @@
+#-----------------------------------------------------------
+# Vivado v2023.2 (64-bit)
+# SW Build 4029153 on Fri Oct 13 20:13:54 MDT 2023
+# IP Build 4028589 on Sat Oct 14 00:45:43 MDT 2023
+# SharedData Build 4025554 on Tue Oct 10 17:18:54 MDT 2023
+# Start of session at: Fri Oct  2 13:19:48 2026
+# Process ID: 3664181
+# Current directory: /sim/tarsio/fastconv-wpn16-pipeboth-94eb5f85
+# Command line: vivado -mode batch -log /sim/tarsio/reports-wpn16-pipeboth-n32-317mhz-94eb5f85/vivado.log -journal /sim/tarsio/reports-wpn16-pipeboth-n32-317mhz-94eb5f85/vivado.jou -source rtl/stream-column/fpga_zcu104/multicore/synth_replicas.tcl -tclargs /sim/tarsio/fastconv-wpn16-pipeboth-94eb5f85 /sim/tarsio/reports-wpn16-pipeboth-n32-317mhz-94eb5f85 wpn16_pipe_both_nbits16 32 /sim/tarsio/fastconv-wpn16-pipeboth-94eb5f85/rtl/conv4x4/fpga_zcu104/constraints/zcu104_317mhz.xdc
+# Log file: /sim/tarsio/reports-wpn16-pipeboth-n32-317mhz-94eb5f85/vivado.log
+# Journal file: /sim/tarsio/reports-wpn16-pipeboth-n32-317mhz-94eb5f85/vivado.jou
+# Running On: paxos.inf.pucrs.br, OS: Linux, CPU Frequency: 3100.000 MHz, CPU Physical cores: 14, Host memory: 134319 MB
+#-----------------------------------------------------------
+source rtl/stream-column/fpga_zcu104/multicore/synth_replicas.tcl

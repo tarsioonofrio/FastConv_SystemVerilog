@@ -29,8 +29,13 @@ registers the first axis of the separable weight transform before evaluating
 the second axis. This preserves the full-precision numerator until the final
 arithmetic shift, so it is intended to preserve the truncation contract. Its
 16-bit / 32-core flow uses algorithm `wpn16_pipe_both_nbits16` in the shared
-`synth_replicas.tcl` engine. Treat it as a candidate until both the canonical
-golden regression and routed 317 MHz timing pass.
+`synth_replicas.tcl` engine. The canonical 16-bit RTL golden passed, and the
+32-core OOC post-route implementation passed timing at 317 MHz with WNS
+`+0.043 ns`. The result, critical path, OOC clock-constraint caveat, and reports
+are preserved in
+[wpn16-n32-pipeboth-317mhz-94eb5f85.md](results/wpn16-n32-pipeboth-317mhz-94eb5f85.md).
+This is an IP-level OOC timing result; replicated post-route functional
+simulation and power analysis have not been run.
 
 WPN16 m16 and m32 use the canonical WPN16 parameter, matrix, and workload
 packages. The common workload packages, clock, and P3F procedure are documented
