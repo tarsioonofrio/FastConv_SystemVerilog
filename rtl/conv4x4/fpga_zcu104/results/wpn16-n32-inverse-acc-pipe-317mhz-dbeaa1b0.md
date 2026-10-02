@@ -37,6 +37,7 @@ overlaps, e o processo batch retornou codigo 0.
 
 | Recurso/margem | Pos-route | Disponivel | Uso |
 | --- | ---: | ---: | ---: |
+| CLB sites | 27.273 | 28.800 | 94,70% |
 | LUT | 184.069 | 230.400 | 79,89% |
 | FF | 100.535 | 460.800 | 21,82% |
 | DSP48E2 | 256 | 1.728 | 14,81% |
@@ -59,6 +60,9 @@ O pior caminho pos-route esta na replica 20, de
 `r_transform_feature_reg_reg[6][13]/D`. O atraso do caminho de dados e
 3,067 ns: 0,812 ns de celula/logica (26,48%) e 2,255 ns de roteamento (73,52%),
 com oito niveis logicos (`3 x CARRY8`, LUTs e MUXF7).
+O uso de CLB sites ficou em 94,70%; essa ocupacao alta pode restringir
+flexibilidade de placement/roteamento, embora nao prove por si so a causa do
+atraso de rota observado neste caminho.
 
 Esse caminho passa pela etapa combinacional da transformada entre seus bancos
 registrados; o banco entre os eixos permanece visivel nos endpoints do
