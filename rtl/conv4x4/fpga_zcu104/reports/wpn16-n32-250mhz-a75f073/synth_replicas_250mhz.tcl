@@ -31,13 +31,8 @@ if {$algorithm eq "ifn9"} {
   set nbits 16
   set manifest [file join $repo_root rtl/conv4x4/fpga_zcu104/manifests/wpn16.rtl]
   set wrapper [file join $repo_root rtl/stream-column/fpga_zcu104/multicore/wpn16_replica_top.sv]
-} elseif {$algorithm eq "wpn16_pipe_nbits16"} {
-  set top "WPN16ReplicaTop"
-  set nbits 16
-  set manifest [file join $repo_root rtl/conv4x4/fpga_zcu104/manifests/wpn16_pipe.rtl]
-  set wrapper [file join $repo_root rtl/stream-column/fpga_zcu104/multicore/wpn16_replica_top.sv]
 } else {
-  error "unsupported algorithm: $algorithm (expected ifn9, ifn9_m18, wpn16, wpn16_nbits16, or wpn16_pipe_nbits16)"
+  error "unsupported algorithm: $algorithm (expected ifn9, ifn9_m18, wpn16, or wpn16_nbits16)"
 }
 file mkdir $out_dir
 
@@ -58,12 +53,9 @@ if {$algorithm eq "ifn9"} {
 } elseif {$algorithm eq "wpn16" || $algorithm eq "wpn16_nbits16"} {
   puts $metadata "core_variant=WPN16_m08"
   puts $metadata "mac_lanes_per_core=8"
-} elseif {$algorithm eq "wpn16_pipe_nbits16"} {
-  puts $metadata "core_variant=WPN16_m08_transform_pipeline"
-  puts $metadata "mac_lanes_per_core=8"
 }
-puts $metadata "target_period_ns=3.154574"
-puts $metadata "target_frequency_mhz=317"
+puts $metadata "target_period_ns=4.000000"
+puts $metadata "target_frequency_mhz=250"
 puts $metadata "NADDR=12"
 puts $metadata "memory_model=independent_logical_boundary_per_core"
 puts $metadata "package_io_buffers=disabled_by_ooc"
@@ -85,7 +77,7 @@ close $sources
 read_verilog -sv $wrapper
 read_xdc $xdc
 set generics [list N_CORES=$n_cores NADDR=12]
-if {$algorithm eq "ifn9_m18" || $algorithm eq "wpn16" || $algorithm eq "wpn16_nbits16" || $algorithm eq "wpn16_pipe_nbits16"} {
+if {$algorithm eq "ifn9_m18" || $algorithm eq "wpn16" || $algorithm eq "wpn16_nbits16"} {
   lappend generics NBITS=$nbits
 }
 synth_design -mode out_of_context -top $top -part xczu7ev-ffvc1156-2-e -generic $generics
@@ -117,7 +109,7 @@ puts $summary "algorithm=$algorithm"
 puts $summary "cores=$n_cores"
 puts $summary "NBITS=$nbits"
 puts $summary "wns_ns=$wns"
-puts $summary "timing_closed_317mhz=$closed"
+puts $summary "timing_closed_250mhz=$closed"
 puts $summary "implementation=OOC_Explore_postplace_physopt_and_route"
 close $summary
 puts "MULTICORE_CAPACITY_COMPLETE algorithm=$algorithm cores=$n_cores wns_ns=$wns timing_closed=$closed"

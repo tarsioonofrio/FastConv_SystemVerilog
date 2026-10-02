@@ -14,6 +14,15 @@ Supported manifests:
 | `wpn16` | WPN16, 8 MACs | `conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv` |
 | `wpn16_m16` | WPN16, 16 MACs | `conv-wpn16-i60-h25-t32-o16-m16-stream16-prefetch24-rowconst8-trunc-column.sv` |
 | `wpn16_m32` | WPN16, 32 MACs | `conv-wpn16-i60-h41-t64-o16-m32-stream16-prefetch24-rowconst8-trunc-column.sv` |
+| `wpn16_pipe` | WPN16, 8 MACs, registered feature-transform boundary | `conv-wpn16-pipe-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv` |
+
+`wpn16_pipe` is an experimental timing variant of the standard WPN16 m08
+core. It registers the `MatrixC0` partial results before `MatrixC1`, adding one
+cycle per spatial tile while leaving the canonical RTL and the weight transform
+unchanged. Its 16-bit replicated timing flow can be run with algorithm
+`wpn16_pipe_nbits16` in the shared `synth_replicas.tcl` engine. It must pass
+functional golden validation before its routed timing result is treated as a
+valid accelerator implementation.
 
 WPN16 m16 and m32 use the canonical WPN16 parameter, matrix, and workload
 packages. The common workload packages, clock, and P3F procedure are documented

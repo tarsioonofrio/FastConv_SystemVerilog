@@ -12,7 +12,7 @@ module tb_stream_column #(
   import pack_data::*;
   import pack_param::*;
 
-  localparam int unsigned NBITS = 20;
+  localparam int unsigned NBITS = pack_data::NBITS;
   localparam int unsigned FEAT_INPUT_WIDTH = FEAT_INPUT_SIZE;
   localparam int unsigned LATENCY = 1;
   localparam int unsigned INPUT_MEMORY_SIZE = $size(const_data);
