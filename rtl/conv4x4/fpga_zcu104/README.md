@@ -21,6 +21,17 @@ in the shared flow README. Raw reports go in `reports/`; curated tables and
 provenance go in `results/`. DCP, SAIF, simulator databases, and compiled
 UNISIM libraries are excluded from Git.
 
+The standard WPN16 configuration is 8 MACs. To run it with the FPGA-standard
+16-bit datapath, select the matching 16-bit workload pack and set both flow
+overrides (the RTL source itself retains its 20-bit default):
+
+```bash
+STREAM_COLUMN_NBITS=16 \
+STREAM_COLUMN_DATASET=sim-032-3-3-normal-trunc-nbits16 \
+rtl/conv4x4/fpga_zcu104/scripts/run_campaign.sh \
+  /sim/tarsio/reports-wpn16-nbits16-<commit> wpn16
+```
+
 ## Run
 
 On Paxos, verify the exact published commit and load Vivado 2023.2 and Xcelium

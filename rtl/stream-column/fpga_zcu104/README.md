@@ -9,8 +9,25 @@ retains the common scripts and testbench.
 All variants use the same workload packages (`sim-032-3-3-normal-trunc`),
 Vivado 2023.2 flow, 317 MHz clock, XCZU7EV part, `NADDR=12`, and output checker.
 `NADDR=12` is the minimum width that covers each input/output memory and matches
-the official streaming-column regression. Do not silently use the RTL default
-of 16 bits in the FPGA comparison.
+the official streaming-column regression. Keep `NADDR=12`; do not silently use
+the RTL's default `NADDR=16` in the FPGA comparison.
+
+The runner also supports an explicit datapath-width override through
+`STREAM_COLUMN_NBITS` (default 20) and a workload-directory override through
+`STREAM_COLUMN_DATASET` (default `sim-032-3-3-normal-trunc`). The width is passed
+to Vivado's top-level generic and to the Xcelium testbench. For example, WPN16
+at 16 bits uses the matching 16-bit package:
+
+```bash
+STREAM_COLUMN_NBITS=16 \
+STREAM_COLUMN_DATASET=sim-032-3-3-normal-trunc-nbits16 \
+rtl/conv4x4/fpga_zcu104/scripts/run_campaign.sh \
+  /sim/tarsio/reports-wpn16-nbits16-<commit> wpn16
+```
+
+That pack is a width-narrowed copy of the canonical WPN16 truncated workload.
+Its input, raw-weight, feature, and golden-output values fit signed 16 bits; its
+provenance and hashes are recorded beside the package.
 
 ## Validation already performed locally
 

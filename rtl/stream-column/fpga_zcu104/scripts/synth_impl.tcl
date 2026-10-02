@@ -6,6 +6,13 @@ set output_root [file normalize [lindex $argv 1]]
 set algorithm [lindex $argv 2]
 set manifest [file normalize [lindex $argv 3]]
 set constraints [file normalize [lindex $argv 4]]
+set nbits 20
+if {[info exists ::env(STREAM_COLUMN_NBITS)]} {
+  set nbits $::env(STREAM_COLUMN_NBITS)
+}
+if {![string is integer -strict $nbits] || $nbits < 1} {
+  error "STREAM_COLUMN_NBITS must be a positive integer, got '$nbits'"
+}
 set run_dir [file join $output_root $algorithm]
 file mkdir $run_dir
 
@@ -17,6 +24,7 @@ puts $fp "algorithm=$algorithm"
 puts $fp "target_period_ns=3.154574"
 puts $fp "target_frequency_mhz=317"
 puts $fp "NADDR=12"
+puts $fp "NBITS=$nbits"
 puts $fp "manifest=$manifest"
 close $fp
 
@@ -31,7 +39,7 @@ while {[gets $sources line] >= 0} {
 close $sources
 
 read_xdc $constraints
-synth_design -top Conv -part xczu7ev-ffvc1156-2-e -generic {NADDR=12}
+synth_design -top Conv -part xczu7ev-ffvc1156-2-e -generic [list NADDR=12 NBITS=$nbits]
 write_checkpoint -force [file join $run_dir design_synth.dcp]
 opt_design
 place_design

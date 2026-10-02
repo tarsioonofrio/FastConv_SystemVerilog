@@ -13,6 +13,13 @@ repo_root=$(cd -- "$bench_dir/../../.." && pwd)
 config_dir=${STREAM_COLUMN_FPGA_CONFIG_DIR:-$bench_dir}
 constraints=${STREAM_COLUMN_FPGA_XDC:-$config_dir/constraints/zcu104_317mhz.xdc}
 impl_flow=${STREAM_COLUMN_FPGA_IMPL_FLOW:-default}
+nbits=${STREAM_COLUMN_NBITS:-20}
+dataset=${STREAM_COLUMN_DATASET:-sim-032-3-3-normal-trunc}
+[[ "$nbits" =~ ^[0-9]+$ ]] && (( nbits > 0 )) || {
+  printf 'STREAM_COLUMN_NBITS must be a positive integer: %s\n' "$nbits" >&2
+  exit 2
+}
+export STREAM_COLUMN_NBITS="$nbits"
 case "$impl_flow" in
   default) synth_script="$script_dir/synth_impl.tcl" ;;
   explore_postroute_physopt) synth_script="$script_dir/synth_impl_explore_postroute_physopt.tcl" ;;
@@ -36,12 +43,18 @@ run_one() {
   local run_dir="$output_root/$algorithm"
   local manifest="$config_dir/manifests/$algorithm.rtl"
   local params="$repo_root/rtl/conv${family}x${family}/pack-param/$data_algorithm/pack_param.sv"
-  local data="$repo_root/rtl/conv${family}x${family}/data/$data_algorithm/sim/sim-032-3-3-normal-trunc/pack_data.sv"
+  local data="$repo_root/rtl/conv${family}x${family}/data/$data_algorithm/sim/$dataset/pack_data.sv"
   local matrices="$repo_root/rtl/conv${family}x${family}/mult-matrices/$data_algorithm/mult_matrices.sv"
   mkdir -p "$run_dir"
   [[ -s "$manifest" && -s "$params" && -s "$data" && -s "$matrices" ]] || {
     printf 'missing source inputs for %s\n' "$algorithm" >&2; return 1;
   }
+  grep -Eq "localparam int NBITS = ${nbits};" "$data" &&
+    grep -Eq "localparam int WEIGHT_NBITS = ${nbits};" "$data" || {
+      printf 'workload package width does not match STREAM_COLUMN_NBITS=%s: %s\n' \
+        "$nbits" "$data" >&2
+      return 1
+    }
   sha256sum "$manifest" "$params" "$data" "$matrices" \
     "$repo_root/$(tail -n 1 "$manifest")" "$bench_dir/tb/tb_power_stream_column.sv" \
     >> "$output_root/checksums.sha256"
@@ -69,7 +82,8 @@ run_one() {
       local capture_tcl="$script_dir/capture_${capture}_saif.tcl"
       xrun -64bit -sv -access +r -cdslib "$simlib_dir/cds.lib" \
         -hdlvar "$simlib_dir/hdl.var" -reflib "$simlib_dir/unisims_ver:unisims_ver" \
-        -define GATE_LEVEL -top tb_power_stream_column -top glbl -timescale 1ns/1ps \
+        -define GATE_LEVEL -define STREAM_COLUMN_NBITS=$nbits \
+        -top tb_power_stream_column -top glbl -timescale 1ns/1ps \
         -input "$capture_tcl" -l xrun.log \
         "$params" "$data" "$repo_root/rtl/mem/mem.sv" \
         "$run_dir/design_routed_funcsim.v" "$glbl_v" \
@@ -96,9 +110,10 @@ run_one() {
     "$algorithm" "$impl_flow"
 }
 
-printf 'host=%s\nrepo_root=%s\ncommit=%s\nvivado=%s\nxrun=%s\nimplementation_flow=%s\n' \
+printf 'host=%s\nrepo_root=%s\ncommit=%s\nvivado=%s\nxrun=%s\nimplementation_flow=%s\nNBITS=%s\ndataset=%s\n' \
   "$(hostname)" "$repo_root" "$(git -C "$repo_root" rev-parse HEAD)" \
   "$(vivado -version | sed -n '1p')" "$(xrun -version 2>&1 | sed -n '1p')" "$impl_flow" \
+  "$nbits" "$dataset" \
   | tee "$output_root/campaign_metadata.txt"
 
 if [[ $# -gt 1 ]]; then

@@ -1,13 +1,18 @@
 `timescale 1ns/1ps
 
+`ifndef STREAM_COLUMN_NBITS
+`define STREAM_COLUMN_NBITS 20
+`endif
+
 // Functional post-route workload for the streaming column-interface variants.
 // This bench uses only the Conv top-level ports, so it also works with the
 // flattened post-implementation functional netlist.
-module tb_power_stream_column;
+module tb_power_stream_column #(
+  parameter int unsigned NBITS = `STREAM_COLUMN_NBITS
+);
   import pack_data::*;
   import pack_param::*;
 
-  localparam int unsigned NBITS = 20;
   localparam int unsigned INPUT_MEMORY_SIZE = $size(const_data);
   localparam int unsigned FEAT_INPUT_WIDTH = FEAT_INPUT_SIZE;
   localparam int unsigned FEAT_OUTPUT_SIZE = FEAT_INPUT_SIZE - CONV_KERNEL_SIZE + 1;
