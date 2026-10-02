@@ -3,6 +3,8 @@
    Register barriers separate transform axes. PIPE_WEIGHT_TRANSFORM defaults to 0
    to preserve the feature-only pipeline; setting it to 1 also pipelines weights.
    PIPE_DSP_MULTIPLIER enables an additional inferred DSP pipeline experiment.
+   PIPE_INVERSE_ACCUMULATE inserts a register barrier between InverseRow and
+   InverseRowAccumulate for a follow-up timing experiment.
 
    Algorithm: wpn16   input tile 6x6   Hadamard 8x8   output tile 4x4
    Based on conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv.
@@ -26,7 +28,8 @@ module Conv
     // Compatibility parameter for the shared testbench; one MAC per Hadamard column.
     parameter int unsigned NUM_MULT            = 8,
     parameter bit PIPE_WEIGHT_TRANSFORM         = 1'b0,
-    parameter bit PIPE_DSP_MULTIPLIER           = 1'b0
+    parameter bit PIPE_DSP_MULTIPLIER           = 1'b0,
+    parameter bit PIPE_INVERSE_ACCUMULATE       = 1'b0
   ) (
     input  logic clk,
     input  logic reset,
@@ -171,6 +174,12 @@ module Conv
   logic [ROW_INDEX_WIDTH-1:0] w_inverse_product_row_idx;
   logic [PRODUCT_INDEX_WIDTH-1:0] r_transform_product_idx;
   logic [NBITS-1:0] w_inverse_partial_current [CONV_OUTPUT_SIZE-1:0];
+  logic [NBITS-1:0] r_inverse_partial_reg [CONV_OUTPUT_SIZE-1:0];
+  logic [ROW_INDEX_WIDTH-1:0] r_inverse_partial_row_idx_reg;
+  logic r_inverse_partial_valid;
+  logic [NBITS-1:0] w_inverse_partial_accumulate [CONV_OUTPUT_SIZE-1:0];
+  logic [ROW_INDEX_WIDTH-1:0] w_inverse_accumulate_row_idx;
+  logic w_inverse_accumulate_valid;
   logic [NBITS-1:0] w_output_acc_next [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
   logic [NBITS-1:0] w_inverse_product_row [HADAMARD_SIZE-1:0];
   logic [NBITS-1:0] w_hadamard_product_current [FIXED_NUM_MULT-1:0];
@@ -668,8 +677,10 @@ module Conv
           st_conv_next = HADAMARD;
       end
       INVERSE:
-        if (PIPE_DSP_MULTIPLIER && r_mac_pipe_valid[0])
-          st_conv_next = INVERSE;  // Drain the final registered DSP product.
+        if ((PIPE_DSP_MULTIPLIER && r_mac_pipe_valid[0]) ||
+            (PIPE_INVERSE_ACCUMULATE &&
+             (w_inverse_product_valid || r_inverse_partial_valid)))
+          st_conv_next = INVERSE;  // Drain DSP and inverse/accumulate pipeline stages.
         else
           st_conv_next = WAIT_CONV;
       default: st_conv_next = WAIT_CONV;
@@ -712,6 +723,9 @@ module Conv
       r_hadamard_product_reg <= '{default: '0};
       r_hadamard_product_row_idx_reg <= '0;
       r_hadamard_product_valid <= 1'b0;
+      r_inverse_partial_reg <= '{default: '0};
+      r_inverse_partial_row_idx_reg <= '0;
+      r_inverse_partial_valid <= 1'b0;
       r_input_weight          <= '{default: '0};
       // The output-write bank also carries the streaming accumulation state.
       // Sharing this bank removes the duplicate accumulator bank.
@@ -719,6 +733,16 @@ module Conv
       r_inverse_row_idx <= '0;
       r_transform_product_idx <= '0;
     end else begin
+      if (PIPE_INVERSE_ACCUMULATE) begin
+        r_inverse_partial_valid <= w_inverse_product_valid;
+        if (w_inverse_product_valid) begin
+          for (int unsigned lane = 0; lane < CONV_OUTPUT_SIZE; lane++)
+            r_inverse_partial_reg[lane] <= w_inverse_partial_current[lane];
+          r_inverse_partial_row_idx_reg <= w_inverse_product_row_idx;
+        end
+      end else begin
+        r_inverse_partial_valid <= 1'b0;
+      end
       unique case (st_conv_current)
         TRANSFORM: begin
           for (int unsigned index = 0; index < CONV_INPUT_SIZE*HADAMARD_SIZE; index++)
@@ -772,12 +796,12 @@ module Conv
             r_hadamard_product_row_idx_reg <= r_inverse_row_idx;
             r_hadamard_product_valid <= 1'b1;
           end
-          if (w_inverse_product_valid)
+          if (w_inverse_accumulate_valid)
             r_output_write <= w_output_acc_next;
           r_inverse_row_idx <= r_inverse_row_idx + 1'b1;
         end
         INVERSE: begin
-          if (w_inverse_product_valid)
+          if (w_inverse_accumulate_valid)
             r_output_write <= w_output_acc_next;
           if (!PIPE_DSP_MULTIPLIER)
             r_hadamard_product_valid <= 1'b0;
@@ -873,6 +897,12 @@ module Conv
       ? r_mac_pipe_valid[1] : r_hadamard_product_valid;
   assign w_inverse_product_row_idx = PIPE_DSP_MULTIPLIER
       ? r_mac_pipe_row_idx[1] : r_hadamard_product_row_idx_reg;
+  assign w_inverse_partial_accumulate = PIPE_INVERSE_ACCUMULATE
+      ? r_inverse_partial_reg : w_inverse_partial_current;
+  assign w_inverse_accumulate_row_idx = PIPE_INVERSE_ACCUMULATE
+      ? r_inverse_partial_row_idx_reg : w_inverse_product_row_idx;
+  assign w_inverse_accumulate_valid = PIPE_INVERSE_ACCUMULATE
+      ? r_inverse_partial_valid : w_inverse_product_valid;
 
   for (genvar lane = 0; lane < FIXED_NUM_MULT; lane++) begin: MAC_LANES
     assign w_transform_feature[lane] = r_transform_feature_reg[lane];
@@ -892,7 +922,8 @@ module Conv
   end
   InverseRow #(.NBITS(NBITS)) inverse_row_current(.inverse_input_row(w_inverse_product_row), .inverse_partial(w_inverse_partial_current));
   InverseRowAccumulate #(.NBITS(NBITS)) inverse_row_acc(
-    .inverse_row_idx(w_inverse_product_row_idx), .accumulator_in(r_output_write), .inverse_partial(w_inverse_partial_current), .accumulator_out(w_output_acc_next));
+    .inverse_row_idx(w_inverse_accumulate_row_idx), .accumulator_in(r_output_write),
+    .inverse_partial(w_inverse_partial_accumulate), .accumulator_out(w_output_acc_next));
   // ----------------------------------------------------------------------------------------------------
   // -------  PART 4 - OUTPUT FSM AND READ/WRITE COUNTER -------------------------------------------------
   // ----------------------------------------------------------------------------------------------------

@@ -93,6 +93,9 @@ module tb_stream_column #(
 `ifdef WPN16_PIPE_DSP_MULTIPLIER
     , .PIPE_DSP_MULTIPLIER(1'b1)
 `endif
+`ifdef WPN16_PIPE_INVERSE_ACCUMULATE
+    , .PIPE_INVERSE_ACCUMULATE(1'b1)
+`endif
   ) dut (
     .clk(clk),
     .reset(reset),
