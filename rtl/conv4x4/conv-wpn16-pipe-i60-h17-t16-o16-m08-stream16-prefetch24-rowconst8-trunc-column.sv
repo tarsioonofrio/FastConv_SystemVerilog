@@ -2,6 +2,7 @@
    CONVOLUTION CONTROLLER - WPN16 transform-pipelined experiment.
    Register barriers separate transform axes. PIPE_WEIGHT_TRANSFORM defaults to 0
    to preserve the feature-only pipeline; setting it to 1 also pipelines weights.
+   PIPE_DSP_MULTIPLIER enables an additional inferred DSP pipeline experiment.
 
    Algorithm: wpn16   input tile 6x6   Hadamard 8x8   output tile 4x4
    Based on conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv.
@@ -24,7 +25,8 @@ module Conv
     parameter int unsigned HADAMARD_SIZE       = 8,
     // Compatibility parameter for the shared testbench; one MAC per Hadamard column.
     parameter int unsigned NUM_MULT            = 8,
-    parameter bit PIPE_WEIGHT_TRANSFORM         = 1'b0
+    parameter bit PIPE_WEIGHT_TRANSFORM         = 1'b0,
+    parameter bit PIPE_DSP_MULTIPLIER           = 1'b0
   ) (
     input  logic clk,
     input  logic reset,
@@ -162,6 +164,11 @@ module Conv
   logic [NBITS-1:0] r_hadamard_product_reg [FIXED_NUM_MULT-1:0];
   logic [ROW_INDEX_WIDTH-1:0] r_hadamard_product_row_idx_reg;
   logic r_hadamard_product_valid;
+  logic [1:0] r_mac_pipe_valid;
+  logic [ROW_INDEX_WIDTH-1:0] r_mac_pipe_row_idx [1:0];
+  logic w_mac_pipeline_enable;
+  logic w_inverse_product_valid;
+  logic [ROW_INDEX_WIDTH-1:0] w_inverse_product_row_idx;
   logic [PRODUCT_INDEX_WIDTH-1:0] r_transform_product_idx;
   logic [NBITS-1:0] w_inverse_partial_current [CONV_OUTPUT_SIZE-1:0];
   logic [NBITS-1:0] w_output_acc_next [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
@@ -661,7 +668,10 @@ module Conv
           st_conv_next = HADAMARD;
       end
       INVERSE:
-        st_conv_next = WAIT_CONV;
+        if (PIPE_DSP_MULTIPLIER && r_mac_pipe_valid[0])
+          st_conv_next = INVERSE;  // Drain the final registered DSP product.
+        else
+          st_conv_next = WAIT_CONV;
       default: st_conv_next = WAIT_CONV;
     endcase
   end
@@ -754,23 +764,49 @@ module Conv
                 for (int unsigned lane = 0; lane < FIXED_NUM_MULT; lane++)
                   r_input_weight[lane] <= w_weight_row[row][lane];
           end
-          // Register the current Hadamard products. InverseRow consumes this
-          // bank during the following cycle, while the next product row runs.
-          for (int unsigned lane = 0; lane < FIXED_NUM_MULT; lane++)
-            r_hadamard_product_reg[lane] <= w_hadamard_product_current[lane];
-          r_hadamard_product_row_idx_reg <= r_inverse_row_idx;
-          r_hadamard_product_valid <= 1'b1;
-          if (r_hadamard_product_valid)
+          // The default path registers products here. In the DSP-pipelined
+          // experiment, product data and sideband travel through two stages.
+          if (!PIPE_DSP_MULTIPLIER) begin
+            for (int unsigned lane = 0; lane < FIXED_NUM_MULT; lane++)
+              r_hadamard_product_reg[lane] <= w_hadamard_product_current[lane];
+            r_hadamard_product_row_idx_reg <= r_inverse_row_idx;
+            r_hadamard_product_valid <= 1'b1;
+          end
+          if (w_inverse_product_valid)
             r_output_write <= w_output_acc_next;
           r_inverse_row_idx <= r_inverse_row_idx + 1'b1;
         end
         INVERSE: begin
-          if (r_hadamard_product_valid)
+          if (w_inverse_product_valid)
             r_output_write <= w_output_acc_next;
-          r_hadamard_product_valid <= 1'b0;
+          if (!PIPE_DSP_MULTIPLIER)
+            r_hadamard_product_valid <= 1'b0;
         end
         default: begin end
       endcase
+    end
+  end
+
+  // Match the DSP's two enabled product stages. The final HADAMARD product
+  // is shifted once during INVERSE; the accumulator consumes it on the next
+  // edge before the FSM releases the tile.
+  always_ff @(posedge clk or posedge reset) begin: MAC_PIPELINE_CONTROL_BLOCK
+    if (reset) begin
+      r_mac_pipe_valid <= '0;
+      r_mac_pipe_row_idx <= '{default: '0};
+    end else if (PIPE_DSP_MULTIPLIER) begin
+      r_mac_pipe_valid[0] <= (st_conv_current == HADAMARD);
+      if (st_conv_current == HADAMARD)
+        r_mac_pipe_row_idx[0] <= r_inverse_row_idx;
+
+      if (w_mac_pipeline_enable) begin
+        r_mac_pipe_valid[1] <= r_mac_pipe_valid[0];
+        r_mac_pipe_row_idx[1] <= r_mac_pipe_row_idx[0];
+      end else begin
+        r_mac_pipe_valid[1] <= 1'b0;
+      end
+    end else begin
+      r_mac_pipe_valid <= '0;
     end
   end
 
@@ -830,16 +866,33 @@ module Conv
     end
   end
 
+  assign w_mac_pipeline_enable = PIPE_DSP_MULTIPLIER &&
+      ((st_conv_current == HADAMARD) ||
+       ((st_conv_current == INVERSE) && r_mac_pipe_valid[0]));
+  assign w_inverse_product_valid = PIPE_DSP_MULTIPLIER
+      ? r_mac_pipe_valid[1] : r_hadamard_product_valid;
+  assign w_inverse_product_row_idx = PIPE_DSP_MULTIPLIER
+      ? r_mac_pipe_row_idx[1] : r_hadamard_product_row_idx_reg;
+
   for (genvar lane = 0; lane < FIXED_NUM_MULT; lane++) begin: MAC_LANES
     assign w_transform_feature[lane] = r_transform_feature_reg[lane];
     assign w_hadamard_product_current[lane] = w_conv_product[lane];
-    assign w_inverse_product_row[lane] = r_hadamard_product_reg[lane];
-    Multip #(.QUANT(QUANT), .NBITS(NBITS)) multip(
-      .feature(w_transform_feature[lane]), .weight(r_input_weight[lane]), .product(w_conv_product[lane]));
+    if (PIPE_DSP_MULTIPLIER) begin: DSP_PIPELINE
+      MultipDspPipe #(.QUANT(QUANT), .NBITS(NBITS)) multip(
+        .clk(clk), .enable(w_mac_pipeline_enable),
+        .feature(w_transform_feature[lane]), .weight(r_input_weight[lane]),
+        .product(w_conv_product[lane]));
+      assign w_inverse_product_row[lane] = w_conv_product[lane];
+    end else begin: COMBINATIONAL_MULTIPLIER
+      Multip #(.QUANT(QUANT), .NBITS(NBITS)) multip(
+        .feature(w_transform_feature[lane]), .weight(r_input_weight[lane]),
+        .product(w_conv_product[lane]));
+      assign w_inverse_product_row[lane] = r_hadamard_product_reg[lane];
+    end
   end
   InverseRow #(.NBITS(NBITS)) inverse_row_current(.inverse_input_row(w_inverse_product_row), .inverse_partial(w_inverse_partial_current));
   InverseRowAccumulate #(.NBITS(NBITS)) inverse_row_acc(
-    .inverse_row_idx(r_hadamard_product_row_idx_reg), .accumulator_in(r_output_write), .inverse_partial(w_inverse_partial_current), .accumulator_out(w_output_acc_next));
+    .inverse_row_idx(w_inverse_product_row_idx), .accumulator_in(r_output_write), .inverse_partial(w_inverse_partial_current), .accumulator_out(w_output_acc_next));
   // ----------------------------------------------------------------------------------------------------
   // -------  PART 4 - OUTPUT FSM AND READ/WRITE COUNTER -------------------------------------------------
   // ----------------------------------------------------------------------------------------------------

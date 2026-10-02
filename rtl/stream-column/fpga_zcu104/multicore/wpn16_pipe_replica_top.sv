@@ -7,7 +7,8 @@ module WPN16PipeReplicaTop #(
   parameter int unsigned N_CORES = 1,
   parameter int unsigned NADDR = 12,
   parameter int unsigned NBITS = 20,
-  parameter bit PIPE_WEIGHT_TRANSFORM = 1'b0
+  parameter bit PIPE_WEIGHT_TRANSFORM = 1'b0,
+  parameter bit PIPE_DSP_MULTIPLIER = 1'b0
 ) (
   input  logic clk,
   input  logic reset,
@@ -28,7 +29,8 @@ module WPN16PipeReplicaTop #(
     Conv #(
       .NADDR(NADDR),
       .NBITS(NBITS),
-      .PIPE_WEIGHT_TRANSFORM(PIPE_WEIGHT_TRANSFORM)
+      .PIPE_WEIGHT_TRANSFORM(PIPE_WEIGHT_TRANSFORM),
+      .PIPE_DSP_MULTIPLIER(PIPE_DSP_MULTIPLIER)
     ) core_inst (
       .clk(clk),
       .reset(reset),
