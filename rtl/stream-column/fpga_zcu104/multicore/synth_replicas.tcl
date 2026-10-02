@@ -32,12 +32,17 @@ if {$algorithm eq "ifn9"} {
   set manifest [file join $repo_root rtl/conv4x4/fpga_zcu104/manifests/wpn16.rtl]
   set wrapper [file join $repo_root rtl/stream-column/fpga_zcu104/multicore/wpn16_replica_top.sv]
 } elseif {$algorithm eq "wpn16_pipe_nbits16"} {
-  set top "WPN16ReplicaTop"
+  set top "WPN16PipeReplicaTop"
   set nbits 16
   set manifest [file join $repo_root rtl/conv4x4/fpga_zcu104/manifests/wpn16_pipe.rtl]
-  set wrapper [file join $repo_root rtl/stream-column/fpga_zcu104/multicore/wpn16_replica_top.sv]
+  set wrapper [file join $repo_root rtl/stream-column/fpga_zcu104/multicore/wpn16_pipe_replica_top.sv]
+} elseif {$algorithm eq "wpn16_pipe_both_nbits16"} {
+  set top "WPN16PipeReplicaTop"
+  set nbits 16
+  set manifest [file join $repo_root rtl/conv4x4/fpga_zcu104/manifests/wpn16_pipe.rtl]
+  set wrapper [file join $repo_root rtl/stream-column/fpga_zcu104/multicore/wpn16_pipe_replica_top.sv]
 } else {
-  error "unsupported algorithm: $algorithm (expected ifn9, ifn9_m18, wpn16, wpn16_nbits16, or wpn16_pipe_nbits16)"
+  error "unsupported algorithm: $algorithm (expected ifn9, ifn9_m18, wpn16, wpn16_nbits16, wpn16_pipe_nbits16, or wpn16_pipe_both_nbits16)"
 }
 file mkdir $out_dir
 
@@ -60,6 +65,9 @@ if {$algorithm eq "ifn9"} {
   puts $metadata "mac_lanes_per_core=8"
 } elseif {$algorithm eq "wpn16_pipe_nbits16"} {
   puts $metadata "core_variant=WPN16_m08_transform_pipeline"
+  puts $metadata "mac_lanes_per_core=8"
+} elseif {$algorithm eq "wpn16_pipe_both_nbits16"} {
+  puts $metadata "core_variant=WPN16_m08_feature_and_weight_transform_pipeline"
   puts $metadata "mac_lanes_per_core=8"
 }
 puts $metadata "target_period_ns=3.154574"
@@ -85,8 +93,11 @@ close $sources
 read_verilog -sv $wrapper
 read_xdc $xdc
 set generics [list N_CORES=$n_cores NADDR=12]
-if {$algorithm eq "ifn9_m18" || $algorithm eq "wpn16" || $algorithm eq "wpn16_nbits16" || $algorithm eq "wpn16_pipe_nbits16"} {
+if {$algorithm eq "ifn9_m18" || $algorithm eq "wpn16" || $algorithm eq "wpn16_nbits16" || $algorithm eq "wpn16_pipe_nbits16" || $algorithm eq "wpn16_pipe_both_nbits16"} {
   lappend generics NBITS=$nbits
+}
+if {$algorithm eq "wpn16_pipe_both_nbits16"} {
+  lappend generics PIPE_WEIGHT_TRANSFORM=1
 }
 synth_design -mode out_of_context -top $top -part xczu7ev-ffvc1156-2-e -generic $generics
 report_utilization -file [file join $out_dir utilization_synth.rpt]

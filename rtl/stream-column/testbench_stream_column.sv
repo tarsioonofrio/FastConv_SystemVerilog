@@ -87,6 +87,9 @@ module tb_stream_column #(
     .CONV_INPUT_SIZE(CONV_INPUT_SIZE),
     .HADAMARD_SIZE(HADAMARD_SIZE),
     .NUM_MULT(NUM_MULT)
+`ifdef WPN16_PIPE_WEIGHT_TRANSFORM
+    , .PIPE_WEIGHT_TRANSFORM(1'b1)
+`endif
   ) dut (
     .clk(clk),
     .reset(reset),

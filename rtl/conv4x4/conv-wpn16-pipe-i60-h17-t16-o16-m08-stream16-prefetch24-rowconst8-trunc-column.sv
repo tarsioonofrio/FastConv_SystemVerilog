@@ -1,6 +1,7 @@
 /*
    CONVOLUTION CONTROLLER - WPN16 transform-pipelined experiment.
-   A register barrier separates MatrixC0 and MatrixC1 in the feature transform.
+   Register barriers separate transform axes. PIPE_WEIGHT_TRANSFORM defaults to 0
+   to preserve the feature-only pipeline; setting it to 1 also pipelines weights.
 
    Algorithm: wpn16   input tile 6x6   Hadamard 8x8   output tile 4x4
    Based on conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv.
@@ -22,7 +23,8 @@ module Conv
     parameter int unsigned CONV_INPUT_SIZE     = 6,
     parameter int unsigned HADAMARD_SIZE       = 8,
     // Compatibility parameter for the shared testbench; one MAC per Hadamard column.
-    parameter int unsigned NUM_MULT            = 8
+    parameter int unsigned NUM_MULT            = 8,
+    parameter bit PIPE_WEIGHT_TRANSFORM         = 1'b0
   ) (
     input  logic clk,
     input  logic reset,
@@ -144,6 +146,9 @@ module Conv
   // per cycle by the convolution FSM; inactive rows drive zero (operand isolation).
   logic [NBITS-1:0] w_weight_row [HADAMARD_SIZE-1:0][HADAMARD_SIZE-1:0];
   logic [HADAMARD_SIZE-1:0] w_weight_row_enable;
+  localparam int WEIGHT_AXIS0_WIDTH = NBITS + 2;
+  logic signed [WEIGHT_AXIS0_WIDTH-1:0] w_weight_axis0 [CONV_KERNEL_SIZE*HADAMARD_SIZE-1:0];
+  logic signed [WEIGHT_AXIS0_WIDTH-1:0] r_weight_axis0 [CONV_KERNEL_SIZE*HADAMARD_SIZE-1:0];
   logic signed [NBITS-1:0] w_conv_product [FIXED_NUM_MULT-1:0];
   logic w_conv_end;
   logic w_conv_input_release;
@@ -226,6 +231,7 @@ module Conv
     WAIT_CONV,
     TRANSFORM,
     TRANSFORM_PIPE,
+    WEIGHT_TRANSFORM_PIPE,
     HADAMARD,
     INVERSE
   } type_st_conv;
@@ -637,9 +643,17 @@ module Conv
         // Capture MatrixC0 results before MatrixC1 evaluates them.
         st_conv_next = TRANSFORM_PIPE;
       TRANSFORM_PIPE:
-        // The first tile waits here while its nine raw weights are read.
-        if (r_weight_tile_valid)
-          st_conv_next = HADAMARD;
+        // The first tile waits here while its raw weights are read.  When
+        // enabled, the first weight-transform axis is captured at this edge.
+        if (r_weight_tile_valid) begin
+          if (PIPE_WEIGHT_TRANSFORM)
+            st_conv_next = WEIGHT_TRANSFORM_PIPE;
+          else
+            st_conv_next = HADAMARD;
+        end
+      WEIGHT_TRANSFORM_PIPE:
+        // The registered first-axis values feed the second axis in this cycle.
+        st_conv_next = HADAMARD;
       HADAMARD: begin
         if (r_conv_multiply_count == $bits(r_conv_multiply_count)'(STREAM_CYCLES - 1)) begin
           st_conv_next = INVERSE;
@@ -683,6 +697,7 @@ module Conv
   always_ff @(posedge clk or posedge reset) begin: STREAMING_DATAPATH_BLOCK
     if (reset) begin
       r_transform_partial <= '{default: '0};
+      r_weight_axis0 <= '{default: '0};
       r_transform_feature_reg <= '{default: '0};
       r_hadamard_product_reg <= '{default: '0};
       r_hadamard_product_row_idx_reg <= '0;
@@ -705,10 +720,20 @@ module Conv
         end
         TRANSFORM_PIPE: begin
           // MatrixC1 now consumes the registered MatrixC0 partials. Capture
-          // its first output row, aligned with the first transformed weights.
+          // its first output row while the weight path waits for its first tile.
           for (int unsigned lane = 0; lane < FIXED_NUM_MULT; lane++)
             r_transform_feature_reg[lane] <= w_conv_transform[lane];
-          if (r_weight_tile_valid)
+          if (r_weight_tile_valid) begin
+            if (PIPE_WEIGHT_TRANSFORM)
+              for (int unsigned index = 0; index < CONV_KERNEL_SIZE*HADAMARD_SIZE; index++)
+                r_weight_axis0[index] <= w_weight_axis0[index];
+            else
+              for (int unsigned lane = 0; lane < FIXED_NUM_MULT; lane++)
+                r_input_weight[lane] <= w_weight_row[0][lane];
+          end
+        end
+        WEIGHT_TRANSFORM_PIPE: begin
+          if (PIPE_WEIGHT_TRANSFORM)
             for (int unsigned lane = 0; lane < FIXED_NUM_MULT; lane++)
               r_input_weight[lane] <= w_weight_row[0][lane];
         end
@@ -771,7 +796,16 @@ module Conv
   // row 0 when the raw tile becomes valid, then row count+1 during HADAMARD.
   always_comb begin: WEIGHT_ROW_ENABLE_BLOCK
     w_weight_row_enable = '0;
-    if ((st_conv_current == TRANSFORM_PIPE) && r_weight_tile_valid) begin
+    if (PIPE_WEIGHT_TRANSFORM) begin
+      if (st_conv_current == WEIGHT_TRANSFORM_PIPE)
+        w_weight_row_enable[0] = 1'b1;
+      else if ((st_conv_current == HADAMARD) &&
+               (r_conv_multiply_count < $bits(r_conv_multiply_count)'(STREAM_CYCLES - 1))) begin
+        for (int unsigned row = 1; row < HADAMARD_SIZE; row++)
+          if (r_conv_multiply_count == $bits(r_conv_multiply_count)'(row - 1))
+            w_weight_row_enable[row] = 1'b1;
+      end
+    end else if ((st_conv_current == TRANSFORM_PIPE) && r_weight_tile_valid) begin
       w_weight_row_enable[0] = 1'b1;
     end else if ((st_conv_current == HADAMARD) &&
                  (r_conv_multiply_count < $bits(r_conv_multiply_count)'(STREAM_CYCLES - 1))) begin
@@ -781,11 +815,19 @@ module Conv
     end
   end
 
-  // Each instance contains only one constant row of the weight transform.
-  // Only the row needed by the next Hadamard cycle is enabled.
-  for (genvar row = 0; row < HADAMARD_SIZE; row++) begin: WEIGHT_TRANSFORM_ROWS
-    WeightTransformRowConst #(.NBITS(NBITS), .ROW_INDEX(row)) weight_trf_row (
-      .pin(r_weight_spatial), .enable(w_weight_row_enable[row]), .pout(w_weight_row[row]));
+  if (PIPE_WEIGHT_TRANSFORM) begin: WEIGHT_TRANSFORM_PIPELINE
+    WeightTransformAxis0 #(.NBITS(NBITS)) weight_axis0 (
+      .pin(r_weight_spatial), .pout(w_weight_axis0));
+    for (genvar row = 0; row < HADAMARD_SIZE; row++) begin: WEIGHT_TRANSFORM_ROWS
+      WeightTransformAxis1RowConst #(.NBITS(NBITS), .ROW_INDEX(row)) weight_trf_row (
+        .pin(r_weight_axis0), .enable(w_weight_row_enable[row]), .pout(w_weight_row[row]));
+    end
+  end else begin: WEIGHT_TRANSFORM_DIRECT
+    // Each instance contains one constant row of the original direct transform.
+    for (genvar row = 0; row < HADAMARD_SIZE; row++) begin: WEIGHT_TRANSFORM_ROWS
+      WeightTransformRowConst #(.NBITS(NBITS), .ROW_INDEX(row)) weight_trf_row (
+        .pin(r_weight_spatial), .enable(w_weight_row_enable[row]), .pout(w_weight_row[row]));
+    end
   end
 
   for (genvar lane = 0; lane < FIXED_NUM_MULT; lane++) begin: MAC_LANES
@@ -1145,6 +1187,99 @@ module WeightTransformRowConst #(
       pout[5] = truncated[5][NBITS-1:0];
       pout[6] = truncated[6][NBITS-1:0];
       pout[7] = truncated[7][NBITS-1:0];
+    end
+  end
+endmodule
+
+// First separable axis of the 3x3 WPN16 weight transform.  The partial
+// numerators remain unscaled here; the final divide-by-four and NBITS wrap are
+// performed only after the second axis so negative values keep the same floor
+// semantics as WeightTransformRowConst.
+module WeightTransformAxis0 #(
+    parameter int NBITS = 20,
+    parameter int AXIS_WIDTH = NBITS + 2
+  ) (
+    input  logic signed [NBITS-1:0] pin [8:0],
+    output logic signed [AXIS_WIDTH-1:0] pout [23:0]
+  );
+  timeunit 1ns;
+  timeprecision 1ps;
+
+  logic signed [AXIS_WIDTH-1:0] weight [8:0];
+
+  always_comb begin: WEIGHT_TRANSFORM_AXIS0_BLOCK
+    for (int unsigned k = 0; k < 9; k++)
+      weight[k] = {{(AXIS_WIDTH-NBITS){pin[k][NBITS-1]}}, pin[k]};
+    for (int unsigned k = 0; k < 24; k++)
+      pout[k] = '0;
+
+    for (int unsigned row = 0; row < 3; row++) begin
+      int unsigned base;
+      base = row * 3;
+      pout[row*8 + 0] = weight[base+0] + weight[base+0];
+      pout[row*8 + 1] = weight[base+0] + weight[base+2];
+      pout[row*8 + 2] = weight[base+0] + weight[base+1] + weight[base+2];
+      pout[row*8 + 3] = weight[base+1];
+      pout[row*8 + 4] = weight[base+0] - weight[base+2];
+      pout[row*8 + 5] = weight[base+0] + weight[base+1] - weight[base+2];
+      pout[row*8 + 6] = weight[base+1];
+      pout[row*8 + 7] = weight[base+2] + weight[base+2];
+    end
+  end
+endmodule
+
+// Second separable axis.  One constant output row is elaborated per instance;
+// the FSM enables only the row needed by the next Hadamard cycle.
+module WeightTransformAxis1RowConst #(
+    parameter int NBITS = 20,
+    parameter int ROW_INDEX = 0,
+    parameter int AXIS_WIDTH = NBITS + 2,
+    parameter int TRANSFORM_WIDTH = NBITS + 5
+  ) (
+    input  logic signed [AXIS_WIDTH-1:0] pin [23:0],
+    input  logic                         enable,
+    output logic        [NBITS-1:0]      pout [7:0]
+  );
+  timeunit 1ns;
+  timeprecision 1ps;
+
+  logic signed [TRANSFORM_WIDTH-1:0] row0 [7:0];
+  logic signed [TRANSFORM_WIDTH-1:0] row1 [7:0];
+  logic signed [TRANSFORM_WIDTH-1:0] row2 [7:0];
+  logic signed [TRANSFORM_WIDTH-1:0] numerator [7:0];
+  logic signed [TRANSFORM_WIDTH-1:0] scaled [7:0];
+
+  always_comb begin: WEIGHT_TRANSFORM_AXIS1_BLOCK
+    for (int unsigned col = 0; col < 8; col++) begin
+      row0[col] = {{(TRANSFORM_WIDTH-AXIS_WIDTH){pin[col][AXIS_WIDTH-1]}}, pin[col]};
+      row1[col] = {{(TRANSFORM_WIDTH-AXIS_WIDTH){pin[8+col][AXIS_WIDTH-1]}}, pin[8+col]};
+      row2[col] = {{(TRANSFORM_WIDTH-AXIS_WIDTH){pin[16+col][AXIS_WIDTH-1]}}, pin[16+col]};
+      numerator[col] = '0;
+      scaled[col] = '0;
+      pout[col] = '0;
+    end
+
+    if (enable) begin
+      for (int unsigned col = 0; col < 8; col++) begin
+        if (ROW_INDEX == 0)
+          numerator[col] = row0[col] + row0[col];
+        else if (ROW_INDEX == 1)
+          numerator[col] = row0[col] + row2[col];
+        else if (ROW_INDEX == 2)
+          numerator[col] = row0[col] + row1[col] + row2[col];
+        else if (ROW_INDEX == 3)
+          numerator[col] = row1[col];
+        else if (ROW_INDEX == 4)
+          numerator[col] = row0[col] - row2[col];
+        else if (ROW_INDEX == 5)
+          numerator[col] = row0[col] + row1[col] - row2[col];
+        else if (ROW_INDEX == 6)
+          numerator[col] = row1[col];
+        else if (ROW_INDEX == 7)
+          numerator[col] = row2[col] + row2[col];
+        scaled[col] = numerator[col] >>> 2;
+        pout[col] = scaled[col][NBITS-1:0];
+      end
     end
   end
 endmodule
