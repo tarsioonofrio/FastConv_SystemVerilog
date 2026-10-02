@@ -1,0 +1,317 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2023 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2023.2 (lin64) Build 4029153 Fri Oct 13 20:13:54 MDT 2023
+| Date         : Thu Oct  1 22:48:30 2026
+| Host         : paxos.inf.pucrs.br running 64-bit Rocky Linux release 8.10 (Green Obsidian)
+| Command      : report_drc -file /sim/tarsio/reports-ifn9m18-nbits16-ab5dee07/ifn9_m18_1/drc.rpt
+| Design       : IFN9M18ReplicaTop
+| Device       : xczu7ev-ffvc1156-2-e
+| Speed File   : -2
+| Design State : Fully Routed
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+Report DRC
+
+Table of Contents
+-----------------
+1. REPORT SUMMARY
+2. REPORT DETAILS
+
+1. REPORT SUMMARY
+-----------------
+            Netlist: IFN9M18ReplicaTop
+          Floorplan: design_1
+      Design limits: <entire design considered>
+           Ruledeck: default
+             Max violations: <unlimited>
+             Violations found: 55
++-----------+----------+------------------------+------------+
+| Rule      | Severity | Description            | Violations |
++-----------+----------+------------------------+------------+
+| DPIP-2    | Warning  | Input pipelining       | 36         |
+| DPOP-4    | Warning  | MREG Output pipelining | 18         |
+| RTSTAT-10 | Warning  | No routable loads      | 1          |
++-----------+----------+------------------------+------------+
+
+2. REPORT DETAILS
+-----------------
+DPIP-2#1 Warning
+Input pipelining  
+DSP CORES[0].core_inst/MAC_LANES[0].multip/partial_product input CORES[0].core_inst/MAC_LANES[0].multip/partial_product/A[29:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-2#2 Warning
+Input pipelining  
+DSP CORES[0].core_inst/MAC_LANES[0].multip/partial_product input CORES[0].core_inst/MAC_LANES[0].multip/partial_product/B[17:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-2#3 Warning
+Input pipelining  
+DSP CORES[0].core_inst/MAC_LANES[10].multip/partial_product input CORES[0].core_inst/MAC_LANES[10].multip/partial_product/A[29:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-2#4 Warning
+Input pipelining  
+DSP CORES[0].core_inst/MAC_LANES[10].multip/partial_product input CORES[0].core_inst/MAC_LANES[10].multip/partial_product/B[17:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-2#5 Warning
+Input pipelining  
+DSP CORES[0].core_inst/MAC_LANES[11].multip/partial_product input CORES[0].core_inst/MAC_LANES[11].multip/partial_product/A[29:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-2#6 Warning
+Input pipelining  
+DSP CORES[0].core_inst/MAC_LANES[11].multip/partial_product input CORES[0].core_inst/MAC_LANES[11].multip/partial_product/B[17:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-2#7 Warning
+Input pipelining  
+DSP CORES[0].core_inst/MAC_LANES[12].multip/partial_product input CORES[0].core_inst/MAC_LANES[12].multip/partial_product/A[29:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-2#8 Warning
+Input pipelining  
+DSP CORES[0].core_inst/MAC_LANES[12].multip/partial_product input CORES[0].core_inst/MAC_LANES[12].multip/partial_product/B[17:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-2#9 Warning
+Input pipelining  
+DSP CORES[0].core_inst/MAC_LANES[13].multip/partial_product input CORES[0].core_inst/MAC_LANES[13].multip/partial_product/A[29:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-2#10 Warning
+Input pipelining  
+DSP CORES[0].core_inst/MAC_LANES[13].multip/partial_product input CORES[0].core_inst/MAC_LANES[13].multip/partial_product/B[17:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-2#11 Warning
+Input pipelining  
+DSP CORES[0].core_inst/MAC_LANES[14].multip/partial_product input CORES[0].core_inst/MAC_LANES[14].multip/partial_product/A[29:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-2#12 Warning
+Input pipelining  
+DSP CORES[0].core_inst/MAC_LANES[14].multip/partial_product input CORES[0].core_inst/MAC_LANES[14].multip/partial_product/B[17:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-2#13 Warning
+Input pipelining  
+DSP CORES[0].core_inst/MAC_LANES[15].multip/partial_product input CORES[0].core_inst/MAC_LANES[15].multip/partial_product/A[29:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-2#14 Warning
+Input pipelining  
+DSP CORES[0].core_inst/MAC_LANES[15].multip/partial_product input CORES[0].core_inst/MAC_LANES[15].multip/partial_product/B[17:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-2#15 Warning
+Input pipelining  
+DSP CORES[0].core_inst/MAC_LANES[16].multip/partial_product input CORES[0].core_inst/MAC_LANES[16].multip/partial_product/A[29:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-2#16 Warning
+Input pipelining  
+DSP CORES[0].core_inst/MAC_LANES[16].multip/partial_product input CORES[0].core_inst/MAC_LANES[16].multip/partial_product/B[17:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-2#17 Warning
+Input pipelining  
+DSP CORES[0].core_inst/MAC_LANES[17].multip/partial_product input CORES[0].core_inst/MAC_LANES[17].multip/partial_product/A[29:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-2#18 Warning
+Input pipelining  
+DSP CORES[0].core_inst/MAC_LANES[17].multip/partial_product input CORES[0].core_inst/MAC_LANES[17].multip/partial_product/B[17:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-2#19 Warning
+Input pipelining  
+DSP CORES[0].core_inst/MAC_LANES[1].multip/partial_product input CORES[0].core_inst/MAC_LANES[1].multip/partial_product/A[29:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-2#20 Warning
+Input pipelining  
+DSP CORES[0].core_inst/MAC_LANES[1].multip/partial_product input CORES[0].core_inst/MAC_LANES[1].multip/partial_product/B[17:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-2#21 Warning
+Input pipelining  
+DSP CORES[0].core_inst/MAC_LANES[2].multip/partial_product input CORES[0].core_inst/MAC_LANES[2].multip/partial_product/A[29:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-2#22 Warning
+Input pipelining  
+DSP CORES[0].core_inst/MAC_LANES[2].multip/partial_product input CORES[0].core_inst/MAC_LANES[2].multip/partial_product/B[17:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-2#23 Warning
+Input pipelining  
+DSP CORES[0].core_inst/MAC_LANES[3].multip/partial_product input CORES[0].core_inst/MAC_LANES[3].multip/partial_product/A[29:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-2#24 Warning
+Input pipelining  
+DSP CORES[0].core_inst/MAC_LANES[3].multip/partial_product input CORES[0].core_inst/MAC_LANES[3].multip/partial_product/B[17:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-2#25 Warning
+Input pipelining  
+DSP CORES[0].core_inst/MAC_LANES[4].multip/partial_product input CORES[0].core_inst/MAC_LANES[4].multip/partial_product/A[29:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-2#26 Warning
+Input pipelining  
+DSP CORES[0].core_inst/MAC_LANES[4].multip/partial_product input CORES[0].core_inst/MAC_LANES[4].multip/partial_product/B[17:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-2#27 Warning
+Input pipelining  
+DSP CORES[0].core_inst/MAC_LANES[5].multip/partial_product input CORES[0].core_inst/MAC_LANES[5].multip/partial_product/A[29:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-2#28 Warning
+Input pipelining  
+DSP CORES[0].core_inst/MAC_LANES[5].multip/partial_product input CORES[0].core_inst/MAC_LANES[5].multip/partial_product/B[17:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-2#29 Warning
+Input pipelining  
+DSP CORES[0].core_inst/MAC_LANES[6].multip/partial_product input CORES[0].core_inst/MAC_LANES[6].multip/partial_product/A[29:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-2#30 Warning
+Input pipelining  
+DSP CORES[0].core_inst/MAC_LANES[6].multip/partial_product input CORES[0].core_inst/MAC_LANES[6].multip/partial_product/B[17:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-2#31 Warning
+Input pipelining  
+DSP CORES[0].core_inst/MAC_LANES[7].multip/partial_product input CORES[0].core_inst/MAC_LANES[7].multip/partial_product/A[29:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-2#32 Warning
+Input pipelining  
+DSP CORES[0].core_inst/MAC_LANES[7].multip/partial_product input CORES[0].core_inst/MAC_LANES[7].multip/partial_product/B[17:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-2#33 Warning
+Input pipelining  
+DSP CORES[0].core_inst/MAC_LANES[8].multip/partial_product input CORES[0].core_inst/MAC_LANES[8].multip/partial_product/A[29:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-2#34 Warning
+Input pipelining  
+DSP CORES[0].core_inst/MAC_LANES[8].multip/partial_product input CORES[0].core_inst/MAC_LANES[8].multip/partial_product/B[17:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-2#35 Warning
+Input pipelining  
+DSP CORES[0].core_inst/MAC_LANES[9].multip/partial_product input CORES[0].core_inst/MAC_LANES[9].multip/partial_product/A[29:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-2#36 Warning
+Input pipelining  
+DSP CORES[0].core_inst/MAC_LANES[9].multip/partial_product input CORES[0].core_inst/MAC_LANES[9].multip/partial_product/B[17:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPOP-4#1 Warning
+MREG Output pipelining  
+DSP CORES[0].core_inst/MAC_LANES[0].multip/partial_product multiplier stage CORES[0].core_inst/MAC_LANES[0].multip/partial_product/P[47:0] is not pipelined (MREG=0). Pipelining the multiplier function will improve performance and will save significant power so it is suggested whenever possible to fully pipeline this function.  If this multiplier was inferred, it is suggested to describe an additional register stage after this function.  If there is no registered adder/accumulator following the multiply function, two pipeline stages are suggested to allow both the MREG and PREG registers to be used.  If the DSP48 was instantiated in the design, it is suggested to set both the MREG and PREG attributes to 1 when performing multiply functions.
+Related violations: <none>
+
+DPOP-4#2 Warning
+MREG Output pipelining  
+DSP CORES[0].core_inst/MAC_LANES[10].multip/partial_product multiplier stage CORES[0].core_inst/MAC_LANES[10].multip/partial_product/P[47:0] is not pipelined (MREG=0). Pipelining the multiplier function will improve performance and will save significant power so it is suggested whenever possible to fully pipeline this function.  If this multiplier was inferred, it is suggested to describe an additional register stage after this function.  If there is no registered adder/accumulator following the multiply function, two pipeline stages are suggested to allow both the MREG and PREG registers to be used.  If the DSP48 was instantiated in the design, it is suggested to set both the MREG and PREG attributes to 1 when performing multiply functions.
+Related violations: <none>
+
+DPOP-4#3 Warning
+MREG Output pipelining  
+DSP CORES[0].core_inst/MAC_LANES[11].multip/partial_product multiplier stage CORES[0].core_inst/MAC_LANES[11].multip/partial_product/P[47:0] is not pipelined (MREG=0). Pipelining the multiplier function will improve performance and will save significant power so it is suggested whenever possible to fully pipeline this function.  If this multiplier was inferred, it is suggested to describe an additional register stage after this function.  If there is no registered adder/accumulator following the multiply function, two pipeline stages are suggested to allow both the MREG and PREG registers to be used.  If the DSP48 was instantiated in the design, it is suggested to set both the MREG and PREG attributes to 1 when performing multiply functions.
+Related violations: <none>
+
+DPOP-4#4 Warning
+MREG Output pipelining  
+DSP CORES[0].core_inst/MAC_LANES[12].multip/partial_product multiplier stage CORES[0].core_inst/MAC_LANES[12].multip/partial_product/P[47:0] is not pipelined (MREG=0). Pipelining the multiplier function will improve performance and will save significant power so it is suggested whenever possible to fully pipeline this function.  If this multiplier was inferred, it is suggested to describe an additional register stage after this function.  If there is no registered adder/accumulator following the multiply function, two pipeline stages are suggested to allow both the MREG and PREG registers to be used.  If the DSP48 was instantiated in the design, it is suggested to set both the MREG and PREG attributes to 1 when performing multiply functions.
+Related violations: <none>
+
+DPOP-4#5 Warning
+MREG Output pipelining  
+DSP CORES[0].core_inst/MAC_LANES[13].multip/partial_product multiplier stage CORES[0].core_inst/MAC_LANES[13].multip/partial_product/P[47:0] is not pipelined (MREG=0). Pipelining the multiplier function will improve performance and will save significant power so it is suggested whenever possible to fully pipeline this function.  If this multiplier was inferred, it is suggested to describe an additional register stage after this function.  If there is no registered adder/accumulator following the multiply function, two pipeline stages are suggested to allow both the MREG and PREG registers to be used.  If the DSP48 was instantiated in the design, it is suggested to set both the MREG and PREG attributes to 1 when performing multiply functions.
+Related violations: <none>
+
+DPOP-4#6 Warning
+MREG Output pipelining  
+DSP CORES[0].core_inst/MAC_LANES[14].multip/partial_product multiplier stage CORES[0].core_inst/MAC_LANES[14].multip/partial_product/P[47:0] is not pipelined (MREG=0). Pipelining the multiplier function will improve performance and will save significant power so it is suggested whenever possible to fully pipeline this function.  If this multiplier was inferred, it is suggested to describe an additional register stage after this function.  If there is no registered adder/accumulator following the multiply function, two pipeline stages are suggested to allow both the MREG and PREG registers to be used.  If the DSP48 was instantiated in the design, it is suggested to set both the MREG and PREG attributes to 1 when performing multiply functions.
+Related violations: <none>
+
+DPOP-4#7 Warning
+MREG Output pipelining  
+DSP CORES[0].core_inst/MAC_LANES[15].multip/partial_product multiplier stage CORES[0].core_inst/MAC_LANES[15].multip/partial_product/P[47:0] is not pipelined (MREG=0). Pipelining the multiplier function will improve performance and will save significant power so it is suggested whenever possible to fully pipeline this function.  If this multiplier was inferred, it is suggested to describe an additional register stage after this function.  If there is no registered adder/accumulator following the multiply function, two pipeline stages are suggested to allow both the MREG and PREG registers to be used.  If the DSP48 was instantiated in the design, it is suggested to set both the MREG and PREG attributes to 1 when performing multiply functions.
+Related violations: <none>
+
+DPOP-4#8 Warning
+MREG Output pipelining  
+DSP CORES[0].core_inst/MAC_LANES[16].multip/partial_product multiplier stage CORES[0].core_inst/MAC_LANES[16].multip/partial_product/P[47:0] is not pipelined (MREG=0). Pipelining the multiplier function will improve performance and will save significant power so it is suggested whenever possible to fully pipeline this function.  If this multiplier was inferred, it is suggested to describe an additional register stage after this function.  If there is no registered adder/accumulator following the multiply function, two pipeline stages are suggested to allow both the MREG and PREG registers to be used.  If the DSP48 was instantiated in the design, it is suggested to set both the MREG and PREG attributes to 1 when performing multiply functions.
+Related violations: <none>
+
+DPOP-4#9 Warning
+MREG Output pipelining  
+DSP CORES[0].core_inst/MAC_LANES[17].multip/partial_product multiplier stage CORES[0].core_inst/MAC_LANES[17].multip/partial_product/P[47:0] is not pipelined (MREG=0). Pipelining the multiplier function will improve performance and will save significant power so it is suggested whenever possible to fully pipeline this function.  If this multiplier was inferred, it is suggested to describe an additional register stage after this function.  If there is no registered adder/accumulator following the multiply function, two pipeline stages are suggested to allow both the MREG and PREG registers to be used.  If the DSP48 was instantiated in the design, it is suggested to set both the MREG and PREG attributes to 1 when performing multiply functions.
+Related violations: <none>
+
+DPOP-4#10 Warning
+MREG Output pipelining  
+DSP CORES[0].core_inst/MAC_LANES[1].multip/partial_product multiplier stage CORES[0].core_inst/MAC_LANES[1].multip/partial_product/P[47:0] is not pipelined (MREG=0). Pipelining the multiplier function will improve performance and will save significant power so it is suggested whenever possible to fully pipeline this function.  If this multiplier was inferred, it is suggested to describe an additional register stage after this function.  If there is no registered adder/accumulator following the multiply function, two pipeline stages are suggested to allow both the MREG and PREG registers to be used.  If the DSP48 was instantiated in the design, it is suggested to set both the MREG and PREG attributes to 1 when performing multiply functions.
+Related violations: <none>
+
+DPOP-4#11 Warning
+MREG Output pipelining  
+DSP CORES[0].core_inst/MAC_LANES[2].multip/partial_product multiplier stage CORES[0].core_inst/MAC_LANES[2].multip/partial_product/P[47:0] is not pipelined (MREG=0). Pipelining the multiplier function will improve performance and will save significant power so it is suggested whenever possible to fully pipeline this function.  If this multiplier was inferred, it is suggested to describe an additional register stage after this function.  If there is no registered adder/accumulator following the multiply function, two pipeline stages are suggested to allow both the MREG and PREG registers to be used.  If the DSP48 was instantiated in the design, it is suggested to set both the MREG and PREG attributes to 1 when performing multiply functions.
+Related violations: <none>
+
+DPOP-4#12 Warning
+MREG Output pipelining  
+DSP CORES[0].core_inst/MAC_LANES[3].multip/partial_product multiplier stage CORES[0].core_inst/MAC_LANES[3].multip/partial_product/P[47:0] is not pipelined (MREG=0). Pipelining the multiplier function will improve performance and will save significant power so it is suggested whenever possible to fully pipeline this function.  If this multiplier was inferred, it is suggested to describe an additional register stage after this function.  If there is no registered adder/accumulator following the multiply function, two pipeline stages are suggested to allow both the MREG and PREG registers to be used.  If the DSP48 was instantiated in the design, it is suggested to set both the MREG and PREG attributes to 1 when performing multiply functions.
+Related violations: <none>
+
+DPOP-4#13 Warning
+MREG Output pipelining  
+DSP CORES[0].core_inst/MAC_LANES[4].multip/partial_product multiplier stage CORES[0].core_inst/MAC_LANES[4].multip/partial_product/P[47:0] is not pipelined (MREG=0). Pipelining the multiplier function will improve performance and will save significant power so it is suggested whenever possible to fully pipeline this function.  If this multiplier was inferred, it is suggested to describe an additional register stage after this function.  If there is no registered adder/accumulator following the multiply function, two pipeline stages are suggested to allow both the MREG and PREG registers to be used.  If the DSP48 was instantiated in the design, it is suggested to set both the MREG and PREG attributes to 1 when performing multiply functions.
+Related violations: <none>
+
+DPOP-4#14 Warning
+MREG Output pipelining  
+DSP CORES[0].core_inst/MAC_LANES[5].multip/partial_product multiplier stage CORES[0].core_inst/MAC_LANES[5].multip/partial_product/P[47:0] is not pipelined (MREG=0). Pipelining the multiplier function will improve performance and will save significant power so it is suggested whenever possible to fully pipeline this function.  If this multiplier was inferred, it is suggested to describe an additional register stage after this function.  If there is no registered adder/accumulator following the multiply function, two pipeline stages are suggested to allow both the MREG and PREG registers to be used.  If the DSP48 was instantiated in the design, it is suggested to set both the MREG and PREG attributes to 1 when performing multiply functions.
+Related violations: <none>
+
+DPOP-4#15 Warning
+MREG Output pipelining  
+DSP CORES[0].core_inst/MAC_LANES[6].multip/partial_product multiplier stage CORES[0].core_inst/MAC_LANES[6].multip/partial_product/P[47:0] is not pipelined (MREG=0). Pipelining the multiplier function will improve performance and will save significant power so it is suggested whenever possible to fully pipeline this function.  If this multiplier was inferred, it is suggested to describe an additional register stage after this function.  If there is no registered adder/accumulator following the multiply function, two pipeline stages are suggested to allow both the MREG and PREG registers to be used.  If the DSP48 was instantiated in the design, it is suggested to set both the MREG and PREG attributes to 1 when performing multiply functions.
+Related violations: <none>
+
+DPOP-4#16 Warning
+MREG Output pipelining  
+DSP CORES[0].core_inst/MAC_LANES[7].multip/partial_product multiplier stage CORES[0].core_inst/MAC_LANES[7].multip/partial_product/P[47:0] is not pipelined (MREG=0). Pipelining the multiplier function will improve performance and will save significant power so it is suggested whenever possible to fully pipeline this function.  If this multiplier was inferred, it is suggested to describe an additional register stage after this function.  If there is no registered adder/accumulator following the multiply function, two pipeline stages are suggested to allow both the MREG and PREG registers to be used.  If the DSP48 was instantiated in the design, it is suggested to set both the MREG and PREG attributes to 1 when performing multiply functions.
+Related violations: <none>
+
+DPOP-4#17 Warning
+MREG Output pipelining  
+DSP CORES[0].core_inst/MAC_LANES[8].multip/partial_product multiplier stage CORES[0].core_inst/MAC_LANES[8].multip/partial_product/P[47:0] is not pipelined (MREG=0). Pipelining the multiplier function will improve performance and will save significant power so it is suggested whenever possible to fully pipeline this function.  If this multiplier was inferred, it is suggested to describe an additional register stage after this function.  If there is no registered adder/accumulator following the multiply function, two pipeline stages are suggested to allow both the MREG and PREG registers to be used.  If the DSP48 was instantiated in the design, it is suggested to set both the MREG and PREG attributes to 1 when performing multiply functions.
+Related violations: <none>
+
+DPOP-4#18 Warning
+MREG Output pipelining  
+DSP CORES[0].core_inst/MAC_LANES[9].multip/partial_product multiplier stage CORES[0].core_inst/MAC_LANES[9].multip/partial_product/P[47:0] is not pipelined (MREG=0). Pipelining the multiplier function will improve performance and will save significant power so it is suggested whenever possible to fully pipeline this function.  If this multiplier was inferred, it is suggested to describe an additional register stage after this function.  If there is no registered adder/accumulator following the multiply function, two pipeline stages are suggested to allow both the MREG and PREG registers to be used.  If the DSP48 was instantiated in the design, it is suggested to set both the MREG and PREG attributes to 1 when performing multiply functions.
+Related violations: <none>
+
+RTSTAT-10#1 Warning
+No routable loads  
+75 net(s) have no routable loads. The problem bus(es) and/or net(s) are CORES[0].core_inst/p_end[0], CORES[0].core_inst/p_input_addr[0][11:0],
+CORES[0].core_inst/p_input_en[0],
+CORES[0].core_inst/p_output_addr[0][11:0],
+CORES[0].core_inst/p_output_data_write[0][47:0]
+CORES[0].core_inst/p_output_en[0].
+Related violations: <none>
+
+

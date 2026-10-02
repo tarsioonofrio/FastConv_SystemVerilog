@@ -1,0 +1,213 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2023 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2023.2 (lin64) Build 4029153 Fri Oct 13 20:13:54 MDT 2023
+| Date         : Thu Oct  1 23:07:40 2026
+| Host         : paxos.inf.pucrs.br running 64-bit Rocky Linux release 8.10 (Green Obsidian)
+| Command      : report_utilization -hierarchical -file /sim/tarsio/reports-ifn9m18-nbits16-ab5dee07/ifn9_m18_8/utilization_hierarchical_synth.rpt
+| Design       : IFN9M18ReplicaTop
+| Device       : xczu7ev-ffvc1156-2-e
+| Speed File   : -2
+| Design State : Synthesized
+---------------------------------------------------------------------------------------------------------------------------------------------------
+
+Utilization Design Information
+
+Table of Contents
+-----------------
+1. Utilization by Hierarchy
+
+1. Utilization by Hierarchy
+---------------------------
+
++--------------------------+---------------+------------+------------+---------+------+-------+--------+--------+------+------------+
+|         Instance         |     Module    | Total LUTs | Logic LUTs | LUTRAMs | SRLs |  FFs  | RAMB36 | RAMB18 | URAM | DSP Blocks |
++--------------------------+---------------+------------+------------+---------+------+-------+--------+--------+------+------------+
+| IFN9M18ReplicaTop        |         (top) |      47296 |      47296 |       0 |    0 | 14728 |      0 |      0 |    0 |        144 |
+|   (IFN9M18ReplicaTop)    |         (top) |          0 |          0 |       0 |    0 |    24 |      0 |      0 |    0 |          0 |
+|   CORES[0].core_inst     |          Conv |       5911 |       5911 |       0 |    0 |  1838 |      0 |      0 |    0 |         18 |
+|     (CORES[0].core_inst) |          Conv |       2765 |       2765 |       0 |    0 |  1838 |      0 |      0 |    0 |          0 |
+|     MAC_LANES[0].multip  |    Multip_150 |          4 |          4 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[10].multip |    Multip_151 |         91 |         91 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[11].multip |    Multip_152 |          0 |          0 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[12].multip |    Multip_153 |          3 |          3 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[13].multip |    Multip_154 |          3 |          3 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[14].multip |    Multip_155 |          3 |          3 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[15].multip |    Multip_156 |        297 |        297 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[16].multip |    Multip_157 |        150 |        150 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[17].multip |    Multip_158 |          0 |          0 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[1].multip  |    Multip_159 |          3 |          3 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[2].multip  |    Multip_160 |          3 |          3 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[3].multip  |    Multip_161 |        156 |        156 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[4].multip  |    Multip_162 |         79 |         79 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[5].multip  |    Multip_163 |          0 |          0 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[6].multip  |    Multip_164 |          3 |          3 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[7].multip  |    Multip_165 |          3 |          3 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[8].multip  |    Multip_166 |          3 |          3 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[9].multip  |    Multip_167 |        179 |        179 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     trf                  | Transform_168 |       2166 |       2166 |       0 |    0 |     0 |      0 |      0 |    0 |          0 |
+|       matrix_c0          |  MatrixC0_169 |       1478 |       1478 |       0 |    0 |     0 |      0 |      0 |    0 |          0 |
+|       matrix_c1          |  MatrixC1_170 |        688 |        688 |       0 |    0 |     0 |      0 |      0 |    0 |          0 |
+|   CORES[1].core_inst     |        Conv_0 |       5913 |       5913 |       0 |    0 |  1838 |      0 |      0 |    0 |         18 |
+|     (CORES[1].core_inst) |        Conv_0 |       2766 |       2766 |       0 |    0 |  1838 |      0 |      0 |    0 |          0 |
+|     MAC_LANES[0].multip  |    Multip_129 |          4 |          4 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[10].multip |    Multip_130 |         91 |         91 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[11].multip |    Multip_131 |          0 |          0 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[12].multip |    Multip_132 |          3 |          3 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[13].multip |    Multip_133 |          3 |          3 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[14].multip |    Multip_134 |          3 |          3 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[15].multip |    Multip_135 |        297 |        297 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[16].multip |    Multip_136 |        150 |        150 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[17].multip |    Multip_137 |          0 |          0 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[1].multip  |    Multip_138 |          3 |          3 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[2].multip  |    Multip_139 |          3 |          3 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[3].multip  |    Multip_140 |        156 |        156 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[4].multip  |    Multip_141 |         79 |         79 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[5].multip  |    Multip_142 |          0 |          0 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[6].multip  |    Multip_143 |          3 |          3 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[7].multip  |    Multip_144 |          3 |          3 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[8].multip  |    Multip_145 |          3 |          3 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[9].multip  |    Multip_146 |        179 |        179 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     trf                  | Transform_147 |       2167 |       2167 |       0 |    0 |     0 |      0 |      0 |    0 |          0 |
+|       matrix_c0          |  MatrixC0_148 |       1478 |       1478 |       0 |    0 |     0 |      0 |      0 |    0 |          0 |
+|       matrix_c1          |  MatrixC1_149 |        689 |        689 |       0 |    0 |     0 |      0 |      0 |    0 |          0 |
+|   CORES[2].core_inst     |        Conv_1 |       5911 |       5911 |       0 |    0 |  1838 |      0 |      0 |    0 |         18 |
+|     (CORES[2].core_inst) |        Conv_1 |       2765 |       2765 |       0 |    0 |  1838 |      0 |      0 |    0 |          0 |
+|     MAC_LANES[0].multip  |    Multip_108 |          4 |          4 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[10].multip |    Multip_109 |         91 |         91 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[11].multip |    Multip_110 |          0 |          0 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[12].multip |    Multip_111 |          3 |          3 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[13].multip |    Multip_112 |          3 |          3 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[14].multip |    Multip_113 |          3 |          3 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[15].multip |    Multip_114 |        297 |        297 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[16].multip |    Multip_115 |        150 |        150 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[17].multip |    Multip_116 |          0 |          0 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[1].multip  |    Multip_117 |          3 |          3 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[2].multip  |    Multip_118 |          3 |          3 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[3].multip  |    Multip_119 |        156 |        156 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[4].multip  |    Multip_120 |         79 |         79 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[5].multip  |    Multip_121 |          0 |          0 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[6].multip  |    Multip_122 |          3 |          3 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[7].multip  |    Multip_123 |          3 |          3 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[8].multip  |    Multip_124 |          3 |          3 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[9].multip  |    Multip_125 |        179 |        179 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     trf                  | Transform_126 |       2166 |       2166 |       0 |    0 |     0 |      0 |      0 |    0 |          0 |
+|       matrix_c0          |  MatrixC0_127 |       1478 |       1478 |       0 |    0 |     0 |      0 |      0 |    0 |          0 |
+|       matrix_c1          |  MatrixC1_128 |        688 |        688 |       0 |    0 |     0 |      0 |      0 |    0 |          0 |
+|   CORES[3].core_inst     |        Conv_2 |       5913 |       5913 |       0 |    0 |  1838 |      0 |      0 |    0 |         18 |
+|     (CORES[3].core_inst) |        Conv_2 |       2766 |       2766 |       0 |    0 |  1838 |      0 |      0 |    0 |          0 |
+|     MAC_LANES[0].multip  |     Multip_87 |          4 |          4 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[10].multip |     Multip_88 |         91 |         91 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[11].multip |     Multip_89 |          0 |          0 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[12].multip |     Multip_90 |          3 |          3 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[13].multip |     Multip_91 |          3 |          3 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[14].multip |     Multip_92 |          3 |          3 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[15].multip |     Multip_93 |        297 |        297 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[16].multip |     Multip_94 |        150 |        150 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[17].multip |     Multip_95 |          0 |          0 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[1].multip  |     Multip_96 |          3 |          3 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[2].multip  |     Multip_97 |          3 |          3 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[3].multip  |     Multip_98 |        156 |        156 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[4].multip  |     Multip_99 |         79 |         79 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[5].multip  |    Multip_100 |          0 |          0 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[6].multip  |    Multip_101 |          3 |          3 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[7].multip  |    Multip_102 |          3 |          3 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[8].multip  |    Multip_103 |          3 |          3 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[9].multip  |    Multip_104 |        179 |        179 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     trf                  | Transform_105 |       2167 |       2167 |       0 |    0 |     0 |      0 |      0 |    0 |          0 |
+|       matrix_c0          |  MatrixC0_106 |       1478 |       1478 |       0 |    0 |     0 |      0 |      0 |    0 |          0 |
+|       matrix_c1          |  MatrixC1_107 |        689 |        689 |       0 |    0 |     0 |      0 |      0 |    0 |          0 |
+|   CORES[4].core_inst     |        Conv_3 |       5912 |       5912 |       0 |    0 |  1838 |      0 |      0 |    0 |         18 |
+|     (CORES[4].core_inst) |        Conv_3 |       2766 |       2766 |       0 |    0 |  1838 |      0 |      0 |    0 |          0 |
+|     MAC_LANES[0].multip  |     Multip_66 |          4 |          4 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[10].multip |     Multip_67 |         91 |         91 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[11].multip |     Multip_68 |          0 |          0 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[12].multip |     Multip_69 |          3 |          3 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[13].multip |     Multip_70 |          3 |          3 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[14].multip |     Multip_71 |          3 |          3 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[15].multip |     Multip_72 |        297 |        297 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[16].multip |     Multip_73 |        150 |        150 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[17].multip |     Multip_74 |          0 |          0 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[1].multip  |     Multip_75 |          3 |          3 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[2].multip  |     Multip_76 |          3 |          3 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[3].multip  |     Multip_77 |        156 |        156 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[4].multip  |     Multip_78 |         79 |         79 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[5].multip  |     Multip_79 |          0 |          0 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[6].multip  |     Multip_80 |          3 |          3 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[7].multip  |     Multip_81 |          3 |          3 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[8].multip  |     Multip_82 |          3 |          3 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[9].multip  |     Multip_83 |        179 |        179 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     trf                  |  Transform_84 |       2166 |       2166 |       0 |    0 |     0 |      0 |      0 |    0 |          0 |
+|       matrix_c0          |   MatrixC0_85 |       1478 |       1478 |       0 |    0 |     0 |      0 |      0 |    0 |          0 |
+|       matrix_c1          |   MatrixC1_86 |        688 |        688 |       0 |    0 |     0 |      0 |      0 |    0 |          0 |
+|   CORES[5].core_inst     |        Conv_4 |       5912 |       5912 |       0 |    0 |  1838 |      0 |      0 |    0 |         18 |
+|     (CORES[5].core_inst) |        Conv_4 |       2766 |       2766 |       0 |    0 |  1838 |      0 |      0 |    0 |          0 |
+|     MAC_LANES[0].multip  |     Multip_45 |          4 |          4 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[10].multip |     Multip_46 |         91 |         91 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[11].multip |     Multip_47 |          0 |          0 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[12].multip |     Multip_48 |          3 |          3 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[13].multip |     Multip_49 |          3 |          3 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[14].multip |     Multip_50 |          3 |          3 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[15].multip |     Multip_51 |        297 |        297 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[16].multip |     Multip_52 |        150 |        150 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[17].multip |     Multip_53 |          0 |          0 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[1].multip  |     Multip_54 |          3 |          3 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[2].multip  |     Multip_55 |          3 |          3 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[3].multip  |     Multip_56 |        156 |        156 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[4].multip  |     Multip_57 |         79 |         79 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[5].multip  |     Multip_58 |          0 |          0 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[6].multip  |     Multip_59 |          3 |          3 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[7].multip  |     Multip_60 |          3 |          3 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[8].multip  |     Multip_61 |          3 |          3 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[9].multip  |     Multip_62 |        179 |        179 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     trf                  |  Transform_63 |       2166 |       2166 |       0 |    0 |     0 |      0 |      0 |    0 |          0 |
+|       matrix_c0          |   MatrixC0_64 |       1478 |       1478 |       0 |    0 |     0 |      0 |      0 |    0 |          0 |
+|       matrix_c1          |   MatrixC1_65 |        688 |        688 |       0 |    0 |     0 |      0 |      0 |    0 |          0 |
+|   CORES[6].core_inst     |        Conv_5 |       5912 |       5912 |       0 |    0 |  1838 |      0 |      0 |    0 |         18 |
+|     (CORES[6].core_inst) |        Conv_5 |       2766 |       2766 |       0 |    0 |  1838 |      0 |      0 |    0 |          0 |
+|     MAC_LANES[0].multip  |     Multip_24 |          4 |          4 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[10].multip |     Multip_25 |         91 |         91 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[11].multip |     Multip_26 |          0 |          0 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[12].multip |     Multip_27 |          3 |          3 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[13].multip |     Multip_28 |          3 |          3 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[14].multip |     Multip_29 |          3 |          3 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[15].multip |     Multip_30 |        297 |        297 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[16].multip |     Multip_31 |        150 |        150 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[17].multip |     Multip_32 |          0 |          0 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[1].multip  |     Multip_33 |          3 |          3 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[2].multip  |     Multip_34 |          3 |          3 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[3].multip  |     Multip_35 |        156 |        156 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[4].multip  |     Multip_36 |         79 |         79 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[5].multip  |     Multip_37 |          0 |          0 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[6].multip  |     Multip_38 |          3 |          3 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[7].multip  |     Multip_39 |          3 |          3 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[8].multip  |     Multip_40 |          3 |          3 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[9].multip  |     Multip_41 |        179 |        179 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     trf                  |  Transform_42 |       2166 |       2166 |       0 |    0 |     0 |      0 |      0 |    0 |          0 |
+|       matrix_c0          |   MatrixC0_43 |       1478 |       1478 |       0 |    0 |     0 |      0 |      0 |    0 |          0 |
+|       matrix_c1          |   MatrixC1_44 |        688 |        688 |       0 |    0 |     0 |      0 |      0 |    0 |          0 |
+|   CORES[7].core_inst     |        Conv_6 |       5912 |       5912 |       0 |    0 |  1838 |      0 |      0 |    0 |         18 |
+|     (CORES[7].core_inst) |        Conv_6 |       2766 |       2766 |       0 |    0 |  1838 |      0 |      0 |    0 |          0 |
+|     MAC_LANES[0].multip  |        Multip |          4 |          4 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[10].multip |      Multip_7 |         91 |         91 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[11].multip |      Multip_8 |          0 |          0 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[12].multip |      Multip_9 |          3 |          3 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[13].multip |     Multip_10 |          3 |          3 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[14].multip |     Multip_11 |          3 |          3 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[15].multip |     Multip_12 |        297 |        297 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[16].multip |     Multip_13 |        150 |        150 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[17].multip |     Multip_14 |          0 |          0 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[1].multip  |     Multip_15 |          3 |          3 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[2].multip  |     Multip_16 |          3 |          3 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[3].multip  |     Multip_17 |        156 |        156 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[4].multip  |     Multip_18 |         79 |         79 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[5].multip  |     Multip_19 |          0 |          0 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[6].multip  |     Multip_20 |          3 |          3 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[7].multip  |     Multip_21 |          3 |          3 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[8].multip  |     Multip_22 |          3 |          3 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     MAC_LANES[9].multip  |     Multip_23 |        179 |        179 |       0 |    0 |     0 |      0 |      0 |    0 |          1 |
+|     trf                  |     Transform |       2166 |       2166 |       0 |    0 |     0 |      0 |      0 |    0 |          0 |
+|       matrix_c0          |      MatrixC0 |       1478 |       1478 |       0 |    0 |     0 |      0 |      0 |    0 |          0 |
+|       matrix_c1          |      MatrixC1 |        688 |        688 |       0 |    0 |     0 |      0 |      0 |    0 |          0 |
++--------------------------+---------------+------------+------------+---------+------+-------+--------+--------+------+------------+
+
+

@@ -1,0 +1,28 @@
+List of CLB Tiles
+CLEL_L_X56Y140
+CLEL_R_X56Y140
+CLEL_L_X56Y332
+CLEL_R_X56Y332
+CLEM_X55Y333
+CLEL_R_X55Y333
+CLEM_X53Y108
+CLEL_R_X53Y108
+CLEM_X50Y70
+CLEL_R_X50Y70
+CLEL_L_X16Y272
+CLEL_R_X16Y272
+CLEL_L_X16Y313
+CLEL_R_X16Y313
+CLEM_X14Y269
+CLEL_R_X14Y269
+
+List of Congested Nets
+CORES[5].core_inst/trf/matrix_c0/w_conv_transform[18]_13[8]
+CORES[5].core_inst/trf/matrix_c0/partial[0]_16[8]
+CORES[8].core_inst/trf/matrix_c0/w_conv_transform[24]_10[8]
+CORES[8].core_inst/trf/matrix_c0/r_input_feat_reg[7][6][7]
+CORES[6].core_inst/trf/matrix_c0/w_conv_transform[18]_13[9]
+CORES[6].core_inst/trf/matrix_c0/w_conv_transform[18]_13[8]
+CORES[1].core_inst/r_weight_spatial_reg_n_0_[4][9]
+CORES[1].core_inst/r_weight_spatial_reg_n_0_[8][8]
+
