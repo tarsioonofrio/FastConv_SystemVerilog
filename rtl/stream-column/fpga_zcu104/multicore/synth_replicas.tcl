@@ -13,14 +13,17 @@ if {![string is integer -strict $n_cores] || $n_cores < 1} {
 }
 if {$algorithm eq "ifn9"} {
   set top "IFN9ReplicaTop"
+  set nbits 20
   set manifest [file join $repo_root rtl/conv3x3/fpga_zcu104/manifests/ifn9.rtl]
   set wrapper [file join $repo_root rtl/stream-column/fpga_zcu104/multicore/ifn9_replica_top.sv]
 } elseif {$algorithm eq "ifn9_m18"} {
   set top "IFN9M18ReplicaTop"
+  set nbits 16
   set manifest [file join $repo_root rtl/conv3x3/fpga_zcu104/manifests/ifn9_m18.rtl]
   set wrapper [file join $repo_root rtl/stream-column/fpga_zcu104/multicore/ifn9_m18_replica_top.sv]
 } elseif {$algorithm eq "wpn16"} {
   set top "WPN16ReplicaTop"
+  set nbits 20
   set manifest [file join $repo_root rtl/conv4x4/fpga_zcu104/manifests/wpn16.rtl]
   set wrapper [file join $repo_root rtl/stream-column/fpga_zcu104/multicore/wpn16_replica_top.sv]
 } else {
@@ -35,6 +38,7 @@ puts $metadata "implementation_mode=out_of_context"
 puts $metadata "top=$top"
 puts $metadata "algorithm=$algorithm"
 puts $metadata "cores=$n_cores"
+puts $metadata "NBITS=$nbits"
 if {$algorithm eq "ifn9"} {
   puts $metadata "core_variant=IFN9_m06"
   puts $metadata "mac_lanes_per_core=6"
@@ -68,6 +72,9 @@ close $sources
 read_verilog -sv $wrapper
 read_xdc $xdc
 set generics [list N_CORES=$n_cores NADDR=12]
+if {$algorithm eq "ifn9_m18"} {
+  lappend generics NBITS=$nbits
+}
 synth_design -mode out_of_context -top $top -part xczu7ev-ffvc1156-2-e -generic $generics
 report_utilization -file [file join $out_dir utilization_synth.rpt]
 report_utilization -hierarchical -file [file join $out_dir utilization_hierarchical_synth.rpt]
@@ -95,6 +102,7 @@ if {[llength $paths] > 0} {
 set summary [open [file join $out_dir result.txt] w]
 puts $summary "algorithm=$algorithm"
 puts $summary "cores=$n_cores"
+puts $summary "NBITS=$nbits"
 puts $summary "wns_ns=$wns"
 puts $summary "timing_closed_317mhz=$closed"
 puts $summary "implementation=OOC_Explore_postplace_physopt_and_route"

@@ -5,14 +5,15 @@
 // start are shared to model one synchronized multicore IP block.
 module IFN9M18ReplicaTop #(
   parameter int unsigned N_CORES = 1,
-  parameter int unsigned NADDR = 12
+  parameter int unsigned NADDR = 12,
+  parameter int unsigned NBITS = 16
 ) (
   input  logic clk,
   input  logic reset,
   input  logic p_start,
-  input  logic [N_CORES-1:0][99:0] p_input_data,
+  input  logic [N_CORES-1:0][5*NBITS-1:0] p_input_data,
   input  logic [N_CORES-1:0] p_input_valid,
-  input  logic [N_CORES-1:0][59:0] p_output_data_read,
+  input  logic [N_CORES-1:0][3*NBITS-1:0] p_output_data_read,
   input  logic [N_CORES-1:0] p_output_valid,
   output logic [N_CORES-1:0] p_end,
   output logic [N_CORES-1:0] p_input_en,
@@ -20,10 +21,10 @@ module IFN9M18ReplicaTop #(
   output logic [N_CORES-1:0] p_output_en,
   output logic [N_CORES-1:0] p_output_wr,
   output logic [N_CORES-1:0][NADDR-1:0] p_output_addr,
-  output logic [N_CORES-1:0][59:0] p_output_data_write
+  output logic [N_CORES-1:0][3*NBITS-1:0] p_output_data_write
 );
   for (genvar core = 0; core < N_CORES; core++) begin: CORES
-    Conv #(.NADDR(NADDR), .NUM_MULT(18)) core_inst (
+    Conv #(.NADDR(NADDR), .NBITS(NBITS), .NUM_MULT(18)) core_inst (
       .clk(clk),
       .reset(reset),
       .p_start(p_start),
