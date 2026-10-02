@@ -1,0 +1,9 @@
+vivado_version=2023.2
+part=xczu7ev-ffvc1156-2-e
+implementation_mode=out_of_context
+top=WPN16PipeReplicaTop
+algorithm=wpn16_dual_transform_dsp_inverse_accumulator_pipeline_nbits16
+cores=32
+NBITS=16
+target_frequency_mhz=317
+pipeline_stages=transform_axes,dsp_mreg_preg,inverse_to_accumulator

@@ -1,0 +1,13 @@
+command=make run-stream-column CONFIG=wpn16 STREAM_COLUMN_DATASET=sim-032-3-3-normal-trunc-nbits16 STREAM_COLUMN_EXTRA_FLAGS='-DWPN16_PIPE_WEIGHT_TRANSFORM -DWPN16_PIPE_DSP_MULTIPLIER -DWPN16_PIPE_INVERSE_ACCUMULATE' STREAM_COLUMN_SRC=conv-wpn16-pipe-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv
+simulator=Verilator 5.050
+result=PASS
+inverse_tiles=576
+terminal_inverse_events=0
+cycles_to_end=9994
+cycles=9996
+weight_read_beats=27
+useful_weight_beats=27
+valid_writes=8100
+input_clipped_beats=432
+output_clipped_words=1116
+golden_mismatches=0

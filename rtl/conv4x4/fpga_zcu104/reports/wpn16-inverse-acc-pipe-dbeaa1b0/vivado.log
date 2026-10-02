@@ -1,0 +1,1682 @@
+#-----------------------------------------------------------
+# Vivado v2023.2 (64-bit)
+# SW Build 4029153 on Fri Oct 13 20:13:54 MDT 2023
+# IP Build 4028589 on Sat Oct 14 00:45:43 MDT 2023
+# SharedData Build 4025554 on Tue Oct 10 17:18:54 MDT 2023
+# Start of session at: Fri Oct  2 19:57:16 2026
+# Process ID: 4066777
+# Current directory: /sim/tarsio/fastconv-wpn16-inverse-acc-dbeaa1b0
+# Command line: vivado -mode batch -log /sim/tarsio/reports-wpn16-inverse-acc-pipe-dbeaa1b0/vivado.log -journal /sim/tarsio/reports-wpn16-inverse-acc-pipe-dbeaa1b0/vivado.jou -source /sim/tarsio/fastconv-wpn16-inverse-acc-dbeaa1b0/rtl/conv4x4/fpga_zcu104/scripts/run_wpn16_inverse_acc_pipe.tcl -tclargs /sim/tarsio/fastconv-wpn16-inverse-acc-dbeaa1b0 /sim/tarsio/reports-wpn16-inverse-acc-pipe-dbeaa1b0 /sim/tarsio/fastconv-wpn16-inverse-acc-dbeaa1b0/rtl/conv4x4/fpga_zcu104/constraints/zcu104_317mhz.xdc
+# Log file: /sim/tarsio/reports-wpn16-inverse-acc-pipe-dbeaa1b0/vivado.log
+# Journal file: /sim/tarsio/reports-wpn16-inverse-acc-pipe-dbeaa1b0/vivado.jou
+# Running On: paxos.inf.pucrs.br, OS: Linux, CPU Frequency: 3100.000 MHz, CPU Physical cores: 14, Host memory: 134319 MB
+#-----------------------------------------------------------
+source /sim/tarsio/fastconv-wpn16-inverse-acc-dbeaa1b0/rtl/conv4x4/fpga_zcu104/scripts/run_wpn16_inverse_acc_pipe.tcl
+# if {$argc != 3} {
+#   error "usage: run_wpn16_inverse_acc_pipe.tcl <repo-root> <out-dir> <xdc>"
+# }
+# set repo_root [file normalize [lindex $argv 0]]
+# set out_dir [file normalize [lindex $argv 1]]
+# set xdc [file normalize [lindex $argv 2]]
+# set manifest [file join $repo_root rtl/conv4x4/fpga_zcu104/manifests/wpn16_pipe.rtl]
+# set wrapper [file join $repo_root rtl/stream-column/fpga_zcu104/multicore/wpn16_pipe_replica_top.sv]
+# set top WPN16PipeReplicaTop
+# set n_cores 32
+# set nbits 16
+# file mkdir $out_dir
+# set metadata [open [file join $out_dir metadata.txt] w]
+# puts $metadata "vivado_version=[version -short]"
+# puts $metadata "part=xczu7ev-ffvc1156-2-e"
+# puts $metadata "implementation_mode=out_of_context"
+# puts $metadata "top=$top"
+# puts $metadata "algorithm=wpn16_dual_transform_dsp_inverse_accumulator_pipeline_nbits16"
+# puts $metadata "cores=$n_cores"
+# puts $metadata "NBITS=$nbits"
+# puts $metadata "target_frequency_mhz=317"
+# puts $metadata "pipeline_stages=transform_axes,dsp_mreg_preg,inverse_to_accumulator"
+# close $metadata
+# set sources [open $manifest r]
+# while {[gets $sources line] >= 0} {
+#   set line [string trim $line]
+#   if {$line eq "" || [string match "#*" $line]} { continue }
+#   set source [file normalize [file join $repo_root $line]]
+#   if {![file exists $source]} { error "RTL source does not exist: $source" }
+#   read_verilog -sv $source
+# }
+read_verilog: Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 1330.301 ; gain = 55.828 ; free physical = 28384 ; free virtual = 106134
+# close $sources
+# read_verilog -sv $wrapper
+# read_xdc $xdc
+# synth_design -mode out_of_context -top $top -part xczu7ev-ffvc1156-2-e \
+#   -generic [list N_CORES=$n_cores NADDR=12 NBITS=$nbits \
+#     PIPE_WEIGHT_TRANSFORM=1 PIPE_DSP_MULTIPLIER=1 PIPE_INVERSE_ACCUMULATE=1]
+Command: synth_design -mode out_of_context -top WPN16PipeReplicaTop -part xczu7ev-ffvc1156-2-e -generic {N_CORES=32 NADDR=12 NBITS=16 PIPE_WEIGHT_TRANSFORM=1 PIPE_DSP_MULTIPLIER=1 PIPE_INVERSE_ACCUMULATE=1}
+Starting synth_design
+Attempting to get a license for feature 'Synthesis' and/or device 'xczu7ev'
+INFO: [Common 17-349] Got license for feature 'Synthesis' and/or device 'xczu7ev'
+INFO: [Device 21-403] Loading part xczu7ev-ffvc1156-2-e
+INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 4 processes.
+INFO: [Synth 8-7078] Launching helper process for spawning children vivado processes
+INFO: [Synth 8-7075] Helper process launched with PID 4066848
+---------------------------------------------------------------------------------
+Starting RTL Elaboration : Time (s): cpu = 00:00:03 ; elapsed = 00:00:03 . Memory (MB): peak = 2721.445 ; gain = 290.699 ; free physical = 26816 ; free virtual = 104576
+---------------------------------------------------------------------------------
+INFO: [Synth 8-6157] synthesizing module 'WPN16PipeReplicaTop' [/sim/tarsio/fastconv-wpn16-inverse-acc-dbeaa1b0/rtl/stream-column/fpga_zcu104/multicore/wpn16_pipe_replica_top.sv:6]
+	Parameter N_CORES bound to: 32'b00000000000000000000000000100000
+	Parameter NADDR bound to: 32'b00000000000000000000000000001100
+	Parameter NBITS bound to: 32'b00000000000000000000000000010000
+	Parameter PIPE_WEIGHT_TRANSFORM bound to: 1'b1
+	Parameter PIPE_DSP_MULTIPLIER bound to: 1'b1
+	Parameter PIPE_INVERSE_ACCUMULATE bound to: 1'b1
+INFO: [Synth 8-6157] synthesizing module 'Conv' [/sim/tarsio/fastconv-wpn16-inverse-acc-dbeaa1b0/rtl/conv4x4/conv-wpn16-pipe-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv:15]
+	Parameter NADDR bound to: 32'b00000000000000000000000000001100
+	Parameter NBITS bound to: 32'b00000000000000000000000000010000
+	Parameter PIPE_WEIGHT_TRANSFORM bound to: 1'b1
+	Parameter PIPE_DSP_MULTIPLIER bound to: 1'b1
+	Parameter PIPE_INVERSE_ACCUMULATE bound to: 1'b1
+INFO: [Synth 8-6157] synthesizing module 'WeightTransformAxis1RowConst' [/sim/tarsio/fastconv-wpn16-inverse-acc-dbeaa1b0/rtl/conv4x4/conv-wpn16-pipe-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv:1317]
+	Parameter NBITS bound to: 32'sb00000000000000000000000000010000
+	Parameter ROW_INDEX bound to: 32'sb00000000000000000000000000000000
+INFO: [Synth 8-6155] done synthesizing module 'WeightTransformAxis1RowConst' (0#1) [/sim/tarsio/fastconv-wpn16-inverse-acc-dbeaa1b0/rtl/conv4x4/conv-wpn16-pipe-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv:1317]
+INFO: [Synth 8-6157] synthesizing module 'WeightTransformAxis1RowConst__parameterized0' [/sim/tarsio/fastconv-wpn16-inverse-acc-dbeaa1b0/rtl/conv4x4/conv-wpn16-pipe-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv:1317]
+	Parameter NBITS bound to: 32'sb00000000000000000000000000010000
+	Parameter ROW_INDEX bound to: 32'sb00000000000000000000000000000001
+INFO: [Synth 8-6155] done synthesizing module 'WeightTransformAxis1RowConst__parameterized0' (0#1) [/sim/tarsio/fastconv-wpn16-inverse-acc-dbeaa1b0/rtl/conv4x4/conv-wpn16-pipe-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv:1317]
+INFO: [Synth 8-6157] synthesizing module 'WeightTransformAxis1RowConst__parameterized1' [/sim/tarsio/fastconv-wpn16-inverse-acc-dbeaa1b0/rtl/conv4x4/conv-wpn16-pipe-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv:1317]
+	Parameter NBITS bound to: 32'sb00000000000000000000000000010000
+	Parameter ROW_INDEX bound to: 32'sb00000000000000000000000000000010
+INFO: [Synth 8-6155] done synthesizing module 'WeightTransformAxis1RowConst__parameterized1' (0#1) [/sim/tarsio/fastconv-wpn16-inverse-acc-dbeaa1b0/rtl/conv4x4/conv-wpn16-pipe-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv:1317]
+INFO: [Synth 8-6157] synthesizing module 'WeightTransformAxis1RowConst__parameterized2' [/sim/tarsio/fastconv-wpn16-inverse-acc-dbeaa1b0/rtl/conv4x4/conv-wpn16-pipe-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv:1317]
+	Parameter NBITS bound to: 32'sb00000000000000000000000000010000
+	Parameter ROW_INDEX bound to: 32'sb00000000000000000000000000000011
+INFO: [Synth 8-6155] done synthesizing module 'WeightTransformAxis1RowConst__parameterized2' (0#1) [/sim/tarsio/fastconv-wpn16-inverse-acc-dbeaa1b0/rtl/conv4x4/conv-wpn16-pipe-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv:1317]
+INFO: [Synth 8-6157] synthesizing module 'WeightTransformAxis1RowConst__parameterized3' [/sim/tarsio/fastconv-wpn16-inverse-acc-dbeaa1b0/rtl/conv4x4/conv-wpn16-pipe-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv:1317]
+	Parameter NBITS bound to: 32'sb00000000000000000000000000010000
+	Parameter ROW_INDEX bound to: 32'sb00000000000000000000000000000100
+INFO: [Synth 8-6155] done synthesizing module 'WeightTransformAxis1RowConst__parameterized3' (0#1) [/sim/tarsio/fastconv-wpn16-inverse-acc-dbeaa1b0/rtl/conv4x4/conv-wpn16-pipe-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv:1317]
+INFO: [Synth 8-6157] synthesizing module 'WeightTransformAxis1RowConst__parameterized4' [/sim/tarsio/fastconv-wpn16-inverse-acc-dbeaa1b0/rtl/conv4x4/conv-wpn16-pipe-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv:1317]
+	Parameter NBITS bound to: 32'sb00000000000000000000000000010000
+	Parameter ROW_INDEX bound to: 32'sb00000000000000000000000000000101
+INFO: [Synth 8-6155] done synthesizing module 'WeightTransformAxis1RowConst__parameterized4' (0#1) [/sim/tarsio/fastconv-wpn16-inverse-acc-dbeaa1b0/rtl/conv4x4/conv-wpn16-pipe-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv:1317]
+INFO: [Synth 8-6157] synthesizing module 'WeightTransformAxis1RowConst__parameterized5' [/sim/tarsio/fastconv-wpn16-inverse-acc-dbeaa1b0/rtl/conv4x4/conv-wpn16-pipe-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv:1317]
+	Parameter NBITS bound to: 32'sb00000000000000000000000000010000
+	Parameter ROW_INDEX bound to: 32'sb00000000000000000000000000000110
+INFO: [Synth 8-6155] done synthesizing module 'WeightTransformAxis1RowConst__parameterized5' (0#1) [/sim/tarsio/fastconv-wpn16-inverse-acc-dbeaa1b0/rtl/conv4x4/conv-wpn16-pipe-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv:1317]
+INFO: [Synth 8-6157] synthesizing module 'WeightTransformAxis1RowConst__parameterized6' [/sim/tarsio/fastconv-wpn16-inverse-acc-dbeaa1b0/rtl/conv4x4/conv-wpn16-pipe-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv:1317]
+	Parameter NBITS bound to: 32'sb00000000000000000000000000010000
+	Parameter ROW_INDEX bound to: 32'sb00000000000000000000000000000111
+INFO: [Synth 8-6155] done synthesizing module 'WeightTransformAxis1RowConst__parameterized6' (0#1) [/sim/tarsio/fastconv-wpn16-inverse-acc-dbeaa1b0/rtl/conv4x4/conv-wpn16-pipe-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv:1317]
+INFO: [Synth 8-6157] synthesizing module 'WeightTransformAxis0' [/sim/tarsio/fastconv-wpn16-inverse-acc-dbeaa1b0/rtl/conv4x4/conv-wpn16-pipe-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv:1282]
+	Parameter NBITS bound to: 32'sb00000000000000000000000000010000
+INFO: [Synth 8-6155] done synthesizing module 'WeightTransformAxis0' (0#1) [/sim/tarsio/fastconv-wpn16-inverse-acc-dbeaa1b0/rtl/conv4x4/conv-wpn16-pipe-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv:1282]
+INFO: [Synth 8-6157] synthesizing module 'MultipDspPipe' [/sim/tarsio/fastconv-wpn16-inverse-acc-dbeaa1b0/rtl/multip/multip.sv:21]
+	Parameter QUANT bound to: 32'sb00000000000000000000000000001000
+	Parameter NBITS bound to: 32'sb00000000000000000000000000010000
+INFO: [Synth 8-6155] done synthesizing module 'MultipDspPipe' (0#1) [/sim/tarsio/fastconv-wpn16-inverse-acc-dbeaa1b0/rtl/multip/multip.sv:21]
+INFO: [Synth 8-293] found qualifier priority on case statement: implementing as full_case [/sim/tarsio/fastconv-wpn16-inverse-acc-dbeaa1b0/rtl/conv4x4/conv-wpn16-pipe-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv:355]
+INFO: [Synth 8-293] found qualifier priority on case statement: implementing as full_case [/sim/tarsio/fastconv-wpn16-inverse-acc-dbeaa1b0/rtl/conv4x4/conv-wpn16-pipe-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv:652]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [/sim/tarsio/fastconv-wpn16-inverse-acc-dbeaa1b0/rtl/conv4x4/conv-wpn16-pipe-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv:746]
+INFO: [Synth 8-6157] synthesizing module 'MatrixC0' [/sim/tarsio/fastconv-wpn16-inverse-acc-dbeaa1b0/rtl/conv4x4/mult-matrices/wpn16/mult_matrices.sv:69]
+	Parameter NBITS bound to: 32'sb00000000000000000000000000010000
+	Parameter CONV_INPUT_SIZE bound to: 32'sb00000000000000000000000000000110
+	Parameter HADAMARD_SIZE bound to: 32'sb00000000000000000000000000001000
+INFO: [Synth 8-6155] done synthesizing module 'MatrixC0' (0#1) [/sim/tarsio/fastconv-wpn16-inverse-acc-dbeaa1b0/rtl/conv4x4/mult-matrices/wpn16/mult_matrices.sv:69]
+INFO: [Synth 8-6157] synthesizing module 'MatrixC1' [/sim/tarsio/fastconv-wpn16-inverse-acc-dbeaa1b0/rtl/conv4x4/mult-matrices/wpn16/mult_matrices.sv:131]
+	Parameter NBITS bound to: 32'sb00000000000000000000000000010000
+	Parameter CONV_INPUT_SIZE bound to: 32'sb00000000000000000000000000000110
+	Parameter HADAMARD_SIZE bound to: 32'sb00000000000000000000000000001000
+INFO: [Synth 8-6155] done synthesizing module 'MatrixC1' (0#1) [/sim/tarsio/fastconv-wpn16-inverse-acc-dbeaa1b0/rtl/conv4x4/mult-matrices/wpn16/mult_matrices.sv:131]
+INFO: [Synth 8-6157] synthesizing module 'InverseRow' [/sim/tarsio/fastconv-wpn16-inverse-acc-dbeaa1b0/rtl/conv4x4/conv-wpn16-pipe-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv:1377]
+	Parameter NBITS bound to: 32'sb00000000000000000000000000010000
+INFO: [Synth 8-6155] done synthesizing module 'InverseRow' (0#1) [/sim/tarsio/fastconv-wpn16-inverse-acc-dbeaa1b0/rtl/conv4x4/conv-wpn16-pipe-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv:1377]
+INFO: [Synth 8-6157] synthesizing module 'InverseRowAccumulate' [/sim/tarsio/fastconv-wpn16-inverse-acc-dbeaa1b0/rtl/conv4x4/conv-wpn16-pipe-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv:1394]
+	Parameter NBITS bound to: 32'sb00000000000000000000000000010000
+INFO: [Synth 8-226] default block is never used [/sim/tarsio/fastconv-wpn16-inverse-acc-dbeaa1b0/rtl/conv4x4/conv-wpn16-pipe-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv:1411]
+INFO: [Synth 8-6155] done synthesizing module 'InverseRowAccumulate' (0#1) [/sim/tarsio/fastconv-wpn16-inverse-acc-dbeaa1b0/rtl/conv4x4/conv-wpn16-pipe-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv:1394]
+INFO: [Synth 8-293] found qualifier priority on case statement: implementing as full_case [/sim/tarsio/fastconv-wpn16-inverse-acc-dbeaa1b0/rtl/conv4x4/conv-wpn16-pipe-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv:938]
+INFO: [Synth 8-6155] done synthesizing module 'Conv' (0#1) [/sim/tarsio/fastconv-wpn16-inverse-acc-dbeaa1b0/rtl/conv4x4/conv-wpn16-pipe-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv:15]
+INFO: [Synth 8-6155] done synthesizing module 'WPN16PipeReplicaTop' (0#1) [/sim/tarsio/fastconv-wpn16-inverse-acc-dbeaa1b0/rtl/stream-column/fpga_zcu104/multicore/wpn16_pipe_replica_top.sv:6]
+WARNING: [Synth 8-6014] Unused sequential element r_hadamard_product_reg_reg[7] was removed.  [/sim/tarsio/fastconv-wpn16-inverse-acc-dbeaa1b0/rtl/conv4x4/conv-wpn16-pipe-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv:723]
+WARNING: [Synth 8-6014] Unused sequential element r_hadamard_product_reg_reg[6] was removed.  [/sim/tarsio/fastconv-wpn16-inverse-acc-dbeaa1b0/rtl/conv4x4/conv-wpn16-pipe-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv:723]
+WARNING: [Synth 8-6014] Unused sequential element r_hadamard_product_reg_reg[5] was removed.  [/sim/tarsio/fastconv-wpn16-inverse-acc-dbeaa1b0/rtl/conv4x4/conv-wpn16-pipe-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv:723]
+WARNING: [Synth 8-6014] Unused sequential element r_hadamard_product_reg_reg[4] was removed.  [/sim/tarsio/fastconv-wpn16-inverse-acc-dbeaa1b0/rtl/conv4x4/conv-wpn16-pipe-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv:723]
+WARNING: [Synth 8-6014] Unused sequential element r_hadamard_product_reg_reg[3] was removed.  [/sim/tarsio/fastconv-wpn16-inverse-acc-dbeaa1b0/rtl/conv4x4/conv-wpn16-pipe-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv:723]
+WARNING: [Synth 8-6014] Unused sequential element r_hadamard_product_reg_reg[2] was removed.  [/sim/tarsio/fastconv-wpn16-inverse-acc-dbeaa1b0/rtl/conv4x4/conv-wpn16-pipe-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv:723]
+WARNING: [Synth 8-6014] Unused sequential element r_hadamard_product_reg_reg[1] was removed.  [/sim/tarsio/fastconv-wpn16-inverse-acc-dbeaa1b0/rtl/conv4x4/conv-wpn16-pipe-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv:723]
+WARNING: [Synth 8-6014] Unused sequential element r_hadamard_product_reg_reg[0] was removed.  [/sim/tarsio/fastconv-wpn16-inverse-acc-dbeaa1b0/rtl/conv4x4/conv-wpn16-pipe-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv:723]
+WARNING: [Synth 8-6014] Unused sequential element r_hadamard_product_row_idx_reg_reg was removed.  [/sim/tarsio/fastconv-wpn16-inverse-acc-dbeaa1b0/rtl/conv4x4/conv-wpn16-pipe-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv:724]
+WARNING: [Synth 8-6014] Unused sequential element r_hadamard_product_valid_reg was removed.  [/sim/tarsio/fastconv-wpn16-inverse-acc-dbeaa1b0/rtl/conv4x4/conv-wpn16-pipe-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv:725]
+WARNING: [Synth 8-7129] Port pin[15][17] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[15][16] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[15][15] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[15][14] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[15][13] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[15][12] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[15][11] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[15][10] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[15][9] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[15][8] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[15][7] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[15][6] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[15][5] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[15][4] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[15][3] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[15][2] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[15][1] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[15][0] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[14][17] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[14][16] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[14][15] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[14][14] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[14][13] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[14][12] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[14][11] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[14][10] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[14][9] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[14][8] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[14][7] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[14][6] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[14][5] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[14][4] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[14][3] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[14][2] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[14][1] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[14][0] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[13][17] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[13][16] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[13][15] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[13][14] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[13][13] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[13][12] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[13][11] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[13][10] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[13][9] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[13][8] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[13][7] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[13][6] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[13][5] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[13][4] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[13][3] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[13][2] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[13][1] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[13][0] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[12][17] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[12][16] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[12][15] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[12][14] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[12][13] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[12][12] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[12][11] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[12][10] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[12][9] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[12][8] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[12][7] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[12][6] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[12][5] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[12][4] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[12][3] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[12][2] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[12][1] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[12][0] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[11][17] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[11][16] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[11][15] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[11][14] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[11][13] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[11][12] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[11][11] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[11][10] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[11][9] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[11][8] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[11][7] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[11][6] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[11][5] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[11][4] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[11][3] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[11][2] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[11][1] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[11][0] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[10][17] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[10][16] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[10][15] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[10][14] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[10][13] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[10][12] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[10][11] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[10][10] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[10][9] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port pin[10][8] in module WeightTransformAxis1RowConst__parameterized6 is either unconnected or has no load
+INFO: [Common 17-14] Message 'Synth 8-7129' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
+---------------------------------------------------------------------------------
+Finished RTL Elaboration : Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 2836.414 ; gain = 405.668 ; free physical = 26679 ; free virtual = 104445
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 2836.414 ; gain = 405.668 ; free physical = 26679 ; free virtual = 104445
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 1 : Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 2836.414 ; gain = 405.668 ; free physical = 26679 ; free virtual = 104445
+---------------------------------------------------------------------------------
+Netlist sorting complete. Time (s): cpu = 00:00:02 ; elapsed = 00:00:02 . Memory (MB): peak = 2929.172 ; gain = 7.000 ; free physical = 26583 ; free virtual = 104350
+INFO: [Project 1-570] Preparing netlist for logic optimization
+
+Processing XDC Constraints
+Initializing timing engine
+Parsing XDC File [/sim/tarsio/fastconv-wpn16-inverse-acc-dbeaa1b0/rtl/conv4x4/fpga_zcu104/constraints/zcu104_317mhz.xdc]
+WARNING: [Vivado 12-2489] -period contains time 3.154574 which will be rounded to 3.155 to ensure it is an integer multiple of 1 picosecond [/sim/tarsio/fastconv-wpn16-inverse-acc-dbeaa1b0/rtl/conv4x4/fpga_zcu104/constraints/zcu104_317mhz.xdc:1]
+Finished Parsing XDC File [/sim/tarsio/fastconv-wpn16-inverse-acc-dbeaa1b0/rtl/conv4x4/fpga_zcu104/constraints/zcu104_317mhz.xdc]
+Completed Processing XDC Constraints
+
+Netlist sorting complete. Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.02 . Memory (MB): peak = 3493.094 ; gain = 0.000 ; free physical = 26128 ; free virtual = 103896
+INFO: [Project 1-111] Unisim Transformation Summary:
+No Unisim elements were transformed.
+
+Constraint Validation Runtime : Time (s): cpu = 00:00:04 ; elapsed = 00:00:01 . Memory (MB): peak = 3502.094 ; gain = 8.965 ; free physical = 26101 ; free virtual = 103869
+---------------------------------------------------------------------------------
+Finished Constraint Validation : Time (s): cpu = 00:00:41 ; elapsed = 00:00:30 . Memory (MB): peak = 3502.094 ; gain = 1071.348 ; free physical = 26102 ; free virtual = 103870
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Loading Part and Timing Information
+---------------------------------------------------------------------------------
+Loading part: xczu7ev-ffvc1156-2-e
+INFO: [Synth 8-6742] Reading net delay rules and data
+---------------------------------------------------------------------------------
+Finished Loading Part and Timing Information : Time (s): cpu = 00:00:41 ; elapsed = 00:00:30 . Memory (MB): peak = 3502.094 ; gain = 1071.348 ; free physical = 26102 ; free virtual = 103870
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Applying 'set_property' XDC Constraints
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished applying 'set_property' XDC Constraints : Time (s): cpu = 00:00:41 ; elapsed = 00:00:30 . Memory (MB): peak = 3502.094 ; gain = 1071.348 ; free physical = 26102 ; free virtual = 103870
+---------------------------------------------------------------------------------
+INFO: [Synth 8-802] inferred FSM for state register 'st_conv_current_reg' in module 'Conv'
+---------------------------------------------------------------------------------------------------
+                   State |                     New Encoding |                Previous Encoding
+---------------------------------------------------------------------------------------------------
+               WAIT_CONV |                           000001 |                              000
+               TRANSFORM |                           100000 |                              001
+          TRANSFORM_PIPE |                           010000 |                              010
+   WEIGHT_TRANSFORM_PIPE |                           001000 |                              011
+                HADAMARD |                           000100 |                              100
+                 INVERSE |                           000010 |                              101
+---------------------------------------------------------------------------------------------------
+INFO: [Synth 8-3354] encoded FSM with state register 'st_conv_current_reg' using encoding 'one-hot' in module 'Conv'
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 2 : Time (s): cpu = 00:00:44 ; elapsed = 00:00:33 . Memory (MB): peak = 3502.094 ; gain = 1071.348 ; free physical = 26099 ; free virtual = 103870
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start RTL Component Statistics
+---------------------------------------------------------------------------------
+Detailed RTL Component Info :
++---Adders :
+	   2 Input   21 Bit       Adders := 768
+	   4 Input   21 Bit       Adders := 256
+	   3 Input   21 Bit       Adders := 512
+	   2 Input   18 Bit       Adders := 288
+	   4 Input   18 Bit       Adders := 96
+	   3 Input   18 Bit       Adders := 192
+	   3 Input   16 Bit       Adders := 1632
+	   5 Input   16 Bit       Adders := 992
+	   2 Input   16 Bit       Adders := 864
+	   4 Input   16 Bit       Adders := 448
+	   2 Input   12 Bit       Adders := 224
+	   4 Input   12 Bit       Adders := 32
+	   2 Input   10 Bit       Adders := 32
+	   2 Input    8 Bit       Adders := 64
+	   2 Input    6 Bit       Adders := 128
+	   2 Input    5 Bit       Adders := 32
+	   2 Input    4 Bit       Adders := 128
+	   2 Input    3 Bit       Adders := 64
+	   2 Input    2 Bit       Adders := 224
++---Registers :
+	               24 Bit    Registers := 256
+	               18 Bit    Registers := 768
+	               16 Bit    Registers := 5408
+	               12 Bit    Registers := 192
+	               10 Bit    Registers := 32
+	                8 Bit    Registers := 64
+	                6 Bit    Registers := 128
+	                5 Bit    Registers := 32
+	                4 Bit    Registers := 160
+	                3 Bit    Registers := 160
+	                2 Bit    Registers := 256
+	                1 Bit    Registers := 224
++---Muxes :
+	   2 Input   36 Bit        Muxes := 64
+	   2 Input   16 Bit        Muxes := 6048
+	   3 Input   16 Bit        Muxes := 352
+	   6 Input   16 Bit        Muxes := 1024
+	   8 Input   16 Bit        Muxes := 800
+	   2 Input   12 Bit        Muxes := 416
+	   2 Input   10 Bit        Muxes := 96
+	   2 Input    8 Bit        Muxes := 128
+	   9 Input    8 Bit        Muxes := 32
+	   2 Input    6 Bit        Muxes := 160
+	   6 Input    6 Bit        Muxes := 64
+	   2 Input    5 Bit        Muxes := 96
+	   2 Input    4 Bit        Muxes := 288
+	   2 Input    3 Bit        Muxes := 416
+	   3 Input    3 Bit        Muxes := 32
+	   7 Input    3 Bit        Muxes := 32
+	   6 Input    3 Bit        Muxes := 32
+	   2 Input    2 Bit        Muxes := 288
+	   2 Input    1 Bit        Muxes := 2656
+	   3 Input    1 Bit        Muxes := 64
+	   4 Input    1 Bit        Muxes := 288
+	   6 Input    1 Bit        Muxes := 192
+	   8 Input    1 Bit        Muxes := 32
+---------------------------------------------------------------------------------
+Finished RTL Component Statistics
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Part Resource Summary
+---------------------------------------------------------------------------------
+Part Resources:
+DSPs: 1728 (col length:144)
+BRAMs: 624 (col length: RAMB18 144 RAMB36 72)
+---------------------------------------------------------------------------------
+Finished Part Resource Summary
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Cross Boundary and Area Optimization
+---------------------------------------------------------------------------------
+WARNING: [Synth 8-7080] Parallel synthesis criteria is not met
+DSP Report: Generating DSP MAC_LANES[7].DSP_PIPELINE.multip/product_preg_reg, operation Mode is: (A*B)'.
+DSP Report: register MAC_LANES[7].DSP_PIPELINE.multip/product_preg_reg is absorbed into DSP MAC_LANES[7].DSP_PIPELINE.multip/product_preg_reg.
+DSP Report: register MAC_LANES[7].DSP_PIPELINE.multip/product_mreg_reg is absorbed into DSP MAC_LANES[7].DSP_PIPELINE.multip/product_preg_reg.
+DSP Report: operator MAC_LANES[7].DSP_PIPELINE.multip/product_comb is absorbed into DSP MAC_LANES[7].DSP_PIPELINE.multip/product_preg_reg.
+DSP Report: Generating DSP MAC_LANES[6].DSP_PIPELINE.multip/product_preg_reg, operation Mode is: (A*B)'.
+DSP Report: register MAC_LANES[6].DSP_PIPELINE.multip/product_preg_reg is absorbed into DSP MAC_LANES[6].DSP_PIPELINE.multip/product_preg_reg.
+DSP Report: register MAC_LANES[6].DSP_PIPELINE.multip/product_mreg_reg is absorbed into DSP MAC_LANES[6].DSP_PIPELINE.multip/product_preg_reg.
+DSP Report: operator MAC_LANES[6].DSP_PIPELINE.multip/product_comb is absorbed into DSP MAC_LANES[6].DSP_PIPELINE.multip/product_preg_reg.
+DSP Report: Generating DSP MAC_LANES[5].DSP_PIPELINE.multip/product_preg_reg, operation Mode is: (A*B)'.
+DSP Report: register MAC_LANES[5].DSP_PIPELINE.multip/product_preg_reg is absorbed into DSP MAC_LANES[5].DSP_PIPELINE.multip/product_preg_reg.
+DSP Report: register MAC_LANES[5].DSP_PIPELINE.multip/product_mreg_reg is absorbed into DSP MAC_LANES[5].DSP_PIPELINE.multip/product_preg_reg.
+DSP Report: operator MAC_LANES[5].DSP_PIPELINE.multip/product_comb is absorbed into DSP MAC_LANES[5].DSP_PIPELINE.multip/product_preg_reg.
+DSP Report: Generating DSP MAC_LANES[4].DSP_PIPELINE.multip/product_preg_reg, operation Mode is: (A*B)'.
+DSP Report: register MAC_LANES[4].DSP_PIPELINE.multip/product_preg_reg is absorbed into DSP MAC_LANES[4].DSP_PIPELINE.multip/product_preg_reg.
+DSP Report: register MAC_LANES[4].DSP_PIPELINE.multip/product_mreg_reg is absorbed into DSP MAC_LANES[4].DSP_PIPELINE.multip/product_preg_reg.
+DSP Report: operator MAC_LANES[4].DSP_PIPELINE.multip/product_comb is absorbed into DSP MAC_LANES[4].DSP_PIPELINE.multip/product_preg_reg.
+DSP Report: Generating DSP MAC_LANES[3].DSP_PIPELINE.multip/product_preg_reg, operation Mode is: (A*B)'.
+DSP Report: register MAC_LANES[3].DSP_PIPELINE.multip/product_preg_reg is absorbed into DSP MAC_LANES[3].DSP_PIPELINE.multip/product_preg_reg.
+DSP Report: register MAC_LANES[3].DSP_PIPELINE.multip/product_mreg_reg is absorbed into DSP MAC_LANES[3].DSP_PIPELINE.multip/product_preg_reg.
+DSP Report: operator MAC_LANES[3].DSP_PIPELINE.multip/product_comb is absorbed into DSP MAC_LANES[3].DSP_PIPELINE.multip/product_preg_reg.
+DSP Report: Generating DSP MAC_LANES[2].DSP_PIPELINE.multip/product_preg_reg, operation Mode is: (A*B)'.
+DSP Report: register MAC_LANES[2].DSP_PIPELINE.multip/product_preg_reg is absorbed into DSP MAC_LANES[2].DSP_PIPELINE.multip/product_preg_reg.
+DSP Report: register MAC_LANES[2].DSP_PIPELINE.multip/product_mreg_reg is absorbed into DSP MAC_LANES[2].DSP_PIPELINE.multip/product_preg_reg.
+DSP Report: operator MAC_LANES[2].DSP_PIPELINE.multip/product_comb is absorbed into DSP MAC_LANES[2].DSP_PIPELINE.multip/product_preg_reg.
+DSP Report: Generating DSP MAC_LANES[1].DSP_PIPELINE.multip/product_preg_reg, operation Mode is: (A*B)'.
+DSP Report: register MAC_LANES[1].DSP_PIPELINE.multip/product_preg_reg is absorbed into DSP MAC_LANES[1].DSP_PIPELINE.multip/product_preg_reg.
+DSP Report: register MAC_LANES[1].DSP_PIPELINE.multip/product_mreg_reg is absorbed into DSP MAC_LANES[1].DSP_PIPELINE.multip/product_preg_reg.
+DSP Report: operator MAC_LANES[1].DSP_PIPELINE.multip/product_comb is absorbed into DSP MAC_LANES[1].DSP_PIPELINE.multip/product_preg_reg.
+DSP Report: Generating DSP MAC_LANES[0].DSP_PIPELINE.multip/product_preg_reg, operation Mode is: (A*B)'.
+DSP Report: register MAC_LANES[0].DSP_PIPELINE.multip/product_preg_reg is absorbed into DSP MAC_LANES[0].DSP_PIPELINE.multip/product_preg_reg.
+DSP Report: register MAC_LANES[0].DSP_PIPELINE.multip/product_mreg_reg is absorbed into DSP MAC_LANES[0].DSP_PIPELINE.multip/product_preg_reg.
+DSP Report: operator MAC_LANES[0].DSP_PIPELINE.multip/product_comb is absorbed into DSP MAC_LANES[0].DSP_PIPELINE.multip/product_preg_reg.
+---------------------------------------------------------------------------------
+Finished Cross Boundary and Area Optimization : Time (s): cpu = 00:01:13 ; elapsed = 00:01:03 . Memory (MB): peak = 3502.094 ; gain = 1071.348 ; free physical = 26100 ; free virtual = 103875
+---------------------------------------------------------------------------------
+ Sort Area is Conv__GBM1 MAC_LANES[0].DSP_PIPELINE.multip/product_preg_reg_8 : 0 0 : 1985 1985 : Used 32 time 0
+ Sort Area is Conv__GBM1 MAC_LANES[1].DSP_PIPELINE.multip/product_preg_reg_7 : 0 0 : 1985 1985 : Used 32 time 0
+ Sort Area is Conv__GBM1 MAC_LANES[2].DSP_PIPELINE.multip/product_preg_reg_6 : 0 0 : 1985 1985 : Used 32 time 0
+ Sort Area is Conv__GBM1 MAC_LANES[3].DSP_PIPELINE.multip/product_preg_reg_5 : 0 0 : 1985 1985 : Used 32 time 0
+ Sort Area is Conv__GBM1 MAC_LANES[4].DSP_PIPELINE.multip/product_preg_reg_4 : 0 0 : 1985 1985 : Used 32 time 0
+ Sort Area is Conv__GBM1 MAC_LANES[5].DSP_PIPELINE.multip/product_preg_reg_3 : 0 0 : 1985 1985 : Used 32 time 0
+ Sort Area is Conv__GBM1 MAC_LANES[6].DSP_PIPELINE.multip/product_preg_reg_2 : 0 0 : 1985 1985 : Used 32 time 0
+ Sort Area is Conv__GBM1 MAC_LANES[7].DSP_PIPELINE.multip/product_preg_reg_0 : 0 0 : 1985 1985 : Used 32 time 0
+---------------------------------------------------------------------------------
+Start ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+
+DSP: Preliminary Mapping Report (see note below. The ' indicates corresponding REG is set)
++--------------+-------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+|Module Name   | DSP Mapping | A Size | B Size | C Size | D Size | P Size | AREG | BREG | CREG | DREG | ADREG | MREG | PREG |
++--------------+-------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+|MultipDspPipe | (A*B)'      | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | (A*B)'      | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | (A*B)'      | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | (A*B)'      | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | (A*B)'      | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | (A*B)'      | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | (A*B)'      | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | (A*B)'      | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 1    | 1    |
++--------------+-------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+
+Note: The table above is a preliminary report that shows the DSPs inferred at the current stage of the synthesis flow. Some DSP may be reimplemented as non DSP primitives later in the synthesis flow. Multiple instantiated DSPs are reported only once.
+---------------------------------------------------------------------------------
+Finished ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Applying XDC Timing Constraints
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Applying XDC Timing Constraints : Time (s): cpu = 00:01:23 ; elapsed = 00:01:13 . Memory (MB): peak = 3543.781 ; gain = 1113.035 ; free physical = 26117 ; free virtual = 103904
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Timing Optimization
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Timing Optimization : Time (s): cpu = 00:01:43 ; elapsed = 00:01:34 . Memory (MB): peak = 3576.805 ; gain = 1146.059 ; free physical = 26090 ; free virtual = 103878
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Technology Mapping
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Technology Mapping : Time (s): cpu = 00:02:31 ; elapsed = 00:02:23 . Memory (MB): peak = 4226.500 ; gain = 1795.754 ; free physical = 25463 ; free virtual = 103251
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Final Netlist Cleanup
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Final Netlist Cleanup
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished IO Insertion : Time (s): cpu = 00:02:48 ; elapsed = 00:02:40 . Memory (MB): peak = 4477.781 ; gain = 2047.035 ; free physical = 25187 ; free virtual = 102976
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Instances
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Instances : Time (s): cpu = 00:04:24 ; elapsed = 00:04:16 . Memory (MB): peak = 4477.781 ; gain = 2047.035 ; free physical = 25217 ; free virtual = 103006
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Rebuilding User Hierarchy
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Rebuilding User Hierarchy : Time (s): cpu = 00:04:49 ; elapsed = 00:04:41 . Memory (MB): peak = 4477.781 ; gain = 2047.035 ; free physical = 25217 ; free virtual = 103006
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Ports
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Ports : Time (s): cpu = 00:04:49 ; elapsed = 00:04:41 . Memory (MB): peak = 4477.781 ; gain = 2047.035 ; free physical = 25217 ; free virtual = 103006
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:05:05 ; elapsed = 00:04:57 . Memory (MB): peak = 4477.781 ; gain = 2047.035 ; free physical = 25217 ; free virtual = 103006
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Nets
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Nets : Time (s): cpu = 00:05:06 ; elapsed = 00:04:58 . Memory (MB): peak = 4477.781 ; gain = 2047.035 ; free physical = 25217 ; free virtual = 103006
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Writing Synthesis Report
+---------------------------------------------------------------------------------
+
+DSP Final Report (the ' indicates corresponding REG is set)
++--------------+-------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+|Module Name   | DSP Mapping | A Size | B Size | C Size | D Size | P Size | AREG | BREG | CREG | DREG | ADREG | MREG | PREG |
++--------------+-------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
+|MultipDspPipe | ((A*B)')'   | 30     | 18     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 1    | 1    |
++--------------+-------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+
+
+Report BlackBoxes:
++-+--------------+----------+
+| |BlackBox name |Instances |
++-+--------------+----------+
++-+--------------+----------+
+
+Report Cell Usage:
++------+----------------+-------+
+|      |Cell            |Count  |
++------+----------------+-------+
+|1     |CARRY8          |  12128|
+|2     |DSP_ALU         |    256|
+|3     |DSP_A_B_DATA    |    256|
+|4     |DSP_C_DATA      |    256|
+|5     |DSP_MULTIPLIER  |    256|
+|6     |DSP_M_DATA      |    256|
+|7     |DSP_OUTPUT      |    256|
+|8     |DSP_PREADD      |    256|
+|9     |DSP_PREADD_DATA |    256|
+|10    |LUT1            |    384|
+|11    |LUT2            |  50845|
+|12    |LUT3            |  37198|
+|13    |LUT4            |  22360|
+|14    |LUT5            |  27856|
+|15    |LUT6            |  73018|
+|16    |MUXF7           |   3812|
+|17    |FDCE            | 100295|
+|18    |FDPE            |    128|
++------+----------------+-------+
+---------------------------------------------------------------------------------
+Finished Writing Synthesis Report : Time (s): cpu = 00:05:06 ; elapsed = 00:04:58 . Memory (MB): peak = 4477.781 ; gain = 2047.035 ; free physical = 25216 ; free virtual = 103005
+---------------------------------------------------------------------------------
+Synthesis finished with 0 errors, 0 critical warnings and 1 warnings.
+Synthesis Optimization Runtime : Time (s): cpu = 00:04:34 ; elapsed = 00:04:37 . Memory (MB): peak = 4477.781 ; gain = 1381.355 ; free physical = 25216 ; free virtual = 103005
+Synthesis Optimization Complete : Time (s): cpu = 00:05:06 ; elapsed = 00:04:59 . Memory (MB): peak = 4477.789 ; gain = 2047.035 ; free physical = 25215 ; free virtual = 103004
+INFO: [Project 1-571] Translating synthesized netlist
+Netlist sorting complete. Time (s): cpu = 00:00:02 ; elapsed = 00:00:02 . Memory (MB): peak = 4485.781 ; gain = 0.000 ; free physical = 25493 ; free virtual = 103283
+INFO: [Netlist 29-17] Analyzing 16196 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 2 CPU seconds
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Parsing XDC File [/sim/tarsio/fastconv-wpn16-inverse-acc-dbeaa1b0/rtl/conv4x4/fpga_zcu104/constraints/zcu104_317mhz.xdc]
+WARNING: [Vivado 12-2489] -period contains time 3.154574 which will be rounded to 3.155 to ensure it is an integer multiple of 1 picosecond [/sim/tarsio/fastconv-wpn16-inverse-acc-dbeaa1b0/rtl/conv4x4/fpga_zcu104/constraints/zcu104_317mhz.xdc:1]
+Finished Parsing XDC File [/sim/tarsio/fastconv-wpn16-inverse-acc-dbeaa1b0/rtl/conv4x4/fpga_zcu104/constraints/zcu104_317mhz.xdc]
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Netlist sorting complete. Time (s): cpu = 00:00:00.04 ; elapsed = 00:00:00.04 . Memory (MB): peak = 4727.148 ; gain = 0.000 ; free physical = 25297 ; free virtual = 103087
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 256 instances were transformed.
+  DSP48E2 => DSP48E2 (DSP_ALU, DSP_A_B_DATA, DSP_C_DATA, DSP_MULTIPLIER, DSP_M_DATA, DSP_OUTPUT, DSP_PREADD, DSP_PREADD_DATA): 256 instances
+
+Synth Design complete | Checksum: 4c1a6b02
+INFO: [Common 17-83] Releasing license: Synthesis
+55 Infos, 113 Warnings, 0 Critical Warnings and 0 Errors encountered.
+synth_design completed successfully
+synth_design: Time (s): cpu = 00:05:59 ; elapsed = 00:05:48 . Memory (MB): peak = 4727.184 ; gain = 3396.883 ; free physical = 25295 ; free virtual = 103085
+INFO: [Common 17-2834] synth_design peak Physical Memory [PSS] (MB): overall = 4032.372; main = 3949.841; forked = 386.622
+INFO: [Common 17-2834] synth_design peak Virtual Memory [VSS] (MB): overall = 5489.672; main = 4727.152; forked = 1011.887
+# report_utilization -file [file join $out_dir utilization_synth.rpt]
+# opt_design
+Command: opt_design
+Attempting to get a license for feature 'Implementation' and/or device 'xczu7ev'
+INFO: [Common 17-349] Got license for feature 'Implementation' and/or device 'xczu7ev'
+Running DRC as a precondition to command opt_design
+
+Starting DRC Task
+INFO: [DRC 23-27] Running DRC with 8 threads
+INFO: [Project 1-461] DRC finished with 0 Errors
+INFO: [Project 1-462] Please refer to the DRC report (report_drc) for more information.
+
+Time (s): cpu = 00:00:04 ; elapsed = 00:00:01 . Memory (MB): peak = 4791.180 ; gain = 63.996 ; free physical = 25294 ; free virtual = 103084
+
+Starting Cache Timing Information Task
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+Ending Cache Timing Information Task | Checksum: d60bbe30
+
+Time (s): cpu = 00:00:38 ; elapsed = 00:00:09 . Memory (MB): peak = 5068.992 ; gain = 277.812 ; free physical = 25064 ; free virtual = 102855
+
+Starting Logic Optimization Task
+
+Phase 1 Initialization
+
+Phase 1.1 Core Generation And Design Setup
+Phase 1.1 Core Generation And Design Setup | Checksum: d60bbe30
+
+Time (s): cpu = 00:00:00.05 ; elapsed = 00:00:00.06 . Memory (MB): peak = 5071.961 ; gain = 0.000 ; free physical = 25057 ; free virtual = 102848
+
+Phase 1.2 Setup Constraints And Sort Netlist
+Phase 1.2 Setup Constraints And Sort Netlist | Checksum: d60bbe30
+
+Time (s): cpu = 00:00:00.16 ; elapsed = 00:00:00.16 . Memory (MB): peak = 5071.961 ; gain = 0.000 ; free physical = 25057 ; free virtual = 102848
+Phase 1 Initialization | Checksum: d60bbe30
+
+Time (s): cpu = 00:00:00.18 ; elapsed = 00:00:00.19 . Memory (MB): peak = 5071.961 ; gain = 0.000 ; free physical = 25057 ; free virtual = 102848
+
+Phase 2 Timer Update And Timing Data Collection
+
+Phase 2.1 Timer Update
+Phase 2.1 Timer Update | Checksum: d60bbe30
+
+Time (s): cpu = 00:00:17 ; elapsed = 00:00:05 . Memory (MB): peak = 5071.961 ; gain = 0.000 ; free physical = 25055 ; free virtual = 102846
+
+Phase 2.2 Timing Data Collection
+Phase 2.2 Timing Data Collection | Checksum: d60bbe30
+
+Time (s): cpu = 00:00:18 ; elapsed = 00:00:05 . Memory (MB): peak = 5071.961 ; gain = 0.000 ; free physical = 25046 ; free virtual = 102837
+Phase 2 Timer Update And Timing Data Collection | Checksum: d60bbe30
+
+Time (s): cpu = 00:00:18 ; elapsed = 00:00:05 . Memory (MB): peak = 5071.961 ; gain = 0.000 ; free physical = 25046 ; free virtual = 102837
+
+Phase 3 Retarget
+INFO: [Opt 31-1566] Pulled 64 inverters resulting in an inversion of 192 pins
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+INFO: [Opt 31-49] Retargeted 0 cell(s).
+Phase 3 Retarget | Checksum: d925af0e
+
+Time (s): cpu = 00:00:24 ; elapsed = 00:00:12 . Memory (MB): peak = 5071.961 ; gain = 0.000 ; free physical = 25045 ; free virtual = 102836
+Retarget | Checksum: d925af0e
+INFO: [Opt 31-389] Phase Retarget created 0 cells and removed 192 cells
+
+Phase 4 Constant propagation
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Phase 4 Constant propagation | Checksum: 1531a5939
+
+Time (s): cpu = 00:00:27 ; elapsed = 00:00:14 . Memory (MB): peak = 5071.961 ; gain = 0.000 ; free physical = 25522 ; free virtual = 102836
+Constant propagation | Checksum: 1531a5939
+INFO: [Opt 31-389] Phase Constant propagation created 0 cells and removed 0 cells
+
+Phase 5 Sweep
+Phase 5 Sweep | Checksum: 11a143258
+
+Time (s): cpu = 00:00:32 ; elapsed = 00:00:19 . Memory (MB): peak = 5071.961 ; gain = 0.000 ; free physical = 25560 ; free virtual = 102871
+Sweep | Checksum: 11a143258
+INFO: [Opt 31-389] Phase Sweep created 0 cells and removed 0 cells
+
+Phase 6 BUFG optimization
+INFO: [Opt 31-1077] Phase BUFG optimization inserted 0 global clock buffer(s) for CLOCK_LOW_FANOUT.
+Phase 6 BUFG optimization | Checksum: 11a143258
+
+Time (s): cpu = 00:00:33 ; elapsed = 00:00:20 . Memory (MB): peak = 5103.977 ; gain = 32.016 ; free physical = 25561 ; free virtual = 102871
+BUFG optimization | Checksum: 11a143258
+INFO: [Opt 31-662] Phase BUFG optimization created 0 cells of which 0 are BUFGs and removed 0 cells.
+
+Phase 7 Shift Register Optimization
+INFO: [Opt 31-1064] SRL Remap converted 0 SRLs to 0 registers and converted 0 registers of register chains to 0 SRLs
+Phase 7 Shift Register Optimization | Checksum: 11a143258
+
+Time (s): cpu = 00:00:34 ; elapsed = 00:00:21 . Memory (MB): peak = 5103.977 ; gain = 32.016 ; free physical = 25561 ; free virtual = 102871
+Shift Register Optimization | Checksum: 11a143258
+INFO: [Opt 31-389] Phase Shift Register Optimization created 0 cells and removed 0 cells
+
+Phase 8 Post Processing Netlist
+Phase 8 Post Processing Netlist | Checksum: 11a143258
+
+Time (s): cpu = 00:00:35 ; elapsed = 00:00:22 . Memory (MB): peak = 5103.977 ; gain = 32.016 ; free physical = 25561 ; free virtual = 102871
+Post Processing Netlist | Checksum: 11a143258
+INFO: [Opt 31-389] Phase Post Processing Netlist created 0 cells and removed 0 cells
+
+Phase 9 Finalization
+
+Phase 9.1 Finalizing Design Cores and Updating Shapes
+Phase 9.1 Finalizing Design Cores and Updating Shapes | Checksum: 130334774
+
+Time (s): cpu = 00:00:44 ; elapsed = 00:00:30 . Memory (MB): peak = 5103.977 ; gain = 32.016 ; free physical = 25561 ; free virtual = 102872
+
+Phase 9.2 Verifying Netlist Connectivity
+
+Starting Connectivity Check Task
+
+Time (s): cpu = 00:00:00.72 ; elapsed = 00:00:00.72 . Memory (MB): peak = 5103.977 ; gain = 0.000 ; free physical = 25561 ; free virtual = 102872
+Phase 9.2 Verifying Netlist Connectivity | Checksum: 130334774
+
+Time (s): cpu = 00:00:45 ; elapsed = 00:00:31 . Memory (MB): peak = 5103.977 ; gain = 32.016 ; free physical = 25561 ; free virtual = 102872
+Phase 9 Finalization | Checksum: 130334774
+
+Time (s): cpu = 00:00:45 ; elapsed = 00:00:31 . Memory (MB): peak = 5103.977 ; gain = 32.016 ; free physical = 25561 ; free virtual = 102872
+Opt_design Change Summary
+=========================
+
+
+-------------------------------------------------------------------------------------------------------------------------
+|  Phase                        |  #Cells created  |  #Cells Removed  |  #Constrained objects preventing optimizations  |
+-------------------------------------------------------------------------------------------------------------------------
+|  Retarget                     |               0  |             192  |                                              0  |
+|  Constant propagation         |               0  |               0  |                                              0  |
+|  Sweep                        |               0  |               0  |                                              0  |
+|  BUFG optimization            |               0  |               0  |                                              0  |
+|  Shift Register Optimization  |               0  |               0  |                                              0  |
+|  Post Processing Netlist      |               0  |               0  |                                              0  |
+-------------------------------------------------------------------------------------------------------------------------
+
+
+Ending Logic Optimization Task | Checksum: 130334774
+
+Time (s): cpu = 00:00:45 ; elapsed = 00:00:31 . Memory (MB): peak = 5103.977 ; gain = 32.016 ; free physical = 25561 ; free virtual = 102872
+INFO: [Constraints 18-11670] Building netlist checker database with flags, 0x8
+Done building netlist checker database: Time (s): cpu = 00:00:00.06 ; elapsed = 00:00:00.06 . Memory (MB): peak = 5103.977 ; gain = 0.000 ; free physical = 25561 ; free virtual = 102872
+
+Starting Power Optimization Task
+INFO: [Pwropt 34-132] Skipping clock gating for clocks with a period < 2.00 ns.
+Ending Power Optimization Task | Checksum: 130334774
+
+Time (s): cpu = 00:00:00.17 ; elapsed = 00:00:00.17 . Memory (MB): peak = 5103.977 ; gain = 0.000 ; free physical = 25561 ; free virtual = 102872
+
+Starting Final Cleanup Task
+Ending Final Cleanup Task | Checksum: 130334774
+
+Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.02 . Memory (MB): peak = 5103.977 ; gain = 0.000 ; free physical = 25561 ; free virtual = 102872
+
+Starting Netlist Obfuscation Task
+Netlist sorting complete. Time (s): cpu = 00:00:00.05 ; elapsed = 00:00:00.05 . Memory (MB): peak = 5103.977 ; gain = 0.000 ; free physical = 25561 ; free virtual = 102872
+Ending Netlist Obfuscation Task | Checksum: 130334774
+
+Time (s): cpu = 00:00:00.07 ; elapsed = 00:00:00.07 . Memory (MB): peak = 5103.977 ; gain = 0.000 ; free physical = 25561 ; free virtual = 102872
+INFO: [Common 17-83] Releasing license: Implementation
+20 Infos, 0 Warnings, 0 Critical Warnings and 0 Errors encountered.
+opt_design completed successfully
+opt_design: Time (s): cpu = 00:01:29 ; elapsed = 00:00:44 . Memory (MB): peak = 5103.977 ; gain = 376.793 ; free physical = 25561 ; free virtual = 102872
+# place_design -directive Explore
+Command: place_design -directive Explore
+Attempting to get a license for feature 'Implementation' and/or device 'xczu7ev'
+INFO: [Common 17-349] Got license for feature 'Implementation' and/or device 'xczu7ev'
+INFO: [Common 17-83] Releasing license: Implementation
+INFO: [DRC 23-27] Running DRC with 8 threads
+INFO: [Vivado_Tcl 4-198] DRC finished with 0 Errors
+INFO: [Vivado_Tcl 4-199] Please refer to the DRC report (report_drc) for more information.
+Running DRC as a precondition to command place_design
+INFO: [DRC 23-27] Running DRC with 8 threads
+INFO: [Vivado_Tcl 4-198] DRC finished with 0 Errors
+INFO: [Vivado_Tcl 4-199] Please refer to the DRC report (report_drc) for more information.
+INFO: [Place 46-5] The placer was invoked with the 'Explore' directive.
+INFO: [Place 30-611] Multithreading enabled for place_design using a maximum of 8 CPUs
+
+Starting Placer Task
+
+Phase 1 Placer Initialization
+
+Phase 1.1 Placer Initialization Netlist Sorting
+Netlist sorting complete. Time (s): cpu = 00:00:00.04 ; elapsed = 00:00:00.04 . Memory (MB): peak = 5135.992 ; gain = 0.000 ; free physical = 25564 ; free virtual = 102875
+Phase 1.1 Placer Initialization Netlist Sorting | Checksum: a4229c06
+
+Time (s): cpu = 00:00:00.1 ; elapsed = 00:00:00.1 . Memory (MB): peak = 5135.992 ; gain = 0.000 ; free physical = 25564 ; free virtual = 102875
+Netlist sorting complete. Time (s): cpu = 00:00:00.04 ; elapsed = 00:00:00.04 . Memory (MB): peak = 5135.992 ; gain = 0.000 ; free physical = 25564 ; free virtual = 102875
+
+Phase 1.2 IO Placement/ Clock Placement/ Build Placer Device
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+Phase 1.2 IO Placement/ Clock Placement/ Build Placer Device | Checksum: a1485830
+
+Time (s): cpu = 00:01:02 ; elapsed = 00:00:31 . Memory (MB): peak = 5415.039 ; gain = 279.047 ; free physical = 25354 ; free virtual = 102667
+
+Phase 1.3 Build Placer Netlist Model
+Phase 1.3 Build Placer Netlist Model | Checksum: 19895d8ee
+
+Time (s): cpu = 00:02:31 ; elapsed = 00:01:09 . Memory (MB): peak = 6242.004 ; gain = 1106.012 ; free physical = 24492 ; free virtual = 101807
+
+Phase 1.4 Constrain Clocks/Macros
+Phase 1.4 Constrain Clocks/Macros | Checksum: 19895d8ee
+
+Time (s): cpu = 00:02:31 ; elapsed = 00:01:10 . Memory (MB): peak = 6242.004 ; gain = 1106.012 ; free physical = 24492 ; free virtual = 101807
+Phase 1 Placer Initialization | Checksum: 19895d8ee
+
+Time (s): cpu = 00:02:32 ; elapsed = 00:01:11 . Memory (MB): peak = 6242.004 ; gain = 1106.012 ; free physical = 24493 ; free virtual = 101807
+
+Phase 2 Global Placement
+
+Phase 2.1 Floorplanning
+
+Phase 2.1.1 Partition Driven Placement
+
+Phase 2.1.1.1 PBP: Partition Driven Placement
+Phase 2.1.1.1 PBP: Partition Driven Placement | Checksum: dcabbaef
+
+Time (s): cpu = 00:03:56 ; elapsed = 00:01:44 . Memory (MB): peak = 6322.043 ; gain = 1186.051 ; free physical = 24496 ; free virtual = 101812
+
+Phase 2.1.1.2 PBP: Clock Region Placement
+INFO: [Place 30-3164] Check ILP status : ILP-based clock placer is skipped.
+Phase 2.1.1.2 PBP: Clock Region Placement | Checksum: dcabbaef
+
+Time (s): cpu = 00:03:57 ; elapsed = 00:01:45 . Memory (MB): peak = 6322.043 ; gain = 1186.051 ; free physical = 24496 ; free virtual = 101812
+
+Phase 2.1.1.3 PBP: Compute Congestion
+Phase 2.1.1.3 PBP: Compute Congestion | Checksum: dcabbaef
+
+Time (s): cpu = 00:04:19 ; elapsed = 00:01:51 . Memory (MB): peak = 6322.043 ; gain = 1186.051 ; free physical = 24756 ; free virtual = 102072
+
+Phase 2.1.1.4 PBP: UpdateTiming
+Phase 2.1.1.4 PBP: UpdateTiming | Checksum: 105027d77
+
+Time (s): cpu = 00:04:35 ; elapsed = 00:01:57 . Memory (MB): peak = 6322.043 ; gain = 1186.051 ; free physical = 24755 ; free virtual = 102071
+
+Phase 2.1.1.5 PBP: Add part constraints
+Phase 2.1.1.5 PBP: Add part constraints | Checksum: 105027d77
+
+Time (s): cpu = 00:04:35 ; elapsed = 00:01:57 . Memory (MB): peak = 6322.043 ; gain = 1186.051 ; free physical = 24755 ; free virtual = 102071
+Phase 2.1.1 Partition Driven Placement | Checksum: 105027d77
+
+Time (s): cpu = 00:04:35 ; elapsed = 00:01:57 . Memory (MB): peak = 6322.043 ; gain = 1186.051 ; free physical = 24755 ; free virtual = 102071
+Phase 2.1 Floorplanning | Checksum: 105027d77
+
+Time (s): cpu = 00:04:36 ; elapsed = 00:01:58 . Memory (MB): peak = 6322.043 ; gain = 1186.051 ; free physical = 24755 ; free virtual = 102071
+
+Phase 2.2 Update Timing before SLR Path Opt
+Phase 2.2 Update Timing before SLR Path Opt | Checksum: 105027d77
+
+Time (s): cpu = 00:04:36 ; elapsed = 00:01:58 . Memory (MB): peak = 6322.043 ; gain = 1186.051 ; free physical = 24754 ; free virtual = 102070
+
+Phase 2.3 Post-Processing in Floorplanning
+Phase 2.3 Post-Processing in Floorplanning | Checksum: ed2d6d0d
+
+Time (s): cpu = 00:04:37 ; elapsed = 00:01:59 . Memory (MB): peak = 6322.043 ; gain = 1186.051 ; free physical = 24754 ; free virtual = 102070
+
+Phase 2.4 Global Placement Core
+
+Phase 2.4.1 UpdateTiming Before Physical Synthesis
+Phase 2.4.1 UpdateTiming Before Physical Synthesis | Checksum: 27a6833c8
+
+Time (s): cpu = 00:10:28 ; elapsed = 00:04:00 . Memory (MB): peak = 6596.043 ; gain = 1460.051 ; free physical = 24487 ; free virtual = 101804
+
+Phase 2.4.2 Physical Synthesis In Placer
+INFO: [Physopt 32-1035] Found 88 LUTNM shape to break, 16101 LUT instances to create LUTNM shape
+INFO: [Physopt 32-1044] Break lutnm for timing: one critical 74, two critical 14, total 88, new lutff created 0
+INFO: [Physopt 32-1138] End 1 Pass. Optimized 7318 nets or LUTs. Breaked 88 LUTs, combined 7230 existing LUTs and moved 0 existing LUT
+INFO: [Physopt 32-1030] Pass 1. Identified 164 candidate driver sets for equivalent driver rewiring.
+INFO: [Physopt 32-661] Optimized 156 nets.  Re-placed 521 instances.
+INFO: [Physopt 32-775] End 1 Pass. Optimized 156 nets or cells. Created 0 new cell, deleted 0 existing cell and moved 521 existing cells
+Netlist sorting complete. Time (s): cpu = 00:00:00.6 ; elapsed = 00:00:00.59 . Memory (MB): peak = 6596.043 ; gain = 0.000 ; free physical = 24487 ; free virtual = 101805
+INFO: [Physopt 32-65] No nets found for high-fanout optimization.
+INFO: [Physopt 32-232] Optimized 0 net. Created 0 new instance.
+INFO: [Physopt 32-775] End 1 Pass. Optimized 0 net or cell. Created 0 new cell, deleted 0 existing cell and moved 0 existing cell
+INFO: [Physopt 32-457] Pass 1. Identified 7 candidate cells for DSP register optimization.
+INFO: [Physopt 32-665] Processed cell CORES[11].core_inst/MAC_LANES[5].DSP_PIPELINE.multip/product_preg_reg. 16 registers were pushed out.
+INFO: [Physopt 32-665] Processed cell CORES[0].core_inst/MAC_LANES[4].DSP_PIPELINE.multip/product_preg_reg. 16 registers were pushed out.
+INFO: [Physopt 32-665] Processed cell CORES[0].core_inst/MAC_LANES[0].DSP_PIPELINE.multip/product_preg_reg. 16 registers were pushed out.
+INFO: [Physopt 32-665] Processed cell CORES[0].core_inst/MAC_LANES[5].DSP_PIPELINE.multip/product_preg_reg. 16 registers were pushed out.
+INFO: [Physopt 32-665] Processed cell CORES[22].core_inst/MAC_LANES[5].DSP_PIPELINE.multip/product_preg_reg. 16 registers were pushed out.
+INFO: [Physopt 32-665] Processed cell CORES[11].core_inst/MAC_LANES[4].DSP_PIPELINE.multip/product_preg_reg. 16 registers were pushed out.
+INFO: [Physopt 32-665] Processed cell CORES[22].core_inst/MAC_LANES[4].DSP_PIPELINE.multip/product_preg_reg. 16 registers were pushed out.
+INFO: [Physopt 32-775] End 2 Pass. Optimized 7 nets or cells. Created 112 new cells, deleted 0 existing cell and moved 0 existing cell
+Netlist sorting complete. Time (s): cpu = 00:00:00.16 ; elapsed = 00:00:00.16 . Memory (MB): peak = 6596.043 ; gain = 0.000 ; free physical = 24485 ; free virtual = 101804
+INFO: [Physopt 32-1123] No candidate cells found for Shift Register to Pipeline optimization
+INFO: [Physopt 32-775] End 2 Pass. Optimized 0 net or cell. Created 0 new cell, deleted 0 existing cell and moved 0 existing cell
+INFO: [Physopt 32-1401] No candidate cells found for Shift Register optimization.
+INFO: [Physopt 32-677] No candidate cells for Shift Register optimization found in the design
+INFO: [Physopt 32-775] End 1 Pass. Optimized 0 net or cell. Created 0 new cell, deleted 0 existing cell and moved 0 existing cell
+INFO: [Physopt 32-526] No candidate cells for BRAM register optimization found in the design
+INFO: [Physopt 32-775] End 1 Pass. Optimized 0 net or cell. Created 0 new cell, deleted 0 existing cell and moved 0 existing cell
+INFO: [Physopt 32-846] No candidate cells for URAM register optimization found in the design
+INFO: [Physopt 32-775] End 1 Pass. Optimized 0 net or cell. Created 0 new cell, deleted 0 existing cell and moved 0 existing cell
+INFO: [Physopt 32-846] No candidate cells for URAM register optimization found in the design
+INFO: [Physopt 32-775] End 1 Pass. Optimized 0 net or cell. Created 0 new cell, deleted 0 existing cell and moved 0 existing cell
+INFO: [Physopt 32-949] No candidate nets found for dynamic/static region interface net replication
+INFO: [Physopt 32-775] End 1 Pass. Optimized 0 net or cell. Created 0 new cell, deleted 0 existing cell and moved 0 existing cell
+Netlist sorting complete. Time (s): cpu = 00:00:00.04 ; elapsed = 00:00:00.05 . Memory (MB): peak = 6596.043 ; gain = 0.000 ; free physical = 24485 ; free virtual = 101804
+
+Summary of Physical Synthesis Optimizations
+============================================
+
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+|  Optimization                                     |  Added Cells  |  Removed Cells  |  Optimized Cells/Nets  |  Dont Touch  |  Iterations  |  Elapsed   |
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+|  LUT Combining                                    |           88  |           7230  |                  7318  |           0  |           1  |  00:00:07  |
+|  Retime                                           |            0  |              0  |                     0  |           0  |           1  |  00:00:00  |
+|  Equivalent Driver Rewiring                       |            0  |              0  |                   156  |           0  |           1  |  00:00:06  |
+|  Very High Fanout                                 |            0  |              0  |                     0  |           0  |           1  |  00:00:01  |
+|  DSP Register                                     |          112  |              0  |                     7  |           0  |           1  |  00:00:01  |
+|  Shift Register to Pipeline                       |            0  |              0  |                     0  |           0  |           1  |  00:00:00  |
+|  Shift Register                                   |            0  |              0  |                     0  |           0  |           1  |  00:00:00  |
+|  BRAM Register                                    |            0  |              0  |                     0  |           0  |           1  |  00:00:00  |
+|  URAM Register                                    |            0  |              0  |                     0  |           0  |           1  |  00:00:00  |
+|  Dynamic/Static Region Interface Net Replication  |            0  |              0  |                     0  |           0  |           1  |  00:00:00  |
+|  Total                                            |          200  |           7230  |                  7481  |           0  |          10  |  00:00:15  |
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+Phase 2.4.2 Physical Synthesis In Placer | Checksum: 1e816dbd8
+
+Time (s): cpu = 00:11:08 ; elapsed = 00:04:27 . Memory (MB): peak = 6596.043 ; gain = 1460.051 ; free physical = 24490 ; free virtual = 101809
+Phase 2.4 Global Placement Core | Checksum: 1d4cf1594
+
+Time (s): cpu = 00:13:31 ; elapsed = 00:05:06 . Memory (MB): peak = 6596.043 ; gain = 1460.051 ; free physical = 24492 ; free virtual = 101811
+Phase 2 Global Placement | Checksum: 1d4cf1594
+
+Time (s): cpu = 00:13:31 ; elapsed = 00:05:06 . Memory (MB): peak = 6596.043 ; gain = 1460.051 ; free physical = 24492 ; free virtual = 101811
+
+Phase 3 Detail Placement
+
+Phase 3.1 Commit Multi Column Macros
+Phase 3.1 Commit Multi Column Macros | Checksum: 2141bb8e3
+
+Time (s): cpu = 00:14:10 ; elapsed = 00:05:18 . Memory (MB): peak = 6596.043 ; gain = 1460.051 ; free physical = 24490 ; free virtual = 101809
+
+Phase 3.2 Commit Most Macros & LUTRAMs
+Phase 3.2 Commit Most Macros & LUTRAMs | Checksum: 20d1ac3d2
+
+Time (s): cpu = 00:14:50 ; elapsed = 00:05:38 . Memory (MB): peak = 6596.043 ; gain = 1460.051 ; free physical = 24488 ; free virtual = 101807
+
+Phase 3.3 Small Shape DP
+
+Phase 3.3.1 Small Shape Clustering
+Phase 3.3.1 Small Shape Clustering | Checksum: 1e0005dd3
+
+Time (s): cpu = 00:20:33 ; elapsed = 00:06:41 . Memory (MB): peak = 6686.207 ; gain = 1550.215 ; free physical = 24403 ; free virtual = 101724
+
+Phase 3.3.2 Slice Area Swap
+
+Phase 3.3.2.1 Slice Area Swap Initial
+Phase 3.3.2.1 Slice Area Swap Initial | Checksum: 1a74f861a
+
+Time (s): cpu = 00:20:56 ; elapsed = 00:07:01 . Memory (MB): peak = 6686.207 ; gain = 1550.215 ; free physical = 24392 ; free virtual = 101718
+Phase 3.3.2 Slice Area Swap | Checksum: 1a74f861a
+
+Time (s): cpu = 00:20:57 ; elapsed = 00:07:02 . Memory (MB): peak = 6686.207 ; gain = 1550.215 ; free physical = 24392 ; free virtual = 101718
+Phase 3.3 Small Shape DP | Checksum: 1cb1255e2
+
+Time (s): cpu = 00:21:38 ; elapsed = 00:07:15 . Memory (MB): peak = 6686.207 ; gain = 1550.215 ; free physical = 24409 ; free virtual = 101773
+
+Phase 3.4 Re-assign LUT pins
+Phase 3.4 Re-assign LUT pins | Checksum: 12f1eaeba
+
+Time (s): cpu = 00:21:51 ; elapsed = 00:07:28 . Memory (MB): peak = 6686.207 ; gain = 1550.215 ; free physical = 24307 ; free virtual = 101676
+
+Phase 3.5 Pipeline Register Optimization
+Phase 3.5 Pipeline Register Optimization | Checksum: 12938d0c8
+
+Time (s): cpu = 00:21:53 ; elapsed = 00:07:30 . Memory (MB): peak = 6686.207 ; gain = 1550.215 ; free physical = 24304 ; free virtual = 101674
+Phase 3 Detail Placement | Checksum: 12938d0c8
+
+Time (s): cpu = 00:21:55 ; elapsed = 00:07:32 . Memory (MB): peak = 6686.207 ; gain = 1550.215 ; free physical = 24305 ; free virtual = 101674
+
+Phase 4 Post Placement Optimization and Clean-Up
+
+Phase 4.1 Post Commit Optimization
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+
+Phase 4.1.1 Post Placement Optimization
+Post Placement Optimization Initialization | Checksum: 11a2236f5
+
+Phase 4.1.1.1 BUFG Insertion
+
+Starting Physical Synthesis Task
+
+Phase 1 Physical Synthesis Initialization
+INFO: [Physopt 32-721] Multithreading enabled for phys_opt_design using a maximum of 8 CPUs
+INFO: [Physopt 32-619] Estimated Timing Summary | WNS=0.047 | TNS=0.000 |
+Phase 1 Physical Synthesis Initialization | Checksum: 180d1444e
+
+Time (s): cpu = 00:00:11 ; elapsed = 00:00:04 . Memory (MB): peak = 6686.207 ; gain = 0.000 ; free physical = 24272 ; free virtual = 101647
+INFO: [Place 46-56] BUFG insertion identified 0 candidate nets. Inserted BUFG: 0, Replicated BUFG Driver: 0, Skipped due to Placement/Routing Conflicts: 0, Skipped due to Timing Degradation: 0, Skipped due to netlist editing failed: 0.
+Ending Physical Synthesis Task | Checksum: 180d1444e
+
+Time (s): cpu = 00:00:15 ; elapsed = 00:00:08 . Memory (MB): peak = 6686.207 ; gain = 0.000 ; free physical = 24270 ; free virtual = 101646
+Phase 4.1.1.1 BUFG Insertion | Checksum: 11a2236f5
+
+Time (s): cpu = 00:24:16 ; elapsed = 00:08:15 . Memory (MB): peak = 6686.207 ; gain = 1550.215 ; free physical = 24268 ; free virtual = 101644
+
+Phase 4.1.1.2 Post Placement Timing Optimization
+INFO: [Place 30-746] Post Placement Timing Summary WNS=0.272. For the most accurate timing information please run report_timing.
+Phase 4.1.1.2 Post Placement Timing Optimization | Checksum: 18572af1e
+
+Time (s): cpu = 00:24:49 ; elapsed = 00:08:42 . Memory (MB): peak = 6686.207 ; gain = 1550.215 ; free physical = 24260 ; free virtual = 101637
+
+Time (s): cpu = 00:24:49 ; elapsed = 00:08:42 . Memory (MB): peak = 6686.207 ; gain = 1550.215 ; free physical = 24260 ; free virtual = 101637
+Phase 4.1 Post Commit Optimization | Checksum: 18572af1e
+
+Time (s): cpu = 00:24:51 ; elapsed = 00:08:44 . Memory (MB): peak = 6686.207 ; gain = 1550.215 ; free physical = 24261 ; free virtual = 101638
+
+Phase 4.2 Post Placement Cleanup
+Phase 4.2 Post Placement Cleanup | Checksum: 18572af1e
+
+Time (s): cpu = 00:25:19 ; elapsed = 00:08:56 . Memory (MB): peak = 6686.207 ; gain = 1550.215 ; free physical = 24260 ; free virtual = 101637
+
+Phase 4.3 Placer Reporting
+
+Phase 4.3.1 Print Estimated Congestion
+INFO: [Place 30-612] Post-Placement Estimated Congestion
+ ________________________________________________________________________
+|           | Global Congestion | Long Congestion   | Short Congestion  |
+| Direction | Region Size       | Region Size       | Region Size       |
+|___________|___________________|___________________|___________________|
+|      North|                4x4|              16x16|                8x8|
+|___________|___________________|___________________|___________________|
+|      South|                1x1|              16x16|              16x16|
+|___________|___________________|___________________|___________________|
+|       East|                2x2|                2x2|              16x16|
+|___________|___________________|___________________|___________________|
+|       West|                1x1|                2x2|                8x8|
+|___________|___________________|___________________|___________________|
+
+Phase 4.3.1 Print Estimated Congestion | Checksum: 18572af1e
+
+Time (s): cpu = 00:25:21 ; elapsed = 00:08:58 . Memory (MB): peak = 6686.207 ; gain = 1550.215 ; free physical = 24258 ; free virtual = 101636
+Phase 4.3 Placer Reporting | Checksum: 18572af1e
+
+Time (s): cpu = 00:25:23 ; elapsed = 00:09:00 . Memory (MB): peak = 6686.207 ; gain = 1550.215 ; free physical = 24259 ; free virtual = 101636
+
+Phase 4.4 Final Placement Cleanup
+Netlist sorting complete. Time (s): cpu = 00:00:00.04 ; elapsed = 00:00:00.05 . Memory (MB): peak = 6686.207 ; gain = 0.000 ; free physical = 24259 ; free virtual = 101636
+
+Time (s): cpu = 00:25:23 ; elapsed = 00:09:00 . Memory (MB): peak = 6686.207 ; gain = 1550.215 ; free physical = 24259 ; free virtual = 101636
+Phase 4 Post Placement Optimization and Clean-Up | Checksum: 1ac3d2017
+
+Time (s): cpu = 00:25:25 ; elapsed = 00:09:02 . Memory (MB): peak = 6686.207 ; gain = 1550.215 ; free physical = 24258 ; free virtual = 101636
+Ending Placer Task | Checksum: 1286f6e23
+
+Time (s): cpu = 00:25:26 ; elapsed = 00:09:03 . Memory (MB): peak = 6686.207 ; gain = 1550.215 ; free physical = 24260 ; free virtual = 101637
+49 Infos, 0 Warnings, 0 Critical Warnings and 0 Errors encountered.
+place_design completed successfully
+place_design: Time (s): cpu = 00:25:42 ; elapsed = 00:09:11 . Memory (MB): peak = 6686.207 ; gain = 1582.230 ; free physical = 24260 ; free virtual = 101638
+# phys_opt_design -directive Explore
+Command: phys_opt_design -directive Explore
+Attempting to get a license for feature 'Implementation' and/or device 'xczu7ev'
+INFO: [Common 17-349] Got license for feature 'Implementation' and/or device 'xczu7ev'
+INFO: [Vivado_Tcl 4-137] Directive used for phys_opt_design is: Explore
+
+Starting Initial Update Timing Task
+WARNING: [Timing 38-242] The property HD.CLK_SRC of clock port "clk" is not set. In out-of-context mode, this prevents timing estimation for clock delay/skew
+Resolution: Set the HD.CLK_SRC property of the out-of-context port to the location of the clock buffer instance in the top-level design
+
+Time (s): cpu = 00:01:10 ; elapsed = 00:00:18 . Memory (MB): peak = 6686.207 ; gain = 0.000 ; free physical = 24261 ; free virtual = 101639
+INFO: [Vivado_Tcl 4-383] Design worst setup slack (WNS) is greater than or equal to 0.000 ns. Skipping all physical synthesis optimizations.
+INFO: [Vivado_Tcl 4-232] No setup violation found. The netlist was not modified.
+INFO: [Common 17-83] Releasing license: Implementation
+5 Infos, 1 Warnings, 0 Critical Warnings and 0 Errors encountered.
+phys_opt_design completed successfully
+phys_opt_design: Time (s): cpu = 00:01:12 ; elapsed = 00:00:20 . Memory (MB): peak = 6686.207 ; gain = 0.000 ; free physical = 24261 ; free virtual = 101639
+# route_design -directive Explore
+Command: route_design -directive Explore
+Attempting to get a license for feature 'Implementation' and/or device 'xczu7ev'
+INFO: [Common 17-349] Got license for feature 'Implementation' and/or device 'xczu7ev'
+Running DRC as a precondition to command route_design
+INFO: [DRC 23-27] Running DRC with 8 threads
+INFO: [Vivado_Tcl 4-198] DRC finished with 0 Errors
+INFO: [Vivado_Tcl 4-199] Please refer to the DRC report (report_drc) for more information.
+
+
+Starting Routing Task
+INFO: [Route 35-270] Using Router directive 'Explore'.
+INFO: [Route 35-254] Multithreading enabled for route_design using a maximum of 8 CPUs
+
+Phase 1 Build RT Design
+Checksum: PlaceDB: 316cd78e ConstDB: 0 ShapeSum: f7029695 RouteDB: 0
+Nodegraph reading from file.  Time (s): cpu = 00:00:00.74 ; elapsed = 00:00:00.75 . Memory (MB): peak = 6750.238 ; gain = 0.000 ; free physical = 24473 ; free virtual = 101855
+WARNING: [Route 35-197] Clock port "clk" does not have an associated HD.CLK_SRC. Without this constraint, timing analysis may not be accurate and upstream checks cannot be done to ensure correct clock placement.
+WARNING: [Route 35-198] Port "reset" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "reset". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[5][80]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[5][80]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[5][0]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[5][0]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[5][50]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[5][50]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[5][2]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[5][2]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[5][63]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[5][63]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[5][15]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[5][15]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_output_data_read[5][19]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_output_data_read[5][19]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_output_data_read[5][18]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_output_data_read[5][18]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_output_data_read[5][17]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_output_data_read[5][17]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_output_data_read[5][16]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_output_data_read[5][16]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_output_data_read[5][53]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_output_data_read[5][53]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_output_data_read[5][52]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_output_data_read[5][52]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_output_data_read[5][63]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_output_data_read[5][63]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_output_data_read[5][62]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_output_data_read[5][62]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_output_data_read[5][45]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_output_data_read[5][45]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_output_data_read[5][44]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_output_data_read[5][44]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_output_data_read[5][43]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_output_data_read[5][43]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_output_data_read[5][42]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_output_data_read[5][42]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[9][30]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[9][30]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[9][14]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[9][14]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[9][89]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[9][89]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[9][9]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[9][9]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[9][54]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[9][54]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[9][6]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[9][6]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[9][82]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[9][82]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[9][2]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[9][2]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[9][69]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[9][69]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[9][11]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[9][11]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[9][12]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[9][12]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[9][18]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[9][18]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[9][34]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[9][34]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[9][27]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[9][27]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[9][43]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[9][43]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[9][28]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[9][28]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[9][44]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[9][44]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[9][46]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[9][46]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[9][47]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[9][47]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[9][15]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[9][15]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[9][29]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[9][29]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[9][13]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[9][13]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[9][22]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[9][22]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[9][38]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[9][38]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[9][25]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[9][25]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[9][41]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[9][41]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[9][10]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[9][10]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[9][31]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[9][31]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[9][8]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[9][8]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[9][24]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[9][24]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[9][40]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[9][40]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[9][26]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[9][26]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[9][42]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[9][42]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[3][33]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[3][33]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[3][1]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[3][1]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[3][86]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[3][86]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[3][6]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[3][6]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[3][90]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[3][90]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[3][10]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[3][10]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[3][93]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[3][93]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[3][13]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[3][13]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[3][80]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[3][80]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[3][0]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[3][0]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[3][37]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[3][37]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[3][5]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[3][5]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[3][19]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[3][19]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[3][3]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[3][3]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[3][29]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[3][29]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[3][27]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[3][27]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[3][11]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[3][11]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[3][25]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[3][25]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[3][9]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[3][9]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[3][92]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[3][92]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[3][12]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[3][12]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[3][85]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[3][85]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[3][81]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[3][81]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[3][91]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[3][91]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[3][28]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[3][28]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[3][43]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[3][43]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[3][24]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[3][24]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[3][8]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[3][8]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[3][78]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[3][78]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[3][14]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[3][14]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[3][57]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[3][57]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[3][42]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[3][42]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[3][45]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[3][45]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[3][62]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[3][62]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[3][44]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[3][44]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[3][39]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[3][39]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[3][7]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[3][7]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[3][66]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[3][66]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[3][2]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[3][2]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[3][60]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[3][60]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[3][40]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[3][40]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[3][47]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[3][47]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[3][15]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[3][15]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[3][79]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[3][79]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[3][38]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[3][38]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[3][74]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[3][74]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[3][71]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[3][71]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+WARNING: [Route 35-198] Port "p_input_data[3][77]" does not have an associated HD.PARTPIN_LOCS, which will prevent the partial routing of the signal "p_input_data[3][77]". Without this partial route, timing analysis to/from this port will not be accurate, and no routing information for this port can be exported.
+INFO: [Common 17-14] Message 'Route 35-198' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
+Post Restoration Checksum: NetGraph: 443fa22b | NumContArr: 9edf49e0 | Constraints: c2a8fa9d | Timing: c2a8fa9d
+Phase 1 Build RT Design | Checksum: 26870e145
+
+Time (s): cpu = 00:01:42 ; elapsed = 00:00:14 . Memory (MB): peak = 6750.238 ; gain = 0.000 ; free physical = 24325 ; free virtual = 101707
+
+Phase 2 Router Initialization
+
+Phase 2.1 Fix Topology Constraints
+Phase 2.1 Fix Topology Constraints | Checksum: 26870e145
+
+Time (s): cpu = 00:01:43 ; elapsed = 00:00:14 . Memory (MB): peak = 6750.238 ; gain = 0.000 ; free physical = 24320 ; free virtual = 101703
+
+Phase 2.2 Pre Route Cleanup
+Phase 2.2 Pre Route Cleanup | Checksum: 26870e145
+
+Time (s): cpu = 00:01:45 ; elapsed = 00:00:14 . Memory (MB): peak = 6750.238 ; gain = 0.000 ; free physical = 24319 ; free virtual = 101702
+
+Phase 2.3 Global Clock Net Routing
+Phase 2.3 Global Clock Net Routing | Checksum: 26870e145
+
+Time (s): cpu = 00:01:53 ; elapsed = 00:00:16 . Memory (MB): peak = 6750.238 ; gain = 0.000 ; free physical = 24304 ; free virtual = 101687
+
+Phase 2.4 Update Timing
+Phase 2.4 Update Timing | Checksum: 21eefd10d
+
+Time (s): cpu = 00:02:40 ; elapsed = 00:00:29 . Memory (MB): peak = 6750.238 ; gain = 0.000 ; free physical = 24295 ; free virtual = 101678
+INFO: [Route 35-416] Intermediate Timing Summary | WNS=0.329  | TNS=0.000  | WHS=0.018  | THS=0.000  |
+
+
+Router Utilization Summary
+  Global Vertical Routing Utilization    = 0 %
+  Global Horizontal Routing Utilization  = 0 %
+  Routable Net Status*
+  *Does not include unroutable nets such as driverless and loadless.
+  Run report_route_status for detailed report.
+  Number of Failed Nets               = 242997
+    (Failed Nets is the sum of unrouted and partially routed nets)
+  Number of Unrouted Nets             = 208312
+  Number of Partially Routed Nets     = 34685
+  Number of Node Overlaps             = 0
+
+Phase 2 Router Initialization | Checksum: 1ad3b1287
+
+Time (s): cpu = 00:04:20 ; elapsed = 00:01:03 . Memory (MB): peak = 6750.238 ; gain = 0.000 ; free physical = 24267 ; free virtual = 101649
+
+Phase 3 Initial Routing
+
+Phase 3.1 Global Routing
+Phase 3.1 Global Routing | Checksum: 1ad3b1287
+
+Time (s): cpu = 00:04:21 ; elapsed = 00:01:04 . Memory (MB): peak = 6750.238 ; gain = 0.000 ; free physical = 24267 ; free virtual = 101649
+
+Phase 3.2 Initial Net Routing
+Phase 3.2 Initial Net Routing | Checksum: 2bf1c359b
+
+Time (s): cpu = 00:05:28 ; elapsed = 00:01:25 . Memory (MB): peak = 6750.238 ; gain = 0.000 ; free physical = 24258 ; free virtual = 101642
+Phase 3 Initial Routing | Checksum: 362b6f658
+
+Time (s): cpu = 00:05:34 ; elapsed = 00:01:26 . Memory (MB): peak = 6750.238 ; gain = 0.000 ; free physical = 24258 ; free virtual = 101642
+
+Phase 4 Rip-up And Reroute
+
+Phase 4.1 Global Iteration 0
+ Number of Nodes with overlaps = 93939
+ Number of Nodes with overlaps = 17401
+ Number of Nodes with overlaps = 4038
+ Number of Nodes with overlaps = 1399
+ Number of Nodes with overlaps = 636
+ Number of Nodes with overlaps = 280
+ Number of Nodes with overlaps = 170
+ Number of Nodes with overlaps = 109
+ Number of Nodes with overlaps = 77
+ Number of Nodes with overlaps = 61
+ Number of Nodes with overlaps = 35
+ Number of Nodes with overlaps = 25
+ Number of Nodes with overlaps = 14
+ Number of Nodes with overlaps = 9
+ Number of Nodes with overlaps = 3
+ Number of Nodes with overlaps = 3
+ Number of Nodes with overlaps = 2
+ Number of Nodes with overlaps = 1
+ Number of Nodes with overlaps = 1
+ Number of Nodes with overlaps = 2
+INFO: [Route 35-443] CLB routing congestion detected. Several CLBs have high routing utilization, which can impact timing closure. Congested CLBs and Nets are dumped in: iter_100_CongestedCLBsAndNets.txt
+ Number of Nodes with overlaps = 0
+INFO: [Route 35-416] Intermediate Timing Summary | WNS=0.057  | TNS=0.000  | WHS=0.027  | THS=0.000  |
+
+Phase 4.1 Global Iteration 0 | Checksum: 22e68e34f
+
+Time (s): cpu = 00:33:50 ; elapsed = 00:14:20 . Memory (MB): peak = 6750.238 ; gain = 0.000 ; free physical = 22599 ; free virtual = 100214
+
+Phase 4.2 Additional Iteration for Hold
+Phase 4.2 Additional Iteration for Hold | Checksum: 1dfa79420
+
+Time (s): cpu = 00:33:54 ; elapsed = 00:14:21 . Memory (MB): peak = 6750.238 ; gain = 0.000 ; free physical = 22583 ; free virtual = 100199
+Phase 4 Rip-up And Reroute | Checksum: 1dfa79420
+
+Time (s): cpu = 00:33:55 ; elapsed = 00:14:21 . Memory (MB): peak = 6750.238 ; gain = 0.000 ; free physical = 22565 ; free virtual = 100181
+
+Phase 5 Delay and Skew Optimization
+
+Phase 5.1 Delay CleanUp
+Phase 5.1 Delay CleanUp | Checksum: 1dfa79420
+
+Time (s): cpu = 00:33:59 ; elapsed = 00:14:21 . Memory (MB): peak = 6750.238 ; gain = 0.000 ; free physical = 22488 ; free virtual = 100105
+
+Phase 5.2 Clock Skew Optimization
+Phase 5.2 Clock Skew Optimization | Checksum: 1dfa79420
+
+Time (s): cpu = 00:34:00 ; elapsed = 00:14:21 . Memory (MB): peak = 6750.238 ; gain = 0.000 ; free physical = 22483 ; free virtual = 100099
+Phase 5 Delay and Skew Optimization | Checksum: 1dfa79420
+
+Time (s): cpu = 00:34:01 ; elapsed = 00:14:21 . Memory (MB): peak = 6750.238 ; gain = 0.000 ; free physical = 22475 ; free virtual = 100092
+
+Phase 6 Post Hold Fix
+
+Phase 6.1 Hold Fix Iter
+
+Phase 6.1.1 Update Timing
+Phase 6.1.1 Update Timing | Checksum: 26348f22d
+
+Time (s): cpu = 00:34:52 ; elapsed = 00:14:34 . Memory (MB): peak = 6750.238 ; gain = 0.000 ; free physical = 22233 ; free virtual = 99853
+INFO: [Route 35-416] Intermediate Timing Summary | WNS=0.057  | TNS=0.000  | WHS=0.027  | THS=0.000  |
+
+Phase 6.1 Hold Fix Iter | Checksum: 26348f22d
+
+Time (s): cpu = 00:34:53 ; elapsed = 00:14:34 . Memory (MB): peak = 6750.238 ; gain = 0.000 ; free physical = 22230 ; free virtual = 99851
+Phase 6 Post Hold Fix | Checksum: 26348f22d
+
+Time (s): cpu = 00:34:54 ; elapsed = 00:14:34 . Memory (MB): peak = 6750.238 ; gain = 0.000 ; free physical = 22231 ; free virtual = 99851
+
+Phase 7 Route finalize
+
+Router Utilization Summary
+  Global Vertical Routing Utilization    = 19.8411 %
+  Global Horizontal Routing Utilization  = 22.9695 %
+  Routable Net Status*
+  *Does not include unroutable nets such as driverless and loadless.
+  Run report_route_status for detailed report.
+  Number of Failed Nets               = 0
+    (Failed Nets is the sum of unrouted and partially routed nets)
+  Number of Unrouted Nets             = 0
+  Number of Partially Routed Nets     = 0
+  Number of Node Overlaps             = 0
+
+Phase 7 Route finalize | Checksum: 26348f22d
+
+Time (s): cpu = 00:35:01 ; elapsed = 00:14:36 . Memory (MB): peak = 6750.238 ; gain = 0.000 ; free physical = 22658 ; free virtual = 100277
+
+Phase 8 Verifying routed nets
+
+ Verification completed successfully
+Phase 8 Verifying routed nets | Checksum: 26348f22d
+
+Time (s): cpu = 00:35:02 ; elapsed = 00:14:36 . Memory (MB): peak = 6750.238 ; gain = 0.000 ; free physical = 22579 ; free virtual = 100198
+
+Phase 9 Depositing Routes
+Phase 9 Depositing Routes | Checksum: 26348f22d
+
+Time (s): cpu = 00:35:26 ; elapsed = 00:14:52 . Memory (MB): peak = 6750.238 ; gain = 0.000 ; free physical = 23068 ; free virtual = 100692
+
+Phase 10 Resolve XTalk
+Phase 10 Resolve XTalk | Checksum: 26348f22d
+
+Time (s): cpu = 00:35:30 ; elapsed = 00:14:54 . Memory (MB): peak = 6750.238 ; gain = 0.000 ; free physical = 23256 ; free virtual = 100878
+
+Phase 11 Route finalize
+Phase 11 Route finalize | Checksum: 26348f22d
+
+Time (s): cpu = 00:35:33 ; elapsed = 00:14:55 . Memory (MB): peak = 6750.238 ; gain = 0.000 ; free physical = 23192 ; free virtual = 100814
+
+Phase 12 Post Router Timing
+WARNING: [Timing 38-242] The property HD.CLK_SRC of clock port "clk" is not set. In out-of-context mode, this prevents timing estimation for clock delay/skew
+Resolution: Set the HD.CLK_SRC property of the out-of-context port to the location of the clock buffer instance in the top-level design
+INFO: [Route 35-20] Post Routing Timing Summary | WNS=0.071  | TNS=0.000  | WHS=0.027  | THS=0.000  |
+
+Phase 12 Post Router Timing | Checksum: 1f7638bfb
+
+Time (s): cpu = 00:37:44 ; elapsed = 00:15:33 . Memory (MB): peak = 6750.238 ; gain = 0.000 ; free physical = 23160 ; free virtual = 100790
+INFO: [Route 35-61] The design met the timing requirement.
+INFO: [Route 35-16] Router Completed Successfully
+
+Phase 13 Post-Route Event Processing
+Phase 13 Post-Route Event Processing | Checksum: 19fd0ddc3
+
+Time (s): cpu = 00:37:53 ; elapsed = 00:15:42 . Memory (MB): peak = 6750.238 ; gain = 0.000 ; free physical = 23023 ; free virtual = 100653
+Ending Routing Task | Checksum: 19fd0ddc3
+
+Time (s): cpu = 00:38:00 ; elapsed = 00:15:49 . Memory (MB): peak = 6750.238 ; gain = 0.000 ; free physical = 23100 ; free virtual = 100731
+
+Routing Is Done.
+INFO: [Common 17-83] Releasing license: Implementation
+15 Infos, 102 Warnings, 0 Critical Warnings and 0 Errors encountered.
+route_design completed successfully
+route_design: Time (s): cpu = 00:38:25 ; elapsed = 00:16:02 . Memory (MB): peak = 6750.238 ; gain = 64.031 ; free physical = 22994 ; free virtual = 100625
+# write_checkpoint -force [file join $out_dir routed.dcp]
+INFO: [Timing 38-480] Writing timing data to binary archive.
+Write ShapeDB Complete: Time (s): cpu = 00:00:03 ; elapsed = 00:00:00.58 . Memory (MB): peak = 6750.238 ; gain = 0.000 ; free physical = 22926 ; free virtual = 100557
+Wrote PlaceDB: Time (s): cpu = 00:00:29 ; elapsed = 00:00:10 . Memory (MB): peak = 6750.238 ; gain = 0.000 ; free physical = 23200 ; free virtual = 100830
+Wrote PulsedLatchDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 6750.238 ; gain = 0.000 ; free physical = 23200 ; free virtual = 100830
+Writing XDEF routing.
+Writing XDEF routing logical nets.
+Writing XDEF routing special nets.
+Wrote RouteStorage: Time (s): cpu = 00:00:05 ; elapsed = 00:00:03 . Memory (MB): peak = 6750.238 ; gain = 0.000 ; free physical = 23169 ; free virtual = 100800
+Wrote Netlist Cache: Time (s): cpu = 00:00:00.34 ; elapsed = 00:00:00.37 . Memory (MB): peak = 6750.238 ; gain = 0.000 ; free physical = 23138 ; free virtual = 100769
+Wrote Device Cache: Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.02 . Memory (MB): peak = 6750.238 ; gain = 0.000 ; free physical = 23139 ; free virtual = 100770
+Write Physdb Complete: Time (s): cpu = 00:00:35 ; elapsed = 00:00:14 . Memory (MB): peak = 6750.238 ; gain = 0.000 ; free physical = 23150 ; free virtual = 100781
+INFO: [Common 17-1381] The checkpoint '/sim/tarsio/reports-wpn16-inverse-acc-pipe-dbeaa1b0/routed.dcp' has been generated.
+write_checkpoint: Time (s): cpu = 00:00:46 ; elapsed = 00:00:25 . Memory (MB): peak = 6750.238 ; gain = 0.000 ; free physical = 23896 ; free virtual = 101527
+# report_utilization -file [file join $out_dir utilization.rpt]
+# report_utilization -hierarchical -file [file join $out_dir utilization_hierarchical.rpt]
+# report_timing_summary -delay_type max -report_unconstrained -check_timing_verbose \
+#   -max_paths 50 -file [file join $out_dir timing_summary.rpt]
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Temperature grade: E, Delay Type: max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 8 CPUs
+report_timing_summary: Time (s): cpu = 00:00:12 ; elapsed = 00:00:08 . Memory (MB): peak = 6750.238 ; gain = 0.000 ; free physical = 23556 ; free virtual = 101196
+# report_timing -delay_type max -max_paths 100 -path_type full_clock_expanded \
+#   -file [file join $out_dir critical_paths.rpt]
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Temperature grade: E, Delay Type: max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 8 CPUs
+INFO: [Timing 38-78] ReportTimingParams: -max_paths 100 -nworst 1 -delay_type max -sort_by slack.
+# report_clock_utilization -file [file join $out_dir clock_utilization.rpt]
+report_clock_utilization: Time (s): cpu = 00:00:07 ; elapsed = 00:00:07 . Memory (MB): peak = 6750.238 ; gain = 0.000 ; free physical = 23519 ; free virtual = 101156
+# report_drc -file [file join $out_dir drc.rpt]
+Command: report_drc -file /sim/tarsio/reports-wpn16-inverse-acc-pipe-dbeaa1b0/drc.rpt
+INFO: [IP_Flow 19-234] Refreshing IP repositories
+INFO: [IP_Flow 19-1704] No user IP repositories specified
+INFO: [IP_Flow 19-2313] Loaded Vivado IP repository '/soft64/xilinx/ferramentas/Vivado/2023.2/Vivado/2023.2/data/ip'.
+INFO: [DRC 23-27] Running DRC with 8 threads
+INFO: [Vivado_Tcl 2-168] The results of DRC are in file /sim/tarsio/reports-wpn16-inverse-acc-pipe-dbeaa1b0/drc.rpt.
+report_drc completed successfully
+report_drc: Time (s): cpu = 00:00:33 ; elapsed = 00:00:14 . Memory (MB): peak = 6750.238 ; gain = 0.000 ; free physical = 23509 ; free virtual = 101146
+# set dsp_report [open [file join $out_dir dsp_registers.txt] w]
+# set dsp_cells [get_cells -hier -quiet -filter {REF_NAME == DSP48E2}]
+# puts $dsp_report "dsp48e2_count=[llength $dsp_cells]"
+# foreach cell $dsp_cells {
+#   puts $dsp_report "[get_property NAME $cell] MREG=[get_property MREG $cell] PREG=[get_property PREG $cell] AREG=[get_property AREG $cell] BREG=[get_property BREG $cell]"
+# }
+# close $dsp_report
+# set paths [get_timing_paths -quiet -delay_type max -max_paths 1]
+# if {[llength $paths] > 0} {
+#   set wns [get_property SLACK [lindex $paths 0]]
+#   set closed [expr {$wns >= 0.0}]
+# } else {
+#   set wns "NA"
+#   set closed 0
+# }
+# set result [open [file join $out_dir result.txt] w]
+# puts $result "wns_ns=$wns"
+# puts $result "timing_closed_317mhz=$closed"
+# puts $result "dsp48e2_count=[llength $dsp_cells]"
+# close $result
+# puts "WPN16_INVERSE_ACC_PIPE wns_ns=$wns timing_closed=$closed dsp48e2=[llength $dsp_cells]"
+WPN16_INVERSE_ACC_PIPE wns_ns=0.071 timing_closed=1 dsp48e2=256
+# exit
+INFO: [Common 17-206] Exiting Vivado at Fri Oct  2 20:30:38 2026...
