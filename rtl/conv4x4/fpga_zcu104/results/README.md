@@ -18,3 +18,10 @@ separate dual-barrier candidate is documented in
 it passed the same 16-bit RTL golden and met 317 MHz post-route with WNS
 `+0.043 ns`. Keep both records distinct. The dual-barrier result is OOC and
 does not include replicated post-route functional simulation or power analysis.
+
+The follow-up physical A/B experiment that forced replication of the
+high-fanout transform-register enable is documented in
+[wpn16-n32-enable-replication-317mhz.md](wpn16-n32-enable-replication-317mhz.md).
+It improved WNS from `+0.043 ns` to `+0.062 ns` from a common post-place
+checkpoint, with 311 additional FFs and no LUT/DSP change. This is a modest
+OOC timing improvement; the critical path moved into the DSP/MAC datapath.

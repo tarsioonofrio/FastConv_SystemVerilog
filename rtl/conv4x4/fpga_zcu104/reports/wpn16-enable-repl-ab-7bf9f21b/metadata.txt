@@ -1,0 +1,10 @@
+vivado_version=2023.2
+part=xczu7ev-ffvc1156-2-e
+implementation_mode=out_of_context
+top=WPN16PipeReplicaTop
+algorithm=wpn16_pipe_both_nbits16
+cores=32
+NBITS=16
+target_frequency_mhz=317
+comparison=baseline_vs_forced_replication_from_same_post_place_checkpoint
+replication_target=high_fanout_nets_matching_r_transform_partial

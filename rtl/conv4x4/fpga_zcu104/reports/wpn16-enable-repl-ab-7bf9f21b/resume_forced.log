@@ -1,0 +1,107 @@
+
+****** Vivado v2023.2 (64-bit)
+  **** SW Build 4029153 on Fri Oct 13 20:13:54 MDT 2023
+  **** IP Build 4028589 on Sat Oct 14 00:45:43 MDT 2023
+  **** SharedData Build 4025554 on Tue Oct 10 17:18:54 MDT 2023
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2023 Advanced Micro Devices, Inc. All Rights Reserved.
+
+source rtl/conv4x4/fpga_zcu104/scripts/resume_wpn16_enable_replication.tcl
+# if {$argc != 1} {
+#   error "usage: resume_wpn16_enable_replication.tcl <A-B-output-directory>"
+# }
+# set out_dir [file normalize [lindex $argv 0]]
+# set placed_checkpoint [file join $out_dir post_place_common.dcp]
+# if {![file exists $placed_checkpoint]} {
+#   error "missing common post-placement checkpoint: $placed_checkpoint"
+# }
+# open_checkpoint $placed_checkpoint
+Command: open_checkpoint /sim/tarsio/reports-wpn16-enable-repl-ab-7bf9f21b/post_place_common.dcp
+
+Starting open_checkpoint Task
+
+Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.02 . Memory (MB): peak = 1262.156 ; gain = 0.000 ; free physical = 22565 ; free virtual = 105972
+INFO: [Device 21-403] Loading part xczu7ev-ffvc1156-2-e
+Netlist sorting complete. Time (s): cpu = 00:00:01 ; elapsed = 00:00:01 . Memory (MB): peak = 2611.992 ; gain = 0.000 ; free physical = 21307 ; free virtual = 104713
+INFO: [Netlist 29-17] Analyzing 16480 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 1 CPU seconds
+INFO: [Project 1-479] Netlist was created with Vivado 2023.2
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Read ShapeDB Complete: Time (s): cpu = 00:00:00.65 ; elapsed = 00:00:00.69 . Memory (MB): peak = 2902.594 ; gain = 96.078 ; free physical = 21029 ; free virtual = 104435
+INFO: [Timing 38-478] Restoring timing data from binary archive.
+INFO: [Timing 38-479] Binary timing data restore complete.
+INFO: [Project 1-856] Restoring constraints from binary archive.
+INFO: [Project 1-853] Binary constraint restore complete.
+INFO: [Designutils 20-5722] Start Reading Physical Databases.
+Reading placement.
+Read Netlist Cache: Time (s): cpu = 00:00:00.3 ; elapsed = 00:00:00.3 . Memory (MB): peak = 3818.625 ; gain = 0.000 ; free physical = 20300 ; free virtual = 103700
+Reading placer database...
+Read Device Cache: Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.03 . Memory (MB): peak = 3829.625 ; gain = 11.000 ; free physical = 20290 ; free virtual = 103690
+Read PlaceDB: Time (s): cpu = 00:00:07 ; elapsed = 00:00:08 . Memory (MB): peak = 4073.164 ; gain = 243.539 ; free physical = 20031 ; free virtual = 103431
+Read PulsedLatchDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 4073.164 ; gain = 0.000 ; free physical = 20031 ; free virtual = 103431
+Reading routing.
+Read RouteStorage: Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00.01 . Memory (MB): peak = 4073.164 ; gain = 0.000 ; free physical = 20031 ; free virtual = 103431
+Read Physdb Files: Time (s): cpu = 00:00:08 ; elapsed = 00:00:08 . Memory (MB): peak = 4073.164 ; gain = 254.539 ; free physical = 20031 ; free virtual = 103431
+Restored from archive | CPU: 7.960000 secs | Memory: 240.017883 MB |
+Finished XDEF File Restore: Time (s): cpu = 00:00:08 ; elapsed = 00:00:08 . Memory (MB): peak = 4073.164 ; gain = 254.539 ; free physical = 20031 ; free virtual = 103431
+Netlist sorting complete. Time (s): cpu = 00:00:00.03 ; elapsed = 00:00:00.03 . Memory (MB): peak = 4384.961 ; gain = 0.000 ; free physical = 19756 ; free virtual = 103156
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 256 instances were transformed.
+  DSP48E2 => DSP48E2 (DSP_ALU, DSP_A_B_DATA, DSP_C_DATA, DSP_MULTIPLIER, DSP_M_DATA, DSP_OUTPUT, DSP_PREADD, DSP_PREADD_DATA): 256 instances
+
+INFO: [Project 1-604] Checkpoint was created with Vivado v2023.2 (64-bit) build 4029153
+open_checkpoint: Time (s): cpu = 00:00:52 ; elapsed = 00:00:50 . Memory (MB): peak = 4384.996 ; gain = 3122.840 ; free physical = 19755 ; free virtual = 103155
+# set named_nets [get_nets -hier -filter {NAME =~ *r_transform_partial*}]
+# set force_targets [list]
+# set target_log [open [file join $out_dir replication_targets.txt] w]
+# foreach net $named_nets {
+#   set driver_pins [get_pins -quiet -of_objects $net -filter {DIRECTION == OUT}]
+#   if {[llength $driver_pins] == 0} { continue }
+#   set endpoints [all_fanout -flat -endpoints_only -from $driver_pins]
+#   set endpoint_count [llength $endpoints]
+#   puts $target_log "[get_property NAME $net] fanout_endpoints=$endpoint_count drivers=$driver_pins"
+#   if {$endpoint_count >= 128} {
+#     lappend force_targets $net
+#   }
+# }
+# close $target_log
+# if {[llength $force_targets] == 0} {
+#   error "No high-fanout r_transform_partial enable nets found; see replication_targets.txt"
+# }
+# puts "FORCED_REPLICATION_NET_COUNT=[llength $force_targets]"
+FORCED_REPLICATION_NET_COUNT=32
+# phys_opt_design -force_replication_on_nets $force_targets
+Command: phys_opt_design -force_replication_on_nets {{CORES[0].core_inst/r_transform_partial} {CORES[10].core_inst/r_transform_partial} {CORES[11].core_inst/r_transform_partial} {CORES[12].core_inst/r_transform_partial} {CORES[13].core_inst/r_transform_partial} {CORES[14].core_inst/r_transform_partial} {CORES[15].core_inst/r_transform_partial} {CORES[16].core_inst/r_transform_partial} {CORES[17].core_inst/r_transform_partial} {CORES[18].core_inst/r_transform_partial} {CORES[19].core_inst/r_transform_partial} {CORES[1].core_inst/r_transform_partial} {CORES[20].core_inst/r_transform_partial} {CORES[21].core_inst/r_transform_partial} {CORES[22].core_inst/r_transform_partial} {CORES[23].core_inst/r_transform_partial} {CORES[24].core_inst/r_transform_partial} {CORES[25].core_inst/r_transform_partial} {CORES[26].core_inst/r_transform_partial} {CORES[27].core_inst/r_transform_partial} {CORES[28].core_inst/r_transform_partial} {CORES[29].core_inst/r_transform_partial} {CORES[2].core_inst/r_transform_partial} {CORES[30].core_inst/r_transform_partial} {CORES[31].core_inst/r_transform_partial} {CORES[3].core_inst/r_transform_partial} {CORES[4].core_inst/r_transform_partial} {CORES[5].core_inst/r_transform_partial} {CORES[6].core_inst/r_transform_partial} {CORES[7].core_inst/r_transform_partial} {CORES[8].core_inst/r_transform_partial} {CORES[9].core_inst/r_transform_partial}}
+Attempting to get a license for feature 'Implementation' and/or device 'xczu7ev'
+INFO: [Common 17-349] Got license for feature 'Implementation' and/or device 'xczu7ev'
+
+Starting Initial Update Timing Task
+INFO: [Common 17-41] Interrupt caught. Command should exit soon.
+WARNING: [Timing 38-242] The property HD.CLK_SRC of clock port "clk" is not set. In out-of-context mode, this prevents timing estimation for clock delay/skew
+Resolution: Set the HD.CLK_SRC property of the out-of-context port to the location of the clock buffer instance in the top-level design
+
+Time (s): cpu = 00:01:18 ; elapsed = 00:00:29 . Memory (MB): peak = 5419.867 ; gain = 945.219 ; free physical = 18854 ; free virtual = 102232
+INFO: [Vivado_Tcl 4-1435] PhysOpt_Tcl_Interface Runtime Before Starting Physical Synthesis Task | CPU: 80.62s |  WALL: 30.69s
+Netlist sorting complete. Time (s): cpu = 00:00:00.04 ; elapsed = 00:00:00.04 . Memory (MB): peak = 5419.867 ; gain = 0.000 ; free physical = 18854 ; free virtual = 102232
+
+Starting Physical Synthesis Task
+
+Phase 1 Physical Synthesis Initialization
+INFO: [Physopt 32-721] Multithreading enabled for phys_opt_design using a maximum of 8 CPUs
+INFO: [Place 30-3164] Check ILP status : ILP-based clock placer is skipped.
+INFO: [Physopt 32-619] Estimated Timing Summary | WNS=0.226 | TNS=0.000 |
+Phase 1 Physical Synthesis Initialization | Checksum: 1a3909232
+
+Time (s): cpu = 00:00:29 ; elapsed = 00:00:20 . Memory (MB): peak = 5671.609 ; gain = 251.742 ; free physical = 18680 ; free virtual = 102059
+Netlist sorting complete. Time (s): cpu = 00:00:00.04 ; elapsed = 00:00:00.03 . Memory (MB): peak = 5671.609 ; gain = 0.000 ; free physical = 18690 ; free virtual = 102069
+Ending Physical Synthesis Task | Checksum: 22bff6b3a
+
+Time (s): cpu = 00:00:38 ; elapsed = 00:00:24 . Memory (MB): peak = 5671.609 ; gain = 251.742 ; free physical = 18720 ; free virtual = 102093
+INFO: [Vivado_Tcl 4-60] Physopt has been cancelled by the user.
+INFO: [Common 17-83] Releasing license: Implementation
+8 Infos, 1 Warnings, 0 Critical Warnings and 0 Errors encountered.
+phys_opt_design failed
+phys_opt_design: Time (s): cpu = 00:01:57 ; elapsed = 00:00:55 . Memory (MB): peak = 5671.609 ; gain = 1232.648 ; free physical = 18720 ; free virtual = 102093
+INFO: [Common 17-344] 'phys_opt_design' was cancelled
+INFO: [Common 17-344] 'source' was cancelled
+INFO: [Common 17-206] Exiting Vivado at Fri Oct  2 15:38:30 2026...

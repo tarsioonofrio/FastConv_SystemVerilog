@@ -1,0 +1,14 @@
+#-----------------------------------------------------------
+# Vivado v2023.2 (64-bit)
+# SW Build 4029153 on Fri Oct 13 20:13:54 MDT 2023
+# IP Build 4028589 on Sat Oct 14 00:45:43 MDT 2023
+# SharedData Build 4025554 on Tue Oct 10 17:18:54 MDT 2023
+# Start of session at: Fri Oct  2 15:40:41 2026
+# Process ID: 3870696
+# Current directory: /sim/tarsio/fastconv-wpn16-enable-resume2-bf8d1fcc
+# Command line: vivado -mode batch -log /sim/tarsio/reports-wpn16-enable-repl-ab-7bf9f21b/resume_vivado_attempt2.log -journal /sim/tarsio/reports-wpn16-enable-repl-ab-7bf9f21b/resume_vivado_attempt2.jou -source rtl/conv4x4/fpga_zcu104/scripts/resume_wpn16_enable_replication.tcl -tclargs /sim/tarsio/reports-wpn16-enable-repl-ab-7bf9f21b
+# Log file: /sim/tarsio/reports-wpn16-enable-repl-ab-7bf9f21b/resume_vivado_attempt2.log
+# Journal file: /sim/tarsio/reports-wpn16-enable-repl-ab-7bf9f21b/resume_vivado_attempt2.jou
+# Running On: paxos.inf.pucrs.br, OS: Linux, CPU Frequency: 3100.000 MHz, CPU Physical cores: 14, Host memory: 134319 MB
+#-----------------------------------------------------------
+source rtl/conv4x4/fpga_zcu104/scripts/resume_wpn16_enable_replication.tcl
