@@ -2,7 +2,7 @@
 set -euo pipefail
 
 if (($# < 4)); then
-  printf 'usage: %s <repo-root> <output-root> <ifn9|ifn9_m18|wpn16> <core-count> [core-count... ]\n' "$0" >&2
+  printf 'usage: %s <repo-root> <output-root> <ifn9|ifn9_m18|wpn16|wpn16_nbits16> <core-count> [core-count... ]\n' "$0" >&2
   exit 2
 fi
 
@@ -11,7 +11,7 @@ output_root=$(mkdir -p -- "$2" && cd -- "$2" && pwd)
 algorithm=$3
 shift 3
 case "$algorithm" in
-  ifn9|ifn9_m18|wpn16) ;;
+  ifn9|ifn9_m18|wpn16|wpn16_nbits16) ;;
   *) printf 'unsupported algorithm: %s\n' "$algorithm" >&2; exit 2 ;;
 esac
 script="$repo_root/rtl/stream-column/fpga_zcu104/multicore/synth_replicas.tcl"

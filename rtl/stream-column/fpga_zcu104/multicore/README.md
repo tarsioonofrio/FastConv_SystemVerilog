@@ -12,10 +12,10 @@ buses, prevent synthesis from merging duplicate cores. There are no `KEEP` or
 `DONT_TOUCH` directives. The same 317 MHz clock XDC and Vivado 2023.2 are used
 for both algorithms. P3F/power is not part of this capacity sweep.
 
-The IFN9 m18 sweep uses `NBITS=16`, the FPGA comparison width. The earlier
-IFN9 m06/WPN16 campaign under `results/23da4e19/` used the RTL default
-`NBITS=20`; those historical counts are not a same-width comparison and should
-be rerun at 16 bits before comparing replica capacity across variants.
+The IFN9 m18 sweep uses `NBITS=16`, the FPGA comparison width. The `wpn16`
+sweep retains the historical `NBITS=20` setting; use the separate
+`wpn16_nbits16` selector for the same architecture at `NBITS=16`. Do not mix
+replica counts across these widths when comparing capacity.
 
 Run the (potentially long) count sweeps from a persistent `tmux` session on
 Paxos after publishing the exact source commit and creating a clean temporary
@@ -28,6 +28,8 @@ bash rtl/stream-column/fpga_zcu104/multicore/run_capacity_sweep.sh \
   "$PWD" /sim/tarsio/reports-multicore-<commit> ifn9_m18 1 2 4 6 8 10 12 16
 bash rtl/stream-column/fpga_zcu104/multicore/run_capacity_sweep.sh \
   "$PWD" /sim/tarsio/reports-multicore-<commit> wpn16 1 4 8 12 16 20 24
+bash rtl/stream-column/fpga_zcu104/multicore/run_capacity_sweep.sh \
+  "$PWD" /sim/tarsio/reports-multicore-<commit> wpn16_nbits16 1 4 8 12 16 20 24 28 32
 ```
 
 Each run records synthesis/routed utilization, full timing summary, critical

@@ -26,8 +26,13 @@ if {$algorithm eq "ifn9"} {
   set nbits 20
   set manifest [file join $repo_root rtl/conv4x4/fpga_zcu104/manifests/wpn16.rtl]
   set wrapper [file join $repo_root rtl/stream-column/fpga_zcu104/multicore/wpn16_replica_top.sv]
+} elseif {$algorithm eq "wpn16_nbits16"} {
+  set top "WPN16ReplicaTop"
+  set nbits 16
+  set manifest [file join $repo_root rtl/conv4x4/fpga_zcu104/manifests/wpn16.rtl]
+  set wrapper [file join $repo_root rtl/stream-column/fpga_zcu104/multicore/wpn16_replica_top.sv]
 } else {
-  error "unsupported algorithm: $algorithm (expected ifn9, ifn9_m18, or wpn16)"
+  error "unsupported algorithm: $algorithm (expected ifn9, ifn9_m18, wpn16, or wpn16_nbits16)"
 }
 file mkdir $out_dir
 
@@ -45,7 +50,7 @@ if {$algorithm eq "ifn9"} {
 } elseif {$algorithm eq "ifn9_m18"} {
   puts $metadata "core_variant=IFN9_m18"
   puts $metadata "mac_lanes_per_core=18"
-} else {
+} elseif {$algorithm eq "wpn16" || $algorithm eq "wpn16_nbits16"} {
   puts $metadata "core_variant=WPN16_m08"
   puts $metadata "mac_lanes_per_core=8"
 }
@@ -72,7 +77,7 @@ close $sources
 read_verilog -sv $wrapper
 read_xdc $xdc
 set generics [list N_CORES=$n_cores NADDR=12]
-if {$algorithm eq "ifn9_m18"} {
+if {$algorithm eq "ifn9_m18" || $algorithm eq "wpn16" || $algorithm eq "wpn16_nbits16"} {
   lappend generics NBITS=$nbits
 }
 synth_design -mode out_of_context -top $top -part xczu7ev-ffvc1156-2-e -generic $generics
