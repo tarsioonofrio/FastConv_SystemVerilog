@@ -101,7 +101,9 @@ if {[llength $force_targets] == 0} {
   error "No high-fanout r_transform_partial enable nets found; see replication_targets.txt"
 }
 puts "FORCED_REPLICATION_NET_COUNT=[llength $force_targets]"
-phys_opt_design -directive Explore -force_replication_on_nets $force_targets
+# Vivado 2023.2 rejects combining -directive with -force_replication_on_nets.
+# This command intentionally runs only the requested forced replication.
+phys_opt_design -force_replication_on_nets $force_targets
 route_design -directive Explore
 write_branch_reports $out_dir forced_replication
 
