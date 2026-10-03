@@ -222,10 +222,16 @@ def inverse_modules(a, hadamard, out):
     lines.append("  timeunit 1ns;")
     lines.append("  timeprecision 1ps;")
     lines.append("")
-    lines.append("  always_comb begin: INVERSE_ROW_ACCUMULATE_BLOCK")
-    lines.append("    for (int unsigned i = 0; i < CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE; i++)")
-    lines.append("      accumulator_out[i] = accumulator_in[i];")
-    lines.append("    for (int unsigned batch = 0; batch < ROWS_PER_CYCLE; batch++) begin")
+    lines.append("  localparam int OUTPUT_PIXELS = CONV_OUTPUT_SIZE * CONV_OUTPUT_SIZE;")
+    lines.append("  logic [NBITS-1:0] inverse_contribution [ROWS_PER_CYCLE-1:0][OUTPUT_PIXELS-1:0];")
+    lines.append("")
+    lines.append("  // Decode each inverse row into independent per-pixel terms. Keeping these")
+    lines.append("  // terms separate avoids feeding accumulator_out back through a procedural")
+    lines.append("  // loop when multiple rows are accumulated in one cycle.")
+    lines.append("  for (genvar batch = 0; batch < ROWS_PER_CYCLE; batch++) begin: INVERSE_BATCH")
+    lines.append("    always_comb begin: INVERSE_ROW_CONTRIBUTION_BLOCK")
+    lines.append("      for (int unsigned i = 0; i < OUTPUT_PIXELS; i++)")
+    lines.append("        inverse_contribution[batch][i] = '0;")
     lines.append("      case (inverse_row_idx + ROW_INDEX_WIDTH'(batch))")
     for r in range(hadamard):
         body = []
@@ -238,7 +244,7 @@ def inverse_modules(a, hadamard, out):
                 t = term(coef, f"inverse_partial[batch*CONV_OUTPUT_SIZE + {j}]")
                 sign, text = t
                 body.append(
-                    f"        accumulator_out[{index}] = accumulator_out[{index}] {sign} {text};"
+                    f"        inverse_contribution[batch][{index}] = {sign} {text};"
                 )
         lines.append(f"        {r}: begin")
         lines.extend(body)
@@ -247,6 +253,30 @@ def inverse_modules(a, hadamard, out):
     lines.append("      endcase")
     lines.append("    end")
     lines.append("  end")
+    lines.append("")
+    lines.append("  // The output is one direct sum of the input accumulator and each row term.")
+    lines.append("  // ROWS_PER_CYCLE is a parameter, so only one fixed-width sum branch remains")
+    lines.append("  // after elaboration. All additions retain the datapath's NBITS wrap behavior.")
+    lines.append("  generate")
+    for rows_per_cycle in range(1, hadamard + 1):
+        keyword = "if" if rows_per_cycle == 1 else "else if"
+        lines.append(
+            f"    {keyword} (ROWS_PER_CYCLE == {rows_per_cycle}) begin: INVERSE_SUM_{rows_per_cycle}"
+        )
+        lines.append("      always_comb begin: INVERSE_ROW_ACCUMULATE_BLOCK")
+        for pixel in range(out * out):
+            terms = [f"inverse_contribution[{batch}][{pixel}]" for batch in range(rows_per_cycle)]
+            expression = " + ".join([f"accumulator_in[{pixel}]", *terms])
+            lines.append(f"        accumulator_out[{pixel}] = {expression};")
+        lines.append("      end")
+        lines.append("    end")
+    lines.append("    else begin: INVERSE_SUM_UNSUPPORTED")
+    lines.append("      always_comb begin: INVERSE_ROW_ACCUMULATE_BLOCK")
+    lines.append("        for (int unsigned i = 0; i < OUTPUT_PIXELS; i++)")
+    lines.append("          accumulator_out[i] = accumulator_in[i];")
+    lines.append("      end")
+    lines.append("    end")
+    lines.append("  endgenerate")
     lines.append("endmodule")
     return "\n".join(lines)
 
