@@ -34,7 +34,15 @@ module tb_stream_column #(
       RAW_WEIGHT_WORDS_PER_BEAT;
   localparam int unsigned INPUT_ADDR_WIDTH = $clog2(INPUT_MEMORY_SIZE);
   localparam int unsigned OUTPUT_ADDR_WIDTH = $clog2(OUTPUT_MEMORY_SIZE);
+  // The mapped ASIC core keeps its default fixed address width; RTL runs use
+  // the minimum width required by this workload.
+`ifdef GATE_LEVEL
+  localparam int unsigned NADDR = 16;
+`else
   localparam int unsigned NADDR = (INPUT_ADDR_WIDTH > OUTPUT_ADDR_WIDTH) ? INPUT_ADDR_WIDTH : OUTPUT_ADDR_WIDTH;
+`endif
+  localparam int unsigned RAW_WEIGHT_BASE = N_CHANNEL_IN * FEAT_MAP_WORDS +
+                                            N_CHANNEL_IN * N_CHANNEL_OUT * HADAMARD_SIZE * HADAMARD_SIZE;
   localparam int unsigned EXPECTED_INVERSE_COUNT =
       N_CHANNEL_IN * N_CHANNEL_OUT * OUTPUT_TILES_PER_AXIS * OUTPUT_TILES_PER_AXIS;
 
@@ -152,11 +160,19 @@ module tb_stream_column #(
     local_offset = int'(p_input_addr) % FEAT_MAP_WORDS;
     for (int unsigned lane = 0; lane < CONV_INPUT_SIZE; lane++) begin
       column_input_in_bounds[lane] = 1'b1;
+`ifdef GATE_LEVEL
+      if (int'(p_input_addr) < RAW_WEIGHT_BASE) begin
+        if (((int'(column_input_addr[lane]) / FEAT_MAP_WORDS) != channel) ||
+            ((local_offset % FEAT_INPUT_WIDTH) + lane >= FEAT_INPUT_WIDTH))
+          column_input_in_bounds[lane] = 1'b0;
+      end
+`else
       if (!dut.w_input_read_weights) begin
         if ((channel != int'(dut.r_input_channel_counter_input)) ||
             ((local_offset % FEAT_INPUT_WIDTH) + lane >= FEAT_INPUT_WIDTH))
           column_input_in_bounds[lane] = 1'b0;
       end
+`endif
     end
   end
 
@@ -216,6 +232,7 @@ module tb_stream_column #(
       cycle_count <= cycle_count + 1;
       if (p_end && end_cycle == 0)
         end_cycle <= cycle_count;
+`ifndef GATE_LEVEL
       conv_end_d <= dut.w_conv_end;
       if (dut.w_conv_end && !conv_end_d) begin
         if (dut.r_input_channel_counter_output < N_CHANNEL_OUT)
@@ -223,12 +240,20 @@ module tb_stream_column #(
         else
           terminal_inverse_event_count <= terminal_inverse_event_count + 1;
       end
+`endif
 
+`ifdef GATE_LEVEL
+      if (p_input_en && p_input_valid && (int'(p_input_addr) >= RAW_WEIGHT_BASE)) begin
+        weight_read_beat_count <= weight_read_beat_count + 1;
+        useful_weight_read_beat_count <= useful_weight_read_beat_count + 1;
+      end
+`else
       if (dut.w_input_read_weights && p_input_valid) begin
         weight_read_beat_count <= weight_read_beat_count + 1;
         if (dut.r_input_channel_counter_output < N_CHANNEL_OUT)
           useful_weight_read_beat_count <= useful_weight_read_beat_count + 1;
       end
+`endif
 
       // Count clipped beats only through completion; lanes crossing a feature
       // row/channel boundary are padded as part of the real workload.
@@ -254,6 +279,7 @@ module tb_stream_column #(
           if ((lane_addr < OUTPUT_MEMORY_SIZE) && (row < FEAT_OUTPUT_SIZE) && (col < FEAT_OUTPUT_SIZE)) begin
             output_bank[lane_addr] <= p_output_data_write[lane*NBITS +: NBITS];
             beat_valid_words = beat_valid_words + 1;
+`ifndef GATE_LEVEL
             if ((dut.r_output_channel_counter_input == (N_CHANNEL_IN - 1)) &&
                 ($signed(p_output_data_write[lane*NBITS +: NBITS]) !=
                  $signed(expected_output_value(channel, row, col)))) begin
@@ -264,6 +290,7 @@ module tb_stream_column #(
                          $signed(p_output_data_write[lane*NBITS +: NBITS]),
                          expected_output_value(channel, row, col));
             end
+`endif
           end else begin
             beat_clipped_words = beat_clipped_words + 1;
           end
@@ -290,10 +317,35 @@ module tb_stream_column #(
     // memory request.
     repeat (3) @(posedge clk);
 
+`ifdef GATE_LEVEL
+    begin: FINAL_GATE_OUTPUT_GOLDEN_CHECK
+      int unsigned gate_mismatch_count;
+      gate_mismatch_count = 0;
+      for (int unsigned channel = 0; channel < N_CHANNEL_OUT; channel++) begin
+        for (int unsigned row = 0; row < FEAT_OUTPUT_SIZE; row++) begin
+          for (int unsigned col = 0; col < FEAT_OUTPUT_SIZE; col++) begin
+            int unsigned addr;
+            addr = channel * OUTPUT_CHANNEL_WORDS + row * OUTPUT_PHYSICAL_SIZE + col;
+            if ($signed(output_bank[addr]) != $signed(expected_output_value(channel, row, col))) begin
+              gate_mismatch_count++;
+              if (gate_mismatch_count <= 8)
+                $display("ERROR GATE GOLDEN: ch=%0d row=%0d col=%0d got=%0d expected=%0d",
+                         channel, row, col, $signed(output_bank[addr]),
+                         $signed(expected_output_value(channel, row, col)));
+            end
+          end
+        end
+      end
+      if (gate_mismatch_count != 0)
+        $fatal(1, "gate-level output golden mismatch count: %0d", gate_mismatch_count);
+    end
+`else
     if (output_error_count != 0)
       $fatal(1, "output golden mismatch count: %0d", output_error_count);
+`endif
     if (valid_output_word_count != N_CHANNEL_IN * N_CHANNEL_OUT * FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE)
       $fatal(1, "unexpected valid write count: got %0d", valid_output_word_count);
+`ifndef GATE_LEVEL
     if (inverse_tile_count != EXPECTED_INVERSE_COUNT)
       $fatal(1, "unexpected inverse count: got %0d expected %0d",
              inverse_tile_count, EXPECTED_INVERSE_COUNT);
@@ -305,6 +357,7 @@ module tb_stream_column #(
         dut.st_output_current.name() != "WAIT_OUTPUT")
       $fatal(1, "controller did not return idle: input=%s conv=%s output=%s",
              dut.st_input_current.name(), dut.st_conv_current.name(), dut.st_output_current.name());
+`endif
     if (p_input_en || p_output_en || p_output_wr)
       $fatal(1, "memory request or write remains active after job completion");
     if (useful_weight_read_beat_count != EXPECTED_USEFUL_WEIGHT_BEATS)
@@ -321,6 +374,10 @@ module tb_stream_column #(
 
   initial begin: WATCHDOG_BLOCK
     #2000000;
+`ifdef GATE_LEVEL
+    $fatal(1, "stream-column gate-level timeout: input_addr=%0d input_valid=%0b output_en=%0b output_wr=%0b",
+           p_input_addr, p_input_valid, p_output_en, p_output_wr);
+`else
     $fatal(1, "stream-column timeout: input_state=%s input_next=%s conv_state=%s conv_next=%s output_state=%s output_next=%s input_addr=%0d input_valid=%0b prefetch_active=%0b prefetch_full=%0b conv_end=%0b conv_release=%0b weight_valid=%0b input_channel=%0d output_channel=%0d input_windows=%0d input_col=%0d output_windows=%0d output_read_count=%0d output_write_count=%0d output_en=%0b output_wr=%0b",
            dut.st_input_current.name(), dut.st_input_next.name(),
            dut.st_conv_current.name(), dut.st_conv_next.name(),
@@ -330,5 +387,6 @@ module tb_stream_column #(
            dut.r_output_channel_counter_input, dut.r_input_window_counter_acc,
            dut.r_input_window_counter_col, dut.r_output_window_counter_acc,
            dut.r_output_read_count, dut.r_output_write_count, p_output_en, p_output_wr);
+`endif
   end
 endmodule
