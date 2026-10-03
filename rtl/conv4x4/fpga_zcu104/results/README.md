@@ -1,9 +1,12 @@
 # Conv4x4 FPGA results
 
-The WPN16 m16/m32 campaign is still under review. Do not present power-derived
-efficiency for m32 until its post-route functional golden simulation passes.
-See the campaign-specific result summary added after diagnosing the m32
-mismatch.
+The latest complete WPN16/NBITS=16 campaign for 8, 16, and 32 MACs is
+summarized in [wpn16-8-16-32-nbits16-1de1640e.md](wpn16-8-16-32-nbits16-1de1640e.md).
+Only the 8-MAC implementation passed post-route functional golden simulation
+and has valid P3F power. The 16-MAC implementation met timing with zero rounded
+slack but failed all final golden comparisons; the 32-MAC implementation also
+failed timing. Do not use their captured SAIF files for power or derive
+efficiency from their vectorless estimates.
 
 The earlier capacity result for 32 replicated WPN16 m08 cores at NBITS=16 is
 preserved in [wpn16-n32-capacity-a75f073.md](wpn16-n32-capacity-a75f073.md):
