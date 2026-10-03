@@ -375,14 +375,17 @@ module Conv
       w_input_weight_en[r_input_count_kernel] = 1'b1;
   end
 
-  // MEMORY:  banco de pesos 'r_input_weight' ou recebe os pesos ou rotacina circularmente (moraes) - explicitamente um mux 2x1 em cada entrada
+  // Advance feature and weight matrices by one complete MAC batch per
+  // Hadamard cycle. In the original 6-MAC configuration this is one row;
+  // wider configurations rotate by two or three rows to match their lanes.
   always_ff @(posedge clk or posedge reset) begin : WEIGHT_REG_BLOCK
     if (reset) begin
         r_input_weight <= '{default: '0};
     end else begin
       for (int unsigned i = 0; i < WEIGHT_CYCLES; i++) 
         if ((st_conv_current == HADAMARD) || w_input_weight_en[i]) 
-          r_input_weight[i] <= (st_conv_current == HADAMARD) ?  r_input_weight[(i + HADAMARD_SIZE) % WEIGHT_CYCLES] : p_input_data;
+          r_input_weight[i] <= (st_conv_current == HADAMARD) ?
+              r_input_weight[(i + NUM_MULT) % WEIGHT_CYCLES] : p_input_data;
     end
   end
 
@@ -444,7 +447,8 @@ module Conv
     end
   end
 
-  // MEMORY: r_conv_temp recebe w_conv_transform ou no estado HADAMARD faz o shift e entra a multiplicação na parte mais significativa - explicitamente um mux 2x1 em cada entrada
+  // Shift the feature/product matrix by the same batch size used by the MACs.
+  // Products from this cycle are appended after the unprocessed feature values.
   always_ff @(posedge clk) begin: CONV_DATAPATH_BLOCK
     if (reset) begin
       r_conv_temp <= '{default: '0};
@@ -452,11 +456,11 @@ module Conv
       unique case (st_conv_current)
         TRANSFORM:
           r_conv_temp <= w_conv_transform;
-        HADAMARD: begin      // shifts e entra a multiplicação na parte mais significativa
-          for (int unsigned i = 0; i < (WEIGHT_CYCLES-HADAMARD_SIZE); i++)
-            r_conv_temp[i] <= r_conv_temp[i + HADAMARD_SIZE];
-          for (int unsigned i = (WEIGHT_CYCLES-HADAMARD_SIZE); i < WEIGHT_CYCLES; i++)
-            r_conv_temp[i] <= w_conv_product[i - (WEIGHT_CYCLES-HADAMARD_SIZE)];
+        HADAMARD: begin
+          for (int unsigned i = 0; i < (WEIGHT_CYCLES-NUM_MULT); i++)
+            r_conv_temp[i] <= r_conv_temp[i + NUM_MULT];
+          for (int unsigned i = (WEIGHT_CYCLES-NUM_MULT); i < WEIGHT_CYCLES; i++)
+            r_conv_temp[i] <= w_conv_product[i - (WEIGHT_CYCLES-NUM_MULT)];
           end
           default: begin end
       endcase
