@@ -51,7 +51,27 @@ for relative in "${configs[@]}"; do
   fi
 
   if (cd "$config/sim" && ./run.sh) >"$result/sim.log" 2>&1; then
-    printf 'sim=PASS\n' | tee -a "$result/status.txt"
+    if [[ "$tag" == *-ifn9-* || "$tag" == *-tcn9-* ]]; then
+      if ! grep -Eq '^Total de erros de escrita de output: 0$' "$result/sim.log"; then
+        printf 'sim=FAIL_GOLDEN missing zero-error 3x3 golden result\n' | tee -a "$result/status.txt" "$OUT_ROOT/campaign.txt"
+        failures=$((failures + 1))
+        continue
+      fi
+    else
+      if ! grep -Fq '4x4 simulation passed:' "$result/sim.log"; then
+        printf 'sim=FAIL_GOLDEN missing 4x4 golden PASS marker\n' | tee -a "$result/status.txt" "$OUT_ROOT/campaign.txt"
+        failures=$((failures + 1))
+        continue
+      fi
+    fi
+
+    if ! grep -Eq 'valid_writes=8100([[:space:]]|$)' "$result/sim.log"; then
+      printf 'sim=FAIL_GOLDEN expected valid_writes=8100 not found\n' | tee -a "$result/status.txt" "$OUT_ROOT/campaign.txt"
+      failures=$((failures + 1))
+      continue
+    fi
+
+    printf 'sim=PASS golden=PASS valid_writes=8100\n' | tee -a "$result/status.txt"
   else
     rc=$?
     printf 'sim=FAIL rc=%s\n' "$rc" | tee -a "$result/status.txt" "$OUT_ROOT/campaign.txt"
