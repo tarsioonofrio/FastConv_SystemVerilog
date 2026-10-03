@@ -38,7 +38,8 @@ puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 puts "Elaboration"
 puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 if {[llength $TOP_PARAMETERS] > 0} {
-    elaborate ${TOP_MODULE} -parameters ${TOP_PARAMETERS}
+    puts "Elaborating $TOP_MODULE with parameter overrides: $TOP_PARAMETERS"
+    elaborate -parameters $TOP_PARAMETERS $TOP_MODULE
 } else {
     elaborate ${TOP_MODULE}
 }

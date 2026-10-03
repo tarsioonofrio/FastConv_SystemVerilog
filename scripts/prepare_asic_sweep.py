@@ -96,6 +96,17 @@ def build_config(
     (config / "testbench-file.txt").write_text(tb + "\n")
 
 
+def refresh_elaboration_scripts(config: Path, conv: str) -> None:
+    source_config = ROOT / "rtl" / conv / "synthesis" / (
+        "ifn9-06mac" if conv == "conv3x3" else "tcn16-18mac"
+    )
+    for relative in (
+        "logical/logical_synthesis.tcl",
+        "scripts/logical_synthesis_body.tcl",
+    ):
+        shutil.copy2(source_config / relative, config / relative)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--dry-run", action="store_true")
@@ -104,9 +115,14 @@ def main() -> None:
         action="store_true",
         help="write top-parameters.txt into existing generated sweep configs",
     )
+    parser.add_argument(
+        "--refresh-elaboration-scripts-only",
+        action="store_true",
+        help="refresh the two parameter-elaboration Tcl files in existing configs",
+    )
     args = parser.parse_args()
-    if args.dry_run and args.update_parameters_only:
-        parser.error("--dry-run and --update-parameters-only cannot be combined")
+    if args.dry_run and (args.update_parameters_only or args.refresh_elaboration_scripts_only):
+        parser.error("--dry-run cannot be combined with an update option")
 
     points = [
         ("conv3x3", "ifn9", "6", "sim-032-3-3-normal"),
@@ -132,7 +148,11 @@ def main() -> None:
             (config / "top-parameters.txt").write_text(
                 "\n".join(top_parameters) + "\n"
             )
-        elif not args.dry_run:
+        if args.refresh_elaboration_scripts_only:
+            if not config.is_dir():
+                raise FileNotFoundError(f"config does not exist: {config}")
+            refresh_elaboration_scripts(config, conv)
+        if not (args.update_parameters_only or args.refresh_elaboration_scripts_only or args.dry_run):
             build_config(config, hdl, tb, conv, top_parameters)
 
 

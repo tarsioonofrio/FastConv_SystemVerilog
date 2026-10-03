@@ -37,7 +37,10 @@ if {[file exists $parameters_file]} {
     while {[gets $fp_parameters line] >= 0} {
         set line_trim [string trim $line]
         if {$line_trim ne "" && ![string match "#*" $line_trim]} {
-            lappend TOP_PARAMETERS $line_trim
+            if {![regexp {^([A-Za-z_][A-Za-z0-9_]*)=(.+)$} $line_trim -> parameter_name parameter_value]} {
+                error "invalid top parameter override in $parameters_file: $line_trim"
+            }
+            lappend TOP_PARAMETERS [list $parameter_name $parameter_value]
         }
     }
     close $fp_parameters
