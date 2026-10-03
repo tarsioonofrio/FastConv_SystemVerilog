@@ -91,7 +91,7 @@ def build_config(
     if conv == "conv4x4":
         define_lines.append("-define QUANT=8")
     (config / "list-define.txt").write_text("\n".join(define_lines) + "\n")
-    (config / "top-module.txt").write_text("conv\n")
+    (config / "top-module.txt").write_text("Conv\n")
     (config / "top-parameters.txt").write_text("\n".join(top_parameters) + "\n")
     (config / "testbench-file.txt").write_text(tb + "\n")
 
