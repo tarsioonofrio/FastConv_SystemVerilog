@@ -18,7 +18,12 @@ module tb;
   localparam int unsigned OUTPUT_MEMORY_SIZE = FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT - 1;
   localparam int unsigned INPUT_ADDR_WIDTH   = $clog2(INPUT_MEMORY_SIZE);
   localparam int unsigned OUTPUT_ADDR_WIDTH  = $clog2(OUTPUT_MEMORY_SIZE);
-  localparam int unsigned NADDR              = (INPUT_ADDR_WIDTH > OUTPUT_ADDR_WIDTH) ? INPUT_ADDR_WIDTH : OUTPUT_ADDR_WIDTH;
+`ifdef GATE_LEVEL
+  // The mapped netlist uses the fixed NADDR=16 interface from list-define.txt.
+  localparam int unsigned NADDR = 16;
+`else
+  localparam int unsigned NADDR = (INPUT_ADDR_WIDTH > OUTPUT_ADDR_WIDTH) ? INPUT_ADDR_WIDTH : OUTPUT_ADDR_WIDTH;
+`endif
 
   // Sinais de interface
   logic clk;
@@ -51,6 +56,11 @@ module tb;
   assign p_input_data_write = '0;
 
   // Instanciação do Módulo (DUT)
+  // RTL simulation uses parameter overrides; the mapped gate-level top is
+  // already elaborated with those values and has no parameter interface.
+`ifdef GATE_LEVEL
+  Conv dut (
+`else
   Conv #(
     .N_CHANNEL_IN(N_CHANNEL_IN),
     .N_CHANNEL_OUT(N_CHANNEL_OUT),
@@ -66,6 +76,7 @@ module tb;
     .NUM_MULT(NUM_MULT),
     .STATE_MULT(STATE_MULT)
   ) dut (
+`endif
     .clk(clk),
     .reset(reset),
     .p_start(p_start),
