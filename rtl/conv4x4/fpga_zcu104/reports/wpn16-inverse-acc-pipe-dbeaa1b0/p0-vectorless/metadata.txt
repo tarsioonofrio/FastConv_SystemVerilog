@@ -1,0 +1,27 @@
+P0 vectorless power follow-up
+
+Vivado: 2023.2
+Target: xczu7ev-ffvc1156-2-e
+Operating point: 317 MHz
+Routed DCP SHA-256: dbe43ee307af821431eaa4354b78d14b6a8f20df48e11e91f01ac5b14bed532b
+Activity source: none (reset_switching_activity -all; vectorless estimation)
+Confidence: Medium
+Batch exit code: 0
+
+Typical corner (25 C ambient):
+  Dynamic: 4.198 W
+  Device static: 0.615 W
+  Total on-chip: 4.813 W
+
+Maximum corner (25 C ambient):
+  Dynamic: 4.198 W
+  Device static: 0.875 W
+  Total on-chip: 5.073 W
+
+Typical components:
+  Clocks: 0.565 W
+  CLB logic: 1.498 W
+  Signals: 1.677 W
+  DSP: 0.458 W
+
+These are Vivado vectorless estimates, not workload-annotated P3F or physical measurements.

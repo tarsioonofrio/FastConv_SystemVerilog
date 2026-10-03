@@ -1,0 +1,118 @@
+#-----------------------------------------------------------
+# Vivado v2023.2 (64-bit)
+# SW Build 4029153 on Fri Oct 13 20:13:54 MDT 2023
+# IP Build 4028589 on Sat Oct 14 00:45:43 MDT 2023
+# SharedData Build 4025554 on Tue Oct 10 17:18:54 MDT 2023
+# Start of session at: Fri Oct  2 22:18:50 2026
+# Process ID: 4147570
+# Current directory: /home/tarsio.onofrio
+# Command line: vivado -mode batch -log /sim/tarsio/reports-wpn16-inverse-acc-pipe-dbeaa1b0/p0-vectorless/vivado.log -journal /sim/tarsio/reports-wpn16-inverse-acc-pipe-dbeaa1b0/p0-vectorless/vivado.jou -source /tmp/wpn16_inverse_acc_vectorless_power.tcl -tclargs /sim/tarsio/reports-wpn16-inverse-acc-pipe-dbeaa1b0/routed.dcp /sim/tarsio/reports-wpn16-inverse-acc-pipe-dbeaa1b0/p0-vectorless
+# Log file: /sim/tarsio/reports-wpn16-inverse-acc-pipe-dbeaa1b0/p0-vectorless/vivado.log
+# Journal file: /sim/tarsio/reports-wpn16-inverse-acc-pipe-dbeaa1b0/p0-vectorless/vivado.jou
+# Running On: paxos.inf.pucrs.br, OS: Linux, CPU Frequency: 3100.000 MHz, CPU Physical cores: 14, Host memory: 134319 MB
+#-----------------------------------------------------------
+source /tmp/wpn16_inverse_acc_vectorless_power.tcl
+# if {$argc != 2} { error "usage: wpn16_inverse_acc_vectorless_power.tcl <dcp> <out-dir>" }
+# set dcp [file normalize [lindex $argv 0]]
+# set out_dir [file normalize [lindex $argv 1]]
+# file mkdir $out_dir
+# foreach corner {typical maximum} {
+#   open_checkpoint $dcp
+#   reset_switching_activity -all
+#   reset_operating_conditions
+#   set_operating_conditions -process $corner -ambient_temp 25
+#   report_operating_conditions -file [file join $out_dir operating_conditions_${corner}.rpt]
+#   report_power -hier all -file [file join $out_dir power_${corner}.rpt]
+#   close_design
+# }
+Command: open_checkpoint /sim/tarsio/reports-wpn16-inverse-acc-pipe-dbeaa1b0/routed.dcp
+
+Starting open_checkpoint Task
+
+Time (s): cpu = 00:00:00.05 ; elapsed = 00:00:00.02 . Memory (MB): peak = 1262.047 ; gain = 0.000 ; free physical = 28111 ; free virtual = 106501
+INFO: [Device 21-403] Loading part xczu7ev-ffvc1156-2-e
+Netlist sorting complete. Time (s): cpu = 00:00:01 ; elapsed = 00:00:01 . Memory (MB): peak = 2604.883 ; gain = 0.000 ; free physical = 26764 ; free virtual = 105154
+INFO: [Netlist 29-17] Analyzing 16196 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 1 CPU seconds
+INFO: [Project 1-479] Netlist was created with Vivado 2023.2
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Read ShapeDB Complete: Time (s): cpu = 00:00:00.57 ; elapsed = 00:00:00.6 . Memory (MB): peak = 2891.688 ; gain = 93.984 ; free physical = 26486 ; free virtual = 104876
+INFO: [Timing 38-478] Restoring timing data from binary archive.
+INFO: [Timing 38-479] Binary timing data restore complete.
+INFO: [Project 1-856] Restoring constraints from binary archive.
+INFO: [Project 1-853] Binary constraint restore complete.
+INFO: [Designutils 20-5722] Start Reading Physical Databases.
+Reading placement.
+Read Netlist Cache: Time (s): cpu = 00:00:00.31 ; elapsed = 00:00:00.31 . Memory (MB): peak = 3821.320 ; gain = 0.000 ; free physical = 25720 ; free virtual = 104111
+Reading placer database...
+Read Device Cache: Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.03 . Memory (MB): peak = 3831.320 ; gain = 10.000 ; free physical = 25710 ; free virtual = 104101
+Read PlaceDB: Time (s): cpu = 00:00:07 ; elapsed = 00:00:07 . Memory (MB): peak = 4075.859 ; gain = 244.539 ; free physical = 25465 ; free virtual = 103855
+Read PulsedLatchDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 4075.859 ; gain = 0.000 ; free physical = 25465 ; free virtual = 103855
+Reading routing.
+Read RouteStorage: Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 4176.930 ; gain = 101.070 ; free physical = 25370 ; free virtual = 103760
+Read Physdb Files: Time (s): cpu = 00:00:12 ; elapsed = 00:00:13 . Memory (MB): peak = 4176.930 ; gain = 355.609 ; free physical = 25370 ; free virtual = 103760
+Restored from archive | CPU: 12.590000 secs | Memory: 336.976639 MB |
+Finished XDEF File Restore: Time (s): cpu = 00:00:12 ; elapsed = 00:00:13 . Memory (MB): peak = 4176.930 ; gain = 355.609 ; free physical = 25370 ; free virtual = 103760
+Netlist sorting complete. Time (s): cpu = 00:00:00.03 ; elapsed = 00:00:00.03 . Memory (MB): peak = 4485.875 ; gain = 0.000 ; free physical = 25071 ; free virtual = 103462
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 256 instances were transformed.
+  DSP48E2 => DSP48E2 (DSP_ALU, DSP_A_B_DATA, DSP_C_DATA, DSP_MULTIPLIER, DSP_M_DATA, DSP_OUTPUT, DSP_PREADD, DSP_PREADD_DATA): 256 instances
+
+INFO: [Project 1-604] Checkpoint was created with Vivado v2023.2 (64-bit) build 4029153
+open_checkpoint: Time (s): cpu = 00:00:54 ; elapsed = 00:00:53 . Memory (MB): peak = 4485.910 ; gain = 3223.863 ; free physical = 25071 ; free virtual = 103461
+reset_switching_activity: Time (s): cpu = 00:00:27 ; elapsed = 00:00:08 . Memory (MB): peak = 4856.441 ; gain = 370.531 ; free physical = 24795 ; free virtual = 103187
+Command: report_power -hier all -file /sim/tarsio/reports-wpn16-inverse-acc-pipe-dbeaa1b0/p0-vectorless/power_typical.rpt
+Running Vector-less Activity Propagation...
+WARNING: [Timing 38-242] The property HD.CLK_SRC of clock port "clk" is not set. In out-of-context mode, this prevents timing estimation for clock delay/skew
+Resolution: Set the HD.CLK_SRC property of the out-of-context port to the location of the clock buffer instance in the top-level design
+
+Finished Running Vector-less Activity Propagation
+12 Infos, 1 Warnings, 0 Critical Warnings and 0 Errors encountered.
+report_power completed successfully
+report_power: Time (s): cpu = 00:02:58 ; elapsed = 00:00:54 . Memory (MB): peak = 5675.344 ; gain = 818.902 ; free physical = 24092 ; free virtual = 102486
+Command: open_checkpoint /sim/tarsio/reports-wpn16-inverse-acc-pipe-dbeaa1b0/routed.dcp
+
+Starting open_checkpoint Task
+
+Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 5675.344 ; gain = 0.000 ; free physical = 24092 ; free virtual = 102486
+Netlist sorting complete. Time (s): cpu = 00:00:01 ; elapsed = 00:00:01 . Memory (MB): peak = 5675.344 ; gain = 0.000 ; free physical = 24093 ; free virtual = 102487
+INFO: [Netlist 29-17] Analyzing 16196 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 1 CPU seconds
+INFO: [Project 1-479] Netlist was created with Vivado 2023.2
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Read ShapeDB Complete: Time (s): cpu = 00:00:00.59 ; elapsed = 00:00:00.6 . Memory (MB): peak = 5675.344 ; gain = 0.000 ; free physical = 24093 ; free virtual = 102487
+INFO: [Timing 38-478] Restoring timing data from binary archive.
+INFO: [Timing 38-479] Binary timing data restore complete.
+INFO: [Project 1-856] Restoring constraints from binary archive.
+INFO: [Project 1-853] Binary constraint restore complete.
+INFO: [Designutils 20-5722] Start Reading Physical Databases.
+Reading placement.
+Read Netlist Cache: Time (s): cpu = 00:00:00.34 ; elapsed = 00:00:00.35 . Memory (MB): peak = 5675.344 ; gain = 0.000 ; free physical = 24075 ; free virtual = 102469
+Reading placer database...
+Read Device Cache: Time (s): cpu = 00:00:00.03 ; elapsed = 00:00:00.02 . Memory (MB): peak = 5675.344 ; gain = 0.000 ; free physical = 24075 ; free virtual = 102469
+Read PlaceDB: Time (s): cpu = 00:00:07 ; elapsed = 00:00:07 . Memory (MB): peak = 5675.344 ; gain = 0.000 ; free physical = 24071 ; free virtual = 102465
+Read PulsedLatchDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 5675.344 ; gain = 0.000 ; free physical = 24071 ; free virtual = 102465
+Reading routing.
+Read RouteStorage: Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 5675.344 ; gain = 0.000 ; free physical = 24071 ; free virtual = 102465
+Read Physdb Files: Time (s): cpu = 00:00:13 ; elapsed = 00:00:13 . Memory (MB): peak = 5675.344 ; gain = 0.000 ; free physical = 24071 ; free virtual = 102465
+Restored from archive | CPU: 12.630000 secs | Memory: 335.921036 MB |
+Finished XDEF File Restore: Time (s): cpu = 00:00:13 ; elapsed = 00:00:13 . Memory (MB): peak = 5675.344 ; gain = 0.000 ; free physical = 24071 ; free virtual = 102465
+Netlist sorting complete. Time (s): cpu = 00:00:00.03 ; elapsed = 00:00:00.03 . Memory (MB): peak = 5675.344 ; gain = 0.000 ; free physical = 24071 ; free virtual = 102465
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 256 instances were transformed.
+  DSP48E2 => DSP48E2 (DSP_ALU, DSP_A_B_DATA, DSP_C_DATA, DSP_MULTIPLIER, DSP_M_DATA, DSP_OUTPUT, DSP_PREADD, DSP_PREADD_DATA): 256 instances
+
+INFO: [Project 1-604] Checkpoint was created with Vivado v2023.2 (64-bit) build 4029153
+open_checkpoint: Time (s): cpu = 00:00:40 ; elapsed = 00:00:36 . Memory (MB): peak = 5675.344 ; gain = 0.000 ; free physical = 24071 ; free virtual = 102465
+reset_switching_activity: Time (s): cpu = 00:00:27 ; elapsed = 00:00:09 . Memory (MB): peak = 5675.344 ; gain = 0.000 ; free physical = 24069 ; free virtual = 102463
+Command: report_power -hier all -file /sim/tarsio/reports-wpn16-inverse-acc-pipe-dbeaa1b0/p0-vectorless/power_maximum.rpt
+Running Vector-less Activity Propagation...
+WARNING: [Timing 38-242] The property HD.CLK_SRC of clock port "clk" is not set. In out-of-context mode, this prevents timing estimation for clock delay/skew
+Resolution: Set the HD.CLK_SRC property of the out-of-context port to the location of the clock buffer instance in the top-level design
+
+Finished Running Vector-less Activity Propagation
+11 Infos, 1 Warnings, 0 Critical Warnings and 0 Errors encountered.
+report_power completed successfully
+report_power: Time (s): cpu = 00:02:56 ; elapsed = 00:00:52 . Memory (MB): peak = 5740.297 ; gain = 64.953 ; free physical = 23996 ; free virtual = 102390
+# exit
+INFO: [Common 17-206] Exiting Vivado at Fri Oct  2 22:22:30 2026...

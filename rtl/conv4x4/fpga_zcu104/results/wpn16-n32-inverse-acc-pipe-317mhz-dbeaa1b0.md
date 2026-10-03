@@ -87,10 +87,41 @@ fisicas independentes e a diferenca e pequena, nao se deve interpretar os
   OOC tambem nao tem `HD.CLK_SRC`, e os ports nao tem `HD.PARTPIN_LOCS`; timing
   de fronteira nao deve ser interpretado como timing de interface/package.
 - Nao foi executada simulacao funcional pos-route/Xcelium nem campanha de
-  SAIF/power nesta rodada. Assim, nao ha estimativa de potencia, energia,
-  GOPS/W ou pJ/op para esta variante multicore.
+  SAIF/P3F nesta rodada. Foi executado somente P0 vectorless no DCP roteado;
+  os valores abaixo sao estimativas da ferramenta com confianca `Medium`, nao
+  potencia medida nem atividade anotada do workload.
 - O DCP roteado foi mantido apenas na Paxos; os arquivos versionados sao
   relatorios textuais, nao binarios de implementacao.
+
+## Medidas de throughput, recursos e potencia
+
+O throughput por replica usa 145.800 operacoes equivalentes por workload
+(MAC = 2 operacoes), 9.994 ciclos ativos medidos na validacao RTL e 317 MHz.
+O throughput agregado multiplica esse valor por 32, assumindo execucao
+concorrente das 32 replicas. Portanto, e um valor derivado, nao medido numa
+simulacao funcional multicore.
+
+| Metrica | Resultado |
+| --- | ---: |
+| DSP (% do total) | 14,81% (256/1.728) |
+| LUT (% do total) | 79,89% (184.069/230.400) |
+| Potencia dinamica P0 typical | 4,198 W |
+| Potencia total P0 typical | 4,813 W (inclui 0,615 W estaticos) |
+| Throughput ativo por replica | 4,625 GOPS |
+| Throughput agregado derivado (32 replicas) | 147,988 GOPS |
+| Eficiencia DSP agregada | 0,578 GOPS/DSP |
+| Eficiencia por potencia total P0 typical | 30,748 GOPS/W |
+| Eficiencia normalizada por potencia dinamica | 35,252 GOPS/W |
+
+P0 foi gerado sem SAIF: `Simulation Activity File` aparece como `---` e a
+confianca do Vivado e `Medium`. Assim, a linha de eficiencia com potencia
+total usa o modelo vectorless do dispositivo/implementacao e nao deve ser
+comparada como se fosse P3F ou uma medicao fisica. No corner maximum, o mesmo
+relatorio estima 4,198 W dinamicos, 0,875 W estaticos e 5,073 W totais; a
+eficiencia agregada correspondente e 29,172 GOPS/W.
+
+Os relatorios P0 e as condicoes de operacao estao preservados em
+`reports/wpn16-inverse-acc-pipe-dbeaa1b0/p0-vectorless/`.
 
 ## Proveniencia
 
