@@ -46,6 +46,12 @@ for relative in "${configs[@]}"; do
   config="$REPO_ROOT/$relative"
   result="$OUT_ROOT/$tag"
   mkdir -p "$result"
+  top_module="$(awk 'NF && $1 !~ /^#/ {print $1; exit}' "$config/top-module.txt")"
+  top_module="${top_module:-Conv}"
+  mapped_netlist="$config/logical/results/gate_level/${top_module}_logic_mapped.v"
+  nominal_sdf="$config/logical/results/gate_level/${top_module}_analysis_view_0p90v_25c_captyp_nominal.sdf"
+  area_report="$config/logical/results/reports/${top_module}_area.rpt"
+  timing_report="$config/logical/results/reports/${top_module}_timing_setup_analysis_view_0p90v_25c_captyp_nominal.rpt"
   printf '\n[%s] %s\n' "$(date -Is)" "$tag" | tee -a "$OUT_ROOT/campaign.txt"
 
   expected_num="$((10#${tag##*-m}))"
@@ -76,8 +82,7 @@ for relative in "${configs[@]}"; do
     continue
   fi
 
-  if [[ ! -s "$config/logical/results/gate_level/conv_logic_mapped.v" ||
-        ! -s "$config/logical/results/gate_level/conv_analysis_view_0p90v_25c_captyp_nominal.sdf" ]]; then
+  if [[ ! -s "$mapped_netlist" || ! -s "$nominal_sdf" ]]; then
     printf 'logical=FAIL missing mapped netlist or nominal SDF\n' | tee -a "$result/status.txt" "$OUT_ROOT/campaign.txt"
     failures=$((failures + 1))
     continue
@@ -112,11 +117,23 @@ for relative in "${configs[@]}"; do
     continue
   fi
 
+  if grep -Eq 'FLFNOF|FLFFNC|No SDF file specified|SDF file.*not found' "$result/sim.log"; then
+    printf 'sim=FAIL_SDF annotation file missing or unreadable\n' | tee -a "$result/status.txt" "$OUT_ROOT/campaign.txt"
+    failures=$((failures + 1))
+    continue
+  fi
+  if ! grep -Fq 'Annotating SDF timing data:' "$result/sim.log" ||
+     ! grep -Fq 'Backannotation scope:' "$result/sim.log"; then
+    printf 'sim=FAIL_SDF annotation evidence missing\n' | tee -a "$result/status.txt" "$OUT_ROOT/campaign.txt"
+    failures=$((failures + 1))
+    continue
+  fi
+
   if (cd "$config/power" && ./run.sh) >"$result/power.log" 2>&1; then
     printf 'power=PASS\n' | tee -a "$result/status.txt"
     cp "$config/power/power_evaluation.txt" "$result/power_evaluation.txt"
-    cp "$config/logical/results/reports/conv_area.rpt" "$result/area.rpt"
-    cp "$config/logical/results/reports/conv_timing_setup_analysis_view_0p90v_25c_captyp_nominal.rpt" "$result/timing_typical.rpt"
+    cp "$area_report" "$result/area.rpt"
+    cp "$timing_report" "$result/timing_typical.rpt"
   else
     rc=$?
     printf 'power=FAIL rc=%s\n' "$rc" | tee -a "$result/status.txt" "$OUT_ROOT/campaign.txt"

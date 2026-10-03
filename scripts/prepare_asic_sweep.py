@@ -94,6 +94,24 @@ def build_config(
     (config / "top-module.txt").write_text("Conv\n")
     (config / "top-parameters.txt").write_text("\n".join(top_parameters) + "\n")
     (config / "testbench-file.txt").write_text(tb + "\n")
+    write_sdf_command(config, "Conv")
+
+
+def write_sdf_command(config: Path, top_module: str) -> None:
+    """Point Xcelium at the case-sensitive SDF filename emitted by Genus."""
+    (config / "sim" / "sdf_cmd.cmd").write_text(
+        "\n".join(
+            (
+                f'SDF_FILE = "../logical/results/gate_level/{top_module}_analysis_view_0p90v_25c_captyp_nominal.sdf",',
+                'LOG_FILE = "./sdf_log.log",',
+                "SCOPE = tb.dut;",
+                'MTM_CONTROL = "MAXIMUM",',
+                'SCALE_FACTORS = "1.0:1.0:1.0",',
+                'SCALE_TYPE = "FROM_MAXIMUM";',
+            )
+        )
+        + "\n"
+    )
 
 
 def refresh_elaboration_scripts(config: Path, conv: str) -> None:
@@ -105,6 +123,21 @@ def refresh_elaboration_scripts(config: Path, conv: str) -> None:
         "scripts/logical_synthesis_body.tcl",
     ):
         shutil.copy2(source_config / relative, config / relative)
+
+
+def refresh_sim_annotation(config: Path, conv: str) -> None:
+    top_module = (config / "top-module.txt").read_text().split()[0]
+    write_sdf_command(config, top_module)
+    source_config = ROOT / "rtl" / conv / "synthesis" / (
+        "ifn9-06mac" if conv == "conv3x3" else "tcn16-18mac"
+    )
+    sim_run = config / "sim" / "run.sh"
+    shutil.copy2(source_config / "sim" / "run.sh", sim_run)
+    sim_run.write_text(
+        sim_run.read_text().replace(
+            "module load xcelium", "module load cadence/xcelium/2303"
+        )
+    )
 
 
 def main() -> None:
@@ -120,9 +153,23 @@ def main() -> None:
         action="store_true",
         help="refresh the two parameter-elaboration Tcl files in existing configs",
     )
+    parser.add_argument(
+        "--refresh-sim-annotation-only",
+        action="store_true",
+        help="refresh generated SDF command and preflight check in existing sweep configs",
+    )
     args = parser.parse_args()
-    if args.dry_run and (args.update_parameters_only or args.refresh_elaboration_scripts_only):
+    if args.dry_run and (
+        args.update_parameters_only
+        or args.refresh_elaboration_scripts_only
+        or args.refresh_sim_annotation_only
+    ):
         parser.error("--dry-run cannot be combined with an update option")
+    update_modes = sum(
+        (args.update_parameters_only, args.refresh_elaboration_scripts_only, args.refresh_sim_annotation_only)
+    )
+    if update_modes > 1:
+        parser.error("update options are mutually exclusive")
 
     points = [
         ("conv3x3", "ifn9", "6", "sim-032-3-3-normal"),
@@ -152,7 +199,16 @@ def main() -> None:
             if not config.is_dir():
                 raise FileNotFoundError(f"config does not exist: {config}")
             refresh_elaboration_scripts(config, conv)
-        if not (args.update_parameters_only or args.refresh_elaboration_scripts_only or args.dry_run):
+        if args.refresh_sim_annotation_only:
+            if not config.is_dir():
+                raise FileNotFoundError(f"config does not exist: {config}")
+            refresh_sim_annotation(config, conv)
+        if not (
+            args.update_parameters_only
+            or args.refresh_elaboration_scripts_only
+            or args.refresh_sim_annotation_only
+            or args.dry_run
+        ):
             build_config(config, hdl, tb, conv, top_parameters)
 
 

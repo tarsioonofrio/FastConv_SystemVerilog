@@ -18,6 +18,12 @@ if [[ "$TB_ENTRY" = /* ]]; then TB="$TB_ENTRY"; else TB="$GIT_ROOT/$TB_ENTRY"; f
 TOP_MODULE="$(awk 'NF && $1 !~ /^#/ {print $1; exit}' "$CONFIG_ROOT/top-module.txt")"
 TOP_MODULE="${TOP_MODULE:-system}"
 GATE="$CONFIG_ROOT/logical/results/gate_level/${TOP_MODULE}_logic_mapped.v"
+SDF="$CONFIG_ROOT/logical/results/gate_level/${TOP_MODULE}_analysis_view_0p90v_25c_captyp_nominal.sdf"
+
+if [[ ! -s "$SDF" ]]; then
+    echo "nominal SDF not found: $SDF" >&2
+    exit 2
+fi
 
 files=()
 while IFS= read -r line; do
@@ -26,8 +32,7 @@ while IFS= read -r line; do
     # The mapped gate-level top is added below.  Do not compile the RTL top
     # from list-file.txt as well, otherwise duplicate Conv definitions make
     # Xcelium elaborate the wrong hierarchy for SDF back-annotation.
-    source_basename="${line##*/}"
-    if [[ "${source_basename,,}" == "${TOP_MODULE,,}.sv" ]]; then
+    if [[ "$(basename "$line")" == "${TOP_MODULE}.sv" ]]; then
         continue
     fi
     if [[ "$line" = /* ]]; then files+=("$line"); else files+=("$GIT_ROOT/$line"); fi
