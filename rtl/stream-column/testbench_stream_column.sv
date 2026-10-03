@@ -303,6 +303,29 @@ module tb_stream_column #(
     end
   end
 
+`ifdef ASIC_DIAG_TRACE
+  // Optional transaction trace for comparing RTL and mapped gate simulations.
+  // It is inactive in normal synthesis, simulation, and power runs.
+  int diag_input_beats;
+  int diag_output_beats;
+  initial begin
+    diag_input_beats = 0;
+    diag_output_beats = 0;
+  end
+  always @(posedge clk) begin: ASIC_DIAG_TRACE_BLOCK
+    if (!reset && p_input_en && p_input_valid && diag_input_beats < 48) begin
+      $display("ASIC_DIAG_INPUT cycle=%0d addr=%0d data=%h valid=%0b",
+               cycle_count, p_input_addr, p_input_data, p_input_valid);
+      diag_input_beats <= diag_input_beats + 1;
+    end
+    if (!reset && p_output_en && p_output_wr && diag_output_beats < 48) begin
+      $display("ASIC_DIAG_OUTPUT cycle=%0d addr=%0d data=%h",
+               cycle_count, p_output_addr, p_output_data_write);
+      diag_output_beats <= diag_output_beats + 1;
+    end
+  end
+`endif
+
   initial begin: TEST_SEQUENCE_BLOCK
     reset = 1'b1;
     p_start = 1'b0;
