@@ -1013,10 +1013,12 @@ endmodule
 // One instance per transformed row (ROW_INDEX), each producing 8 values.
 // The row-th equations are elaboration-time constants, so only the selected row
 // remains after constant propagation.  Disabled rows drive zero (operand isolation).
-// The exact transform is an integer combination of the raw weights divided by
-// WEIGHT_SCALE = 4; the result is the FLOOR of that division (arithmetic
-// shift), wrapped to NBITS, matching the truncated golden dataset.
+// The exact transform is an integer combination of the raw weights.
+// WEIGHT_SCALE = 4; arithmetic right shift by 2 computes the floor.
+// The result is wrapped to NBITS, matching the truncated golden dataset.
 // -----------------------------------------------------------------------------
+// Keep constant-transform arithmetic in fabric; reserve DSPs for the MAC lanes.
+(* use_dsp = "no" *)
 module WeightTransformRowConst #(
     parameter int NBITS = 20,
     parameter int ROW_INDEX = 0
@@ -1189,271 +1191,372 @@ module InverseRowAccumulate #(
   timeprecision 1ps;
 
   localparam int OUTPUT_PIXELS = CONV_OUTPUT_SIZE * CONV_OUTPUT_SIZE;
-  logic [NBITS-1:0] inverse_contribution [ROWS_PER_CYCLE-1:0][OUTPUT_PIXELS-1:0];
 
-  // Decode each inverse row into independent per-pixel terms. Keeping these
-  // terms separate avoids feeding accumulator_out back through a procedural
-  // loop when multiple rows are accumulated in one cycle.
-  for (genvar batch = 0; batch < ROWS_PER_CYCLE; batch++) begin: INVERSE_BATCH
-    always_comb begin: INVERSE_ROW_CONTRIBUTION_BLOCK
-      for (int unsigned i = 0; i < OUTPUT_PIXELS; i++)
-        inverse_contribution[batch][i] = '0;
-      case (inverse_row_idx + ROW_INDEX_WIDTH'(batch))
-        0: begin
-        inverse_contribution[batch][0] = + inverse_partial[batch*CONV_OUTPUT_SIZE + 0];
-        inverse_contribution[batch][1] = + inverse_partial[batch*CONV_OUTPUT_SIZE + 1];
-        inverse_contribution[batch][2] = + inverse_partial[batch*CONV_OUTPUT_SIZE + 2];
-        inverse_contribution[batch][3] = + inverse_partial[batch*CONV_OUTPUT_SIZE + 3];
-        end
-        1: begin
-        inverse_contribution[batch][0] = + inverse_partial[batch*CONV_OUTPUT_SIZE + 0];
-        inverse_contribution[batch][1] = + inverse_partial[batch*CONV_OUTPUT_SIZE + 1];
-        inverse_contribution[batch][2] = + inverse_partial[batch*CONV_OUTPUT_SIZE + 2];
-        inverse_contribution[batch][3] = + inverse_partial[batch*CONV_OUTPUT_SIZE + 3];
-        inverse_contribution[batch][8] = + inverse_partial[batch*CONV_OUTPUT_SIZE + 0];
-        inverse_contribution[batch][9] = + inverse_partial[batch*CONV_OUTPUT_SIZE + 1];
-        inverse_contribution[batch][10] = + inverse_partial[batch*CONV_OUTPUT_SIZE + 2];
-        inverse_contribution[batch][11] = + inverse_partial[batch*CONV_OUTPUT_SIZE + 3];
-        end
-        2: begin
-        inverse_contribution[batch][0] = + inverse_partial[batch*CONV_OUTPUT_SIZE + 0];
-        inverse_contribution[batch][1] = + inverse_partial[batch*CONV_OUTPUT_SIZE + 1];
-        inverse_contribution[batch][2] = + inverse_partial[batch*CONV_OUTPUT_SIZE + 2];
-        inverse_contribution[batch][3] = + inverse_partial[batch*CONV_OUTPUT_SIZE + 3];
-        inverse_contribution[batch][4] = + inverse_partial[batch*CONV_OUTPUT_SIZE + 0];
-        inverse_contribution[batch][5] = + inverse_partial[batch*CONV_OUTPUT_SIZE + 1];
-        inverse_contribution[batch][6] = + inverse_partial[batch*CONV_OUTPUT_SIZE + 2];
-        inverse_contribution[batch][7] = + inverse_partial[batch*CONV_OUTPUT_SIZE + 3];
-        inverse_contribution[batch][8] = + inverse_partial[batch*CONV_OUTPUT_SIZE + 0];
-        inverse_contribution[batch][9] = + inverse_partial[batch*CONV_OUTPUT_SIZE + 1];
-        inverse_contribution[batch][10] = + inverse_partial[batch*CONV_OUTPUT_SIZE + 2];
-        inverse_contribution[batch][11] = + inverse_partial[batch*CONV_OUTPUT_SIZE + 3];
-        inverse_contribution[batch][12] = + inverse_partial[batch*CONV_OUTPUT_SIZE + 0];
-        inverse_contribution[batch][13] = + inverse_partial[batch*CONV_OUTPUT_SIZE + 1];
-        inverse_contribution[batch][14] = + inverse_partial[batch*CONV_OUTPUT_SIZE + 2];
-        inverse_contribution[batch][15] = + inverse_partial[batch*CONV_OUTPUT_SIZE + 3];
-        end
-        3: begin
-        inverse_contribution[batch][4] = + inverse_partial[batch*CONV_OUTPUT_SIZE + 0];
-        inverse_contribution[batch][5] = + inverse_partial[batch*CONV_OUTPUT_SIZE + 1];
-        inverse_contribution[batch][6] = + inverse_partial[batch*CONV_OUTPUT_SIZE + 2];
-        inverse_contribution[batch][7] = + inverse_partial[batch*CONV_OUTPUT_SIZE + 3];
-        inverse_contribution[batch][12] = + inverse_partial[batch*CONV_OUTPUT_SIZE + 0];
-        inverse_contribution[batch][13] = + inverse_partial[batch*CONV_OUTPUT_SIZE + 1];
-        inverse_contribution[batch][14] = + inverse_partial[batch*CONV_OUTPUT_SIZE + 2];
-        inverse_contribution[batch][15] = + inverse_partial[batch*CONV_OUTPUT_SIZE + 3];
-        end
-        4: begin
-        inverse_contribution[batch][0] = + inverse_partial[batch*CONV_OUTPUT_SIZE + 0];
-        inverse_contribution[batch][1] = + inverse_partial[batch*CONV_OUTPUT_SIZE + 1];
-        inverse_contribution[batch][2] = + inverse_partial[batch*CONV_OUTPUT_SIZE + 2];
-        inverse_contribution[batch][3] = + inverse_partial[batch*CONV_OUTPUT_SIZE + 3];
-        inverse_contribution[batch][8] = - inverse_partial[batch*CONV_OUTPUT_SIZE + 0];
-        inverse_contribution[batch][9] = - inverse_partial[batch*CONV_OUTPUT_SIZE + 1];
-        inverse_contribution[batch][10] = - inverse_partial[batch*CONV_OUTPUT_SIZE + 2];
-        inverse_contribution[batch][11] = - inverse_partial[batch*CONV_OUTPUT_SIZE + 3];
-        end
-        5: begin
-        inverse_contribution[batch][0] = + inverse_partial[batch*CONV_OUTPUT_SIZE + 0];
-        inverse_contribution[batch][1] = + inverse_partial[batch*CONV_OUTPUT_SIZE + 1];
-        inverse_contribution[batch][2] = + inverse_partial[batch*CONV_OUTPUT_SIZE + 2];
-        inverse_contribution[batch][3] = + inverse_partial[batch*CONV_OUTPUT_SIZE + 3];
-        inverse_contribution[batch][4] = + inverse_partial[batch*CONV_OUTPUT_SIZE + 0];
-        inverse_contribution[batch][5] = + inverse_partial[batch*CONV_OUTPUT_SIZE + 1];
-        inverse_contribution[batch][6] = + inverse_partial[batch*CONV_OUTPUT_SIZE + 2];
-        inverse_contribution[batch][7] = + inverse_partial[batch*CONV_OUTPUT_SIZE + 3];
-        inverse_contribution[batch][8] = - inverse_partial[batch*CONV_OUTPUT_SIZE + 0];
-        inverse_contribution[batch][9] = - inverse_partial[batch*CONV_OUTPUT_SIZE + 1];
-        inverse_contribution[batch][10] = - inverse_partial[batch*CONV_OUTPUT_SIZE + 2];
-        inverse_contribution[batch][11] = - inverse_partial[batch*CONV_OUTPUT_SIZE + 3];
-        inverse_contribution[batch][12] = - inverse_partial[batch*CONV_OUTPUT_SIZE + 0];
-        inverse_contribution[batch][13] = - inverse_partial[batch*CONV_OUTPUT_SIZE + 1];
-        inverse_contribution[batch][14] = - inverse_partial[batch*CONV_OUTPUT_SIZE + 2];
-        inverse_contribution[batch][15] = - inverse_partial[batch*CONV_OUTPUT_SIZE + 3];
-        end
-        6: begin
-        inverse_contribution[batch][4] = + inverse_partial[batch*CONV_OUTPUT_SIZE + 0];
-        inverse_contribution[batch][5] = + inverse_partial[batch*CONV_OUTPUT_SIZE + 1];
-        inverse_contribution[batch][6] = + inverse_partial[batch*CONV_OUTPUT_SIZE + 2];
-        inverse_contribution[batch][7] = + inverse_partial[batch*CONV_OUTPUT_SIZE + 3];
-        inverse_contribution[batch][12] = - inverse_partial[batch*CONV_OUTPUT_SIZE + 0];
-        inverse_contribution[batch][13] = - inverse_partial[batch*CONV_OUTPUT_SIZE + 1];
-        inverse_contribution[batch][14] = - inverse_partial[batch*CONV_OUTPUT_SIZE + 2];
-        inverse_contribution[batch][15] = - inverse_partial[batch*CONV_OUTPUT_SIZE + 3];
-        end
-        7: begin
-        inverse_contribution[batch][12] = + inverse_partial[batch*CONV_OUTPUT_SIZE + 0];
-        inverse_contribution[batch][13] = + inverse_partial[batch*CONV_OUTPUT_SIZE + 1];
-        inverse_contribution[batch][14] = + inverse_partial[batch*CONV_OUTPUT_SIZE + 2];
-        inverse_contribution[batch][15] = + inverse_partial[batch*CONV_OUTPUT_SIZE + 3];
-        end
-        default: begin end
-      endcase
-    end
-  end
-
-  // The output is one direct sum of the input accumulator and each row term.
-  // ROWS_PER_CYCLE is a parameter, so only one fixed-width sum branch remains
-  // after elaboration. All additions retain the datapath's NBITS wrap behavior.
+  // Decode the batch base once, then select one statically expanded sum.
+  // This avoids both a runtime row-index adder per batch and a procedural
+  // read-modify-write chain on accumulator_out, which Vivado mis-mapped for
+  // some multi-row configurations in post-synthesis functional simulation.
   generate
     if (ROWS_PER_CYCLE == 1) begin: INVERSE_SUM_1
       always_comb begin: INVERSE_ROW_ACCUMULATE_BLOCK
-        accumulator_out[0] = accumulator_in[0] + inverse_contribution[0][0];
-        accumulator_out[1] = accumulator_in[1] + inverse_contribution[0][1];
-        accumulator_out[2] = accumulator_in[2] + inverse_contribution[0][2];
-        accumulator_out[3] = accumulator_in[3] + inverse_contribution[0][3];
-        accumulator_out[4] = accumulator_in[4] + inverse_contribution[0][4];
-        accumulator_out[5] = accumulator_in[5] + inverse_contribution[0][5];
-        accumulator_out[6] = accumulator_in[6] + inverse_contribution[0][6];
-        accumulator_out[7] = accumulator_in[7] + inverse_contribution[0][7];
-        accumulator_out[8] = accumulator_in[8] + inverse_contribution[0][8];
-        accumulator_out[9] = accumulator_in[9] + inverse_contribution[0][9];
-        accumulator_out[10] = accumulator_in[10] + inverse_contribution[0][10];
-        accumulator_out[11] = accumulator_in[11] + inverse_contribution[0][11];
-        accumulator_out[12] = accumulator_in[12] + inverse_contribution[0][12];
-        accumulator_out[13] = accumulator_in[13] + inverse_contribution[0][13];
-        accumulator_out[14] = accumulator_in[14] + inverse_contribution[0][14];
-        accumulator_out[15] = accumulator_in[15] + inverse_contribution[0][15];
+        accumulator_out[0] = accumulator_in[0];
+        accumulator_out[1] = accumulator_in[1];
+        accumulator_out[2] = accumulator_in[2];
+        accumulator_out[3] = accumulator_in[3];
+        accumulator_out[4] = accumulator_in[4];
+        accumulator_out[5] = accumulator_in[5];
+        accumulator_out[6] = accumulator_in[6];
+        accumulator_out[7] = accumulator_in[7];
+        accumulator_out[8] = accumulator_in[8];
+        accumulator_out[9] = accumulator_in[9];
+        accumulator_out[10] = accumulator_in[10];
+        accumulator_out[11] = accumulator_in[11];
+        accumulator_out[12] = accumulator_in[12];
+        accumulator_out[13] = accumulator_in[13];
+        accumulator_out[14] = accumulator_in[14];
+        accumulator_out[15] = accumulator_in[15];
+        case (inverse_row_idx)
+          0: begin
+            accumulator_out[0] = accumulator_in[0] + inverse_partial[0];
+            accumulator_out[1] = accumulator_in[1] + inverse_partial[1];
+            accumulator_out[2] = accumulator_in[2] + inverse_partial[2];
+            accumulator_out[3] = accumulator_in[3] + inverse_partial[3];
+            accumulator_out[4] = accumulator_in[4];
+            accumulator_out[5] = accumulator_in[5];
+            accumulator_out[6] = accumulator_in[6];
+            accumulator_out[7] = accumulator_in[7];
+            accumulator_out[8] = accumulator_in[8];
+            accumulator_out[9] = accumulator_in[9];
+            accumulator_out[10] = accumulator_in[10];
+            accumulator_out[11] = accumulator_in[11];
+            accumulator_out[12] = accumulator_in[12];
+            accumulator_out[13] = accumulator_in[13];
+            accumulator_out[14] = accumulator_in[14];
+            accumulator_out[15] = accumulator_in[15];
+          end
+          1: begin
+            accumulator_out[0] = accumulator_in[0] + inverse_partial[0];
+            accumulator_out[1] = accumulator_in[1] + inverse_partial[1];
+            accumulator_out[2] = accumulator_in[2] + inverse_partial[2];
+            accumulator_out[3] = accumulator_in[3] + inverse_partial[3];
+            accumulator_out[4] = accumulator_in[4];
+            accumulator_out[5] = accumulator_in[5];
+            accumulator_out[6] = accumulator_in[6];
+            accumulator_out[7] = accumulator_in[7];
+            accumulator_out[8] = accumulator_in[8] + inverse_partial[0];
+            accumulator_out[9] = accumulator_in[9] + inverse_partial[1];
+            accumulator_out[10] = accumulator_in[10] + inverse_partial[2];
+            accumulator_out[11] = accumulator_in[11] + inverse_partial[3];
+            accumulator_out[12] = accumulator_in[12];
+            accumulator_out[13] = accumulator_in[13];
+            accumulator_out[14] = accumulator_in[14];
+            accumulator_out[15] = accumulator_in[15];
+          end
+          2: begin
+            accumulator_out[0] = accumulator_in[0] + inverse_partial[0];
+            accumulator_out[1] = accumulator_in[1] + inverse_partial[1];
+            accumulator_out[2] = accumulator_in[2] + inverse_partial[2];
+            accumulator_out[3] = accumulator_in[3] + inverse_partial[3];
+            accumulator_out[4] = accumulator_in[4] + inverse_partial[0];
+            accumulator_out[5] = accumulator_in[5] + inverse_partial[1];
+            accumulator_out[6] = accumulator_in[6] + inverse_partial[2];
+            accumulator_out[7] = accumulator_in[7] + inverse_partial[3];
+            accumulator_out[8] = accumulator_in[8] + inverse_partial[0];
+            accumulator_out[9] = accumulator_in[9] + inverse_partial[1];
+            accumulator_out[10] = accumulator_in[10] + inverse_partial[2];
+            accumulator_out[11] = accumulator_in[11] + inverse_partial[3];
+            accumulator_out[12] = accumulator_in[12] + inverse_partial[0];
+            accumulator_out[13] = accumulator_in[13] + inverse_partial[1];
+            accumulator_out[14] = accumulator_in[14] + inverse_partial[2];
+            accumulator_out[15] = accumulator_in[15] + inverse_partial[3];
+          end
+          3: begin
+            accumulator_out[0] = accumulator_in[0];
+            accumulator_out[1] = accumulator_in[1];
+            accumulator_out[2] = accumulator_in[2];
+            accumulator_out[3] = accumulator_in[3];
+            accumulator_out[4] = accumulator_in[4] + inverse_partial[0];
+            accumulator_out[5] = accumulator_in[5] + inverse_partial[1];
+            accumulator_out[6] = accumulator_in[6] + inverse_partial[2];
+            accumulator_out[7] = accumulator_in[7] + inverse_partial[3];
+            accumulator_out[8] = accumulator_in[8];
+            accumulator_out[9] = accumulator_in[9];
+            accumulator_out[10] = accumulator_in[10];
+            accumulator_out[11] = accumulator_in[11];
+            accumulator_out[12] = accumulator_in[12] + inverse_partial[0];
+            accumulator_out[13] = accumulator_in[13] + inverse_partial[1];
+            accumulator_out[14] = accumulator_in[14] + inverse_partial[2];
+            accumulator_out[15] = accumulator_in[15] + inverse_partial[3];
+          end
+          4: begin
+            accumulator_out[0] = accumulator_in[0] + inverse_partial[0];
+            accumulator_out[1] = accumulator_in[1] + inverse_partial[1];
+            accumulator_out[2] = accumulator_in[2] + inverse_partial[2];
+            accumulator_out[3] = accumulator_in[3] + inverse_partial[3];
+            accumulator_out[4] = accumulator_in[4];
+            accumulator_out[5] = accumulator_in[5];
+            accumulator_out[6] = accumulator_in[6];
+            accumulator_out[7] = accumulator_in[7];
+            accumulator_out[8] = accumulator_in[8] - inverse_partial[0];
+            accumulator_out[9] = accumulator_in[9] - inverse_partial[1];
+            accumulator_out[10] = accumulator_in[10] - inverse_partial[2];
+            accumulator_out[11] = accumulator_in[11] - inverse_partial[3];
+            accumulator_out[12] = accumulator_in[12];
+            accumulator_out[13] = accumulator_in[13];
+            accumulator_out[14] = accumulator_in[14];
+            accumulator_out[15] = accumulator_in[15];
+          end
+          5: begin
+            accumulator_out[0] = accumulator_in[0] + inverse_partial[0];
+            accumulator_out[1] = accumulator_in[1] + inverse_partial[1];
+            accumulator_out[2] = accumulator_in[2] + inverse_partial[2];
+            accumulator_out[3] = accumulator_in[3] + inverse_partial[3];
+            accumulator_out[4] = accumulator_in[4] + inverse_partial[0];
+            accumulator_out[5] = accumulator_in[5] + inverse_partial[1];
+            accumulator_out[6] = accumulator_in[6] + inverse_partial[2];
+            accumulator_out[7] = accumulator_in[7] + inverse_partial[3];
+            accumulator_out[8] = accumulator_in[8] - inverse_partial[0];
+            accumulator_out[9] = accumulator_in[9] - inverse_partial[1];
+            accumulator_out[10] = accumulator_in[10] - inverse_partial[2];
+            accumulator_out[11] = accumulator_in[11] - inverse_partial[3];
+            accumulator_out[12] = accumulator_in[12] - inverse_partial[0];
+            accumulator_out[13] = accumulator_in[13] - inverse_partial[1];
+            accumulator_out[14] = accumulator_in[14] - inverse_partial[2];
+            accumulator_out[15] = accumulator_in[15] - inverse_partial[3];
+          end
+          6: begin
+            accumulator_out[0] = accumulator_in[0];
+            accumulator_out[1] = accumulator_in[1];
+            accumulator_out[2] = accumulator_in[2];
+            accumulator_out[3] = accumulator_in[3];
+            accumulator_out[4] = accumulator_in[4] + inverse_partial[0];
+            accumulator_out[5] = accumulator_in[5] + inverse_partial[1];
+            accumulator_out[6] = accumulator_in[6] + inverse_partial[2];
+            accumulator_out[7] = accumulator_in[7] + inverse_partial[3];
+            accumulator_out[8] = accumulator_in[8];
+            accumulator_out[9] = accumulator_in[9];
+            accumulator_out[10] = accumulator_in[10];
+            accumulator_out[11] = accumulator_in[11];
+            accumulator_out[12] = accumulator_in[12] - inverse_partial[0];
+            accumulator_out[13] = accumulator_in[13] - inverse_partial[1];
+            accumulator_out[14] = accumulator_in[14] - inverse_partial[2];
+            accumulator_out[15] = accumulator_in[15] - inverse_partial[3];
+          end
+          7: begin
+            accumulator_out[0] = accumulator_in[0];
+            accumulator_out[1] = accumulator_in[1];
+            accumulator_out[2] = accumulator_in[2];
+            accumulator_out[3] = accumulator_in[3];
+            accumulator_out[4] = accumulator_in[4];
+            accumulator_out[5] = accumulator_in[5];
+            accumulator_out[6] = accumulator_in[6];
+            accumulator_out[7] = accumulator_in[7];
+            accumulator_out[8] = accumulator_in[8];
+            accumulator_out[9] = accumulator_in[9];
+            accumulator_out[10] = accumulator_in[10];
+            accumulator_out[11] = accumulator_in[11];
+            accumulator_out[12] = accumulator_in[12] + inverse_partial[0];
+            accumulator_out[13] = accumulator_in[13] + inverse_partial[1];
+            accumulator_out[14] = accumulator_in[14] + inverse_partial[2];
+            accumulator_out[15] = accumulator_in[15] + inverse_partial[3];
+          end
+          default: begin end
+        endcase
       end
     end
     else if (ROWS_PER_CYCLE == 2) begin: INVERSE_SUM_2
       always_comb begin: INVERSE_ROW_ACCUMULATE_BLOCK
-        accumulator_out[0] = accumulator_in[0] + inverse_contribution[0][0] + inverse_contribution[1][0];
-        accumulator_out[1] = accumulator_in[1] + inverse_contribution[0][1] + inverse_contribution[1][1];
-        accumulator_out[2] = accumulator_in[2] + inverse_contribution[0][2] + inverse_contribution[1][2];
-        accumulator_out[3] = accumulator_in[3] + inverse_contribution[0][3] + inverse_contribution[1][3];
-        accumulator_out[4] = accumulator_in[4] + inverse_contribution[0][4] + inverse_contribution[1][4];
-        accumulator_out[5] = accumulator_in[5] + inverse_contribution[0][5] + inverse_contribution[1][5];
-        accumulator_out[6] = accumulator_in[6] + inverse_contribution[0][6] + inverse_contribution[1][6];
-        accumulator_out[7] = accumulator_in[7] + inverse_contribution[0][7] + inverse_contribution[1][7];
-        accumulator_out[8] = accumulator_in[8] + inverse_contribution[0][8] + inverse_contribution[1][8];
-        accumulator_out[9] = accumulator_in[9] + inverse_contribution[0][9] + inverse_contribution[1][9];
-        accumulator_out[10] = accumulator_in[10] + inverse_contribution[0][10] + inverse_contribution[1][10];
-        accumulator_out[11] = accumulator_in[11] + inverse_contribution[0][11] + inverse_contribution[1][11];
-        accumulator_out[12] = accumulator_in[12] + inverse_contribution[0][12] + inverse_contribution[1][12];
-        accumulator_out[13] = accumulator_in[13] + inverse_contribution[0][13] + inverse_contribution[1][13];
-        accumulator_out[14] = accumulator_in[14] + inverse_contribution[0][14] + inverse_contribution[1][14];
-        accumulator_out[15] = accumulator_in[15] + inverse_contribution[0][15] + inverse_contribution[1][15];
-      end
-    end
-    else if (ROWS_PER_CYCLE == 3) begin: INVERSE_SUM_3
-      always_comb begin: INVERSE_ROW_ACCUMULATE_BLOCK
-        accumulator_out[0] = accumulator_in[0] + inverse_contribution[0][0] + inverse_contribution[1][0] + inverse_contribution[2][0];
-        accumulator_out[1] = accumulator_in[1] + inverse_contribution[0][1] + inverse_contribution[1][1] + inverse_contribution[2][1];
-        accumulator_out[2] = accumulator_in[2] + inverse_contribution[0][2] + inverse_contribution[1][2] + inverse_contribution[2][2];
-        accumulator_out[3] = accumulator_in[3] + inverse_contribution[0][3] + inverse_contribution[1][3] + inverse_contribution[2][3];
-        accumulator_out[4] = accumulator_in[4] + inverse_contribution[0][4] + inverse_contribution[1][4] + inverse_contribution[2][4];
-        accumulator_out[5] = accumulator_in[5] + inverse_contribution[0][5] + inverse_contribution[1][5] + inverse_contribution[2][5];
-        accumulator_out[6] = accumulator_in[6] + inverse_contribution[0][6] + inverse_contribution[1][6] + inverse_contribution[2][6];
-        accumulator_out[7] = accumulator_in[7] + inverse_contribution[0][7] + inverse_contribution[1][7] + inverse_contribution[2][7];
-        accumulator_out[8] = accumulator_in[8] + inverse_contribution[0][8] + inverse_contribution[1][8] + inverse_contribution[2][8];
-        accumulator_out[9] = accumulator_in[9] + inverse_contribution[0][9] + inverse_contribution[1][9] + inverse_contribution[2][9];
-        accumulator_out[10] = accumulator_in[10] + inverse_contribution[0][10] + inverse_contribution[1][10] + inverse_contribution[2][10];
-        accumulator_out[11] = accumulator_in[11] + inverse_contribution[0][11] + inverse_contribution[1][11] + inverse_contribution[2][11];
-        accumulator_out[12] = accumulator_in[12] + inverse_contribution[0][12] + inverse_contribution[1][12] + inverse_contribution[2][12];
-        accumulator_out[13] = accumulator_in[13] + inverse_contribution[0][13] + inverse_contribution[1][13] + inverse_contribution[2][13];
-        accumulator_out[14] = accumulator_in[14] + inverse_contribution[0][14] + inverse_contribution[1][14] + inverse_contribution[2][14];
-        accumulator_out[15] = accumulator_in[15] + inverse_contribution[0][15] + inverse_contribution[1][15] + inverse_contribution[2][15];
+        accumulator_out[0] = accumulator_in[0];
+        accumulator_out[1] = accumulator_in[1];
+        accumulator_out[2] = accumulator_in[2];
+        accumulator_out[3] = accumulator_in[3];
+        accumulator_out[4] = accumulator_in[4];
+        accumulator_out[5] = accumulator_in[5];
+        accumulator_out[6] = accumulator_in[6];
+        accumulator_out[7] = accumulator_in[7];
+        accumulator_out[8] = accumulator_in[8];
+        accumulator_out[9] = accumulator_in[9];
+        accumulator_out[10] = accumulator_in[10];
+        accumulator_out[11] = accumulator_in[11];
+        accumulator_out[12] = accumulator_in[12];
+        accumulator_out[13] = accumulator_in[13];
+        accumulator_out[14] = accumulator_in[14];
+        accumulator_out[15] = accumulator_in[15];
+        case (inverse_row_idx)
+          0: begin
+            accumulator_out[0] = accumulator_in[0] + inverse_partial[0] + inverse_partial[4];
+            accumulator_out[1] = accumulator_in[1] + inverse_partial[1] + inverse_partial[5];
+            accumulator_out[2] = accumulator_in[2] + inverse_partial[2] + inverse_partial[6];
+            accumulator_out[3] = accumulator_in[3] + inverse_partial[3] + inverse_partial[7];
+            accumulator_out[4] = accumulator_in[4];
+            accumulator_out[5] = accumulator_in[5];
+            accumulator_out[6] = accumulator_in[6];
+            accumulator_out[7] = accumulator_in[7];
+            accumulator_out[8] = accumulator_in[8] + inverse_partial[4];
+            accumulator_out[9] = accumulator_in[9] + inverse_partial[5];
+            accumulator_out[10] = accumulator_in[10] + inverse_partial[6];
+            accumulator_out[11] = accumulator_in[11] + inverse_partial[7];
+            accumulator_out[12] = accumulator_in[12];
+            accumulator_out[13] = accumulator_in[13];
+            accumulator_out[14] = accumulator_in[14];
+            accumulator_out[15] = accumulator_in[15];
+          end
+          2: begin
+            accumulator_out[0] = accumulator_in[0] + inverse_partial[0];
+            accumulator_out[1] = accumulator_in[1] + inverse_partial[1];
+            accumulator_out[2] = accumulator_in[2] + inverse_partial[2];
+            accumulator_out[3] = accumulator_in[3] + inverse_partial[3];
+            accumulator_out[4] = accumulator_in[4] + inverse_partial[0] + inverse_partial[4];
+            accumulator_out[5] = accumulator_in[5] + inverse_partial[1] + inverse_partial[5];
+            accumulator_out[6] = accumulator_in[6] + inverse_partial[2] + inverse_partial[6];
+            accumulator_out[7] = accumulator_in[7] + inverse_partial[3] + inverse_partial[7];
+            accumulator_out[8] = accumulator_in[8] + inverse_partial[0];
+            accumulator_out[9] = accumulator_in[9] + inverse_partial[1];
+            accumulator_out[10] = accumulator_in[10] + inverse_partial[2];
+            accumulator_out[11] = accumulator_in[11] + inverse_partial[3];
+            accumulator_out[12] = accumulator_in[12] + inverse_partial[0] + inverse_partial[4];
+            accumulator_out[13] = accumulator_in[13] + inverse_partial[1] + inverse_partial[5];
+            accumulator_out[14] = accumulator_in[14] + inverse_partial[2] + inverse_partial[6];
+            accumulator_out[15] = accumulator_in[15] + inverse_partial[3] + inverse_partial[7];
+          end
+          4: begin
+            accumulator_out[0] = accumulator_in[0] + inverse_partial[0] + inverse_partial[4];
+            accumulator_out[1] = accumulator_in[1] + inverse_partial[1] + inverse_partial[5];
+            accumulator_out[2] = accumulator_in[2] + inverse_partial[2] + inverse_partial[6];
+            accumulator_out[3] = accumulator_in[3] + inverse_partial[3] + inverse_partial[7];
+            accumulator_out[4] = accumulator_in[4] + inverse_partial[4];
+            accumulator_out[5] = accumulator_in[5] + inverse_partial[5];
+            accumulator_out[6] = accumulator_in[6] + inverse_partial[6];
+            accumulator_out[7] = accumulator_in[7] + inverse_partial[7];
+            accumulator_out[8] = accumulator_in[8] - inverse_partial[0] - inverse_partial[4];
+            accumulator_out[9] = accumulator_in[9] - inverse_partial[1] - inverse_partial[5];
+            accumulator_out[10] = accumulator_in[10] - inverse_partial[2] - inverse_partial[6];
+            accumulator_out[11] = accumulator_in[11] - inverse_partial[3] - inverse_partial[7];
+            accumulator_out[12] = accumulator_in[12] - inverse_partial[4];
+            accumulator_out[13] = accumulator_in[13] - inverse_partial[5];
+            accumulator_out[14] = accumulator_in[14] - inverse_partial[6];
+            accumulator_out[15] = accumulator_in[15] - inverse_partial[7];
+          end
+          6: begin
+            accumulator_out[0] = accumulator_in[0];
+            accumulator_out[1] = accumulator_in[1];
+            accumulator_out[2] = accumulator_in[2];
+            accumulator_out[3] = accumulator_in[3];
+            accumulator_out[4] = accumulator_in[4] + inverse_partial[0];
+            accumulator_out[5] = accumulator_in[5] + inverse_partial[1];
+            accumulator_out[6] = accumulator_in[6] + inverse_partial[2];
+            accumulator_out[7] = accumulator_in[7] + inverse_partial[3];
+            accumulator_out[8] = accumulator_in[8];
+            accumulator_out[9] = accumulator_in[9];
+            accumulator_out[10] = accumulator_in[10];
+            accumulator_out[11] = accumulator_in[11];
+            accumulator_out[12] = accumulator_in[12] - inverse_partial[0] + inverse_partial[4];
+            accumulator_out[13] = accumulator_in[13] - inverse_partial[1] + inverse_partial[5];
+            accumulator_out[14] = accumulator_in[14] - inverse_partial[2] + inverse_partial[6];
+            accumulator_out[15] = accumulator_in[15] - inverse_partial[3] + inverse_partial[7];
+          end
+          default: begin end
+        endcase
       end
     end
     else if (ROWS_PER_CYCLE == 4) begin: INVERSE_SUM_4
       always_comb begin: INVERSE_ROW_ACCUMULATE_BLOCK
-        accumulator_out[0] = accumulator_in[0] + inverse_contribution[0][0] + inverse_contribution[1][0] + inverse_contribution[2][0] + inverse_contribution[3][0];
-        accumulator_out[1] = accumulator_in[1] + inverse_contribution[0][1] + inverse_contribution[1][1] + inverse_contribution[2][1] + inverse_contribution[3][1];
-        accumulator_out[2] = accumulator_in[2] + inverse_contribution[0][2] + inverse_contribution[1][2] + inverse_contribution[2][2] + inverse_contribution[3][2];
-        accumulator_out[3] = accumulator_in[3] + inverse_contribution[0][3] + inverse_contribution[1][3] + inverse_contribution[2][3] + inverse_contribution[3][3];
-        accumulator_out[4] = accumulator_in[4] + inverse_contribution[0][4] + inverse_contribution[1][4] + inverse_contribution[2][4] + inverse_contribution[3][4];
-        accumulator_out[5] = accumulator_in[5] + inverse_contribution[0][5] + inverse_contribution[1][5] + inverse_contribution[2][5] + inverse_contribution[3][5];
-        accumulator_out[6] = accumulator_in[6] + inverse_contribution[0][6] + inverse_contribution[1][6] + inverse_contribution[2][6] + inverse_contribution[3][6];
-        accumulator_out[7] = accumulator_in[7] + inverse_contribution[0][7] + inverse_contribution[1][7] + inverse_contribution[2][7] + inverse_contribution[3][7];
-        accumulator_out[8] = accumulator_in[8] + inverse_contribution[0][8] + inverse_contribution[1][8] + inverse_contribution[2][8] + inverse_contribution[3][8];
-        accumulator_out[9] = accumulator_in[9] + inverse_contribution[0][9] + inverse_contribution[1][9] + inverse_contribution[2][9] + inverse_contribution[3][9];
-        accumulator_out[10] = accumulator_in[10] + inverse_contribution[0][10] + inverse_contribution[1][10] + inverse_contribution[2][10] + inverse_contribution[3][10];
-        accumulator_out[11] = accumulator_in[11] + inverse_contribution[0][11] + inverse_contribution[1][11] + inverse_contribution[2][11] + inverse_contribution[3][11];
-        accumulator_out[12] = accumulator_in[12] + inverse_contribution[0][12] + inverse_contribution[1][12] + inverse_contribution[2][12] + inverse_contribution[3][12];
-        accumulator_out[13] = accumulator_in[13] + inverse_contribution[0][13] + inverse_contribution[1][13] + inverse_contribution[2][13] + inverse_contribution[3][13];
-        accumulator_out[14] = accumulator_in[14] + inverse_contribution[0][14] + inverse_contribution[1][14] + inverse_contribution[2][14] + inverse_contribution[3][14];
-        accumulator_out[15] = accumulator_in[15] + inverse_contribution[0][15] + inverse_contribution[1][15] + inverse_contribution[2][15] + inverse_contribution[3][15];
-      end
-    end
-    else if (ROWS_PER_CYCLE == 5) begin: INVERSE_SUM_5
-      always_comb begin: INVERSE_ROW_ACCUMULATE_BLOCK
-        accumulator_out[0] = accumulator_in[0] + inverse_contribution[0][0] + inverse_contribution[1][0] + inverse_contribution[2][0] + inverse_contribution[3][0] + inverse_contribution[4][0];
-        accumulator_out[1] = accumulator_in[1] + inverse_contribution[0][1] + inverse_contribution[1][1] + inverse_contribution[2][1] + inverse_contribution[3][1] + inverse_contribution[4][1];
-        accumulator_out[2] = accumulator_in[2] + inverse_contribution[0][2] + inverse_contribution[1][2] + inverse_contribution[2][2] + inverse_contribution[3][2] + inverse_contribution[4][2];
-        accumulator_out[3] = accumulator_in[3] + inverse_contribution[0][3] + inverse_contribution[1][3] + inverse_contribution[2][3] + inverse_contribution[3][3] + inverse_contribution[4][3];
-        accumulator_out[4] = accumulator_in[4] + inverse_contribution[0][4] + inverse_contribution[1][4] + inverse_contribution[2][4] + inverse_contribution[3][4] + inverse_contribution[4][4];
-        accumulator_out[5] = accumulator_in[5] + inverse_contribution[0][5] + inverse_contribution[1][5] + inverse_contribution[2][5] + inverse_contribution[3][5] + inverse_contribution[4][5];
-        accumulator_out[6] = accumulator_in[6] + inverse_contribution[0][6] + inverse_contribution[1][6] + inverse_contribution[2][6] + inverse_contribution[3][6] + inverse_contribution[4][6];
-        accumulator_out[7] = accumulator_in[7] + inverse_contribution[0][7] + inverse_contribution[1][7] + inverse_contribution[2][7] + inverse_contribution[3][7] + inverse_contribution[4][7];
-        accumulator_out[8] = accumulator_in[8] + inverse_contribution[0][8] + inverse_contribution[1][8] + inverse_contribution[2][8] + inverse_contribution[3][8] + inverse_contribution[4][8];
-        accumulator_out[9] = accumulator_in[9] + inverse_contribution[0][9] + inverse_contribution[1][9] + inverse_contribution[2][9] + inverse_contribution[3][9] + inverse_contribution[4][9];
-        accumulator_out[10] = accumulator_in[10] + inverse_contribution[0][10] + inverse_contribution[1][10] + inverse_contribution[2][10] + inverse_contribution[3][10] + inverse_contribution[4][10];
-        accumulator_out[11] = accumulator_in[11] + inverse_contribution[0][11] + inverse_contribution[1][11] + inverse_contribution[2][11] + inverse_contribution[3][11] + inverse_contribution[4][11];
-        accumulator_out[12] = accumulator_in[12] + inverse_contribution[0][12] + inverse_contribution[1][12] + inverse_contribution[2][12] + inverse_contribution[3][12] + inverse_contribution[4][12];
-        accumulator_out[13] = accumulator_in[13] + inverse_contribution[0][13] + inverse_contribution[1][13] + inverse_contribution[2][13] + inverse_contribution[3][13] + inverse_contribution[4][13];
-        accumulator_out[14] = accumulator_in[14] + inverse_contribution[0][14] + inverse_contribution[1][14] + inverse_contribution[2][14] + inverse_contribution[3][14] + inverse_contribution[4][14];
-        accumulator_out[15] = accumulator_in[15] + inverse_contribution[0][15] + inverse_contribution[1][15] + inverse_contribution[2][15] + inverse_contribution[3][15] + inverse_contribution[4][15];
-      end
-    end
-    else if (ROWS_PER_CYCLE == 6) begin: INVERSE_SUM_6
-      always_comb begin: INVERSE_ROW_ACCUMULATE_BLOCK
-        accumulator_out[0] = accumulator_in[0] + inverse_contribution[0][0] + inverse_contribution[1][0] + inverse_contribution[2][0] + inverse_contribution[3][0] + inverse_contribution[4][0] + inverse_contribution[5][0];
-        accumulator_out[1] = accumulator_in[1] + inverse_contribution[0][1] + inverse_contribution[1][1] + inverse_contribution[2][1] + inverse_contribution[3][1] + inverse_contribution[4][1] + inverse_contribution[5][1];
-        accumulator_out[2] = accumulator_in[2] + inverse_contribution[0][2] + inverse_contribution[1][2] + inverse_contribution[2][2] + inverse_contribution[3][2] + inverse_contribution[4][2] + inverse_contribution[5][2];
-        accumulator_out[3] = accumulator_in[3] + inverse_contribution[0][3] + inverse_contribution[1][3] + inverse_contribution[2][3] + inverse_contribution[3][3] + inverse_contribution[4][3] + inverse_contribution[5][3];
-        accumulator_out[4] = accumulator_in[4] + inverse_contribution[0][4] + inverse_contribution[1][4] + inverse_contribution[2][4] + inverse_contribution[3][4] + inverse_contribution[4][4] + inverse_contribution[5][4];
-        accumulator_out[5] = accumulator_in[5] + inverse_contribution[0][5] + inverse_contribution[1][5] + inverse_contribution[2][5] + inverse_contribution[3][5] + inverse_contribution[4][5] + inverse_contribution[5][5];
-        accumulator_out[6] = accumulator_in[6] + inverse_contribution[0][6] + inverse_contribution[1][6] + inverse_contribution[2][6] + inverse_contribution[3][6] + inverse_contribution[4][6] + inverse_contribution[5][6];
-        accumulator_out[7] = accumulator_in[7] + inverse_contribution[0][7] + inverse_contribution[1][7] + inverse_contribution[2][7] + inverse_contribution[3][7] + inverse_contribution[4][7] + inverse_contribution[5][7];
-        accumulator_out[8] = accumulator_in[8] + inverse_contribution[0][8] + inverse_contribution[1][8] + inverse_contribution[2][8] + inverse_contribution[3][8] + inverse_contribution[4][8] + inverse_contribution[5][8];
-        accumulator_out[9] = accumulator_in[9] + inverse_contribution[0][9] + inverse_contribution[1][9] + inverse_contribution[2][9] + inverse_contribution[3][9] + inverse_contribution[4][9] + inverse_contribution[5][9];
-        accumulator_out[10] = accumulator_in[10] + inverse_contribution[0][10] + inverse_contribution[1][10] + inverse_contribution[2][10] + inverse_contribution[3][10] + inverse_contribution[4][10] + inverse_contribution[5][10];
-        accumulator_out[11] = accumulator_in[11] + inverse_contribution[0][11] + inverse_contribution[1][11] + inverse_contribution[2][11] + inverse_contribution[3][11] + inverse_contribution[4][11] + inverse_contribution[5][11];
-        accumulator_out[12] = accumulator_in[12] + inverse_contribution[0][12] + inverse_contribution[1][12] + inverse_contribution[2][12] + inverse_contribution[3][12] + inverse_contribution[4][12] + inverse_contribution[5][12];
-        accumulator_out[13] = accumulator_in[13] + inverse_contribution[0][13] + inverse_contribution[1][13] + inverse_contribution[2][13] + inverse_contribution[3][13] + inverse_contribution[4][13] + inverse_contribution[5][13];
-        accumulator_out[14] = accumulator_in[14] + inverse_contribution[0][14] + inverse_contribution[1][14] + inverse_contribution[2][14] + inverse_contribution[3][14] + inverse_contribution[4][14] + inverse_contribution[5][14];
-        accumulator_out[15] = accumulator_in[15] + inverse_contribution[0][15] + inverse_contribution[1][15] + inverse_contribution[2][15] + inverse_contribution[3][15] + inverse_contribution[4][15] + inverse_contribution[5][15];
-      end
-    end
-    else if (ROWS_PER_CYCLE == 7) begin: INVERSE_SUM_7
-      always_comb begin: INVERSE_ROW_ACCUMULATE_BLOCK
-        accumulator_out[0] = accumulator_in[0] + inverse_contribution[0][0] + inverse_contribution[1][0] + inverse_contribution[2][0] + inverse_contribution[3][0] + inverse_contribution[4][0] + inverse_contribution[5][0] + inverse_contribution[6][0];
-        accumulator_out[1] = accumulator_in[1] + inverse_contribution[0][1] + inverse_contribution[1][1] + inverse_contribution[2][1] + inverse_contribution[3][1] + inverse_contribution[4][1] + inverse_contribution[5][1] + inverse_contribution[6][1];
-        accumulator_out[2] = accumulator_in[2] + inverse_contribution[0][2] + inverse_contribution[1][2] + inverse_contribution[2][2] + inverse_contribution[3][2] + inverse_contribution[4][2] + inverse_contribution[5][2] + inverse_contribution[6][2];
-        accumulator_out[3] = accumulator_in[3] + inverse_contribution[0][3] + inverse_contribution[1][3] + inverse_contribution[2][3] + inverse_contribution[3][3] + inverse_contribution[4][3] + inverse_contribution[5][3] + inverse_contribution[6][3];
-        accumulator_out[4] = accumulator_in[4] + inverse_contribution[0][4] + inverse_contribution[1][4] + inverse_contribution[2][4] + inverse_contribution[3][4] + inverse_contribution[4][4] + inverse_contribution[5][4] + inverse_contribution[6][4];
-        accumulator_out[5] = accumulator_in[5] + inverse_contribution[0][5] + inverse_contribution[1][5] + inverse_contribution[2][5] + inverse_contribution[3][5] + inverse_contribution[4][5] + inverse_contribution[5][5] + inverse_contribution[6][5];
-        accumulator_out[6] = accumulator_in[6] + inverse_contribution[0][6] + inverse_contribution[1][6] + inverse_contribution[2][6] + inverse_contribution[3][6] + inverse_contribution[4][6] + inverse_contribution[5][6] + inverse_contribution[6][6];
-        accumulator_out[7] = accumulator_in[7] + inverse_contribution[0][7] + inverse_contribution[1][7] + inverse_contribution[2][7] + inverse_contribution[3][7] + inverse_contribution[4][7] + inverse_contribution[5][7] + inverse_contribution[6][7];
-        accumulator_out[8] = accumulator_in[8] + inverse_contribution[0][8] + inverse_contribution[1][8] + inverse_contribution[2][8] + inverse_contribution[3][8] + inverse_contribution[4][8] + inverse_contribution[5][8] + inverse_contribution[6][8];
-        accumulator_out[9] = accumulator_in[9] + inverse_contribution[0][9] + inverse_contribution[1][9] + inverse_contribution[2][9] + inverse_contribution[3][9] + inverse_contribution[4][9] + inverse_contribution[5][9] + inverse_contribution[6][9];
-        accumulator_out[10] = accumulator_in[10] + inverse_contribution[0][10] + inverse_contribution[1][10] + inverse_contribution[2][10] + inverse_contribution[3][10] + inverse_contribution[4][10] + inverse_contribution[5][10] + inverse_contribution[6][10];
-        accumulator_out[11] = accumulator_in[11] + inverse_contribution[0][11] + inverse_contribution[1][11] + inverse_contribution[2][11] + inverse_contribution[3][11] + inverse_contribution[4][11] + inverse_contribution[5][11] + inverse_contribution[6][11];
-        accumulator_out[12] = accumulator_in[12] + inverse_contribution[0][12] + inverse_contribution[1][12] + inverse_contribution[2][12] + inverse_contribution[3][12] + inverse_contribution[4][12] + inverse_contribution[5][12] + inverse_contribution[6][12];
-        accumulator_out[13] = accumulator_in[13] + inverse_contribution[0][13] + inverse_contribution[1][13] + inverse_contribution[2][13] + inverse_contribution[3][13] + inverse_contribution[4][13] + inverse_contribution[5][13] + inverse_contribution[6][13];
-        accumulator_out[14] = accumulator_in[14] + inverse_contribution[0][14] + inverse_contribution[1][14] + inverse_contribution[2][14] + inverse_contribution[3][14] + inverse_contribution[4][14] + inverse_contribution[5][14] + inverse_contribution[6][14];
-        accumulator_out[15] = accumulator_in[15] + inverse_contribution[0][15] + inverse_contribution[1][15] + inverse_contribution[2][15] + inverse_contribution[3][15] + inverse_contribution[4][15] + inverse_contribution[5][15] + inverse_contribution[6][15];
+        accumulator_out[0] = accumulator_in[0];
+        accumulator_out[1] = accumulator_in[1];
+        accumulator_out[2] = accumulator_in[2];
+        accumulator_out[3] = accumulator_in[3];
+        accumulator_out[4] = accumulator_in[4];
+        accumulator_out[5] = accumulator_in[5];
+        accumulator_out[6] = accumulator_in[6];
+        accumulator_out[7] = accumulator_in[7];
+        accumulator_out[8] = accumulator_in[8];
+        accumulator_out[9] = accumulator_in[9];
+        accumulator_out[10] = accumulator_in[10];
+        accumulator_out[11] = accumulator_in[11];
+        accumulator_out[12] = accumulator_in[12];
+        accumulator_out[13] = accumulator_in[13];
+        accumulator_out[14] = accumulator_in[14];
+        accumulator_out[15] = accumulator_in[15];
+        case (inverse_row_idx)
+          0: begin
+            accumulator_out[0] = accumulator_in[0] + inverse_partial[0] + inverse_partial[4] + inverse_partial[8];
+            accumulator_out[1] = accumulator_in[1] + inverse_partial[1] + inverse_partial[5] + inverse_partial[9];
+            accumulator_out[2] = accumulator_in[2] + inverse_partial[2] + inverse_partial[6] + inverse_partial[10];
+            accumulator_out[3] = accumulator_in[3] + inverse_partial[3] + inverse_partial[7] + inverse_partial[11];
+            accumulator_out[4] = accumulator_in[4] + inverse_partial[8] + inverse_partial[12];
+            accumulator_out[5] = accumulator_in[5] + inverse_partial[9] + inverse_partial[13];
+            accumulator_out[6] = accumulator_in[6] + inverse_partial[10] + inverse_partial[14];
+            accumulator_out[7] = accumulator_in[7] + inverse_partial[11] + inverse_partial[15];
+            accumulator_out[8] = accumulator_in[8] + inverse_partial[4] + inverse_partial[8];
+            accumulator_out[9] = accumulator_in[9] + inverse_partial[5] + inverse_partial[9];
+            accumulator_out[10] = accumulator_in[10] + inverse_partial[6] + inverse_partial[10];
+            accumulator_out[11] = accumulator_in[11] + inverse_partial[7] + inverse_partial[11];
+            accumulator_out[12] = accumulator_in[12] + inverse_partial[8] + inverse_partial[12];
+            accumulator_out[13] = accumulator_in[13] + inverse_partial[9] + inverse_partial[13];
+            accumulator_out[14] = accumulator_in[14] + inverse_partial[10] + inverse_partial[14];
+            accumulator_out[15] = accumulator_in[15] + inverse_partial[11] + inverse_partial[15];
+          end
+          4: begin
+            accumulator_out[0] = accumulator_in[0] + inverse_partial[0] + inverse_partial[4];
+            accumulator_out[1] = accumulator_in[1] + inverse_partial[1] + inverse_partial[5];
+            accumulator_out[2] = accumulator_in[2] + inverse_partial[2] + inverse_partial[6];
+            accumulator_out[3] = accumulator_in[3] + inverse_partial[3] + inverse_partial[7];
+            accumulator_out[4] = accumulator_in[4] + inverse_partial[4] + inverse_partial[8];
+            accumulator_out[5] = accumulator_in[5] + inverse_partial[5] + inverse_partial[9];
+            accumulator_out[6] = accumulator_in[6] + inverse_partial[6] + inverse_partial[10];
+            accumulator_out[7] = accumulator_in[7] + inverse_partial[7] + inverse_partial[11];
+            accumulator_out[8] = accumulator_in[8] - inverse_partial[0] - inverse_partial[4];
+            accumulator_out[9] = accumulator_in[9] - inverse_partial[1] - inverse_partial[5];
+            accumulator_out[10] = accumulator_in[10] - inverse_partial[2] - inverse_partial[6];
+            accumulator_out[11] = accumulator_in[11] - inverse_partial[3] - inverse_partial[7];
+            accumulator_out[12] = accumulator_in[12] - inverse_partial[4] - inverse_partial[8] + inverse_partial[12];
+            accumulator_out[13] = accumulator_in[13] - inverse_partial[5] - inverse_partial[9] + inverse_partial[13];
+            accumulator_out[14] = accumulator_in[14] - inverse_partial[6] - inverse_partial[10] + inverse_partial[14];
+            accumulator_out[15] = accumulator_in[15] - inverse_partial[7] - inverse_partial[11] + inverse_partial[15];
+          end
+          default: begin end
+        endcase
       end
     end
     else if (ROWS_PER_CYCLE == 8) begin: INVERSE_SUM_8
       always_comb begin: INVERSE_ROW_ACCUMULATE_BLOCK
-        accumulator_out[0] = accumulator_in[0] + inverse_contribution[0][0] + inverse_contribution[1][0] + inverse_contribution[2][0] + inverse_contribution[3][0] + inverse_contribution[4][0] + inverse_contribution[5][0] + inverse_contribution[6][0] + inverse_contribution[7][0];
-        accumulator_out[1] = accumulator_in[1] + inverse_contribution[0][1] + inverse_contribution[1][1] + inverse_contribution[2][1] + inverse_contribution[3][1] + inverse_contribution[4][1] + inverse_contribution[5][1] + inverse_contribution[6][1] + inverse_contribution[7][1];
-        accumulator_out[2] = accumulator_in[2] + inverse_contribution[0][2] + inverse_contribution[1][2] + inverse_contribution[2][2] + inverse_contribution[3][2] + inverse_contribution[4][2] + inverse_contribution[5][2] + inverse_contribution[6][2] + inverse_contribution[7][2];
-        accumulator_out[3] = accumulator_in[3] + inverse_contribution[0][3] + inverse_contribution[1][3] + inverse_contribution[2][3] + inverse_contribution[3][3] + inverse_contribution[4][3] + inverse_contribution[5][3] + inverse_contribution[6][3] + inverse_contribution[7][3];
-        accumulator_out[4] = accumulator_in[4] + inverse_contribution[0][4] + inverse_contribution[1][4] + inverse_contribution[2][4] + inverse_contribution[3][4] + inverse_contribution[4][4] + inverse_contribution[5][4] + inverse_contribution[6][4] + inverse_contribution[7][4];
-        accumulator_out[5] = accumulator_in[5] + inverse_contribution[0][5] + inverse_contribution[1][5] + inverse_contribution[2][5] + inverse_contribution[3][5] + inverse_contribution[4][5] + inverse_contribution[5][5] + inverse_contribution[6][5] + inverse_contribution[7][5];
-        accumulator_out[6] = accumulator_in[6] + inverse_contribution[0][6] + inverse_contribution[1][6] + inverse_contribution[2][6] + inverse_contribution[3][6] + inverse_contribution[4][6] + inverse_contribution[5][6] + inverse_contribution[6][6] + inverse_contribution[7][6];
-        accumulator_out[7] = accumulator_in[7] + inverse_contribution[0][7] + inverse_contribution[1][7] + inverse_contribution[2][7] + inverse_contribution[3][7] + inverse_contribution[4][7] + inverse_contribution[5][7] + inverse_contribution[6][7] + inverse_contribution[7][7];
-        accumulator_out[8] = accumulator_in[8] + inverse_contribution[0][8] + inverse_contribution[1][8] + inverse_contribution[2][8] + inverse_contribution[3][8] + inverse_contribution[4][8] + inverse_contribution[5][8] + inverse_contribution[6][8] + inverse_contribution[7][8];
-        accumulator_out[9] = accumulator_in[9] + inverse_contribution[0][9] + inverse_contribution[1][9] + inverse_contribution[2][9] + inverse_contribution[3][9] + inverse_contribution[4][9] + inverse_contribution[5][9] + inverse_contribution[6][9] + inverse_contribution[7][9];
-        accumulator_out[10] = accumulator_in[10] + inverse_contribution[0][10] + inverse_contribution[1][10] + inverse_contribution[2][10] + inverse_contribution[3][10] + inverse_contribution[4][10] + inverse_contribution[5][10] + inverse_contribution[6][10] + inverse_contribution[7][10];
-        accumulator_out[11] = accumulator_in[11] + inverse_contribution[0][11] + inverse_contribution[1][11] + inverse_contribution[2][11] + inverse_contribution[3][11] + inverse_contribution[4][11] + inverse_contribution[5][11] + inverse_contribution[6][11] + inverse_contribution[7][11];
-        accumulator_out[12] = accumulator_in[12] + inverse_contribution[0][12] + inverse_contribution[1][12] + inverse_contribution[2][12] + inverse_contribution[3][12] + inverse_contribution[4][12] + inverse_contribution[5][12] + inverse_contribution[6][12] + inverse_contribution[7][12];
-        accumulator_out[13] = accumulator_in[13] + inverse_contribution[0][13] + inverse_contribution[1][13] + inverse_contribution[2][13] + inverse_contribution[3][13] + inverse_contribution[4][13] + inverse_contribution[5][13] + inverse_contribution[6][13] + inverse_contribution[7][13];
-        accumulator_out[14] = accumulator_in[14] + inverse_contribution[0][14] + inverse_contribution[1][14] + inverse_contribution[2][14] + inverse_contribution[3][14] + inverse_contribution[4][14] + inverse_contribution[5][14] + inverse_contribution[6][14] + inverse_contribution[7][14];
-        accumulator_out[15] = accumulator_in[15] + inverse_contribution[0][15] + inverse_contribution[1][15] + inverse_contribution[2][15] + inverse_contribution[3][15] + inverse_contribution[4][15] + inverse_contribution[5][15] + inverse_contribution[6][15] + inverse_contribution[7][15];
+        accumulator_out[0] = accumulator_in[0];
+        accumulator_out[1] = accumulator_in[1];
+        accumulator_out[2] = accumulator_in[2];
+        accumulator_out[3] = accumulator_in[3];
+        accumulator_out[4] = accumulator_in[4];
+        accumulator_out[5] = accumulator_in[5];
+        accumulator_out[6] = accumulator_in[6];
+        accumulator_out[7] = accumulator_in[7];
+        accumulator_out[8] = accumulator_in[8];
+        accumulator_out[9] = accumulator_in[9];
+        accumulator_out[10] = accumulator_in[10];
+        accumulator_out[11] = accumulator_in[11];
+        accumulator_out[12] = accumulator_in[12];
+        accumulator_out[13] = accumulator_in[13];
+        accumulator_out[14] = accumulator_in[14];
+        accumulator_out[15] = accumulator_in[15];
+        case (inverse_row_idx)
+          0: begin
+            accumulator_out[0] = accumulator_in[0] + inverse_partial[0] + inverse_partial[4] + inverse_partial[8] + inverse_partial[16] + inverse_partial[20];
+            accumulator_out[1] = accumulator_in[1] + inverse_partial[1] + inverse_partial[5] + inverse_partial[9] + inverse_partial[17] + inverse_partial[21];
+            accumulator_out[2] = accumulator_in[2] + inverse_partial[2] + inverse_partial[6] + inverse_partial[10] + inverse_partial[18] + inverse_partial[22];
+            accumulator_out[3] = accumulator_in[3] + inverse_partial[3] + inverse_partial[7] + inverse_partial[11] + inverse_partial[19] + inverse_partial[23];
+            accumulator_out[4] = accumulator_in[4] + inverse_partial[8] + inverse_partial[12] + inverse_partial[20] + inverse_partial[24];
+            accumulator_out[5] = accumulator_in[5] + inverse_partial[9] + inverse_partial[13] + inverse_partial[21] + inverse_partial[25];
+            accumulator_out[6] = accumulator_in[6] + inverse_partial[10] + inverse_partial[14] + inverse_partial[22] + inverse_partial[26];
+            accumulator_out[7] = accumulator_in[7] + inverse_partial[11] + inverse_partial[15] + inverse_partial[23] + inverse_partial[27];
+            accumulator_out[8] = accumulator_in[8] + inverse_partial[4] + inverse_partial[8] - inverse_partial[16] - inverse_partial[20];
+            accumulator_out[9] = accumulator_in[9] + inverse_partial[5] + inverse_partial[9] - inverse_partial[17] - inverse_partial[21];
+            accumulator_out[10] = accumulator_in[10] + inverse_partial[6] + inverse_partial[10] - inverse_partial[18] - inverse_partial[22];
+            accumulator_out[11] = accumulator_in[11] + inverse_partial[7] + inverse_partial[11] - inverse_partial[19] - inverse_partial[23];
+            accumulator_out[12] = accumulator_in[12] + inverse_partial[8] + inverse_partial[12] - inverse_partial[20] - inverse_partial[24] + inverse_partial[28];
+            accumulator_out[13] = accumulator_in[13] + inverse_partial[9] + inverse_partial[13] - inverse_partial[21] - inverse_partial[25] + inverse_partial[29];
+            accumulator_out[14] = accumulator_in[14] + inverse_partial[10] + inverse_partial[14] - inverse_partial[22] - inverse_partial[26] + inverse_partial[30];
+            accumulator_out[15] = accumulator_in[15] + inverse_partial[11] + inverse_partial[15] - inverse_partial[23] - inverse_partial[27] + inverse_partial[31];
+          end
+          default: begin end
+        endcase
       end
     end
     else begin: INVERSE_SUM_UNSUPPORTED
