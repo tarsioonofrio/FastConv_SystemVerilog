@@ -46,12 +46,16 @@ module tb;
   int write_count;
   int cycle_count;
   logic [NBITS-1:0] output_bank [0:FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT - 1];
+  logic output_bank_written [0:FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT - 1];
   logic in_inverse_d;
   localparam logic [1:0] ST_CONV_INVERSE = 2'b11;
   localparam int OUTPUT_TILES_PER_AXIS = (FEAT_OUTPUT_SIZE + CONV_OUTPUT_SIZE - 1) / CONV_OUTPUT_SIZE;
   localparam int WINDOW_COUNT_PER_COLUMN_TB = OUTPUT_TILES_PER_AXIS;
   localparam int OUTPUT_CHANNEL_STRIDE = FEAT_OUTPUT_SIZE * CONV_OUTPUT_SIZE * OUTPUT_TILES_PER_AXIS;
   localparam int WINDOW_COUNT_PER_CHANNEL_TB = OUTPUT_TILES_PER_AXIS * OUTPUT_TILES_PER_AXIS;
+  localparam int EXPECTED_OUTPUT_VALUES = FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE * N_CHANNEL_OUT;
+  localparam int OUTPUT_MEMORY_INDEX_WIDTH = $clog2(
+    FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT);
 
   assign p_input_data_write = '0;
 
@@ -131,7 +135,8 @@ module tb;
   initial clk = 0;
   always #5 clk = ~clk;
 
-  // Validate each inverse output window against golden batch data.
+  // Capture writes from the external interface. Final output validation runs
+  // after p_end so it does not depend on internal RTL names in mapped netlists.
   always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
       conv_inverse_check_idx <= 0;
@@ -140,8 +145,10 @@ module tb;
       cycle_count <= 0;
       in_inverse_d <= 1'b0;
       output_bank <= '{default: '0};
+      output_bank_written <= '{default: 1'b0};
     end else begin
       cycle_count <= cycle_count + 1;
+`ifndef GATE_LEVEL
       in_inverse_d <= (dut.st_conv_current == ST_CONV_INVERSE);
       if (dut.st_conv_current == 2'b10 && conv_inverse_check_idx < 1)
         $display("DBG BASE TC HAD row=%0d p=%0d,%0d,%0d,%0d,%0d", dut.r_conv_multiply_count, $signed(dut.w_conv_product[0]), $signed(dut.w_conv_product[1]), $signed(dut.w_conv_product[2]), $signed(dut.w_conv_product[3]), $signed(dut.w_conv_product[4]));
@@ -164,32 +171,18 @@ module tb;
         end
         conv_inverse_check_idx <= conv_inverse_check_idx + 1;
       end
+`endif
 
       if (p_output_en && p_output_wr) begin
         int output_channel;
         int addr_in_channel;
-        logic signed [NBITS-1:0] expected_accum;
-        logic [NBITS-1:0] expected_out;
 
         write_count <= write_count + 1;
-
-        expected_accum = $signed(p_output_data_read) + $signed(dut.r_output_write[dut.r_output_write_count]);
-
-        output_bank[p_output_addr] <= p_output_data_write;
         output_channel = int'(p_output_addr) / OUTPUT_CHANNEL_STRIDE;
         addr_in_channel = int'(p_output_addr) % OUTPUT_CHANNEL_STRIDE;
-        if (addr_in_channel < FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE) begin
-          // Golden compare only on final accumulation write (last input channel).
-          if (dut.r_output_channel_counter_input == (N_CHANNEL_IN - 1)) begin
-            expected_out = NBITS'(const_feat_out[p_output_addr]);
-            if ($signed(p_output_data_write) != $signed(expected_out)) begin
-              output_error_count <= output_error_count + 1;
-              $display("ERROR WRITE GOLDEN: t=%0t addr=%0d ch=%0d off=%0d got=%0d exp=%0d accum_exp=%0d read=%0d inv=%0d",
-                       $realtime, p_output_addr, output_channel, addr_in_channel, $signed(p_output_data_write),
-                       $signed(expected_out), expected_accum, $signed(p_output_data_read),
-                       $signed(dut.r_output_write[dut.r_output_write_count]));
-            end
-          end
+        if (int'(p_output_addr) < EXPECTED_OUTPUT_VALUES) begin
+          output_bank[OUTPUT_MEMORY_INDEX_WIDTH'(p_output_addr)] <= p_output_data_write;
+          output_bank_written[OUTPUT_MEMORY_INDEX_WIDTH'(p_output_addr)] <= 1'b1;
         end else begin
           output_error_count <= output_error_count + 1;
           $display("ERROR WRITE ADDR OOB: t=%0t addr=%0d ch=%0d off=%0d",
@@ -222,13 +215,40 @@ module tb;
     if (p_end !== 1'b1)
           @(posedge p_end);
 
-      // espera mais 200 ns
+    // Let the final output-memory write settle, then compare the complete
+    // final output image through the testbench memory model only.
     #200;
 
-    $display("Simulacao finalizada em %0t", $realtime);
-    $display("Total de erros de escrita de output: %0d", output_error_count);
-    $display("3x3 simulation completed: inverse_tiles=%0d cycles=%0d valid_writes=%0d input_samples_clipped=0 invalid_output_beats=0",
-             conv_inverse_check_idx, cycle_count, write_count);
+    begin
+      int final_golden_error_count;
+      final_golden_error_count = 0;
+      for (int addr = 0; addr < EXPECTED_OUTPUT_VALUES; addr++) begin
+        if (!output_bank_written[addr]) begin
+          final_golden_error_count++;
+          if (final_golden_error_count <= 8)
+            $display("ERROR MISSING OUTPUT: addr=%0d", addr);
+        end else if ($signed(output_bank[addr]) != $signed(NBITS'(const_feat_out[addr]))) begin
+          final_golden_error_count++;
+          if (final_golden_error_count <= 8)
+            $display("ERROR FINAL GOLDEN: addr=%0d got=%0d expected=%0d",
+                     addr, $signed(output_bank[addr]), $signed(NBITS'(const_feat_out[addr])));
+        end
+      end
+
+      $display("Simulacao finalizada em %0t", $realtime);
+      $display("Total de erros de escrita de output: %0d", output_error_count + final_golden_error_count);
+      if (write_count != N_CHANNEL_IN * N_CHANNEL_OUT * FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE)
+        $fatal(1, "unexpected valid write count: got %0d", write_count);
+      if (output_error_count + final_golden_error_count != 0)
+        $fatal(1, "output golden mismatch count: %0d", output_error_count + final_golden_error_count);
+`ifdef GATE_LEVEL
+      $display("3x3 simulation completed: inverse_tiles=%0d cycles=%0d valid_writes=%0d input_samples_clipped=0 invalid_output_beats=%0d",
+               write_count / (CONV_OUTPUT_SIZE * CONV_OUTPUT_SIZE), cycle_count, write_count, output_error_count);
+`else
+      $display("3x3 simulation completed: inverse_tiles=%0d cycles=%0d valid_writes=%0d input_samples_clipped=0 invalid_output_beats=%0d",
+               conv_inverse_check_idx, cycle_count, write_count, output_error_count);
+`endif
+    end
     $finish;
   end
 
