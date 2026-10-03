@@ -48,6 +48,29 @@ def config_spec(
         )
     top_parameters = [f"NUM_MULT={parameters['NUM_MULT']}",
                       f"STATE_MULT={parameters['STATE_MULT']}"]
+    pack_param_path = ROOT / f"rtl/{conv}/pack-param/{algo}/pack_param.sv"
+    pack_param_text = pack_param_path.read_text()
+    pack_parameters = dict(
+        re.findall(
+            r"localparam\s+int\s+([A-Za-z_][A-Za-z0-9_]*)\s*=\s*([^;]+)\s*;",
+            pack_param_text,
+        )
+    )
+
+    def resolve_pack_parameter(parameter_name: str) -> int:
+        expression = pack_parameters.get(parameter_name, "").strip()
+        if expression.isdecimal():
+            return int(expression)
+        if re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", expression):
+            return resolve_pack_parameter(expression)
+        raise ValueError(
+            f"cannot resolve {parameter_name}={expression!r} in {pack_param_path}"
+        )
+
+    for parameter_name in ("CONV_OUTPUT_SIZE", "CONV_INPUT_SIZE", "HADAMARD_SIZE"):
+        top_parameters.append(
+            f"{parameter_name}={resolve_pack_parameter(parameter_name)}"
+        )
     return config, hdl, tb, top_parameters
 
 

@@ -61,14 +61,26 @@ for relative in "${configs[@]}"; do
   mux_file="$REPO_ROOT/$mux_entry"
   configured_num="$(sed -nE 's/^NUM_MULT=([0-9]+)$/\1/p' "$parameters_file" 2>/dev/null | tail -n 1)"
   configured_state="$(sed -nE 's/^STATE_MULT=([0-9]+)$/\1/p' "$parameters_file" 2>/dev/null | tail -n 1)"
+  configured_output_size="$(sed -nE 's/^CONV_OUTPUT_SIZE=([0-9]+)$/\1/p' "$parameters_file" 2>/dev/null | tail -n 1)"
+  configured_input_size="$(sed -nE 's/^CONV_INPUT_SIZE=([0-9]+)$/\1/p' "$parameters_file" 2>/dev/null | tail -n 1)"
+  configured_hadamard_size="$(sed -nE 's/^HADAMARD_SIZE=([0-9]+)$/\1/p' "$parameters_file" 2>/dev/null | tail -n 1)"
   mux_num="$(sed -nE 's/.*parameter int NUM_MULT = ([0-9]+);/\1/p' "$mux_file" 2>/dev/null | head -n 1)"
   mux_state="$(sed -nE 's/.*parameter int STATE_MULT = ([0-9]+);/\1/p' "$mux_file" 2>/dev/null | head -n 1)"
+  case "$tag" in
+    *-ifn9-*) expected_geometry="3 5 6" ;;
+    *-tcn9-*) expected_geometry="3 5 5" ;;
+    *-tcn16-*) expected_geometry="4 6 6" ;;
+    *-wpn16-*) expected_geometry="4 6 8" ;;
+    *) expected_geometry="" ;;
+  esac
+  configured_geometry="$configured_output_size $configured_input_size $configured_hadamard_size"
   if [[ -z "$mux_entry" || -z "$configured_num" || -z "$configured_state" ||
         "$configured_num" != "$expected_num" || "$configured_num" != "$mux_num" ||
-        "$configured_state" != "$mux_state" ]]; then
-    printf 'configuration=FAIL_PARAMS expected_NUM_MULT=%s config_NUM_MULT=%s mux_NUM_MULT=%s config_STATE_MULT=%s mux_STATE_MULT=%s\n' \
+        "$configured_state" != "$mux_state" ||
+        -z "$expected_geometry" || "$configured_geometry" != "$expected_geometry" ]]; then
+    printf 'configuration=FAIL_PARAMS expected_NUM_MULT=%s config_NUM_MULT=%s mux_NUM_MULT=%s config_STATE_MULT=%s mux_STATE_MULT=%s expected_geometry="%s" config_geometry="%s"\n' \
       "$expected_num" "${configured_num:-missing}" "${mux_num:-missing}" \
-      "${configured_state:-missing}" "${mux_state:-missing}" \
+      "${configured_state:-missing}" "${mux_state:-missing}" "$expected_geometry" "$configured_geometry" \
       | tee -a "$result/status.txt" "$OUT_ROOT/campaign.txt"
     failures=$((failures + 1))
     continue
