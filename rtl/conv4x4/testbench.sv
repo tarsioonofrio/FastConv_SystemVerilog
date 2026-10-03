@@ -5,6 +5,9 @@ module tb;
   import pack_param::*;
   import pack_mux_mult::*;
 
+  // Match the 2 ns (500 MHz) clock constrained by the ASIC Genus SDC.
+  localparam time CLOCK_PERIOD = 2ns;
+
   localparam int unsigned FEAT_INPUT_WIDTH = FEAT_INPUT_SIZE;
   localparam int unsigned NBITS = 20;
   localparam int unsigned LATENCY = 1;
@@ -83,6 +86,7 @@ module tb;
   int input_out_of_range_count;
   int write_count;
   int cycle_count;
+  logic job_active;
   logic [NBITS-1:0] output_bank [0:OUTPUT_MEMORY_SIZE - 1];
   logic in_inverse_d;
 
@@ -134,7 +138,8 @@ module tb;
   );
 
   initial clk = 0;
-  always #5 clk = ~clk;
+  // Generate the same 500 MHz clock used by the Genus constraints.
+  always #(CLOCK_PERIOD / 2) clk = ~clk;
 
   // Validate inverse transitions and all valid writes through the Memory instances.
   always_ff @(posedge clk or posedge reset) begin
@@ -145,10 +150,18 @@ module tb;
       input_out_of_range_count <= 0;
       write_count <= 0;
       cycle_count <= 0;
+      job_active <= 1'b0;
       in_inverse_d <= 1'b0;
       output_bank <= '{default: '0};
     end else begin
-      cycle_count <= cycle_count + 1;
+      if (p_start && !job_active) begin
+        cycle_count <= 0;
+        job_active <= 1'b1;
+      end else if (job_active) begin
+        cycle_count <= cycle_count + 1;
+        if (p_end)
+          job_active <= 1'b0;
+      end
       in_inverse_d <= (dut.st_conv_current == ST_CONV_INVERSE);
       if ((dut.st_conv_current == ST_CONV_INVERSE) && !in_inverse_d)
         conv_inverse_check_idx <= conv_inverse_check_idx + 1;
@@ -182,12 +195,16 @@ module tb;
 `endif
     reset = 1;
     p_start = 0;
-    #20 reset = 0;
-    #80 p_start = 1;
-    #10 p_start = 0;
+    // Keep the original two reset cycles and eight idle cycles before start.
+    repeat (2) @(negedge clk);
+    reset = 0;
+    repeat (8) @(negedge clk);
+    p_start = 1;
+    @(negedge clk);
+    p_start = 0;
     if (p_end !== 1'b1)
       @(posedge p_end);
-    #200;
+    repeat (20) @(posedge clk);
     if (output_error_count != 0)
       $fatal(1, "output golden mismatch count: %0d", output_error_count);
     if (conv_inverse_check_idx != EXPECTED_INVERSE_COUNT)

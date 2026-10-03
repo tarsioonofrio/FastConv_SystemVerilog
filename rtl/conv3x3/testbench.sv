@@ -5,6 +5,9 @@ module tb;
   import pack_param::*;
   import pack_mux_mult::*;
 
+  // Match the 2 ns (500 MHz) clock constrained by the ASIC Genus SDC.
+  localparam time CLOCK_PERIOD = 2ns;
+
   // Parâmetros do DUT
 
   // localparam int unsigned KERNEL_SIZE  =  6;
@@ -45,6 +48,7 @@ module tb;
   int output_error_count;
   int write_count;
   int cycle_count;
+  logic job_active;
   logic [NBITS-1:0] output_bank [0:FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT - 1];
   logic output_bank_written [0:FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT - 1];
   logic in_inverse_d;
@@ -131,9 +135,9 @@ module tb;
 
   // assign p_input_valid = p_input_en;
 
-  // Gerador de Clock: 100MHz -> Período de 10ns
+  // Generate the same 500 MHz clock used by the Genus constraints.
   initial clk = 0;
-  always #5 clk = ~clk;
+  always #(CLOCK_PERIOD / 2) clk = ~clk;
 
   // Capture writes from the external interface. Final output validation runs
   // after p_end so it does not depend on internal RTL names in mapped netlists.
@@ -143,11 +147,19 @@ module tb;
       output_error_count <= 0;
       write_count <= 0;
       cycle_count <= 0;
+      job_active <= 1'b0;
       in_inverse_d <= 1'b0;
       output_bank <= '{default: '0};
       output_bank_written <= '{default: 1'b0};
     end else begin
-      cycle_count <= cycle_count + 1;
+      if (p_start && !job_active) begin
+        cycle_count <= 0;
+        job_active <= 1'b1;
+      end else if (job_active) begin
+        cycle_count <= cycle_count + 1;
+        if (p_end)
+          job_active <= 1'b0;
+      end
 `ifndef GATE_LEVEL
       in_inverse_d <= (dut.st_conv_current == ST_CONV_INVERSE);
       if (dut.st_conv_current == 2'b10 && conv_inverse_check_idx < 1)
@@ -205,11 +217,13 @@ module tb;
     reset = 1;
     p_start = 0;
 
-    // Mantém reset por 20 ns
-    #20 reset = 0;
-
-    #80 p_start = 1;
-    #10 p_start = 0;
+    // Keep the original two reset cycles and eight idle cycles before start.
+    repeat (2) @(negedge clk);
+    reset = 0;
+    repeat (8) @(negedge clk);
+    p_start = 1;
+    @(negedge clk);
+    p_start = 0;
 
     // aguarda p_end subir
     if (p_end !== 1'b1)
@@ -217,7 +231,7 @@ module tb;
 
     // Let the final output-memory write settle, then compare the complete
     // final output image through the testbench memory model only.
-    #200;
+    repeat (20) @(posedge clk);
 
     begin
       int final_golden_error_count;
