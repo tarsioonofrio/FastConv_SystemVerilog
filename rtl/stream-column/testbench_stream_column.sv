@@ -90,6 +90,11 @@ module tb_stream_column #(
   end
 `endif
 
+`ifdef GATE_LEVEL
+  // The mapped gate-level netlist has fixed parameters, so elaboration must
+  // instantiate it without RTL parameter overrides.
+  Conv
+`else
   Conv #(
     .N_CHANNEL_IN(N_CHANNEL_IN),
     .N_CHANNEL_OUT(N_CHANNEL_OUT),
@@ -111,7 +116,9 @@ module tb_stream_column #(
 `ifdef WPN16_PIPE_INVERSE_ACCUMULATE
     , .PIPE_INVERSE_ACCUMULATE(1'b1)
 `endif
-  ) dut (
+  )
+`endif
+  dut (
     .clk(clk),
     .reset(reset),
     .p_start(p_start),
