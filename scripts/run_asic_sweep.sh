@@ -27,9 +27,23 @@ configs=(
 )
 
 failures=0
+start_from="${ASIC_SWEEP_START_FROM:-}"
+start_found=0
+if [[ -z "$start_from" ]]; then
+  start_found=1
+fi
+
 for relative in "${configs[@]}"; do
-  config="$REPO_ROOT/$relative"
   tag="${relative##*/}"
+  if (( ! start_found )); then
+    if [[ "$tag" == "$start_from" ]]; then
+      start_found=1
+    else
+      continue
+    fi
+  fi
+
+  config="$REPO_ROOT/$relative"
   result="$OUT_ROOT/$tag"
   mkdir -p "$result"
   printf '\n[%s] %s\n' "$(date -Is)" "$tag" | tee -a "$OUT_ROOT/campaign.txt"
@@ -90,6 +104,11 @@ for relative in "${configs[@]}"; do
     failures=$((failures + 1))
   fi
 done
+
+if (( ! start_found )); then
+  printf 'error=start tag not found: %s\n' "$start_from" | tee -a "$OUT_ROOT/campaign.txt"
+  failures=$((failures + 1))
+fi
 
 printf 'finished=%s\nfailures=%s\n' "$(date -Is)" "$failures" | tee -a "$OUT_ROOT/campaign.txt"
 exit "$((failures > 0))"
