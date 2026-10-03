@@ -1,12 +1,19 @@
 # Conv4x4 FPGA results
 
-The latest complete WPN16/NBITS=16 campaign for 8, 16, and 32 MACs is
-summarized in [wpn16-8-16-32-nbits16-1de1640e.md](wpn16-8-16-32-nbits16-1de1640e.md).
-Only the 8-MAC implementation passed post-route functional golden simulation
-and has valid P3F power. The 16-MAC implementation met timing with zero rounded
-slack but failed all final golden comparisons; the 32-MAC implementation also
-failed timing. Do not use their captured SAIF files for power or derive
-efficiency from their vectorless estimates.
+The corrected WPN16/NBITS=16 campaign for 8, 16, and 32 MACs is summarized in
+[wpn16-8-16-32-nbits16-ae16c90e.md](wpn16-8-16-32-nbits16-ae16c90e.md).
+All three variants now pass post-route functional golden simulation and have
+P3F power reports. The 8- and 16-MAC points close timing at 317 MHz; 32 MACs
+misses by 9 ps (one endpoint), so it is not a timing-closed 317 MHz result.
+The original campaign is preserved in
+[wpn16-8-16-32-nbits16-1de1640e.md](wpn16-8-16-32-nbits16-1de1640e.md) as
+historical evidence of the previous inverse-accumulation bug.
+
+The separate IFN9 m12 result already passes post-route golden and closes
+317 MHz; see [ifn9-explore-149bd5be.md](../../../conv3x3/fpga_zcu104/results/ifn9-explore-149bd5be.md).
+WPN16 m12 is not a supported point in the current 4x4 schedule: its MAC count
+must cover whole 16-row Hadamard batches. Do not conflate IFN9 m12 with WPN16
+m16.
 
 The earlier capacity result for 32 replicated WPN16 m08 cores at NBITS=16 is
 preserved in [wpn16-n32-capacity-a75f073.md](wpn16-n32-capacity-a75f073.md):
