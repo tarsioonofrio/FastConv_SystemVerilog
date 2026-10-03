@@ -49,6 +49,18 @@ def build_config(config: Path, hdl: list[str], tb: str, conv: str) -> None:
                  "scripts/power.tcl", "power/run.sh", "power/power.tcl"):
         shutil.copy2(source_config / name, config / name)
 
+    module_replacements = {
+        "module load genus": "module load cadence/genus/211",
+        "module load xcelium": "module load cadence/xcelium/2303",
+        "module load ddi": "module load cadence/genus/211",
+    }
+    for relative in ("logical/run.sh", "sim/run.sh", "power/run.sh"):
+        path = config / relative
+        text = path.read_text()
+        for old, new in module_replacements.items():
+            text = text.replace(old, new)
+        path.write_text(text)
+
     (config / "list-file.txt").write_text("\n".join(hdl) + "\n")
     define_lines = ["-define NADDR=16", "-define NBITS=20", "-define LATENCY=1"]
     if conv == "conv4x4":
