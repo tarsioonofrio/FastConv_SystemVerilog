@@ -20,6 +20,19 @@ Os RTL gerados ficam na pasta do tamanho, com o algoritmo no nome:
 | `tcn16` | 6x6 | 6x6 | 4x4 | 6 | 576 | `../conv4x4/conv-tcn16-i60-h15-t12-o16-m06-stream12-prefetch24-rowconst6-trunc-column.sv` |
 | `wpn16` | 6x6 | 8x8 | 4x4 | 8 | 4 | `../conv4x4/conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv` |
 
+### Variantes TCN16 com mais MACs
+
+O gerador aceita múltiplos inteiros da dimensão Hadamard. Para TCN16, as
+variantes m12 e m18 processam duas e três linhas de Hadamard por ciclo,
+respectivamente; elas mantêm a mesma geometria, algoritmo, workload e interface
+de colunas do baseline m06.
+
+| Variante | MACs | Linhas Hadamard/ciclo | Arquivo |
+| --- | ---: | ---: | --- |
+| TCN16 m06 | 6 | 1 | `../conv4x4/conv-tcn16-i60-h15-t12-o16-m06-stream12-prefetch24-rowconst6-trunc-column.sv` |
+| TCN16 m12 | 12 | 2 | `../conv4x4/conv-tcn16-i60-h21-t24-o16-m12-stream12-prefetch24-rowconst6-trunc-column.sv` |
+| TCN16 m18 | 18 | 3 | `../conv4x4/conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-rowconst6-trunc-column.sv` |
+
 O nome segue a convenção do 2x2: `i` são as palavras de entrada guardadas (banco
 do tile mais banco de prefetch), `h` as de pesos (nove espaciais mais a linha
 transformada), `t` as palavras da fronteira de transformação (features e produtos
@@ -63,6 +76,10 @@ make clean-stream-column CONFIG=<algoritmo>   # apaga o obj_dir (AGENTS.md, 2.3)
 # WPN16 com mais paralelismo:
 make run-stream-column CONFIG=wpn16 STREAM_COLUMN_NUM_MULT=16
 make run-stream-column CONFIG=wpn16 STREAM_COLUMN_NUM_MULT=32
+
+# TCN16 com duas e três linhas Hadamard por ciclo:
+make run-stream-column CONFIG=tcn16 STREAM_COLUMN_NUM_MULT=12
+make run-stream-column CONFIG=tcn16 STREAM_COLUMN_NUM_MULT=18
 ```
 
 O dataset é `data/<algoritmo>/sim/sim-032-3-3-normal-trunc/pack_data.sv` (pesos

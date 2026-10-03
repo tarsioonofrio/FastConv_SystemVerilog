@@ -2,7 +2,7 @@
 set -euo pipefail
 
 if [[ $# -lt 1 ]]; then
-  printf 'usage: %s <output-root> [tcn16|wpn16|wpn16_m16|wpn16_m32 ...]\n' "$0" >&2
+  printf 'usage: %s <output-root> [tcn16|tcn16_m12|tcn16_m18|wpn16|wpn16_m16|wpn16_m32 ...]\n' "$0" >&2
   exit 2
 fi
 
