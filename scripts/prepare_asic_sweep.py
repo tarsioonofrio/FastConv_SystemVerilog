@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import re
 import shutil
 from pathlib import Path
 
@@ -11,7 +12,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def config_spec(conv: str, algo: str, macs: str, dataset: str) -> tuple[Path, list[str], str]:
+def config_spec(
+    conv: str, algo: str, macs: str, dataset: str
+) -> tuple[Path, list[str], str, list[str]]:
     base = ROOT / "rtl" / conv
     name = f"asic-sweep-20261003-{algo}-m{macs.zfill(2)}"
     config = base / "synthesis" / name
@@ -29,10 +32,32 @@ def config_spec(conv: str, algo: str, macs: str, dataset: str) -> tuple[Path, li
     if conv == "conv4x4":
         hdl.insert(2, "contrib/rtl/pack-def/pack_def.sv")
     tb = f"rtl/{conv}/testbench.sv"
-    return config, hdl, tb
+    mux_path = ROOT / f"rtl/{conv}/mux-mult/{algo}/mux_mult_{mux_suffix}.sv"
+    mux_text = mux_path.read_text()
+    parameters = {}
+    for name in ("NUM_MULT", "STATE_MULT"):
+        match = re.search(
+            rf"parameter\s+int\s+{name}\s*=\s*(\d+)\s*;", mux_text
+        )
+        if not match:
+            raise ValueError(f"{mux_path} does not define {name}")
+        parameters[name] = int(match.group(1))
+    if parameters["NUM_MULT"] != int(macs):
+        raise ValueError(
+            f"{mux_path} declares NUM_MULT={parameters['NUM_MULT']}, expected {macs}"
+        )
+    top_parameters = [f"NUM_MULT={parameters['NUM_MULT']}",
+                      f"STATE_MULT={parameters['STATE_MULT']}"]
+    return config, hdl, tb, top_parameters
 
 
-def build_config(config: Path, hdl: list[str], tb: str, conv: str) -> None:
+def build_config(
+    config: Path,
+    hdl: list[str],
+    tb: str,
+    conv: str,
+    top_parameters: list[str],
+) -> None:
     if config.exists():
         raise FileExistsError(f"refusing to overwrite existing config: {config}")
     source_config = ROOT / "rtl" / conv / "synthesis" / (
@@ -67,13 +92,21 @@ def build_config(config: Path, hdl: list[str], tb: str, conv: str) -> None:
         define_lines.append("-define QUANT=8")
     (config / "list-define.txt").write_text("\n".join(define_lines) + "\n")
     (config / "top-module.txt").write_text("conv\n")
+    (config / "top-parameters.txt").write_text("\n".join(top_parameters) + "\n")
     (config / "testbench-file.txt").write_text(tb + "\n")
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument(
+        "--update-parameters-only",
+        action="store_true",
+        help="write top-parameters.txt into existing generated sweep configs",
+    )
     args = parser.parse_args()
+    if args.dry_run and args.update_parameters_only:
+        parser.error("--dry-run and --update-parameters-only cannot be combined")
 
     points = [
         ("conv3x3", "ifn9", "6", "sim-032-3-3-normal"),
@@ -88,13 +121,19 @@ def main() -> None:
         ("conv4x4", "wpn16", "32", "sim-032-3-3-normal"),
     ]
     for conv, algo, macs, dataset in points:
-        config, hdl, tb = config_spec(conv, algo, macs, dataset)
+        config, hdl, tb, top_parameters = config_spec(conv, algo, macs, dataset)
         missing = [str(ROOT / path) for path in hdl + [tb] if not (ROOT / path).is_file()]
         if missing:
             raise FileNotFoundError("missing flow inputs:\n" + "\n".join(missing))
-        print(f"{config.relative_to(ROOT)}")
-        if not args.dry_run:
-            build_config(config, hdl, tb, conv)
+        print(f"{config.relative_to(ROOT)}: {' '.join(top_parameters)}")
+        if args.update_parameters_only:
+            if not config.is_dir():
+                raise FileNotFoundError(f"config does not exist: {config}")
+            (config / "top-parameters.txt").write_text(
+                "\n".join(top_parameters) + "\n"
+            )
+        elif not args.dry_run:
+            build_config(config, hdl, tb, conv, top_parameters)
 
 
 if __name__ == "__main__":

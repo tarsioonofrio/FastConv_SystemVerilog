@@ -48,6 +48,25 @@ for relative in "${configs[@]}"; do
   mkdir -p "$result"
   printf '\n[%s] %s\n' "$(date -Is)" "$tag" | tee -a "$OUT_ROOT/campaign.txt"
 
+  expected_num="$((10#${tag##*-m}))"
+  parameters_file="$config/top-parameters.txt"
+  mux_entry="$(grep -E '(^|/)mux_mult_[0-9]+\.sv$' "$config/list-file.txt" | tail -n 1)"
+  mux_file="$REPO_ROOT/$mux_entry"
+  configured_num="$(sed -nE 's/^NUM_MULT=([0-9]+)$/\1/p' "$parameters_file" 2>/dev/null | tail -n 1)"
+  configured_state="$(sed -nE 's/^STATE_MULT=([0-9]+)$/\1/p' "$parameters_file" 2>/dev/null | tail -n 1)"
+  mux_num="$(sed -nE 's/.*parameter int NUM_MULT = ([0-9]+);/\1/p' "$mux_file" 2>/dev/null | head -n 1)"
+  mux_state="$(sed -nE 's/.*parameter int STATE_MULT = ([0-9]+);/\1/p' "$mux_file" 2>/dev/null | head -n 1)"
+  if [[ -z "$mux_entry" || -z "$configured_num" || -z "$configured_state" ||
+        "$configured_num" != "$expected_num" || "$configured_num" != "$mux_num" ||
+        "$configured_state" != "$mux_state" ]]; then
+    printf 'configuration=FAIL_PARAMS expected_NUM_MULT=%s config_NUM_MULT=%s mux_NUM_MULT=%s config_STATE_MULT=%s mux_STATE_MULT=%s\n' \
+      "$expected_num" "${configured_num:-missing}" "${mux_num:-missing}" \
+      "${configured_state:-missing}" "${mux_state:-missing}" \
+      | tee -a "$result/status.txt" "$OUT_ROOT/campaign.txt"
+    failures=$((failures + 1))
+    continue
+  fi
+
   if (cd "$config/logical" && ./run.sh) >"$result/logical.log" 2>&1; then
     printf 'logical=PASS\n' | tee -a "$result/status.txt"
   else
