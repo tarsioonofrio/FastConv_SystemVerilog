@@ -50,6 +50,7 @@ for relative in "${configs[@]}"; do
   top_module="${top_module:-Conv}"
   mapped_netlist="$config/logical/results/gate_level/${top_module}_logic_mapped.v"
   nominal_sdf="$config/logical/results/gate_level/${top_module}_analysis_view_0p90v_25c_captyp_nominal.sdf"
+  nominal_sdf_basename="${top_module}_analysis_view_0p90v_25c_captyp_nominal.sdf"
   area_report="$config/logical/results/reports/${top_module}_area.rpt"
   timing_report="$config/logical/results/reports/${top_module}_timing_setup_analysis_view_0p90v_25c_captyp_nominal.rpt"
   printf '\n[%s] %s\n' "$(date -Is)" "$tag" | tee -a "$OUT_ROOT/campaign.txt"
@@ -109,7 +110,6 @@ for relative in "${configs[@]}"; do
       continue
     fi
 
-    printf 'sim=PASS golden=PASS valid_writes=8100\n' | tee -a "$result/status.txt"
   else
     rc=$?
     printf 'sim=FAIL rc=%s\n' "$rc" | tee -a "$result/status.txt" "$OUT_ROOT/campaign.txt"
@@ -117,17 +117,18 @@ for relative in "${configs[@]}"; do
     continue
   fi
 
-  if grep -Eq 'FLFNOF|FLFFNC|No SDF file specified|SDF file.*not found' "$result/sim.log"; then
-    printf 'sim=FAIL_SDF annotation file missing or unreadable\n' | tee -a "$result/status.txt" "$OUT_ROOT/campaign.txt"
-    failures=$((failures + 1))
-    continue
-  fi
-  if ! grep -Fq 'Annotating SDF timing data:' "$result/sim.log" ||
-     ! grep -Fq 'Backannotation scope:' "$result/sim.log"; then
+  if ! grep -Fq "Reading SDF file from location \"../logical/results/gate_level/$nominal_sdf_basename\"" "$result/sim.log" ||
+     ! grep -Fq "Compiled SDF file:     ${nominal_sdf_basename}.X" "$result/sim.log" ||
+     ! grep -Fq 'Backannotation scope:  tb.dut' "$result/sim.log" ||
+     [[ ! -s "$config/sim/sdf_log.log" ]]; then
     printf 'sim=FAIL_SDF annotation evidence missing\n' | tee -a "$result/status.txt" "$OUT_ROOT/campaign.txt"
     failures=$((failures + 1))
     continue
   fi
+
+  sdf_warnings="$(grep -Ec 'xmelab: \*W,(SDF|FLF)' "$result/sim.log" || true)"
+  printf 'sim=PASS golden=PASS valid_writes=8100 sdf_compiled=PASS sdf_warnings=%s\n' "$sdf_warnings" \
+    | tee -a "$result/status.txt" "$OUT_ROOT/campaign.txt"
 
   if (cd "$config/power" && ./run.sh) >"$result/power.log" 2>&1; then
     printf 'power=PASS\n' | tee -a "$result/status.txt"
