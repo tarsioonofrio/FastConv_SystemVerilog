@@ -7,7 +7,13 @@
 // row stride is OUTPUT_PHYSICAL_SIZE); only its FEAT_OUTPUT_SIZE corner is the
 // logical result, and out-of-range window samples are clipped.
 module tb_stream_column #(
+`ifdef ASIC_TCN16_M12
+  parameter int unsigned NUM_MULT = 12
+`elsif ASIC_TCN16_M18
+  parameter int unsigned NUM_MULT = 18
+`else
   parameter int unsigned NUM_MULT = pack_param::HADAMARD_SIZE
+`endif
 );
   import pack_data::*;
   import pack_param::*;
@@ -74,6 +80,15 @@ module tb_stream_column #(
   endfunction
 
   always #5 clk = ~clk;
+
+`ifdef ASIC_CAPTURE_SHM
+  // Optional Joules activity capture for ASIC gate-level campaigns. Keep this
+  // disabled for normal RTL and FPGA SAIF simulations.
+  initial begin: ASIC_SHM_CAPTURE_BLOCK
+    $shm_open("dut.shm");
+    $shm_probe(tb_stream_column.dut, "ASM");
+  end
+`endif
 
   Conv #(
     .N_CHANNEL_IN(N_CHANNEL_IN),
