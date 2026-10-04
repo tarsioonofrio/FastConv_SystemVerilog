@@ -1,0 +1,106 @@
+# do sim.tcl
+# 14
+# 16
+# 1
+# data/ifn9/sim/sim-032-3-3-normal/pack_data.sv
+# pack-param/ifn9/pack_param.sv
+# mux-mult/ifn9/mux_mult_06.sv
+# mult-matrices/ifn9/mult_matrices.sv
+# +define+NADDR=14
+# +define+NADDR=14 +define+NBITS=16
+# +define+NADDR=14 +define+NBITS=16 +define+LATENCY=1
+# Model Technology ModelSim - Intel FPGA Edition vmap 2020.1 Lib Mapping Utility 2020.02 Feb 28 2020
+# vmap work work
+# Modifying modelsim.ini
+# data/ifn9/sim/sim-032-3-3-normal/pack_data.sv pack-param/ifn9/pack_param.sv mux-mult/ifn9/mux_mult_06.sv mult-matrices/ifn9/mult_matrices.sv ../mem/mem.sv ../multip/multip.sv
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# ** Warning: (vlog-13288) Multiple macros defined in +define+ command line switch.
+# Start time: 20:43:49 on Oct 04,2026
+# vlog -work work "+define+NADDR=14 +define+NBITS=16 +define+LATENCY=1 " -svinputport=relaxed data/ifn9/sim/sim-032-3-3-normal/pack_data.sv pack-param/ifn9/pack_param.sv mux-mult/ifn9/mux_mult_06.sv mult-matrices/ifn9/mult_matrices.sv ../mem/mem.sv ../multip/multip.sv
+# -- Compiling package pack_data
+# -- Compiling package pack_param
+# -- Compiling package pack_mux_mult
+# -- Compiling module Transform
+# -- Compiling module Inverse
+# -- Compiling module MatrixC0
+# -- Compiling module MatrixC1
+# -- Compiling module MatrixA1
+# -- Compiling module MatrixA0
+# -- Compiling module Memory
+# -- Importing package pack_data
+# -- Compiling module Multip
+# -- Compiling module MultipDspPipe
+#
+# Top level modules:
+# 	Transform
+# 	Inverse
+# 	Memory
+# 	Multip
+# 	MultipDspPipe
+# End time: 20:43:49 on Oct 04,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 1
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# ** Warning: (vlog-13288) Multiple macros defined in +define+ command line switch.
+# Start time: 20:43:49 on Oct 04,2026
+# vlog -work work "+define+NADDR=14 +define+NBITS=16 +define+LATENCY=1 " -svinputport=relaxed ./archive/conv.sv
+# -- Compiling module Conv
+#
+# Top level modules:
+# 	Conv
+# End time: 20:43:49 on Oct 04,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 1
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# ** Warning: (vlog-13288) Multiple macros defined in +define+ command line switch.
+# Start time: 20:43:49 on Oct 04,2026
+# vlog -work work "+define+NADDR=14 +define+NBITS=16 +define+LATENCY=1 " -svinputport=relaxed ./testbench.sv
+# -- Compiling module tb
+# -- Importing package pack_data
+# -- Importing package pack_param
+# -- Importing package pack_mux_mult
+#
+# Top level modules:
+# 	tb
+# End time: 20:43:49 on Oct 04,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 1
+# vsim -voptargs="+acc=lprn" -debugDB -t ps work.tb
+# Start time: 20:43:49 on Oct 04,2026
+# Loading sv_std.std
+# Loading work.pack_mux_mult
+# Loading work.pack_param
+# Loading work.pack_data
+# Loading work.tb
+# Loading work.Conv
+# Loading work.Transform
+# Loading work.MatrixC0
+# Loading work.MatrixC1
+# Loading work.Inverse
+# Loading work.MatrixA1
+# Loading work.MatrixA0
+# Loading work.Memory
+# Loading work.Multip
+# ** Note: (vsim-8900) Creating design debug database vsim.dbg.
+# It appears vopt was not run with -debugdb option on this design.
+# Advanced Causality and Schematic debug features will not be available.
+# 1
+# 1
+#
+# === DUT PARAMETERS / LOCALPARAMS ===
+# <no parameter/localparam names found in conv.sv>
+# ====================================
+#
+# DBG BASE TC HAD row=0 p=1518,213,714,-1706,-2074
+# DBG BASE TC HAD row=1 p=223,120,-1294,5,-841
+# DBG BASE TC HAD row=2 p=176,-444,204,-22,103
+# DBG BASE TC HAD row=3 p=-551,-380,394,1265,36
+# DBG BASE TC HAD row=4 p=-498,619,-88,235,913
+# DBG BASE TC HAD row=5 p=-617,673,564,-6,92
+# DBG BASE TC INV got=-862,-698,-1049,-394,1677,-1049,376,867,1600 exp=-27,-1434,-3868,-375,2944,-3179,78,-345,693
+# BASE INV -862,-698,-1049,-394,1677,-1049,376,867,1600
+# Job execution time: 35072.000 ns (35.072000 us), 17536 cycles
+# Simulacao finalizada em 35133000
+# Total de erros de escrita de output: 0
+# 3x3 simulation completed: inverse_tiles=900 cycles=17537 valid_writes=8100 input_samples_clipped=0 invalid_output_beats=0
+# ** Note: $finish    : ./testbench.sv(293)
+#    Time: 35133 ns  Iteration: 1  Instance: /tb
+# End time: 20:43:54 on Oct 04,2026, Elapsed time: 0:00:05
+# Errors: 0, Warnings: 0

@@ -1,0 +1,149 @@
+# do sim.tcl
+# tcn16
+# sim-032-3-3-normal
+# 18
+# data/tcn16/sim/sim-032-3-3-normal/pack_data.sv
+# pack-param/tcn16/pack_param.sv
+# mux-mult/tcn16/mux_mult_18.sv
+# mult-matrices/tcn16/mult_matrices.sv
+# ../../contrib/rtl/pack-def/pack_def.sv
+# ../csa/csa_lib.sv
+# ../multip/multip.sv
+# ../mem/mem.sv
+# Model Technology ModelSim - Intel FPGA Edition vmap 2020.1 Lib Mapping Utility 2020.02 Feb 28 2020
+# vmap work work
+# Modifying modelsim.ini
+# data/tcn16/sim/sim-032-3-3-normal/pack_data.sv ../../contrib/rtl/pack-def/pack_def.sv pack-param/tcn16/pack_param.sv mux-mult/tcn16/mux_mult_18.sv ../csa/csa_lib.sv ../multip/multip.sv mult-matrices/tcn16/mult_matrices.sv ../mem/mem.sv
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 20:43:55 on Oct 04,2026
+# vlog -work work -svinputport=relaxed data/tcn16/sim/sim-032-3-3-normal/pack_data.sv ../../contrib/rtl/pack-def/pack_def.sv pack-param/tcn16/pack_param.sv mux-mult/tcn16/mux_mult_18.sv ../csa/csa_lib.sv ../multip/multip.sv mult-matrices/tcn16/mult_matrices.sv ../mem/mem.sv
+# -- Compiling package pack_data
+# -- Compiling package pack_def
+# -- Compiling package pack_param
+# -- Compiling package pack_mux_mult
+# -- Compiling module MuxMult
+# -- Compiling module FA
+# -- Compiling module CSA_1
+# -- Compiling module CSA_2
+# -- Compiling module CSA_3
+# -- Compiling module CSA_4
+# -- Compiling module CSA_5
+# -- Compiling module CSA_6
+# -- Compiling module CSA_7
+# -- Compiling module CSA_8
+# -- Compiling module CSA_9
+# -- Compiling module CSA_12
+# -- Compiling module CSA_16
+# -- Compiling module CSA_18
+# -- Compiling module Multip
+# -- Compiling module MultipDspPipe
+# -- Compiling module Transform
+# -- Compiling module Inverse
+# -- Compiling module MatrixC0
+# -- Compiling module MatrixC1
+# -- Compiling module MatrixA1
+# -- Compiling module MatrixA0
+# -- Compiling module Memory
+# -- Importing package pack_data
+#
+# Top level modules:
+# 	MuxMult
+# 	CSA_1
+# 	CSA_2
+# 	CSA_3
+# 	CSA_4
+# 	CSA_5
+# 	CSA_6
+# 	CSA_7
+# 	CSA_8
+# 	CSA_9
+# 	CSA_12
+# 	CSA_16
+# 	CSA_18
+# 	Multip
+# 	MultipDspPipe
+# 	Transform
+# 	Inverse
+# 	Memory
+# End time: 20:43:55 on Oct 04,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 20:43:55 on Oct 04,2026
+# vlog -work work -svinputport=relaxed ./archive/conv.sv
+# -- Compiling module Conv
+#
+# Top level modules:
+# 	Conv
+# End time: 20:43:55 on Oct 04,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 20:43:55 on Oct 04,2026
+# vlog -work work -svinputport=relaxed ./testbench.sv
+# -- Compiling module tb
+# -- Importing package pack_data
+# -- Importing package pack_param
+# -- Importing package pack_mux_mult
+#
+# Top level modules:
+# 	tb
+# End time: 20:43:55 on Oct 04,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vsim -voptargs="+acc=lprn" -t ps work.tb
+# Start time: 20:43:55 on Oct 04,2026
+# Loading sv_std.std
+# Loading work.pack_mux_mult
+# Loading work.pack_param
+# Loading work.pack_data
+# Loading work.tb
+# Loading work.Conv
+# Loading work.Transform
+# Loading work.MatrixC0
+# Loading work.MatrixC1
+# Loading work.MuxMult
+# Loading work.Inverse
+# Loading work.MatrixA1
+# Loading work.MatrixA0
+# Loading work.Memory
+# Loading work.Multip
+# ** Warning: (vsim-3015) [PCDPC] - Port size (20) does not match connection size (28) for port 'product'. The port definition is at: ../multip/multip.sv(7).
+#    Time: 0 ps  Iteration: 0  Instance: /tb/dut/MULTIP_BLOCK[0]/multip File: ./archive/conv.sv Line: 539
+# ** Warning: (vsim-3015) [PCDPC] - Port size (20) does not match connection size (28) for port 'product'. The port definition is at: ../multip/multip.sv(7).
+#    Time: 0 ps  Iteration: 0  Instance: /tb/dut/MULTIP_BLOCK[1]/multip File: ./archive/conv.sv Line: 539
+# ** Warning: (vsim-3015) [PCDPC] - Port size (20) does not match connection size (28) for port 'product'. The port definition is at: ../multip/multip.sv(7).
+#    Time: 0 ps  Iteration: 0  Instance: /tb/dut/MULTIP_BLOCK[2]/multip File: ./archive/conv.sv Line: 539
+# ** Warning: (vsim-3015) [PCDPC] - Port size (20) does not match connection size (28) for port 'product'. The port definition is at: ../multip/multip.sv(7).
+#    Time: 0 ps  Iteration: 0  Instance: /tb/dut/MULTIP_BLOCK[3]/multip File: ./archive/conv.sv Line: 539
+# ** Warning: (vsim-3015) [PCDPC] - Port size (20) does not match connection size (28) for port 'product'. The port definition is at: ../multip/multip.sv(7).
+#    Time: 0 ps  Iteration: 0  Instance: /tb/dut/MULTIP_BLOCK[4]/multip File: ./archive/conv.sv Line: 539
+# ** Warning: (vsim-3015) [PCDPC] - Port size (20) does not match connection size (28) for port 'product'. The port definition is at: ../multip/multip.sv(7).
+#    Time: 0 ps  Iteration: 0  Instance: /tb/dut/MULTIP_BLOCK[5]/multip File: ./archive/conv.sv Line: 539
+# ** Warning: (vsim-3015) [PCDPC] - Port size (20) does not match connection size (28) for port 'product'. The port definition is at: ../multip/multip.sv(7).
+#    Time: 0 ps  Iteration: 0  Instance: /tb/dut/MULTIP_BLOCK[6]/multip File: ./archive/conv.sv Line: 539
+# ** Warning: (vsim-3015) [PCDPC] - Port size (20) does not match connection size (28) for port 'product'. The port definition is at: ../multip/multip.sv(7).
+#    Time: 0 ps  Iteration: 0  Instance: /tb/dut/MULTIP_BLOCK[7]/multip File: ./archive/conv.sv Line: 539
+# ** Warning: (vsim-3015) [PCDPC] - Port size (20) does not match connection size (28) for port 'product'. The port definition is at: ../multip/multip.sv(7).
+#    Time: 0 ps  Iteration: 0  Instance: /tb/dut/MULTIP_BLOCK[8]/multip File: ./archive/conv.sv Line: 539
+# ** Warning: (vsim-3015) [PCDPC] - Port size (20) does not match connection size (28) for port 'product'. The port definition is at: ../multip/multip.sv(7).
+#    Time: 0 ps  Iteration: 0  Instance: /tb/dut/MULTIP_BLOCK[9]/multip File: ./archive/conv.sv Line: 539
+# ** Warning: (vsim-3015) [PCDPC] - Port size (20) does not match connection size (28) for port 'product'. The port definition is at: ../multip/multip.sv(7).
+#    Time: 0 ps  Iteration: 0  Instance: /tb/dut/MULTIP_BLOCK[10]/multip File: ./archive/conv.sv Line: 539
+# ** Warning: (vsim-3015) [PCDPC] - Port size (20) does not match connection size (28) for port 'product'. The port definition is at: ../multip/multip.sv(7).
+#    Time: 0 ps  Iteration: 0  Instance: /tb/dut/MULTIP_BLOCK[11]/multip File: ./archive/conv.sv Line: 539
+# ** Warning: (vsim-3015) [PCDPC] - Port size (20) does not match connection size (28) for port 'product'. The port definition is at: ../multip/multip.sv(7).
+#    Time: 0 ps  Iteration: 0  Instance: /tb/dut/MULTIP_BLOCK[12]/multip File: ./archive/conv.sv Line: 539
+# ** Warning: (vsim-3015) [PCDPC] - Port size (20) does not match connection size (28) for port 'product'. The port definition is at: ../multip/multip.sv(7).
+#    Time: 0 ps  Iteration: 0  Instance: /tb/dut/MULTIP_BLOCK[13]/multip File: ./archive/conv.sv Line: 539
+# ** Warning: (vsim-3015) [PCDPC] - Port size (20) does not match connection size (28) for port 'product'. The port definition is at: ../multip/multip.sv(7).
+#    Time: 0 ps  Iteration: 0  Instance: /tb/dut/MULTIP_BLOCK[14]/multip File: ./archive/conv.sv Line: 539
+# ** Warning: (vsim-3015) [PCDPC] - Port size (20) does not match connection size (28) for port 'product'. The port definition is at: ../multip/multip.sv(7).
+#    Time: 0 ps  Iteration: 0  Instance: /tb/dut/MULTIP_BLOCK[15]/multip File: ./archive/conv.sv Line: 539
+# ** Warning: (vsim-3015) [PCDPC] - Port size (20) does not match connection size (28) for port 'product'. The port definition is at: ../multip/multip.sv(7).
+#    Time: 0 ps  Iteration: 0  Instance: /tb/dut/MULTIP_BLOCK[16]/multip File: ./archive/conv.sv Line: 539
+# ** Warning: (vsim-3015) [PCDPC] - Port size (20) does not match connection size (28) for port 'product'. The port definition is at: ../multip/multip.sv(7).
+#    Time: 0 ps  Iteration: 0  Instance: /tb/dut/MULTIP_BLOCK[17]/multip File: ./archive/conv.sv Line: 539
+# Job execution time: 38468.000 ns (38.468000 us), 19234 cycles
+# 4x4 simulation passed: inverse_tiles=576 cycles=19235 valid_writes=8100 input_samples_clipped=1440 invalid_output_beats=1116
+# ** Note: $finish    : ./testbench.sv(245)
+#    Time: 38529 ns  Iteration: 1  Instance: /tb
+# End time: 20:43:58 on Oct 04,2026, Elapsed time: 0:00:03
+# Errors: 0, Warnings: 18
