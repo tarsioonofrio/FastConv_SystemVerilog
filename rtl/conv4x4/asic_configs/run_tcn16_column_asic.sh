@@ -3,8 +3,8 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 CONFIGS=(
-  "$SCRIPT_DIR/asic-stream-column-20261003-tcn16-m12"
-  "$SCRIPT_DIR/asic-stream-column-20261003-tcn16-m18"
+  "$SCRIPT_DIR/conv-tcn16-i60-h21-t24-o16-m12-stream12-prefetch24-rowconst6-trunc-column"
+  "$SCRIPT_DIR/conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-rowconst6-trunc-column"
 )
 
 for config in "${CONFIGS[@]}"; do

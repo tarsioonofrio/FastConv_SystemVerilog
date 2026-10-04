@@ -14,16 +14,16 @@ printf 'host=%s\ncommit=%s\nrepo=%s\nstarted=%s\n' \
   "$(hostname)" "$COMMIT" "$REPO_ROOT" "$(date -Is)" >"$OUT_ROOT/campaign.txt"
 
 configs=(
-  rtl/conv3x3/asic_configs/asic-sweep-20261003-ifn9-m06
-  rtl/conv3x3/asic_configs/asic-sweep-20261003-ifn9-m12
-  rtl/conv3x3/asic_configs/asic-sweep-20261003-ifn9-m18
-  rtl/conv3x3/asic_configs/asic-sweep-20261003-tcn9-m05
-  rtl/conv4x4/asic_configs/asic-sweep-20261003-tcn16-m06
-  rtl/conv4x4/asic_configs/asic-sweep-20261003-tcn16-m12
-  rtl/conv4x4/asic_configs/asic-sweep-20261003-tcn16-m18
-  rtl/conv4x4/asic_configs/asic-sweep-20261003-wpn16-m08
-  rtl/conv4x4/asic_configs/asic-sweep-20261003-wpn16-m16
-  rtl/conv4x4/asic_configs/asic-sweep-20261003-wpn16-m32
+  rtl/conv3x3/asic_configs/conv/asic-sweep-20261003-ifn9-m06
+  rtl/conv3x3/asic_configs/conv/asic-sweep-20261003-ifn9-m12
+  rtl/conv3x3/asic_configs/conv/asic-sweep-20261003-ifn9-m18
+  rtl/conv3x3/asic_configs/conv/asic-sweep-20261003-tcn9-m05
+  rtl/conv4x4/asic_configs/conv/asic-sweep-20261003-tcn16-m06
+  rtl/conv4x4/asic_configs/conv/asic-sweep-20261003-tcn16-m12
+  rtl/conv4x4/asic_configs/conv/asic-sweep-20261003-tcn16-m18
+  rtl/conv4x4/asic_configs/conv/asic-sweep-20261003-wpn16-m08
+  rtl/conv4x4/asic_configs/conv/asic-sweep-20261003-wpn16-m16
+  rtl/conv4x4/asic_configs/conv/asic-sweep-20261003-wpn16-m32
 )
 
 failures=0

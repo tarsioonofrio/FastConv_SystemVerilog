@@ -19,7 +19,9 @@ def config_spec(
     name = f"asic-sweep-20261003-{algo}-m{macs.zfill(2)}"
     # Prepared but unexecuted configurations are kept out of synthesis/, which
     # contains only directories with actual ASIC result artifacts.
-    config = base / "asic_configs" / name
+    # Parameterized conv.sv sweep configurations are grouped separately from
+    # configurations that target dedicated RTL files.
+    config = base / "asic_configs" / "conv" / name
     mux_suffix = macs.zfill(2)
     hdl = [
         "rtl/csa/csa_lib.sv",
@@ -28,7 +30,7 @@ def config_spec(
         f"rtl/{conv}/pack-param/{algo}/pack_param.sv",
         f"rtl/{conv}/mux-mult/{algo}/mux_mult_{mux_suffix}.sv",
         f"rtl/{conv}/mult-matrices/{algo}/mult_matrices.sv",
-        f"rtl/{conv}/conv.sv",
+        f"rtl/{conv}/archive/conv.sv",
         "rtl/mem/mem.sv",
     ]
     if conv == "conv4x4":

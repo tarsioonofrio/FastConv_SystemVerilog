@@ -43,7 +43,7 @@ set file_list [list \
 ]
 
 vlog -work work -svinputport=relaxed {*}$file_list
-vlog -work work -svinputport=relaxed ./conv.sv
+vlog -work work -svinputport=relaxed ./archive/conv.sv
 vlog -work work -svinputport=relaxed ./testbench.sv
 
 vsim -voptargs=+acc=lprn -t ps work.tb

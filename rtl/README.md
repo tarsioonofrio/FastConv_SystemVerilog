@@ -3,7 +3,7 @@
 Este documento descreve a arquitetura do controlador de convolucao FastConv e
 a transicao da implementacao convencional para as variantes streaming. A
 implementacao convencional usada como referencia esta em
-[`conv3x3/conv.sv`](conv3x3/conv.sv). As variantes streaming 3x3 ficam em
+[`conv3x3/archive/conv.sv`](conv3x3/archive/conv.sv). As variantes streaming 3x3 ficam em
 [`conv3x3stream-if/`](conv3x3stream-if/) e
 [`conv3x3stream-tc/`](conv3x3stream-tc/).
 
@@ -249,7 +249,7 @@ o tempo de vida dos dados: a janela precisa permanecer estavel desde
 
 ### Passo 1 - Congelar a referencia convencional
 
-O primeiro passo foi preservar [`conv3x3/conv.sv`](conv3x3/conv.sv) como
+O primeiro passo foi preservar [`conv3x3/archive/conv.sv`](conv3x3/archive/conv.sv) como
 baseline. Isso permite comparar produto, inversa, endereco, numero de ciclos e
 resultado final sem misturar a reducao de registradores com uma alteracao da
 interface.
@@ -445,5 +445,5 @@ medicao de PPA.
 - A reducao de registradores nao deve ser avaliada separadamente da
   equivalencia funcional: primeiro o golden precisa fechar, depois devem ser
   medidos registradores, area, timing, potencia e ciclos de sistema.
-- `rtl/conv3x3/conv.sv` continua sendo a referencia convencional e nao deve
+- `rtl/conv3x3/archive/conv.sv` continua sendo a referencia convencional e nao deve
   receber a logica especifica das variantes streaming.
