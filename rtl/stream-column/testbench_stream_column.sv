@@ -87,7 +87,8 @@ module tb_stream_column #(
         channel * FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE + row * FEAT_OUTPUT_SIZE + col];
   endfunction
 
-  always #5 clk = ~clk;
+  // Keep the simulation clock aligned with the ASIC SDC (2 ns / 500 MHz).
+  always #1 clk = ~clk;
 
 `ifdef ASIC_CAPTURE_SHM
   // Optional Joules activity capture for ASIC gate-level campaigns. Keep this
