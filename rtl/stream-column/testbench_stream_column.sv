@@ -38,6 +38,10 @@ module tb_stream_column #(
   // the minimum width required by this workload.
 `ifdef GATE_LEVEL
   localparam int unsigned NADDR = 16;
+`elsif ASIC_TCN16_M12
+  localparam int unsigned NADDR = 16;
+`elsif ASIC_TCN16_M18
+  localparam int unsigned NADDR = 16;
 `else
   localparam int unsigned NADDR = (INPUT_ADDR_WIDTH > OUTPUT_ADDR_WIDTH) ? INPUT_ADDR_WIDTH : OUTPUT_ADDR_WIDTH;
 `endif
