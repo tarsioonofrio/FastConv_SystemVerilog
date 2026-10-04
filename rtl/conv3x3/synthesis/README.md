@@ -27,4 +27,6 @@ the copied `list-file.txt` uses the current archive path for future reruns.
 
 Use `scripts/prepare_asic_sweep.py` to create missing sweep configurations
 directly under this tree, and `scripts/run_asic_sweep.sh` to execute them. The
-runner stores its campaign summary under `synthesis/campaigns/` by default.
+runner stores its campaign summary under `synthesis/campaigns/` by default and
+copies each Xcelium console log to the corresponding configuration's
+`sim/asic_sweep_<run-id>.log`, including failed runs.

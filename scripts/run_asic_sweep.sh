@@ -3,7 +3,7 @@ set -uo pipefail
 
 REPO_ROOT="${1:-$(git rev-parse --show-toplevel)}"
 REPO_ROOT="$(cd "$REPO_ROOT" && pwd)"
-RUN_ID="$(date -u +%Y%m%dT%H%M%SZ)"
+RUN_ID="$(date -u +%Y%m%dT%H%M%S%NZ)"
 OUT_ROOT="${2:-$REPO_ROOT/rtl/conv3x3/synthesis/campaigns/$RUN_ID}"
 if [[ "$OUT_ROOT" != /* ]]; then
   OUT_ROOT="$REPO_ROOT/$OUT_ROOT"
@@ -118,7 +118,9 @@ for relative in "${configs[@]}"; do
     continue
   fi
 
+  sim_artifact="$config/sim/asic_sweep_${RUN_ID}.log"
   if (cd "$config/sim" && ./run.sh) >"$result/sim.log" 2>&1; then
+    cp -- "$result/sim.log" "$sim_artifact"
     if [[ "$tag" == *-ifn9-* || "$tag" == *-tcn9-* ]]; then
       if ! grep -Eq '^Total de erros de escrita de output: 0$' "$result/sim.log"; then
         printf 'sim=FAIL_GOLDEN missing zero-error 3x3 golden result\n' | tee -a "$result/status.txt" "$OUT_ROOT/campaign.txt"
@@ -141,6 +143,7 @@ for relative in "${configs[@]}"; do
 
   else
     rc=$?
+    cp -- "$result/sim.log" "$sim_artifact"
     printf 'sim=FAIL rc=%s\n' "$rc" | tee -a "$result/status.txt" "$OUT_ROOT/campaign.txt"
     failures=$((failures + 1))
     continue

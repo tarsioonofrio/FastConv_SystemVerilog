@@ -45,4 +45,5 @@ tmux new-session -d -s tcn16_column_asic ./run_tcn16_column_asic.sh
 Use `scripts/prepare_asic_sweep.py` to create missing sweep configurations
 directly under this tree, and `scripts/run_asic_sweep.sh` to execute them. The
 runner stores its campaign summary under `rtl/conv3x3/synthesis/campaigns/` by
-default.
+default. Each Xcelium console log is also copied to its configuration's
+`sim/asic_sweep_<run-id>.log`, including failed runs.
