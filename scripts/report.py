@@ -27,9 +27,9 @@ def strip_project_prefix(name):
 
 
 def format_project_name(name):
-    # Current synthesis projects are scoped by their RTL directory and each
-    # project is a direct child of its architecture's synthesis directory.
-    # Keep that scope in the report key so configurations remain distinct.
+    # Current synthesis projects are grouped first by RTL source stem, then by
+    # executed flow configuration. Keep only the experiment component in the
+    # report key so the labels remain stable after the directory cleanup.
     if name.lower().startswith("conv"):
         return "Conv" + name[4:]
     if name.lower().startswith("sys"):
@@ -65,20 +65,35 @@ def synthesis_projects(include_archived=False):
         for synthesis_root in synthesis_roots:
             if not synthesis_root.is_dir():
                 continue
-            # ``list-file.txt`` is the common marker for an actual synthesis
-            # project. Both active and archived layouts keep each project
-            # directly below their synthesis root. Ignore nested migration /
-            # legacy trees so they cannot reappear in current tables.
+            # ``list-file.txt`` marks a configured project, but configs alone
+            # are not results. Include only projects with execution evidence.
             for list_file in sorted(synthesis_root.rglob("list-file.txt")):
                 project_dir = list_file.parent
-                if project_dir.parent != synthesis_root:
-                    continue
-                if any(part in EXCLUDED_PROJECTS for part in project_dir.relative_to(synthesis_root).parts):
-                    continue
                 relative_parts = project_dir.relative_to(synthesis_root).parts
-                if not relative_parts:
+                if not relative_parts or any(
+                    part in EXCLUDED_PROJECTS for part in relative_parts
+                ):
                     continue
-                configuration = "-".join(relative_parts)
+                # A source stem may contain nested executed configurations
+                # (e.g. synthesis/conv/ifn9-06mac). Other nesting is ignored.
+                if len(relative_parts) > 1 and not (
+                    relative_parts[0] == "conv" and len(relative_parts) == 2
+                ):
+                    continue
+                has_results = (
+                    (project_dir / "sim" / "xrun.log").is_file()
+                    or (project_dir / "power" / "power_evaluation.txt").is_file()
+                    or any((project_dir / "logical" / "results").rglob("*.rpt"))
+                    or any((project_dir / "logical" / "results").rglob("*_mapped.v"))
+                )
+                if not has_results:
+                    continue
+                config_parts = (
+                    relative_parts[1:]
+                    if relative_parts[0] == "conv"
+                    else relative_parts
+                )
+                configuration = "-".join(config_parts)
                 yield {
                     "architecture": architecture,
                     "configuration": configuration,

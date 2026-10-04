@@ -17,7 +17,9 @@ def config_spec(
 ) -> tuple[Path, list[str], str, list[str]]:
     base = ROOT / "rtl" / conv
     name = f"asic-sweep-20261003-{algo}-m{macs.zfill(2)}"
-    config = base / "synthesis" / name
+    # Prepared but unexecuted configurations are kept out of synthesis/, which
+    # contains only directories with actual ASIC result artifacts.
+    config = base / "asic_configs" / name
     mux_suffix = macs.zfill(2)
     hdl = [
         "rtl/csa/csa_lib.sv",
@@ -83,7 +85,7 @@ def build_config(
 ) -> None:
     if config.exists():
         raise FileExistsError(f"refusing to overwrite existing config: {config}")
-    source_config = ROOT / "rtl" / conv / "synthesis" / (
+    source_config = ROOT / "rtl" / conv / "synthesis" / "conv" / (
         "ifn9-06mac" if conv == "conv3x3" else "tcn16-18mac"
     )
 
@@ -138,7 +140,7 @@ def write_sdf_command(config: Path, top_module: str) -> None:
 
 
 def refresh_elaboration_scripts(config: Path, conv: str) -> None:
-    source_config = ROOT / "rtl" / conv / "synthesis" / (
+    source_config = ROOT / "rtl" / conv / "synthesis" / "conv" / (
         "ifn9-06mac" if conv == "conv3x3" else "tcn16-18mac"
     )
     for relative in (
@@ -151,7 +153,7 @@ def refresh_elaboration_scripts(config: Path, conv: str) -> None:
 def refresh_sim_annotation(config: Path, conv: str) -> None:
     top_module = (config / "top-module.txt").read_text().split()[0]
     write_sdf_command(config, top_module)
-    source_config = ROOT / "rtl" / conv / "synthesis" / (
+    source_config = ROOT / "rtl" / conv / "synthesis" / "conv" / (
         "ifn9-06mac" if conv == "conv3x3" else "tcn16-18mac"
     )
     sim_run = config / "sim" / "run.sh"
