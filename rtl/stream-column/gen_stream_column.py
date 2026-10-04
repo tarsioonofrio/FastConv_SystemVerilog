@@ -8,10 +8,11 @@ depends on the algorithm is derived from its build.json:
   spatial weights with integer coefficients and divided by the weight scale (floor).
 * InverseRow / InverseRowAccumulate: row-streamed inverse transform.
 
-Usage: gen_stream_column.py <build.json> <algo-name> <output.sv> [num-mult]
+Usage: gen_stream_column.py <build.json> <algo-name> <output.sv> [num-mult] [prefetch-columns]
 num-mult defaults to the Hadamard size (one complete row per cycle). Larger
 values must be whole multiples of the Hadamard size and process multiple rows
-in parallel per cycle.
+in parallel per cycle. prefetch-columns defaults to the output tile width;
+remaining new columns are loaded through the direct input path after prefetch.
 """
 import json
 import math
@@ -271,19 +272,27 @@ def inverse_modules(a, hadamard, out):
 
 
 def main():
-    if len(sys.argv) not in (4, 5):
-        raise SystemExit("usage: gen_stream_column.py <build.json> <algo-name> <output.sv> [num-mult]")
+    if len(sys.argv) not in (4, 5, 6):
+        raise SystemExit(
+            "usage: gen_stream_column.py <build.json> <algo-name> <output.sv> "
+            "[num-mult] [prefetch-columns]"
+        )
     build_json, algo, output = sys.argv[1:4]
     num_mult = int(sys.argv[4]) if len(sys.argv) == 5 else None
+    if len(sys.argv) == 6:
+        num_mult = int(sys.argv[4])
+    prefetch_columns = int(sys.argv[5]) if len(sys.argv) == 6 else None
     c, a, b, q = load_build(build_json)
     in_size = len(c[0])
     hadamard = len(c[0][0])
     out = len(a[0][0])
     num_mult = hadamard if num_mult is None else num_mult
+    prefetch_columns = out if prefetch_columns is None else prefetch_columns
     assert in_size == out + KERNEL - 1, (in_size, out)
     assert len(b[0]) == hadamard and len(a[0]) == hadamard
     assert num_mult >= hadamard and num_mult % hadamard == 0, (num_mult, hadamard)
     assert hadamard * hadamard % num_mult == 0, (num_mult, hadamard)
+    assert 1 <= prefetch_columns <= out, (prefetch_columns, out)
     weight_text, scale, max_abs_sum, guard = weight_module(c, a, b, q, hadamard)
     generated = weight_text + "\n\n" + inverse_modules(a, hadamard, out)
     template = (Path(__file__).parent / "conv_stream_column_core.svtmpl").read_text()
@@ -293,11 +302,13 @@ def main():
         .replace("@H@", str(hadamard))
         .replace("@OUT@", str(out))
         .replace("@NUM_MULT@", str(num_mult))
+        .replace("@PREFETCH_COLUMNS@", str(prefetch_columns))
         .replace("@@GENERATED_MODULES@@", generated)
     )
     Path(output).write_text(text)
     print(
-        f"{algo}: IN={in_size} H={hadamard} OUT={out} NUM_MULT={num_mult} scale={scale} "
+        f"{algo}: IN={in_size} H={hadamard} OUT={out} NUM_MULT={num_mult} "
+        f"PREFETCH_COLUMNS={prefetch_columns} scale={scale} "
         f"max_abs_coef_sum={max_abs_sum} guard_bits={guard} -> {output}"
     )
 

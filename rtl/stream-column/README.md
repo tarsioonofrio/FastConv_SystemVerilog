@@ -20,6 +20,18 @@ Os RTL gerados ficam na pasta do tamanho, com o algoritmo no nome:
 | `tcn16` | 6x6 | 6x6 | 4x4 | 6 | 576 | `../conv4x4/conv-tcn16-i60-h15-t12-o16-m06-stream12-prefetch24-rowconst6-trunc-column.sv` |
 | `wpn16` | 6x6 | 8x8 | 4x4 | 8 | 4 | `../conv4x4/conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv` |
 
+### Variantes IFN9 com mais MACs
+
+As variantes m12 e m18 processam duas e três linhas de Hadamard por ciclo. No
+3x3, todas as versões antecipam as três colunas novas do próximo tile, ou 15
+palavras no banco de prefetch (`3 colunas * 5 linhas`).
+
+| Variante | MACs | Linhas Hadamard/ciclo | Arquivo |
+| --- | ---: | ---: | --- |
+| IFN9 m06 | 6 | 1 | `../conv3x3/conv-ifn9-i40-h15-t12-o9-m06-stream12-prefetch15-rowconst6-trunc-column.sv` |
+| IFN9 m12 | 12 | 2 | `../conv3x3/conv-ifn9-i40-h21-t24-o9-m12-stream12-prefetch15-rowconst6-trunc-column.sv` |
+| IFN9 m18 | 18 | 3 | `../conv3x3/conv-ifn9-i40-h27-t36-o9-m18-stream12-prefetch15-rowconst6-trunc-column.sv` |
+
 ### Variantes TCN16 com mais MACs
 
 O gerador aceita múltiplos inteiros da dimensão Hadamard. Para TCN16, as
@@ -53,18 +65,72 @@ registrados de pesos, features transformadas e produtos Hadamard.
 | WPN16 m16 | 16 | 2 | `../conv4x4/conv-wpn16-i60-h25-t32-o16-m16-stream16-prefetch24-rowconst8-trunc-column.sv` |
 | WPN16 m32 | 32 | 4 | `../conv4x4/conv-wpn16-i60-h41-t64-o16-m32-stream16-prefetch24-rowconst8-trunc-column.sv` |
 
+### Colunas antecipadas do próximo tile
+
+No 3x3, as configurações ativas já antecipam as três colunas novas do próximo
+tile (`3 * 5 = 15` palavras). No 4x4, gerei também variantes que antecipam
+somente três das quatro colunas novas (`3 * 6 = 18` palavras); a coluna restante
+é lida pelo estado `READ_IN` depois do commit, antes de iniciar a convolução.
+Os RTL 4x4 existentes com `prefetch24` antecipam as quatro colunas. A geometria,
+os pesos e a interface vetorial permanecem iguais.
+
+| Algoritmo | MACs | 3 colunas: arquivo | 4 colunas: arquivo |
+| --- | ---: | --- | --- |
+| TCN16 | 6 | `../conv4x4/conv-tcn16-i60-h15-t12-o16-m06-stream12-prefetch18-rowconst6-trunc-column.sv` | `../conv4x4/conv-tcn16-i60-h15-t12-o16-m06-stream12-prefetch24-rowconst6-trunc-column.sv` |
+| TCN16 | 12 | `../conv4x4/conv-tcn16-i60-h21-t24-o16-m12-stream12-prefetch18-rowconst6-trunc-column.sv` | `../conv4x4/conv-tcn16-i60-h21-t24-o16-m12-stream12-prefetch24-rowconst6-trunc-column.sv` |
+| TCN16 | 18 | `../conv4x4/conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch18-rowconst6-trunc-column.sv` | `../conv4x4/conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-rowconst6-trunc-column.sv` |
+| WPN16 | 8 | `../conv4x4/conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch18-rowconst8-trunc-column.sv` | `../conv4x4/conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv` |
+| WPN16 | 16 | `../conv4x4/conv-wpn16-i60-h25-t32-o16-m16-stream16-prefetch18-rowconst8-trunc-column.sv` | `../conv4x4/conv-wpn16-i60-h25-t32-o16-m16-stream16-prefetch24-rowconst8-trunc-column.sv` |
+| WPN16 | 32 | `../conv4x4/conv-wpn16-i60-h41-t64-o16-m32-stream16-prefetch18-rowconst8-trunc-column.sv` | `../conv4x4/conv-wpn16-i60-h41-t64-o16-m32-stream16-prefetch24-rowconst8-trunc-column.sv` |
+
+Simulei as configurações ativas do 3x3 com 3 colunas e todas as combinações
+4x4 acima com 3 e 4 colunas, usando Verilator, o pacote truncado canônico
+(seed 0, `NBITS=20`, `QUANT=8`) e comparação de cada palavra com o golden:
+
+| Tamanho | Algoritmo | MACs | Colunas | Ciclos até `p_end` | Tiles inversos | Escritas válidas | Golden |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | --- |
+| 3x3 | IFN9 | 6 | 3 | 11.078 | 900 | 8.100 | PASS |
+| 3x3 | IFN9 | 12 | 3 | 8.378 | 900 | 8.100 | PASS |
+| 3x3 | IFN9 | 18 | 3 | 7.478 | 900 | 8.100 | PASS |
+| 3x3 | TCN9 | 5 | 3 | 10.178 | 900 | 8.100 | PASS |
+| 4x4 | TCN16 | 6 | 3 / 4 | 7.731 | 576 | 8.100 | PASS |
+| 4x4 | TCN16 | 12 | 3 / 4 | 6.003 | 576 | 8.100 | PASS |
+| 4x4 | TCN16 | 18 | 3 / 4 | 5.427 | 576 | 8.100 | PASS |
+| 4x4 | WPN16 | 8 | 3 / 4 | 8.883 | 576 | 8.100 | PASS |
+| 4x4 | WPN16 | 16 | 3 / 4 | 6.579 | 576 | 8.100 | PASS |
+| 4x4 | WPN16 | 32 | 3 / 4 | 5.427 | 576 | 8.100 | PASS |
+
+Nas variantes 4x4, antecipar três em vez de quatro colunas não alterou os ciclos
+observados neste workload: a coluna remanescente foi lida no caminho direto sem
+atrasar a conclusão. Isso é resultado de simulação RTL, não uma conclusão de
+timing, área ou potência FPGA/ASIC. Os testes também exigiram zero eventos de
+inversa terminal; em 4x4, os beats/palavras recortados nas bordas foram 432/1.116,
+conforme esperado pelo mapeamento de saída física.
+
 ## Como usar
 
 Regerar um RTL (não editar os arquivos gerados à mão):
 
 ```bash
 python3 stream-column/gen_stream_column.py <tamanho>/data/<algoritmo>/config/build.json \
-        <algoritmo> <tamanho>/<arquivo>.sv [num-mult]
+        <algoritmo> <tamanho>/<arquivo>.sv [num-mult] [prefetch-columns]
 ```
 
 O argumento opcional `num-mult` deve ser múltiplo da dimensão Hadamard. Para
 WPN16, passe `16` ou `32` para gerar as variantes acima; sem esse argumento o
 gerador mantém o padrão de 8 MACs.
+`prefetch-columns` controla quantas colunas novas do próximo tile são lidas
+antecipadamente; qualquer coluna restante é carregada pelo caminho direto
+`READ_IN`. O padrão é a largura do tile de saída: três colunas para 3x3 e
+quatro para 4x4. O número `prefetchNN` no nome do RTL continua contando
+palavras (`colunas * altura do tile`), não colunas.
+
+Exemplo para TCN16 m06 com três colunas antecipadas (18 palavras no banco):
+
+```bash
+python3 stream-column/gen_stream_column.py conv4x4/data/tcn16/config/build.json \
+        tcn16 conv4x4/conv-tcn16-i60-h15-t12-o16-m06-stream12-prefetch18-rowconst6-trunc-column.sv 6 3
+```
 
 Simular (Verilator; a partir de `conv3x3/` ou `conv4x4/`):
 
@@ -72,6 +138,10 @@ Simular (Verilator; a partir de `conv3x3/` ou `conv4x4/`):
 make run-stream-column CONFIG=<algoritmo>     # constroi, roda e checa o golden
 make lint-stream-column CONFIG=<algoritmo>
 make clean-stream-column CONFIG=<algoritmo>   # apaga o obj_dir (AGENTS.md, 2.3)
+
+# 4x4: validar três colunas antecipadas ou as quatro do padrão
+make run-stream-column CONFIG=tcn16 STREAM_COLUMN_NUM_MULT=6 STREAM_COLUMN_PREFETCH_COLUMNS=3
+make run-stream-column CONFIG=tcn16 STREAM_COLUMN_NUM_MULT=6 STREAM_COLUMN_PREFETCH_COLUMNS=4
 
 # WPN16 com mais paralelismo:
 make run-stream-column CONFIG=wpn16 STREAM_COLUMN_NUM_MULT=16
@@ -100,16 +170,17 @@ para `CONV_INPUT_SIZE = CONV_OUTPUT_SIZE + CONV_KERNEL_SIZE - 1` e
 - **Banco de features e prefetch.** O banco tem `IN*IN` palavras, indexadas por
   `lane*IN + beat`. Janelas consecutivas compartilham as duas colunas mais à
   direita (`KEEP_COLUMNS = K-1`) e buscam `NEW_COLUMNS = M` colunas novas. O
-  prefetch guarda `M*IN` palavras. O atalho de deslocamento e o commit do
+  prefetch guarda `PREFETCH_COLUMNS*IN` palavras (por padrão, `M*IN`); colunas
+  novas não antecipadas são carregadas depois por `READ_IN`. O atalho de deslocamento e o commit do
   prefetch são laços em vez de máscaras fixas de 16 bits.
 - **Uma única fase `READ_IN`.** Os quatro estados `READ_IN_10A/10B/8C/8D` viraram
   um estado com um contador de beat. O estado `WAIT_PREFETCH` não era alcançável
   pelo fluxo de estados (conclusão da leitura do código, não de uma prova formal)
   e foi removido; os quatro casos passam sem ele.
 - **Ponteiro de endereço.** `r_input_addr_feat` aponta sempre para a última
-  coluna carregada. O `TRANSFER` avança uma coluna e o commit do prefetch avança
-  as `M-1` restantes; o prefetch usa um endereço corrente em vez de
-  `fase * FEAT_INPUT_WIDTH`, sem multiplicador.
+  coluna carregada. O `TRANSFER` avança uma coluna; o commit avança as colunas
+  antecipadas, e `READ_IN` busca qualquer restante. O prefetch usa um endereço
+  corrente em vez de `fase * FEAT_INPUT_WIDTH`, sem multiplicador.
 - **Pesos por linha.** Há um `WeightTransformRowConst` por linha de Hadamard. O
   valor transformado é o piso da soma inteira dividida pela escala dos pesos:
   deslocamento aritmético quando a escala é potência de 2 e divisão por constante
