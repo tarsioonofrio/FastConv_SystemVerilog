@@ -1,0 +1,1062 @@
+xrun(64): 23.03-s003: (c) Copyright 1995-2023 Cadence Design Systems, Inc.
+TOOL:	xrun(64)	23.03-s003: Started on Oct 03, 2026 at 20:32:46 -03
+xrun
+	-smartorder
+	-work work_nosdf
+	-top tb_stream_column
+	-access +rw
+	-timescale 1ns/1ps
+	-xmlibdirname xcelium_nosdf.d
+	-l xrun_nosdf.log
+	-define NADDR=16
+	-define NBITS=20
+	-define LATENCY=1
+	-define QUANT=8
+	-define ASIC_TCN16_M12
+	-define GATE_LEVEL
+	-define XRUN
+	/pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v
+	/tmp/fastconv-asic-tcn16-f7e4edd0/rtl/csa/csa_lib.sv
+	/tmp/fastconv-asic-tcn16-f7e4edd0/rtl/multip/multip.sv
+	/tmp/fastconv-asic-tcn16-f7e4edd0/contrib/rtl/pack-def/pack_def.sv
+	/tmp/fastconv-asic-tcn16-f7e4edd0/rtl/conv4x4/data/tcn16/sim/sim-032-3-3-normal-trunc/pack_data.sv
+	/tmp/fastconv-asic-tcn16-f7e4edd0/rtl/conv4x4/pack-param/tcn16/pack_param.sv
+	/tmp/fastconv-asic-tcn16-f7e4edd0/rtl/conv4x4/mux-mult/tcn16/mux_mult_12.sv
+	/tmp/fastconv-asic-tcn16-f7e4edd0/rtl/conv4x4/mult-matrices/tcn16/mult_matrices.sv
+	/tmp/fastconv-asic-tcn16-f7e4edd0/rtl/mem/mem.sv
+	/tmp/fastconv-asic-tcn16-f7e4edd0/rtl/stream-column/testbench_stream_column.sv
+	/tmp/fastconv-asic-tcn16-f7e4edd0/rtl/conv4x4/synthesis/asic-stream-column-20261003-tcn16-m12/logical/results/gate_level/Conv_logic_mapped.v
+file: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v
+	module work_nosdf.AN2D0BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AN2D16BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AN2D1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AN2D2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AN2D4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AN2D6BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AN2D8BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AN3D0BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AN3D16BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AN3D1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AN3D2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AN3D4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AN3D6BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AN3D8BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AN4D0BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AN4D1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AN4D2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AN4D4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AN4D8BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.ANTENNABWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AO211D0BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AO211D1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AO211D2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AO211D4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AO21D0BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AO21D1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AO21D2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AO21D4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AO22D0BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AO22D16BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AO22D1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AO22D2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AO22D4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AO22D6BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AO22D8BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AOI211D0BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AOI211D16BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AOI211D1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AOI211D2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AOI211D4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AOI211D6BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AOI211D8BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AOI211OPTREPBD12BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AOI211OPTREPBD16BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AOI211OPTREPBD1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AOI211OPTREPBD2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AOI211OPTREPBD4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AOI211OPTREPBD6BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AOI211OPTREPBD8BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AOI21D0BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AOI21D0P7BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AOI21D16BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AOI21D1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AOI21D1P5BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AOI21D2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AOI21D4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AOI21D6BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AOI21D8BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AOI21OPTREPBD12BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AOI21OPTREPBD16BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AOI21OPTREPBD1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AOI21OPTREPBD2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AOI21OPTREPBD4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AOI21OPTREPBD6BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AOI21OPTREPBD8BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AOI221D0BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AOI221D1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AOI221D2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AOI221D4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AOI222D0BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AOI222D1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AOI222D2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AOI222D4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AOI22D0BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AOI22D0P7BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AOI22D16BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AOI22D1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AOI22D1P5BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AOI22D2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AOI22D4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AOI22D6BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AOI22D8BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AOI31D0BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AOI31D1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AOI31D2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AOI31D4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AOI32D0BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AOI32D1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AOI32D2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AOI32D4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AOI33D0BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AOI33D1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AOI33D2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.AOI33D4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.BHDBWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.BOUNDARY_LEFTBWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.BOUNDARY_RIGHTBWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.BUFFD0BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.BUFFD0P7BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.BUFFD12BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.BUFFD16BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.BUFFD1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.BUFFD1P5BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.BUFFD20BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.BUFFD24BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.BUFFD2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.BUFFD3BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.BUFFD4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.BUFFD6BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.BUFFD8BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.BUFTD12BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.BUFTD16BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.BUFTD20BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.BUFTD24BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.BUFTD4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.BUFTD6BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.BUFTD8BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.CKAN2D0BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.CKAN2D1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.CKAN2D2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.CKAN2D4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.CKAN2D8BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.CKBD0BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.CKBD12BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.CKBD16BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.CKBD1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.CKBD20BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.CKBD24BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.CKBD2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.CKBD3BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.CKBD4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.CKBD6BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.CKBD8BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.CKLHQD12BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.CKLHQD16BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.CKLHQD1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.CKLHQD20BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.CKLHQD24BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.CKLHQD2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.CKLHQD3BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.CKLHQD4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.CKLHQD6BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.CKLHQD8BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.CKLNQD12BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.CKLNQD16BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.CKLNQD1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.CKLNQD20BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.CKLNQD24BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.CKLNQD2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.CKLNQD3BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.CKLNQD4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.CKLNQD6BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.CKLNQD8BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.CKLNQOPTMAD16BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.CKLNQOPTMAD4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.CKLNQOPTMAD8BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.CKMUX2D0BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.CKMUX2D1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.CKMUX2D2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.CKMUX2D4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.CKND0BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.CKND12BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.CKND16BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.CKND1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.CKND20BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.CKND24BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.CKND2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.CKND2D0BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.CKND2D1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.CKND2D2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.CKND2D3BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.CKND2D4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.CKND2D8BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.CKND3BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.CKND4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.CKND6BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.CKND8BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.CKXOR2D0BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.CKXOR2D1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.CKXOR2D2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.CKXOR2D4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DCAP16BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DCAP32BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DCAP4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DCAP64BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DCAP8BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DCCKBD12BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DCCKBD16BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DCCKBD20BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DCCKBD4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DCCKBD8BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DCCKND12BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DCCKND16BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DCCKND20BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DCCKND4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DCCKND8BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DEL025D1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DEL050MD1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DEL075MD1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DEL100MD1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DEL150MD1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DEL200MD1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DEL250MD1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DFCND1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DFCND2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DFCND4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DFCNQD1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DFCNQD2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DFCNQD4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DFCSND1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DFCSND2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DFCSND4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DFCSNQD1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DFCSNQD2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DFCSNQD4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DFD1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DFD2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DFD4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DFKCND1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DFKCND2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DFKCND4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DFKCNQD1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DFKCNQD2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DFKCNQD4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DFKCSND1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DFKCSND2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DFKCSND4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DFKSND1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DFKSND2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DFKSND4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DFMD1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DFMD2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DFMD4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DFMQD1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DFMQD2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DFMQD4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DFNCND1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DFNCND2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DFNCND4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DFNCSND1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DFNCSND2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DFNCSND4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DFND1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DFND2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DFND4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DFNSND1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DFNSND2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DFNSND4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DFQD1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DFQD2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DFQD4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DFSND1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DFSND2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DFSND4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DFSNQD1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DFSNQD2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.DFSNQD4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.EDFCND1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.EDFCND2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.EDFCND4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.EDFCNQD1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.EDFCNQD2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.EDFCNQD4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.EDFD1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.EDFD2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.EDFD4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.EDFQD1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.EDFQD2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.EDFQD4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.FA1D0BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.FA1D1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.FA1D2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.FA1D4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.FA1OPTCD1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.FA1OPTCD2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.FA1OPTSD1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.FA1OPTSD2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.FILL16BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.FILL2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.FILL32BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.FILL3BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.FILL4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.FILL64BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.FILL8BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GAN2D1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GAN2D2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GAN2MCOD1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GAN2MCOD2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GAOI21D1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GAOI21D2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GAOI21MCOD1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GAOI21MCOD2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GAOI22D1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GAOI22MCOD1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GBUFFD1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GBUFFD2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GBUFFD3BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GBUFFD4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GBUFFD8BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GBUFFMCOD1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GBUFFMCOD2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GBUFFMCOD3BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GBUFFMCOD4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GBUFFMCOD8BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GDCAP10BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GDCAP10MCOBWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GDCAP12BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GDCAP12MCOBWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GDCAP2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GDCAP2MCOBWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GDCAP3BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GDCAP3MCOBWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GDCAP4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GDCAP4MCOBWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GDCAPBWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GDCAPMCOBWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GDFCNQD1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GDFCNQMCOD1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GDFQD1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GDFQMCOD1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GFILL10BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GFILL10MCOBWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GFILL12BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GFILL12MCOBWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GFILL2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GFILL2MCOBWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GFILL3BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GFILL3MCOBWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GFILL4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GFILL4MCOBWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GFILLBWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GFILLMCOBWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GINVD1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GINVD2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GINVD3BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GINVD4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GINVD8BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GINVMCOD1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GINVMCOD2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GINVMCOD3BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GINVMCOD4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GINVMCOD8BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GMUX2D1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GMUX2D2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GMUX2MCOD1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GMUX2MCOD2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GMUX2ND1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GMUX2ND2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GMUX2NMCOD1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GMUX2NMCOD2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GND2D1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GND2D2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GND2D3BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GND2D4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GND2MCOD1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GND2MCOD2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GND2MCOD3BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GND2MCOD4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GND3D1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GND3D2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GND3MCOD1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GND3MCOD2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GNR2D1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GNR2D2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GNR2MCOD1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GNR2MCOD2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GNR3D1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GNR3D2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GNR3MCOD1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GNR3MCOD2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GOAI21D1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GOAI21D2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GOAI21MCOD1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GOAI21MCOD2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GOR2D1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GOR2D2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GOR2MCOD1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GOR2MCOD2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GSDFCNQD1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GSDFCNQMCOD1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GTIEHBWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GTIEHMCOBWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GTIELBWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GTIELMCOBWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GXNR2D1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GXNR2D2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GXNR2MCOD1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GXNR2MCOD2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GXOR2D1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GXOR2D2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GXOR2MCOD1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.GXOR2MCOD2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.HA1D0BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.HA1D1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.HA1D2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.HA1D4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.IAO21D0BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.IAO21D1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.IAO21D2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.IAO21D4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.IAO22D0BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.IAO22D1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.IAO22D2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.IAO22D4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.IND2D0BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.IND2D16BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.IND2D1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.IND2D2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.IND2D4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.IND2D6BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.IND2D8BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.IND3D0BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.IND3D16BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.IND3D1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.IND3D2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.IND3D4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.IND3D6BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.IND3D8BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.IND4D0BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.IND4D1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.IND4D2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.IND4D4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.INR2D0BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.INR2D16BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.INR2D1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.INR2D2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.INR2D4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.INR2D6BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.INR2D8BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.INR3D0BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.INR3D16BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.INR3D1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.INR3D2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.INR3D4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.INR3D6BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.INR3D8BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.INR4D0BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.INR4D1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.INR4D2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.INR4D4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.INVD0BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.INVD0P7BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.INVD12BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.INVD15BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.INVD16BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.INVD18BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.INVD1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.INVD1P5BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.INVD20BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.INVD21BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.INVD24BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.INVD2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.INVD32BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.INVD3BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.INVD4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.INVD6BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.INVD8BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.INVD9BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.IOA21D0BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.IOA21D1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.IOA21D2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.IOA21D4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.IOA22D0BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.IOA22D1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.IOA22D2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.IOA22D4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.LHCNDD1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.LHCNDD2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.LHCNDD4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.LHCNDQD1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.LHCNDQD2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.LHCNDQD4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.LHCSNDD1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.LHCSNDD2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.LHCSNDD4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.LHCSNDQD1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.LHCSNDQD2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.LHCSNDQD4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.LHD1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.LHD2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.LHD4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.LHQD1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.LHQD2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.LHQD4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.LHQOPTDAD1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.LHQOPTDAD2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.LHQOPTDAD4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.LHQOPTDAD8BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.LHSNDD1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.LHSNDD2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.LHSNDD4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.LHSNDQD1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.LHSNDQD2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.LHSNDQD4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.LNCNDD1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.LNCNDD2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.LNCNDD4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.LNCNDQD1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.LNCNDQD2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.LNCNDQD4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.LNCSNDD1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.LNCSNDD2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.LNCSNDD4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.LNCSNDQD1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.LNCSNDQD2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.LNCSNDQD4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.LND1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.LND2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.LND4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.LNQD1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.LNQD2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.LNQD4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.LNSNDD1BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.LNSNDD2BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.LNSNDD4BWP30P140:v
+		errors: 0, warnings: 0
+	module work_nosdf.LNSNDQD1BWP30P140:v
+		errors: 0, warxrun: *E,VLGERR: An error occurred during parsing.  Review the log file for errors with the code *E and fix those identified problems to proceed.  Exiting with code (status 2).
+TOOL:	xrun(64)	23.03-s003: Exiting on Oct 03, 2026 at 20:32:47 -03  (total: 00:00:01)
