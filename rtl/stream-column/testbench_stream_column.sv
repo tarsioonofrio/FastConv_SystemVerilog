@@ -327,9 +327,17 @@ module tb_stream_column #(
 `endif
 
   initial begin: TEST_SEQUENCE_BLOCK
+`ifdef ASIC_GATE_RESET_PULSE
+    // Start low, then assert reset with an explicit edge so mapped standard-cell
+    // asynchronous-reset models see a deterministic event at time zero.
+    reset = 1'b0;
+    #1 reset = 1'b1;
+    #19 reset = 1'b0;
+`else
     reset = 1'b1;
-    p_start = 1'b0;
     #20 reset = 1'b0;
+`endif
+    p_start = 1'b0;
     #80 p_start = 1'b1;
     #10 p_start = 1'b0;
 
