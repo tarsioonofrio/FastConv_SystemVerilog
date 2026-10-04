@@ -20,6 +20,24 @@ Os RTL gerados ficam na pasta do tamanho, com o algoritmo no nome:
 | `tcn16` | 6x6 | 6x6 | 4x4 | 6 | 576 | `../conv4x4/conv-tcn16-i60-h15-t12-o16-m06-stream12-prefetch24-rowconst6-trunc-column.sv` |
 | `wpn16` | 6x6 | 8x8 | 4x4 | 8 | 4 | `../conv4x4/conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv` |
 
+### Conv3x3 variants with a 10-word prefetch bank
+
+The 3x3 RTL also keeps variants that prefetch two new columns (`2 * 5 = 10`
+words), alongside the existing three-column, 15-word variants. The `i35` field
+counts the 25-word input tile plus this 10-word prefetch bank. These are
+separate generated RTLs; they do not replace the `i40`/`prefetch15` files.
+
+| Algorithm | MACs | RTL |
+| --- | ---: | --- |
+| TCN9 | 5 | `../conv3x3/conv-tcn9-i35-h14-t10-o9-m05-stream10-prefetch10-rowconst5-trunc-column.sv` |
+| IFN9 | 6 | `../conv3x3/conv-ifn9-i35-h15-t12-o9-m06-stream12-prefetch10-rowconst6-trunc-column.sv` |
+| IFN9 | 12 | `../conv3x3/conv-ifn9-i35-h21-t24-o9-m12-stream12-prefetch10-rowconst6-trunc-column.sv` |
+| IFN9 | 18 | `../conv3x3/conv-ifn9-i35-h27-t36-o9-m18-stream12-prefetch10-rowconst6-trunc-column.sv` |
+
+Run the RTL check with `make run-stream-column CONFIG=ifn9
+STREAM_COLUMN_NUM_MULT=6 STREAM_COLUMN_PREFETCH_COLUMNS=2` (adjust the
+algorithm and MAC count for the other rows). The default remains three columns.
+
 ### Variantes IFN9 com mais MACs
 
 As variantes m12 e m18 processam duas e três linhas de Hadamard por ciclo. No
@@ -46,11 +64,14 @@ de colunas do baseline m06.
 | TCN16 m18 | 18 | 3 | `../conv4x4/conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-rowconst6-trunc-column.sv` |
 
 O nome segue a convenção do 2x2: `i` são as palavras de entrada guardadas (banco
-do tile mais banco de prefetch), `h` as de pesos (nove espaciais mais a linha
-transformada), `t` as palavras da fronteira de transformação (features e produtos
-registrados, 2*NUM_MULT), `o` as de saída e `m` os MACs. O número de MACs é uma linha de
-Hadamard por ciclo na configuração padrão (`HADAMARD_SIZE`). Variantes com mais
-MACs processam um número inteiro maior de linhas Hadamard em paralelo.
+do tile mais banco de prefetch), `h` as palavras de pesos registradas (nove
+pesos espaciais mais `NUM_MULT` pesos transformados, portanto `9 + NUM_MULT`),
+`t` as palavras registradas na fronteira de transformação (features e produtos,
+`2 * NUM_MULT`), `o` as palavras de saída e `m` os MACs. `streamNN` identifica
+`2 * HADAMARD_SIZE`; por isso permanece constante quando aumentam os MACs de uma
+mesma família. O número de MACs é uma linha de Hadamard por ciclo na configuração
+padrão (`HADAMARD_SIZE`). Variantes com mais MACs processam um número inteiro
+maior de linhas Hadamard em paralelo.
 
 ### Variantes WPN16 com mais MACs
 
@@ -76,12 +97,12 @@ os pesos e a interface vetorial permanecem iguais.
 
 | Algoritmo | MACs | 3 colunas: arquivo | 4 colunas: arquivo |
 | --- | ---: | --- | --- |
-| TCN16 | 6 | `../conv4x4/conv-tcn16-i60-h15-t12-o16-m06-stream12-prefetch18-rowconst6-trunc-column.sv` | `../conv4x4/conv-tcn16-i60-h15-t12-o16-m06-stream12-prefetch24-rowconst6-trunc-column.sv` |
-| TCN16 | 12 | `../conv4x4/conv-tcn16-i60-h21-t24-o16-m12-stream12-prefetch18-rowconst6-trunc-column.sv` | `../conv4x4/conv-tcn16-i60-h21-t24-o16-m12-stream12-prefetch24-rowconst6-trunc-column.sv` |
-| TCN16 | 18 | `../conv4x4/conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch18-rowconst6-trunc-column.sv` | `../conv4x4/conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-rowconst6-trunc-column.sv` |
-| WPN16 | 8 | `../conv4x4/conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch18-rowconst8-trunc-column.sv` | `../conv4x4/conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv` |
-| WPN16 | 16 | `../conv4x4/conv-wpn16-i60-h25-t32-o16-m16-stream16-prefetch18-rowconst8-trunc-column.sv` | `../conv4x4/conv-wpn16-i60-h25-t32-o16-m16-stream16-prefetch24-rowconst8-trunc-column.sv` |
-| WPN16 | 32 | `../conv4x4/conv-wpn16-i60-h41-t64-o16-m32-stream16-prefetch18-rowconst8-trunc-column.sv` | `../conv4x4/conv-wpn16-i60-h41-t64-o16-m32-stream16-prefetch24-rowconst8-trunc-column.sv` |
+| TCN16 | 6 | `../conv4x4/conv-tcn16-i54-h15-t12-o16-m06-stream12-prefetch18-rowconst6-trunc-column.sv` | `../conv4x4/conv-tcn16-i60-h15-t12-o16-m06-stream12-prefetch24-rowconst6-trunc-column.sv` |
+| TCN16 | 12 | `../conv4x4/conv-tcn16-i54-h21-t24-o16-m12-stream12-prefetch18-rowconst6-trunc-column.sv` | `../conv4x4/conv-tcn16-i60-h21-t24-o16-m12-stream12-prefetch24-rowconst6-trunc-column.sv` |
+| TCN16 | 18 | `../conv4x4/conv-tcn16-i54-h27-t36-o16-m18-stream12-prefetch18-rowconst6-trunc-column.sv` | `../conv4x4/conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-rowconst6-trunc-column.sv` |
+| WPN16 | 8 | `../conv4x4/conv-wpn16-i54-h17-t16-o16-m08-stream16-prefetch18-rowconst8-trunc-column.sv` | `../conv4x4/conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv` |
+| WPN16 | 16 | `../conv4x4/conv-wpn16-i54-h25-t32-o16-m16-stream16-prefetch18-rowconst8-trunc-column.sv` | `../conv4x4/conv-wpn16-i60-h25-t32-o16-m16-stream16-prefetch24-rowconst8-trunc-column.sv` |
+| WPN16 | 32 | `../conv4x4/conv-wpn16-i54-h41-t64-o16-m32-stream16-prefetch18-rowconst8-trunc-column.sv` | `../conv4x4/conv-wpn16-i60-h41-t64-o16-m32-stream16-prefetch24-rowconst8-trunc-column.sv` |
 
 Simulei as configurações ativas do 3x3 com 3 colunas e todas as combinações
 4x4 acima com 3 e 4 colunas, usando Verilator, o pacote truncado canônico
@@ -129,7 +150,7 @@ Exemplo para TCN16 m06 com três colunas antecipadas (18 palavras no banco):
 
 ```bash
 python3 stream-column/gen_stream_column.py conv4x4/data/tcn16/config/build.json \
-        tcn16 conv4x4/conv-tcn16-i60-h15-t12-o16-m06-stream12-prefetch18-rowconst6-trunc-column.sv 6 3
+        tcn16 conv4x4/conv-tcn16-i54-h15-t12-o16-m06-stream12-prefetch18-rowconst6-trunc-column.sv 6 3
 ```
 
 Simular (Verilator; a partir de `conv3x3/` ou `conv4x4/`):

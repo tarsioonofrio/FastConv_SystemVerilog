@@ -1,4 +1,4 @@
 # IFN9 streaming-column RTL with two Hadamard rows (12 MAC lanes) per cycle.
 rtl/conv3x3/mult-matrices/ifn9/mult_matrices.sv
 rtl/multip/multip.sv
-rtl/conv3x3/conv-ifn9-i40-h15-t12-o9-m12-stream12-prefetch15-rowconst6-trunc-column.sv
+rtl/conv3x3/conv-ifn9-i40-h21-t24-o9-m12-stream12-prefetch15-rowconst6-trunc-column-legacy.sv

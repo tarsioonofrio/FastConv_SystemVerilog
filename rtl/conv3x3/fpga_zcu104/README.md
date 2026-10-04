@@ -11,14 +11,27 @@ Supported manifests:
 | ID | Algorithm | RTL source |
 | --- | --- | --- |
 | `ifn9` | IFN9, 6 MACs | `conv-ifn9-i40-h15-t12-o9-m06-stream12-prefetch15-rowconst6-trunc-column.sv` |
-| `ifn9_m12` | IFN9, 12 MACs | `conv-ifn9-i40-h15-t12-o9-m12-stream12-prefetch15-rowconst6-trunc-column.sv` |
-| `ifn9_m18` | IFN9, 18 MACs | `conv-ifn9-i40-h15-t12-o9-m18-stream12-prefetch15-rowconst6-trunc-column.sv` |
+| `ifn9_m12` | IFN9, 12 MACs | `conv-ifn9-i40-h21-t24-o9-m12-stream12-prefetch15-rowconst6-trunc-column-legacy.sv` |
+| `ifn9_m18` | IFN9, 18 MACs | `conv-ifn9-i40-h27-t36-o9-m18-stream12-prefetch15-rowconst6-trunc-column-legacy.sv` |
 | `tcn9` | TCN9 | `conv-tcn9-i40-h14-t10-o9-m05-stream10-prefetch15-rowconst5-trunc-column.sv` |
 
 The common workload packages, XDC target, and P3F procedure are documented in
 the shared flow README. Results for this family belong in `reports/`; curated
 tables and campaign provenance belong in `results/`. Generated DCP, SAIF,
 simulator databases, and UNISIM libraries are excluded from Git.
+
+The `ifn9_m12` and `ifn9_m18` manifests intentionally retain the earlier RTL
+used by their recorded FPGA campaigns. The `legacy` suffix distinguishes those
+sources from the newer multi-row implementations; the corrected `h/t` fields
+describe their actual 9 + NUM_MULT weight words and 2 * NUM_MULT transform
+register words. Existing report checksums retain the original source paths as
+historical provenance.
+
+The RTL tree also keeps `prefetch10` alternatives for TCN9 m05 and IFN9 m06,
+m12, and m18. They prefetch two input columns (10 words) instead of the three
+columns (15 words) used by the manifests above. These alternatives have not
+been added to the FPGA manifests or characterized by this campaign; select
+them explicitly before running a separate campaign.
 
 ## Run
 
