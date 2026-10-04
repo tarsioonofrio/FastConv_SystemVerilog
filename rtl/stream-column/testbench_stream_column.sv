@@ -71,11 +71,6 @@ module tb_stream_column #(
   logic [CONV_INPUT_SIZE-1:0] column_input_in_bounds;
   logic [NBITS-1:0] output_bank [0:OUTPUT_MEMORY_SIZE-1];
 
-  // Gate-level simulation cannot inspect the RTL-only input-channel counter.
-  // Track the active feature-map channel from the address protocol instead.
-  int unsigned gate_feature_channel;
-  logic gate_weight_read_seen;
-
   int inverse_tile_count;
   int terminal_inverse_event_count;
   int output_error_count;
@@ -169,15 +164,10 @@ module tb_stream_column #(
     int unsigned active_feature_channel;
     channel = int'(p_input_addr) / FEAT_MAP_WORDS;
     local_offset = int'(p_input_addr) % FEAT_MAP_WORDS;
-    active_feature_channel = gate_feature_channel;
-`ifdef GATE_LEVEL
-    // At the first feature beat after a weight vector, an exact channel-base
-    // address identifies the next input map.  Do not infer the active channel
-    // from every address: bottom-edge padding can cross into the next map.
-    if (gate_weight_read_seen && (int'(p_input_addr) < RAW_WEIGHT_BASE) &&
-        ((int'(p_input_addr) % FEAT_MAP_WORDS) == 0))
-      active_feature_channel = int'(p_input_addr) / FEAT_MAP_WORDS;
-`endif
+    // The mapped netlist retains this functional counter. Use it as the
+    // authoritative channel at map boundaries, where an address alone cannot
+    // distinguish valid data from bottom-edge padding into the next map.
+    active_feature_channel = int'(dut.r_input_channel_counter_input);
     for (int unsigned lane = 0; lane < CONV_INPUT_SIZE; lane++) begin
       column_input_in_bounds[lane] = 1'b1;
 `ifdef GATE_LEVEL
@@ -245,27 +235,12 @@ module tb_stream_column #(
       valid_output_word_count <= 0;
       weight_read_beat_count <= 0;
       useful_weight_read_beat_count <= 0;
-      gate_feature_channel <= 0;
-      gate_weight_read_seen <= 1'b0;
       cycle_count <= 0;
       end_cycle <= 0;
       conv_end_d <= 1'b0;
       output_bank <= '{default: '0};
     end else begin
       cycle_count <= cycle_count + 1;
-
-`ifdef GATE_LEVEL
-      if (p_input_en && p_input_valid) begin
-        if (int'(p_input_addr) >= RAW_WEIGHT_BASE) begin
-          gate_weight_read_seen <= 1'b1;
-        end else begin
-          if (gate_weight_read_seen &&
-              ((int'(p_input_addr) % FEAT_MAP_WORDS) == 0))
-            gate_feature_channel <= int'(p_input_addr) / FEAT_MAP_WORDS;
-          gate_weight_read_seen <= 1'b0;
-        end
-      end
-`endif
 
       if (p_end && end_cycle == 0)
         end_cycle <= cycle_count;
