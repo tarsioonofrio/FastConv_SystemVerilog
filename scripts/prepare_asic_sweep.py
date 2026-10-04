@@ -17,11 +17,10 @@ def config_spec(
 ) -> tuple[Path, list[str], str, list[str]]:
     base = ROOT / "rtl" / conv
     name = f"asic-sweep-20261003-{algo}-m{macs.zfill(2)}"
-    # Prepared but unexecuted configurations are kept out of synthesis/, which
-    # contains only directories with actual ASIC result artifacts.
-    # Parameterized conv.sv sweep configurations are grouped separately from
-    # configurations that target dedicated RTL files.
-    config = base / "asic_configs" / "conv" / name
+    # Keep both the run configuration and its generated artifacts together in
+    # synthesis/. Parameterized conv.sv sweep configurations are grouped under
+    # conv/; dedicated RTL configurations use the RTL basename directly.
+    config = base / "synthesis" / "conv" / name
     mux_suffix = macs.zfill(2)
     hdl = [
         "rtl/csa/csa_lib.sv",
@@ -86,7 +85,8 @@ def build_config(
     top_parameters: list[str],
 ) -> None:
     if config.exists():
-        raise FileExistsError(f"refusing to overwrite existing config: {config}")
+        print(f"preserving existing synthesis directory: {config.relative_to(ROOT)}")
+        return
     source_config = ROOT / "rtl" / conv / "synthesis" / "conv" / (
         "ifn9-06mac" if conv == "conv3x3" else "tcn16-18mac"
     )
@@ -219,16 +219,22 @@ def main() -> None:
         if args.update_parameters_only:
             if not config.is_dir():
                 raise FileNotFoundError(f"config does not exist: {config}")
+            if (config / "logical" / "results").exists():
+                raise RuntimeError(f"refusing to alter parameters for executed flow: {config}")
             (config / "top-parameters.txt").write_text(
                 "\n".join(top_parameters) + "\n"
             )
         if args.refresh_elaboration_scripts_only:
             if not config.is_dir():
                 raise FileNotFoundError(f"config does not exist: {config}")
+            if (config / "logical" / "results").exists():
+                raise RuntimeError(f"refusing to alter scripts for executed flow: {config}")
             refresh_elaboration_scripts(config, conv)
         if args.refresh_sim_annotation_only:
             if not config.is_dir():
                 raise FileNotFoundError(f"config does not exist: {config}")
+            if (config / "logical" / "results").exists():
+                raise RuntimeError(f"refusing to alter scripts for executed flow: {config}")
             refresh_sim_annotation(config, conv)
         if not (
             args.update_parameters_only

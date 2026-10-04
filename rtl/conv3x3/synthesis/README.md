@@ -1,10 +1,11 @@
 # ASIC synthesis results
 
-Only executed ASIC campaigns belong in this directory. Results for the
+All ASIC configurations and results live in this directory. Results for the
 parameterized source `rtl/conv3x3/archive/conv.sv` are grouped under `conv/`,
-whose directory name matches the source basename. Its subdirectories identify the
-executed configuration and retain the full logical, simulation, and power
-artifacts.
+whose directory name matches the source basename. Each campaign directory keeps
+its configuration, scripts, and any generated logical, simulation, and power
+artifacts together. A prepared directory without generated reports is not
+evidence that the flow completed.
 
 The executed campaigns under `conv/` use the archived generic
 `rtl/conv3x3/archive/conv.sv`:
@@ -24,5 +25,6 @@ The original `rtl/conv3x3/conv.sv` and the current archived source have the same
 SHA-256 (`310af7ac4fb15528dbcd3e048f994bb26d56e39796aeaa9c73baeb18ceb99de1`);
 the copied `list-file.txt` uses the current archive path for future reruns.
 
-Prepared configurations with no execution results are kept separately under
-`rtl/conv3x3/asic_configs/`.
+Use `scripts/prepare_asic_sweep.py` to create missing sweep configurations
+directly under this tree, and `scripts/run_asic_sweep.sh` to execute them. The
+runner stores its campaign summary under `synthesis/campaigns/` by default.

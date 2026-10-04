@@ -1,10 +1,11 @@
 # ASIC synthesis results
 
-Only executed ASIC campaigns belong in this directory. Results for the
+All ASIC configurations and results live in this directory. Results for the
 parameterized source `rtl/conv4x4/archive/conv.sv` are grouped under `conv/`,
-whose directory name matches the source basename. Its subdirectories identify the
-executed configuration and retain the full logical, simulation, and power
-artifacts.
+whose directory name matches the source basename. Each campaign directory keeps
+its configuration, scripts, and any generated logical, simulation, and power
+artifacts together. A prepared directory without generated reports is not
+evidence that the flow completed.
 
 The `conv/asic-sweep-20261003-*` directories use the archived generic
 `rtl/conv4x4/archive/conv.sv`: TCN16 at 6, 12, and 18 multipliers, and WPN16
@@ -33,5 +34,15 @@ match the current files (`5a611bffb1c19f9b365903730b4623ba07ee11c1b3edc22fe7d099
 for m12, `e5308dffb489206c23a9e3c6ac8606c241ebe8b1d7f375bde8ba8eb0e1fe262b`
 for m18).
 
-Prepared configurations with no execution results are kept separately under
-`rtl/conv4x4/asic_configs/`.
+To rerun the streaming-column TCN16 m12/m18 pair on Paxos, publish/check out
+the intended commit and launch the runner from this directory inside `tmux`:
+
+```bash
+cd rtl/conv4x4/synthesis
+tmux new-session -d -s tcn16_column_asic ./run_tcn16_column_asic.sh
+```
+
+Use `scripts/prepare_asic_sweep.py` to create missing sweep configurations
+directly under this tree, and `scripts/run_asic_sweep.sh` to execute them. The
+runner stores its campaign summary under `rtl/conv3x3/synthesis/campaigns/` by
+default.
