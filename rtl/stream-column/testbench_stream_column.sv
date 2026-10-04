@@ -314,8 +314,16 @@ module tb_stream_column #(
   end
   always @(posedge clk) begin: ASIC_DIAG_TRACE_BLOCK
     if (!reset && p_input_en && p_input_valid && diag_input_beats < 48) begin
+`ifdef GATE_LEVEL
+      $display("ASIC_DIAG_INPUT cycle=%0d addr=%0d data=%h valid=%0b feat_addr=%0d prefetch=%0b prefetch_addr=%0d input_state=%b input_channel=%0d",
+               cycle_count, p_input_addr, p_input_data, p_input_valid,
+               dut.r_input_addr_feat, dut.r_input_prefetch_active,
+               dut.r_input_prefetch_addr, dut.st_input_current,
+               dut.r_input_channel_counter_input);
+`else
       $display("ASIC_DIAG_INPUT cycle=%0d addr=%0d data=%h valid=%0b",
                cycle_count, p_input_addr, p_input_data, p_input_valid);
+`endif
       diag_input_beats <= diag_input_beats + 1;
     end
     if (!reset && p_output_en && p_output_wr && diag_output_beats < 48) begin
