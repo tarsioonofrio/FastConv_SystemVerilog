@@ -7,6 +7,7 @@ module tb;
 
   // Match the 2 ns (500 MHz) clock constrained by the ASIC Genus SDC.
   localparam time CLOCK_PERIOD = 2ns;
+  localparam real CLOCK_PERIOD_NS = 2.0;
 
   // Parâmetros do DUT
 
@@ -48,6 +49,10 @@ module tb;
   int output_error_count;
   int write_count;
   int cycle_count;
+  realtime job_start_time;
+  realtime job_end_time;
+  realtime job_execution_time;
+  int job_execution_cycles;
   logic job_active;
   logic [NBITS-1:0] output_bank [0:FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT - 1];
   logic output_bank_written [0:FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT - 1];
@@ -222,12 +227,34 @@ module tb;
     reset = 0;
     repeat (8) @(negedge clk);
     p_start = 1;
+    @(posedge clk);
+    job_start_time = $realtime;
     @(negedge clk);
     p_start = 0;
 
     // aguarda p_end subir
     if (p_end !== 1'b1)
           @(posedge p_end);
+
+    job_end_time = $realtime;
+    job_execution_time = job_end_time - job_start_time;
+    job_execution_cycles = $rtoi(job_execution_time / CLOCK_PERIOD_NS + 0.5);
+    begin
+      integer runtime_file;
+      runtime_file = $fopen("execution_time.txt", "w");
+      if (runtime_file == 0)
+        $fatal(1, "could not open execution_time.txt for writing");
+      $fdisplay(runtime_file, "measurement=accepted_p_start_to_p_end");
+      $fdisplay(runtime_file, "clock_period_ns=%0.3f", CLOCK_PERIOD_NS);
+      $fdisplay(runtime_file, "start_time_ns=%0.3f", job_start_time);
+      $fdisplay(runtime_file, "end_time_ns=%0.3f", job_end_time);
+      $fdisplay(runtime_file, "job_execution_time_ns=%0.3f", job_execution_time);
+      $fdisplay(runtime_file, "job_execution_time_us=%0.6f", job_execution_time / 1000.0);
+      $fdisplay(runtime_file, "job_execution_cycles=%0d", job_execution_cycles);
+      $fclose(runtime_file);
+    end
+    $display("Job execution time: %0.3f ns (%0.6f us), %0d cycles",
+             job_execution_time, job_execution_time / 1000.0, job_execution_cycles);
 
     // Let the final output-memory write settle, then compare the complete
     // final output image through the testbench memory model only.

@@ -15,6 +15,8 @@ module tb #(
   localparam int unsigned NBITS = 20;
   localparam int unsigned LATENCY = 1;
   localparam int unsigned ROM = 1;
+  localparam time CLOCK_PERIOD = 10ns;
+  localparam real CLOCK_PERIOD_NS = 10.0;
   localparam int unsigned INPUT_MEMORY_SIZE = $size(const_data);
   localparam int unsigned OUTPUT_MEMORY_SIZE = FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE * N_CHANNEL_OUT;
   localparam int unsigned INPUT_ADDR_WIDTH = $clog2(INPUT_MEMORY_SIZE);
@@ -56,6 +58,10 @@ module tb #(
   int input_out_of_range_count;
   int write_count;
   int cycle_count;
+  realtime job_start_time;
+  realtime job_end_time;
+  realtime job_execution_time;
+  int job_execution_cycles;
   logic [NBITS-1:0] output_bank [0:FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE * N_CHANNEL_IN * N_CHANNEL_OUT - 1];
   logic conv_end_d;
   logic [1:0] input_base_feat;
@@ -152,9 +158,9 @@ module tb #(
 
   // assign p_input_valid = p_input_en;
 
-  // Gerador de Clock: 100MHz -> Período de 10ns
+  // Generate the 100 MHz clock used by the original 2x2 testbench.
   initial clk = 0;
-  always #5 clk = ~clk;
+  always #(CLOCK_PERIOD / 2) clk = ~clk;
 
   // Validate one completion event per tile and all valid writes through the
   // Memory instances. w_conv_end is the common contract across all variants;
@@ -212,11 +218,33 @@ module tb #(
     #20 reset = 0;
 
     #80 p_start = 1;
+    @(posedge clk);
+    job_start_time = $realtime;
     #10 p_start = 0;
 
     // aguarda p_end subir
     if (p_end !== 1'b1)
           @(posedge p_end);
+
+    job_end_time = $realtime;
+    job_execution_time = job_end_time - job_start_time;
+    job_execution_cycles = $rtoi(job_execution_time / CLOCK_PERIOD_NS + 0.5);
+    begin
+      integer runtime_file;
+      runtime_file = $fopen("execution_time.txt", "w");
+      if (runtime_file == 0)
+        $fatal(1, "could not open execution_time.txt for writing");
+      $fdisplay(runtime_file, "measurement=accepted_p_start_to_p_end");
+      $fdisplay(runtime_file, "clock_period_ns=%0.3f", CLOCK_PERIOD_NS);
+      $fdisplay(runtime_file, "start_time_ns=%0.3f", job_start_time);
+      $fdisplay(runtime_file, "end_time_ns=%0.3f", job_end_time);
+      $fdisplay(runtime_file, "job_execution_time_ns=%0.3f", job_execution_time);
+      $fdisplay(runtime_file, "job_execution_time_us=%0.6f", job_execution_time / 1000.0);
+      $fdisplay(runtime_file, "job_execution_cycles=%0d", job_execution_cycles);
+      $fclose(runtime_file);
+    end
+    $display("Job execution time: %0.3f ns (%0.6f us), %0d cycles",
+             job_execution_time, job_execution_time / 1000.0, job_execution_cycles);
 
       // espera mais 200 ns
     #200;
