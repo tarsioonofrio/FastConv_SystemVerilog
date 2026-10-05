@@ -28,7 +28,36 @@ flows before their historical gate-level/power results are treated as current.
 | Gate-level simulation with nominal SDF | Passed; 8,100 writes, golden checker passed, Xcelium exit 0 |
 | Accepted `p_start` to `p_end` | 5,386 cycles (10.772 us at 2 ns) |
 | Testbench completion counters | `cycles_to_end=5427`, `cycles=5429` |
-| Joules power report | Not rerun after the corrected synthesis; previous report remains invalid for this netlist |
+| Joules power report | Rerun after corrected synthesis and passing SDF simulation; see `power/power_evaluation.txt` |
+
+## Completed ASIC power flow (2026-10-05)
+
+The complete flow was rerun from an isolated snapshot of commit
+`42affe7206fb137ae5f48fad6b7d91a58ad58f4c` on Paxos, using Genus 21.12-s068_1
+and Xcelium 23.03-s003. Long jobs ran inside tmux. The RTL SHA-256 was
+`7a69f28f029ef76cd758925a5b5b9fc3294f177b3ca73bf2a9699e8e275a6914`.
+
+| Stage | Result |
+| --- | --- |
+| Genus synthesis | Normal exit; refreshed netlist, SDF, area, and timing reports; netlist and nominal SDF preserved in `logical/results/gate_level/run_20261005/` |
+| Slow-corner setup | MET, WNS +1 ps at 0.81 V / 125 C; limiting path is `r_output_write_count_reg[1]` to `p_output_data_write[79]` under the output-delay constraint |
+| Typical-corner setup | MET, WNS +223 ps at 0.90 V / 25 C |
+| Cell count / cell area / total area | 37,479 / 47,555.298 / 66,524.807 um^2 |
+| SDF gate simulation | PASS; 0 annotation errors, 5,546 warnings; 8,100 valid writes, zero golden mismatches |
+| Accepted `p_start` to `p_end` | 5,387 cycles = 10.774 us at 2 ns/cycle |
+| Joules power (TT, 0.90 V / 25 C) | Dynamic 12.06989 mW; leakage 0.210697 mW; total 12.2806 mW |
+
+Dynamic power breakdown: register 3.643968 mW, logic 8.202230 mW, and clock
+0.223689 mW. The detailed report also contains leakage/internal/switching
+columns for each category.
+
+The SDF warnings include attempts to annotate `RECREM` timing checks absent
+from the corresponding cell models and negative timing-check convergence
+warnings. They are nonzero and remain part of the evidence; the run had no SDF
+annotation errors and the testbench golden check passed. The previous
+2026-10-04 WPN power report came from a gate run with 120 golden mismatches.
+It is preserved under `power/diagnostics/pre_power_rerun_20261004/` and must
+not be used as the valid power result.
 
 The SDF run still emits SDF annotation/timing-check and glitch warnings. They
 did not prevent the functional golden check from passing, but the simulation

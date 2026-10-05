@@ -3,19 +3,19 @@ Copyright 2022 Cadence Design Systems, Inc. All rights reserved worldwide.
 Cadence and the Cadence logo are registered trademarks and Genus is a trademark
 of Cadence Design Systems, Inc. in the United States and other countries.
 
-[12:56:20.503681] Configured Lic search path (20.02-s004): 5280@paxos.inf.pucrs.br
+[12:23:52.503673] Configured Lic search path (20.02-s004): 5280@paxos.inf.pucrs.br
 
 Version: 21.12-s068_1, built Fri Mar 04 09:12:46 PST 2022
 Options: -files power.tcl 
-Date:    Mon Oct 05 12:56:20 2026
+Date:    Mon Oct 05 12:23:52 2026
 Host:    paxos.inf.pucrs.br (x86_64 w/Linux 4.18.0-553.155.1.el8_10.x86_64) (14cores*28cpus*1physical cpu*Intel(R) Core(TM) i9-7940X CPU @ 3.10GHz 19712KB) (131170900KB)
-PID:     2200465
+PID:     2185759
 OS:      Rocky Linux release 8.10 (Green Obsidian)
 
 
-[12:56:20.084121] Periodic Lic check successful
-[12:56:20.084131] Feature usage summary:
-[12:56:20.084131] Genus_Synthesis
+[12:23:52.022009] Periodic Lic check successful
+[12:23:52.022011] Feature usage summary:
+[12:23:52.022016] Genus_Synthesis
 Checking out license: Genus_Synthesis
 
 
@@ -49,8 +49,8 @@ Finished loading tool scripts (8 seconds elapsed).
 @file(power.tcl) 21: set DB_FILE [file normalize [file join $CONFIG_ROOT logical results gate_level ${TOP_MODULE}_logic_mapped.db]]
 @file(power.tcl) 22: set SHM [file normalize [file join $CONFIG_ROOT sim dut.shm]]
 @file(power.tcl) 24: source [file join $CONFIG_ROOT scripts power.tcl]
-Sourcing '/tmp/fastconv-asic-power-4x4-20261005/source/rtl/conv4x4/synthesis/conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-rowconst6-trunc-column/scripts/power.tcl' (Mon Oct 05 12:56:28 -03 2026)...
-#@ Begin verbose source /tmp/fastconv-asic-power-4x4-20261005/source/rtl/conv4x4/synthesis/conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-rowconst6-trunc-column/scripts/power.tcl
+Sourcing '/tmp/fastconv-asic-power-4x4-20261005/source/rtl/conv4x4/synthesis/conv-wpn16-i60-h41-t64-o16-m32-stream16-prefetch24-rowconst8-trunc-column/scripts/power.tcl' (Mon Oct 05 12:24:00 -03 2026)...
+#@ Begin verbose source /tmp/fastconv-asic-power-4x4-20261005/source/rtl/conv4x4/synthesis/conv-wpn16-i60-h41-t64-o16-m32-stream16-prefetch24-rowconst8-trunc-column/scripts/power.tcl
 @file(power.tcl) 5: set START_TIME 0ns
 @file(power.tcl) 6: set CONSTRAINTS_PATH [file join $CONFIG_ROOT scripts]
 @file(power.tcl) 8: set LIB_PATH /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End
@@ -73,7 +73,7 @@ Sourcing '/tmp/fastconv-asic-power-4x4-20261005/source/rtl/conv4x4/synthesis/con
     -delay_corner delay_corner_0p90v_25c_captyp
 @file(power.tcl) 28: set CURRENT_VIEW analysis_view_0p90v_25c_captyp_nominal
 @file(power.tcl) 29: read_db ${DB_FILE}
-Reading database file '/tmp/fastconv-asic-power-4x4-20261005/source/rtl/conv4x4/synthesis/conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-rowconst6-trunc-column/logical/results/gate_level/Conv_logic_mapped.db'.
+Reading database file '/tmp/fastconv-asic-power-4x4-20261005/source/rtl/conv4x4/synthesis/conv-wpn16-i60-h41-t64-o16-m32-stream16-prefetch24-rowconst8-trunc-column/logical/results/gate_level/Conv_logic_mapped.db'.
 
 Threads Configured:3
 
@@ -429,20 +429,20 @@ Warning : The variant range of wire parameters is too large. An example of wire 
 Checking out license: Joules_RTL_Power
 License 'Joules_RTL_Power' (main version: 21.1, alternate version: 21.1) checkout failed.
 
-[12:56:51.139393] Periodic Lic check successful
-[12:56:51.139400] Feature usage summary:
-[12:56:51.139400] Genus_Synthesis
-[12:56:51.139401] Joules_XL
+[12:24:21.127185] Periodic Lic check successful
+[12:24:21.127192] Feature usage summary:
+[12:24:21.127193] Genus_Synthesis
+[12:24:21.127193] Joules_XL
 Checking out license: Joules_XL
 Info   : STIM-0001 [StimInfo] read_stimulus effective options 
        : -file :
-       : /tmp/fastconv-asic-power-4x4-20261005/source/rtl/conv4x4/synthesis/conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-rowconst6-trunc-column/sim/dut.shm
+       : /tmp/fastconv-asic-power-4x4-20261005/source/rtl/conv4x4/synthesis/conv-wpn16-i60-h41-t64-o16-m32-stream16-prefetch24-rowconst8-trunc-column/sim/dut.shm
        : -dut_instance : tb_stream_column.dut
        : -format : shm(auto determined)
        : -start : 0ns
 Info   : STIM-0001 Design top is Conv
 Info   : STIM-0001 Started reading input stimulus file
-       : /tmp/fastconv-asic-power-4x4-20261005/source/rtl/conv4x4/synthesis/conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-rowconst6-trunc-column/sim/dut.shm
+       : /tmp/fastconv-asic-power-4x4-20261005/source/rtl/conv4x4/synthesis/conv-wpn16-i60-h41-t64-o16-m32-stream16-prefetch24-rowconst8-trunc-column/sim/dut.shm
 Info   : STIM-0001 Found top instance /tb_stream_column/dut
 Info   : STIM-0001 [StimInfo] Design Hierarchy Parsing Progress Report :   0%   1%   2%   3%   4%   5%   6%   7%   8%   9%  10%  11%  12%  13%  14%  15%  16%  17%  18%  19%  20%  21%  22%  23%  24%  25%  26%  27%  28%  29%  30% 100%
 Info   : STIM-0002 [StimInfo] Finished design hierarchy parsing.
@@ -453,48 +453,6 @@ Info   : STIM-0002 Finished processing value changes, started storage.
 Info   : STIM-0002 Stimulus has been identified as a gate level stimulus,
        : switching on -allow_n_nets option..
 Info   : STIM-0007 [StimInfo] Stored stimulus information '/stim#1' in SDB.
-Warning : The asserted TCF on an undriven hierarchical pin will not be used for TCF propagation. [TUI-94]
-        : Asserting probability 0.50000 on undriven hierarchical pin soma[0].
-Warning : The asserted TCF on an undriven hierarchical pin will not be used for TCF propagation. [TUI-94]
-        : Asserting toggle rate 0.00000 on undriven hierarchical pin soma[0].
-Warning : The asserted TCF on an undriven hierarchical pin will not be used for TCF propagation. [TUI-94]
-        : Asserting probability 0.50000 on undriven hierarchical pin soma[0].
-Warning : The asserted TCF on an undriven hierarchical pin will not be used for TCF propagation. [TUI-94]
-        : Asserting toggle rate 0.00000 on undriven hierarchical pin soma[0].
-Warning : The asserted TCF on an undriven hierarchical pin will not be used for TCF propagation. [TUI-94]
-        : Asserting probability 0.50000 on undriven hierarchical pin soma[1].
-Warning : The asserted TCF on an undriven hierarchical pin will not be used for TCF propagation. [TUI-94]
-        : Asserting toggle rate 0.00000 on undriven hierarchical pin soma[1].
-Warning : The asserted TCF on an undriven hierarchical pin will not be used for TCF propagation. [TUI-94]
-        : Asserting probability 0.50000 on undriven hierarchical pin soma[1].
-Warning : The asserted TCF on an undriven hierarchical pin will not be used for TCF propagation. [TUI-94]
-        : Asserting toggle rate 0.00000 on undriven hierarchical pin soma[1].
-Warning : The asserted TCF on an undriven hierarchical pin will not be used for TCF propagation. [TUI-94]
-        : Asserting probability 0.50000 on undriven hierarchical pin soma[2].
-Warning : The asserted TCF on an undriven hierarchical pin will not be used for TCF propagation. [TUI-94]
-        : Asserting toggle rate 0.00000 on undriven hierarchical pin soma[2].
-Warning : The asserted TCF on an undriven hierarchical pin will not be used for TCF propagation. [TUI-94]
-        : Asserting probability 0.50000 on undriven hierarchical pin soma[2].
-Warning : The asserted TCF on an undriven hierarchical pin will not be used for TCF propagation. [TUI-94]
-        : Asserting toggle rate 0.00000 on undriven hierarchical pin soma[2].
-Warning : The asserted TCF on an undriven hierarchical pin will not be used for TCF propagation. [TUI-94]
-        : Asserting probability 0.50000 on undriven hierarchical pin soma[3].
-Warning : The asserted TCF on an undriven hierarchical pin will not be used for TCF propagation. [TUI-94]
-        : Asserting toggle rate 0.00000 on undriven hierarchical pin soma[3].
-Warning : The asserted TCF on an undriven hierarchical pin will not be used for TCF propagation. [TUI-94]
-        : Asserting probability 0.50000 on undriven hierarchical pin soma[3].
-Warning : The asserted TCF on an undriven hierarchical pin will not be used for TCF propagation. [TUI-94]
-        : Asserting toggle rate 0.00000 on undriven hierarchical pin soma[3].
-Warning : The asserted TCF on an undriven hierarchical pin will not be used for TCF propagation. [TUI-94]
-        : Asserting probability 0.50000 on undriven hierarchical pin soma[4].
-Warning : The asserted TCF on an undriven hierarchical pin will not be used for TCF propagation. [TUI-94]
-        : Asserting toggle rate 0.00000 on undriven hierarchical pin soma[4].
-Warning : The asserted TCF on an undriven hierarchical pin will not be used for TCF propagation. [TUI-94]
-        : Asserting probability 0.50000 on undriven hierarchical pin soma[4].
-Warning : The asserted TCF on an undriven hierarchical pin will not be used for TCF propagation. [TUI-94]
-        : Asserting toggle rate 0.00000 on undriven hierarchical pin soma[4].
-Warning : Maximum message print count reached. [MESG-11]
-        : Maximum print count of '20' reached for message 'TUI-94'.
 --------------------------- Annotation Report ---------------------------
 Object Type         Asserted  UnAsserted  Unconnected  Total  Asserted% 
                                            + Constant                   
@@ -505,14 +463,14 @@ Primary Ports
   I/O                      0           0            0      0        N/A 
 Sequential Outputs                                                      
   Memory                   0           0            0      0        N/A 
-  Flop                  3405           0            0   3405    100.00% 
+  Flop                  3970           0            0   3970    100.00% 
   Latch                    0           0            0      0        N/A 
   Arch ICGC                0           0            0      0        N/A 
-  Inferred ICGC           51           0            0     51    100.00% 
-  Total ICGC              51           0            0     51    100.00% 
+  Inferred ICGC           49           0            0     49    100.00% 
+  Total ICGC              49           0            0     49    100.00% 
 Drivers                                                                 
-  Driver nets          80403           0          769  81172    100.00% 
-  RTL Driver nets      61422           0            0  61422    100.00% 
+  Driver nets          48625           0            0  48625    100.00% 
+  RTL Driver nets      41460           0            0  41460    100.00% 
 DFT                                                                     
   Input Ports              0           0            0      0        N/A 
   Flop Outputs             0           0            0      0        N/A 
@@ -526,7 +484,6 @@ Info    : Joules engine is used. [RPT-16]
         : Joules engine is being used for the command report_power.
 Info   : ACTP-0001 [ACTPInfo] Activity propagation started for stim#0 netlist
        : Conv
-Info   : ACTP-0009 [ACTPInfo] Activity Propagation Progress Report :   0%   1%   2%   3%   4%   5%   6%   7%   8%   9%  10%  11%  12%  13%  14%  15%  16%  17%  18%  19%  20%  21%  22%  23%  24%  25%  26%  27%  28%  29%  30%  31%  32%  33%  34%  35%  36%  37%  38%  39%  40%  41%  42%  43%  44%  45%  46%  47%  48%  49%  50%  51%  52%  53%  54%  55%  56%  57%  58%  59%  60%  61%  62%  63%  64%  65%  66%  67%  68%  69%  70%  71%  72%  73%  74%  75%  76%  77%  78%  79%  80%  81%  82%  83%  84%  85%  86%  87%  88%  89%  90%  91%  92%  93%  94%  95%  96%  97%  98%  99% 100%
 Info   : ACTP-0001 Activity propagation ended for stim#0
 Info   : PWRA-0001 [PwrInfo] compute_power effective options 
        : -mode : lp_asserted
@@ -540,16 +497,16 @@ Info   : ACTP-0001 Timing initialization ended
 Info   : PWRA-0002 [PwrInfo] Skipping activity propagation due to -skip_ap
        : option....
 Info   : PWRA-0002 Started 'average' power computation from attr values.
-Info   : PWRA-0009 [PwrInfo] Power Computation Progress Report :   2%   5%   7%  10%  12%  15%  17%  20%  22%  25%  27%  30%  32%  35%  37%  40%  42%  45%  47%  50%  52%  55%  57%  60%  62%  65%  67%  70%  72%  75%  77%  80%  82%  85%  87%  90%  92%  95%  97% 100%
+Info   : PWRA-0009 [PwrInfo] Power Computation Progress Report :   2%   5%   8%  10%  13%  16%  18%  21%  24%  26%  29%  32%  34%  37%  40%  42%  45%  48%  50%  53%  56%  58%  61%  64%  66%  69%  72%  74%  77%  80%  82%  85%  88%  90%  93%  97% 100%
 Info   : PWRA-0002 Finished power computation.
 Info   : PWRA-0007 [PwrInfo] Completed successfully.
        : Info=6, Warn=0, Error=0, Fatal=0
-Output file: /tmp/fastconv-asic-power-4x4-20261005/source/rtl/conv4x4/synthesis/conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-rowconst6-trunc-column/power/power_evaluation.txt
+Output file: /tmp/fastconv-asic-power-4x4-20261005/source/rtl/conv4x4/synthesis/conv-wpn16-i60-h41-t64-o16-m32-stream16-prefetch24-rowconst8-trunc-column/power/power_evaluation.txt
 @file(power.tcl) 33: exit
 
 Lic Summary:
-[12:56:59.306632] Cdslmd servers: paxos
-[12:56:59.306640] Feature usage summary:
-[12:56:59.306641] Genus_Synthesis
-[12:56:59.306641] Joules_XL
+[12:24:28.298088] Cdslmd servers: paxos
+[12:24:28.298097] Feature usage summary:
+[12:24:28.298098] Genus_Synthesis
+[12:24:28.298098] Joules_XL
 

@@ -22,6 +22,8 @@ wlf*
 fv/
 *.tstamp
 *.sdf
+# Dated gate-level snapshots are reproducible generated artifacts, not source.
+rtl/conv4x4/synthesis/*/logical/results/gate_level/run_*/
 work/
 *.pdf
 modelsim.ini
