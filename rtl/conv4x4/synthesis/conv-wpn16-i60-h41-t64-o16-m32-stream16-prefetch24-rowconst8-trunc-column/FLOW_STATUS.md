@@ -14,6 +14,12 @@ The RTL and shared generator template now size the counter with
 Genus 21.12. The regenerated netlist and nominal SDF were used for both gate
 simulations below.
 
+The same width correction has also been propagated to the other checked-in
+4x4 TCN16/WPN16 RTL variants generated from this core template. The detailed
+gate-level validation in this report is specifically for WPN16 m32 with
+`prefetch24`; the sibling variants still need their own regenerated ASIC
+flows before their historical gate-level/power results are treated as current.
+
 | Stage | Result |
 | --- | --- |
 | Genus synthesis | Completed; `Normal exit`, 0 errors and 0 fatals |
