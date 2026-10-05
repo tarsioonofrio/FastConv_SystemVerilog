@@ -7,7 +7,9 @@
 // row stride is OUTPUT_PHYSICAL_SIZE); only its FEAT_OUTPUT_SIZE corner is the
 // logical result, and out-of-range window samples are clipped.
 module tb_stream_column #(
-`ifdef ASIC_TCN16_M12
+`ifdef ASIC_NUM_MULT
+  parameter int unsigned NUM_MULT = `ASIC_NUM_MULT
+`elsif ASIC_TCN16_M12
   parameter int unsigned NUM_MULT = 12
 `elsif ASIC_TCN16_M18
   parameter int unsigned NUM_MULT = 18
