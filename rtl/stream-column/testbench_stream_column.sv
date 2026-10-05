@@ -370,8 +370,11 @@ module tb_stream_column #(
     job_start_time = $realtime;
     #10 p_start = 1'b0;
 
-    if (p_end !== 1'b1)
-      @(posedge p_end);
+    // Treat completion as a synchronous handshake. SDF timing can expose a
+    // narrow combinational pulse on p_end between clock edges; it is not a
+    // completed job unless the final output write is active at a clock edge.
+    while (!((p_end === 1'b1) && (p_output_en === 1'b1) && (p_output_wr === 1'b1)))
+      @(posedge clk);
     job_end_time = $realtime;
     job_execution_time = job_end_time - job_start_time;
     job_execution_cycles = $rtoi(job_execution_time / CLOCK_PERIOD_NS + 0.5);
