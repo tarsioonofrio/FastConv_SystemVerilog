@@ -81,6 +81,11 @@ module tb_stream_column #(
   int useful_weight_read_beat_count;
   int cycle_count;
   int end_cycle;  // cycle at which p_end first rises (active job length)
+  realtime job_start_time;
+  realtime job_end_time;
+  realtime job_execution_time;
+  int job_execution_cycles;
+  localparam real CLOCK_PERIOD_NS = 2.0;
   logic conv_end_d;
 
   // The golden output is the FEAT_OUTPUT_SIZE x FEAT_OUTPUT_SIZE logical map.
@@ -359,10 +364,31 @@ module tb_stream_column #(
 `endif
     p_start = 1'b0;
     #80 p_start = 1'b1;
+    @(posedge clk);
+    job_start_time = $realtime;
     #10 p_start = 1'b0;
 
     if (p_end !== 1'b1)
       @(posedge p_end);
+    job_end_time = $realtime;
+    job_execution_time = job_end_time - job_start_time;
+    job_execution_cycles = $rtoi(job_execution_time / CLOCK_PERIOD_NS + 0.5);
+    begin
+      integer runtime_file;
+      runtime_file = $fopen("execution_time.txt", "w");
+      if (runtime_file == 0)
+        $fatal(1, "could not open execution_time.txt for writing");
+      $fdisplay(runtime_file, "measurement=accepted_p_start_to_p_end");
+      $fdisplay(runtime_file, "clock_period_ns=%0.3f", CLOCK_PERIOD_NS);
+      $fdisplay(runtime_file, "start_time_ns=%0.3f", job_start_time);
+      $fdisplay(runtime_file, "end_time_ns=%0.3f", job_end_time);
+      $fdisplay(runtime_file, "job_execution_time_ns=%0.3f", job_execution_time);
+      $fdisplay(runtime_file, "job_execution_time_us=%0.6f", job_execution_time / 1000.0);
+      $fdisplay(runtime_file, "job_execution_cycles=%0d", job_execution_cycles);
+      $fclose(runtime_file);
+    end
+    $display("Job execution time: %0.3f ns (%0.6f us), %0d cycles",
+             job_execution_time, job_execution_time / 1000.0, job_execution_cycles);
     // Let the final write handshake drain, then require the three controllers
     // to be idle without launching an unused terminal tile or issuing another
     // memory request.

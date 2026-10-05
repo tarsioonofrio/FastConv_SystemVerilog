@@ -1,0 +1,14 @@
+rtl,status,job_execution_cycles,job_execution_time_ns
+conv-tcn16-i54-h15-t12-o16-m06-stream12-prefetch18-rowconst6-trunc-column.sv,PASS,7690,15380.000
+conv-tcn16-i54-h21-t24-o16-m12-stream12-prefetch18-rowconst6-trunc-column.sv,PASS,5962,11924.000
+conv-tcn16-i54-h27-t36-o16-m18-stream12-prefetch18-rowconst6-trunc-column.sv,PASS,5386,10772.000
+conv-tcn16-i60-h15-t12-o16-m06-stream12-prefetch24-rowconst6-trunc-column.sv,PASS,7690,15380.000
+conv-tcn16-i60-h21-t24-o16-m12-stream12-prefetch24-rowconst6-trunc-column.sv,PASS,5962,11924.000
+conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-rowconst6-trunc-column.sv,PASS,5386,10772.000
+conv-wpn16-i54-h17-t16-o16-m08-stream16-prefetch18-rowconst8-trunc-column.sv,PASS,8842,17684.000
+conv-wpn16-i54-h25-t32-o16-m16-stream16-prefetch18-rowconst8-trunc-column.sv,PASS,6538,13076.000
+conv-wpn16-i54-h41-t64-o16-m32-stream16-prefetch18-rowconst8-trunc-column.sv,PASS,5386,10772.000
+conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv,PASS,8842,17684.000
+conv-wpn16-i60-h25-t32-o16-m16-stream16-prefetch24-rowconst8-trunc-column.sv,PASS,6538,13076.000
+conv-wpn16-i60-h41-t64-o16-m32-stream16-prefetch24-rowconst8-trunc-column.sv,PASS,5386,10772.000
+conv-wpn16-pipe-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv,PASS,9985,19970.000

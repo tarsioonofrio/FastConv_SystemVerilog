@@ -1,0 +1,9 @@
+source=/home/tarsio/gaph/FastConv_SystemVerilog/rtl/conv4x4/conv-wpn16-i54-h41-t64-o16-m32-stream16-prefetch18-rowconst8-trunc-column.sv
+source_sha256=4a9427fc663b7153ddeab62e9fec446f85e86b9f95c651ec500a22abc0e231db
+dataset=/home/tarsio/gaph/FastConv_SystemVerilog/rtl/conv4x4/data/wpn16/sim/sim-032-3-3-normal-trunc/pack_data.sv
+dataset_sha256=89f6b53f0411b106021faae0586b0209d0a482af5706f0c94e923802ac63374e
+config=wpn16
+num_mult=32
+prefetch_columns=3
+git_commit=8fe2d543afe043214144a6303faef3687ac80176
+verilator=Verilator 5.050 2026-07-01 rev v5.050
