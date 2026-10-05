@@ -10,7 +10,15 @@ CONFIGS=(
 for config in "${CONFIGS[@]}"; do
   [[ -d "$config" ]] || { echo "Missing config: $config" >&2; exit 2; }
   printf '\n=== Full ASIC power flow: %s ===\n' "$(basename "$config")"
-  (cd "$config/logical" && bash ./run.sh)
+  top_module="$(awk 'NF && $1 !~ /^#/ {print $1; exit}' "$config/top-module.txt")"
+  if [[ "${SKIP_LOGICAL_IF_NETLIST_PRESENT:-0}" == "1" &&
+        -s "$config/logical/results/gate_level/${top_module}_logic_mapped.v" &&
+        -s "$config/logical/results/gate_level/${top_module}_logic_mapped.db" &&
+        -s "$config/logical/results/gate_level/${top_module}_analysis_view_0p90v_25c_captyp_nominal.sdf" ]]; then
+    echo "LOGICAL_SYNTHESIS_REUSED config=$(basename "$config")"
+  else
+    (cd "$config/logical" && bash ./run.sh)
+  fi
   (cd "$config/sim" && bash ./run.sh)
   (cd "$config/power" && bash ./run.sh)
   printf 'ASIC_POWER_FLOW_COMPLETE config=%s\n' "$(basename "$config")"

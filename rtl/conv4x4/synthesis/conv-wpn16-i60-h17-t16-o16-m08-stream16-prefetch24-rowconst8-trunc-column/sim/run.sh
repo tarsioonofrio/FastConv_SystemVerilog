@@ -17,7 +17,7 @@ SDF="$CONFIG_ROOT/logical/results/gate_level/${TOP_MODULE}_analysis_view_0p90v_2
 files=()
 while IFS= read -r line; do
   line="${line##[[:space:]]}"
-  [[ -z "$line" || "$line" == #* ]] && continue
+  [[ -z "$line" || "$line" == \#* ]] && continue
   [[ "$line" == "$RTL_TOP_ENTRY" ]] && continue
   if [[ "$line" = /* ]]; then files+=("$line"); else files+=("$GIT_ROOT/$line"); fi
 done < "$CONFIG_ROOT/list-file.txt"
