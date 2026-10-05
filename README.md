@@ -18,6 +18,47 @@ The Git tag `dissertation` points to the commit hash that contains the exact cod
 - `contrib/`: archived previous experiments, prototypes, and reference materials preserved for consultation.
 - `copy-sv.sh`: utility to automatically import new SystemVerilog artifacts from the `fast-conv` generator into the `rtl/` tree.
 
+## Repository-level Makefile
+
+The root `Makefile` provides short entry points for the common report, RTL
+simulation, and ASIC synthesis/simulation/power tasks. Run `make help` for the
+available targets and examples. Common report commands are:
+
+```bash
+make report                    # regenerate consolidated reports
+make report INCLUDE_ARCHIVED=1 # include archived variants
+make metrics                   # calculate dataset MAE/RMSE metrics
+```
+
+Run one RTL simulation by selecting the architecture and, where needed, its
+algorithm, multiplier count, and prefetch-column count. For example:
+
+```bash
+make sim ARCH=conv2x2 VARIANT=std
+make sim ARCH=conv2x2 VARIANT=trunc-column NUM_MULT=8
+make sim ARCH=conv3x3 ALGORITHM=ifn9 NUM_MULT=6 PREFETCH_COLUMNS=2
+make sim ARCH=conv4x4 ALGORITHM=tcn16 NUM_MULT=6 PREFETCH_COLUMNS=3
+```
+
+`make sim-all` runs the active root RTL simulation cases and stores their
+results under `simulation_results/`. Long simulations and all ASIC EDA targets
+must be run from a `tmux` session. ASIC configurations are selected by their
+exact directory name under `rtl/<architecture>/synthesis/`:
+
+```bash
+make list-configs ARCH=conv4x4
+make synth ARCH=conv4x4 CONFIG=<configuration-directory>
+make gate-sim ARCH=conv4x4 CONFIG=<configuration-directory>
+make power ARCH=conv4x4 CONFIG=<configuration-directory>
+make flow ARCH=conv4x4 CONFIG=<configuration-directory>
+```
+
+`make flow` runs synthesis, gate-level simulation, and power sequentially, and
+stops if a stage fails. Per-configuration flow artifacts remain in that
+configuration's `rtl/<architecture>/synthesis/<configuration>/` directory.
+The Makefile delegates to the existing architecture runners; it does not
+replace their scripts or change their result formats.
+
 ## Prerequisites
 
 - Git and Python 3.8+ (to run the automation scripts and the `fast-conv` utility).
