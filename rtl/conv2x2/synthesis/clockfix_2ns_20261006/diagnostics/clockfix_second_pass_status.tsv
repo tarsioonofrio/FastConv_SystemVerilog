@@ -1,0 +1,9 @@
+config	synth_rc	sim_rc	period	functional_check	power_rc	power_report
+rtl/conv2x2/synthesis/conv-i16-h16-t16-o4-m08-std	0	0	2.000	FAIL	SKIP	SIM_FAIL
+rtl/conv2x2/synthesis/conv-i16-h13-t08-o4-m08-stream08-wstream4	0	0	2.000	FAIL	SKIP	SIM_FAIL
+rtl/conv2x2/synthesis/conv-i16-h16-t00-o4-m08-stream00	0	0	2.000	FAIL	SKIP	SIM_FAIL
+rtl/conv2x2/synthesis/conv-i16-h16-t00-o4-m16-all	0	0	2.000	FAIL	SKIP	SIM_FAIL
+rtl/conv2x2/synthesis/conv-i16-h16-t04-o4-m08-stream04	0	0	2.000	FAIL	SKIP	SIM_FAIL
+rtl/conv2x2/synthesis/conv-i16-h16-t08-o4-m08-stream08	0	0	2.000	FAIL	SKIP	SIM_FAIL
+rtl/conv2x2/synthesis/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4	0	0	2.000	FAIL	SKIP	SIM_FAIL
+rtl/conv2x2/synthesis/conv-i20-h16-t08-o4-m08-stream08-prefetch4	0	0	2.000	FAIL	SKIP	SIM_FAIL

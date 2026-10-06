@@ -1,0 +1,9 @@
+config	period	functional_check	power_rc	power_report
+rtl/conv2x2/synthesis/conv-i16-h16-t16-o4-m08-std	2.000	PASS	0	PASS
+rtl/conv2x2/synthesis/conv-i16-h13-t08-o4-m08-stream08-wstream4	2.000	PASS	0	PASS
+rtl/conv2x2/synthesis/conv-i16-h16-t00-o4-m08-stream00	2.000	PASS	0	PASS
+rtl/conv2x2/synthesis/conv-i16-h16-t00-o4-m16-all	2.000	PASS	0	PASS
+rtl/conv2x2/synthesis/conv-i16-h16-t04-o4-m08-stream04	2.000	PASS	0	PASS
+rtl/conv2x2/synthesis/conv-i16-h16-t08-o4-m08-stream08	2.000	PASS	0	PASS
+rtl/conv2x2/synthesis/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4	2.000	PASS	0	PASS
+rtl/conv2x2/synthesis/conv-i20-h16-t08-o4-m08-stream08-prefetch4	2.000	PASS	0	PASS

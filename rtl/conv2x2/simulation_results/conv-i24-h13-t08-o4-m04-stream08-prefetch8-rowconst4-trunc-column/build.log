@@ -2,6 +2,96 @@ make: Entering directory '/home/tarsio/gaph/FastConv_SystemVerilog/rtl/conv2x2'
 verilator -j 0 -DSIMULATION --top-module tb_prefetch8_column -Wno-fatal --binary --exe --Mdir obj_dir/stream08-prefetch8-rowconst4-trunc-column-4mac \
   data/tcn4/sim/sim-032-3-3-normal-trunc/pack_data.sv pack-param/tcn4/pack_param.sv ../mem/mem.sv ../csa/csa_lib.sv ../multip/multip.sv mult-matrices/stream/tcn4/mult_matrices.sv conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column.sv testbench_prefetch8_column.sv --build \
   -GMAC_COUNT=4
+%Warning-WIDTHEXPAND: ../mem/mem.sv:35:27: Operator LT expects 32 bits on the LHS, but LHS's VARREF 'address' generates 12 bits.
+                                         : ... note: In instance 'tb_prefetch8_column.COLUMN_INPUT_MEMORY_LANE[3].memory_input_lane'
+   35 |       data_out = (address < $size(pack_data::const_data)) ? NBITS'(pack_data::const_data[address]) : '0;
+      |                           ^
+                      ... For warning description see https://verilator.org/warn/WIDTHEXPAND?v=5.050
+                      ... Use "/* verilator lint_off WIDTHEXPAND */" and lint_on around source to disable this message.
+%Warning-WIDTHTRUNC: conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column.sv:247:27: Operator ASSIGNDLY expects 12 bits on the Assign RHS, but Assign RHS's VARREF 'CONV_OUTPUT_SIZE' generates 32 bits.
+                                                                                                : ... note: In instance 'tb_prefetch8_column.dut'
+  247 |       r_input_window_next <= CONV_OUTPUT_SIZE;
+      |                           ^~
+                     ... For warning description see https://verilator.org/warn/WIDTHTRUNC?v=5.050
+                     ... Use "/* verilator lint_off WIDTHTRUNC */" and lint_on around source to disable this message.
+%Warning-WIDTHEXPAND: conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column.sv:253:50: Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'r_input_window_next' generates 12 bits.
+                                                                                                 : ... note: In instance 'tb_prefetch8_column.dut'
+  253 |       r_input_window_next <= r_input_window_next + CONV_OUTPUT_SIZE;
+      |                                                  ^
+%Warning-WIDTHTRUNC: conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column.sv:253:27: Operator ASSIGNDLY expects 12 bits on the Assign RHS, but Assign RHS's ADD generates 32 bits.
+                                                                                                : ... note: In instance 'tb_prefetch8_column.dut'
+  253 |       r_input_window_next <= r_input_window_next + CONV_OUTPUT_SIZE;
+      |                           ^~
+%Warning-WIDTHTRUNC: conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column.sv:255:27: Operator ASSIGNDLY expects 12 bits on the Assign RHS, but Assign RHS's VARREF 'CONV_OUTPUT_SIZE' generates 32 bits.
+                                                                                                : ... note: In instance 'tb_prefetch8_column.dut'
+  255 |       r_input_window_next <= CONV_OUTPUT_SIZE;
+      |                           ^~
+%Warning-WIDTHEXPAND: conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column.sv:266:68: Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'r_input_channel_counter_input' generates 2 bits.
+                                                                                                 : ... note: In instance 'tb_prefetch8_column.dut'
+  266 |         r_input_addr_feat <= NADDR'((r_input_channel_counter_input + 1) *
+      |                                                                    ^
+%Warning-WIDTHEXPAND: conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column.sv:349:81: Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'r_output_write_count' generates 1 bits.
+                                                                                                 : ... note: In instance 'tb_prefetch8_column.dut'
+  349 |   assign w_input_write_done = r_output_write_count == 0 || r_output_write_count == OUTPUT_RW_COUNT_MAX;   
+      |                                                                                 ^~
+%Warning-WIDTHEXPAND: conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column.sv:544:36: Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'r_input_prefetch_phase' generates 1 bits.
+                                                                                                 : ... note: In instance 'tb_prefetch8_column.dut'
+  544 |         if (r_input_prefetch_phase == (PREFETCH_PHASES - 1)) begin
+      |                                    ^~
+%Warning-WIDTHTRUNC: conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column.sv:818:68: Output port connection 'product' expects 20 bits on the pin connection, but pin connection's ARRAYSEL generates 28 bits.
+                                                                                                : ... note: In instance 'tb_prefetch8_column.dut'
+  818 |     .feature(w_transform_feature[0]), .weight(r_input_weight[0]), .product(w_conv_product[0]));
+      |                                                                    ^~~~~~~
+%Warning-WIDTHTRUNC: conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column.sv:820:68: Output port connection 'product' expects 20 bits on the pin connection, but pin connection's ARRAYSEL generates 28 bits.
+                                                                                                : ... note: In instance 'tb_prefetch8_column.dut'
+  820 |     .feature(w_transform_feature[1]), .weight(r_input_weight[1]), .product(w_conv_product[1]));
+      |                                                                    ^~~~~~~
+%Warning-WIDTHTRUNC: conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column.sv:822:68: Output port connection 'product' expects 20 bits on the pin connection, but pin connection's ARRAYSEL generates 28 bits.
+                                                                                                : ... note: In instance 'tb_prefetch8_column.dut'
+  822 |     .feature(w_transform_feature[2]), .weight(r_input_weight[2]), .product(w_conv_product[2]));
+      |                                                                    ^~~~~~~
+%Warning-WIDTHTRUNC: conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column.sv:824:68: Output port connection 'product' expects 20 bits on the pin connection, but pin connection's ARRAYSEL generates 28 bits.
+                                                                                                : ... note: In instance 'tb_prefetch8_column.dut'
+  824 |     .feature(w_transform_feature[3]), .weight(r_input_weight[3]), .product(w_conv_product[3]));
+      |                                                                    ^~~~~~~
+%Warning-WIDTHEXPAND: testbench_prefetch8_column.sv:128:36: Operator LT expects 32 bits on the LHS, but LHS's ARRAYSEL generates 12 bits.
+                                                          : ... note: In instance 'tb_prefetch8_column'
+  128 |           (column_input_addr[lane] < INPUT_MEMORY_SIZE) ? column_input_word[lane] : '0;
+      |                                    ^
+%Warning-WIDTHEXPAND: testbench_prefetch8_column.sv:139:38: Operator GTE expects 32 bits on the LHS, but LHS's ARRAYSEL generates 12 bits.
+                                                          : ... note: In instance 'tb_prefetch8_column'
+  139 |         if ((column_input_addr[lane] >= INPUT_MEMORY_SIZE) ||
+      |                                      ^~
+%Warning-WIDTHEXPAND: testbench_prefetch8_column.sv:150:33: Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'p_output_addr' generates 12 bits.
+                                                          : ... note: In instance 'tb_prefetch8_column'
+  150 |       lane_addr = p_output_addr + lane*FEAT_OUTPUT_SIZE;
+      |                                 ^
+%Warning-WIDTHEXPAND: testbench_prefetch8_column.sv:176:48: Operator LT expects 32 bits on the LHS, but LHS's VARXREF 'r_input_channel_counter_output' generates 2 bits.
+                                                          : ... note: In instance 'tb_prefetch8_column'
+  176 |         if (dut.r_input_channel_counter_output < N_CHANNEL_OUT)
+      |                                                ^
+%Warning-WIDTHEXPAND: testbench_prefetch8_column.sv:184:48: Operator LT expects 32 bits on the LHS, but LHS's VARXREF 'r_input_channel_counter_output' generates 2 bits.
+                                                          : ... note: In instance 'tb_prefetch8_column'
+  184 |         if (dut.r_input_channel_counter_output < N_CHANNEL_OUT)
+      |                                                ^
+%Warning-WIDTHEXPAND: testbench_prefetch8_column.sv:196:37: Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'p_output_addr' generates 12 bits.
+                                                          : ... note: In instance 'tb_prefetch8_column'
+  196 |           lane_addr = p_output_addr + lane*FEAT_OUTPUT_SIZE;
+      |                                     ^
+%Warning-WIDTHEXPAND: testbench_prefetch8_column.sv:200:53: Operator EQ expects 32 bits on the LHS, but LHS's VARXREF 'r_output_channel_counter_input' generates 2 bits.
+                                                          : ... note: In instance 'tb_prefetch8_column'
+  200 |             if ((dut.r_output_channel_counter_input == (N_CHANNEL_IN - 1)) &&
+      |                                                     ^~
+%Warning-WIDTHEXPAND: testbench_prefetch8_column.sv:201:68: Operator NEQ expects 32 bits on the LHS, but LHS's SIGNED generates 20 bits.
+                                                          : ... note: In instance 'tb_prefetch8_column'
+  201 |                 ($signed(p_output_data_write[lane*NBITS +: NBITS]) !=
+      |                                                                    ^~
+%Warning-CMPCONST: conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column.sv:1032:84: Comparison is constant due to limited range
+                                                                                               : ... note: In instance 'tb_prefetch8_column.dut'
+ 1032 |   assign p_output_en = (((st_output_current == READ_OUTPUT) && r_output_read_count <= OUTPUT_RW_COUNT_WIDTH'(OUTPUT_RW_COUNT_MAX)) || (st_output_current == WRITE_OUTPUT)) ? '1 : '0;
+      |                                                                                    ^~
+                   ... For warning description see https://verilator.org/warn/CMPCONST?v=5.050
+                   ... Use "/* verilator lint_off CMPCONST */" and lint_on around source to disable this message.
 make[1]: Entering directory '/home/tarsio/gaph/FastConv_SystemVerilog/rtl/conv2x2/obj_dir/stream08-prefetch8-rowconst4-trunc-column-4mac'
 g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated.o /usr/share/verilator/include/verilated.cpp
 g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated_timing.o /usr/share/verilator/include/verilated_timing.cpp
@@ -12,6 +102,6 @@ g++    verilated.o verilated_timing.o verilated_threads.o Vtb_prefetch8_column__
 rm Vtb_prefetch8_column__ALL.verilator_deplist.tmp
 make[1]: Leaving directory '/home/tarsio/gaph/FastConv_SystemVerilog/rtl/conv2x2/obj_dir/stream08-prefetch8-rowconst4-trunc-column-4mac'
 - V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
-- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
-- Verilator: Walltime 9.722 s (elab=0.000, cvt=0.000, bld=9.721); cpu 0.001 s on 4 threads; allocated 16.352 MB
+- Verilator: Built from 1.223 MB sources in 30 modules, into 0.543 MB in 14 C++ files needing 0.001 MB
+- Verilator: Walltime 16.563 s (elab=0.234, cvt=0.581, bld=15.562); cpu 0.938 s on 4 threads; allocated 384.691 MB
 make: Leaving directory '/home/tarsio/gaph/FastConv_SystemVerilog/rtl/conv2x2'

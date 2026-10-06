@@ -57,14 +57,14 @@ module tb_prefetch8_column #(
   realtime job_end_time;
   realtime job_execution_time;
   int job_execution_cycles;
-  localparam real CLOCK_PERIOD_NS = 10.0;
+  localparam real CLOCK_PERIOD_NS = 2.0;
   logic conv_end_d;
 
   function automatic int expected_output_value(input int unsigned address);
     expected_output_value = const_feat_out[address];
   endfunction
 
-  always #5 clk = ~clk;
+  always #(CLOCK_PERIOD_NS / 2.0) clk = ~clk;
 
   Conv #(
     .N_CHANNEL_IN(N_CHANNEL_IN),
@@ -247,7 +247,10 @@ module tb_prefetch8_column #(
     end
     $display("Job execution time: %0.3f ns (%0.6f us), %0d cycles",
              job_execution_time, job_execution_time / 1000.0, job_execution_cycles);
-    #200;
+    // p_end marks job latency; wait separately for the terminal inverse event
+    // used by the post-job functional checks.
+    wait (terminal_inverse_event_count == 1);
+    #10ps;
 
     if (output_error_count != 0)
       $fatal(1, "output golden mismatch count: %0d", output_error_count);

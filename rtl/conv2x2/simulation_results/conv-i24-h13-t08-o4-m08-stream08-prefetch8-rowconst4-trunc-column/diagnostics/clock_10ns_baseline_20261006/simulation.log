@@ -1,0 +1,9 @@
+RESETANDO PARA O CANAL 0 - DEU A VOLTA NOS IFMAPS time=48445000 2 (3) st_input_current = ADDRESS_INPUT
+RESETANDO PARA O CANAL 0 - DEU A VOLTA NOS IFMAPS time=96775000 2 (3) st_input_current = ADDRESS_INPUT
+RESETANDO PARA O CANAL 0 - DEU A VOLTA NOS IFMAPS time=145105000 2 (3) st_input_current = ADDRESS_INPUT
+Job execution time: 145010.000 ns (145.010000 us), 14501 cycles
+prefetch8-column simulation passed: inverse_tiles=2025 terminal_inverse_events=1 cycles=14529 weight_read_beats=30 useful_weight_beats=27 valid_writes=8100 input_oob=0 output_oob=0
+- testbench_prefetch8_column.sv:273: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.050 2026-07-01
+- Verilator: $finish at 145us; walltime 0.018 s; speed 8.068 ms/s
+- Verilator: cpu 0.018 s on 1 threads; allocated 7 MB
