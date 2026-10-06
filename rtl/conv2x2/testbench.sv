@@ -15,8 +15,8 @@ module tb #(
   localparam int unsigned NBITS = 20;
   localparam int unsigned LATENCY = 1;
   localparam int unsigned ROM = 1;
-  localparam time CLOCK_PERIOD = 10ns;
-  localparam real CLOCK_PERIOD_NS = 10.0;
+  localparam time CLOCK_PERIOD = 2ns;
+  localparam real CLOCK_PERIOD_NS = 2.0;
   localparam int unsigned INPUT_MEMORY_SIZE = $size(const_data);
   localparam int unsigned OUTPUT_MEMORY_SIZE = FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE * N_CHANNEL_OUT;
   localparam int unsigned INPUT_ADDR_WIDTH = $clog2(INPUT_MEMORY_SIZE);
@@ -158,7 +158,7 @@ module tb #(
 
   // assign p_input_valid = p_input_en;
 
-  // Generate the 100 MHz clock used by the original 2x2 testbench.
+  // Match the 500 MHz clock constrained by the ASIC Genus SDC.
   initial clk = 0;
   always #(CLOCK_PERIOD / 2) clk = ~clk;
 
