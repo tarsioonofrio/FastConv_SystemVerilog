@@ -246,8 +246,10 @@ module tb #(
     $display("Job execution time: %0.3f ns (%0.6f us), %0d cycles",
              job_execution_time, job_execution_time / 1000.0, job_execution_cycles);
 
-      // espera mais 200 ns
-    #200;
+    // Let registered writes and monitor counters settle for one clock edge.
+    // A fixed delay could accidentally include a terminal tile at faster clocks.
+    @(posedge clk);
+    #10ps;
 
     if ((output_error_count != 0) && !ALLOW_GOLDEN_MISMATCH)
       $fatal(1, "output golden mismatch count: %0d", output_error_count);
