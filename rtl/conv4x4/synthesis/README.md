@@ -20,6 +20,15 @@ matching active RTL files. Their result folders are named after those RTLs:
 and
 `conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-rowconst6-trunc-column/`.
 
+The i54/prefetch18 streaming-column ASIC power campaign covers TCN16 m6/m12/m18
+and WPN16 m8/m16/m32. Its results and conditions are summarized in
+[`i54_column_power_results_20261005.md`](i54_column_power_results_20261005.md),
+and each run's logs, mapped netlist, reports, timing simulation, and Joules
+report are stored in the six configuration directories named after their RTLs.
+The final runs used commit `8f3b20a677e349bb72122a903b742a959dae3e76`; the
+m6 log also retains an earlier failed environment attempt before the successful
+rerun at that commit.
+
 The consolidated sweep directories retain the run configuration, Genus and
 Xcelium logs, power evaluation, reports, and mapped gate-level netlist. Large
 intermediate databases, work directories, and SDF files were not copied.
