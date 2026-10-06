@@ -30,3 +30,13 @@ directly under this tree, and `scripts/run_asic_sweep.sh` to execute them. The
 runner stores its campaign summary under `synthesis/campaigns/` by default and
 copies each Xcelium console log to the corresponding configuration's
 `sim/asic_sweep_<run-id>.log`, including failed runs.
+
+## IFN9 stream-column power flow (2026-10-05)
+
+The full ASIC flow (Genus synthesis, nominal-SDF Xcelium simulation, and Joules
+power) has now been completed for the five IFN9 streaming-column configurations
+that were missing results. The campaign table, methodology, run limitations,
+source hashes, and links to the per-configuration evidence are in
+[`campaigns/ifn9-stream-column-asic-power-20261005.md`](campaigns/ifn9-stream-column-asic-power-20261005.md).
+
+The sixth active IFN9 configuration, `conv-ifn9-i40-h27-t36-o9-m18-stream12-prefetch15-rowconst6-trunc-column`, already had a complete flow; its evidence remains in that configuration's `FLOW_STATUS.md`.
