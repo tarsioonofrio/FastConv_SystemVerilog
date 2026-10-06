@@ -6,7 +6,7 @@ CONFIG_ROOT="$(cd "$SIM_ROOT/.." && pwd)"
 GIT_ROOT="$(git -C "$CONFIG_ROOT" rev-parse --show-toplevel)"
 
 module purge
-module load xcelium > /dev/null 2>&1
+module load cadence/xcelium/2303 > /dev/null 2>&1
 
 TB_ENTRY="$(awk 'NF && $1 !~ /^#/ {print $1; exit}' "$CONFIG_ROOT/testbench-file.txt")"
 if [[ -z "$TB_ENTRY" ]]; then
