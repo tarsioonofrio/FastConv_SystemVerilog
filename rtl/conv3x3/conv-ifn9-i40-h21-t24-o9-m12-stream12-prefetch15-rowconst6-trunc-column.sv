@@ -55,10 +55,6 @@ module Conv
   if (CONV_INPUT_SIZE != CONV_OUTPUT_SIZE + CONV_KERNEL_SIZE - 1) begin: TILE_GEOMETRY_CHECK
     $error("CONV_INPUT_SIZE (%0d) must equal CONV_OUTPUT_SIZE + CONV_KERNEL_SIZE - 1", CONV_INPUT_SIZE);
   end
-  if ((PREFETCH_COLUMNS == 0) || (PREFETCH_COLUMNS > NEW_COLUMNS)) begin: PREFETCH_COLUMNS_CHECK
-    $error("PREFETCH_COLUMNS (%0d) must be in [1, %0d]", PREFETCH_COLUMNS, NEW_COLUMNS);
-  end
-
   function automatic int f_width_min1(input int x);
     if (x <= 1)
       f_width_min1 = 1;
@@ -76,6 +72,10 @@ module Conv
   // Any remaining new columns are loaded by READ_IN after the prefetch commit.
   localparam int unsigned PREFETCH_COLUMNS = 3;
   localparam int unsigned BEAT_COUNT_WIDTH = f_width_min1(CONV_INPUT_SIZE);
+
+  if ((PREFETCH_COLUMNS == 0) || (PREFETCH_COLUMNS > NEW_COLUMNS)) begin: PREFETCH_COLUMNS_CHECK
+    $error("PREFETCH_COLUMNS (%0d) must be in [1, %0d]", PREFETCH_COLUMNS, NEW_COLUMNS);
+  end
 
   logic [NBITS-1:0] r_input_feat[TILE_WORDS - 1:0];  // input feature register bank
   logic [NBITS-1:0] w_input_feat_next[TILE_WORDS - 1:0];  // next values for feature shift bank
@@ -108,7 +108,10 @@ module Conv
   localparam WINDOW_COUNT_PER_LINE = (FEAT_INPUT_SIZE - 2 + CONV_OUTPUT_SIZE - 1) / CONV_OUTPUT_SIZE;
   localparam WINDOW_COUNT_PER_COLUMN = (FEAT_INPUT_SIZE - 2 + CONV_OUTPUT_SIZE - 1) / CONV_OUTPUT_SIZE;
 
-  localparam WINDOW_COUNTER_WIDTH = f_width_min1(WINDOW_COUNT_PER_LINE * WINDOW_COUNT_PER_COLUMN);
+  // Input-window progress reaches the terminal count itself (0..TOTAL_WINDOWS),
+  // so reserve a representable bit even when TOTAL_WINDOWS is a power of two.
+  localparam WINDOW_COUNTER_WIDTH =
+      f_width_min1((WINDOW_COUNT_PER_LINE * WINDOW_COUNT_PER_COLUMN) + 1);
   logic [WINDOW_COUNTER_WIDTH-1:0] r_input_window_counter_acc;
 
   localparam WINDOW_ROW_COUNTER_WIDTH = f_width_min1(WINDOW_COUNT_PER_LINE + 1);
