@@ -12,7 +12,7 @@ module tb #(
 
   // Parameters and memory dimensions are imported from the generated package.
   localparam int unsigned FEAT_INPUT_WIDTH = FEAT_INPUT_SIZE;
-  localparam int unsigned NBITS = pack_data::NBITS;
+  localparam int unsigned NBITS = 20;
   localparam int unsigned LATENCY = 1;
   localparam int unsigned ROM = 1;
   localparam time CLOCK_PERIOD = 2ns;
@@ -32,7 +32,7 @@ module tb #(
   logic p_start, p_end;
   logic p_input_en;
   logic [NADDR-1:0] p_input_addr;
-  logic [NBITS-1:0] p_input_data;
+  logic [19:0] p_input_data;
   logic [NBITS-1:0] p_input_data_mem;
   logic input_sample_in_bounds;
   logic [NBITS-1:0] p_input_data_write;
