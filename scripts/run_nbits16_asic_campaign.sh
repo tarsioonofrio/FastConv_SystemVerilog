@@ -14,7 +14,8 @@ echo "commit=$(git rev-parse HEAD)"
 
 failed=0
 for arch in conv2x2 conv3x3 conv4x4; do
-  while IFS= read -r config; do
+  mapfile -t configs < <(find "rtl/$arch/synthesis" -mindepth 1 -maxdepth 1 -type d -name '*-nbits16' -print | sort)
+  for config in "${configs[@]}"; do
     [[ -d "$config" ]] || continue
     name="$(basename "$config")"
     status="$config/FLOW_STATUS_NBITS16.md"
@@ -36,7 +37,7 @@ for arch in conv2x2 conv3x3 conv4x4; do
         failed=1
         break
       fi
-      if (cd "$config/$stage" && bash run.sh) >"$log" 2>&1; then
+      if (cd "$config/$stage" && bash run.sh </dev/null) >"$log" 2>&1; then
         echo "- $stage: PASS ($(date --iso-8601=seconds))" >> "$status"
         echo "PASS $arch/$name $stage"
       else
@@ -48,7 +49,7 @@ for arch in conv2x2 conv3x3 conv4x4; do
       fi
     done
     echo "- Finished: $(date --iso-8601=seconds)" >> "$status"
-  done < <(find "rtl/$arch/synthesis" -mindepth 1 -maxdepth 1 -type d -name '*-nbits16' -print | sort)
+  done
 done
 
 if [[ "$failed" -ne 0 ]]; then
