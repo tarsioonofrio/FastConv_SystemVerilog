@@ -18,7 +18,11 @@ if {[info exists ::env(FASTCONV_NUM_MULT)]} {
   set NUM_MULT 18
 }
 
-set DATA data/${CONFIG}/sim/${DATASET}/pack_data.sv
+set DATA_DIR data/${CONFIG}/sim/${DATASET}
+if {![file exists [file join $DATA_DIR pack_data.sv]]} {
+  set DATA_DIR data/archive/${CONFIG}/sim/${DATASET}
+}
+set DATA [file join $DATA_DIR pack_data.sv]
 set PARAM pack-param/${CONFIG}/pack_param.sv
 set MUX mux-mult/${CONFIG}/mux_mult_${NUM_MULT}.sv
 set MATRICES mult-matrices/${CONFIG}/mult_matrices.sv

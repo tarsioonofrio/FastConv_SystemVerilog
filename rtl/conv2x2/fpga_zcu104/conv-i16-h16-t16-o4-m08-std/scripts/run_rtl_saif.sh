@@ -11,7 +11,7 @@ script_dir=$(cd -- "$(dirname -- "$0")" && pwd)
 bench_dir=$(cd -- "$script_dir/.." && pwd)
 repo_root=$(cd -- "$bench_dir/../../../.." && pwd)
 run_dir="$bench_dir/reports/rtl_saif"
-pack_data="$repo_root/rtl/conv2x2/data/tcn4/sim/sim-032-3-3-normal/pack_data.sv"
+pack_data="$repo_root/rtl/conv2x2/data/archive/tcn4/sim/sim-032-3-3-normal/pack_data.sv"
 
 for tool in verilator; do
   command -v "$tool" >/dev/null || {

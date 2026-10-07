@@ -3,7 +3,8 @@ CONFIG ?= ifn9
 DATASET ?= sim-032-3-3-normal
 NUM_MULT ?= 6
 MUX_SUFFIX = $(shell printf '%02d' $(NUM_MULT))
-DATA = $(SRCDIR)/data/$(CONFIG)/sim/$(DATASET)/pack_data.sv
+DATA_DIR = $(if $(wildcard $(SRCDIR)/data/$(CONFIG)/sim/$(DATASET)/pack_data.sv),$(SRCDIR)/data/$(CONFIG)/sim/$(DATASET),$(SRCDIR)/data/archive/$(CONFIG)/sim/$(DATASET))
+DATA = $(DATA_DIR)/pack_data.sv
 PARAM = $(SRCDIR)/pack-param/$(CONFIG)/pack_param.sv
 MUX = $(SRCDIR)/mux-mult/$(CONFIG)/mux_mult_$(MUX_SUFFIX).sv
 MATRICES = $(SRCDIR)/mult-matrices/$(CONFIG)/mult_matrices.sv
@@ -45,7 +46,8 @@ view: run
 # and the truncated dataset with raw spatial weights.
 #   make run-stream-column CONFIG=<algorithm>
 STREAM_COLUMN_DATASET ?= sim-032-3-3-normal-trunc
-STREAM_COLUMN_DATA = $(SRCDIR)/data/$(CONFIG)/sim/$(STREAM_COLUMN_DATASET)/pack_data.sv
+STREAM_COLUMN_DATA_DIR = $(if $(wildcard $(SRCDIR)/data/$(CONFIG)/sim/$(STREAM_COLUMN_DATASET)/pack_data.sv),$(SRCDIR)/data/$(CONFIG)/sim/$(STREAM_COLUMN_DATASET),$(SRCDIR)/data/archive/$(CONFIG)/sim/$(STREAM_COLUMN_DATASET))
+STREAM_COLUMN_DATA = $(STREAM_COLUMN_DATA_DIR)/pack_data.sv
 STREAM_COLUMN_NUM_MULT ?= $(NUM_MULT)
 STREAM_COLUMN_NUM_MULT_PADDED = $(shell printf '%02d' $(STREAM_COLUMN_NUM_MULT))
 STREAM_COLUMN_T_WORDS = $(shell expr $(STREAM_COLUMN_NUM_MULT) \* 2)

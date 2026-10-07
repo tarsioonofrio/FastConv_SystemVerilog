@@ -46,7 +46,7 @@ run_capture() {
     -define GATE_LEVEL -top tb_power -top glbl -timescale 1ns/1ps \
     -input "$common_scripts/capture_${capture}_saif.tcl" -l xrun.log \
     "$repo_root/rtl/conv2x2/pack-param/tcn4/pack_param.sv" \
-    "$repo_root/rtl/conv2x2/data/tcn4/sim/sim-032-3-3-normal/pack_data.sv" \
+    "$repo_root/rtl/conv2x2/data/archive/tcn4/sim/sim-032-3-3-normal/pack_data.sv" \
     "$repo_root/rtl/mem/mem.sv" "$run_dir/design_routed_funcsim.v" \
     "$glbl_v" "$common_dir/tb/tb_power.sv"
   [[ -s "activity_${capture}.saif" ]] || { printf 'missing %s SAIF for %s\n' "$capture" "$name" >&2; exit 1; }
@@ -72,9 +72,9 @@ vivado=$(vivado -version | head -1)
 xrun=$(xrun -version 2>&1 | head -1)
 part=xczu7ev-ffvc1156-2-e
 clock_target_mhz=317
-workload=rtl/conv2x2/data/tcn4/sim/sim-032-3-3-normal/pack_data.sv
+workload=rtl/conv2x2/data/archive/tcn4/sim/sim-032-3-3-normal/pack_data.sv
 EOF
-workload_path=rtl/conv2x2/data/tcn4/sim/sim-032-3-3-normal/pack_data.sv
+workload_path=rtl/conv2x2/data/archive/tcn4/sim/sim-032-3-3-normal/pack_data.sv
 workload_hash=$(sha256sum "$repo_root/$workload_path" | cut -d ' ' -f 1)
 printf '%s  %s\n' "$workload_hash" "$workload_path" > "$reports_dir/workload.sha256"
 

@@ -1,9 +1,9 @@
 # Local simulation entry points for the 2x2 architectures.
 # Standard targets share testbench.sv; wide-memory experiments have dedicated testbenches.
 
-DATA = data/tcn4/sim/sim-032-3-3-normal/pack_data.sv
-DATA_EXACT = data/tcn4/sim/sim-032-3-3-normal-exact/pack_data.sv
-DATA_TRUNC = data/tcn4/sim/sim-032-3-3-normal-trunc/pack_data.sv
+DATA = data/archive/tcn4/sim/sim-032-3-3-normal/pack_data.sv
+DATA_EXACT = data/archive/tcn4/sim/sim-032-3-3-normal-exact/pack_data.sv
+DATA_TRUNC = data/archive/tcn4/sim/sim-032-3-3-normal-trunc/pack_data.sv
 PARAM = pack-param/tcn4/pack_param.sv
 MUX = mux-mult/tcn4/mux_mult_04.sv
 MATRICES_STD = mult-matrices/tcn4/mult_matrices.sv
@@ -102,7 +102,7 @@ stream08-rowconst4-exact-8mac:
 
 # Corrected exact-arithmetic variant with registered feature and inverse stages.
 # This RTL uses the matching golden package with scaled exact spatial weights.
-stream08-rowconst4-exact-pipelined-8mac: DATA = data/tcn4/sim/sim-032-3-3-normal-exact/pack_data.sv
+stream08-rowconst4-exact-pipelined-8mac: DATA = data/archive/tcn4/sim/sim-032-3-3-normal-exact/pack_data.sv
 stream08-rowconst4-exact-pipelined-8mac:
 	$(VERILATOR) --binary --exe --Mdir obj_dir/stream08-rowconst4-exact-pipelined-8mac \
 	  $(COMMON) $(MATRICES_STREAM) archive/m08/conv-i16-h13-t08-o4-m08-stream08-rowconst4-exact-pipelined.sv $(TB) --build \

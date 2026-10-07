@@ -7,7 +7,7 @@ set -euo pipefail
 script_dir=$(cd -- "$(dirname -- "$0")" && pwd)
 bench_dir=$(cd -- "$script_dir/.." && pwd)
 repo_root=$(cd -- "$bench_dir/../../../.." && pwd)
-stimulus="$repo_root/rtl/conv2x2/data/tcn4/sim/sim-032-3-3-normal/pack_data.sv"
+stimulus="$repo_root/rtl/conv2x2/data/archive/tcn4/sim/sim-032-3-3-normal/pack_data.sv"
 
 [[ -f "$stimulus" ]] || {
   printf 'canonical workload package not found: %s\n' "$stimulus" >&2

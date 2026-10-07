@@ -14,7 +14,7 @@ reports_dir="$bench_dir/reports"
 run_name=prefetch8-rowconst4-trunc-column
 out="$reports_dir/$run_name"
 simlib_dir="$reports_dir/simlibs_unisim"
-workload="$repo_root/rtl/conv2x2/data/tcn4/sim/sim-032-3-3-normal-trunc/pack_data.sv"
+workload="$repo_root/rtl/conv2x2/data/archive/tcn4/sim/sim-032-3-3-normal-trunc/pack_data.sv"
 rtl="$repo_root/rtl/conv2x2/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column.sv"
 manifest="$bench_dir/manifests/prefetch8-rowconst4-trunc-column.txt"
 
@@ -56,7 +56,7 @@ xrun=$(xrun -version 2>&1 | head -1)
 part=xczu7ev-ffvc1156-2-e
 target_clock_mhz=317
 clock_period_ns=3.154574
-workload=rtl/conv2x2/data/tcn4/sim/sim-032-3-3-normal-trunc/pack_data.sv
+workload=rtl/conv2x2/data/archive/tcn4/sim/sim-032-3-3-normal-trunc/pack_data.sv
 rtl=rtl/conv2x2/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column.sv
 EOF
 sha256sum "$workload" "$rtl" "$manifest" \

@@ -52,7 +52,7 @@ run_xrun_capture() {
     "${define_args[@]}" -top tb_power -top glbl -timescale 1ns/1ps \
     -input "$script_dir/capture_${capture_name}_saif.tcl" -l xrun.log \
     "$repo_root/rtl/conv2x2/pack-param/tcn4/pack_param.sv" \
-    "$repo_root/rtl/conv2x2/data/tcn4/sim/sim-032-3-3-normal/pack_data.sv" \
+    "$repo_root/rtl/conv2x2/data/archive/tcn4/sim/sim-032-3-3-normal/pack_data.sv" \
     "$repo_root/rtl/mem/mem.sv" "$run_dir/design_routed_funcsim.v" \
     "$glbl_v" "$bench_dir/tb/tb_power.sv"
   expected_saif="activity_${capture_name}.saif"
