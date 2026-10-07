@@ -11,7 +11,7 @@ module Conv
     parameter int unsigned FEAT_INPUT_SIZE     = 32,
     parameter int unsigned FEAT_INPUT_WIDTH    = 32,
     parameter int unsigned NADDR               = 16,  // bits to p_input_addr the memory
-    parameter int unsigned NBITS               = 20,
+    parameter int unsigned NBITS               = 16,
     parameter int unsigned QUANT               = 8,
     parameter int unsigned CONV_OUTPUT_SIZE    = 2,
     parameter int unsigned CONV_KERNEL_SIZE    = 3,

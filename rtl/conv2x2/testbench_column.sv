@@ -4,7 +4,11 @@ module tb_column;
   import pack_data::*;
   import pack_param::*;
 
+`ifdef NBITS16
+  localparam int unsigned NBITS = 16;
+`else
   localparam int unsigned NBITS = 20;
+`endif
   localparam int unsigned FEAT_INPUT_WIDTH = FEAT_INPUT_SIZE;
   localparam int unsigned LATENCY = 1;
   localparam int unsigned INPUT_MEMORY_SIZE = $size(const_data);

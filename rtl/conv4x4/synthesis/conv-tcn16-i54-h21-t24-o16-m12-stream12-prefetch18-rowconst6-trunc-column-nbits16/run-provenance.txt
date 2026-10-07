@@ -1,0 +1,7 @@
+NBITS=16
+workload=32x32,Cin3,Cout3,kernel3x3,seed0,truncated-weight-transform
+rtl=rtl/conv4x4/conv-tcn16-i54-h21-t24-o16-m12-stream12-prefetch18-rowconst6-trunc-column.sv
+dataset=rtl/conv4x4/data/tcn16/sim/sim-032-3-3-normal-trunc-nbits16/pack_data.sv
+dataset_sha256=3900f1f4da01c290e8a126103a718db29269a564aa0dfa35264159519c774363
+generator_repository=fast-convolution-rtl
+generator_commit=cbe17748b9f18dd5dbe0312150dec5ed2e65d236 (dirty worktree)
