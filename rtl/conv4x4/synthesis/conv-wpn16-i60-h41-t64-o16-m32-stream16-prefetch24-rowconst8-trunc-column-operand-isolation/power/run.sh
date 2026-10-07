@@ -1,6 +1,3 @@
-rm -rf genus.cmd*
-rm -rf genus.log*
-
 #!/usr/bin/env bash
 set -euo pipefail
 
