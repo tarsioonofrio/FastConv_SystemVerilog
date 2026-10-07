@@ -14,10 +14,16 @@ edge are otherwise unchanged.
 | MAC count / prefetch | 32 / 24 words |
 | Workload | canonical WPN16 `sim-032-3-3-normal-trunc-nbits16` |
 | Local RTL simulation | PASS: 8,100 valid writes, 576 inverse tiles, 5,387 active job cycles |
-| Genus / Xcelium / Joules | Not yet run |
+| Post-synthesis SDF simulation | PASS: 8,100 valid writes, zero golden mismatches; 0 SDF errors, 5,546 SDF warnings |
+| Genus / Joules | Complete; see [EXPERIMENT_RESULTS.md](EXPERIMENT_RESULTS.md) |
+| Timing | MET: 10 ps slow-corner slack; 224 ps typical-corner slack |
+| Active-job dynamic power | 11.21060 mW, versus 9.48020 mW baseline (+18.25%) |
 
-The power comparison must use the same routed-SDF simulation mode, TT corner,
-and active-job window (101 ns through 10,875 ns) for baseline and candidate.
-The full-job and category/hierarchy reports will be recorded here after the
-remote flow completes. This document does not treat RTL switching estimates
-as measured power.
+Conclusion: this zero-masking implementation is functionally correct but is
+not a power optimization. The added operand gating increases logic and MAC
+hierarchy activity enough to outweigh the reduction in register power. Keep
+this variant experimental; do not replace the unisolated baseline.
+
+Power values are tool estimates from Joules, not physical board measurements.
+The comparison uses the same routed-SDF simulation mode, TT corner, PLE, and
+accepted-job window (101 ns through 10,875 ns) for baseline and candidate.
