@@ -103,6 +103,13 @@ module tb_prefetch8_column #(
     .p_output_valid(p_output_valid)
   );
 
+`ifdef XRUN
+  initial begin: POWER_ACTIVITY_CAPTURE_BLOCK
+    $shm_open("dut.shm");
+    $shm_probe(tb_prefetch8_column.dut, "ASM");
+  end
+`endif
+
   always_comb begin: COLUMN_INPUT_ADDRESS_BLOCK
     for (int unsigned lane = 0; lane < CONV_INPUT_SIZE; lane++) begin
       // Feature reads transfer a full input column; weight reads transfer one
