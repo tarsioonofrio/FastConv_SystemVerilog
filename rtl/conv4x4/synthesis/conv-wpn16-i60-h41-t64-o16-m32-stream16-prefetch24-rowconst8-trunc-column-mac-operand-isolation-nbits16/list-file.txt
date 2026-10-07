@@ -1,0 +1,9 @@
+rtl/csa/csa_lib.sv
+rtl/multip/multip.sv
+contrib/rtl/pack-def/pack_def.sv
+rtl/conv4x4/data/wpn16/sim/sim-032-3-3-normal-trunc-nbits16/pack_data.sv
+rtl/conv4x4/pack-param/wpn16/pack_param.sv
+rtl/conv4x4/mux-mult/wpn16/mux_mult_32.sv
+rtl/conv4x4/mult-matrices/wpn16/mult_matrices.sv
+rtl/conv4x4/conv-wpn16-i60-h41-t64-o16-m32-stream16-prefetch24-rowconst8-trunc-column-mac-operand-isolation.sv
+rtl/mem/mem.sv
