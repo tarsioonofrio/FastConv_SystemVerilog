@@ -38,6 +38,15 @@ for arch in conv2x2 conv3x3 conv4x4; do
         break
       fi
       if (cd "$config/$stage" && bash run.sh </dev/null) >"$log" 2>&1; then
+        if [[ "$stage" == power ]]; then
+          if [[ ! -s "$config/power/power_evaluation.txt" ]] || \
+              grep -q 'Encountered problems processing file' "$log"; then
+            echo "- $stage: FAIL (runner returned zero but power report is missing or Tcl failed; $(date --iso-8601=seconds))" >> "$status"
+            echo "FAIL $arch/$name $stage missing-report-or-tcl-error"
+            failed=1
+            break
+          fi
+        fi
         echo "- $stage: PASS ($(date --iso-8601=seconds))" >> "$status"
         echo "PASS $arch/$name $stage"
       else

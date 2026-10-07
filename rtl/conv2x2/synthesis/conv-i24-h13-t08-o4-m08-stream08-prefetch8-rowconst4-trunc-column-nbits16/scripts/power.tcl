@@ -28,6 +28,6 @@ create_analysis_view -name analysis_view_0p90v_25c_captyp_nominal \
 set CURRENT_VIEW analysis_view_0p90v_25c_captyp_nominal
 read_db ${DB_FILE}
 set_db interconnect_mode ple
-read_stimulus ${SHM} -dut_instance tb_stream_column.dut -start ${START_TIME}
+read_stimulus ${SHM} -dut_instance tb_prefetch8_column.dut -start ${START_TIME}
 report_power -header -unit mW > [file join $POWER_ROOT power_evaluation.txt]
 exit

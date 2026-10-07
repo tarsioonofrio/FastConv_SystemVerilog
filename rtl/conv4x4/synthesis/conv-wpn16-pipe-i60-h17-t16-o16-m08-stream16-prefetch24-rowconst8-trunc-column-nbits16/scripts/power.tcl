@@ -1,13 +1,10 @@
 ###############################################################################
 # Shared Genus power body for a project-local configuration.
 ###############################################################################
-
 set START_TIME 0ns
 set CONSTRAINTS_PATH [file join $CONFIG_ROOT scripts]
-
 set LIB_PATH /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End
 set TECH_PATH /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Back_End
-
 create_library_set -name libset_0p90v_25c \
     -timing "${LIB_PATH}/timing_power_noise/NLDM/tcbn28hpcplusbwp30p140_180a/tcbn28hpcplusbwp30p140tt0p9v25c.lib"
 create_opcond -name opcond_0p90v_25c -voltage 0.90 -temperature 25.0
@@ -24,10 +21,9 @@ create_constraint_mode -name constraints_default \
 create_analysis_view -name analysis_view_0p90v_25c_captyp_nominal \
     -constraint_mode constraints_default \
     -delay_corner delay_corner_0p90v_25c_captyp
-
 set CURRENT_VIEW analysis_view_0p90v_25c_captyp_nominal
-read_db ${DB_FILE}
+read_db $DB_FILE
 set_db interconnect_mode ple
-read_stimulus ${SHM} -dut_instance tb_prefetch8_column.dut -start ${START_TIME}
+read_stimulus $SHM -dut_instance tb_stream_column.dut -start $START_TIME
 report_power -header -unit mW > [file join $POWER_ROOT power_evaluation.txt]
 exit
