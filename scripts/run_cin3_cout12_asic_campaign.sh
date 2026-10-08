@@ -31,8 +31,18 @@ for config in "${configs[@]}"; do
   log="$config/cin3_cout12_flow.log"
   echo "===== START $arch / $name at $started ====="
 
-  make flow ARCH="$arch" CONFIG="$name" 2>&1 | tee "$log"
-  rc=${PIPESTATUS[0]}
+  printf 'host=%s\ncommit=%s\n' "$(hostname)" "$(git rev-parse HEAD)" > "$log"
+  rc=0
+  for stage in logical sim power; do
+    echo "===== STAGE $stage: $arch / $name =====" | tee -a "$log"
+    (cd "$ROOT/$config/$stage" && bash run.sh </dev/null) 2>&1 | tee -a "$log"
+    stage_rc=${PIPESTATUS[0]}
+    if (( stage_rc != 0 )); then
+      rc=$stage_rc
+      echo "===== FAILED STAGE $stage (exit $rc) =====" | tee -a "$log"
+      break
+    fi
+  done
   finished="$(date --iso-8601=seconds)"
   if (( rc == 0 )); then
     result=PASS
