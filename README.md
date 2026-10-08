@@ -27,7 +27,6 @@ available targets and examples. Common report commands are:
 
 ```bash
 make report                    # regenerate consolidated reports
-make report INCLUDE_ARCHIVED=1 # include archived variants
 make metrics                   # calculate dataset MAE/RMSE metrics
 ```
 
@@ -121,7 +120,7 @@ consolidated tables with `make report`.
    bash run.sh
    ```
 4. Post-synthesis simulation runs from the configuration's `sim/` directory with `bash run.sh`; the runner invokes Xcelium (`xrun`) using the matching mapped netlist, sources, and defines.
-5. Consolidate RTL-local metrics with `scripts/report.py`, which reads executed projects from `rtl/conv*/synthesis/` and produces aggregate CSV/Markdown tables in `report/`, plus a scoped report under each `rtl/conv*/report/`. Projects under `archive/` are excluded by default; pass `--include-archived` when a historical comparison needs them. Historical consolidated tables are kept in `report/legacy/`. Ratios against a naive synthesis are generated only when `--naive-synthesis-dir PATH` is supplied.
+5. Consolidate RTL-local metrics with `scripts/report.py`, which reads executed projects only from `rtl/conv2x2/synthesis/`, `rtl/conv3x3/synthesis/`, and `rtl/conv4x4/synthesis/` and produces aggregate CSV/Markdown tables in `report/`, plus a scoped report under each `rtl/conv*/report/`. Archived synthesis configurations are excluded; functional metrics are limited to datasets referenced by active synthesis `list-file.txt` files (including a dataset under `data/archive/` if an active configuration still references it). Historical consolidated tables are kept in `report/legacy/`. Ratios against a naive synthesis are generated only when `--naive-synthesis-dir PATH` is supplied.
 
 ## Next Steps
 

@@ -10,6 +10,7 @@ from dataset_metrics import (
     REPO_ROOT,
     aggregate_dataset_quality,
     collect_dataset_metrics,
+    synthesis_architectures_for_datasets,
 )
 
 
@@ -50,10 +51,11 @@ def _format_row(row):
 def _skipped_dataset_reasons(rows):
     included = {row["dataset"] for row in rows}
     skipped = []
-    for sim_dir in sorted(REPO_ROOT.glob("rtl/conv*/data/*/sim/sim-032-*")):
+    active_datasets = synthesis_architectures_for_datasets(REPO_ROOT)
+    for dataset in sorted(active_datasets):
+        sim_dir = REPO_ROOT / dataset
         if not sim_dir.is_dir():
             continue
-        dataset = sim_dir.relative_to(REPO_ROOT).as_posix()
         if dataset in included:
             continue
         missing = [

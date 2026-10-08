@@ -20,7 +20,6 @@ CONFIG ?=
 CONFIG_ROOT = rtl/$(ARCH)/synthesis/$(CONFIG)
 
 REPORT_ARGS ?=
-REPORT_OPTIONS = $(if $(filter 1,$(INCLUDE_ARCHIVED)),--include-archived,) $(REPORT_ARGS)
 
 .PHONY: help report metrics sim sim-all require-tmux require-asic-selection \
 	check-asic-runners synth gate-sim power flow list-configs
@@ -30,7 +29,7 @@ help:
 	  'FastConv repository tasks' \
 	  '' \
 	  'Reports:' \
-	  '  make report [INCLUDE_ARCHIVED=1] [REPORT_ARGS="..."]' \
+	  '  make report [REPORT_ARGS="..."]  # active rtl/conv?x?/synthesis only' \
 	  '  make metrics' \
 	  '' \
 	  'RTL simulation:' \
@@ -52,7 +51,7 @@ help:
 # Consolidate RTL-local synthesis, simulation, and power reports. The helper
 # Python environment is selected above when available; override PYTHON if needed.
 report:
-	$(PYTHON) scripts/report.py $(REPORT_OPTIONS)
+	$(PYTHON) scripts/report.py $(REPORT_ARGS)
 
 metrics:
 	$(PYTHON) scripts/metrics.py

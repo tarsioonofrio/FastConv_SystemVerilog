@@ -47,69 +47,58 @@ def project_name_from_report(path):
     return Path(path).parent.parent.parent.parent.name
 
 
-def synthesis_projects(include_archived=False):
-    """Yield synthesis project directories under each RTL architecture.
-
-    Active synthesis lives in ``rtl/conv*/synthesis/*``.  Historical projects
-    are kept in ``rtl/conv*/archive/*/synthesis/*``.  They are excluded by
-    default and can be included explicitly for historical comparisons.
-    """
-    for architecture_root in sorted(Path(REPO_ROOT).glob("rtl/conv*")):
+def synthesis_projects():
+    """Yield executed project directories from active conv2x2/3x3/4x4 flows."""
+    for architecture_root in sorted(Path(REPO_ROOT).glob("rtl/conv?x?")):
         if not architecture_root.is_dir():
             continue
         architecture = architecture_root.name
-        synthesis_roots = [architecture_root / "synthesis"]
-        if include_archived:
-            archive_root = architecture_root / "archive"
-            synthesis_roots.extend(
-                sorted(path for path in archive_root.glob("*/synthesis") if path.is_dir())
-            )
-        for synthesis_root in synthesis_roots:
-            if not synthesis_root.is_dir():
+        synthesis_root = architecture_root / "synthesis"
+        if not synthesis_root.is_dir():
+            continue
+        # ``list-file.txt`` marks a configured project, but configs alone
+        # are not results. Include only projects with execution evidence.
+        for list_file in sorted(synthesis_root.rglob("list-file.txt")):
+            project_dir = list_file.parent
+            relative_parts = project_dir.relative_to(synthesis_root).parts
+            if not relative_parts or any(
+                part in EXCLUDED_PROJECTS for part in relative_parts
+            ):
                 continue
-            # ``list-file.txt`` marks a configured project, but configs alone
-            # are not results. Include only projects with execution evidence.
-            for list_file in sorted(synthesis_root.rglob("list-file.txt")):
-                project_dir = list_file.parent
-                relative_parts = project_dir.relative_to(synthesis_root).parts
-                if not relative_parts or any(
-                    part in EXCLUDED_PROJECTS for part in relative_parts
-                ):
-                    continue
-                # A source stem may contain nested executed configurations
-                # (e.g. synthesis/conv/ifn9-06mac). Other nesting is ignored.
-                if len(relative_parts) > 1 and not (
-                    relative_parts[0] == "conv" and len(relative_parts) == 2
-                ):
-                    continue
-                has_results = (
-                    (project_dir / "sim" / "xrun.log").is_file()
-                    or (project_dir / "power" / "power_evaluation.txt").is_file()
-                    or any((project_dir / "logical" / "results").rglob("*.rpt"))
-                    or any((project_dir / "logical" / "results").rglob("*_mapped.v"))
-                )
-                if not has_results:
-                    continue
-                config_parts = (
-                    relative_parts[1:]
-                    if relative_parts[0] == "conv"
-                    else relative_parts
-                )
-                configuration = "-".join(config_parts)
-                yield {
-                    "architecture": architecture,
-                    "configuration": configuration,
-                    "root": project_dir,
-                    "project": f"{architecture}-{configuration}",
-                    "prefix": "conv-",
-                }
+            # A source stem may contain nested executed configurations
+            # (e.g. synthesis/conv/ifn9-06mac). Other nesting is ignored.
+            if len(relative_parts) > 1 and not (
+                relative_parts[0] == "conv" and len(relative_parts) == 2
+            ):
+                continue
+            has_results = (
+                (project_dir / "sim" / "xrun.log").is_file()
+                or (project_dir / "power" / "power_evaluation.txt").is_file()
+                or any((project_dir / "logical" / "results").rglob("*.rpt"))
+                or any((project_dir / "logical" / "results").rglob("*_mapped.v"))
+            )
+            if not has_results:
+                continue
+            config_parts = (
+                relative_parts[1:]
+                if relative_parts[0] == "conv"
+                else relative_parts
+            )
+            configuration = "-".join(config_parts)
+            yield {
+                "architecture": architecture,
+                "configuration": configuration,
+                "root": project_dir,
+                "project": f"{architecture}-{configuration}",
+                "prefix": "conv-",
+            }
 
 
-def project_records(prefix, architecture=None, include_archived=False):
+def project_records(prefix, architecture=None):
     """Return current synthesis records matching a report family."""
     if prefix != "conv-":
         return []
-    records = list(synthesis_projects(include_archived=include_archived))
+    records = list(synthesis_projects())
     if architecture is not None:
         records = [r for r in records if r["architecture"] == architecture]
     return records
@@ -2099,17 +2088,12 @@ def main():
         default=None,
         help="Optional naive synthesis project. Enables a separate ratio table.",
     )
-    parser.add_argument(
-        "--include-archived",
-        action="store_true",
-        help="Include historical projects below rtl/conv*/archive/*/synthesis/.",
-    )
     args = parser.parse_args()
     report_dir = Path(args.report_dir).resolve()
     report_dir.mkdir(parents=True, exist_ok=True)
-    records = project_records("conv-", include_archived=args.include_archived)
+    records = project_records("conv-")
     if not records:
-        raise SystemExit("No synthesis projects found below rtl/conv*/synthesis or archive/*/synthesis.")
+        raise SystemExit("No executed synthesis projects found below rtl/conv?x?/synthesis.")
     naive = parse_naive_record(args.naive_synthesis_dir) if args.naive_synthesis_dir else None
     write_report_set(
         report_dir,

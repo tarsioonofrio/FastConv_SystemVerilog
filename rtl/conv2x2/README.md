@@ -220,9 +220,10 @@ ASIC Genus/Xcelium flow. The current campaign is therefore at
 `fpga_zcu104/conv-i16-h16-t16-o4-m08-std/`; future FPGA campaigns should use a
 sibling directory named after their RTL source.
 
-The report generator excludes every project below `archive/` by default. To
-rebuild the historical comparison including the archived generic and `m04`
-variants, run `python3 scripts/report.py --include-archived`.
+The report generator reads only executed configurations in the active
+`rtl/conv2x2/synthesis/`, `rtl/conv3x3/synthesis/`, and
+`rtl/conv4x4/synthesis/` trees. Archived results remain preserved as evidence,
+but are not included in generated comparison reports.
 
 The detailed storage-reduction history remains in
 [`doc/history.md`](doc/history.md).
@@ -248,7 +249,7 @@ The nominal `report_power` totals in mW are:
 The detailed leakage/internal/switching breakdown, area, cycle count and exact
 remote execution evidence are recorded in [`doc/history.md`](doc/history.md).
 The historical four-MAC synthesis and power results remain untouched. The
-default report excludes every project below `archive/`; use
-`python3 scripts/report.py --include-archived` for the historical rows.
+generated reports use only active synthesis configurations; archived rows stay
+in the historical documentation and source artifacts, not in current tables.
 The consolidated Conv2x2 PPA comparison, including the revalidated `stream00`
 results, is in [the chronological PPA comparison](doc/history.md#12-comparativo-geral-das-variantes-conv2x2).

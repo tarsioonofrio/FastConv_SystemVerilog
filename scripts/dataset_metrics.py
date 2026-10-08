@@ -84,44 +84,46 @@ def _sha256(path):
     return digest.hexdigest()
 
 
-def _synthesis_architectures_for_datasets(root):
-    """Map each dataset package to synthesis directory names that use it."""
+def synthesis_architectures_for_datasets(root):
+    """Map datasets used by executed configs in active conv?x?/synthesis."""
     root = Path(root).resolve()
     architectures = {}
-    for architecture_root in sorted(root.glob("rtl/conv*")):
+    for architecture_root in sorted(root.glob("rtl/conv?x?")):
         if not architecture_root.is_dir():
             continue
-        for synthesis_root in sorted(architecture_root.glob("**/synthesis")):
-            for list_file in sorted(synthesis_root.rglob("list-file.txt")):
-                project_dir = list_file.parent
-                relative_parts = project_dir.relative_to(synthesis_root).parts
-                if not relative_parts or any(
-                    part in {"source", "template"} for part in relative_parts
-                ):
+        synthesis_root = architecture_root / "synthesis"
+        if not synthesis_root.is_dir():
+            continue
+        for list_file in sorted(synthesis_root.rglob("list-file.txt")):
+            project_dir = list_file.parent
+            relative_parts = project_dir.relative_to(synthesis_root).parts
+            if not relative_parts or any(
+                part in {"source", "template"} for part in relative_parts
+            ):
+                continue
+            if len(relative_parts) > 1 and not (
+                relative_parts[0] == "conv" and len(relative_parts) == 2
+            ):
+                continue
+            has_results = (
+                (project_dir / "sim" / "xrun.log").is_file()
+                or (project_dir / "power" / "power_evaluation.txt").is_file()
+                or any((project_dir / "logical" / "results").rglob("*.rpt"))
+                or any((project_dir / "logical" / "results").rglob("*_mapped.v"))
+            )
+            if not has_results:
+                continue
+            for entry in _read_lines(list_file):
+                candidate = Path(entry)
+                if not candidate.is_absolute():
+                    candidate = root / candidate
+                if candidate.name != "pack_data.sv":
                     continue
-                if len(relative_parts) > 1 and not (
-                    relative_parts[0] == "conv" and len(relative_parts) == 2
-                ):
+                dataset = candidate.resolve().parent
+                if not dataset.is_relative_to(root):
                     continue
-                has_results = (
-                    (project_dir / "sim" / "xrun.log").is_file()
-                    or (project_dir / "power" / "power_evaluation.txt").is_file()
-                    or any((project_dir / "logical" / "results").rglob("*.rpt"))
-                    or any((project_dir / "logical" / "results").rglob("*_mapped.v"))
-                )
-                if not has_results:
-                    continue
-                for entry in _read_lines(list_file):
-                    candidate = Path(entry)
-                    if not candidate.is_absolute():
-                        candidate = root / candidate
-                    if candidate.name != "pack_data.sv":
-                        continue
-                    dataset = candidate.resolve().parent
-                    if not dataset.is_relative_to(root):
-                        continue
-                    dataset_name = dataset.relative_to(root).as_posix()
-                    architectures.setdefault(dataset_name, set()).add(project_dir.name)
+                dataset_name = dataset.relative_to(root).as_posix()
+                architectures.setdefault(dataset_name, set()).add(project_dir.name)
     return architectures
 
 
@@ -268,13 +270,22 @@ def _compute_quality(sim_dir, summary, constants):
 
 def collect_dataset_metrics(root=REPO_ROOT, architecture=None):
     root = Path(root).resolve()
-    synthesis_architectures = _synthesis_architectures_for_datasets(root)
+    synthesis_architectures = synthesis_architectures_for_datasets(root)
     rows = []
-    for sim_dir in sorted(root.glob("rtl/conv*/data/*/sim/sim-032-*")):
+    for dataset_name in sorted(synthesis_architectures):
+        sim_dir = root / dataset_name
         if not sim_dir.is_dir():
             continue
-        arch_dir = sim_dir.parents[3]
-        arch = arch_dir.name
+        arch = next(
+            (
+                part
+                for part in Path(dataset_name).parts
+                if re.fullmatch(r"conv\d+x\d+", part)
+            ),
+            None,
+        )
+        if arch is None:
+            continue
         if architecture is not None and arch != architecture:
             continue
         algorithm = sim_dir.parents[1].name
@@ -295,12 +306,11 @@ def collect_dataset_metrics(root=REPO_ROOT, architecture=None):
         quality = _compute_quality(sim_dir, summary, constants)
         if quality is None:
             continue
-        dataset_name = sim_dir.relative_to(root).as_posix()
         architecture_names = sorted(synthesis_architectures.get(dataset_name, ()))
         row = {
             "size": arch.removeprefix("conv"),
             "algorithm": algorithm,
-            "architecture": "; ".join(architecture_names) or "not-linked-to-synthesis",
+            "architecture": "; ".join(architecture_names),
             "dataset": dataset_name,
             "dataset_mode": (
                 "exact-scaled"

@@ -30,8 +30,12 @@ and `architecture` with the same meanings as `functional-quality.csv`. Each
 contains an `ALL (pooled)` result and a separate result for every active dataset. The aggregate pools samples rather
 than averaging per-dataset scores, and dequantizes each dataset with its own
 `quant_bits`; quantized-golden error fields remain in integer output codes.
-Only datasets containing both `s.txt` and `s_default.txt` receive metric rows;
-the TXT lists active candidates excluded for missing vectors or metadata.
+Only datasets referenced by executed configurations under `rtl/conv2x2/synthesis/`,
+`rtl/conv3x3/synthesis/`, or `rtl/conv4x4/synthesis/` and containing both
+`s.txt` and `s_default.txt` receive metric rows. Unreferenced datasets and
+configurations under archived synthesis trees are excluded; a referenced data
+package may itself be stored under `data/archive/`. The TXT lists referenced
+candidates excluded for missing vectors or metadata.
 
 These consolidated reports facilitate design space exploration and decision-making by providing an accessible overview of trade-offs between area, power, and performance.
 
@@ -58,10 +62,12 @@ Regenerate current consolidated tables from the repository root with:
 make report
 ```
 
-Use `make report INCLUDE_ARCHIVED=1` only when archived variants should enter
-the comparison. The collector writes the global tables here and scoped tables
-under each `rtl/conv*/report/` directory. It does not move or overwrite raw
-flow evidence under `rtl/conv*/synthesis/`.
+The collector is intentionally limited to executed projects under the active
+`rtl/conv2x2/synthesis/`, `rtl/conv3x3/synthesis/`, and
+`rtl/conv4x4/synthesis/` trees. Configurations under archived synthesis trees
+are never included.
+It writes the global tables here and scoped tables under each
+`rtl/conv*/report/` directory, without moving or overwriting raw flow evidence.
 
 Use `scripts/report.py` (or `make report`) to generate the report CSVs in one
 run. The collector considers only executed projects under
