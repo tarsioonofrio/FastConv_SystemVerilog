@@ -1,177 +1,122 @@
 #!/usr/bin/env python3
+"""Generate per-dataset functional-quality metrics and provenance."""
+
 import argparse
 import csv
-import math
 from pathlib import Path
 
-import numpy as np
-from sklearn.metrics import mean_absolute_error, mean_squared_error, max_error
-
-REPO_ROOT = Path(__file__).resolve().parent.parent
-REPORT_DIR = REPO_ROOT / "report"
-
-
-def read_numbers(path):
-    values = []
-    with path.open("r", encoding="utf-8") as handle:
-        for line in handle:
-            line = line.strip()
-            if not line:
-                continue
-            values.append(float(line))
-    return values
+from dataset_metrics import (
+    METRIC_FIELDS,
+    REPO_ROOT,
+    aggregate_dataset_quality,
+    collect_dataset_metrics,
+)
 
 
-def read_ints(path):
-    values = []
-    with path.open("r", encoding="utf-8") as handle:
-        for line in handle:
-            line = line.strip()
-            if not line:
-                continue
-            values.append(int(float(line)))
-    return values
+def _format_metric(value):
+    return "NA" if value is None else f"{value:.8g}"
 
 
-def compute_metrics(quantized_int, reference, quant_bits, eps=1e-9):
-    count = min(len(quantized_int), len(reference))
-    if count == 0:
-        return count, None, None, None, None, None
-    scale = 2**quant_bits
-    q_int = np.asarray(quantized_int[:count], dtype=int)
-    r_arr = np.asarray(reference[:count], dtype=float)
-    q_dequant = q_int.astype(float) / scale
-    mae = mean_absolute_error(r_arr, q_dequant)
-    rmse = math.sqrt(mean_squared_error(r_arr, q_dequant))
-    max_abs = max_error(r_arr, q_dequant)
-    rel = np.abs(r_arr - q_dequant) / np.maximum(np.abs(r_arr), eps)
-    max_rel = float(np.max(rel)) if rel.size else None
-    r_quant = np.trunc(r_arr * scale).astype(int)
-    mismatches = int(np.sum(q_int != r_quant))
-    mismatch_rate = (mismatches / count) if count else None
-    return count, mae, rmse, max_abs, max_rel, mismatch_rate
+def _format_row(row):
+    count = row["count"] or 0
+    golden_count = row["quantized_golden_count"] or 0
+    return "\n".join(
+        [
+            f"{row['dataset']}: n={count} "
+            f"(s={row['quantized_count']}, reference={row['reference_count']}, "
+            f"lengths_match={row.get('lengths_match', 'NA')})",
+            "  Float-reference error: "
+            f"MAE={_format_metric(row['mae'])} "
+            f"RMSE={_format_metric(row['rmse'])} "
+            f"max_abs={_format_metric(row['max_abs'])} "
+            f"max_rel={_format_metric(row['max_rel'])} "
+            f"R2={_format_metric(row['r2_computed'])} "
+            f"R2_library={_format_metric(row['r2_library'])}",
+            "  Float-reference integer mismatches: "
+            f"{row['float_reference_mismatch_count']}/{count} "
+            f"({_format_metric(row['float_reference_mismatch_rate'])})",
+            "  Quantized-golden error (integer codes): "
+            f"MAE={_format_metric(row['quantized_golden_mae_codes'])} "
+            f"RMSE={_format_metric(row['quantized_golden_rmse_codes'])} "
+            f"max_abs={_format_metric(row['quantized_golden_max_abs_codes'])}",
+            "  Quantized-golden mismatches: "
+            f"{row['quantized_golden_mismatch_count']}/{golden_count} "
+            f"({_format_metric(row['quantized_golden_mismatch_rate'])})",
+        ]
+    )
 
 
-def find_sim_dirs(root):
-    # Datasets follow the same RTL-local layout as synthesis projects.  The
-    # archived 2x2 experiments live below ``rtl/conv2x2/archive`` and are not
-    # part of the current metrics table because this glob only visits direct
-    # ``rtl/conv*`` architecture directories.
-    return sorted(root.glob("rtl/conv*/data/*/sim/sim-032-*-normal"))
+def _skipped_dataset_reasons(rows):
+    included = {row["dataset"] for row in rows}
+    skipped = []
+    for sim_dir in sorted(REPO_ROOT.glob("rtl/conv*/data/*/sim/sim-032-*")):
+        if not sim_dir.is_dir():
+            continue
+        dataset = sim_dir.relative_to(REPO_ROOT).as_posix()
+        if dataset in included:
+            continue
+        missing = [
+            name
+            for name in ("s.txt", "s_default.txt")
+            if not (sim_dir / name).is_file()
+        ]
+        reason = (
+            "missing " + ", ".join(missing)
+            if missing
+            else "no valid paired samples or quantization metadata"
+        )
+        skipped.append((dataset, reason))
+    return skipped
 
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Compute MAE/RMSE between s.txt (quantized) and s_default.txt (reference)."
+        description="Compute quality metrics for generated sim-032 datasets."
     )
     parser.add_argument(
         "--report-dir",
-        default=str(REPORT_DIR),
-        help="Directory to write metrics outputs.",
-    )
-    parser.add_argument(
-        "--quant-bits",
-        type=int,
-        default=8,
-        help="Quantization bits used to dequantize s.txt values.",
+        default=str(REPO_ROOT / "report"),
+        help="Directory for the consolidated metrics CSV and text summary.",
     )
     args = parser.parse_args()
     report_dir = Path(args.report_dir)
+    rows = collect_dataset_metrics(root=REPO_ROOT)
+    aggregate = aggregate_dataset_quality(rows, root=REPO_ROOT)
+    skipped = _skipped_dataset_reasons(rows)
+    report_rows = [aggregate, *rows]
     report_dir.mkdir(parents=True, exist_ok=True)
-
-    rows = []
-    warnings = []
-    all_quantized = []
-    all_reference = []
-    for sim_dir in find_sim_dirs(REPO_ROOT):
-        s_path = sim_dir / "s.txt"
-        s_default_path = sim_dir / "s_default.txt"
-        if not s_path.exists() or not s_default_path.exists():
-            warnings.append(f"Missing inputs: {sim_dir}")
-            continue
-        quantized = read_ints(s_path)
-        reference = read_numbers(s_default_path)
-        all_quantized.extend(quantized)
-        all_reference.extend(reference)
-        count, mae, rmse, max_abs, max_rel, mismatch_rate = compute_metrics(
-            quantized, reference, args.quant_bits
-        )
-        if count == 0 or mae is None or rmse is None:
-            warnings.append(f"No samples: {sim_dir}")
-            continue
-        if len(quantized) != len(reference):
-            warnings.append(
-                f"Length mismatch: {sim_dir} (s.txt={len(quantized)}, s_default.txt={len(reference)})"
-            )
-        rows.append(
-            {
-                "dataset": sim_dir.relative_to(REPO_ROOT).as_posix(),
-                "count": count,
-                "mae": mae,
-                "rmse": rmse,
-                "max_abs": max_abs,
-                "max_rel": max_rel,
-                "mismatch_rate": mismatch_rate,
-            }
-        )
-
     csv_path = report_dir / "metrics-sim-032-normal.csv"
-    txt_path = report_dir / "metrics-sim-032-normal.txt"
-
-    total_count, total_mae, total_rmse, total_max_abs, total_max_rel, total_mismatch = (
-        compute_metrics(all_quantized, all_reference, args.quant_bits)
-    )
-
+    fields = METRIC_FIELDS + ["lengths_match"]
     with csv_path.open("w", newline="", encoding="utf-8") as handle:
-        writer = csv.DictWriter(
-            handle,
-            fieldnames=[
-                "dataset",
-                "count",
-                "mae",
-                "rmse",
-                "max_abs",
-                "max_rel",
-                "mismatch_rate",
-            ],
-            lineterminator="\n",
-        )
+        writer = csv.DictWriter(handle, fieldnames=fields, lineterminator="\n")
         writer.writeheader()
-        writer.writerow(
-            {
-                "dataset": "ALL",
-                "count": total_count,
-                "mae": total_mae,
-                "rmse": total_rmse,
-                "max_abs": total_max_abs,
-                "max_rel": total_max_rel,
-                "mismatch_rate": total_mismatch,
-            }
-        )
+        writer.writerows({key: row.get(key) for key in fields} for row in report_rows)
 
+    txt_path = report_dir / "metrics-sim-032-normal.txt"
     with txt_path.open("w", encoding="utf-8") as handle:
-        handle.write("MAE/RMSE for sim-032-*-normal datasets (merged)\n")
-        handle.write("=" * 48 + "\n")
-        if total_count and total_mae is not None:
-            handle.write(
-                f"ALL: count={total_count} "
-                f"mae={total_mae:.6f} rmse={total_rmse:.6f} "
-                f"max_abs={total_max_abs:.6f} max_rel={total_max_rel:.6f} "
-                f"mismatch_rate={total_mismatch:.6f}\n"
-            )
-        else:
-            handle.write("ALL: no samples\n")
-        if warnings:
-            handle.write("\nWarnings:\n")
-            for warning in warnings:
-                handle.write(f"- {warning}\n")
-
+        handle.write("Metrics for active sim-032 datasets with output/reference vectors\n")
+        handle.write("Errors use each dataset's own quantization scale.\n")
+        handle.write(
+            "TOTAL is pooled over samples, not an average of dataset metrics. "
+            "Float-reference errors are in real-value units; quantized-golden "
+            "errors are in integer output codes.\n\n"
+        )
+        handle.write("TOTAL\n")
+        handle.write(_format_row(aggregate) + "\n\n")
+        handle.write(f"INDIVIDUAL DATASETS ({len(rows)})\n")
+        for row in rows:
+            handle.write(_format_row(row) + "\n\n")
+        handle.write(f"\nTotal paired samples: {aggregate['count']}\n")
+        handle.write(
+            "Dataset vector lengths match: "
+            f"{aggregate['lengths_match']}\n"
+        )
+        if skipped:
+            handle.write(f"\nNOT INCLUDED ({len(skipped)} dataset(s))\n")
+            for dataset, reason in skipped:
+                handle.write(f"{dataset}: {reason}\n")
     print(f"Wrote {csv_path}")
     print(f"Wrote {txt_path}")
-    if warnings:
-        print("Warnings:")
-        for warning in warnings:
-            print(f"- {warning}")
 
 
 if __name__ == "__main__":
