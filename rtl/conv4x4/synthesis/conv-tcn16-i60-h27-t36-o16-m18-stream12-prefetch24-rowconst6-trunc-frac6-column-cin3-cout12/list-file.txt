@@ -1,0 +1,9 @@
+rtl/csa/csa_lib.sv
+rtl/multip/multip.sv
+contrib/rtl/pack-def/pack_def.sv
+rtl/conv4x4/data/tcn16/sim/sim-032-3-12-normal-trunc-frac6-nbits20/pack_data.sv
+rtl/conv4x4/pack-param/tcn16/pack_param.sv
+rtl/conv4x4/mux-mult/tcn16/mux_mult_18.sv
+rtl/conv4x4/mult-matrices/tcn16/mult_matrices.sv
+rtl/conv4x4/conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-rowconst6-trunc-frac6-column.sv
+rtl/mem/mem.sv

@@ -3,13 +3,13 @@ Errors use each dataset's own quantization scale.
 TOTAL is pooled over samples, not an average of dataset metrics. Float-reference errors are in real-value units; quantized-golden errors are in integer output codes.
 
 TOTAL
-size=ALL algorithm=ALL architecture=ALL dataset=ALL (pooled): n=16200 (s=16200, reference=16200, lengths_match=True)
-  Float-reference error: MAE=0.38177349 RMSE=1.6330159 max_abs=96.747997 max_rel=641.53553 R2=0.9157115 R2_library=NA
-  Float-reference integer mismatches: 15933/16200 (0.98351852)
-  Quantized-golden error (integer codes): MAE=96.877407 RMSE=417.96392 max_abs=24763
-  Quantized-golden mismatches: 15876/16200 (0.98)
+size=ALL algorithm=ALL architecture=ALL dataset=ALL (pooled): n=18900 (s=18900, reference=18900, lengths_match=True)
+  Float-reference error: MAE=0.58192177 RMSE=1.8578781 max_abs=96.747997 max_rel=641.53553 R2=0.8909007 R2_library=NA
+  Float-reference integer mismatches: 18632/18900 (0.98582011)
+  Quantized-golden error (integer codes): MAE=148.22037 RMSE=475.54541 max_abs=24763
+  Quantized-golden mismatches: 18576/18900 (0.98285714)
 
-INDIVIDUAL DATASETS (6)
+INDIVIDUAL DATASETS (7)
 size=2x2 algorithm=tcn4 architecture=conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column-nbits16; conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16 dataset=rtl/conv2x2/data/tcn4/sim/sim-032-3-3-normal-trunc-nbits16: n=2700 (s=2700, reference=2700, lengths_match=True)
   Float-reference error: MAE=0.029889994 RMSE=0.037816581 max_abs=0.13258875 max_rel=16.438616 R2=0.9999548 R2_library=0.99996727
   Float-reference integer mismatches: 2595/2700 (0.96111111)
@@ -40,6 +40,12 @@ size=4x4 algorithm=tcn16 architecture=conv-tcn16-i60-h15-t12-o16-m06-stream12-pr
   Quantized-golden error (integer codes): MAE=32.994074 RMSE=51.869045 max_abs=213
   Quantized-golden mismatches: 2621/2700 (0.97074074)
 
+size=4x4 algorithm=tcn16 architecture=conv-tcn16-i60-h15-t12-o16-m06-stream12-prefetch24-pretransformed-column; conv-tcn16-i60-h21-t24-o16-m12-stream12-prefetch24-pretransformed-column; conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-pretransformed-column dataset=rtl/conv4x4/data/tcn16/sim/sim-032-3-3-normal-trunc-nbits20: n=2700 (s=2700, reference=2700, lengths_match=True)
+  Float-reference error: MAE=1.7828114 RMSE=2.8568394 max_abs=22.258492 max_rel=641.53553 R2=0.74203596 R2_library=0.74055223
+  Float-reference integer mismatches: 2699/2700 (0.99962963)
+  Quantized-golden error (integer codes): MAE=456.27815 RMSE=731.32823 max_abs=5696
+  Quantized-golden mismatches: 2700/2700 (1)
+
 size=4x4 algorithm=wpn16 architecture=conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column-nbits16; conv-wpn16-i60-h25-t32-o16-m16-stream16-prefetch24-rowconst8-trunc-column-nbits16; conv-wpn16-i60-h41-t64-o16-m32-stream16-prefetch24-rowconst8-trunc-column-nbits16 dataset=rtl/conv4x4/data/wpn16/sim/sim-032-3-3-normal-trunc-nbits16: n=2700 (s=2700, reference=2700, lengths_match=True)
   Float-reference error: MAE=0.054355998 RMSE=0.072450943 max_abs=0.22957525 max_rel=76.270953 R2=0.99983409 R2_library=0.99985133
   Float-reference integer mismatches: 2618/2700 (0.96962963)
@@ -47,5 +53,5 @@ size=4x4 algorithm=wpn16 architecture=conv-wpn16-i60-h17-t16-o16-m08-stream16-pr
   Quantized-golden mismatches: 2620/2700 (0.97037037)
 
 
-Total paired samples: 16200
+Total paired samples: 18900
 Dataset vector lengths match: True

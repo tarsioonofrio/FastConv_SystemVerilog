@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Regenerate the TCN16 NBITS=16 golden with 8 extra weight fraction bits.
+"""Regenerate a TCN16 fractional-weight golden with configurable channels.
 
 Requires the fast-convolution-rtl Python package used by this repository.
 The source tree and CLI are not modified; this script substitutes only the
@@ -16,10 +16,12 @@ from fast_convolution import cli, simulation
 
 WEIGHT_FRAC_BITS = int(os.environ.get("WEIGHT_FRAC_BITS", "8"))
 NBITS = int(os.environ.get("NBITS", "16"))
+CHANNEL_IN = int(os.environ.get("CHANNEL_IN", "3"))
+CHANNEL_OUT = int(os.environ.get("CHANNEL_OUT", "3"))
 REPO_ROOT = Path(__file__).resolve().parent
 DATASET = os.environ.get(
     "DATASET",
-    f"sim-032-3-3-normal-trunc-frac{WEIGHT_FRAC_BITS}-nbits{NBITS}",
+    f"sim-032-{CHANNEL_IN}-{CHANNEL_OUT}-normal-trunc-frac{WEIGHT_FRAC_BITS}-nbits{NBITS}",
 )
 
 
@@ -98,7 +100,8 @@ def main():
     cli.main(
         [
             "-p", str(REPO_ROOT), "sim", "normal",
-            "--image-side", "32", "-i", "3", "-o", "3", "-d", "0",
+            "--image-side", "32", "-i", str(CHANNEL_IN),
+            "-o", str(CHANNEL_OUT), "-d", "0",
             "--truncated-weight-transform", "--nbits", str(NBITS), "--no-c",
             "-n", DATASET.removeprefix("sim-"),
         ]
