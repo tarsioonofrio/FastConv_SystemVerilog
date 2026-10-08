@@ -193,7 +193,12 @@ module tb_stream_column #(
     for (int unsigned lane = 0; lane < CONV_INPUT_SIZE; lane++) begin
       column_input_in_bounds[lane] = 1'b1;
 `ifdef GATE_LEVEL
-      if (int'(p_input_addr) < RAW_WEIGHT_BASE) begin
+      // The feature tile may legally read past the last feature-map word while
+      // filling bottom padding. In that case the address overlaps the appended
+      // transformed-weight region, so address range alone cannot identify a
+      // weight transaction. The mapped input FSM preserves READ_WEIGHTS as
+      // encoding 2; use the transaction state to select bounds semantics.
+      if (dut.st_input_current[2:0] != 3'd2) begin
         if ((channel != active_feature_channel) ||
             ((int'(column_input_addr[lane]) / FEAT_MAP_WORDS) != active_feature_channel) ||
             ((local_offset % FEAT_INPUT_WIDTH) + lane >= FEAT_INPUT_WIDTH))
@@ -277,7 +282,9 @@ module tb_stream_column #(
 `endif
 
 `ifdef GATE_LEVEL
-      if (p_input_en && p_input_valid && (int'(p_input_addr) >= RAW_WEIGHT_BASE)) begin
+      // Feature padding may cross RAW_WEIGHT_BASE, so classify weight beats
+      // from the preserved READ_WEIGHTS state rather than the address range.
+      if (p_input_en && p_input_valid && (dut.st_input_current[2:0] == 3'd2)) begin
         weight_read_beat_count <= weight_read_beat_count + 1;
         useful_weight_read_beat_count <= useful_weight_read_beat_count + 1;
       end
