@@ -42,6 +42,19 @@ for config in "${configs[@]}"; do
       echo "===== FAILED STAGE $stage (exit $rc) =====" | tee -a "$log"
       break
     fi
+    if [[ "$stage" == sim ]]; then
+      sim_log="$ROOT/$config/sim/xrun.log"
+      sdf_scope="$(sed -n 's/^[[:space:]]*SCOPE[[:space:]]*=[[:space:]]*\([^;]*\);.*/\1/p' "$ROOT/$config/sim/sdf_cmd.cmd")"
+      if [[ -z "$sdf_scope" ]] \
+        || ! grep -Fq "Reading SDF file from location" "$sim_log" \
+        || ! grep -Fq "Backannotation scope:  $sdf_scope" "$sim_log" \
+        || grep -Eq 'SDFSNF.*(scope|Scope).*not found' "$sim_log" \
+        || ! grep -Fq "Annotation completed with 0 Errors" "$sim_log"; then
+        rc=3
+        echo "===== FAILED STAGE sim: SDF annotation validation (scope: ${sdf_scope:-missing}) =====" | tee -a "$log"
+        break
+      fi
+    fi
   done
   finished="$(date --iso-8601=seconds)"
   if (( rc == 0 )); then

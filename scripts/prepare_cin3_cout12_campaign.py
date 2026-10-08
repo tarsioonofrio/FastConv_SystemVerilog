@@ -118,6 +118,39 @@ def copy_static_config(source: Path, destination: Path) -> None:
                     shutil.copy2(source_file, target_dir / name)
 
 
+def set_sdf_scope(config: Path) -> None:
+    """Match the timing annotation scope to the configured testbench top."""
+    testbench_entry = next(
+        (
+            line.strip()
+            for line in (config / "testbench-file.txt").read_text().splitlines()
+            if line.strip() and not line.lstrip().startswith("#")
+        ),
+        None,
+    )
+    if testbench_entry is None:
+        raise RuntimeError(f"no testbench entry in {config / 'testbench-file.txt'}")
+    testbench_path = Path(testbench_entry)
+    if not testbench_path.is_absolute():
+        testbench_path = ROOT / testbench_path
+    source = testbench_path.read_text()
+    match = re.search(r"(?m)^\s*module\s+(tb_[A-Za-z0-9_$]+)\b", source)
+    if match is None:
+        raise RuntimeError(f"cannot find testbench top module in {testbench_path}")
+    scope = f"{match.group(1)}.dut"
+
+    sdf_command = config / "sim/sdf_cmd.cmd"
+    text = sdf_command.read_text()
+    updated, replacements = re.subn(
+        r"(?m)^\s*SCOPE\s*=\s*[^;]+;",
+        f"SCOPE = {scope};",
+        text,
+    )
+    if replacements != 1:
+        raise RuntimeError(f"expected one SCOPE entry in {sdf_command}")
+    sdf_command.write_text(updated)
+
+
 def wrap_long_vector_lines(package_path: Path) -> None:
     """Keep generated one-dimensional array rows below simulator token limits."""
     result = []
@@ -159,6 +192,7 @@ def main() -> None:
     for arch, source, package, nbits in configs:
         destination = source.with_name(source.name + SUFFIX)
         copy_static_config(source, destination)
+        set_sdf_scope(destination)
 
         list_file = destination / "list-file.txt"
         lines = list_file.read_text().splitlines()
