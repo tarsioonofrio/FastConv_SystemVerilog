@@ -18,6 +18,7 @@ The active filenames are intentionally short and scope-neutral:
 - `throughput.csv`, `energy-per-op.csv`, `mac-scaling.csv`, `pareto.csv`: normalized performance, energy, scaling, and Pareto views.
 - `flow-status.csv`, `functional-quality.csv`: artifact-completeness and dataset quality. The quality table is rebuilt from every `rtl/conv*/data/*/sim/sim-032-*` directory that contains `s.txt` and `s_default.txt`; its leading columns are `size`, `algorithm`, and `architecture` (the synthesis directory name or names whose `list-file.txt` references that dataset), followed by dataset details, quantization/weight-transform metadata, error metrics, operation counts, and SHA-256 provenance. When multiple synthesis directories use the same dataset, their names are joined with `; ` rather than duplicating the dataset-quality row.
 - `weight-representation-size.md`: coefficient-count comparison between spatial and transformed filter weights for TCN4, IFN9, TCN9, TCN16, and WPN16, including the distinction between full transform size and the storage strategy used by the RTL.
+- `architectures-current.md`: explanation of the general column-streaming architecture and the two active TCN16 variants (`frac6` rowconst and pretransformed), including the RTL filename tags and their storage-count caveats.
 - `report.md`: Markdown rendering of all CSV tables in the current scope.
 
 Each eligible dataset also receives a `metrics.json` next to its vectors when
