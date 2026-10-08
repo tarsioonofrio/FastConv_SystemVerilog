@@ -9,6 +9,8 @@
 module tb_stream_column #(
 `ifdef ASIC_NUM_MULT
   parameter int unsigned NUM_MULT = `ASIC_NUM_MULT
+`elsif ASIC_TCN16_M06
+  parameter int unsigned NUM_MULT = 6
 `elsif ASIC_TCN16_M12
   parameter int unsigned NUM_MULT = 12
 `elsif ASIC_TCN16_M18
@@ -30,10 +32,17 @@ module tb_stream_column #(
   localparam int unsigned OUTPUT_CHANNEL_WORDS = OUTPUT_PHYSICAL_SIZE * OUTPUT_PHYSICAL_SIZE;
   localparam int unsigned OUTPUT_MEMORY_SIZE = OUTPUT_CHANNEL_WORDS * N_CHANNEL_OUT;
   localparam int unsigned FEAT_MAP_WORDS = FEAT_INPUT_SIZE * FEAT_INPUT_WIDTH;
-  localparam int unsigned RAW_WEIGHT_WORDS_PER_BEAT = CONV_KERNEL_SIZE;
+`ifdef TCN16_PRETRANSFORMED_WEIGHTS
+  localparam int unsigned WEIGHT_WORDS_PER_BEAT = HADAMARD_SIZE;
+  localparam int unsigned EXPECTED_USEFUL_WEIGHT_BEATS =
+      N_CHANNEL_IN * N_CHANNEL_OUT * HADAMARD_SIZE * HADAMARD_SIZE /
+      WEIGHT_WORDS_PER_BEAT;
+`else
+  localparam int unsigned WEIGHT_WORDS_PER_BEAT = CONV_KERNEL_SIZE;
   localparam int unsigned EXPECTED_USEFUL_WEIGHT_BEATS =
       N_CHANNEL_IN * N_CHANNEL_OUT * CONV_KERNEL_SIZE * CONV_KERNEL_SIZE /
-      RAW_WEIGHT_WORDS_PER_BEAT;
+      WEIGHT_WORDS_PER_BEAT;
+`endif
   localparam int unsigned INPUT_ADDR_WIDTH = $clog2(INPUT_MEMORY_SIZE);
   localparam int unsigned OUTPUT_ADDR_WIDTH = $clog2(OUTPUT_MEMORY_SIZE);
   // The mapped ASIC core keeps its default fixed address width; RTL runs use
@@ -47,8 +56,14 @@ module tb_stream_column #(
 `else
   localparam int unsigned NADDR = (INPUT_ADDR_WIDTH > OUTPUT_ADDR_WIDTH) ? INPUT_ADDR_WIDTH : OUTPUT_ADDR_WIDTH;
 `endif
+`ifdef TCN16_PRETRANSFORMED_WEIGHTS
+  // This mode reads transformed weights from the package section immediately
+  // following the feature maps, not the optional raw-weight appendix.
+  localparam int unsigned RAW_WEIGHT_BASE = N_CHANNEL_IN * FEAT_MAP_WORDS;
+`else
   localparam int unsigned RAW_WEIGHT_BASE = N_CHANNEL_IN * FEAT_MAP_WORDS +
                                             N_CHANNEL_IN * N_CHANNEL_OUT * HADAMARD_SIZE * HADAMARD_SIZE;
+`endif
   localparam int unsigned EXPECTED_INVERSE_COUNT =
       N_CHANNEL_IN * N_CHANNEL_OUT * OUTPUT_TILES_PER_AXIS * OUTPUT_TILES_PER_AXIS;
 
@@ -156,7 +171,7 @@ module tb_stream_column #(
   );
 
   // Every lane reads the word at address + lane, so a beat returns CONV_INPUT_SIZE
-  // consecutive words (one image row segment, or one raw-weight kernel row).
+  // consecutive words: an image column, a raw kernel row, or a transformed row.
   always_comb begin: COLUMN_INPUT_ADDRESS_BLOCK
     for (int unsigned lane = 0; lane < CONV_INPUT_SIZE; lane++)
       column_input_addr[lane] = p_input_addr + NADDR'(lane);
