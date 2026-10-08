@@ -2,11 +2,8 @@ Project,nome,mult,extra,memory,register,latch,logic,bbox,clock,pad,pm,Subtotal
 Conv4x4-conv-tcn16-i60-h15-t12-o16-m06-stream12-prefetch24-rowconst6-trunc-frac6-column,Conv4x4-conv,06,,0.0,2.50714,0.0,7.18473,0.0,0.196021,0.0,0.0,9.8879
 Conv4x4-conv-tcn16-i60-h21-t24-o16-m12-stream12-prefetch24-rowconst6-trunc-frac6-column,Conv4x4-conv,12,,0.0,3.04502,0.0,9.08926,0.0,0.205726,0.0,0.0,12.34
 Conv4x4-conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-rowconst6-trunc-frac6-column,Conv4x4-conv,18,,0.0,3.1885,0.0,10.7524,0.0,0.206366,0.0,0.0,14.1473
-Conv4x4-conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column,Conv4x4,08,,0.0,2.55031,0.0,5.10292,0.0,0.200688,0.0,0.0,7.85392
 Conv4x4-conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column-nbits16,Conv4x4,08,,0.0,2.0322,0.0,3.82027,0.0,0.180931,0.0,0.0,6.0334
-Conv4x4-conv-wpn16-i60-h25-t32-o16-m16-stream16-prefetch24-rowconst8-trunc-column,Conv4x4,16,,0.0,3.17181,0.0,7.53757,0.0,0.208791,0.0,0.0,10.9182
 Conv4x4-conv-wpn16-i60-h25-t32-o16-m16-stream16-prefetch24-rowconst8-trunc-column-nbits16,Conv4x4,16,,0.0,2.53905,0.0,5.66812,0.0,0.18522,0.0,0.0,8.39238
-Conv4x4-conv-wpn16-i60-h41-t64-o16-m32-stream16-prefetch24-rowconst8-trunc-column,Conv4x4,32,,0.0,3.69136,0.0,8.36515,0.0,0.224083,0.0,0.0,12.2806
 Conv4x4-conv-wpn16-i60-h41-t64-o16-m32-stream16-prefetch24-rowconst8-trunc-column-nbits16,Conv4x4,32,,0.0,2.99297,0.0,6.36932,0.0,0.196778,0.0,0.0,9.55906
 Conv4x4-tcn16-std-nbits16-m06,Conv4x4,06,,0.0,0.892611,0.0,0.495987,0.0,0.245565,0.0,0.0,1.63416
 Conv4x4-tcn16-std-nbits16-m12,Conv4x4,12,,0.0,0.757906,0.0,0.56379,0.0,0.224271,0.0,0.0,1.54597

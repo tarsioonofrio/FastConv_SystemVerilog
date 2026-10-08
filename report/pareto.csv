@@ -12,11 +12,8 @@ Conv3x3-conv-tcn9-i40-h14-t10-o9-m05-stream10-prefetch15-rowconst5-trunc-column-
 Conv4x4-conv-tcn16-i60-h15-t12-o16-m06-stream12-prefetch24-rowconst6-trunc-frac6-column,116722.5,9.8879,152.0956778,7691,False
 Conv4x4-conv-tcn16-i60-h21-t24-o16-m12-stream12-prefetch24-rowconst6-trunc-frac6-column,125894.191,12.34,147.16684,5963,False
 Conv4x4-conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-rowconst6-trunc-frac6-column,141885.177,14.1473,152.4230102,5387,False
-Conv4x4-conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column,37174.058,7.85392,138.90442911999995,8843,False
 Conv4x4-conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column-nbits16,29289.098,6.0334,106.7067124,8843,False
-Conv4x4-conv-wpn16-i60-h25-t32-o16-m16-stream16-prefetch24-rowconst8-trunc-column,48513.434,10.9182,142.78821960000002,6539,False
 Conv4x4-conv-wpn16-i60-h25-t32-o16-m16-stream16-prefetch24-rowconst8-trunc-column-nbits16,37722.363,8.39238,109.75554564,6539,True
-Conv4x4-conv-wpn16-i60-h41-t64-o16-m32-stream16-prefetch24-rowconst8-trunc-column,66524.807,12.2806,132.3111844,5387,False
 Conv4x4-conv-wpn16-i60-h41-t64-o16-m32-stream16-prefetch24-rowconst8-trunc-column-nbits16,50771.518,9.55906,102.98931244,5387,True
 Conv4x4-tcn16-std-nbits16-m06,27339.618,1.63416,68.19738119832,20866,True
 Conv4x4-tcn16-std-nbits16-m12,31236.419,1.54597,60.213045580240006,19474,True

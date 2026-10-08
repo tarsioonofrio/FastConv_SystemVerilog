@@ -12,11 +12,8 @@ Conv3x3-conv-tcn9-i40-h14-t10-o9-m05-stream10-prefetch15-rowconst5-trunc-column-
 Conv4x4-conv-tcn16-i60-h15-t12-o16-m06-stream12-prefetch24-rowconst6-trunc-frac6-column,Conv4x4-conv,06,,72174,86229.612,30492.888,116722.5,2544
 Conv4x4-conv-tcn16-i60-h21-t24-o16-m12-stream12-prefetch24-rowconst6-trunc-frac6-column,Conv4x4-conv,12,,77860,92336.58,33557.611,125894.191,2936
 Conv4x4-conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-rowconst6-trunc-frac6-column,Conv4x4-conv,18,,87180,103176.864,38708.313,141885.177,3335
-Conv4x4-conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column,Conv4x4,08,,21165,26858.16,10315.898,37174.058,2633
 Conv4x4-conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column-nbits16,Conv4x4,08,,16873,21166.992,8122.106,29289.098,2141
-Conv4x4-conv-wpn16-i60-h25-t32-o16-m16-stream16-prefetch24-rowconst8-trunc-column,Conv4x4,16,,28085,34612.956,13900.478,48513.434,3070
 Conv4x4-conv-wpn16-i60-h25-t32-o16-m16-stream16-prefetch24-rowconst8-trunc-column-nbits16,Conv4x4,16,,22146,26924.058,10798.305,37722.363,2490
-Conv4x4-conv-wpn16-i60-h41-t64-o16-m32-stream16-prefetch24-rowconst8-trunc-column,Conv4x4,32,,37479,47555.298,18969.509,66524.807,3945
 Conv4x4-conv-wpn16-i60-h41-t64-o16-m32-stream16-prefetch24-rowconst8-trunc-column-nbits16,Conv4x4,32,,29049,36342.432,14429.086,50771.518,3189
 Conv4x4-tcn16-std-nbits16-m06,Conv4x4,06,,13666,20505.744,6833.874,27339.618,2339
 Conv4x4-tcn16-std-nbits16-m12,Conv4x4,12,,16139,23067.324,8169.095,31236.419,2338
