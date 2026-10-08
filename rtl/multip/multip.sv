@@ -15,6 +15,27 @@ module Multip #(
   assign product = (NBITS)'(partial_product[NBITS-1+QUANT:QUANT]);
 endmodule
 
+// Multiplier for a fixed-point weight with additional fractional bits.
+// The low QUANT product bits are discarded and the result wraps to NBITS,
+// matching the ordinary Multip module's output contract.
+module MultipWideWeight #(
+    parameter int QUANT = 8,
+    parameter int NBITS = 20,
+    parameter int WEIGHT_NBITS = NBITS
+) (
+    input logic [NBITS-1:0] feature,
+    input logic [WEIGHT_NBITS-1:0] weight,
+    output logic signed [NBITS-1:0] product
+);
+  timeunit 1ns;
+  timeprecision 1ps;
+
+  logic signed [NBITS+QUANT-1:0] partial_product;
+
+  assign partial_product = (NBITS + QUANT)'($signed(feature) * $signed(weight));
+  assign product = NBITS'(partial_product[NBITS+QUANT-1:QUANT]);
+endmodule
+
 // Two-stage registered multiply for FPGA timing experiments. The first
 // register follows the multiplier and can map to DSP48 MREG; the second can
 // map to PREG. The consumer must delay its valid/index sideband by two cycles.

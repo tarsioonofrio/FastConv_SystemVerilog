@@ -5,6 +5,7 @@ CONFIG_ROOT="$(cd "$SIM_ROOT/.." && pwd)"
 GIT_ROOT="$(git -C "$CONFIG_ROOT" rev-parse --show-toplevel)"
 module purge
 module load cadence/xcelium/2303 > /dev/null 2>&1
+cd "$SIM_ROOT"
 TB_ENTRY="$(awk 'NF && $1 !~ /^#/ {print $1; exit}' "$CONFIG_ROOT/testbench-file.txt")"
 [[ -n "$TB_ENTRY" ]] || { echo "testbench-file.txt is empty" >&2; exit 2; }
 if [[ "$TB_ENTRY" = /* ]]; then TB="$TB_ENTRY"; else TB="$GIT_ROOT/$TB_ENTRY"; fi
