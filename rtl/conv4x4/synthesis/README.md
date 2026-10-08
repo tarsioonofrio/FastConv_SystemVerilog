@@ -6,13 +6,22 @@ column RTLs at 8, 16, and 32 multipliers. For each RTL, both the original
 20-bit run and the 16-bit run are retained; the `-nbits16` suffix identifies
 the latter.
 
-The active TCN16 set includes the `frac6` column RTLs at 6, 12, and 18
-multipliers, evaluated with the matching `frac6-nbits20` package. Their ASIC
-configuration directories use the exact RTL basenames. The standard-column
+The active TCN16 set has two distinct 6/12/18-MAC families:
+
+- `rowconst4-trunc-frac6-column`, evaluated with the matching
+  `trunc-frac6-nbits20` package;
+- `pretransformed-column`, evaluated with the no-fraction
+  `trunc-nbits20` package.
+
+In the second family, transformed weights are stored as signed 20-bit
+floor-truncated integers. There is no fractional-weight extension in the RTL;
+the `frac6` family remains a separate quantization experiment. Each ASIC
+configuration directory uses the exact basename of its RTL. The standard-column
 RTL is selected for future work but does not yet have a matching configuration.
-Previous TCN16 synthesis campaigns, including the older truncation variants
-and legacy `conv.sv` configurations, remain under `../archive/synthesis/` and
-must not be presented as results for the selected `frac6` RTL.
+Previous TCN16 synthesis campaigns, including older truncation variants and
+legacy `conv.sv` configurations, remain under `../archive/synthesis/` and must
+not be presented as results for either active family without matching
+provenance.
 
 Other archived campaigns in `../archive/synthesis/` include WPN16 i54/prefetch18,
 the pipelined and operand-isolation experiments, and the legacy ASIC sweeps.

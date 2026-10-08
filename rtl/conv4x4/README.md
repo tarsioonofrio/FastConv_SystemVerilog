@@ -12,10 +12,14 @@ assume that every current 4x4 configuration uses the historical 20-bit,
 ## Active RTL set
 
 The root directory keeps the selected variants only: TCN16 standard-column,
-TCN16 `frac6` at 6/12/18 multipliers, and WPN16 i60/prefetch24 at 8/16/32
-multipliers. Other TCN16 and WPN16 variants are preserved under `archive/`
-alongside their archived synthesis configurations and reports. The active ASIC
-configuration list is documented in [`synthesis/README.md`](synthesis/README.md).
+TCN16 `frac6` rowconst-column at 6/12/18 multipliers, TCN16 pretransformed
+integer-weight column at 6/12/18 multipliers, and WPN16 i60/prefetch24 at
+8/16/32 multipliers. The pretransformed variants use the no-fraction
+`trunc-nbits20` dataset; their weights are already floor-truncated integers,
+so carrying the earlier `frac6` scaling into these RTLs would be incorrect.
+Other TCN16 and WPN16 variants are preserved under `archive/` alongside their
+archived synthesis configurations and reports. The active ASIC configuration
+list is documented in [`synthesis/README.md`](synthesis/README.md).
 
 The testbench instantiates the same `Memory` models used by `conv3x3` and
 `conv2x2`. It starts one complete convolution, checks the output address range,

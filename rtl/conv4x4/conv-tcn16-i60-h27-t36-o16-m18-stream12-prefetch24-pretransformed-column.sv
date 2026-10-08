@@ -1,11 +1,11 @@
 /*
-   CONVOLUTION CONTROLLER - streaming fast convolution, pretransformed frac6 weights,
+   CONVOLUTION CONTROLLER - streaming fast convolution, pretransformed integer weights,
    column interface, a configurable integer number of Hadamard rows per cycle.
 
    Algorithm: tcn16   input tile 6x6   Hadamard 6x6   output tile 4x4
-   Variant derived from the TCN16 trunc-frac6-column architecture. It loads the
-   six-fractional-bit transformed weights from the canonical package instead
-   of recalculating the scale-576 transform in the core.
+   Variant derived from the TCN16 trunc-column architecture. It loads the
+   floor-truncated integer transformed weights from the canonical package
+   instead of recalculating the scale-576 transform in the core.
 */
 `timescale 1ns / 1ps
 
@@ -23,7 +23,7 @@ module Conv
     parameter int unsigned CONV_INPUT_SIZE     = 6,
     parameter int unsigned HADAMARD_SIZE       = 6,
     // Number of parallel multipliers; must be a whole number of Hadamard rows.
-   parameter int unsigned NUM_MULT            = 12
+    parameter int unsigned NUM_MULT            = 18
   ) (
     input  logic clk,
     input  logic reset,
@@ -44,8 +44,7 @@ module Conv
   );
 
   localparam int unsigned FIXED_NUM_MULT = NUM_MULT;
-  localparam int unsigned WEIGHT_FRAC_BITS = 6;
-  localparam int unsigned WEIGHT_NBITS = NBITS + WEIGHT_FRAC_BITS;
+  localparam int unsigned WEIGHT_NBITS = NBITS;
   localparam int unsigned ROWS_PER_CYCLE = FIXED_NUM_MULT / HADAMARD_SIZE;
 
   // Elaboration checks for the fixed geometry of this streaming variant.
@@ -608,8 +607,7 @@ module Conv
     else if (st_input_current == READ_WEIGHTS && p_input_valid) begin
       for (int unsigned lane = 0; lane < WEIGHT_WORDS_PER_BEAT; lane++)
         r_pretransformed_weight[r_weight_row_count + WEIGHT_COUNT_WIDTH'(lane)] <=
-            {{WEIGHT_FRAC_BITS{p_input_data[lane*NBITS + NBITS-1]}},
-              p_input_data[lane*NBITS +: NBITS]};
+            p_input_data[lane*NBITS +: NBITS];
     end
   end
 
@@ -754,7 +752,7 @@ module Conv
     assign w_transform_feature[lane] = r_transform_feature_reg[lane];
     assign w_hadamard_product_current[lane] = w_conv_product[lane];
     assign w_inverse_product_rows[lane] = r_hadamard_product_reg[lane];
-    MultipWideWeight #(.QUANT(QUANT + WEIGHT_FRAC_BITS), .NBITS(NBITS), .WEIGHT_NBITS(WEIGHT_NBITS)) multip(
+    MultipWideWeight #(.QUANT(QUANT), .NBITS(NBITS), .WEIGHT_NBITS(WEIGHT_NBITS)) multip(
       .feature(w_transform_feature[lane]), .weight(r_input_weight[lane]), .product(w_conv_product[lane]));
   end
   for (genvar group = 0; group < ROWS_PER_CYCLE; group++) begin: INVERSE_ROW_BATCH
@@ -987,24 +985,23 @@ endmodule
 // Reference helper retained from the source variant. Conv above does not
 // instantiate this module: its weights are loaded from the pretransformed
 // package section by PRETRANSFORMED_WEIGHT_REG_BLOCK.
-// Uninstantiated reference helper retained from the source architecture.
+// Uninstantiated integer reference helper retained from the source architecture.
 // The Conv hierarchy above has no weight-transform logic.
 (* use_dsp = "no" *)
 module WeightTransformRowConst #(
     parameter int NBITS = 20,
-    parameter int WEIGHT_FRAC_BITS = 6,
     parameter int ROW_INDEX = 0
   ) (
     input  logic signed [NBITS-1:0] pin [8:0],
     input  logic                    enable,
-    output logic        [NBITS+WEIGHT_FRAC_BITS-1:0] pout [5:0]
+    output logic signed [NBITS-1:0] pout [5:0]
   );
   timeunit 1ns;
   timeprecision 1ps;
 
   // The largest sum of absolute coefficients is 576; keep guard bits so the
   // exact numerator never overflows before the division.
-  localparam int TRANSFORM_WIDTH = NBITS + 11 + WEIGHT_FRAC_BITS;
+  localparam int TRANSFORM_WIDTH = NBITS + 11;
   localparam int WEIGHT_SCALE = 576;
 
   logic signed [TRANSFORM_WIDTH-1:0] weight [0:8];
@@ -1083,20 +1080,20 @@ module WeightTransformRowConst #(
       end
 
       // Floor division by the constant weight scale.
-      truncated[0] = f_floor_div(sum[0] <<< WEIGHT_FRAC_BITS);
-      truncated[1] = f_floor_div(sum[1] <<< WEIGHT_FRAC_BITS);
-      truncated[2] = f_floor_div(sum[2] <<< WEIGHT_FRAC_BITS);
-      truncated[3] = f_floor_div(sum[3] <<< WEIGHT_FRAC_BITS);
-      truncated[4] = f_floor_div(sum[4] <<< WEIGHT_FRAC_BITS);
-      truncated[5] = f_floor_div(sum[5] <<< WEIGHT_FRAC_BITS);
+      truncated[0] = f_floor_div(sum[0]);
+      truncated[1] = f_floor_div(sum[1]);
+      truncated[2] = f_floor_div(sum[2]);
+      truncated[3] = f_floor_div(sum[3]);
+      truncated[4] = f_floor_div(sum[4]);
+      truncated[5] = f_floor_div(sum[5]);
 
       // The output slice preserves the NBITS wrap contract of the datapath.
-      pout[0] = truncated[0][NBITS+WEIGHT_FRAC_BITS-1:0];
-      pout[1] = truncated[1][NBITS+WEIGHT_FRAC_BITS-1:0];
-      pout[2] = truncated[2][NBITS+WEIGHT_FRAC_BITS-1:0];
-      pout[3] = truncated[3][NBITS+WEIGHT_FRAC_BITS-1:0];
-      pout[4] = truncated[4][NBITS+WEIGHT_FRAC_BITS-1:0];
-      pout[5] = truncated[5][NBITS+WEIGHT_FRAC_BITS-1:0];
+      pout[0] = truncated[0][NBITS-1:0];
+      pout[1] = truncated[1][NBITS-1:0];
+      pout[2] = truncated[2][NBITS-1:0];
+      pout[3] = truncated[3][NBITS-1:0];
+      pout[4] = truncated[4][NBITS-1:0];
+      pout[5] = truncated[5][NBITS-1:0];
     end
   end
 endmodule
