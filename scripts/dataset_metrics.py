@@ -11,8 +11,9 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 METRIC_FIELDS = [
-    "architecture",
+    "size",
     "algorithm",
+    "architecture",
     "dataset",
     "dataset_mode",
     "generation_seed",
@@ -81,6 +82,47 @@ def _sha256(path):
         for block in iter(lambda: handle.read(1024 * 1024), b""):
             digest.update(block)
     return digest.hexdigest()
+
+
+def _synthesis_architectures_for_datasets(root):
+    """Map each dataset package to synthesis directory names that use it."""
+    root = Path(root).resolve()
+    architectures = {}
+    for architecture_root in sorted(root.glob("rtl/conv*")):
+        if not architecture_root.is_dir():
+            continue
+        for synthesis_root in sorted(architecture_root.glob("**/synthesis")):
+            for list_file in sorted(synthesis_root.rglob("list-file.txt")):
+                project_dir = list_file.parent
+                relative_parts = project_dir.relative_to(synthesis_root).parts
+                if not relative_parts or any(
+                    part in {"source", "template"} for part in relative_parts
+                ):
+                    continue
+                if len(relative_parts) > 1 and not (
+                    relative_parts[0] == "conv" and len(relative_parts) == 2
+                ):
+                    continue
+                has_results = (
+                    (project_dir / "sim" / "xrun.log").is_file()
+                    or (project_dir / "power" / "power_evaluation.txt").is_file()
+                    or any((project_dir / "logical" / "results").rglob("*.rpt"))
+                    or any((project_dir / "logical" / "results").rglob("*_mapped.v"))
+                )
+                if not has_results:
+                    continue
+                for entry in _read_lines(list_file):
+                    candidate = Path(entry)
+                    if not candidate.is_absolute():
+                        candidate = root / candidate
+                    if candidate.name != "pack_data.sv":
+                        continue
+                    dataset = candidate.resolve().parent
+                    if not dataset.is_relative_to(root):
+                        continue
+                    dataset_name = dataset.relative_to(root).as_posix()
+                    architectures.setdefault(dataset_name, set()).add(project_dir.name)
+    return architectures
 
 
 def _parse_sim_summary(path):
@@ -226,6 +268,7 @@ def _compute_quality(sim_dir, summary, constants):
 
 def collect_dataset_metrics(root=REPO_ROOT, architecture=None):
     root = Path(root).resolve()
+    synthesis_architectures = _synthesis_architectures_for_datasets(root)
     rows = []
     for sim_dir in sorted(root.glob("rtl/conv*/data/*/sim/sim-032-*")):
         if not sim_dir.is_dir():
@@ -252,10 +295,13 @@ def collect_dataset_metrics(root=REPO_ROOT, architecture=None):
         quality = _compute_quality(sim_dir, summary, constants)
         if quality is None:
             continue
+        dataset_name = sim_dir.relative_to(root).as_posix()
+        architecture_names = sorted(synthesis_architectures.get(dataset_name, ()))
         row = {
-            "architecture": arch,
+            "size": arch.removeprefix("conv"),
             "algorithm": algorithm,
-            "dataset": sim_dir.relative_to(root).as_posix(),
+            "architecture": "; ".join(architecture_names) or "not-linked-to-synthesis",
+            "dataset": dataset_name,
             "dataset_mode": (
                 "exact-scaled"
                 if constants.get("exact_scaled_weights", summary.get("exact_scaled_weights", False))
@@ -302,7 +348,7 @@ def collect_dataset_metrics(root=REPO_ROOT, architecture=None):
         row["lengths_match"] = quality["quantized_count"] == quality["reference_count"]
         # Record every parsed simulation parameter and file summary beside the dataset.
         metrics_document = {
-            "schema": "fastconv-dataset-metrics/v1",
+            "schema": "fastconv-dataset-metrics/v2",
             "dataset": row,
             "dataset_parameters": dataset_parameters,
             "generation_metadata": generation_metadata,
@@ -408,8 +454,9 @@ def aggregate_dataset_quality(rows, root=REPO_ROOT):
     aggregate = {field: None for field in METRIC_FIELDS}
     aggregate.update(
         {
-            "architecture": "ALL",
+            "size": "ALL",
             "algorithm": "ALL",
+            "architecture": "ALL",
             "dataset": "ALL (pooled)",
             "dataset_mode": "pooled",
             "count": count,

@@ -1,7 +1,7 @@
 {
   "dataset": {
     "algorithm": "wpn16",
-    "architecture": "conv4x4",
+    "architecture": "conv-wpn16-i54-h17-t16-o16-m08-stream16-prefetch18-rowconst8-trunc-column; conv-wpn16-i54-h25-t32-o16-m16-stream16-prefetch18-rowconst8-trunc-column; conv-wpn16-i54-h41-t64-o16-m32-stream16-prefetch18-rowconst8-trunc-column; conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column; conv-wpn16-i60-h25-t32-o16-m16-stream16-prefetch24-rowconst8-trunc-column; conv-wpn16-i60-h41-t64-o16-m32-stream16-prefetch24-rowconst8-trunc-column; conv-wpn16-i60-h41-t64-o16-m32-stream16-prefetch24-rowconst8-trunc-column-operand-isolation",
     "bias_enabled": false,
     "count": 2700,
     "dataset": "rtl/conv4x4/data/wpn16/sim/sim-032-3-3-normal-trunc",
@@ -52,6 +52,7 @@
     "rmse": 0.07245094329987489,
     "s_default_sha256": "c3fea44dc1acb70d3c0755e9f66861182fe08ade6f77d88c8a6426760a06d9fe",
     "s_sha256": "e6ebc149161b0eec9e18b4d70302e67c75fbce454fc52300520e0fbc537a538a",
+    "size": "4x4",
     "stride": 1,
     "truncated_weight_transform": true,
     "weight_nbits": 20,
@@ -92,7 +93,7 @@
     "weight_nbits": 20,
     "weight_transform_scale": 4
   },
-  "schema": "fastconv-dataset-metrics/v1",
+  "schema": "fastconv-dataset-metrics/v2",
   "simulation_summary": {
     "bias_enabled": false,
     "exact_scaled_weights": false,

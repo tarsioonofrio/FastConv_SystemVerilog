@@ -1,7 +1,7 @@
 {
   "dataset": {
     "algorithm": "tcn16",
-    "architecture": "conv4x4",
+    "architecture": "conv-tcn16-i60-h15-t12-o16-m06-stream12-prefetch24-rowconst6-trunc-frac6-column; conv-tcn16-i60-h21-t24-o16-m12-stream12-prefetch24-rowconst6-trunc-frac6-column; conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-rowconst6-trunc-frac6-column",
     "bias_enabled": false,
     "count": 2700,
     "dataset": "rtl/conv4x4/data/tcn16/sim/sim-032-3-3-normal-trunc-frac6-nbits20",
@@ -52,6 +52,7 @@
     "rmse": 0.20460214019883818,
     "s_default_sha256": "c3fea44dc1acb70d3c0755e9f66861182fe08ade6f77d88c8a6426760a06d9fe",
     "s_sha256": "d7029d961d9fab081f45805f534d0fe02ef196bc0936a9a76bb948493528dabb",
+    "size": "4x4",
     "stride": 1,
     "truncated_weight_transform": true,
     "weight_nbits": 20,
@@ -92,7 +93,7 @@
     "weight_nbits": 20,
     "weight_transform_scale": 576
   },
-  "schema": "fastconv-dataset-metrics/v1",
+  "schema": "fastconv-dataset-metrics/v2",
   "simulation_summary": {
     "bias_enabled": false,
     "exact_scaled_weights": false,

@@ -22,7 +22,8 @@ def _format_row(row):
     golden_count = row["quantized_golden_count"] or 0
     return "\n".join(
         [
-            f"{row['dataset']}: n={count} "
+            f"size={row['size']} algorithm={row['algorithm']} "
+            f"architecture={row['architecture']} dataset={row['dataset']}: n={count} "
             f"(s={row['quantized_count']}, reference={row['reference_count']}, "
             f"lengths_match={row.get('lengths_match', 'NA')})",
             "  Float-reference error: "

@@ -16,7 +16,7 @@ The active filenames are intentionally short and scope-neutral:
 - `timing-summary.csv`, `area-hierarchy.csv`, `power-breakdown.csv`: timing, area hierarchy, and power-category views.
 - `register-budget.csv`: RTL-derived register-word accounting. The `h_register_words` column counts only `r_input_weight`; `t_register_words` counts registered transform/inverse banks (`r_conv_temp`, `r_transform_row`, and `r_inverse_row`). Combinational (`w_*`) vectors and control registers are excluded. `mac_lanes` reports the physical MAC lanes separately and is not counted as storage. Current Winograd input tiles are 4x4, 5x5, and 6x6 for 2x2, 3x3, and 4x4 kernels.
 - `throughput.csv`, `energy-per-op.csv`, `mac-scaling.csv`, `pareto.csv`: normalized performance, energy, scaling, and Pareto views.
-- `flow-status.csv`, `functional-quality.csv`: artifact-completeness and dataset quality. The quality table is rebuilt from every `rtl/conv*/data/*/sim/sim-032-*` directory that contains `s.txt` and `s_default.txt`; it includes quantization/weight-transform metadata, error metrics, operation counts, and SHA-256 provenance.
+- `flow-status.csv`, `functional-quality.csv`: artifact-completeness and dataset quality. The quality table is rebuilt from every `rtl/conv*/data/*/sim/sim-032-*` directory that contains `s.txt` and `s_default.txt`; its leading columns are `size`, `algorithm`, and `architecture` (the synthesis directory name or names whose `list-file.txt` references that dataset), followed by dataset details, quantization/weight-transform metadata, error metrics, operation counts, and SHA-256 provenance. When multiple synthesis directories use the same dataset, their names are joined with `; ` rather than duplicating the dataset-quality row.
 - `report.md`: Markdown rendering of all CSV tables in the current scope.
 
 Each eligible dataset also receives a `metrics.json` next to its vectors when
@@ -25,8 +25,9 @@ definitions and source-file hashes, so a table row can be traced back to the
 exact SystemVerilog package and output/reference vectors.
 
 The separate `make metrics` output is `metrics-sim-032-normal.csv` plus
-`metrics-sim-032-normal.txt`. Each contains an `ALL (pooled)` result and a
-separate result for every active dataset. The aggregate pools samples rather
+`metrics-sim-032-normal.txt`. Both use the leading fields `size`, `algorithm`,
+and `architecture` with the same meanings as `functional-quality.csv`. Each
+contains an `ALL (pooled)` result and a separate result for every active dataset. The aggregate pools samples rather
 than averaging per-dataset scores, and dequantizes each dataset with its own
 `quant_bits`; quantized-golden error fields remain in integer output codes.
 Only datasets containing both `s.txt` and `s_default.txt` receive metric rows;
