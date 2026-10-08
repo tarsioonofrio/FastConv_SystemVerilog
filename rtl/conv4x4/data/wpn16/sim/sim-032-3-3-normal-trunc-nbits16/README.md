@@ -17,6 +17,15 @@ The width-narrowed package passed the WPN16 8-MAC RTL testbench with
 `NBITS=16`: 2,304 output-column write beats, 9,216 physical words, 2,700 final
 outputs, and zero golden mismatches.
 
+This is a width-narrowed derivative, not an independently regenerated
+16-bit WPN16 simulation dataset. The `sim.txt`, `s.txt`, `s_default.txt`,
+`s_default_quant.txt`, and `s_default_quant_relu.txt` sidecars are copied from
+the 20-bit canonical dataset; the input, weight, and golden vectors in the two
+SystemVerilog packages are identical. The 16-bit WPN16 testbenches pass all
+2,700 final outputs against that packed golden, so the vectors are verified
+for this workload, but the copied sidecars must not be presented as an
+independent 16-bit model run. The separate 20-bit dataset is unchanged.
+
 Reproduce the package conversion from the repository root with:
 
 ```bash
