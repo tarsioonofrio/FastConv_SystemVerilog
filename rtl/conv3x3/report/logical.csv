@@ -1,2 +1,9 @@
 Project,nome,mult,extra,Cell Count,Cell Area um^2,Net Area um^2,Total Area um^2,Flop Count
-Conv3x3-ifn9-06mac,Conv3x3,06,,11915,16155.846,5738.323,21894.169,2451
+Conv3x3-conv-ifn9-i35-h15-t12-o9-m06-stream12-prefetch10-rowconst6-trunc-column-nbits16,Conv3x3-conv,06,,11151,13215.006,5516.252,18731.258,1475
+Conv3x3-conv-ifn9-i35-h21-t24-o9-m12-stream12-prefetch10-rowconst6-trunc-column-nbits16,Conv3x3-conv,12,,14251,16932.888,7101.674,24034.562,1759
+Conv3x3-conv-ifn9-i35-h27-t36-o9-m18-stream12-prefetch10-rowconst6-trunc-column-nbits16,Conv3x3-conv,18,,19019,21578.13,9556.087,31134.217,2050
+Conv3x3-conv-ifn9-i40-h15-t12-o9-m06-stream12-prefetch15-rowconst6-trunc-column-nbits16,Conv3x3-conv,06,,11392,13464.234,5597.8,19062.034,1556
+Conv3x3-conv-ifn9-i40-h21-t24-o9-m12-stream12-prefetch15-rowconst6-trunc-column-nbits16,Conv3x3-conv,12,,14357,17031.168,7130.223,24161.391,1840
+Conv3x3-conv-ifn9-i40-h27-t36-o9-m18-stream12-prefetch15-rowconst6-trunc-column-nbits16,Conv3x3-conv,18,,19993,22432.662,10228.846,32661.508,2131
+Conv3x3-conv-tcn9-i35-h14-t10-o9-m05-stream10-prefetch10-rowconst5-trunc-column-nbits16,Conv3x3-conv,05,,24781,26675.082,11446.409,38121.491,1414
+Conv3x3-conv-tcn9-i40-h14-t10-o9-m05-stream10-prefetch15-rowconst5-trunc-column-nbits16,Conv3x3-conv,05,,24877,26926.2,11467.604,38393.804,1494

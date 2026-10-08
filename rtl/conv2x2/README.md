@@ -204,34 +204,15 @@ The row-level unit test is `streaming_row_testbench.sv`.
 
 ## Synthesis configurations
 
-Active project-local synthesis configurations are under `synthesis/`; the
-historical four-MAC configurations are under `archive/m04/synthesis/`. Each
-configuration has one direct directory whose name matches the RTL source:
+The active synthesis tree is restricted to the 16-bit column configurations:
 
-- `archive/m04/synthesis/conv-i16-h16-t16-o4-m04-std/` — archived conventional 4-MAC baseline;
-- `synthesis/conv-i16-h16-t00-o4-m16-all/` — fully parallel 16-MAC architecture;
-- `archive/m04/synthesis/conv-i16-h16-t04-o4-m04-stream04/` — archived registered transform-row stream;
-- `synthesis/conv-i16-h16-t04-o4-m08-stream04/` — paired-row eight-MAC stream;
-- `archive/m04/synthesis/conv-i16-h16-t08-o4-mxx-stream08-generic/` — archived generic 4/8-MAC stream;
-- `archive/m04/synthesis/conv-i16-h16-t08-o4-m04-stream08/` and `synthesis/conv-i16-h16-t08-o4-m08-stream08/` — archived/current stream08 implementations;
-- `synthesis/conv-i16-h13-t08-o4-m08-stream08-wstream4/` — eight-MAC weight-row variant;
-- `archive/m08/synthesis/conv-i16-h13-t08-o4-m08-stream08-rowconst4/` — archived constant-row baseline;
-- `archive/m08/synthesis/conv-i16-h13-t08-o4-m08-stream08-rowconst4-exact/` — archived exact constant-row variant;
-- `archive/m04/synthesis/conv-i20-h16-t08-o4-m04-stream08-prefetch4/` and `synthesis/conv-i20-h16-t08-o4-m08-stream08-prefetch4/` — archived/current stream08 with a four-word input prefetch bank;
-- `synthesis/conv-i16-h20-t08-o4-m08-stream08-exact/` — eight-MAC exact-weight stream;
-- `synthesis/conv-i16-h16-t16-o4-m08-std/` — conventional eight-MAC default.
-- `synthesis/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4/` — prefetch plus constant-row eight-MAC variant.
-- `synthesis/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-latch/` — isolated synthesis/power configuration for the latch-bank experiment; its original edge-triggered baseline remains the canonical active implementation.
-- `archive/m08/synthesis/conv-i20-h13-t08-o4-m08-stream08-prefetch4-rowconst4-temporal1/` — archived temporal shared-transformer experiment.
+- `synthesis/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column-nbits16/`
+- `synthesis/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16/`
 
-Each configuration keeps its own `list-file.txt`, `list-define.txt`,
-`top-module.txt`, logical, power and annotated-simulation scripts. The lists
-refer only to the canonical files in this directory, so synthesis no longer
-depends on the former top-level `conv2x2-all`, `conv2x2stream4` or
-`conv2x2stream12` directories.
-
-The previous nested directory layouts were removed from the active tree. The
-`list-file.txt` in each project points to the matching canonical RTL source.
+Other synthesis and power results are preserved under `archive/synthesis/`.
+Older configurations already organized by MAC count remain under
+`archive/m04/synthesis/` and `archive/m08/synthesis/`. This keeps historical
+20-bit results available without mixing them into the current 16-bit campaign.
 
 The FPGA campaign follows the same per-variant naming convention, but is kept
 under `fpga_zcu104/` because it uses the Vivado/ZCU104 flow rather than the

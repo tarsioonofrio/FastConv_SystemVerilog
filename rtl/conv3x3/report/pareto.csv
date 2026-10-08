@@ -1,2 +1,9 @@
 Project,area_um2,power_mW,energy_nj,cycles,pareto_optimal
-Conv3x3-ifn9-06mac,21894.169,1.3121,230.4900465,,False
+Conv3x3-conv-ifn9-i35-h15-t12-o9-m06-stream12-prefetch10-rowconst6-trunc-column-nbits16,18731.258,4.31379,95.23122804,11038,True
+Conv3x3-conv-ifn9-i35-h21-t24-o9-m12-stream12-prefetch10-rowconst6-trunc-column-nbits16,24034.562,5.38687,89.83144412,8338,True
+Conv3x3-conv-ifn9-i35-h27-t36-o9-m18-stream12-prefetch10-rowconst6-trunc-column-nbits16,31134.217,6.88323,102.39492948,7438,True
+Conv3x3-conv-ifn9-i40-h15-t12-o9-m06-stream12-prefetch15-rowconst6-trunc-column-nbits16,19062.034,4.33578,95.71667928,11038,False
+Conv3x3-conv-ifn9-i40-h21-t24-o9-m12-stream12-prefetch15-rowconst6-trunc-column-nbits16,24161.391,5.36577,89.47958052,8338,True
+Conv3x3-conv-ifn9-i40-h27-t36-o9-m18-stream12-prefetch15-rowconst6-trunc-column-nbits16,32661.508,6.63959,98.77054084,7438,True
+Conv3x3-conv-tcn9-i35-h14-t10-o9-m05-stream10-prefetch10-rowconst5-trunc-column-nbits16,38121.491,4.85373,98.41422948,10138,True
+Conv3x3-conv-tcn9-i40-h14-t10-o9-m05-stream10-prefetch15-rowconst5-trunc-column-nbits16,38393.804,4.42531,89.72758556,10138,True

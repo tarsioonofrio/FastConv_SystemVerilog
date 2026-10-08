@@ -4,15 +4,15 @@ set -uo pipefail
 REPO_ROOT="${1:-$(git rev-parse --show-toplevel)}"
 REPO_ROOT="$(cd "$REPO_ROOT" && pwd)"
 RUN_ID="$(date -u +%Y%m%dT%H%M%S%NZ)"
-OUT_ROOT="${2:-$REPO_ROOT/rtl/conv3x3/synthesis/campaigns/$RUN_ID}"
+OUT_ROOT="${2:-$REPO_ROOT/rtl/conv3x3/archive/synthesis/campaigns/$RUN_ID}"
 if [[ "$OUT_ROOT" != /* ]]; then
   OUT_ROOT="$REPO_ROOT/$OUT_ROOT"
 fi
 OUT_ROOT="$(realpath -m "$OUT_ROOT")"
 case "$OUT_ROOT/" in
-  "$REPO_ROOT/rtl/conv3x3/synthesis/"*|"$REPO_ROOT/rtl/conv4x4/synthesis/"*) ;;
+  "$REPO_ROOT/rtl/conv3x3/synthesis/"*|"$REPO_ROOT/rtl/conv3x3/archive/synthesis/"*|"$REPO_ROOT/rtl/conv4x4/synthesis/"*) ;;
   *)
-    printf 'OUT_ROOT must be inside rtl/conv3x3/synthesis or rtl/conv4x4/synthesis: %s\n' "$OUT_ROOT" >&2
+    printf 'OUT_ROOT must be inside rtl/conv3x3/synthesis, rtl/conv3x3/archive/synthesis, or rtl/conv4x4/synthesis: %s\n' "$OUT_ROOT" >&2
     exit 2
     ;;
 esac
@@ -31,10 +31,10 @@ printf 'host=%s\ncommit=%s\nrepo=%s\nstarted=%s\n' \
   "$(hostname)" "$COMMIT" "$REPO_ROOT" "$(date -Is)" >"$OUT_ROOT/campaign.txt"
 
 configs=(
-  rtl/conv3x3/synthesis/conv/asic-sweep-20261003-ifn9-m06
-  rtl/conv3x3/synthesis/conv/asic-sweep-20261003-ifn9-m12
-  rtl/conv3x3/synthesis/conv/asic-sweep-20261003-ifn9-m18
-  rtl/conv3x3/synthesis/conv/asic-sweep-20261003-tcn9-m05
+  rtl/conv3x3/archive/synthesis/conv/asic-sweep-20261003-ifn9-m06
+  rtl/conv3x3/archive/synthesis/conv/asic-sweep-20261003-ifn9-m12
+  rtl/conv3x3/archive/synthesis/conv/asic-sweep-20261003-ifn9-m18
+  rtl/conv3x3/archive/synthesis/conv/asic-sweep-20261003-tcn9-m05
   rtl/conv4x4/synthesis/conv/asic-sweep-20261003-tcn16-m06
   rtl/conv4x4/synthesis/conv/asic-sweep-20261003-tcn16-m12
   rtl/conv4x4/synthesis/conv/asic-sweep-20261003-tcn16-m18

@@ -5,7 +5,17 @@ interface is intentionally the same as the 2x2 and 3x3 controllers: the DUT
 reads the generated ROM through `p_input_*` and accumulates results through the
 output RAM port `p_output_*`. The only architectural differences are the
 6x6 input tile, 4x4 output tile, 36 Hadamard values, and two multiplier cycles.
-The generated package uses 20-bit samples with 8 fractional quantization bits.
+Package width and fractional precision depend on the selected dataset; do not
+assume that every current 4x4 configuration uses the historical 20-bit,
+8-fractional-bit package.
+
+## Active RTL set
+
+The root directory keeps the selected variants only: TCN16 standard-column,
+TCN16 `frac6` at 6/12/18 multipliers, and WPN16 i60/prefetch24 at 8/16/32
+multipliers. Other TCN16 and WPN16 variants are preserved under `archive/`
+alongside their archived synthesis configurations and reports. The active ASIC
+configuration list is documented in [`synthesis/README.md`](synthesis/README.md).
 
 The testbench instantiates the same `Memory` models used by `conv3x3` and
 `conv2x2`. It starts one complete convolution, checks the output address range,

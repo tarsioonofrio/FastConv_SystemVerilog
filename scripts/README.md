@@ -8,9 +8,9 @@ Os arquivos desta pasta encadeiam tarefas recorrentes do fluxo FastConv:
 - `multiple-power-eval.sh`: fluxo legado, dependente da estrutura `sintese/`, `simSDF/` e módulos de ambiente; não deve ser usado com `rtl/conv*/synthesis/`.
 - `multiple-synth.sh`: fluxo legado para `sintese/`; as sínteses atuais são executadas pelos scripts `logical/*.tcl` dentro de cada projeto.
 - `multiple-time-arch.sh` e `time-arch.py`: geram a tabela antiga baseada em `src/<projeto>/data/sim_summary.txt`; foram substituídos pelo `time.csv` produzido por `report.py`.
-- `report.py`: descobre os projetos ativos em `rtl/conv*/synthesis/`, lê os logs de simulação anotada (`sim/xrun.log`) e os relatórios Genus de área, registradores e potência. Por padrão, projetos sob `archive/` ficam fora das tabelas; use `--include-archived` para incluí-los em uma comparação histórica. Gera tabelas sem prefixos artificiais (`time.csv`, `logical.csv`, `power.csv`, `merged.csv` e tabelas analíticas) e `report.md` em `report/`, além de um conjunto isolado em `rtl/conv*/report/` para cada arquitetura. Nenhuma tabela `sys-*` é gerada. Use `--report-dir` para outro destino global e `--naive-synthesis-dir PATH` para habilitar explicitamente a tabela separada de razões contra uma síntese naive.
+- `report.py`: descobre os projetos ativos em `rtl/conv*/synthesis/`, lê os logs de simulação anotada (`sim/xrun.log`) e os relatórios Genus de área, registradores e potência. Por padrão, projetos sob `archive/` ficam fora das tabelas; use `--include-archived` para incluí-los em uma comparação histórica. Gera tabelas sem prefixos artificiais (`time.csv`, `logical.csv`, `power.csv`, `merged.csv` e tabelas analíticas) e `report.md` em `report/`, além de um conjunto isolado em `rtl/conv*/report/` para cada arquitetura. Também recalcula a qualidade de todos os datasets `sim-032-*` que tenham `s.txt` e `s_default.txt`, salva `metrics.json` junto de cada dataset e inclui as métricas em `functional-quality.csv`. Nenhuma tabela `sys-*` é gerada. Use `--report-dir` para outro destino global e `--naive-synthesis-dir PATH` para habilitar explicitamente a tabela separada de razões contra uma síntese naive.
 - `time-arch.py`: busca `sim_summary.txt` nas pastas de resultados e monta `time.csv` com o tempo de simulação por tamanho.
-- `metrics.py`: calcula MAE/RMSE dos datasets de simulação quantizada e grava os resultados em `report/` (ou no diretório informado por `--report-dir`).
+- `metrics.py`: percorre os datasets ativos `sim-032-*` que têm `s.txt` e `s_default.txt`, calcula as métricas individualmente usando a escala de quantização de cada dataset e grava os detalhes em `metrics.json`. Gera `metrics-sim-032-normal.csv` e `.txt` com uma linha/seção `ALL (pooled)` calculada sobre todas as amostras e linhas/seções separadas para cada dataset; o TXT também lista os datasets ignorados e o motivo. Os arquivos ficam em `report/` (ou no diretório informado por `--report-dir`).
 - `test-do.bat.sh`: suíte Bats que garante a disponibilidade do ModelSim e roda `vsim` em cada subpasta contendo `sim.do`.
 
 Use estes scripts para automatizar execuções em lote e consolidar os relatórios utilizados nas análises.
@@ -42,7 +42,11 @@ inclui todas as tabelas CSV agregadas e analíticas; cada
 As tabelas analíticas geradas são `timing-summary.csv`, `area-hierarchy.csv`,
 `power-breakdown.csv`, `register-budget.csv`, `throughput.csv`,
 `energy-per-op.csv`, `mac-scaling.csv`, `pareto.csv`, `flow-status.csv` e
-`functional-quality.csv`. As três primeiras são extraídas dos relatórios de
+`functional-quality.csv`. Esta última é regenerada diretamente dos arquivos
+dos datasets e inclui modo de transformação dos pesos, larguras, escala,
+métricas de erro/R², contagens de operações e hashes do pacote/saídas. Cada
+dataset também recebe um `metrics.json` com as mesmas métricas e a definição
+exata de cada comparação. As três primeiras são extraídas dos relatórios de
 sintese; `register-budget.csv` combina as dimensões das janelas Winograd
 (4x4, 5x5 e 6x6 para kernels 2x2, 3x3 e 4x4) com a contagem real dos bancos
 registrados no RTL; as demais são derivações determinísticas de `merged.csv` ou dos
@@ -53,6 +57,13 @@ resultados de qualidade disponíveis. Em `register-budget.csv`, a coluna
 combinacionais e contadores de controle não entram nessas contagens. A coluna `mac_lanes` registra a quantidade
 de lanes MAC da arquitetura, mas não é somada ao armazenamento, pois os
 produtos são sinais `w_*` combinacionais.
+
+`make metrics` gera `report/metrics-sim-032-normal.csv` e
+`report/metrics-sim-032-normal.txt`. Ambos incluem o agregado `ALL (pooled)` e
+as métricas de cada dataset ativo individualmente. O agregado combina as
+amostras (não calcula a média simples das métricas por dataset) e respeita o
+`quant_bits` de cada um; as métricas `quantized_golden_*` são expressas em
+códigos inteiros, enquanto MAE/RMSE/erros/R² usam a escala real de cada dataset.
 
 O script reconhece tanto os logs Xcelium atuais (`xrun.log`) quanto o marcador
 legado `Total execution time`. As tabelas antigas foram preservadas em

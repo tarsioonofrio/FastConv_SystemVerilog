@@ -1,2 +1,13 @@
 Project,architecture_mode,kernel_size,input_words,h_register_words,h_register_signals,t_register_words,t_register_signals,mac_lanes,output_words,total_estimated_words,source
-Conv4x4-tcn16-18mac,standard,4,36,36,r_input_weight[36],36,r_conv_temp[36],18,16,124,rtl_r_declarations
+Conv4x4-conv-tcn16-i60-h15-t12-o16-m06-stream12-prefetch24-rowconst6-trunc-frac6-column,stream,4,36,6,r_input_weight[6],0,,6,16,58,rtl_r_declarations
+Conv4x4-conv-tcn16-i60-h21-t24-o16-m12-stream12-prefetch24-rowconst6-trunc-frac6-column,stream,4,36,0,,0,,12,16,52,rtl_r_declarations
+Conv4x4-conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-rowconst6-trunc-frac6-column,stream,4,36,0,,0,,18,16,52,rtl_r_declarations
+Conv4x4-conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column,stream,4,36,0,,0,,8,16,52,rtl_r_declarations
+Conv4x4-conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column-nbits16,stream,4,36,0,,0,,8,16,52,rtl_r_declarations
+Conv4x4-conv-wpn16-i60-h25-t32-o16-m16-stream16-prefetch24-rowconst8-trunc-column,stream,4,36,0,,0,,16,16,52,rtl_r_declarations
+Conv4x4-conv-wpn16-i60-h25-t32-o16-m16-stream16-prefetch24-rowconst8-trunc-column-nbits16,stream,4,36,0,,0,,16,16,52,rtl_r_declarations
+Conv4x4-conv-wpn16-i60-h41-t64-o16-m32-stream16-prefetch24-rowconst8-trunc-column,stream,4,36,0,,0,,32,16,52,rtl_r_declarations
+Conv4x4-conv-wpn16-i60-h41-t64-o16-m32-stream16-prefetch24-rowconst8-trunc-column-nbits16,stream,4,36,0,,0,,32,16,52,rtl_r_declarations
+Conv4x4-tcn16-std-nbits16-m06,standard,4,36,36,r_input_weight[36],36,r_conv_temp[36],6,16,124,rtl_r_declarations
+Conv4x4-tcn16-std-nbits16-m12,standard,4,36,36,r_input_weight[36],36,r_conv_temp[36],12,16,124,rtl_r_declarations
+Conv4x4-tcn16-std-nbits16-m18,standard,4,36,36,r_input_weight[36],36,r_conv_temp[36],18,16,124,rtl_r_declarations

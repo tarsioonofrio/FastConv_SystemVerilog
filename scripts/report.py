@@ -4,6 +4,8 @@ from pathlib import Path
 
 import pandas as pd
 
+from dataset_metrics import write_dataset_metrics
+
 EXCLUDED_PROJECTS = {"source", "template"}
 REPO_ROOT = Path(__file__).resolve().parent.parent
 SYS_NAIVE_PROJECT = "sys-naive"
@@ -134,7 +136,30 @@ def parse_side(project):
     return int(match.group(1))
 
 
+def parse_execution_metrics(path):
+    """Read the accepted p_start-to-p_end measurement emitted by testbenches."""
+    metrics_path = Path(path).with_name("execution_time.txt")
+    if not metrics_path.is_file():
+        return None
+    content = metrics_path.read_text(encoding="utf-8", errors="replace")
+    time_match = re.search(
+        r"^job_execution_time_ns=([0-9.]+)$", content, flags=re.MULTILINE
+    )
+    cycles_match = re.search(
+        r"^job_execution_cycles=(\d+)$", content, flags=re.MULTILINE
+    )
+    if not time_match and not cycles_match:
+        return None
+    return (
+        float(time_match.group(1)) if time_match else None,
+        int(cycles_match.group(1)) if cycles_match else None,
+    )
+
+
 def parse_time(path):
+    execution_metrics = parse_execution_metrics(path)
+    if execution_metrics and execution_metrics[0] is not None:
+        return execution_metrics[0]
     with open(path, "r") as handle:
         content = handle.read()
     match = re.search(r"Total execution time:\s*([0-9.]+)", content)
@@ -156,6 +181,9 @@ def parse_time(path):
 
 
 def parse_cycles(path):
+    execution_metrics = parse_execution_metrics(path)
+    if execution_metrics and execution_metrics[1] is not None:
+        return execution_metrics[1]
     with open(path, "r") as handle:
         content = handle.read()
     match = re.search(r"Total cycles:\s*(\d+)", content)
@@ -2014,22 +2042,25 @@ def write_flow_status(report_dir, records):
         clock = any(reports.glob("*_clock_gating.rpt"))
         power = (root / "power" / "power_evaluation.txt").exists()
         gate_level = root / "logical" / "results" / "gate_level"
-        netlist = any(gate_level.glob("*_logic_mapped.v"))
-        sdf = any(gate_level.glob("*.sdf"))
+        netlist = any(gate_level.rglob("*_logic_mapped.v"))
+        sdf = any(gate_level.rglob("*.sdf"))
         rows.append({"Project": format_project_name(project_label(record)), "simulation_log": sim, "logical_area": area, "flop_report": clock, "power_report": power, "mapped_netlist": netlist, "sdf": sdf, "complete": all([sim, area, clock, power, netlist, sdf])})
     pd.DataFrame(rows).to_csv(Path(report_dir) / "flow-status.csv", index=False)
 
 
-def write_functional_quality(report_dir):
-    source = Path(report_dir) / "metrics-sim-032-normal.csv"
-    columns = ["dataset", "count", "mae", "rmse", "max_abs", "max_rel", "mismatch_rate"]
-    if source.exists():
-        pd.read_csv(source).to_csv(Path(report_dir) / "functional-quality.csv", index=False)
-    else:
-        pd.DataFrame(columns=columns).to_csv(Path(report_dir) / "functional-quality.csv", index=False)
+def write_functional_quality(report_dir, architecture=None):
+    # Refresh per-dataset JSON sidecars and the report table from the current
+    # canonical output/reference files every time reports are regenerated.
+    rows, path = write_dataset_metrics(
+        report_dir,
+        root=REPO_ROOT,
+        architecture=architecture,
+        filename="functional-quality.csv",
+    )
+    print(f"Wrote {path} ({len(rows)} datasets)")
 
 
-def write_derived_tables(report_dir, records):
+def write_derived_tables(report_dir, records, architecture=None):
     write_timing_summary(report_dir, records)
     write_area_hierarchy(report_dir, records)
     write_power_breakdown(report_dir)
@@ -2038,10 +2069,10 @@ def write_derived_tables(report_dir, records):
     write_pareto(report_dir)
     write_mac_scaling(report_dir)
     write_flow_status(report_dir, records)
-    write_functional_quality(report_dir)
+    write_functional_quality(report_dir, architecture=architecture)
 
 
-def write_report_set(report_dir, records, title=None, naive=None):
+def write_report_set(report_dir, records, title=None, naive=None, architecture=None):
     report_dir = Path(report_dir)
     report_dir.mkdir(parents=True, exist_ok=True)
     write_report_time(report_dir, "conv-", records=records, output_label="")
@@ -2050,7 +2081,7 @@ def write_report_set(report_dir, records, title=None, naive=None):
     write_report_merge(report_dir, "conv-", output_label="")
     if naive is not None:
         write_ratio_table(report_dir, naive)
-    write_derived_tables(report_dir, records)
+    write_derived_tables(report_dir, records, architecture=architecture)
     write_markdown_report(report_dir, title=title, include_children=False)
 
 
@@ -2096,6 +2127,7 @@ def main():
             architecture_records,
             title=f"{architecture} convolution architectures",
             naive=naive,
+            architecture=architecture,
         )
     write_markdown_report(
         report_dir,

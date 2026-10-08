@@ -17,10 +17,10 @@ def config_spec(
 ) -> tuple[Path, list[str], str, list[str]]:
     base = ROOT / "rtl" / conv
     name = f"asic-sweep-20261003-{algo}-m{macs.zfill(2)}"
-    # Keep both the run configuration and its generated artifacts together in
-    # synthesis/. Parameterized conv.sv sweep configurations are grouped under
-    # conv/; dedicated RTL configurations use the RTL basename directly.
-    config = base / "synthesis" / "conv" / name
+    # Keep historical 20-bit 3x3 sweep results archived; 4x4 sweep configs stay
+    # under synthesis until that architecture is explicitly reorganized.
+    result_root = "archive" if conv == "conv3x3" else "synthesis"
+    config = base / result_root / "synthesis" / "conv" / name
     mux_suffix = macs.zfill(2)
     hdl = [
         "rtl/csa/csa_lib.sv",
@@ -87,7 +87,8 @@ def build_config(
     if config.exists():
         print(f"preserving existing synthesis directory: {config.relative_to(ROOT)}")
         return
-    source_config = ROOT / "rtl" / conv / "synthesis" / "conv" / (
+    result_root = "archive" if conv == "conv3x3" else "synthesis"
+    source_config = ROOT / "rtl" / conv / result_root / "synthesis" / "conv" / (
         "ifn9-06mac" if conv == "conv3x3" else "tcn16-18mac"
     )
 

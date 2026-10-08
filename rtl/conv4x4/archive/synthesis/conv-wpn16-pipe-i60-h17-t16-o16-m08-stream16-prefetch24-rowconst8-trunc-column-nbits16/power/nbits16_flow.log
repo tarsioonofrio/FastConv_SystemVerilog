@@ -1,0 +1,76 @@
+
+	GENUS 21.1 module was loaded
+
+	Tool manuals:  cdnshelp
+	Tool errors:  genus@root:> vls -a <ERROR_CODE>
+
+	TOOL COMPATIBILITY
+
+	  - Conformal       CONFRML15.1-p100 
+	  - Encounter Test  ET15.10          
+	  - INNOVUS         INNOVUS15.10-p002
+	  - NCsim           13.20-p002       
+
+2026/10/07 02:37:21 WARNING This OS does not appear to be a Cadence supported Linux configuration.
+2026/10/07 02:37:21 For more info, please run CheckSysConf in <cdsRoot/tools.lnx86/bin/checkSysConf <productId>
+Could not connect to display: localhost:11.0
+GUI mode requires a valid DISPLAY.
+Reverting to shell mode.
+
+TMPDIR is being set to /tmp/genus_temp_3128156_paxos.inf.pucrs.br_tarsio.onofrio_knxqF5
+Cadence Genus(TM) Synthesis Solution.
+Copyright 2022 Cadence Design Systems, Inc. All rights reserved worldwide.
+Cadence and the Cadence logo are registered trademarks and Genus is a trademark
+of Cadence Design Systems, Inc. in the United States and other countries.
+
+[02:37:21.503673] Configured Lic search path (20.02-s004): 5280@paxos.inf.pucrs.br
+
+Version: 21.12-s068_1, built Fri Mar 04 09:12:46 PST 2022
+Options: -files power.tcl 
+Date:    Wed Oct 07 02:37:21 2026
+Host:    paxos.inf.pucrs.br (x86_64 w/Linux 4.18.0-553.155.1.el8_10.x86_64) (14cores*28cpus*1physical cpu*Intel(R) Core(TM) i9-7940X CPU @ 3.10GHz 19712KB) (131170900KB)
+PID:     3128156
+OS:      Rocky Linux release 8.10 (Green Obsidian)
+
+
+[02:37:21.314410] Periodic Lic check successful
+[02:37:21.314417] Feature usage summary:
+[02:37:21.314417] Genus_Synthesis
+Checking out license: Genus_Synthesis
+
+
+***********************************************************************************************************
+***********************************************************************************************************
+
+
+
+Loading tool scripts...
+Finished loading tool scripts (8 seconds elapsed).
+
+#@ Processing -files option
+@genus 1> source power.tcl
+#@ Begin verbose source ./power.tcl
+@file(power.tcl) 4: set POWER_ROOT [file normalize [file dirname [info script]]]
+@file(power.tcl) 5: set CONFIG_ROOT [file normalize [file join $POWER_ROOT ..]]
+@file(power.tcl) 6: set GIT_ROOT [exec git -C $CONFIG_ROOT rev-parse --show-toplevel]
+@file(power.tcl) 7: set TOP_MODULE Conv
+@file(power.tcl) 8: set top_file [file join $CONFIG_ROOT top-module.txt]
+@file(power.tcl) 9: if {[file exists $top_file]} {
+    set fp_top [open $top_file r]
+    while {[gets $fp_top line] >= 0} {
+        set line_trim [string trim $line]
+        if {$line_trim ne "" && ![string match "#*" $line_trim]} {
+            set TOP_MODULE $line_trim
+            break
+        }
+    }
+    close $fp_top
+}
+@file(power.tcl) 20: set DB_FILE [file normalize [file join $CONFIG_ROOT logical results gate_level ${TOP_MODULE}_logic_mapped.db]]
+@file(power.tcl) 21: set SHM [file normalize [file join $CONFIG_ROOT sim dut.shm]]
+@file(power.tcl) 22: source [file join $CONFIG_ROOT scripts power.tcl]
+#@ End verbose source ./power.tcl
+File '/tmp/fastconv-nbits16-fde3bb1d/rtl/conv4x4/synthesis/conv-wpn16-pipe-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column-nbits16/scripts/power.tcl' does not exist.
+Encountered problems processing file: power.tcl
+WARNING: This version of the tool is 1677 days old.
+@genus:root: 2> 
