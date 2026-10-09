@@ -1,3 +1,5 @@
 Project,nome,mult,side,extra,time_ns,cycles,Cell Count,Cell Area um^2,Net Area um^2,Total Area um^2,Flop Count,memory,register,latch,logic,bbox,clock,pad,pm,Subtotal,size,energy_nj
+Conv3x3-conv-ifn9-i40-h15-t12-o9-m06-stream12-prefetch15-rowconst6-trunc-column-nbits16-cin3-cout12,Conv3x3-conv,06,32,,88280.0,44140,11432,13503.294,5608.136,19111.43,1562,0.0,1.49357,0.0,2.64096,0.0,0.160062,0.0,0.0,4.29459,1024,379.1264052
+Conv3x3-conv-ifn9-i40-h21-t24-o9-m12-stream12-prefetch15-rowconst6-trunc-column-nbits16-cin3-cout12,Conv3x3-conv,12,32,,66680.0,33340,14384,17063.676,7139.802,24203.478,1846,0.0,1.8577,0.0,3.38311,0.0,0.168906,0.0,0.0,5.40972,1024,360.7201296
 Conv3x3-conv-ifn9-i40-h27-t36-o9-m18-stream12-prefetch15-rowconst6-trunc-column-nbits16-cin3-cout12,Conv3x3-conv,18,32,,59480.0,29740,20037,22464.036,10245.384,32709.42,2137,0.0,2.26942,0.0,4.63827,0.0,0.171885,0.0,0.0,7.07957,1024,421.09282360000003
 Conv3x3-conv-tcn9-i40-h14-t10-o9-m05-stream10-prefetch15-rowconst5-trunc-column-nbits16-cin3-cout12,Conv3x3-conv,05,32,,81080.0,40540,24890,26980.884,11473.639,38454.523,1500,0.0,1.40534,0.0,2.87859,0.0,0.152773,0.0,0.0,4.43671,1024,359.7284468

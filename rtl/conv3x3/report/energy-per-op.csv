@@ -1,3 +1,5 @@
 Project,energy_nj,energy_per_pixel_nj,energy_per_mac_nj,energy_per_cycle_nj
+Conv3x3-conv-ifn9-i40-h15-t12-o9-m06-stream12-prefetch15-rowconst6-trunc-column-nbits16-cin3-cout12,379.1264052,0.42125156133333336,0.07020859355555556,0.00858918
+Conv3x3-conv-ifn9-i40-h21-t24-o9-m12-stream12-prefetch15-rowconst6-trunc-column-nbits16-cin3-cout12,360.7201296,0.400800144,0.033400012,0.01081944
 Conv3x3-conv-ifn9-i40-h27-t36-o9-m18-stream12-prefetch15-rowconst6-trunc-column-nbits16-cin3-cout12,421.0928236,0.4678809151111111,0.025993384172839504,0.014159139999999999
 Conv3x3-conv-tcn9-i40-h14-t10-o9-m05-stream10-prefetch15-rowconst5-trunc-column-nbits16-cin3-cout12,359.7284468,0.3996982742222222,0.07993965484444444,0.00887342

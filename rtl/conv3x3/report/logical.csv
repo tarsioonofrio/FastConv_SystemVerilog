@@ -1,3 +1,5 @@
 Project,nome,mult,extra,Cell Count,Cell Area um^2,Net Area um^2,Total Area um^2,Flop Count
+Conv3x3-conv-ifn9-i40-h15-t12-o9-m06-stream12-prefetch15-rowconst6-trunc-column-nbits16-cin3-cout12,Conv3x3-conv,06,,11432,13503.294,5608.136,19111.43,1562
+Conv3x3-conv-ifn9-i40-h21-t24-o9-m12-stream12-prefetch15-rowconst6-trunc-column-nbits16-cin3-cout12,Conv3x3-conv,12,,14384,17063.676,7139.802,24203.478,1846
 Conv3x3-conv-ifn9-i40-h27-t36-o9-m18-stream12-prefetch15-rowconst6-trunc-column-nbits16-cin3-cout12,Conv3x3-conv,18,,20037,22464.036,10245.384,32709.42,2137
 Conv3x3-conv-tcn9-i40-h14-t10-o9-m05-stream10-prefetch15-rowconst5-trunc-column-nbits16-cin3-cout12,Conv3x3-conv,05,,24890,26980.884,11473.639,38454.523,1500

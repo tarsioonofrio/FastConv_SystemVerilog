@@ -1,7 +1,7 @@
 {
   "dataset": {
     "algorithm": "ifn9",
-    "architecture": "conv-ifn9-i40-h27-t36-o9-m18-stream12-prefetch15-rowconst6-trunc-column-nbits16-cin3-cout12",
+    "architecture": "conv-ifn9-i40-h15-t12-o9-m06-stream12-prefetch15-rowconst6-trunc-column-nbits16-cin3-cout12; conv-ifn9-i40-h21-t24-o9-m12-stream12-prefetch15-rowconst6-trunc-column-nbits16-cin3-cout12; conv-ifn9-i40-h27-t36-o9-m18-stream12-prefetch15-rowconst6-trunc-column-nbits16-cin3-cout12",
     "bias_enabled": false,
     "count": 10800,
     "dataset": "rtl/conv3x3/data/ifn9/sim/sim-032-3-12-normal-trunc-nbits16",

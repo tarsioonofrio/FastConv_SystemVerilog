@@ -1,3 +1,5 @@
 nome,mult,Project,cycles,Total Area um^2,Subtotal,energy_nj,delta_cycles,delta_area_um2,delta_power_mW,delta_energy_nj
 Conv3x3-conv,5,Conv3x3-conv-tcn9-i40-h14-t10-o9-m05-stream10-prefetch15-rowconst5-trunc-column-nbits16-cin3-cout12,40540,38454.523,4.43671,359.7284468,,,,
-Conv3x3-conv,18,Conv3x3-conv-ifn9-i40-h27-t36-o9-m18-stream12-prefetch15-rowconst6-trunc-column-nbits16-cin3-cout12,29740,32709.42,7.07957,421.0928236,-10800.0,-5745.103000000003,2.6428600000000007,61.3643768
+Conv3x3-conv,6,Conv3x3-conv-ifn9-i40-h15-t12-o9-m06-stream12-prefetch15-rowconst6-trunc-column-nbits16-cin3-cout12,44140,19111.43,4.29459,379.1264052,3600.0,-19343.093,-0.14211999999999936,19.39795840000005
+Conv3x3-conv,12,Conv3x3-conv-ifn9-i40-h21-t24-o9-m12-stream12-prefetch15-rowconst6-trunc-column-nbits16-cin3-cout12,33340,24203.478,5.40972,360.7201296,-10800.0,5092.047999999999,1.1151299999999997,-18.406275600000015
+Conv3x3-conv,18,Conv3x3-conv-ifn9-i40-h27-t36-o9-m18-stream12-prefetch15-rowconst6-trunc-column-nbits16-cin3-cout12,29740,32709.42,7.07957,421.0928236,-3600.0,8505.942,1.6698500000000003,60.37269399999997

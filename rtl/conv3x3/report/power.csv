@@ -1,3 +1,5 @@
 Project,nome,mult,extra,memory,register,latch,logic,bbox,clock,pad,pm,Subtotal
+Conv3x3-conv-ifn9-i40-h15-t12-o9-m06-stream12-prefetch15-rowconst6-trunc-column-nbits16-cin3-cout12,Conv3x3-conv,06,,0.0,1.49357,0.0,2.64096,0.0,0.160062,0.0,0.0,4.29459
+Conv3x3-conv-ifn9-i40-h21-t24-o9-m12-stream12-prefetch15-rowconst6-trunc-column-nbits16-cin3-cout12,Conv3x3-conv,12,,0.0,1.8577,0.0,3.38311,0.0,0.168906,0.0,0.0,5.40972
 Conv3x3-conv-ifn9-i40-h27-t36-o9-m18-stream12-prefetch15-rowconst6-trunc-column-nbits16-cin3-cout12,Conv3x3-conv,18,,0.0,2.26942,0.0,4.63827,0.0,0.171885,0.0,0.0,7.07957
 Conv3x3-conv-tcn9-i40-h14-t10-o9-m05-stream10-prefetch15-rowconst5-trunc-column-nbits16-cin3-cout12,Conv3x3-conv,05,,0.0,1.40534,0.0,2.87859,0.0,0.152773,0.0,0.0,4.43671
