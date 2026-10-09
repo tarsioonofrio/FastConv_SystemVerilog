@@ -1,6 +1,6 @@
 source=/home/tarsio/gaph/FastConv_SystemVerilog/rtl/conv4x4/conv-wpn16-i54-h17-t16-o16-m08-stream16-prefetch18-rowconst8-trunc-column.sv
 source_sha256=1635969aba09202218ad530a42098c17417f43b8ac846640ffc317aa717762aa
-dataset=/home/tarsio/gaph/FastConv_SystemVerilog/rtl/conv4x4/data/wpn16/sim/sim-032-3-3-normal-trunc/pack_data.sv
+dataset=/home/tarsio/gaph/FastConv_SystemVerilog/rtl/conv4x4/data/archive/wpn16/sim/sim-032-3-3-normal-trunc/pack_data.sv
 dataset_sha256=89f6b53f0411b106021faae0586b0209d0a482af5706f0c94e923802ac63374e
 config=wpn16
 num_mult=8

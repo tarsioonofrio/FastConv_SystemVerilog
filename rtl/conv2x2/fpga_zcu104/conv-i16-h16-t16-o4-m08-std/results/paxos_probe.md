@@ -81,7 +81,7 @@ The activity workload was regenerated in an isolated copy of the
 ```
 
 The resulting package is the canonical
-`rtl/conv2x2/data/tcn4/sim/sim-032-3-3-normal/pack_data.sv`, with SHA-256
+`rtl/conv2x2/data/archive/tcn4/sim/sim-032-3-3-normal/pack_data.sv`, with SHA-256
 `3ced5c4527374898e1f8d65c275403e1366e2bb09f466542915656b263356da0`.
 The metadata records the generator, configuration, dimensions, seed, and the
 8-bit quantization used by `fast-conv sim normal`. Local RTL validation passed

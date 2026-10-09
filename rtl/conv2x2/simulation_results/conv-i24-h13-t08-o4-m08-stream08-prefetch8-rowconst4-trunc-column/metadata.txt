@@ -1,6 +1,6 @@
 source=/home/tarsio/gaph/FastConv_SystemVerilog/rtl/conv2x2/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column.sv
 source_sha256=9617ee65b66b372b441c0e33114cf858639bb40bb039469337c55a4a3c40d0d7
-dataset=/home/tarsio/gaph/FastConv_SystemVerilog/rtl/conv2x2/data/tcn4/sim/sim-032-3-3-normal-trunc/pack_data.sv
+dataset=/home/tarsio/gaph/FastConv_SystemVerilog/rtl/conv2x2/data/archive/tcn4/sim/sim-032-3-3-normal-trunc/pack_data.sv
 dataset_sha256=2b5bd0cdedfcba77eb8f128246369f73935ef0245b4927373e9647bc0838594b
 testbench=/home/tarsio/gaph/FastConv_SystemVerilog/rtl/conv2x2/testbench_prefetch8_column.sv
 testbench_sha256=bef3037fc5304dfab99b2ff802958c6ef62166f1214423c80183e4b39a10bbaf

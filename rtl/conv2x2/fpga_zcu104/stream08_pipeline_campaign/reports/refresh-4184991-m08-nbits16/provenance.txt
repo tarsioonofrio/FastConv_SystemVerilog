@@ -9,4 +9,4 @@ variant=m08
 NBITS=16
 rtl=rtl/conv2x2/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column.sv
 manifest=rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/manifests/prefetch8-rowconst4-trunc-column-nbits16.txt
-workload=rtl/conv2x2/data/tcn4/sim/sim-032-3-3-normal-trunc-nbits16/pack_data.sv
+workload=rtl/conv2x2/data/archive/tcn4/sim/sim-032-3-3-normal-trunc-nbits16/pack_data.sv

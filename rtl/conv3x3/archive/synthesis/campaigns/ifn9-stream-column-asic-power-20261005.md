@@ -14,7 +14,7 @@ com netlist gate-level e SDF nominal → Joules. O sexto caso ativo, m18 com
 - SDC com período de clock de 2 ns (500 MHz); corner típico de power:
   0,90 V / 25 °C, interconnect PLE.
 - Workload comum: 32×32, `Cin=3`, `Cout=3`, kernel 3×3, pacote truncado
-  canônico `rtl/conv3x3/data/ifn9/sim/sim-032-3-3-normal-trunc/pack_data.sv`.
+  canônico `rtl/conv3x3/data/archive/ifn9/sim/sim-032-3-3-normal-trunc/pack_data.sv`.
 - SHA-256 do pacote: `4823753ac6c6cd9d502aa8f0839629a427703e807ea75ba646d51f1a282e7dc9`.
 - As cinco simulações gate-level concluíram com 8.100 escritas válidas,
   `input_clipped_beats=0`, `output_clipped_words=0` e aprovação do testbench.

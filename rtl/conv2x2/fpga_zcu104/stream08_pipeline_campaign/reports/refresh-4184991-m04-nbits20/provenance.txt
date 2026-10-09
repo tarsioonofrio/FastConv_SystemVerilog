@@ -9,4 +9,4 @@ variant=m04
 NBITS=20
 rtl=rtl/conv2x2/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column.sv
 manifest=rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/manifests/prefetch8-rowconst4-trunc-column-4mac.txt
-workload=rtl/conv2x2/data/tcn4/sim/sim-032-3-3-normal-trunc/pack_data.sv
+workload=rtl/conv2x2/data/archive/tcn4/sim/sim-032-3-3-normal-trunc/pack_data.sv

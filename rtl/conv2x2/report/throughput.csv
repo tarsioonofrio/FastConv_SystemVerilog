@@ -1,5 +1,3 @@
 Project,nome,mult,side,kernel_size,output_side,output_pixels,cycles,time_ns,pixels_per_cycle,macs_per_cycle
-Conv2x2-conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column-nbits16,Conv2x2,4,32,2,31,961,18551,37102.0,0.051803137297180744,0.20721254918872298
 Conv2x2-conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12,Conv2x2,4,32,2,31,961,74198,148396.0,0.012951831585757028,0.051807326343028114
-Conv2x2-conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16,Conv2x2,8,32,2,31,961,14501,29002.0,0.06627129163505965,0.5301703330804772
 Conv2x2-conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12,Conv2x2,8,32,2,31,961,57998,115996.0,0.01656953688058209,0.1325562950446567

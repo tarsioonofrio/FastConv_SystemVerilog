@@ -7,7 +7,7 @@
 - Xcelium: `23.03-s003`
 - Simulation mode: post-route functional netlist, no SDF; SAIF collected over the active `p_start` to `p_end` window
 - Clock constraint and simulation clock: 317 MHz target, period 3.154574 ns
-- Workload: canonical `32x32`, Cin=3, Cout=3, 3x3 package at `rtl/conv2x2/data/tcn4/sim/sim-032-3-3-normal/pack_data.sv`
+- Workload: canonical `32x32`, Cin=3, Cout=3, 3x3 package at `rtl/conv2x2/data/archive/tcn4/sim/sim-032-3-3-normal/pack_data.sv`
 - Equivalent operations: 145,800/job using MAC=2; active-job throughput excludes inter-job reset/rearm
 - Long implementation/simulation campaign: tmux session `fc-col-pwr-ced7840b`, exit code 0
 - Simulation evidence: both DUT-SAIF and top-SAIF Xcelium runs passed for all four variants; each reports 8,100 writes, 2,700 final words, zero mismatches

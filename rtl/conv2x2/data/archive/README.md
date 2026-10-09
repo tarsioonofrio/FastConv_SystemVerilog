@@ -11,3 +11,4 @@ Archived workloads are grouped by algorithm under
 | Algorithm | Archived dataset | Reason |
 | --- | --- | --- |
 | `tcn4` | `sim-032-3-3-normal`, `sim-032-3-3-normal-exact`, `sim-032-3-3-normal-trunc`, `sim-032-3-3-normal-nbits16` | Not referenced by a non-archived synthesis configuration; retained for RTL and historical comparisons. |
+| `tcn4` | `sim-032-3-3-normal-trunc-nbits16` | 16-bit package for the archived 2x2 FPGA variants; the corresponding synthesis configurations are archived as well. |

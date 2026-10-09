@@ -96,10 +96,10 @@ run_one m04 20 \
 run_one m08 16 \
   rtl/conv2x2/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column.sv \
   rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/manifests/prefetch8-rowconst4-trunc-column-nbits16.txt \
-  rtl/conv2x2/data/tcn4/sim/sim-032-3-3-normal-trunc-nbits16/pack_data.sv NBITS=16 yes
+  rtl/conv2x2/data/archive/tcn4/sim/sim-032-3-3-normal-trunc-nbits16/pack_data.sv NBITS=16 yes
 run_one m04 16 \
   rtl/conv2x2/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column.sv \
   rtl/conv2x2/fpga_zcu104/stream08_pipeline_campaign/manifests/prefetch8-rowconst4-trunc-column-4mac-nbits16.txt \
-  rtl/conv2x2/data/tcn4/sim/sim-032-3-3-normal-trunc-nbits16/pack_data.sv NBITS=16 yes
+  rtl/conv2x2/data/archive/tcn4/sim/sim-032-3-3-normal-trunc-nbits16/pack_data.sv NBITS=16 yes
 
 echo 'ALL_REFRESH_FLOWS_COMPLETE'

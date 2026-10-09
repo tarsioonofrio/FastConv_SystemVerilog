@@ -324,7 +324,7 @@ def main() -> int:
     payload = {"platform": {"vivado_reference": "2023.2",
                              "part": "xczu7ev-ffvc1156-2-e", "board": "ZCU104"},
                "rtl_validation": rtl, "fmax_search": fmax,
-               "workload": {"package": "rtl/conv2x2/data/tcn4/sim/sim-032-3-3-normal/pack_data.sv",
+               "workload": {"package": "rtl/conv2x2/data/archive/tcn4/sim/sim-032-3-3-normal/pack_data.sv",
                              "sha256": "3ced5c4527374898e1f8d65c275403e1366e2bb09f466542915656b263356da0",
                              "equivalent_ops_per_job": ops,
                              "literal_operations_per_job": operations.get("literal_arithmetic_ops"),

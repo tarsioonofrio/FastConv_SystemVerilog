@@ -4,7 +4,7 @@
     "architecture": "conv4x4",
     "bias_enabled": false,
     "count": 2700,
-    "dataset": "rtl/conv4x4/data/tcn16/sim/sim-032-3-3-normal-trunc",
+    "dataset": "rtl/conv4x4/data/archive/tcn16/sim/sim-032-3-3-normal-trunc",
     "dataset_mode": "truncated",
     "dataset_scale": 128,
     "exact_scaled_weights": false,

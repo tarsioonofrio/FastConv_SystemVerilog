@@ -29,6 +29,6 @@
     "generator_simulation": "/home/tarsio/gaph/fast-convolution-rtl/src/fast_convolution/simulation.py:_standard_convolve and sim_naive",
     "rtl_channel_input_loop": "rtl/conv2x2/archive/m08/conv-i16-h16-t16-o4-m08-std.sv:289-307",
     "rtl_channel_accumulation": "rtl/conv2x2/archive/m08/conv-i16-h16-t16-o4-m08-std.sv:574-625",
-    "canonical_workload": "rtl/conv2x2/data/tcn4/sim/sim-032-3-3-normal/pack_data.sv"
+    "canonical_workload": "rtl/conv2x2/data/archive/tcn4/sim/sim-032-3-3-normal/pack_data.sv"
   }
 }

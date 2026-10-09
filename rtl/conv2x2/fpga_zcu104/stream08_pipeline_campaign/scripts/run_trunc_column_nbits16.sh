@@ -13,7 +13,7 @@ bench_dir=$(cd -- "$script_dir/.." && pwd)
 repo_root=$(cd -- "$bench_dir/../../../../" && pwd)
 common_dir="$repo_root/rtl/conv2x2/fpga_zcu104/column_power_comparison"
 reports_dir="$bench_dir/reports"
-workload="$repo_root/rtl/conv2x2/data/tcn4/sim/sim-032-3-3-normal-trunc-nbits16/pack_data.sv"
+workload="$repo_root/rtl/conv2x2/data/archive/tcn4/sim/sim-032-3-3-normal-trunc-nbits16/pack_data.sv"
 run_suffix=prefetch8-rowconst4-trunc-column-nbits16
 
 case "$variant" in
@@ -74,7 +74,7 @@ NBITS=16
 QUANT_BITS=8
 target_clock_mhz=317
 clock_period_ns=3.154574
-workload=rtl/conv2x2/data/tcn4/sim/sim-032-3-3-normal-trunc-nbits16/pack_data.sv
+workload=rtl/conv2x2/data/archive/tcn4/sim/sim-032-3-3-normal-trunc-nbits16/pack_data.sv
 rtl=${rtl#"$repo_root/"}
 manifest=${manifest#"$repo_root/"}
 EOF

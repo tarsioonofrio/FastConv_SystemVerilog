@@ -1,16 +1,4 @@
 Project,view,data_path_ps,required_time_ps,slack_ps,reported_margin_ps
-Conv4x4-conv-tcn16-i60-h15-t12-o16-m06-stream12-prefetch24-pretransformed-column,analysis_view_0p81v_125c_capwst_slowest,996.0,1000.0,4.0,4.0
-Conv4x4-conv-tcn16-i60-h15-t12-o16-m06-stream12-prefetch24-rowconst6-trunc-frac6-column,analysis_view_0p81v_125c_capwst_slowest,1993.0,1993.0,0.0,0.0
-Conv4x4-conv-tcn16-i60-h21-t24-o16-m12-stream12-prefetch24-pretransformed-column,analysis_view_0p81v_125c_capwst_slowest,996.0,1000.0,4.0,4.0
-Conv4x4-conv-tcn16-i60-h21-t24-o16-m12-stream12-prefetch24-rowconst6-trunc-frac6-column,analysis_view_0p81v_125c_capwst_slowest,1966.0,1966.0,0.0,0.0
-Conv4x4-conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-pretransformed-column,analysis_view_0p81v_125c_capwst_slowest,1000.0,1000.0,0.0,0.0
 Conv4x4-conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-pretransformed-column-cin3-cout12,analysis_view_0p81v_125c_capwst_slowest,999.0,1000.0,1.0,1.0
-Conv4x4-conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-rowconst6-trunc-frac6-column,analysis_view_0p81v_125c_capwst_slowest,1995.0,1995.0,0.0,0.0
 Conv4x4-conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-rowconst6-trunc-frac6-column-cin3-cout12,analysis_view_0p81v_125c_capwst_slowest,1975.0,1975.0,0.0,0.0
-Conv4x4-conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column-nbits16,analysis_view_0p81v_125c_capwst_slowest,978.0,1000.0,22.0,22.0
-Conv4x4-conv-wpn16-i60-h25-t32-o16-m16-stream16-prefetch24-rowconst8-trunc-column-nbits16,analysis_view_0p81v_125c_capwst_slowest,981.0,1000.0,19.0,19.0
-Conv4x4-conv-wpn16-i60-h41-t64-o16-m32-stream16-prefetch24-rowconst8-trunc-column-nbits16,analysis_view_0p81v_125c_capwst_slowest,986.0,1000.0,14.0,14.0
 Conv4x4-conv-wpn16-i60-h41-t64-o16-m32-stream16-prefetch24-rowconst8-trunc-column-nbits16-cin3-cout12,analysis_view_0p81v_125c_capwst_slowest,982.0,1000.0,18.0,18.0
-Conv4x4-tcn16-std-nbits16-m06,analysis_view_0p81v_125c_capwst_slowest,999.0,1000.0,1.0,1.0
-Conv4x4-tcn16-std-nbits16-m12,analysis_view_0p81v_125c_capwst_slowest,990.0,1000.0,10.0,10.0
-Conv4x4-tcn16-std-nbits16-m18,analysis_view_0p81v_125c_capwst_slowest,1000.0,1000.0,0.0,0.0

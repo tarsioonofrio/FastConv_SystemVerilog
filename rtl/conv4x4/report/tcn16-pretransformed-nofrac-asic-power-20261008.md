@@ -59,7 +59,7 @@ na tabela; isso não é um relatório de place-and-route físico.
 ## Condições e proveniência
 
 - RTL/dataset de origem: commit `2d0860b84fb0b9901afbf99432e2a11256e9b6fd`.
-- Dataset: `rtl/conv4x4/data/tcn16/sim/sim-032-3-3-normal-trunc-nbits20/pack_data.sv`.
+- Dataset: `rtl/conv4x4/data/archive/tcn16/sim/sim-032-3-3-normal-trunc-nbits20/pack_data.sv`.
 - SHA-256 do pacote: `3274fb64b676c1657db2c3bd9ed0a2b09295add8888ae546cc6d599d1c5da567`.
 - Host: `paxos.inf.pucrs.br`; Genus `21.12-s068_1`; Xcelium `23.03-s003`.
 - Tecnologia: TSMC28; clock SDC de `2,000 ns`; power typical em `0,90 V / 25 °C`.
