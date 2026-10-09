@@ -1,3 +1,5 @@
 Project,area_um2,power_mW,energy_nj,cycles,pareto_optimal
 Conv2x2-conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column-nbits16,11858.635,3.20559,118.93380018,18551,True
+Conv2x2-conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12,11899.682,3.22691,478.86053636,74198,False
 Conv2x2-conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16,15086.121,4.09421,118.74027842,14501,True
+Conv2x2-conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12,15124.401,4.08573,473.92833708,57998,False

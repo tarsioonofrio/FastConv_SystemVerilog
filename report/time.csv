@@ -1,6 +1,8 @@
 project,nome,mult,side,extra,time/ns,cycles
 Conv2x2-conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column-nbits16,Conv2x2,04,32,,37102.0,18551
+Conv2x2-conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12,Conv2x2,04,32,,148396.0,74198
 Conv2x2-conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16,Conv2x2,08,32,,29002.0,14501
+Conv2x2-conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12,Conv2x2,08,32,,115996.0,57998
 Conv3x3-conv-ifn9-i35-h15-t12-o9-m06-stream12-prefetch10-rowconst6-trunc-column-nbits16,Conv3x3-conv,06,32,,22076.0,11038
 Conv3x3-conv-ifn9-i35-h21-t24-o9-m12-stream12-prefetch10-rowconst6-trunc-column-nbits16,Conv3x3-conv,12,32,,16676.0,8338
 Conv3x3-conv-ifn9-i35-h27-t36-o9-m18-stream12-prefetch10-rowconst6-trunc-column-nbits16,Conv3x3-conv,18,32,,14876.0,7438
