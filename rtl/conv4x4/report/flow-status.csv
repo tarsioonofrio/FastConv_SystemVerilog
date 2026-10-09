@@ -4,10 +4,13 @@ Conv4x4-conv-tcn16-i60-h15-t12-o16-m06-stream12-prefetch24-rowconst6-trunc-frac6
 Conv4x4-conv-tcn16-i60-h21-t24-o16-m12-stream12-prefetch24-pretransformed-column,True,True,True,True,True,True,True
 Conv4x4-conv-tcn16-i60-h21-t24-o16-m12-stream12-prefetch24-rowconst6-trunc-frac6-column,True,True,True,True,True,True,True
 Conv4x4-conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-pretransformed-column,True,True,True,True,True,True,True
+Conv4x4-conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-pretransformed-column-cin3-cout12,True,True,True,True,True,True,True
 Conv4x4-conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-rowconst6-trunc-frac6-column,True,True,True,True,True,True,True
+Conv4x4-conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-rowconst6-trunc-frac6-column-cin3-cout12,True,True,True,True,True,True,True
 Conv4x4-conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column-nbits16,True,True,True,True,True,False,False
 Conv4x4-conv-wpn16-i60-h25-t32-o16-m16-stream16-prefetch24-rowconst8-trunc-column-nbits16,True,True,True,True,True,False,False
 Conv4x4-conv-wpn16-i60-h41-t64-o16-m32-stream16-prefetch24-rowconst8-trunc-column-nbits16,True,True,True,True,True,False,False
+Conv4x4-conv-wpn16-i60-h41-t64-o16-m32-stream16-prefetch24-rowconst8-trunc-column-nbits16-cin3-cout12,True,True,True,True,True,True,True
 Conv4x4-tcn16-std-nbits16-m06,True,True,True,True,True,True,True
 Conv4x4-tcn16-std-nbits16-m12,True,True,True,True,True,True,True
 Conv4x4-tcn16-std-nbits16-m18,True,True,True,True,True,True,True
