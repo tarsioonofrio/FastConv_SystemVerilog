@@ -98,13 +98,9 @@ done
 run_2x2 conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column.sv 4 stream08-prefetch8-rowconst4-trunc-column-4mac
 run_2x2 conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column.sv 8 stream08-prefetch8-rowconst4-trunc-column
 
-run_column conv3x3 conv-ifn9-i35-h15-t12-o9-m06-stream12-prefetch10-rowconst6-trunc-column.sv ifn9 6 2
-run_column conv3x3 conv-ifn9-i35-h21-t24-o9-m12-stream12-prefetch10-rowconst6-trunc-column.sv ifn9 12 2
-run_column conv3x3 conv-ifn9-i35-h27-t36-o9-m18-stream12-prefetch10-rowconst6-trunc-column.sv ifn9 18 2
 run_column conv3x3 conv-ifn9-i40-h15-t12-o9-m06-stream12-prefetch15-rowconst6-trunc-column.sv ifn9 6 3
 run_column conv3x3 conv-ifn9-i40-h21-t24-o9-m12-stream12-prefetch15-rowconst6-trunc-column.sv ifn9 12 3
 run_column conv3x3 conv-ifn9-i40-h27-t36-o9-m18-stream12-prefetch15-rowconst6-trunc-column.sv ifn9 18 3
-run_column conv3x3 conv-tcn9-i35-h14-t10-o9-m05-stream10-prefetch10-rowconst5-trunc-column.sv tcn9 5 2
 run_column conv3x3 conv-tcn9-i40-h14-t10-o9-m05-stream10-prefetch15-rowconst5-trunc-column.sv tcn9 5 3
 
 run_column conv4x4 conv-tcn16-i54-h15-t12-o16-m06-stream12-prefetch18-rowconst6-trunc-column.sv tcn16 6 3

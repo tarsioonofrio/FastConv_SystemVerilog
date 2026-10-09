@@ -2,11 +2,11 @@
 
 The active convolution RTL files at the root of `rtl/conv4x4/` are limited to:
 
-- `conv-tcn16-std-column.sv`;
 - the three `conv-tcn16-...-trunc-frac6-column.sv` files;
 - WPN16 i60/prefetch24 column RTLs with 8, 16, and 32 multipliers.
 
-Earlier TCN16 truncation variants are grouped under `tcn16/`; earlier WPN16
+The standard TCN16 column RTL is archived directly in this directory. Earlier
+TCN16 truncation variants are grouped under `tcn16/`; earlier WPN16
 prefetch, pipeline, and operand-isolation variants are grouped under `wpn16/`.
 The original parameterized controller remains `conv.sv` in this directory,
 and the older TCN16 frac8 sources remain under `tcn16-frac8/`.
