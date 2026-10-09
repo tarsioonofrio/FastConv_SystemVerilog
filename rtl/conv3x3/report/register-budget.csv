@@ -5,6 +5,7 @@ Conv3x3-conv-ifn9-i35-h27-t36-o9-m18-stream12-prefetch10-rowconst6-trunc-column-
 Conv3x3-conv-ifn9-i40-h15-t12-o9-m06-stream12-prefetch15-rowconst6-trunc-column-nbits16,stream,3,25,0,,0,,6,9,34,rtl_r_declarations
 Conv3x3-conv-ifn9-i40-h21-t24-o9-m12-stream12-prefetch15-rowconst6-trunc-column-nbits16,stream,3,25,0,,0,,12,9,34,rtl_r_declarations
 Conv3x3-conv-ifn9-i40-h27-t36-o9-m18-stream12-prefetch15-rowconst6-trunc-column-nbits16,stream,3,25,0,,0,,18,9,34,rtl_r_declarations
+Conv3x3-conv-ifn9-i40-h27-t36-o9-m18-stream12-prefetch15-rowconst6-trunc-column-nbits16-cin3-cout12,stream,3,25,0,,0,,18,9,34,rtl_r_declarations
 Conv3x3-conv-tcn9-i35-h14-t10-o9-m05-stream10-prefetch10-rowconst5-trunc-column-nbits16,stream,3,25,0,,0,,5,9,34,rtl_r_declarations
 Conv3x3-conv-tcn9-i40-h14-t10-o9-m05-stream10-prefetch15-rowconst5-trunc-column-nbits16,stream,3,25,5,r_input_weight[5],0,,5,9,39,rtl_r_declarations
 Conv3x3-conv-tcn9-i40-h14-t10-o9-m05-stream10-prefetch15-rowconst5-trunc-column-nbits16-cin3-cout12,stream,3,25,5,r_input_weight[5],0,,5,9,39,rtl_r_declarations

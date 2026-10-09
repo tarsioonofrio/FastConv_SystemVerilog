@@ -9,6 +9,7 @@ Conv3x3-conv-ifn9-i35-h27-t36-o9-m18-stream12-prefetch10-rowconst6-trunc-column-
 Conv3x3-conv-ifn9-i40-h15-t12-o9-m06-stream12-prefetch15-rowconst6-trunc-column-nbits16,Conv3x3-conv,6,32,3,30,900,11038,22076.0,0.08153651023736184,0.48921906142417104
 Conv3x3-conv-ifn9-i40-h21-t24-o9-m12-stream12-prefetch15-rowconst6-trunc-column-nbits16,Conv3x3-conv,12,32,3,30,900,8338,16676.0,0.10793955384984409,1.295274646198129
 Conv3x3-conv-ifn9-i40-h27-t36-o9-m18-stream12-prefetch15-rowconst6-trunc-column-nbits16,Conv3x3-conv,18,32,3,30,900,7438,14876.0,0.12100026888948642,2.1780048400107557
+Conv3x3-conv-ifn9-i40-h27-t36-o9-m18-stream12-prefetch15-rowconst6-trunc-column-nbits16-cin3-cout12,Conv3x3-conv,18,32,3,30,900,29740,59480.0,0.03026227303295225,0.5447209145931405
 Conv3x3-conv-tcn9-i35-h14-t10-o9-m05-stream10-prefetch10-rowconst5-trunc-column-nbits16,Conv3x3-conv,5,32,3,30,900,10138,20276.0,0.08877490629315447,0.4438745314657723
 Conv3x3-conv-tcn9-i40-h14-t10-o9-m05-stream10-prefetch15-rowconst5-trunc-column-nbits16,Conv3x3-conv,5,32,3,30,900,10138,20276.0,0.08877490629315447,0.4438745314657723
 Conv3x3-conv-tcn9-i40-h14-t10-o9-m05-stream10-prefetch15-rowconst5-trunc-column-nbits16-cin3-cout12,Conv3x3-conv,5,32,3,30,900,40540,81080.0,0.02220029600394672,0.1110014800197336
