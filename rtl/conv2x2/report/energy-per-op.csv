@@ -1,3 +1,4 @@
 Project,energy_nj,energy_per_pixel_nj,energy_per_mac_nj,energy_per_cycle_nj
 Conv2x2-conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12,478.86053636,0.49829400245577526,0.12457350061394382,0.006453820000000001
 Conv2x2-conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12,473.92833708,0.49316164108220606,0.06164520513527576,0.00817146
+Conv2x2-conv-i24-h25-t16-o4-m16-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12,273.45807054208,0.2845557445807284,0.017784734036295526,0.005480341307108101

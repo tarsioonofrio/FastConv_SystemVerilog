@@ -1,7 +1,7 @@
 {
   "dataset": {
     "algorithm": "tcn4",
-    "architecture": "conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12; conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12",
+    "architecture": "conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12; conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12; conv-i24-h25-t16-o4-m16-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12",
     "bias_enabled": false,
     "count": 10800,
     "dataset": "rtl/conv2x2/data/tcn4/sim/sim-032-3-12-normal-trunc-nbits16",

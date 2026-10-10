@@ -1,3 +1,4 @@
 nome,mult,Project,cycles,Total Area um^2,Subtotal,energy_nj,delta_cycles,delta_area_um2,delta_power_mW,delta_energy_nj
 Conv2x2,4,Conv2x2-conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12,74198,11899.682,3.22691,478.86053636,,,,
 Conv2x2,8,Conv2x2-conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12,57998,15124.401,4.08573,473.92833708,-16200.0,3224.718999999999,0.8588199999999997,-4.93219928000002
+Conv2x2,16,Conv2x2-conv-i24-h25-t16-o4-m16-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12,49898,21509.144,2.74016,273.45807054208,-8100.0,6384.743,-1.34557,-200.47026653792
