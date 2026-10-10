@@ -74,6 +74,7 @@ module tb_prefetch8_column #(
 
   always #(CLOCK_PERIOD_NS / 2.0) clk = ~clk;
 
+`ifndef GATE_LEVEL
   Conv #(
     .N_CHANNEL_IN(N_CHANNEL_IN),
     .N_CHANNEL_OUT(N_CHANNEL_OUT),
@@ -87,6 +88,9 @@ module tb_prefetch8_column #(
     .HADAMARD_SIZE(HADAMARD_SIZE),
     .NUM_MULT(MAC_COUNT)
   ) dut (
+`else
+  Conv dut (
+`endif
     .clk(clk),
     .reset(reset),
     .p_start(p_start),
