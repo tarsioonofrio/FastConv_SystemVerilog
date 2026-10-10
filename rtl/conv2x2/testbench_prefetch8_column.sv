@@ -286,7 +286,9 @@ module tb_prefetch8_column #(
              job_execution_time, job_execution_time / 1000.0, job_execution_cycles);
 `ifdef GATE_LEVEL
     // The mapped netlist does not preserve internal FSM/counter names. Check
-    // the completed output bank through the public completion handshake.
+    // the completed output bank after all externally visible output writes.
+    wait (valid_output_word_count ==
+          N_CHANNEL_IN * N_CHANNEL_OUT * FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE);
     @(negedge clk);
     gate_output_mismatch_count = 0;
     for (int unsigned address = 0; address < OUTPUT_MEMORY_SIZE; address++) begin
