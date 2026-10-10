@@ -6,16 +6,18 @@ column RTLs at 8, 16, and 32 multipliers. For each RTL, both the original
 20-bit run and the 16-bit run are retained; the `-nbits16` suffix identifies
 the latter.
 
-The active TCN16 set has two distinct 6/12/18-MAC families:
+The active TCN16 set has three distinct 6/12/18-MAC families:
 
 - `rowconst4-trunc-frac6-column`, evaluated with the matching
   `trunc-frac6-nbits20` package;
 - `pretransformed-column`, evaluated with the no-fraction
   `trunc-nbits20` package.
+- `pretransformed-frac6-column`, evaluated with the matching
+  `trunc-frac6-nbits20` package.
 
-In the second family, transformed weights are stored as signed 20-bit
-floor-truncated integers. There is no fractional-weight extension in the RTL;
-the `frac6` family remains a separate quantization experiment. Each ASIC
+In the no-fraction pretransformed family, transformed weights are stored as
+signed 20-bit floor-truncated integers. The `frac6` families instead preserve
+six fractional bits in their transformed-weight representation. Each ASIC
 configuration directory uses the exact basename of its RTL. The standard-column
 RTL is selected for future work but does not yet have a matching configuration.
 Previous TCN16 synthesis campaigns, including older truncation variants and
