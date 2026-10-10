@@ -1,6 +1,9 @@
 project,nome,mult,side,extra,time/ns,cycles
+Conv4x4-conv-tcn16-i60-h15-t12-o16-m06-stream12-prefetch24-pretransformed-frac6-column-cin3-cout12,Conv4x4-conv,06,32,,61714.0,30857
 Conv4x4-conv-tcn16-i60-h15-t12-o16-m06-stream12-prefetch24-rowconst6-trunc-frac6-column-cin3-cout12,Conv4x4-conv,06,32,,61498.0,30749
+Conv4x4-conv-tcn16-i60-h21-t24-o16-m12-stream12-prefetch24-pretransformed-frac6-column-cin3-cout12,Conv4x4-conv,12,32,,47890.0,23945
 Conv4x4-conv-tcn16-i60-h21-t24-o16-m12-stream12-prefetch24-rowconst6-trunc-frac6-column-cin3-cout12,Conv4x4-conv,12,32,,47674.0,23837
+Conv4x4-conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-pretransformed-frac6-column-cin3-cout12,Conv4x4-conv,18,32,,43282.0,21641
 Conv4x4-conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-rowconst6-trunc-frac6-column-cin3-cout12,Conv4x4-conv,18,32,,43066.0,21533
 Conv4x4-conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column-nbits16-cin3-cout12,Conv4x4,08,32,,70714.0,35357
 Conv4x4-conv-wpn16-i60-h25-t32-o16-m16-stream16-prefetch24-rowconst8-trunc-column-nbits16-cin3-cout12,Conv4x4,16,32,,52282.0,26141

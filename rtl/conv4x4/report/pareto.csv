@@ -1,6 +1,9 @@
 Project,area_um2,power_mW,energy_nj,cycles,pareto_optimal
+Conv4x4-conv-tcn16-i60-h15-t12-o16-m06-stream12-prefetch24-pretransformed-frac6-column-cin3-cout12,36796.641,8.69148,536.3859967200001,30857,True
 Conv4x4-conv-tcn16-i60-h15-t12-o16-m06-stream12-prefetch24-rowconst6-trunc-frac6-column-cin3-cout12,116664.612,10.0019,615.0968462,30749,False
+Conv4x4-conv-tcn16-i60-h21-t24-o16-m12-stream12-prefetch24-pretransformed-frac6-column-cin3-cout12,46636.793,11.0752,530.3913279999999,23945,True
 Conv4x4-conv-tcn16-i60-h21-t24-o16-m12-stream12-prefetch24-rowconst6-trunc-frac6-column-cin3-cout12,126039.543,12.5274,597.2312676,23837,False
+Conv4x4-conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-pretransformed-frac6-column-cin3-cout12,58765.366,12.1454,525.6772027999999,21641,False
 Conv4x4-conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-rowconst6-trunc-frac6-column-cin3-cout12,141341.641,14.2595,614.0996269999999,21533,False
 Conv4x4-conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column-nbits16-cin3-cout12,29328.596,6.01371,425.25348894,35357,True
 Conv4x4-conv-wpn16-i60-h25-t32-o16-m16-stream16-prefetch24-rowconst8-trunc-column-nbits16-cin3-cout12,37742.14,8.41185,439.7883417,26141,True

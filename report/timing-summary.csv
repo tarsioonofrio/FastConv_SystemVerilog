@@ -6,8 +6,11 @@ Conv3x3-conv-ifn9-i40-h15-t12-o9-m06-stream12-prefetch15-rowconst6-trunc-column-
 Conv3x3-conv-ifn9-i40-h21-t24-o9-m12-stream12-prefetch15-rowconst6-trunc-column-nbits16-cin3-cout12,analysis_view_0p81v_125c_capwst_slowest,990.0,1000.0,10.0,10.0
 Conv3x3-conv-ifn9-i40-h27-t36-o9-m18-stream12-prefetch15-rowconst6-trunc-column-nbits16-cin3-cout12,analysis_view_0p81v_125c_capwst_slowest,975.0,1000.0,25.0,25.0
 Conv3x3-conv-tcn9-i40-h14-t10-o9-m05-stream10-prefetch15-rowconst5-trunc-column-nbits16-cin3-cout12,analysis_view_0p81v_125c_capwst_slowest,1975.0,1975.0,0.0,0.0
+Conv4x4-conv-tcn16-i60-h15-t12-o16-m06-stream12-prefetch24-pretransformed-frac6-column-cin3-cout12,analysis_view_0p81v_125c_capwst_slowest,997.0,1000.0,3.0,3.0
 Conv4x4-conv-tcn16-i60-h15-t12-o16-m06-stream12-prefetch24-rowconst6-trunc-frac6-column-cin3-cout12,analysis_view_0p81v_125c_capwst_slowest,1975.0,1975.0,0.0,0.0
+Conv4x4-conv-tcn16-i60-h21-t24-o16-m12-stream12-prefetch24-pretransformed-frac6-column-cin3-cout12,analysis_view_0p81v_125c_capwst_slowest,997.0,1000.0,3.0,3.0
 Conv4x4-conv-tcn16-i60-h21-t24-o16-m12-stream12-prefetch24-rowconst6-trunc-frac6-column-cin3-cout12,analysis_view_0p81v_125c_capwst_slowest,1000.0,1000.0,0.0,0.0
+Conv4x4-conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-pretransformed-frac6-column-cin3-cout12,analysis_view_0p81v_125c_capwst_slowest,998.0,1000.0,2.0,2.0
 Conv4x4-conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-rowconst6-trunc-frac6-column-cin3-cout12,analysis_view_0p81v_125c_capwst_slowest,1975.0,1975.0,0.0,0.0
 Conv4x4-conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column-nbits16-cin3-cout12,analysis_view_0p81v_125c_capwst_slowest,991.0,1000.0,9.0,9.0
 Conv4x4-conv-wpn16-i60-h25-t32-o16-m16-stream16-prefetch24-rowconst8-trunc-column-nbits16-cin3-cout12,analysis_view_0p81v_125c_capwst_slowest,970.0,1000.0,30.0,30.0

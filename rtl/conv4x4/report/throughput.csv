@@ -1,6 +1,9 @@
 Project,nome,mult,side,kernel_size,output_side,output_pixels,cycles,time_ns,pixels_per_cycle,macs_per_cycle
+Conv4x4-conv-tcn16-i60-h15-t12-o16-m06-stream12-prefetch24-pretransformed-frac6-column-cin3-cout12,Conv4x4-conv,6,32,4,29,841,30857,61714.0,0.027254755809054673,0.16352853485432803
 Conv4x4-conv-tcn16-i60-h15-t12-o16-m06-stream12-prefetch24-rowconst6-trunc-frac6-column-cin3-cout12,Conv4x4-conv,6,32,4,29,841,30749,61498.0,0.027350482942534716,0.1641028976552083
+Conv4x4-conv-tcn16-i60-h21-t24-o16-m12-stream12-prefetch24-pretransformed-frac6-column-cin3-cout12,Conv4x4-conv,12,32,4,29,841,23945,47890.0,0.0351221549384005,0.421465859260806
 Conv4x4-conv-tcn16-i60-h21-t24-o16-m12-stream12-prefetch24-rowconst6-trunc-frac6-column-cin3-cout12,Conv4x4-conv,12,32,4,29,841,23837,47674.0,0.03528128539665226,0.42337542475982715
+Conv4x4-conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-pretransformed-frac6-column-cin3-cout12,Conv4x4-conv,18,32,4,29,841,21641,43282.0,0.03886142045191997,0.6995055681345594
 Conv4x4-conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-rowconst6-trunc-frac6-column-cin3-cout12,Conv4x4-conv,18,32,4,29,841,21533,43066.0,0.03905633214136442,0.7030139785445595
 Conv4x4-conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column-nbits16-cin3-cout12,Conv4x4,8,32,4,29,841,35357,70714.0,0.023785954690726023,0.19028763752580818
 Conv4x4-conv-wpn16-i60-h25-t32-o16-m16-stream16-prefetch24-rowconst8-trunc-column-nbits16-cin3-cout12,Conv4x4,16,32,4,29,841,26141,52282.0,0.03217168432730194,0.5147469492368311
