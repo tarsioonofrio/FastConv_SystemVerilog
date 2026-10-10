@@ -18,6 +18,8 @@ module tb_prefetch8_column #(
   localparam int unsigned FEAT_INPUT_WIDTH = FEAT_INPUT_SIZE;
   localparam int unsigned LATENCY = 1;
   localparam int unsigned INPUT_MEMORY_SIZE = $size(const_data);
+  localparam int unsigned FEATURE_MEMORY_WORDS =
+      FEAT_INPUT_SIZE * FEAT_INPUT_WIDTH * N_CHANNEL_IN;
   localparam int unsigned OUTPUT_MEMORY_SIZE = FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE * N_CHANNEL_OUT;
   localparam int unsigned RAW_WEIGHT_WORDS_PER_BEAT = CONV_KERNEL_SIZE;
   localparam int unsigned EXPECTED_USEFUL_WEIGHT_BEATS =
@@ -118,10 +120,7 @@ module tb_prefetch8_column #(
     for (int unsigned lane = 0; lane < CONV_INPUT_SIZE; lane++) begin
       // Feature reads transfer a full input column; weight reads transfer one
       // contiguous 3-word spatial-kernel row in lanes zero through two.
-      if (dut.st_input_current == 4'd2) // READ_WEIGHTS
-        column_input_addr[lane] = p_input_addr + NADDR'(lane);
-      else
-        column_input_addr[lane] = p_input_addr + NADDR'(lane);
+      column_input_addr[lane] = p_input_addr + NADDR'(lane);
     end
   end
 
@@ -153,6 +152,14 @@ module tb_prefetch8_column #(
     int unsigned local_base;
     input_column_in_bounds = 1'b1;
     local_base = int'(p_input_addr) % (FEAT_INPUT_SIZE * FEAT_INPUT_WIDTH);
+`ifdef GATE_LEVEL
+    // The mapped gate netlist does not expose the FSM state. Check only the
+    // externally observable package-memory bounds in this mode.
+    for (int unsigned lane = 0; lane < CONV_INPUT_SIZE; lane++) begin
+      if (column_input_addr[lane] >= INPUT_MEMORY_SIZE)
+        input_column_in_bounds = 1'b0;
+    end
+`else
     if (dut.st_input_current != 4'd2) begin // READ_WEIGHTS
       for (int unsigned lane = 0; lane < CONV_INPUT_SIZE; lane++) begin
         if ((column_input_addr[lane] >= INPUT_MEMORY_SIZE) ||
@@ -161,6 +168,7 @@ module tb_prefetch8_column #(
           input_column_in_bounds = 1'b0;
       end
     end
+`endif
   end
 
   always_comb begin: COLUMN_OUTPUT_READ_BLOCK
@@ -190,6 +198,7 @@ module tb_prefetch8_column #(
       output_bank <= '{default: '0};
     end else begin
       cycle_count <= cycle_count + 1;
+`ifndef GATE_LEVEL
       conv_end_d <= dut.w_conv_end;
       if (dut.w_conv_end && !conv_end_d) begin
         if (dut.r_input_channel_counter_output < N_CHANNEL_OUT)
@@ -203,6 +212,12 @@ module tb_prefetch8_column #(
         if (dut.r_input_channel_counter_output < N_CHANNEL_OUT)
           useful_weight_read_beat_count <= useful_weight_read_beat_count + 1;
       end
+`else
+      if (p_input_valid && (p_input_addr >= FEATURE_MEMORY_WORDS)) begin
+        weight_read_beat_count <= weight_read_beat_count + 1;
+        useful_weight_read_beat_count <= useful_weight_read_beat_count + 1;
+      end
+`endif
 
       if (p_input_en && !input_column_in_bounds)
         input_out_of_range_count <= input_out_of_range_count + 1;
@@ -216,6 +231,7 @@ module tb_prefetch8_column #(
           if (lane_addr < OUTPUT_MEMORY_SIZE) begin
             output_bank[lane_addr] <= p_output_data_write[lane*NBITS +: NBITS];
             valid_output_word_count <= valid_output_word_count + CONV_OUTPUT_SIZE;
+`ifndef GATE_LEVEL
             if ((dut.r_output_channel_counter_input == (N_CHANNEL_IN - 1)) &&
                 ($signed(p_output_data_write[lane*NBITS +: NBITS]) !=
                  $signed(expected_output_value(lane_addr)))) begin
@@ -226,6 +242,7 @@ module tb_prefetch8_column #(
                          $signed(p_output_data_write[lane*NBITS +: NBITS]),
                          expected_output_value(lane_addr));
             end
+`endif
           end else begin
             output_out_of_range_count <= output_out_of_range_count + 1;
           end
@@ -266,15 +283,32 @@ module tb_prefetch8_column #(
     end
     $display("Job execution time: %0.3f ns (%0.6f us), %0d cycles",
              job_execution_time, job_execution_time / 1000.0, job_execution_cycles);
+`ifdef GATE_LEVEL
+    // The mapped netlist does not preserve internal FSM/counter names. Check
+    // the completed output bank through the public completion handshake.
+    @(negedge clk);
+    for (int unsigned address = 0; address < OUTPUT_MEMORY_SIZE; address++) begin
+      if ($signed(output_bank[address]) !=
+          $signed(expected_output_value(address))) begin
+        output_error_count++;
+        if (output_error_count <= 8)
+          $display("ERROR GATE GOLDEN: address=%0d got=%0d expected=%0d",
+                   address, $signed(output_bank[address]),
+                   expected_output_value(address));
+      end
+    end
+`else
     // p_end marks job latency; wait separately for the terminal inverse event
     // used by the post-job functional checks.
     wait (terminal_inverse_event_count == 1);
     #10ps;
+`endif
 
     if (output_error_count != 0)
       $fatal(1, "output golden mismatch count: %0d", output_error_count);
     if (valid_output_word_count != N_CHANNEL_IN * N_CHANNEL_OUT * FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE)
       $fatal(1, "unexpected valid write count: got %0d", valid_output_word_count);
+`ifndef GATE_LEVEL
     if (inverse_tile_count != EXPECTED_INVERSE_COUNT)
       $fatal(1, "unexpected inverse count: got %0d expected %0d",
              inverse_tile_count, EXPECTED_INVERSE_COUNT);
@@ -284,6 +318,7 @@ module tb_prefetch8_column #(
     if (useful_weight_read_beat_count != EXPECTED_USEFUL_WEIGHT_BEATS)
       $fatal(1, "unexpected useful weight read beats: got %0d expected %0d",
              useful_weight_read_beat_count, EXPECTED_USEFUL_WEIGHT_BEATS);
+`endif
     if (input_out_of_range_count != 0 || output_out_of_range_count != 0)
       $fatal(1, "out-of-range accesses: input=%0d output=%0d",
              input_out_of_range_count, output_out_of_range_count);
@@ -297,6 +332,10 @@ module tb_prefetch8_column #(
 
   initial begin: WATCHDOG_BLOCK
     #1000000;
+`ifdef GATE_LEVEL
+    $fatal(1, "prefetch8-column gate-level timeout: input_addr=%0d input_valid=%0b output_en=%0b output_wr=%0b p_end=%0b",
+           p_input_addr, p_input_valid, p_output_en, p_output_wr, p_end);
+`else
     $fatal(1, "prefetch8-column timeout: input_state=%s input_next=%s conv_state=%s conv_next=%s output_state=%s output_next=%s input_addr=%0d input_valid=%0b prefetch_active=%0b prefetch_full=%0b conv_end=%0b conv_release=%0b weight_valid=%0b input_channel=%0d output_channel=%0d input_windows=%0d input_col=%0d output_windows=%0d output_read_count=%0d output_write_count=%0d output_en=%0b output_wr=%0b",
            dut.st_input_current.name(), dut.st_input_next.name(),
            dut.st_conv_current.name(), dut.st_conv_next.name(),
@@ -306,5 +345,6 @@ module tb_prefetch8_column #(
            dut.r_output_channel_counter_input, dut.r_input_window_counter_acc,
            dut.r_input_window_counter_col, dut.r_output_window_counter_acc,
            dut.r_output_read_count, dut.r_output_write_count, p_output_en, p_output_wr);
+`endif
   end
 endmodule
