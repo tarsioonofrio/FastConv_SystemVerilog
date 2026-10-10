@@ -57,6 +57,7 @@ module tb_prefetch8_column #(
   int inverse_tile_count;
   int terminal_inverse_event_count;
   int output_error_count;
+  int gate_output_mismatch_count;
   int output_out_of_range_count;
   int input_out_of_range_count;
   int valid_output_word_count;
@@ -287,11 +288,12 @@ module tb_prefetch8_column #(
     // The mapped netlist does not preserve internal FSM/counter names. Check
     // the completed output bank through the public completion handshake.
     @(negedge clk);
+    gate_output_mismatch_count = 0;
     for (int unsigned address = 0; address < OUTPUT_MEMORY_SIZE; address++) begin
       if ($signed(output_bank[address]) !=
           $signed(expected_output_value(address))) begin
-        output_error_count++;
-        if (output_error_count <= 8)
+        gate_output_mismatch_count++;
+        if (gate_output_mismatch_count <= 8)
           $display("ERROR GATE GOLDEN: address=%0d got=%0d expected=%0d",
                    address, $signed(output_bank[address]),
                    expected_output_value(address));
@@ -304,8 +306,14 @@ module tb_prefetch8_column #(
     #10ps;
 `endif
 
+`ifdef GATE_LEVEL
+    if (gate_output_mismatch_count != 0)
+      $fatal(1, "gate-level output golden mismatch count: %0d",
+             gate_output_mismatch_count);
+`else
     if (output_error_count != 0)
       $fatal(1, "output golden mismatch count: %0d", output_error_count);
+`endif
     if (valid_output_word_count != N_CHANNEL_IN * N_CHANNEL_OUT * FEAT_OUTPUT_SIZE * FEAT_OUTPUT_SIZE)
       $fatal(1, "unexpected valid write count: got %0d", valid_output_word_count);
 `ifndef GATE_LEVEL
