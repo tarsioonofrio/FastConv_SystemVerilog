@@ -1,7 +1,6 @@
 Project,simulation_log,logical_area,flop_report,power_report,mapped_netlist,sdf,complete
 Conv2x2-conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12,True,True,True,True,True,True,True
 Conv2x2-conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12,True,True,True,True,True,True,True
-Conv2x2-conv-i24-h25-t16-o4-m16-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12,True,True,True,True,True,True,True
 Conv3x3-conv-ifn9-i40-h15-t12-o9-m06-stream12-prefetch15-rowconst6-trunc-column-nbits16-cin3-cout12,True,True,True,True,True,True,True
 Conv3x3-conv-ifn9-i40-h21-t24-o9-m12-stream12-prefetch15-rowconst6-trunc-column-nbits16-cin3-cout12,True,True,True,True,True,True,True
 Conv3x3-conv-ifn9-i40-h27-t36-o9-m18-stream12-prefetch15-rowconst6-trunc-column-nbits16-cin3-cout12,True,True,True,True,True,True,True

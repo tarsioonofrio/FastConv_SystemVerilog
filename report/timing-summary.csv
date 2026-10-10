@@ -1,7 +1,6 @@
 Project,view,data_path_ps,required_time_ps,slack_ps,reported_margin_ps
 Conv2x2-conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12,analysis_view_0p81v_125c_capwst_slowest,955.0,1000.0,45.0,45.0
 Conv2x2-conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12,analysis_view_0p81v_125c_capwst_slowest,955.0,1000.0,45.0,45.0
-Conv2x2-conv-i24-h25-t16-o4-m16-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12,analysis_view_0p81v_125c_capwst_slowest,955.0,1000.0,45.0,45.0
 Conv3x3-conv-ifn9-i40-h15-t12-o9-m06-stream12-prefetch15-rowconst6-trunc-column-nbits16-cin3-cout12,analysis_view_0p81v_125c_capwst_slowest,992.0,1000.0,8.0,8.0
 Conv3x3-conv-ifn9-i40-h21-t24-o9-m12-stream12-prefetch15-rowconst6-trunc-column-nbits16-cin3-cout12,analysis_view_0p81v_125c_capwst_slowest,990.0,1000.0,10.0,10.0
 Conv3x3-conv-ifn9-i40-h27-t36-o9-m18-stream12-prefetch15-rowconst6-trunc-column-nbits16-cin3-cout12,analysis_view_0p81v_125c_capwst_slowest,975.0,1000.0,25.0,25.0

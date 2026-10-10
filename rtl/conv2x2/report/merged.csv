@@ -1,4 +1,3 @@
 Project,nome,mult,side,extra,time_ns,cycles,Cell Count,Cell Area um^2,Net Area um^2,Total Area um^2,Flop Count,memory,register,latch,logic,bbox,clock,pad,pm,Subtotal,size,energy_nj
 Conv2x2-conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12,Conv2x2,04,32,,148396.0,74198,7111,8533.35,3366.332,11899.682,1035,0.0,1.09704,0.0,1.97416,0.0,0.155707,0.0,0.0,3.22691,1024,478.86053636
 Conv2x2-conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12,Conv2x2,08,32,,115996.0,57998,8909,10840.536,4283.865,15124.401,1224,0.0,1.2525,0.0,2.67769,0.0,0.155541,0.0,0.0,4.08573,1024,473.92833707999995
-Conv2x2-conv-i24-h25-t16-o4-m16-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12,Conv2x2,16,32,,99796.388,49898,12653,15362.55,6146.594,21509.144,1605,0.0,1.17479,0.0,1.44147,0.0,0.123893,0.0,0.0,2.74016,1024,273.45807054208

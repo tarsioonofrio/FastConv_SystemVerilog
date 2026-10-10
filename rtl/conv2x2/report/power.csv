@@ -1,4 +1,3 @@
 Project,nome,mult,extra,memory,register,latch,logic,bbox,clock,pad,pm,Subtotal
 Conv2x2-conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12,Conv2x2,04,,0.0,1.09704,0.0,1.97416,0.0,0.155707,0.0,0.0,3.22691
 Conv2x2-conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12,Conv2x2,08,,0.0,1.2525,0.0,2.67769,0.0,0.155541,0.0,0.0,4.08573
-Conv2x2-conv-i24-h25-t16-o4-m16-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12,Conv2x2,16,,0.0,1.17479,0.0,1.44147,0.0,0.123893,0.0,0.0,2.74016

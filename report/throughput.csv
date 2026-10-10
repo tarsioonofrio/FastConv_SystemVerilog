@@ -1,7 +1,6 @@
 Project,nome,mult,side,kernel_size,output_side,output_pixels,cycles,time_ns,pixels_per_cycle,macs_per_cycle
 Conv2x2-conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12,Conv2x2,4,32,2,31,961,74198,148396.0,0.012951831585757028,0.051807326343028114
 Conv2x2-conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12,Conv2x2,8,32,2,31,961,57998,115996.0,0.01656953688058209,0.1325562950446567
-Conv2x2-conv-i24-h25-t16-o4-m16-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12,Conv2x2,16,32,2,31,961,49898,99796.388,0.01925928894945689,0.30814862319131026
 Conv3x3-conv-ifn9-i40-h15-t12-o9-m06-stream12-prefetch15-rowconst6-trunc-column-nbits16-cin3-cout12,Conv3x3-conv,6,32,3,30,900,44140,88280.0,0.020389669234254643,0.12233801540552787
 Conv3x3-conv-ifn9-i40-h21-t24-o9-m12-stream12-prefetch15-rowconst6-trunc-column-nbits16-cin3-cout12,Conv3x3-conv,12,32,3,30,900,33340,66680.0,0.026994601079784044,0.3239352129574085
 Conv3x3-conv-ifn9-i40-h27-t36-o9-m18-stream12-prefetch15-rowconst6-trunc-column-nbits16-cin3-cout12,Conv3x3-conv,18,32,3,30,900,29740,59480.0,0.03026227303295225,0.5447209145931405

@@ -1,7 +1,6 @@
 Project,energy_nj,energy_per_pixel_nj,energy_per_mac_nj,energy_per_cycle_nj
 Conv2x2-conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12,478.86053636,0.49829400245577526,0.12457350061394382,0.006453820000000001
 Conv2x2-conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12,473.92833708,0.49316164108220606,0.06164520513527576,0.00817146
-Conv2x2-conv-i24-h25-t16-o4-m16-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12,273.45807054208,0.2845557445807284,0.017784734036295526,0.005480341307108101
 Conv3x3-conv-ifn9-i40-h15-t12-o9-m06-stream12-prefetch15-rowconst6-trunc-column-nbits16-cin3-cout12,379.1264052,0.42125156133333336,0.07020859355555556,0.00858918
 Conv3x3-conv-ifn9-i40-h21-t24-o9-m12-stream12-prefetch15-rowconst6-trunc-column-nbits16-cin3-cout12,360.7201296,0.400800144,0.033400012,0.01081944
 Conv3x3-conv-ifn9-i40-h27-t36-o9-m18-stream12-prefetch15-rowconst6-trunc-column-nbits16-cin3-cout12,421.0928236,0.4678809151111111,0.025993384172839504,0.014159139999999999
