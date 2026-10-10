@@ -28,16 +28,25 @@ exact SystemVerilog package and output/reference vectors.
 
 The separate `make metrics` output is `metrics-sim-032-normal.csv` plus
 `metrics-sim-032-normal.txt`. Both use the leading fields `size`, `algorithm`,
-and `architecture` with the same meanings as `functional-quality.csv`. Each
+and `architecture`; active rows use the same architecture names as
+`functional-quality.csv`, while explicit dataset-only rows use a clear
+non-synthesis label. Each
 contains an `ALL (pooled)` result and a separate result for every active dataset. The aggregate pools samples rather
 than averaging per-dataset scores, and dequantizes each dataset with its own
 `quant_bits`; quantized-golden error fields remain in integer output codes.
-Only datasets referenced by executed configurations under `rtl/conv2x2/synthesis/`,
+By default, only datasets referenced by executed configurations under `rtl/conv2x2/synthesis/`,
 `rtl/conv3x3/synthesis/`, or `rtl/conv4x4/synthesis/` and containing both
 `s.txt` and `s_default.txt` receive metric rows. Unreferenced datasets and
 configurations under archived synthesis trees are excluded; a referenced data
 package may itself be stored under `data/archive/`. The TXT lists referenced
 candidates excluded for missing vectors or metadata.
+
+To add a deliberate dataset-only quality check without implying that an active
+RTL flow used it, pass `--include-dataset PATH` to `scripts/metrics.py` (or use
+`make metrics METRICS_ARGS="--include-dataset PATH"`). Explicitly included rows
+are labeled `DATASET ONLY (not referenced by active synthesis)` in the
+`architecture` field and are included in that run's pooled aggregate. The
+default remains restricted to active synthesis references.
 
 These consolidated reports facilitate design space exploration and decision-making by providing an accessible overview of trade-offs between area, power, and performance.
 

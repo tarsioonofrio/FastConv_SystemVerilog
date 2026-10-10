@@ -268,11 +268,33 @@ def _compute_quality(sim_dir, summary, constants):
     return result
 
 
-def collect_dataset_metrics(root=REPO_ROOT, architecture=None):
+def collect_dataset_metrics(root=REPO_ROOT, architecture=None, include_datasets=()):
     root = Path(root).resolve()
     synthesis_architectures = synthesis_architectures_for_datasets(root)
+    dataset_architectures = {
+        dataset: set(configurations)
+        for dataset, configurations in synthesis_architectures.items()
+    }
+    for requested_dataset in include_datasets:
+        requested_path = Path(requested_dataset)
+        dataset_path = (
+            requested_path.resolve()
+            if requested_path.is_absolute()
+            else (root / requested_path).resolve()
+        )
+        if not dataset_path.is_relative_to(root):
+            raise ValueError(f"Dataset must be inside repository root: {requested_dataset}")
+        if not dataset_path.is_dir():
+            raise ValueError(f"Dataset directory does not exist: {requested_dataset}")
+        dataset_name = dataset_path.relative_to(root).as_posix()
+        required_files = ("pack_data.sv", "s.txt", "s_default.txt")
+        if not all((dataset_path / name).is_file() for name in required_files):
+            raise ValueError(
+                f"Dataset needs pack_data.sv, s.txt, and s_default.txt: {dataset_name}"
+            )
+        dataset_architectures.setdefault(dataset_name, set())
     rows = []
-    for dataset_name in sorted(synthesis_architectures):
+    for dataset_name in sorted(dataset_architectures):
         sim_dir = root / dataset_name
         if not sim_dir.is_dir():
             continue
@@ -306,11 +328,13 @@ def collect_dataset_metrics(root=REPO_ROOT, architecture=None):
         quality = _compute_quality(sim_dir, summary, constants)
         if quality is None:
             continue
-        architecture_names = sorted(synthesis_architectures.get(dataset_name, ()))
+        architecture_names = sorted(dataset_architectures.get(dataset_name, ()))
         row = {
             "size": arch.removeprefix("conv"),
             "algorithm": algorithm,
-            "architecture": "; ".join(architecture_names),
+            "architecture": "; ".join(architecture_names)
+            if architecture_names
+            else "DATASET ONLY (not referenced by active synthesis)",
             "dataset": dataset_name,
             "dataset_mode": (
                 "exact-scaled"
@@ -504,8 +528,16 @@ def aggregate_dataset_quality(rows, root=REPO_ROOT):
     return aggregate
 
 
-def write_dataset_metrics(report_dir, root=REPO_ROOT, architecture=None, filename="functional-quality.csv"):
-    rows = collect_dataset_metrics(root=root, architecture=architecture)
+def write_dataset_metrics(
+    report_dir,
+    root=REPO_ROOT,
+    architecture=None,
+    filename="functional-quality.csv",
+    include_datasets=(),
+):
+    rows = collect_dataset_metrics(
+        root=root, architecture=architecture, include_datasets=include_datasets
+    )
     path = Path(report_dir) / filename
     path.parent.mkdir(parents=True, exist_ok=True)
     fields = METRIC_FIELDS + ["lengths_match"]

@@ -81,9 +81,21 @@ def main():
         default=str(REPO_ROOT / "report"),
         help="Directory for the consolidated metrics CSV and text summary.",
     )
+    parser.add_argument(
+        "--include-dataset",
+        action="append",
+        default=[],
+        metavar="PATH",
+        help=(
+            "Also include a dataset directory inside the repository, even if no "
+            "active synthesis configuration references it. May be repeated."
+        ),
+    )
     args = parser.parse_args()
     report_dir = Path(args.report_dir)
-    rows = collect_dataset_metrics(root=REPO_ROOT)
+    rows = collect_dataset_metrics(
+        root=REPO_ROOT, include_datasets=args.include_dataset
+    )
     aggregate = aggregate_dataset_quality(rows, root=REPO_ROOT)
     skipped = _skipped_dataset_reasons(rows)
     report_rows = [aggregate, *rows]
@@ -97,18 +109,32 @@ def main():
 
     txt_path = report_dir / "metrics-sim-032-normal.txt"
     with txt_path.open("w", encoding="utf-8") as handle:
-        handle.write("Metrics for active sim-032 datasets with output/reference vectors\n")
+        handle.write(
+            "Metrics for active sim-032 datasets with output/reference vectors; "
+            "explicit standalone datasets are labeled in architecture and included "
+            "in the pooled aggregate.\n"
+        )
         handle.write("Errors use each dataset's own quantization scale.\n")
         handle.write(
             "TOTAL is pooled over samples, not an average of dataset metrics. "
             "Float-reference errors are in real-value units; quantized-golden "
             "errors are in integer output codes.\n\n"
         )
-        handle.write("TOTAL\n")
+        total_label = (
+            "TOTAL (including explicit datasets)"
+            if args.include_dataset
+            else "TOTAL"
+        )
+        handle.write(total_label + "\n")
         handle.write(_format_row(aggregate) + "\n\n")
         handle.write(f"INDIVIDUAL DATASETS ({len(rows)})\n")
         for row in rows:
             handle.write(_format_row(row) + "\n\n")
+        if args.include_dataset:
+            handle.write("EXPLICITLY INCLUDED DATASET PATHS\n")
+            for dataset in args.include_dataset:
+                handle.write(f"{dataset}\n")
+            handle.write("\n")
         handle.write(f"\nTotal paired samples: {aggregate['count']}\n")
         handle.write(
             "Dataset vector lengths match: "

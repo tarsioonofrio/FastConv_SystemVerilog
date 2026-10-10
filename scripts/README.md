@@ -10,7 +10,7 @@ Os arquivos desta pasta encadeiam tarefas recorrentes do fluxo FastConv:
 - `multiple-time-arch.sh` e `time-arch.py`: geram a tabela antiga baseada em `src/<projeto>/data/sim_summary.txt`; foram substituídos pelo `time.csv` produzido por `report.py`.
 - `report.py`: descobre somente projetos executados em `rtl/conv2x2/synthesis/`, `rtl/conv3x3/synthesis/` e `rtl/conv4x4/synthesis/`, lê os logs de simulação anotada (`sim/xrun.log`) e os relatórios Genus de área, registradores e potência. Configurações sob `archive/` não participam. Gera tabelas sem prefixos artificiais (`time.csv`, `logical.csv`, `power.csv`, `merged.csv` e tabelas analíticas) e `report.md` em `report/`, além de um conjunto isolado em `rtl/conv*/report/` para cada arquitetura. As métricas funcionais incluem somente datasets referenciados pelos `list-file.txt` dessas configurações ativas e executadas, que contenham `s.txt` e `s_default.txt`; o dataset pode estar em `data/archive/` se uma configuração ativa ainda o referenciar. Cada dataset incluído recebe `metrics.json` e entra em `functional-quality.csv`. Nenhuma tabela `sys-*` é gerada. Use `--report-dir` para outro destino global e `--naive-synthesis-dir PATH` para habilitar explicitamente a tabela separada de razões contra uma síntese naive.
 - `time-arch.py`: busca `sim_summary.txt` nas pastas de resultados e monta `time.csv` com o tempo de simulação por tamanho.
-- `metrics.py`: percorre somente datasets `sim-032-*` referenciados por configurações executadas nas três pastas ativas `rtl/conv?x?/synthesis/` e que têm `s.txt` e `s_default.txt`. Calcula as métricas individualmente usando a escala de quantização de cada dataset e grava os detalhes em `metrics.json`. Gera `metrics-sim-032-normal.csv` e `.txt` com uma linha/seção `ALL (pooled)` calculada sobre todas as amostras e linhas/seções separadas para cada dataset elegível; o TXT lista apenas datasets referenciados por essas configurações ativas mas sem métricas e o motivo. Os arquivos ficam em `report/` (ou no diretório informado por `--report-dir`).
+- `metrics.py`: por padrão percorre somente datasets `sim-032-*` referenciados por configurações executadas nas três pastas ativas `rtl/conv?x?/synthesis/` e que têm `s.txt` e `s_default.txt`. `--include-dataset PATH` permite acrescentar explicitamente um dataset não referenciado; ele recebe o rótulo `DATASET ONLY (not referenced by active synthesis)`, sem afirmar que foi usado por um fluxo RTL. Calcula as métricas individualmente usando a escala de quantização de cada dataset e grava os detalhes em `metrics.json`. Gera `metrics-sim-032-normal.csv` e `.txt` com uma linha/seção `ALL (pooled)` calculada sobre todas as amostras e linhas/seções separadas para cada dataset incluído; o TXT lista candidatos ativos sem métricas e, quando aplicável, os caminhos explicitamente incluídos. Os arquivos ficam em `report/` (ou no diretório informado por `--report-dir`). No Makefile, use `make metrics METRICS_ARGS="--include-dataset PATH"`.
 - `test-do.bat.sh`: suíte Bats que garante a disponibilidade do ModelSim e roda `vsim` em cada subpasta contendo `sim.do`.
 
 Use estes scripts para automatizar execuções em lote e consolidar os relatórios utilizados nas análises.
@@ -60,7 +60,15 @@ produtos são sinais `w_*` combinacionais.
 
 `make metrics` gera `report/metrics-sim-032-normal.csv` e
 `report/metrics-sim-032-normal.txt`. Ambos incluem o agregado `ALL (pooled)` e
-as métricas de cada dataset ativo individualmente. O agregado combina as
+as métricas de cada dataset ativo individualmente. Para uma avaliação pontual
+de um dataset que não participa de um fluxo ativo, use:
+
+```bash
+make metrics METRICS_ARGS="--include-dataset rtl/conv4x4/data/tcn16/sim/sim-032-3-12-normal-trunc-nbits16"
+```
+
+O dataset avulso fica explicitamente rotulado, e não é apresentado como uma
+configuração sintetizada/simulada. O agregado combina as
 amostras (não calcula a média simples das métricas por dataset) e respeita o
 `quant_bits` de cada um; as métricas `quantized_golden_*` são expressas em
 códigos inteiros, enquanto MAE/RMSE/erros/R² usam a escala real de cada dataset.

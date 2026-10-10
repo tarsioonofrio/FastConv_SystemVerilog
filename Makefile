@@ -20,6 +20,7 @@ CONFIG ?=
 CONFIG_ROOT = rtl/$(ARCH)/synthesis/$(CONFIG)
 
 REPORT_ARGS ?=
+METRICS_ARGS ?=
 
 .PHONY: help report metrics sim sim-all require-tmux require-asic-selection \
 	check-asic-runners synth gate-sim power flow list-configs
@@ -54,7 +55,7 @@ report:
 	$(PYTHON) scripts/report.py $(REPORT_ARGS)
 
 metrics:
-	$(PYTHON) scripts/metrics.py
+	$(PYTHON) scripts/metrics.py $(METRICS_ARGS)
 
 # Run one selected functional RTL simulation. The 3x3/4x4 targets use the
 # active streaming-column Makefile flow; 2x2 offers its standard and column
