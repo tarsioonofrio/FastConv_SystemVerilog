@@ -1,0 +1,15 @@
+source=/home/tarsio/gaph/FastConv_SystemVerilog/rtl/conv4x4/conv-wpn16-i60-h41-t64-o16-m32-stream16-prefetch24-pretransformed-column.sv
+source_sha256=cfa4e9b9661f31befb6dbb0b56d962142638bc393eb18040539b751780190ba3
+dataset=/home/tarsio/gaph/FastConv_SystemVerilog/rtl/conv4x4/data/wpn16/sim/sim-032-3-12-normal-trunc-nbits16/pack_data.sv
+dataset_sha256=55a13381981b4d570f6226615f4f8a0334047717a4c6ce1aecdb887f3851a393
+algorithm=wpn16
+num_mult=32
+prefetch_columns=4
+nbits=16
+channel_in=3
+channel_out=12
+weight_transform_frac_bits=0
+weights=pretransformed integer values from canonical WPN16 package
+git_commit=cdfb32ac94616e6ed3e45b3e12d6479be9c9d4a7
+verilator=Verilator 5.050 2026-07-01 rev v5.050
+exit_status=0

@@ -37,6 +37,14 @@ module tb_stream_column #(
   localparam int unsigned EXPECTED_USEFUL_WEIGHT_BEATS =
       N_CHANNEL_IN * N_CHANNEL_OUT * HADAMARD_SIZE * HADAMARD_SIZE /
       WEIGHT_WORDS_PER_BEAT;
+`elsif WPN16_PRETRANSFORMED_WEIGHTS
+  // WPN16's 8x8 transformed kernel is read through the 6-word input-column
+  // port. The final beat of each kernel contains two padding lanes.
+  localparam int unsigned WEIGHT_WORDS_PER_BEAT = CONV_INPUT_SIZE;
+  localparam int unsigned EXPECTED_USEFUL_WEIGHT_BEATS =
+      N_CHANNEL_IN * N_CHANNEL_OUT *
+      ((HADAMARD_SIZE * HADAMARD_SIZE + WEIGHT_WORDS_PER_BEAT - 1) /
+       WEIGHT_WORDS_PER_BEAT);
 `else
   localparam int unsigned WEIGHT_WORDS_PER_BEAT = CONV_KERNEL_SIZE;
   localparam int unsigned EXPECTED_USEFUL_WEIGHT_BEATS =
@@ -59,6 +67,9 @@ module tb_stream_column #(
 `ifdef TCN16_PRETRANSFORMED_WEIGHTS
   // This mode reads transformed weights from the package section immediately
   // following the feature maps, not the optional raw-weight appendix.
+  localparam int unsigned RAW_WEIGHT_BASE = N_CHANNEL_IN * FEAT_MAP_WORDS;
+`elsif WPN16_PRETRANSFORMED_WEIGHTS
+  // WPN16 transformed kernels occupy the package section after feature maps.
   localparam int unsigned RAW_WEIGHT_BASE = N_CHANNEL_IN * FEAT_MAP_WORDS;
 `else
   localparam int unsigned RAW_WEIGHT_BASE = N_CHANNEL_IN * FEAT_MAP_WORDS +
