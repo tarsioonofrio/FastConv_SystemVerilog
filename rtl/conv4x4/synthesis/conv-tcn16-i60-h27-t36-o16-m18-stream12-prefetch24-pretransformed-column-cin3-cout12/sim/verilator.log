@@ -1,0 +1,122 @@
+%Warning-WIDTHEXPAND: rtl/mem/mem.sv:35:27: Operator LT expects 32 bits on the LHS, but LHS's VARREF 'address' generates 16 bits.
+                                          : ... note: In instance 'tb_stream_column.COLUMN_INPUT_MEMORY_LANE[5].memory_input_lane'
+   35 |       data_out = (address < $size(pack_data::const_data)) ? NBITS'(pack_data::const_data[address]) : '0;
+      |                           ^
+                      ... For warning description see https://verilator.org/warn/WIDTHEXPAND?v=5.050
+                      ... Use "/* verilator lint_off WIDTHEXPAND */" and lint_on around source to disable this message.
+%Warning-WIDTHTRUNC: rtl/mem/mem.sv:35:89: Bit extraction of array[4691:0] requires 13 bit index, not 16 bits.
+                                         : ... note: In instance 'tb_stream_column.COLUMN_INPUT_MEMORY_LANE[5].memory_input_lane'
+   35 |       data_out = (address < $size(pack_data::const_data)) ? NBITS'(pack_data::const_data[address]) : '0;
+      |                                                                                         ^
+                     ... For warning description see https://verilator.org/warn/WIDTHTRUNC?v=5.050
+                     ... Use "/* verilator lint_off WIDTHTRUNC */" and lint_on around source to disable this message.
+%Warning-WIDTHTRUNC: /home/tarsio/gaph/FastConv_SystemVerilog/rtl/conv4x4/conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-pretransformed-column.sv:263:27: Operator ASSIGNDLY expects 16 bits on the Assign RHS, but Assign RHS's VARREF 'CONV_OUTPUT_SIZE' generates 32 bits.
+                                                                                                                                                            : ... note: In instance 'tb_stream_column.dut'
+  263 |       r_input_window_next <= CONV_OUTPUT_SIZE;
+      |                           ^~
+%Warning-WIDTHEXPAND: /home/tarsio/gaph/FastConv_SystemVerilog/rtl/conv4x4/conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-pretransformed-column.sv:273:50: Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'r_input_window_next' generates 16 bits.
+                                                                                                                                                             : ... note: In instance 'tb_stream_column.dut'
+  273 |       r_input_window_next <= r_input_window_next + CONV_OUTPUT_SIZE;
+      |                                                  ^
+%Warning-WIDTHTRUNC: /home/tarsio/gaph/FastConv_SystemVerilog/rtl/conv4x4/conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-pretransformed-column.sv:273:27: Operator ASSIGNDLY expects 16 bits on the Assign RHS, but Assign RHS's ADD generates 32 bits.
+                                                                                                                                                            : ... note: In instance 'tb_stream_column.dut'
+  273 |       r_input_window_next <= r_input_window_next + CONV_OUTPUT_SIZE;
+      |                           ^~
+%Warning-WIDTHTRUNC: /home/tarsio/gaph/FastConv_SystemVerilog/rtl/conv4x4/conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-pretransformed-column.sv:275:27: Operator ASSIGNDLY expects 16 bits on the Assign RHS, but Assign RHS's VARREF 'CONV_OUTPUT_SIZE' generates 32 bits.
+                                                                                                                                                            : ... note: In instance 'tb_stream_column.dut'
+  275 |       r_input_window_next <= CONV_OUTPUT_SIZE;
+      |                           ^~
+%Warning-WIDTHEXPAND: /home/tarsio/gaph/FastConv_SystemVerilog/rtl/conv4x4/conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-pretransformed-column.sv:287:70: Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'r_input_channel_counter_input' generates 2 bits.
+                                                                                                                                                             : ... note: In instance 'tb_stream_column.dut'
+  287 |           r_input_addr_feat <= NADDR'((r_input_channel_counter_input + 1) *
+      |                                                                      ^
+%Warning-WIDTHEXPAND: /home/tarsio/gaph/FastConv_SystemVerilog/rtl/conv4x4/conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-pretransformed-column.sv:367:81: Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'r_output_write_count' generates 2 bits.
+                                                                                                                                                             : ... note: In instance 'tb_stream_column.dut'
+  367 |   assign w_input_write_done = r_output_write_count == 0 || r_output_write_count == OUTPUT_RW_COUNT_MAX;
+      |                                                                                 ^~
+%Warning-WIDTHEXPAND: /home/tarsio/gaph/FastConv_SystemVerilog/rtl/conv4x4/conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-pretransformed-column.sv:571:36: Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'r_input_prefetch_phase' generates 2 bits.
+                                                                                                                                                             : ... note: In instance 'tb_stream_column.dut'
+  571 |         if (r_input_prefetch_phase == (NEW_COLUMNS - 1)) begin
+      |                                    ^~
+%Warning-WIDTHEXPAND: rtl/stream-column/testbench_stream_column.sv:117:27: Operator ASSIGN expects 32 bits on the Assign RHS, but Assign RHS's ARRAYSEL generates 20 bits.
+                                                                         : ... note: In instance 'tb_stream_column'
+  117 |     expected_output_value = const_feat_out[
+      |                           ^
+%Warning-WIDTHEXPAND: rtl/stream-column/testbench_stream_column.sv:241:69: Operator LT expects 32 bits on the LHS, but LHS's ARRAYSEL generates 16 bits.
+                                                                         : ... note: In instance 'tb_stream_column'
+  241 |           (column_input_in_bounds[lane] && (column_input_addr[lane] < INPUT_MEMORY_SIZE))
+      |                                                                     ^
+%Warning-WIDTHEXPAND: rtl/stream-column/testbench_stream_column.sv:251:33: Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'p_output_addr' generates 16 bits.
+                                                                         : ... note: In instance 'tb_stream_column'
+  251 |       lane_addr = p_output_addr + lane * OUTPUT_PHYSICAL_SIZE;
+      |                                 ^
+%Warning-WIDTHEXPAND: rtl/stream-column/testbench_stream_column.sv:292:48: Operator LT expects 32 bits on the LHS, but LHS's VARXREF 'r_input_channel_counter_output' generates 4 bits.
+                                                                         : ... note: In instance 'tb_stream_column'
+  292 |         if (dut.r_input_channel_counter_output < N_CHANNEL_OUT)
+      |                                                ^
+%Warning-WIDTHEXPAND: rtl/stream-column/testbench_stream_column.sv:309:48: Operator LT expects 32 bits on the LHS, but LHS's VARXREF 'r_input_channel_counter_output' generates 4 bits.
+                                                                         : ... note: In instance 'tb_stream_column'
+  309 |         if (dut.r_input_channel_counter_output < N_CHANNEL_OUT)
+      |                                                ^
+%Warning-WIDTHEXPAND: rtl/stream-column/testbench_stream_column.sv:331:37: Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'p_output_addr' generates 16 bits.
+                                                                         : ... note: In instance 'tb_stream_column'
+  331 |           lane_addr = p_output_addr + lane * OUTPUT_PHYSICAL_SIZE;
+      |                                     ^
+%Warning-WIDTHEXPAND: rtl/stream-column/testbench_stream_column.sv:339:53: Operator EQ expects 32 bits on the LHS, but LHS's VARXREF 'r_output_channel_counter_input' generates 2 bits.
+                                                                         : ... note: In instance 'tb_stream_column'
+  339 |             if ((dut.r_output_channel_counter_input == (N_CHANNEL_IN - 1)) &&
+      |                                                     ^~
+%Warning-WIDTHEXPAND: rtl/stream-column/testbench_stream_column.sv:340:68: Operator NEQ expects 32 bits on the LHS, but LHS's SIGNED generates 20 bits.
+                                                                         : ... note: In instance 'tb_stream_column'
+  340 |                 ($signed(p_output_data_write[lane*NBITS +: NBITS]) !=
+      |                                                                    ^~
+%Warning-CMPCONST: /home/tarsio/gaph/FastConv_SystemVerilog/rtl/conv4x4/conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-pretransformed-column.sv:978:84: Comparison is constant due to limited range
+                                                                                                                                                          : ... note: In instance 'tb_stream_column.dut'
+  978 |   assign p_output_en = (((st_output_current == READ_OUTPUT) && r_output_read_count <= OUTPUT_RW_COUNT_WIDTH'(OUTPUT_RW_COUNT_MAX)) || (st_output_current == WRITE_OUTPUT)) ? '1 : '0;
+      |                                                                                    ^~
+                   ... For warning description see https://verilator.org/warn/CMPCONST?v=5.050
+                   ... Use "/* verilator lint_off CMPCONST */" and lint_on around source to disable this message.
+make: Entering directory '/home/tarsio/gaph/FastConv_SystemVerilog/rtl/conv4x4/obj_dir/pretransformed-integer-m18'
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated.o /usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated_timing.o /usr/share/verilator/include/verilated_timing.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated_threads.o /usr/share/verilator/include/verilated_threads.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DVL_TIME_CONTEXT   -fcoroutines -x c++-header Vtb_stream_column__pch.h -o Vtb_stream_column__pch.h.fast.gch
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_stream_column__pch.h.fast -c Vtb_stream_column.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_stream_column__pch.h.fast -c Vtb_stream_column___024root__0.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_stream_column__pch.h.fast -c Vtb_stream_column___024root__1.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_stream_column__pch.h.fast -c Vtb_stream_column_Memory__R1__0.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_stream_column__pch.h.fast -c Vtb_stream_column__main.cpp
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DVL_TIME_CONTEXT   -fcoroutines -x c++-header Vtb_stream_column__pch.h -o Vtb_stream_column__pch.h.slow.gch
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_stream_column__pch.h.slow -c Vtb_stream_column__ConstPool__0__Slow.cpp
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_stream_column__pch.h.slow -c Vtb_stream_column___024root__Slow.cpp
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_stream_column__pch.h.slow -c Vtb_stream_column___024root__0__Slow.cpp
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_stream_column__pch.h.slow -c Vtb_stream_column_pack_data__Slow.cpp
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_stream_column__pch.h.slow -c Vtb_stream_column_pack_data__0__Slow.cpp
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_stream_column__pch.h.slow -c Vtb_stream_column_Memory__R1__Slow.cpp
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_stream_column__pch.h.slow -c Vtb_stream_column_Memory__R1__0__Slow.cpp
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_stream_column__pch.h.slow -c Vtb_stream_column___024unit__Slow.cpp
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_stream_column__pch.h.slow -c Vtb_stream_column___024unit__0__Slow.cpp
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_stream_column__pch.h.slow -c Vtb_stream_column__Syms__Slow.cpp
+g++    verilated.o verilated_timing.o verilated_threads.o Vtb_stream_column__ALL.a    -pthread -lpthread -latomic   -o Vtb_stream_column
+rm Vtb_stream_column__ALL.verilator_deplist.tmp
+make: Leaving directory '/home/tarsio/gaph/FastConv_SystemVerilog/rtl/conv4x4/obj_dir/pretransformed-integer-m18'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 2.206 MB sources in 32 modules, into 0.971 MB in 15 C++ files needing 0.001 MB
+- Verilator: Walltime 27.470 s (elab=0.333, cvt=1.899, bld=25.095); cpu 2.343 s on 1 threads; allocated 302.914 MB
+RESETANDO PARA O CANAL 0 - DEU A VOLTA NOS IFMAPS time=3709000 2 (3) st_input_current = ADDRESS_INPUT
+RESETANDO PARA O CANAL 0 - DEU A VOLTA NOS IFMAPS time=7315000 2 (3) st_input_current = ADDRESS_INPUT
+RESETANDO PARA O CANAL 0 - DEU A VOLTA NOS IFMAPS time=10921000 2 (3) st_input_current = ADDRESS_INPUT
+RESETANDO PARA O CANAL 0 - DEU A VOLTA NOS IFMAPS time=14527000 2 (3) st_input_current = ADDRESS_INPUT
+RESETANDO PARA O CANAL 0 - DEU A VOLTA NOS IFMAPS time=18133000 2 (3) st_input_current = ADDRESS_INPUT
+RESETANDO PARA O CANAL 0 - DEU A VOLTA NOS IFMAPS time=21739000 2 (3) st_input_current = ADDRESS_INPUT
+RESETANDO PARA O CANAL 0 - DEU A VOLTA NOS IFMAPS time=25345000 2 (3) st_input_current = ADDRESS_INPUT
+RESETANDO PARA O CANAL 0 - DEU A VOLTA NOS IFMAPS time=28951000 2 (3) st_input_current = ADDRESS_INPUT
+RESETANDO PARA O CANAL 0 - DEU A VOLTA NOS IFMAPS time=32557000 2 (3) st_input_current = ADDRESS_INPUT
+RESETANDO PARA O CANAL 0 - DEU A VOLTA NOS IFMAPS time=36163000 2 (3) st_input_current = ADDRESS_INPUT
+RESETANDO PARA O CANAL 0 - DEU A VOLTA NOS IFMAPS time=39769000 2 (3) st_input_current = ADDRESS_INPUT
+Job execution time: 43282.000 ns (43.282000 us), 21641 cycles
+stream-column simulation passed: tile=6x6 hadamard=6 out=4 inverse_tiles=2304 terminal_inverse_events=0 cycles_to_end=21681 cycles=21684 weight_read_beats=216 useful_weight_beats=216 valid_writes=32400 input_clipped_beats=1728 output_clipped_words=4464
+- rtl/stream-column/testbench_stream_column.sv:506: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.050 2026-07-01
+- Verilator: $finish at 43us; walltime 0.021 s; speed 2.055 ms/s
+- Verilator: cpu 0.021 s on 1 threads; allocated 7 MB
