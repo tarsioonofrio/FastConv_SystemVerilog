@@ -3,19 +3,19 @@ Copyright 2022 Cadence Design Systems, Inc. All rights reserved worldwide.
 Cadence and the Cadence logo are registered trademarks and Genus is a trademark
 of Cadence Design Systems, Inc. in the United States and other countries.
 
-[19:42:58.503785] Configured Lic search path (20.02-s004): 5280@paxos.inf.pucrs.br
+[14:33:27.503713] Configured Lic search path (20.02-s004): 5280@paxos.inf.pucrs.br
 
 Version: 21.12-s068_1, built Fri Mar 04 09:12:46 PST 2022
 Options: -files logical_synthesis.tcl 
-Date:    Thu Oct 08 19:42:58 2026
+Date:    Sun Oct 11 14:33:27 2026
 Host:    paxos.inf.pucrs.br (x86_64 w/Linux 4.18.0-553.155.1.el8_10.x86_64) (14cores*28cpus*1physical cpu*Intel(R) Core(TM) i9-7940X CPU @ 3.10GHz 19712KB) (131170900KB)
-PID:     20459
+PID:     1662010
 OS:      Rocky Linux release 8.10 (Green Obsidian)
 
 
-[19:42:58.011600] Periodic Lic check successful
-[19:42:58.011610] Feature usage summary:
-[19:42:58.011610] Genus_Synthesis
+[14:33:27.059466] Periodic Lic check successful
+[14:33:27.059472] Feature usage summary:
+[14:33:27.059472] Genus_Synthesis
 Checking out license: Genus_Synthesis
 
 
@@ -95,8 +95,8 @@ Finished loading tool scripts (8 seconds elapsed).
     close $fp_def
 }
 @file(logical_synthesis.tcl) 97: source [file join $CONFIG_ROOT scripts logical_synthesis_body.tcl]
-Sourcing '/sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12/scripts/logical_synthesis_body.tcl' (Thu Oct 08 19:43:06 -03 2026)...
-#@ Begin verbose source /sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12/scripts/logical_synthesis_body.tcl
+Sourcing '/tmp/fastconv-asic-if18-tcn9-tcn4-e48b1dac/repo/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12/scripts/logical_synthesis_body.tcl' (Sun Oct 11 14:33:35 -03 2026)...
+#@ Begin verbose source /tmp/fastconv-asic-if18-tcn9-tcn4-e48b1dac/repo/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12/scripts/logical_synthesis_body.tcl
 @file(logical_synthesis_body.tcl) 5: puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 @file(logical_synthesis_body.tcl) 6: puts "Load the pdk using MMMC"
@@ -105,8 +105,8 @@ Load the pdk using MMMC
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 @file(logical_synthesis_body.tcl) 8: read_mmmc [file join $CONFIG_ROOT scripts mmmc_tsmc_28_bv.tcl]
   Setting attribute of root '/': 'is_read_mmmc_flow' = true
-Sourcing '/sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12/scripts/mmmc_tsmc_28_bv.tcl' (Thu Oct 08 19:43:06 -03 2026)...
-#@ Begin verbose source /sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12/scripts/mmmc_tsmc_28_bv.tcl
+Sourcing '/tmp/fastconv-asic-if18-tcn9-tcn4-e48b1dac/repo/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12/scripts/mmmc_tsmc_28_bv.tcl' (Sun Oct 11 14:33:35 -03 2026)...
+#@ Begin verbose source /tmp/fastconv-asic-if18-tcn9-tcn4-e48b1dac/repo/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12/scripts/mmmc_tsmc_28_bv.tcl
 @file(mmmc_tsmc_28_bv.tcl) 2: set CONSTRAINTS_PATH [file join $CONFIG_ROOT scripts]
 @file(mmmc_tsmc_28_bv.tcl) 8: set LIB_PATH /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End
 @file(mmmc_tsmc_28_bv.tcl) 9: set TECH_PATH /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Back_End
@@ -280,7 +280,7 @@ Warning : Physical cell not defined in library. [PHYS-279]
         : The physical (LEF) cell LVLHLCLOD2BWP30P140 cannot be found in library.
 Warning : Maximum message print count reached. [MESG-11]
         : Maximum print count of '20' reached for message 'PHYS-279'.
-#@ End verbose source /sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12/scripts/mmmc_tsmc_28_bv.tcl
+#@ End verbose source /tmp/fastconv-asic-if18-tcn9-tcn4-e48b1dac/repo/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12/scripts/mmmc_tsmc_28_bv.tcl
 @file(logical_synthesis_body.tcl) 10: puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 @file(logical_synthesis_body.tcl) 11: puts "Configuration of the Genus"
@@ -337,51 +337,51 @@ Elaboration
 }
 Elaborating Conv with parameter overrides: {NUM_MULT 8} {NBITS 16} {N_CHANNEL_IN 3} {N_CHANNEL_OUT 12}
 Info    : Elaborating Design. [ELAB-1]
-        : Elaborating top-level block 'Conv' from file '/sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column.sv'.
+        : Elaborating top-level block 'Conv' from file '/tmp/fastconv-asic-if18-tcn9-tcn4-e48b1dac/repo/rtl/conv2x2/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column.sv'.
 Warning : Removing unused register. [CDFG-508]
-        : Removing unused latch register 'weight[8]' in module 'WeightTransformRowConst' in file '/sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column.sv' on line 1083.
+        : Removing unused latch register 'weight[8]' in module 'WeightTransformRowConst' in file '/tmp/fastconv-asic-if18-tcn9-tcn4-e48b1dac/repo/rtl/conv2x2/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column.sv' on line 1083.
         : Genus removes the flip-flop or latch inferred for an unused signal or variable. To preserve the flip-flop or latch, set the hdl_preserve_unused_registers attribute to true or use a pragma in the RTL.
 Warning : Removing unused register. [CDFG-508]
-        : Removing unused latch register 'weight[7]' in module 'WeightTransformRowConst' in file '/sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column.sv' on line 1083.
+        : Removing unused latch register 'weight[7]' in module 'WeightTransformRowConst' in file '/tmp/fastconv-asic-if18-tcn9-tcn4-e48b1dac/repo/rtl/conv2x2/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column.sv' on line 1083.
 Warning : Removing unused register. [CDFG-508]
-        : Removing unused latch register 'weight[6]' in module 'WeightTransformRowConst' in file '/sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column.sv' on line 1083.
+        : Removing unused latch register 'weight[6]' in module 'WeightTransformRowConst' in file '/tmp/fastconv-asic-if18-tcn9-tcn4-e48b1dac/repo/rtl/conv2x2/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column.sv' on line 1083.
 Warning : Removing unused register. [CDFG-508]
-        : Removing unused latch register 'weight[5]' in module 'WeightTransformRowConst' in file '/sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column.sv' on line 1083.
+        : Removing unused latch register 'weight[5]' in module 'WeightTransformRowConst' in file '/tmp/fastconv-asic-if18-tcn9-tcn4-e48b1dac/repo/rtl/conv2x2/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column.sv' on line 1083.
 Warning : Removing unused register. [CDFG-508]
-        : Removing unused latch register 'weight[4]' in module 'WeightTransformRowConst' in file '/sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column.sv' on line 1083.
+        : Removing unused latch register 'weight[4]' in module 'WeightTransformRowConst' in file '/tmp/fastconv-asic-if18-tcn9-tcn4-e48b1dac/repo/rtl/conv2x2/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column.sv' on line 1083.
 Warning : Removing unused register. [CDFG-508]
-        : Removing unused latch register 'weight[3]' in module 'WeightTransformRowConst' in file '/sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column.sv' on line 1083.
+        : Removing unused latch register 'weight[3]' in module 'WeightTransformRowConst' in file '/tmp/fastconv-asic-if18-tcn9-tcn4-e48b1dac/repo/rtl/conv2x2/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column.sv' on line 1083.
 Warning : Removing unused register. [CDFG-508]
-        : Removing unused latch register 'weight[5]' in module 'WeightTransformRowConst_2' in file '/sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column.sv' on line 1083.
+        : Removing unused latch register 'weight[5]' in module 'WeightTransformRowConst_2' in file '/tmp/fastconv-asic-if18-tcn9-tcn4-e48b1dac/repo/rtl/conv2x2/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column.sv' on line 1083.
 Warning : Removing unused register. [CDFG-508]
-        : Removing unused latch register 'weight[4]' in module 'WeightTransformRowConst_2' in file '/sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column.sv' on line 1083.
+        : Removing unused latch register 'weight[4]' in module 'WeightTransformRowConst_2' in file '/tmp/fastconv-asic-if18-tcn9-tcn4-e48b1dac/repo/rtl/conv2x2/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column.sv' on line 1083.
 Warning : Removing unused register. [CDFG-508]
-        : Removing unused latch register 'weight[3]' in module 'WeightTransformRowConst_2' in file '/sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column.sv' on line 1083.
+        : Removing unused latch register 'weight[3]' in module 'WeightTransformRowConst_2' in file '/tmp/fastconv-asic-if18-tcn9-tcn4-e48b1dac/repo/rtl/conv2x2/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column.sv' on line 1083.
 Warning : Removing unused register. [CDFG-508]
-        : Removing unused latch register 'weight[2]' in module 'WeightTransformRowConst_2' in file '/sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column.sv' on line 1083.
+        : Removing unused latch register 'weight[2]' in module 'WeightTransformRowConst_2' in file '/tmp/fastconv-asic-if18-tcn9-tcn4-e48b1dac/repo/rtl/conv2x2/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column.sv' on line 1083.
 Warning : Removing unused register. [CDFG-508]
-        : Removing unused latch register 'weight[1]' in module 'WeightTransformRowConst_2' in file '/sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column.sv' on line 1083.
+        : Removing unused latch register 'weight[1]' in module 'WeightTransformRowConst_2' in file '/tmp/fastconv-asic-if18-tcn9-tcn4-e48b1dac/repo/rtl/conv2x2/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column.sv' on line 1083.
 Warning : Removing unused register. [CDFG-508]
-        : Removing unused latch register 'weight[0]' in module 'WeightTransformRowConst_2' in file '/sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column.sv' on line 1083.
+        : Removing unused latch register 'weight[0]' in module 'WeightTransformRowConst_2' in file '/tmp/fastconv-asic-if18-tcn9-tcn4-e48b1dac/repo/rtl/conv2x2/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column.sv' on line 1083.
 Warning : Connected signal is wider than module port. [CDFG-464]
-        : Signal width (24) does not match width of output port 'product' (16) of instance 'multip0' of module 'Multip' in file '/sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column.sv' on line 822.
+        : Signal width (24) does not match width of output port 'product' (16) of instance 'multip0' of module 'Multip' in file '/tmp/fastconv-asic-if18-tcn9-tcn4-e48b1dac/repo/rtl/conv2x2/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column.sv' on line 822.
         : This may cause simulation mismatches between the original and synthesized designs.
 Warning : Connected signal is wider than module port. [CDFG-464]
-        : Signal width (24) does not match width of output port 'product' (16) of instance 'multip1' of module 'Multip' in file '/sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column.sv' on line 824.
+        : Signal width (24) does not match width of output port 'product' (16) of instance 'multip1' of module 'Multip' in file '/tmp/fastconv-asic-if18-tcn9-tcn4-e48b1dac/repo/rtl/conv2x2/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column.sv' on line 824.
 Warning : Connected signal is wider than module port. [CDFG-464]
-        : Signal width (24) does not match width of output port 'product' (16) of instance 'multip2' of module 'Multip' in file '/sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column.sv' on line 826.
+        : Signal width (24) does not match width of output port 'product' (16) of instance 'multip2' of module 'Multip' in file '/tmp/fastconv-asic-if18-tcn9-tcn4-e48b1dac/repo/rtl/conv2x2/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column.sv' on line 826.
 Warning : Connected signal is wider than module port. [CDFG-464]
-        : Signal width (24) does not match width of output port 'product' (16) of instance 'multip3' of module 'Multip' in file '/sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column.sv' on line 828.
+        : Signal width (24) does not match width of output port 'product' (16) of instance 'multip3' of module 'Multip' in file '/tmp/fastconv-asic-if18-tcn9-tcn4-e48b1dac/repo/rtl/conv2x2/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column.sv' on line 828.
 Warning : Connected signal is wider than module port. [CDFG-464]
-        : Signal width (24) does not match width of output port 'product' (16) of instance 'multip4' of module 'Multip' in file '/sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column.sv' on line 830.
+        : Signal width (24) does not match width of output port 'product' (16) of instance 'multip4' of module 'Multip' in file '/tmp/fastconv-asic-if18-tcn9-tcn4-e48b1dac/repo/rtl/conv2x2/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column.sv' on line 830.
 Warning : Connected signal is wider than module port. [CDFG-464]
-        : Signal width (24) does not match width of output port 'product' (16) of instance 'multip5' of module 'Multip' in file '/sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column.sv' on line 831.
+        : Signal width (24) does not match width of output port 'product' (16) of instance 'multip5' of module 'Multip' in file '/tmp/fastconv-asic-if18-tcn9-tcn4-e48b1dac/repo/rtl/conv2x2/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column.sv' on line 831.
 Warning : Connected signal is wider than module port. [CDFG-464]
-        : Signal width (24) does not match width of output port 'product' (16) of instance 'multip6' of module 'Multip' in file '/sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column.sv' on line 832.
+        : Signal width (24) does not match width of output port 'product' (16) of instance 'multip6' of module 'Multip' in file '/tmp/fastconv-asic-if18-tcn9-tcn4-e48b1dac/repo/rtl/conv2x2/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column.sv' on line 832.
 Warning : Connected signal is wider than module port. [CDFG-464]
-        : Signal width (24) does not match width of output port 'product' (16) of instance 'multip7' of module 'Multip' in file '/sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column.sv' on line 833.
+        : Signal width (24) does not match width of output port 'product' (16) of instance 'multip7' of module 'Multip' in file '/tmp/fastconv-asic-if18-tcn9-tcn4-e48b1dac/repo/rtl/conv2x2/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column.sv' on line 833.
 Warning : Unreachable statements for case item. [CDFG-472]
-        : Case item 'default' in module 'InverseRowAccumulate' in file '/sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/mult-matrices/stream/tcn4/mult_matrices.sv' on line 70.
+        : Case item 'default' in module 'InverseRowAccumulate' in file '/tmp/fastconv-asic-if18-tcn9-tcn4-e48b1dac/repo/rtl/conv2x2/mult-matrices/stream/tcn4/mult_matrices.sv' on line 70.
 Info    : Done Elaborating Design. [ELAB-3]
         : Done elaborating 'Conv'.
 Checking for analog nets...
@@ -408,7 +408,7 @@ No power intent for design 'Conv'.
 Completed checking and loading power intent for design Conv (runtime:0.00s memory_usage:0.00M peak_memory:0.00M).
 =================================================================================================================
 #
-# Reading SDC /sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12/scripts/constraints.sdc for view:analysis_view_0p81v_125c_capwst_slowest (constraint_mode:constraints_default)
+# Reading SDC /tmp/fastconv-asic-if18-tcn9-tcn4-e48b1dac/repo/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12/scripts/constraints.sdc for view:analysis_view_0p81v_125c_capwst_slowest (constraint_mode:constraints_default)
 #
 Warning : Unsupported SDC command option. [SDC-201] [set_input_delay]
         : The set_input_delay command is not supported on ports which have a clock already defined 'port:Conv/clk'.
@@ -418,11 +418,11 @@ Statistics for commands executed by read_sdc:
  "all_outputs"              - successful      2 , failed      0 (runtime  0.00)
  "create_clock"             - successful      1 , failed      0 (runtime  0.00)
  "get_lib_pins"             - successful      1 , failed      0 (runtime  0.01)
- "get_ports"                - successful      2 , failed      0 (runtime  0.01)
+ "get_ports"                - successful      2 , failed      0 (runtime  0.00)
  "load_of"                  - successful      1 , failed      0 (runtime  0.00)
  "set_driving_cell"         - successful      1 , failed      0 (runtime  0.01)
  "set_false_path"           - successful      1 , failed      0 (runtime  0.00)
- "set_input_delay"          - successful      1 , failed      0 (runtime  0.00)
+ "set_input_delay"          - successful      1 , failed      0 (runtime  0.01)
  "set_load"                 - successful      1 , failed      0 (runtime  0.00)
  "set_load_unit"            - successful      1 , failed      0 (runtime  0.00)
  "set_output_delay"         - successful      1 , failed      0 (runtime  0.00)
@@ -506,7 +506,7 @@ Info    : Deleting instances not driving any primary outputs. [GLO-34]
         : Deleting 2 hierarchical instances.
 Warning : Maximum message print count reached. [MESG-11]
         : Maximum print count of '20' reached for message 'GLO-34'.
-Completed mux data reorder optimization (accepts: 26, rejects: 0, runtime: 0.167s)
+Completed mux data reorder optimization (accepts: 26, rejects: 0, runtime: 0.172s)
 Current PLE settings:
 
 Aspect ratio        : 1.000
@@ -570,7 +570,7 @@ stamp 'PBS_Generic-Start' being created for table 'pbs_debug'
 
   Total Time (Wall) |  Stage Time (Wall)  |   % (Wall)   |    Date - Time     |  Memory   | Stage
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:00:27(00:00:22) |  00:00:00(00:00:00) |   0.0(  0.0) |   19:43:24 (Oct08) |  637.8 MB | PBS_Generic-Start
+ 00:00:27(00:00:22) |  00:00:00(00:00:00) |   0.0(  0.0) |   14:33:53 (Oct11) |  652.3 MB | PBS_Generic-Start
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
 Number of threads: 8 * 1   (id: pbs_debug, time_info v1.57)
 Info: (*N*) indicates data that was populated from previously saved time_info database
@@ -579,7 +579,7 @@ TNS Restructuring config: no_value at stage: generic applied.
 Info    : Partition Based Synthesis execution skipped. [PHYS-752]
         : Design size is less than the partition size '100000' for distributed generic optimization to kick in.
 Starting mux data reorder optimization [v1.0] (stage: pre_to_gen_setup, startdef: Conv, recur: true)
-Completed mux data reorder optimization (accepts: 0, rejects: 0, runtime: 0.020s)
+Completed mux data reorder optimization (accepts: 0, rejects: 0, runtime: 0.022s)
 Starting mux data reorder optimization [v1.0] (stage: post_to_gen_setup, startdef: Conv, recur: true)
 Completed mux data reorder optimization (accepts: 0, rejects: 0, runtime: 0.007s)
 Current PLE settings:
@@ -645,41 +645,41 @@ Completed Unified Mux Engine Tricks
 --------------------------------------------
 --------------------------------------------
 Starting infer macro optimization [v1.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
-Completed infer macro optimization (accepts: 0, rejects: 31, runtime: 0.050s)
+Completed infer macro optimization (accepts: 0, rejects: 31, runtime: 0.060s)
 Starting decode mux sandwich optimization [v2.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
 Completed decode mux sandwich optimization (accepts: 0, rejects: 0, runtime: 0.000s)
 Starting decode mux optimization [v1.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
-Completed decode mux optimization (accepts: 0, rejects: 0, runtime: 0.000s)
+Completed decode mux optimization (accepts: 0, rejects: 0, runtime: 0.001s)
 Starting chop wide muxes [v1.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
-Completed chop wide muxes (accepts: 0, rejects: 0, runtime: 0.001s)
+Completed chop wide muxes (accepts: 0, rejects: 0, runtime: 0.000s)
+Starting common data mux cascade opt [v1.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
+Completed common data mux cascade opt (accepts: 0, rejects: 0, runtime: 0.002s)
+Starting mux input consolidation [v1.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
+Completed mux input consolidation (accepts: 0, rejects: 0, runtime: 0.002s)
+Starting priority mux optimization [v1.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
+Completed priority mux optimization (accepts: 0, rejects: 0, runtime: 0.889s)
+Starting constant-data mux optimization [v1.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
+Completed constant-data mux optimization (accepts: 2, rejects: 2, runtime: 0.072s)
+Starting chain-to-tree inequality transform [v2.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
+Completed chain-to-tree inequality transform (accepts: 0, rejects: 0, runtime: 0.063s)
+Starting reconvergence optimization [v1.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
+Completed reconvergence optimization (accepts: 0, rejects: 0, runtime: 0.001s)
+Starting logic restructure optimization [v1.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
+Completed logic restructure optimization (accepts: 0, rejects: 0, runtime: 0.003s)
+Starting common select mux optimization [v1.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
+Completed common select mux optimization (accepts: 0, rejects: 1, runtime: 0.003s)
+Starting identity transform [v3.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
+Completed identity transform (accepts: 0, rejects: 2, runtime: 0.004s)
+Starting reduce operator chain [v1.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
+Completed reduce operator chain (accepts: 0, rejects: 0, runtime: 0.000s)
 Starting common data mux cascade opt [v1.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
 Completed common data mux cascade opt (accepts: 0, rejects: 0, runtime: 0.001s)
 Starting mux input consolidation [v1.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
 Completed mux input consolidation (accepts: 0, rejects: 0, runtime: 0.002s)
-Starting priority mux optimization [v1.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
-Completed priority mux optimization (accepts: 0, rejects: 0, runtime: 0.841s)
-Starting constant-data mux optimization [v1.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
-Completed constant-data mux optimization (accepts: 2, rejects: 2, runtime: 0.063s)
-Starting chain-to-tree inequality transform [v2.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
-Completed chain-to-tree inequality transform (accepts: 0, rejects: 0, runtime: 0.057s)
-Starting reconvergence optimization [v1.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
-Completed reconvergence optimization (accepts: 0, rejects: 0, runtime: 0.000s)
-Starting logic restructure optimization [v1.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
-Completed logic restructure optimization (accepts: 0, rejects: 0, runtime: 0.004s)
-Starting common select mux optimization [v1.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
-Completed common select mux optimization (accepts: 0, rejects: 1, runtime: 0.003s)
-Starting identity transform [v3.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
-Completed identity transform (accepts: 0, rejects: 2, runtime: 0.003s)
-Starting reduce operator chain [v1.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
-Completed reduce operator chain (accepts: 0, rejects: 0, runtime: 0.000s)
-Starting common data mux cascade opt [v1.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
-Completed common data mux cascade opt (accepts: 0, rejects: 0, runtime: 0.002s)
-Starting mux input consolidation [v1.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
-Completed mux input consolidation (accepts: 0, rejects: 0, runtime: 0.001s)
 Starting optimize datapath elements [v1.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
-Completed optimize datapath elements (accepts: 0, rejects: 0, runtime: 0.001s)
+Completed optimize datapath elements (accepts: 0, rejects: 0, runtime: 0.000s)
 Starting datapath recasting [v1.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
-Completed datapath recasting (accepts: 0, rejects: 0, runtime: 0.000s)
+Completed datapath recasting (accepts: 0, rejects: 0, runtime: 0.001s)
 Starting clip mux common data inputs [v1.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
 Completed clip mux common data inputs (accepts: 2, rejects: 0, runtime: 0.001s)
 Starting clip the non-user hierarchies [v2.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
@@ -5442,7 +5442,7 @@ Completed mux data reorder optimization (accepts: 0, rejects: 0, runtime: 0.008s
 Starting mux speculation [v1.0] (stage: post_muxopt, startdef: Conv, recur: true)
 Starting speculation optimization
 Completed speculation optimization (accepts:0)
-Completed mux speculation (accepts: 0, rejects: 0, runtime: 0.633s)
+Completed mux speculation (accepts: 0, rejects: 0, runtime: 0.639s)
 ==================================
 Stage : to_generic 
 ==================================
@@ -5660,23 +5660,23 @@ Info    : Attempting to launch a super-threading server. [ST-120]
         : Attempting to Launch server 1 of 8.
         : The tool is entering super-threading mode and is launching a CPU server process.  This is enabled by the root attribute 'super_thread_servers' or 'auto_super_thread'.
 Info    : Connection established with super-threading server. [ST-110]
-        : The server 'localhost_1_0' is process '23426' on this host.
+        : The server 'localhost_1_0' is process '1664266' on this host.
         : The tool is entering super-threading mode and has established a connection with a CPU server process.  This is enabled by the root attributes 'super_thread_servers' or 'auto_super_thread'.
                   Library loading done successfully on server 'localhost_1_0'.
 Info    : Connection established with super-threading server. [ST-110]
-        : The server 'localhost_1_1' is forked process '23965' on this host.
+        : The server 'localhost_1_1' is forked process '1664619' on this host.
 Info    : Connection established with super-threading server. [ST-110]
-        : The server 'localhost_1_2' is forked process '23967' on this host.
+        : The server 'localhost_1_2' is forked process '1664622' on this host.
 Info    : Connection established with super-threading server. [ST-110]
-        : The server 'localhost_1_3' is forked process '23969' on this host.
+        : The server 'localhost_1_3' is forked process '1664624' on this host.
 Info    : Connection established with super-threading server. [ST-110]
-        : The server 'localhost_1_4' is forked process '23971' on this host.
+        : The server 'localhost_1_4' is forked process '1664626' on this host.
 Info    : Connection established with super-threading server. [ST-110]
-        : The server 'localhost_1_5' is forked process '23973' on this host.
+        : The server 'localhost_1_5' is forked process '1664628' on this host.
 Info    : Connection established with super-threading server. [ST-110]
-        : The server 'localhost_1_6' is forked process '23981' on this host.
+        : The server 'localhost_1_6' is forked process '1664657' on this host.
 Info    : Connection established with super-threading server. [ST-110]
-        : The server 'localhost_1_7' is forked process '23983' on this host.
+        : The server 'localhost_1_7' is forked process '1664659' on this host.
 Multi-threaded constant propagation [1|0] ...
 Info    : Replacing the synchronous part of an always feeding back flip-flop with a logic constant. [GLO-45]
         : The instance is 'r_transform_product_idx_reg[2]'. The constant is '0'.
@@ -5757,201 +5757,201 @@ Info    : Deleting instances not driving any primary outputs. [GLO-34]
         : Deleting 1 sequential instance.
 Multi-threaded Virtual Mapping    (8 threads per ST process, 8 of 28 CPUs usable)
         Distributing super-thread jobs: mult_signed csa_tree_SUB_TC_OP_4_pad_group_10453 csa_tree_minus_1112_18_group_21866 csa_tree_9999 csa_tree_sub0012672_group_2 csa_tree_add_1136_41_group_4 csa_tree_add_1135_41_group_6 csa_tree_SUB_TC_OP_group_4 csa_tree_SUB_TC_OP_group_4_1071 csa_tree_ADD_TC_OP_1_group_6 csa_tree_ADD_TC_OP_1_group_6_1070 csa_tree_1171 csa_tree_fac76_group_1545 add_signed_carry_1207 sub_unsigned_26_1087 sub_unsigned_26_1085 sub_unsigned_26_1092 sub_unsigned_26_1093 sub_unsigned_26_1095 sub_unsigned_26_1088 sub_unsigned_26_1094 sub_unsigned_26_1089 sub_unsigned_26_1096 sub_unsigned_26_1086 sub_unsigned_26_1090 sub_unsigned_26_1091 add_unsigned_24_893 add_unsigned_24_894 add_unsigned_24_892 add_unsigned_24_895
-          Sending 'mult_signed' to server 'localhost_1_3'...
-            Sent 'mult_signed' to server 'localhost_1_3'.
-          Sending 'csa_tree_SUB_TC_OP_4_pad_group_10453' to server 'localhost_1_2'...
-            Sent 'csa_tree_SUB_TC_OP_4_pad_group_10453' to server 'localhost_1_2'.
-          Sending 'csa_tree_minus_1112_18_group_21866' to server 'localhost_1_1'...
-            Sent 'csa_tree_minus_1112_18_group_21866' to server 'localhost_1_1'.
-          Sending 'csa_tree_9999' to server 'localhost_1_7'...
-            Sent 'csa_tree_9999' to server 'localhost_1_7'.
-          Sending 'csa_tree_sub0012672_group_2' to server 'localhost_1_5'...
-            Sent 'csa_tree_sub0012672_group_2' to server 'localhost_1_5'.
-          Sending 'csa_tree_add_1136_41_group_4' to server 'localhost_1_4'...
-            Sent 'csa_tree_add_1136_41_group_4' to server 'localhost_1_4'.
-          Sending 'csa_tree_add_1135_41_group_6' to server 'localhost_1_0'...
-            Sent 'csa_tree_add_1135_41_group_6' to server 'localhost_1_0'.
-          Sending 'csa_tree_SUB_TC_OP_group_4' to server 'localhost_1_6'...
-            Sent 'csa_tree_SUB_TC_OP_group_4' to server 'localhost_1_6'.
-          Received 'csa_tree_add_1135_41_group_6' from server 'localhost_1_0'. (5081 ms elapsed)
-          Sending 'csa_tree_SUB_TC_OP_group_4_1071' to server 'localhost_1_0'...
-            Sent 'csa_tree_SUB_TC_OP_group_4_1071' to server 'localhost_1_0'.
-          Received 'csa_tree_add_1136_41_group_4' from server 'localhost_1_4'. (5906 ms elapsed)
-          Sending 'csa_tree_ADD_TC_OP_1_group_6' to server 'localhost_1_4'...
-            Sent 'csa_tree_ADD_TC_OP_1_group_6' to server 'localhost_1_4'.
-          Received 'csa_tree_9999' from server 'localhost_1_7'. (5940 ms elapsed)
-          Sending 'csa_tree_ADD_TC_OP_1_group_6_1070' to server 'localhost_1_7'...
-            Sent 'csa_tree_ADD_TC_OP_1_group_6_1070' to server 'localhost_1_7'.
-          Received 'csa_tree_minus_1112_18_group_21866' from server 'localhost_1_1'. (5965 ms elapsed)
-          Sending 'csa_tree_1171' to server 'localhost_1_1'...
-            Sent 'csa_tree_1171' to server 'localhost_1_1'.
-          Received 'csa_tree_SUB_TC_OP_4_pad_group_10453' from server 'localhost_1_2'. (5989 ms elapsed)
-          Sending 'csa_tree_fac76_group_1545' to server 'localhost_1_2'...
-            Sent 'csa_tree_fac76_group_1545' to server 'localhost_1_2'.
-          Received 'mult_signed' from server 'localhost_1_3'. (6042 ms elapsed)
-          Sending 'add_signed_carry_1207' to server 'localhost_1_3'...
-            Sent 'add_signed_carry_1207' to server 'localhost_1_3'.
-          Received 'csa_tree_sub0012672_group_2' from server 'localhost_1_5'. (5970 ms elapsed)
-          Sending 'sub_unsigned_26_1087' to server 'localhost_1_5'...
-            Sent 'sub_unsigned_26_1087' to server 'localhost_1_5'.
-          Received 'add_signed_carry_1207' from server 'localhost_1_3'. (229 ms elapsed)
-          Sending 'sub_unsigned_26_1085' to server 'localhost_1_3'...
-            Sent 'sub_unsigned_26_1085' to server 'localhost_1_3'.
-          Received 'csa_tree_fac76_group_1545' from server 'localhost_1_2'. (247 ms elapsed)
-          Sending 'sub_unsigned_26_1092' to server 'localhost_1_2'...
-            Sent 'sub_unsigned_26_1092' to server 'localhost_1_2'.
-          Received 'csa_tree_1171' from server 'localhost_1_1'. (266 ms elapsed)
-          Sending 'sub_unsigned_26_1093' to server 'localhost_1_1'...
-            Sent 'sub_unsigned_26_1093' to server 'localhost_1_1'.
-          Received 'sub_unsigned_26_1085' from server 'localhost_1_3'. (209 ms elapsed)
-          Sending 'sub_unsigned_26_1095' to server 'localhost_1_3'...
-            Sent 'sub_unsigned_26_1095' to server 'localhost_1_3'.
-          Received 'sub_unsigned_26_1093' from server 'localhost_1_1'. (200 ms elapsed)
-          Sending 'sub_unsigned_26_1088' to server 'localhost_1_1'...
-            Sent 'sub_unsigned_26_1088' to server 'localhost_1_1'.
-          Received 'sub_unsigned_26_1092' from server 'localhost_1_2'. (217 ms elapsed)
-          Sending 'sub_unsigned_26_1094' to server 'localhost_1_2'...
-            Sent 'sub_unsigned_26_1094' to server 'localhost_1_2'.
-          Received 'csa_tree_ADD_TC_OP_1_group_6' from server 'localhost_1_4'. (558 ms elapsed)
-          Sending 'sub_unsigned_26_1089' to server 'localhost_1_4'...
-            Sent 'sub_unsigned_26_1089' to server 'localhost_1_4'.
-          Received 'sub_unsigned_26_1087' from server 'localhost_1_5'. (544 ms elapsed)
-          Sending 'sub_unsigned_26_1096' to server 'localhost_1_5'...
-            Sent 'sub_unsigned_26_1096' to server 'localhost_1_5'.
-          Received 'csa_tree_ADD_TC_OP_1_group_6_1070' from server 'localhost_1_7'. (599 ms elapsed)
-          Sending 'sub_unsigned_26_1086' to server 'localhost_1_7'...
-            Sent 'sub_unsigned_26_1086' to server 'localhost_1_7'.
-          Received 'sub_unsigned_26_1094' from server 'localhost_1_2'. (182 ms elapsed)
-          Sending 'sub_unsigned_26_1090' to server 'localhost_1_2'...
-            Sent 'sub_unsigned_26_1090' to server 'localhost_1_2'.
-          Received 'sub_unsigned_26_1096' from server 'localhost_1_5'. (185 ms elapsed)
-          Sending 'sub_unsigned_26_1091' to server 'localhost_1_5'...
-            Sent 'sub_unsigned_26_1091' to server 'localhost_1_5'.
-          Received 'sub_unsigned_26_1086' from server 'localhost_1_7'. (186 ms elapsed)
-          Sending 'add_unsigned_24_893' to server 'localhost_1_7'...
-            Sent 'add_unsigned_24_893' to server 'localhost_1_7'.
-          Received 'csa_tree_SUB_TC_OP_group_4' from server 'localhost_1_6'. (6701 ms elapsed)
-          Sending 'add_unsigned_24_894' to server 'localhost_1_6'...
-            Sent 'add_unsigned_24_894' to server 'localhost_1_6'.
-          Received 'sub_unsigned_26_1090' from server 'localhost_1_2'. (186 ms elapsed)
+          Sending 'mult_signed' to server 'localhost_1_5'...
+            Sent 'mult_signed' to server 'localhost_1_5'.
+          Sending 'csa_tree_SUB_TC_OP_4_pad_group_10453' to server 'localhost_1_4'...
+            Sent 'csa_tree_SUB_TC_OP_4_pad_group_10453' to server 'localhost_1_4'.
+          Sending 'csa_tree_minus_1112_18_group_21866' to server 'localhost_1_7'...
+            Sent 'csa_tree_minus_1112_18_group_21866' to server 'localhost_1_7'.
+          Sending 'csa_tree_9999' to server 'localhost_1_1'...
+            Sent 'csa_tree_9999' to server 'localhost_1_1'.
+          Sending 'csa_tree_sub0012672_group_2' to server 'localhost_1_6'...
+            Sent 'csa_tree_sub0012672_group_2' to server 'localhost_1_6'.
+          Sending 'csa_tree_add_1136_41_group_4' to server 'localhost_1_0'...
+            Sent 'csa_tree_add_1136_41_group_4' to server 'localhost_1_0'.
+          Sending 'csa_tree_add_1135_41_group_6' to server 'localhost_1_2'...
+            Sent 'csa_tree_add_1135_41_group_6' to server 'localhost_1_2'.
+          Sending 'csa_tree_SUB_TC_OP_group_4' to server 'localhost_1_3'...
+            Sent 'csa_tree_SUB_TC_OP_group_4' to server 'localhost_1_3'.
+          Received 'csa_tree_add_1135_41_group_6' from server 'localhost_1_2'. (5306 ms elapsed)
+          Sending 'csa_tree_SUB_TC_OP_group_4_1071' to server 'localhost_1_2'...
+            Sent 'csa_tree_SUB_TC_OP_group_4_1071' to server 'localhost_1_2'.
+          Received 'csa_tree_9999' from server 'localhost_1_1'. (5800 ms elapsed)
+          Sending 'csa_tree_ADD_TC_OP_1_group_6' to server 'localhost_1_1'...
+            Sent 'csa_tree_ADD_TC_OP_1_group_6' to server 'localhost_1_1'.
+          Received 'csa_tree_SUB_TC_OP_4_pad_group_10453' from server 'localhost_1_4'. (5973 ms elapsed)
+          Sending 'csa_tree_ADD_TC_OP_1_group_6_1070' to server 'localhost_1_4'...
+            Sent 'csa_tree_ADD_TC_OP_1_group_6_1070' to server 'localhost_1_4'.
+          Received 'csa_tree_minus_1112_18_group_21866' from server 'localhost_1_7'. (6227 ms elapsed)
+          Sending 'csa_tree_1171' to server 'localhost_1_7'...
+            Sent 'csa_tree_1171' to server 'localhost_1_7'.
+          Received 'csa_tree_add_1136_41_group_4' from server 'localhost_1_0'. (6261 ms elapsed)
+          Sending 'csa_tree_fac76_group_1545' to server 'localhost_1_0'...
+            Sent 'csa_tree_fac76_group_1545' to server 'localhost_1_0'.
+          Received 'csa_tree_sub0012672_group_2' from server 'localhost_1_6'. (6287 ms elapsed)
+          Sending 'add_signed_carry_1207' to server 'localhost_1_6'...
+            Sent 'add_signed_carry_1207' to server 'localhost_1_6'.
+          Received 'csa_tree_ADD_TC_OP_1_group_6' from server 'localhost_1_1'. (578 ms elapsed)
+          Sending 'sub_unsigned_26_1087' to server 'localhost_1_1'...
+            Sent 'sub_unsigned_26_1087' to server 'localhost_1_1'.
+          Received 'add_signed_carry_1207' from server 'localhost_1_6'. (215 ms elapsed)
+          Sending 'sub_unsigned_26_1085' to server 'localhost_1_6'...
+            Sent 'sub_unsigned_26_1085' to server 'localhost_1_6'.
+          Received 'sub_unsigned_26_1087' from server 'localhost_1_1'. (247 ms elapsed)
+          Sending 'sub_unsigned_26_1092' to server 'localhost_1_1'...
+            Sent 'sub_unsigned_26_1092' to server 'localhost_1_1'.
+          Received 'mult_signed' from server 'localhost_1_5'. (6703 ms elapsed)
+          Sending 'sub_unsigned_26_1093' to server 'localhost_1_5'...
+            Sent 'sub_unsigned_26_1093' to server 'localhost_1_5'.
+          Received 'sub_unsigned_26_1085' from server 'localhost_1_6'. (261 ms elapsed)
+          Sending 'sub_unsigned_26_1095' to server 'localhost_1_6'...
+            Sent 'sub_unsigned_26_1095' to server 'localhost_1_6'.
+          Received 'sub_unsigned_26_1093' from server 'localhost_1_5'. (187 ms elapsed)
+          Sending 'sub_unsigned_26_1088' to server 'localhost_1_5'...
+            Sent 'sub_unsigned_26_1088' to server 'localhost_1_5'.
+          Received 'csa_tree_SUB_TC_OP_group_4' from server 'localhost_1_3'. (6782 ms elapsed)
+          Sending 'sub_unsigned_26_1094' to server 'localhost_1_3'...
+            Sent 'sub_unsigned_26_1094' to server 'localhost_1_3'.
+          Received 'sub_unsigned_26_1092' from server 'localhost_1_1'. (211 ms elapsed)
+          Sending 'sub_unsigned_26_1089' to server 'localhost_1_1'...
+            Sent 'sub_unsigned_26_1089' to server 'localhost_1_1'.
+          Received 'csa_tree_1171' from server 'localhost_1_7'. (661 ms elapsed)
+          Sending 'sub_unsigned_26_1096' to server 'localhost_1_7'...
+            Sent 'sub_unsigned_26_1096' to server 'localhost_1_7'.
+          Received 'sub_unsigned_26_1095' from server 'localhost_1_6'. (183 ms elapsed)
+          Sending 'sub_unsigned_26_1086' to server 'localhost_1_6'...
+            Sent 'sub_unsigned_26_1086' to server 'localhost_1_6'.
+          Received 'sub_unsigned_26_1088' from server 'localhost_1_5'. (187 ms elapsed)
+          Sending 'sub_unsigned_26_1090' to server 'localhost_1_5'...
+            Sent 'sub_unsigned_26_1090' to server 'localhost_1_5'.
+          Received 'csa_tree_ADD_TC_OP_1_group_6_1070' from server 'localhost_1_4'. (1071 ms elapsed)
+          Sending 'sub_unsigned_26_1091' to server 'localhost_1_4'...
+            Sent 'sub_unsigned_26_1091' to server 'localhost_1_4'.
+          Received 'sub_unsigned_26_1089' from server 'localhost_1_1'. (187 ms elapsed)
+          Sending 'add_unsigned_24_893' to server 'localhost_1_1'...
+            Sent 'add_unsigned_24_893' to server 'localhost_1_1'.
+          Received 'sub_unsigned_26_1094' from server 'localhost_1_3'. (202 ms elapsed)
+          Sending 'add_unsigned_24_894' to server 'localhost_1_3'...
+            Sent 'add_unsigned_24_894' to server 'localhost_1_3'.
+          Received 'csa_tree_SUB_TC_OP_group_4_1071' from server 'localhost_1_2'. (1699 ms elapsed)
           Sending 'add_unsigned_24_892' to server 'localhost_1_2'...
             Sent 'add_unsigned_24_892' to server 'localhost_1_2'.
-          Received 'add_unsigned_24_893' from server 'localhost_1_7'. (186 ms elapsed)
-          Sending 'add_unsigned_24_895' to server 'localhost_1_7'...
-            Sent 'add_unsigned_24_895' to server 'localhost_1_7'.
-          Received 'add_unsigned_24_894' from server 'localhost_1_6'. (195 ms elapsed)
-          Received 'sub_unsigned_26_1091' from server 'localhost_1_5'. (235 ms elapsed)
-          Received 'sub_unsigned_26_1095' from server 'localhost_1_3'. (587 ms elapsed)
-          Received 'add_unsigned_24_892' from server 'localhost_1_2'. (218 ms elapsed)
-          Received 'sub_unsigned_26_1089' from server 'localhost_1_4'. (582 ms elapsed)
-          Received 'sub_unsigned_26_1088' from server 'localhost_1_1'. (977 ms elapsed)
-          Received 'csa_tree_SUB_TC_OP_group_4_1071' from server 'localhost_1_0'. (1513 ms elapsed)
-          Received 'add_unsigned_24_895' from server 'localhost_1_7'. (574 ms elapsed)
+          Received 'sub_unsigned_26_1086' from server 'localhost_1_6'. (197 ms elapsed)
+          Sending 'add_unsigned_24_895' to server 'localhost_1_6'...
+            Sent 'add_unsigned_24_895' to server 'localhost_1_6'.
+          Received 'sub_unsigned_26_1091' from server 'localhost_1_4'. (186 ms elapsed)
+          Received 'add_unsigned_24_894' from server 'localhost_1_3'. (171 ms elapsed)
+          Received 'add_unsigned_24_893' from server 'localhost_1_1'. (217 ms elapsed)
+          Received 'sub_unsigned_26_1090' from server 'localhost_1_5'. (232 ms elapsed)
+          Received 'add_unsigned_24_895' from server 'localhost_1_6'. (177 ms elapsed)
+          Received 'sub_unsigned_26_1096' from server 'localhost_1_7'. (576 ms elapsed)
+          Received 'add_unsigned_24_892' from server 'localhost_1_2'. (577 ms elapsed)
+          Received 'csa_tree_fac76_group_1545' from server 'localhost_1_0'. (1418 ms elapsed)
         Distributing super-thread jobs: csa_tree_fac75_group_10451 csa_tree_fac71_group_1543 csa_tree_fac76_group_10448 csa_tree_fac72_group_1540 sub_unsigned_26_1077 sub_unsigned_26_1081 sub_unsigned_26_1080 sub_unsigned_26_1079 sub_unsigned_26_1083 sub_unsigned_26 sub_unsigned_26_1082 sub_unsigned_26_1099 sub_unsigned_26_1075 sub_unsigned_26_1084 sub_unsigned_26_1078 sub_unsigned_26_1076 sub_unsigned_26_1074 sub_unsigned_26_1073 add_unsigned_24_891 add_unsigned_24_889 add_unsigned_24_890 add_unsigned_24_899 add_unsigned_24_888 mux_ctl_0x_1282
-          Sending 'csa_tree_fac75_group_10451' to server 'localhost_1_3'...
-            Sent 'csa_tree_fac75_group_10451' to server 'localhost_1_3'.
-          Sending 'csa_tree_fac71_group_1543' to server 'localhost_1_2'...
-            Sent 'csa_tree_fac71_group_1543' to server 'localhost_1_2'.
-          Sending 'csa_tree_fac76_group_10448' to server 'localhost_1_1'...
-            Sent 'csa_tree_fac76_group_10448' to server 'localhost_1_1'.
-          Sending 'csa_tree_fac72_group_1540' to server 'localhost_1_7'...
-            Sent 'csa_tree_fac72_group_1540' to server 'localhost_1_7'.
-          Sending 'sub_unsigned_26_1077' to server 'localhost_1_5'...
-            Sent 'sub_unsigned_26_1077' to server 'localhost_1_5'.
-          Sending 'sub_unsigned_26_1081' to server 'localhost_1_4'...
-            Sent 'sub_unsigned_26_1081' to server 'localhost_1_4'.
-          Sending 'sub_unsigned_26_1080' to server 'localhost_1_0'...
-            Sent 'sub_unsigned_26_1080' to server 'localhost_1_0'.
-          Sending 'sub_unsigned_26_1079' to server 'localhost_1_6'...
-            Sent 'sub_unsigned_26_1079' to server 'localhost_1_6'.
-          Received 'sub_unsigned_26_1077' from server 'localhost_1_5'. (185 ms elapsed)
-          Sending 'sub_unsigned_26_1083' to server 'localhost_1_5'...
-            Sent 'sub_unsigned_26_1083' to server 'localhost_1_5'.
-          Received 'sub_unsigned_26_1081' from server 'localhost_1_4'. (198 ms elapsed)
-          Sending 'sub_unsigned_26' to server 'localhost_1_4'...
-            Sent 'sub_unsigned_26' to server 'localhost_1_4'.
-          Received 'csa_tree_fac76_group_10448' from server 'localhost_1_1'. (319 ms elapsed)
-          Sending 'sub_unsigned_26_1082' to server 'localhost_1_1'...
-            Sent 'sub_unsigned_26_1082' to server 'localhost_1_1'.
-          Received 'sub_unsigned_26' from server 'localhost_1_4'. (198 ms elapsed)
-          Sending 'sub_unsigned_26_1099' to server 'localhost_1_4'...
-            Sent 'sub_unsigned_26_1099' to server 'localhost_1_4'.
-          Received 'csa_tree_fac72_group_1540' from server 'localhost_1_7'. (428 ms elapsed)
-          Sending 'sub_unsigned_26_1075' to server 'localhost_1_7'...
-            Sent 'sub_unsigned_26_1075' to server 'localhost_1_7'.
-          Received 'csa_tree_fac71_group_1543' from server 'localhost_1_2'. (488 ms elapsed)
-          Sending 'sub_unsigned_26_1084' to server 'localhost_1_2'...
-            Sent 'sub_unsigned_26_1084' to server 'localhost_1_2'.
-          Received 'csa_tree_fac75_group_10451' from server 'localhost_1_3'. (512 ms elapsed)
+          Sending 'csa_tree_fac75_group_10451' to server 'localhost_1_5'...
+            Sent 'csa_tree_fac75_group_10451' to server 'localhost_1_5'.
+          Sending 'csa_tree_fac71_group_1543' to server 'localhost_1_4'...
+            Sent 'csa_tree_fac71_group_1543' to server 'localhost_1_4'.
+          Sending 'csa_tree_fac76_group_10448' to server 'localhost_1_7'...
+            Sent 'csa_tree_fac76_group_10448' to server 'localhost_1_7'.
+          Sending 'csa_tree_fac72_group_1540' to server 'localhost_1_1'...
+            Sent 'csa_tree_fac72_group_1540' to server 'localhost_1_1'.
+          Sending 'sub_unsigned_26_1077' to server 'localhost_1_6'...
+            Sent 'sub_unsigned_26_1077' to server 'localhost_1_6'.
+          Sending 'sub_unsigned_26_1081' to server 'localhost_1_0'...
+            Sent 'sub_unsigned_26_1081' to server 'localhost_1_0'.
+          Sending 'sub_unsigned_26_1080' to server 'localhost_1_2'...
+            Sent 'sub_unsigned_26_1080' to server 'localhost_1_2'.
+          Sending 'sub_unsigned_26_1079' to server 'localhost_1_3'...
+            Sent 'sub_unsigned_26_1079' to server 'localhost_1_3'.
+          Received 'sub_unsigned_26_1081' from server 'localhost_1_0'. (201 ms elapsed)
+          Sending 'sub_unsigned_26_1083' to server 'localhost_1_0'...
+            Sent 'sub_unsigned_26_1083' to server 'localhost_1_0'.
+          Received 'sub_unsigned_26_1080' from server 'localhost_1_2'. (601 ms elapsed)
+          Sending 'sub_unsigned_26' to server 'localhost_1_2'...
+            Sent 'sub_unsigned_26' to server 'localhost_1_2'.
+          Received 'csa_tree_fac76_group_10448' from server 'localhost_1_7'. (656 ms elapsed)
+          Sending 'sub_unsigned_26_1082' to server 'localhost_1_7'...
+            Sent 'sub_unsigned_26_1082' to server 'localhost_1_7'.
+          Received 'sub_unsigned_26_1077' from server 'localhost_1_6'. (633 ms elapsed)
+          Sending 'sub_unsigned_26_1099' to server 'localhost_1_6'...
+            Sent 'sub_unsigned_26_1099' to server 'localhost_1_6'.
+          Received 'csa_tree_fac75_group_10451' from server 'localhost_1_5'. (704 ms elapsed)
+          Sending 'sub_unsigned_26_1075' to server 'localhost_1_5'...
+            Sent 'sub_unsigned_26_1075' to server 'localhost_1_5'.
+          Received 'csa_tree_fac72_group_1540' from server 'localhost_1_1'. (680 ms elapsed)
+          Sending 'sub_unsigned_26_1084' to server 'localhost_1_1'...
+            Sent 'sub_unsigned_26_1084' to server 'localhost_1_1'.
+          Received 'sub_unsigned_26_1079' from server 'localhost_1_3'. (649 ms elapsed)
           Sending 'sub_unsigned_26_1078' to server 'localhost_1_3'...
             Sent 'sub_unsigned_26_1078' to server 'localhost_1_3'.
-          Received 'sub_unsigned_26_1099' from server 'localhost_1_4'. (171 ms elapsed)
+          Received 'csa_tree_fac71_group_1543' from server 'localhost_1_4'. (727 ms elapsed)
           Sending 'sub_unsigned_26_1076' to server 'localhost_1_4'...
             Sent 'sub_unsigned_26_1076' to server 'localhost_1_4'.
-          Received 'sub_unsigned_26_1075' from server 'localhost_1_7'. (181 ms elapsed)
-          Sending 'sub_unsigned_26_1074' to server 'localhost_1_7'...
-            Sent 'sub_unsigned_26_1074' to server 'localhost_1_7'.
-          Received 'sub_unsigned_26_1084' from server 'localhost_1_2'. (186 ms elapsed)
-          Sending 'sub_unsigned_26_1073' to server 'localhost_1_2'...
-            Sent 'sub_unsigned_26_1073' to server 'localhost_1_2'.
-          Received 'sub_unsigned_26_1080' from server 'localhost_1_0'. (634 ms elapsed)
-          Sending 'add_unsigned_24_891' to server 'localhost_1_0'...
-            Sent 'add_unsigned_24_891' to server 'localhost_1_0'.
-          Received 'sub_unsigned_26_1079' from server 'localhost_1_6'. (641 ms elapsed)
-          Sending 'add_unsigned_24_889' to server 'localhost_1_6'...
-            Sent 'add_unsigned_24_889' to server 'localhost_1_6'.
-          Received 'sub_unsigned_26_1078' from server 'localhost_1_3'. (160 ms elapsed)
+          Received 'sub_unsigned_26' from server 'localhost_1_2'. (179 ms elapsed)
+          Sending 'sub_unsigned_26_1074' to server 'localhost_1_2'...
+            Sent 'sub_unsigned_26_1074' to server 'localhost_1_2'.
+          Received 'sub_unsigned_26_1099' from server 'localhost_1_6'. (193 ms elapsed)
+          Sending 'sub_unsigned_26_1073' to server 'localhost_1_6'...
+            Sent 'sub_unsigned_26_1073' to server 'localhost_1_6'.
+          Received 'sub_unsigned_26_1082' from server 'localhost_1_7'. (209 ms elapsed)
+          Sending 'add_unsigned_24_891' to server 'localhost_1_7'...
+            Sent 'add_unsigned_24_891' to server 'localhost_1_7'.
+          Received 'sub_unsigned_26_1083' from server 'localhost_1_0'. (232 ms elapsed)
+          Sending 'add_unsigned_24_889' to server 'localhost_1_0'...
+            Sent 'add_unsigned_24_889' to server 'localhost_1_0'.
+          Received 'sub_unsigned_26_1078' from server 'localhost_1_3'. (204 ms elapsed)
           Sending 'add_unsigned_24_890' to server 'localhost_1_3'...
             Sent 'add_unsigned_24_890' to server 'localhost_1_3'.
-          Received 'sub_unsigned_26_1083' from server 'localhost_1_5'. (587 ms elapsed)
-          Sending 'add_unsigned_24_899' to server 'localhost_1_5'...
-            Sent 'add_unsigned_24_899' to server 'localhost_1_5'.
-          Received 'sub_unsigned_26_1073' from server 'localhost_1_2'. (182 ms elapsed)
+          Received 'sub_unsigned_26_1076' from server 'localhost_1_4'. (149 ms elapsed)
+          Sending 'add_unsigned_24_899' to server 'localhost_1_4'...
+            Sent 'add_unsigned_24_899' to server 'localhost_1_4'.
+          Received 'sub_unsigned_26_1074' from server 'localhost_1_2'. (179 ms elapsed)
           Sending 'add_unsigned_24_888' to server 'localhost_1_2'...
             Sent 'add_unsigned_24_888' to server 'localhost_1_2'.
-          Received 'sub_unsigned_26_1074' from server 'localhost_1_7'. (222 ms elapsed)
+          Received 'add_unsigned_24_891' from server 'localhost_1_7'. (150 ms elapsed)
           Sending 'mux_ctl_0x_1282' to server 'localhost_1_7'...
             Sent 'mux_ctl_0x_1282' to server 'localhost_1_7'.
-          Received 'sub_unsigned_26_1076' from server 'localhost_1_4'. (251 ms elapsed)
-          Received 'add_unsigned_24_889' from server 'localhost_1_6'. (176 ms elapsed)
-          Received 'add_unsigned_24_891' from server 'localhost_1_0'. (192 ms elapsed)
-          Received 'add_unsigned_24_899' from server 'localhost_1_5'. (167 ms elapsed)
-          Received 'mux_ctl_0x_1282' from server 'localhost_1_7'. (164 ms elapsed)
-          Received 'add_unsigned_24_888' from server 'localhost_1_2'. (176 ms elapsed)
-          Received 'add_unsigned_24_890' from server 'localhost_1_3'. (573 ms elapsed)
-          Received 'sub_unsigned_26_1082' from server 'localhost_1_1'. (978 ms elapsed)
+          Received 'sub_unsigned_26_1073' from server 'localhost_1_6'. (200 ms elapsed)
+          Received 'add_unsigned_24_899' from server 'localhost_1_4'. (168 ms elapsed)
+          Received 'add_unsigned_24_888' from server 'localhost_1_2'. (174 ms elapsed)
+          Received 'sub_unsigned_26_1075' from server 'localhost_1_5'. (540 ms elapsed)
+          Received 'add_unsigned_24_889' from server 'localhost_1_0'. (531 ms elapsed)
+          Received 'add_unsigned_24_890' from server 'localhost_1_3'. (531 ms elapsed)
+          Received 'mux_ctl_0x_1282' from server 'localhost_1_7'. (564 ms elapsed)
+          Received 'sub_unsigned_26_1084' from server 'localhost_1_1'. (1333 ms elapsed)
         Distributing super-thread jobs: add_unsigned_24_898 add_unsigned_24_897
-          Sending 'add_unsigned_24_898' to server 'localhost_1_3'...
-            Sent 'add_unsigned_24_898' to server 'localhost_1_3'.
-          Sending 'add_unsigned_24_897' to server 'localhost_1_2'...
-            Sent 'add_unsigned_24_897' to server 'localhost_1_2'.
-          Received 'add_unsigned_24_898' from server 'localhost_1_3'. (189 ms elapsed)
-          Received 'add_unsigned_24_897' from server 'localhost_1_2'. (191 ms elapsed)
+          Sending 'add_unsigned_24_898' to server 'localhost_1_5'...
+            Sent 'add_unsigned_24_898' to server 'localhost_1_5'.
+          Sending 'add_unsigned_24_897' to server 'localhost_1_4'...
+            Sent 'add_unsigned_24_897' to server 'localhost_1_4'.
+          Received 'add_unsigned_24_898' from server 'localhost_1_5'. (167 ms elapsed)
+          Received 'add_unsigned_24_897' from server 'localhost_1_4'. (168 ms elapsed)
         Distributing super-thread jobs: add_unsigned_24_896
-          Sending 'add_unsigned_24_896' to server 'localhost_1_3'...
-            Sent 'add_unsigned_24_896' to server 'localhost_1_3'.
-          Received 'add_unsigned_24_896' from server 'localhost_1_3'. (187 ms elapsed)
+          Sending 'add_unsigned_24_896' to server 'localhost_1_5'...
+            Sent 'add_unsigned_24_896' to server 'localhost_1_5'.
+          Received 'add_unsigned_24_896' from server 'localhost_1_5'. (166 ms elapsed)
         Distributing super-thread jobs: cb_part_1290
-          Sending 'cb_part_1290' to server 'localhost_1_3'...
-            Sent 'cb_part_1290' to server 'localhost_1_3'.
-          Received 'cb_part_1290' from server 'localhost_1_3'. (3813 ms elapsed)
+          Sending 'cb_part_1290' to server 'localhost_1_5'...
+            Sent 'cb_part_1290' to server 'localhost_1_5'.
+          Received 'cb_part_1290' from server 'localhost_1_5'. (3900 ms elapsed)
         Distributing super-thread jobs: cb_seq WALLACE_CSA_DUMMY_OP347_group_2 add_unsigned_24 mux_ctl_0x_1279
-          Sending 'cb_seq' to server 'localhost_1_3'...
-            Sent 'cb_seq' to server 'localhost_1_3'.
-          Sending 'WALLACE_CSA_DUMMY_OP347_group_2' to server 'localhost_1_2'...
-            Sent 'WALLACE_CSA_DUMMY_OP347_group_2' to server 'localhost_1_2'.
-          Sending 'add_unsigned_24' to server 'localhost_1_1'...
-            Sent 'add_unsigned_24' to server 'localhost_1_1'.
-          Sending 'mux_ctl_0x_1279' to server 'localhost_1_7'...
-            Sent 'mux_ctl_0x_1279' to server 'localhost_1_7'.
-          Received 'add_unsigned_24' from server 'localhost_1_1'. (146 ms elapsed)
-          Received 'cb_seq' from server 'localhost_1_3'. (216 ms elapsed)
-          Received 'mux_ctl_0x_1279' from server 'localhost_1_7'. (187 ms elapsed)
-          Received 'WALLACE_CSA_DUMMY_OP347_group_2' from server 'localhost_1_2'. (315 ms elapsed)
+          Sending 'cb_seq' to server 'localhost_1_5'...
+            Sent 'cb_seq' to server 'localhost_1_5'.
+          Sending 'WALLACE_CSA_DUMMY_OP347_group_2' to server 'localhost_1_4'...
+            Sent 'WALLACE_CSA_DUMMY_OP347_group_2' to server 'localhost_1_4'.
+          Sending 'add_unsigned_24' to server 'localhost_1_7'...
+            Sent 'add_unsigned_24' to server 'localhost_1_7'.
+          Sending 'mux_ctl_0x_1279' to server 'localhost_1_1'...
+            Sent 'mux_ctl_0x_1279' to server 'localhost_1_1'.
+          Received 'add_unsigned_24' from server 'localhost_1_7'. (176 ms elapsed)
+          Received 'cb_seq' from server 'localhost_1_5'. (231 ms elapsed)
+          Received 'mux_ctl_0x_1279' from server 'localhost_1_1'. (182 ms elapsed)
+          Received 'WALLACE_CSA_DUMMY_OP347_group_2' from server 'localhost_1_4'. (310 ms elapsed)
         Distributing super-thread jobs: cb_seq_1284
-          Sending 'cb_seq_1284' to server 'localhost_1_3'...
-            Sent 'cb_seq_1284' to server 'localhost_1_3'.
-          Received 'cb_seq_1284' from server 'localhost_1_3'. (524 ms elapsed)
+          Sending 'cb_seq_1284' to server 'localhost_1_5'...
+            Sent 'cb_seq_1284' to server 'localhost_1_5'.
+          Received 'cb_seq_1284' from server 'localhost_1_5'. (529 ms elapsed)
 ==================================
 Stage : first_condense 
 ==================================
@@ -6024,20 +6024,20 @@ Target path end-point (Pin: RC_CG_HIER_INST21/RC_CGIC_INST/E (CKLNQD1BWP30P140/E
 +-----------+--------------------+-----+----------------------+---------------------------+
 |   Host    |      Machine       | CPU | Physical Memory (MB) | Peak Physical Memory (MB) |
 +-----------+--------------------+-----+----------------------+---------------------------+
-| localhost | paxos.inf.pucrs.br |  8  |        2660.8        |          3183.1           |
+| localhost | paxos.inf.pucrs.br |  8  |        2635.7        |          2995.0           |
 +-----------+--------------------+-----+----------------------+---------------------------+
 
 +---------------+----------------------+---------------------------+
 |    Server     | Physical Memory (MB) | Peak Physical Memory (MB) |
 +---------------+----------------------+---------------------------+
-| localhost_1_6 |      213.6 [1]       |          [1] [2]          |
-| localhost_1_5 |      211.4 [1]       |          [1] [2]          |
-| localhost_1_2 |      201.3 [1]       |          [1] [2]          |
-| localhost_1_3 |      215.3 [1]       |          [1] [2]          |
-| localhost_1_4 |      208.6 [1]       |          [1] [2]          |
-| localhost_1_7 |      198.9 [1]       |          [1] [2]          |
-| localhost_1_1 |      201.1 [1]       |          [1] [2]          |
-| localhost_1_0 |      1738.1 [3]      |        1960.1 [3]         |
+| localhost_1_4 |      198.7 [1]       |          [1] [2]          |
+| localhost_1_3 |      211.7 [1]       |          [1] [2]          |
+| localhost_1_1 |      196.6 [1]       |          [1] [2]          |
+| localhost_1_7 |      197.9 [1]       |          [1] [2]          |
+| localhost_1_5 |      215.1 [1]       |          [1] [2]          |
+| localhost_1_2 |      212.0 [1]       |          [1] [2]          |
+| localhost_1_0 |      1728.5 [3]      |        2184.6 [3]         |
+| localhost_1_6 |      209.7 [1]       |          [1] [2]          |
 +---------------+----------------------+---------------------------+
 [1] Memory is included in parent localhost_1_0.
 [2] Peak physical memory is not available for forked background servers.
@@ -6068,47 +6068,47 @@ State Retention instances           0          0.0
 +-----------+--------------------+-----+----------------------+---------------------------+
 |   Host    |      Machine       | CPU | Physical Memory (MB) | Peak Physical Memory (MB) |
 +-----------+--------------------+-----+----------------------+---------------------------+
-| localhost | paxos.inf.pucrs.br |  1  |        1519.1        |          3183.1           |
+| localhost | paxos.inf.pucrs.br |  1  |        1665.9        |          2995.0           |
 +-----------+--------------------+-----+----------------------+---------------------------+
 
 +---------------+----------------------+---------------------------+
 |    Server     | Physical Memory (MB) | Peak Physical Memory (MB) |
 +---------------+----------------------+---------------------------+
-| localhost_1_0 |        698.4         |          1960.1           |
+| localhost_1_0 |        503.2         |          2184.6           |
 +---------------+----------------------+---------------------------+
 
 Info    : Using '2' number of super-threading servers using the attribute 'super_thread_servers' could have
-          saved '33' more seconds during global map.
+          saved '35' more seconds during global map.
 Info    : Using '3' number of super-threading servers using the attribute 'super_thread_servers' could have
-          saved '43' more seconds during global map.
+          saved '46' more seconds during global map.
 Info    : Using '4' number of super-threading servers using the attribute 'super_thread_servers' could have
-          saved '49' more seconds during global map.
+          saved '52' more seconds during global map.
 Info    : Using '5' number of super-threading servers using the attribute 'super_thread_servers' could have
-          saved '51' more seconds during global map.
+          saved '55' more seconds during global map.
 Info    : Using '8' number of super-threading servers using the attribute 'super_thread_servers' could have
-          saved '57' more seconds during global map.
-PBS_Generic_Opt-Post - Elapsed_Time 136, CPU_Time 115.95399499999999
+          saved '60' more seconds during global map.
+PBS_Generic_Opt-Post - Elapsed_Time 139, CPU_Time 118.107835
 stamp 'PBS_Generic_Opt-Post' being created for table 'pbs_debug'
 
   Total Time (Wall) |  Stage Time (Wall)  |   % (Wall)   |    Date - Time     |  Memory   | Stage
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:00:27(00:00:22) |  00:00:00(00:00:00) |   0.0(  0.0) |   19:43:24 (Oct08) |  637.8 MB | PBS_Generic-Start
+ 00:00:27(00:00:22) |  00:00:00(00:00:00) |   0.0(  0.0) |   14:33:53 (Oct11) |  652.3 MB | PBS_Generic-Start
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:22(00:02:38) |  00:01:55(00:02:16) | 100.0(100.0) |   19:45:40 (Oct08) |   1.52 GB | PBS_Generic_Opt-Post
+ 00:02:25(00:02:41) |  00:01:58(00:02:19) | 100.0(100.0) |   14:36:12 (Oct11) |   1.67 GB | PBS_Generic_Opt-Post
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
 Number of threads: 8 * 1   (id: pbs_debug, time_info v1.57)
 Info: (*N*) indicates data that was populated from previously saved time_info database
 Info: CPU time includes time of parent + longest thread
-PBS_Generic-Postgen HBO Optimizations - Elapsed_Time 1, CPU_Time 1.0
+PBS_Generic-Postgen HBO Optimizations - Elapsed_Time 1, CPU_Time 0.0
 stamp 'PBS_Generic-Postgen HBO Optimizations' being created for table 'pbs_debug'
 
   Total Time (Wall) |  Stage Time (Wall)  |   % (Wall)   |    Date - Time     |  Memory   | Stage
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:00:27(00:00:22) |  00:00:00(00:00:00) |   0.0(  0.0) |   19:43:24 (Oct08) |  637.8 MB | PBS_Generic-Start
+ 00:00:27(00:00:22) |  00:00:00(00:00:00) |   0.0(  0.0) |   14:33:53 (Oct11) |  652.3 MB | PBS_Generic-Start
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:22(00:02:38) |  00:01:55(00:02:16) |  99.1( 99.3) |   19:45:40 (Oct08) |   1.52 GB | PBS_Generic_Opt-Post
+ 00:02:25(00:02:41) |  00:01:58(00:02:19) | 100.0( 99.3) |   14:36:12 (Oct11) |   1.67 GB | PBS_Generic_Opt-Post
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:23(00:02:39) |  00:00:01(00:00:01) |   0.9(  0.7) |   19:45:41 (Oct08) |   1.52 GB | PBS_Generic-Postgen HBO Optimizations
+ 00:02:25(00:02:42) |  00:00:00(00:00:01) |   0.0(  0.7) |   14:36:13 (Oct11) |   1.67 GB | PBS_Generic-Postgen HBO Optimizations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
 Number of threads: 8 * 1   (id: pbs_debug, time_info v1.57)
 Info: (*N*) indicates data that was populated from previously saved time_info database
@@ -6119,7 +6119,7 @@ Info: CPU time includes time of parent + longest thread
 ##>----------------------------------------------------------------------------------------
 ##>STEP                           Elapsed       WNS       TNS     Insts      Area    Memory
 ##>----------------------------------------------------------------------------------------
-##>G:Initial                            1         -         -     38009     57563       637
+##>G:Initial                            1         -         -     38009     57563       652
 ##>G:Setup                              0         -         -         -         -         -
 ##>G:Launch ST                          0         -         -         -         -         -
 ##>G:Design Partition                   0         -         -         -         -         -
@@ -6133,10 +6133,10 @@ Info: CPU time includes time of parent + longest thread
 ##>G:Timer                              0         -         -         -         -         -
 ##>G:Assembly                           0         -         -         -         -         -
 ##>G:DFT                                0         -         -         -         -         -
-##>G:Const Prop                         1         -         -     32351     49644      1519
-##>G:Misc                             136
+##>G:Const Prop                         1         -         -     32351     49644      1665
+##>G:Misc                             138
 ##>----------------------------------------------------------------------------------------
-##>Total Elapsed                      138
+##>Total Elapsed                      140
 ##>========================================================================================
 Info    : Done synthesizing. [SYNTH-2]
         : Done synthesizing 'Conv' to generic gates.
@@ -6211,31 +6211,31 @@ stamp 'PBS_TechMap-Start' being created for table 'pbs_debug'
 
   Total Time (Wall) |  Stage Time (Wall)  |   % (Wall)   |    Date - Time     |  Memory   | Stage
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:00:27(00:00:22) |  00:00:00(00:00:00) |   0.0(  0.0) |   19:43:24 (Oct08) |  637.8 MB | PBS_Generic-Start
+ 00:00:27(00:00:22) |  00:00:00(00:00:00) |   0.0(  0.0) |   14:33:53 (Oct11) |  652.3 MB | PBS_Generic-Start
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:22(00:02:38) |  00:01:55(00:02:16) |  96.7( 97.8) |   19:45:40 (Oct08) |   1.52 GB | PBS_Generic_Opt-Post
+ 00:02:25(00:02:41) |  00:01:58(00:02:19) |  97.5( 97.9) |   14:36:12 (Oct11) |   1.67 GB | PBS_Generic_Opt-Post
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:23(00:02:39) |  00:00:01(00:00:01) |   0.8(  0.7) |   19:45:41 (Oct08) |   1.52 GB | PBS_Generic-Postgen HBO Optimizations
+ 00:02:25(00:02:42) |  00:00:00(00:00:01) |   0.0(  0.7) |   14:36:13 (Oct11) |   1.67 GB | PBS_Generic-Postgen HBO Optimizations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:26(00:02:41) |  00:00:03(00:00:02) |   2.5(  1.4) |   19:45:43 (Oct08) |   1.52 GB | PBS_TechMap-Start
+ 00:02:28(00:02:44) |  00:00:03(00:00:02) |   2.5(  1.4) |   14:36:15 (Oct11) |   1.49 GB | PBS_TechMap-Start
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
 Number of threads: 8 * 1   (id: pbs_debug, time_info v1.57)
 Info: (*N*) indicates data that was populated from previously saved time_info database
 Info: CPU time includes time of parent + longest thread
-PBS_TechMap-Premap HBO Optimizations - Elapsed_Time 1, CPU_Time 0.0
+PBS_TechMap-Premap HBO Optimizations - Elapsed_Time 1, CPU_Time 1.0
 stamp 'PBS_TechMap-Premap HBO Optimizations' being created for table 'pbs_debug'
 
   Total Time (Wall) |  Stage Time (Wall)  |   % (Wall)   |    Date - Time     |  Memory   | Stage
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:00:27(00:00:22) |  00:00:00(00:00:00) |   0.0(  0.0) |   19:43:24 (Oct08) |  637.8 MB | PBS_Generic-Start
+ 00:00:27(00:00:22) |  00:00:00(00:00:00) |   0.0(  0.0) |   14:33:53 (Oct11) |  652.3 MB | PBS_Generic-Start
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:22(00:02:38) |  00:01:55(00:02:16) |  96.7( 97.1) |   19:45:40 (Oct08) |   1.52 GB | PBS_Generic_Opt-Post
+ 00:02:25(00:02:41) |  00:01:58(00:02:19) |  96.7( 97.2) |   14:36:12 (Oct11) |   1.67 GB | PBS_Generic_Opt-Post
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:23(00:02:39) |  00:00:01(00:00:01) |   0.8(  0.7) |   19:45:41 (Oct08) |   1.52 GB | PBS_Generic-Postgen HBO Optimizations
+ 00:02:25(00:02:42) |  00:00:00(00:00:01) |   0.0(  0.7) |   14:36:13 (Oct11) |   1.67 GB | PBS_Generic-Postgen HBO Optimizations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:26(00:02:41) |  00:00:03(00:00:02) |   2.5(  1.4) |   19:45:43 (Oct08) |   1.52 GB | PBS_TechMap-Start
+ 00:02:28(00:02:44) |  00:00:03(00:00:02) |   2.5(  1.4) |   14:36:15 (Oct11) |   1.49 GB | PBS_TechMap-Start
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:26(00:02:42) |  00:00:00(00:00:01) |   0.0(  0.7) |   19:45:44 (Oct08) |   1.51 GB | PBS_TechMap-Premap HBO Optimizations
+ 00:02:29(00:02:45) |  00:00:01(00:00:01) |   0.8(  0.7) |   14:36:16 (Oct11) |   1.49 GB | PBS_TechMap-Premap HBO Optimizations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
 Number of threads: 8 * 1   (id: pbs_debug, time_info v1.57)
 Info: (*N*) indicates data that was populated from previously saved time_info database
@@ -6302,236 +6302,236 @@ Mapper: Libraries have:
 	domain timing_cond_0p81v_125c: 530 combo usable cells and 349 sequential usable cells
 Updating ST server settings
 Info    : Connection established with super-threading server. [ST-110]
-        : The server 'localhost_1_8' is forked process '25283' on this host.
+        : The server 'localhost_1_8' is forked process '1665716' on this host.
 Info    : Connection established with super-threading server. [ST-110]
-        : The server 'localhost_1_9' is forked process '25285' on this host.
+        : The server 'localhost_1_9' is forked process '1665718' on this host.
 Info    : Connection established with super-threading server. [ST-110]
-        : The server 'localhost_1_10' is forked process '25289' on this host.
+        : The server 'localhost_1_10' is forked process '1665720' on this host.
 Info    : Connection established with super-threading server. [ST-110]
-        : The server 'localhost_1_11' is forked process '25291' on this host.
+        : The server 'localhost_1_11' is forked process '1665722' on this host.
 Info    : Connection established with super-threading server. [ST-110]
-        : The server 'localhost_1_12' is forked process '25296' on this host.
+        : The server 'localhost_1_12' is forked process '1665724' on this host.
 Info    : Connection established with super-threading server. [ST-110]
-        : The server 'localhost_1_13' is forked process '25298' on this host.
+        : The server 'localhost_1_13' is forked process '1665726' on this host.
 Info    : Connection established with super-threading server. [ST-110]
-        : The server 'localhost_1_14' is forked process '25300' on this host.
+        : The server 'localhost_1_14' is forked process '1665728' on this host.
 Multi-threaded Virtual Mapping    (8 threads per ST process, 8 of 28 CPUs usable)
         Distributing super-thread jobs: mult_signed cb_oseq_1391 csa_tree_SUB_TC_OP_4_pad_group_10453 csa_tree_minus_1112_18_group_21866 csa_tree_add_1136_41_group_4 csa_tree_SUB_TC_OP_group_4 csa_tree_SUB_TC_OP_group_4_1071 csa_tree_add_1135_41_group_6 csa_tree_sub0012672_group_2 csa_tree_ADD_TC_OP_1_group_6 csa_tree_ADD_TC_OP_1_group_6_1070 csa_tree_9503_1066 csa_tree_9503 csa_tree_1117 csa_tree_639 csa_tree_639_1069 add_unsigned_24_895 add_unsigned_24_894 add_unsigned_24_892 add_unsigned_24_893 sub_unsigned_26_1095 sub_unsigned_26_1089 sub_unsigned_26_1096 sub_unsigned_26_1085 sub_unsigned_26_1093 sub_unsigned_26_1086 sub_unsigned_26_1092 sub_unsigned_26_1091 sub_unsigned_26_1090 sub_unsigned_26_1094 sub_unsigned_26_1087 sub_unsigned_26_1088
-          Sending 'mult_signed' to server 'localhost_1_10'...
-            Sent 'mult_signed' to server 'localhost_1_10'.
-          Sending 'cb_oseq_1391' to server 'localhost_1_9'...
-            Sent 'cb_oseq_1391' to server 'localhost_1_9'.
-          Sending 'csa_tree_SUB_TC_OP_4_pad_group_10453' to server 'localhost_1_12'...
-            Sent 'csa_tree_SUB_TC_OP_4_pad_group_10453' to server 'localhost_1_12'.
-          Sending 'csa_tree_minus_1112_18_group_21866' to server 'localhost_1_11'...
-            Sent 'csa_tree_minus_1112_18_group_21866' to server 'localhost_1_11'.
-          Sending 'csa_tree_add_1136_41_group_4' to server 'localhost_1_14'...
-            Sent 'csa_tree_add_1136_41_group_4' to server 'localhost_1_14'.
-          Sending 'csa_tree_SUB_TC_OP_group_4' to server 'localhost_1_8'...
-            Sent 'csa_tree_SUB_TC_OP_group_4' to server 'localhost_1_8'.
-          Sending 'csa_tree_SUB_TC_OP_group_4_1071' to server 'localhost_1_13'...
-            Sent 'csa_tree_SUB_TC_OP_group_4_1071' to server 'localhost_1_13'.
-          Sending 'csa_tree_add_1135_41_group_6' to server 'localhost_1_0'...
-            Sent 'csa_tree_add_1135_41_group_6' to server 'localhost_1_0'.
-          Received 'csa_tree_SUB_TC_OP_4_pad_group_10453' from server 'localhost_1_12'. (398 ms elapsed)
-          Sending 'csa_tree_sub0012672_group_2' to server 'localhost_1_12'...
-            Sent 'csa_tree_sub0012672_group_2' to server 'localhost_1_12'.
-          Received 'csa_tree_SUB_TC_OP_group_4_1071' from server 'localhost_1_13'. (363 ms elapsed)
-          Sending 'csa_tree_ADD_TC_OP_1_group_6' to server 'localhost_1_13'...
-            Sent 'csa_tree_ADD_TC_OP_1_group_6' to server 'localhost_1_13'.
-          Received 'csa_tree_minus_1112_18_group_21866' from server 'localhost_1_11'. (410 ms elapsed)
-          Sending 'csa_tree_ADD_TC_OP_1_group_6_1070' to server 'localhost_1_11'...
-            Sent 'csa_tree_ADD_TC_OP_1_group_6_1070' to server 'localhost_1_11'.
-          Received 'csa_tree_SUB_TC_OP_group_4' from server 'localhost_1_8'. (397 ms elapsed)
-          Sending 'csa_tree_9503_1066' to server 'localhost_1_8'...
-            Sent 'csa_tree_9503_1066' to server 'localhost_1_8'.
-          Received 'csa_tree_add_1136_41_group_4' from server 'localhost_1_14'. (416 ms elapsed)
-          Sending 'csa_tree_9503' to server 'localhost_1_14'...
-            Sent 'csa_tree_9503' to server 'localhost_1_14'.
-          Received 'csa_tree_sub0012672_group_2' from server 'localhost_1_12'. (154 ms elapsed)
-          Sending 'csa_tree_1117' to server 'localhost_1_12'...
-            Sent 'csa_tree_1117' to server 'localhost_1_12'.
-          Received 'csa_tree_ADD_TC_OP_1_group_6_1070' from server 'localhost_1_11'. (177 ms elapsed)
-          Sending 'csa_tree_639' to server 'localhost_1_11'...
-            Sent 'csa_tree_639' to server 'localhost_1_11'.
-          Received 'csa_tree_639' from server 'localhost_1_11'. (81 ms elapsed)
-          Sending 'csa_tree_639_1069' to server 'localhost_1_11'...
-            Sent 'csa_tree_639_1069' to server 'localhost_1_11'.
-          Received 'cb_oseq_1391' from server 'localhost_1_9'. (756 ms elapsed)
-          Sending 'add_unsigned_24_895' to server 'localhost_1_9'...
-            Sent 'add_unsigned_24_895' to server 'localhost_1_9'.
-          Received 'mult_signed' from server 'localhost_1_10'. (934 ms elapsed)
-          Sending 'add_unsigned_24_894' to server 'localhost_1_10'...
-            Sent 'add_unsigned_24_894' to server 'localhost_1_10'.
-          Received 'csa_tree_add_1135_41_group_6' from server 'localhost_1_0'. (794 ms elapsed)
-          Sending 'add_unsigned_24_892' to server 'localhost_1_0'...
-            Sent 'add_unsigned_24_892' to server 'localhost_1_0'.
-          Received 'add_unsigned_24_894' from server 'localhost_1_10'. (841 ms elapsed)
-          Sending 'add_unsigned_24_893' to server 'localhost_1_10'...
-            Sent 'add_unsigned_24_893' to server 'localhost_1_10'.
-          Received 'add_unsigned_24_895' from server 'localhost_1_9'. (965 ms elapsed)
-          Sending 'sub_unsigned_26_1095' to server 'localhost_1_9'...
-            Sent 'sub_unsigned_26_1095' to server 'localhost_1_9'.
-          Received 'csa_tree_639_1069' from server 'localhost_1_11'. (992 ms elapsed)
-          Sending 'sub_unsigned_26_1089' to server 'localhost_1_11'...
-            Sent 'sub_unsigned_26_1089' to server 'localhost_1_11'.
-          Received 'csa_tree_1117' from server 'localhost_1_12'. (1126 ms elapsed)
-          Sending 'sub_unsigned_26_1096' to server 'localhost_1_12'...
-            Sent 'sub_unsigned_26_1096' to server 'localhost_1_12'.
-          Received 'csa_tree_9503' from server 'localhost_1_14'. (1244 ms elapsed)
-          Sending 'sub_unsigned_26_1085' to server 'localhost_1_14'...
-            Sent 'sub_unsigned_26_1085' to server 'localhost_1_14'.
-          Received 'csa_tree_9503_1066' from server 'localhost_1_8'. (1258 ms elapsed)
-          Sending 'sub_unsigned_26_1093' to server 'localhost_1_8'...
-            Sent 'sub_unsigned_26_1093' to server 'localhost_1_8'.
-          Received 'csa_tree_ADD_TC_OP_1_group_6' from server 'localhost_1_13'. (1287 ms elapsed)
-          Sending 'sub_unsigned_26_1086' to server 'localhost_1_13'...
-            Sent 'sub_unsigned_26_1086' to server 'localhost_1_13'.
-          Received 'add_unsigned_24_892' from server 'localhost_1_0'. (57 ms elapsed)
-          Sending 'sub_unsigned_26_1092' to server 'localhost_1_0'...
-            Sent 'sub_unsigned_26_1092' to server 'localhost_1_0'.
-          Received 'add_unsigned_24_893' from server 'localhost_1_10'. (57 ms elapsed)
-          Sending 'sub_unsigned_26_1091' to server 'localhost_1_10'...
-            Sent 'sub_unsigned_26_1091' to server 'localhost_1_10'.
-          Received 'sub_unsigned_26_1096' from server 'localhost_1_12'. (56 ms elapsed)
-          Sending 'sub_unsigned_26_1090' to server 'localhost_1_12'...
-            Sent 'sub_unsigned_26_1090' to server 'localhost_1_12'.
-          Received 'sub_unsigned_26_1085' from server 'localhost_1_14'. (57 ms elapsed)
-          Sending 'sub_unsigned_26_1094' to server 'localhost_1_14'...
-            Sent 'sub_unsigned_26_1094' to server 'localhost_1_14'.
-          Received 'sub_unsigned_26_1092' from server 'localhost_1_0'. (100 ms elapsed)
-          Sending 'sub_unsigned_26_1087' to server 'localhost_1_0'...
-            Sent 'sub_unsigned_26_1087' to server 'localhost_1_0'.
-          Received 'sub_unsigned_26_1094' from server 'localhost_1_14'. (93 ms elapsed)
-          Sending 'sub_unsigned_26_1088' to server 'localhost_1_14'...
-            Sent 'sub_unsigned_26_1088' to server 'localhost_1_14'.
-          Received 'sub_unsigned_26_1090' from server 'localhost_1_12'. (107 ms elapsed)
-          Received 'sub_unsigned_26_1091' from server 'localhost_1_10'. (125 ms elapsed)
-          Received 'sub_unsigned_26_1087' from server 'localhost_1_0'. (90 ms elapsed)
-          Received 'sub_unsigned_26_1088' from server 'localhost_1_14'. (88 ms elapsed)
-          Received 'sub_unsigned_26_1095' from server 'localhost_1_9'. (451 ms elapsed)
-          Received 'sub_unsigned_26_1089' from server 'localhost_1_11'. (451 ms elapsed)
-          Received 'sub_unsigned_26_1093' from server 'localhost_1_8'. (459 ms elapsed)
-          Received 'sub_unsigned_26_1086' from server 'localhost_1_13'. (457 ms elapsed)
+          Sending 'mult_signed' to server 'localhost_1_12'...
+            Sent 'mult_signed' to server 'localhost_1_12'.
+          Sending 'cb_oseq_1391' to server 'localhost_1_11'...
+            Sent 'cb_oseq_1391' to server 'localhost_1_11'.
+          Sending 'csa_tree_SUB_TC_OP_4_pad_group_10453' to server 'localhost_1_8'...
+            Sent 'csa_tree_SUB_TC_OP_4_pad_group_10453' to server 'localhost_1_8'.
+          Sending 'csa_tree_minus_1112_18_group_21866' to server 'localhost_1_14'...
+            Sent 'csa_tree_minus_1112_18_group_21866' to server 'localhost_1_14'.
+          Sending 'csa_tree_add_1136_41_group_4' to server 'localhost_1_13'...
+            Sent 'csa_tree_add_1136_41_group_4' to server 'localhost_1_13'.
+          Sending 'csa_tree_SUB_TC_OP_group_4' to server 'localhost_1_0'...
+            Sent 'csa_tree_SUB_TC_OP_group_4' to server 'localhost_1_0'.
+          Sending 'csa_tree_SUB_TC_OP_group_4_1071' to server 'localhost_1_10'...
+            Sent 'csa_tree_SUB_TC_OP_group_4_1071' to server 'localhost_1_10'.
+          Sending 'csa_tree_add_1135_41_group_6' to server 'localhost_1_9'...
+            Sent 'csa_tree_add_1135_41_group_6' to server 'localhost_1_9'.
+          Received 'csa_tree_add_1136_41_group_4' from server 'localhost_1_13'. (355 ms elapsed)
+          Sending 'csa_tree_sub0012672_group_2' to server 'localhost_1_13'...
+            Sent 'csa_tree_sub0012672_group_2' to server 'localhost_1_13'.
+          Received 'csa_tree_SUB_TC_OP_group_4_1071' from server 'localhost_1_10'. (348 ms elapsed)
+          Sending 'csa_tree_ADD_TC_OP_1_group_6' to server 'localhost_1_10'...
+            Sent 'csa_tree_ADD_TC_OP_1_group_6' to server 'localhost_1_10'.
+          Received 'csa_tree_SUB_TC_OP_4_pad_group_10453' from server 'localhost_1_8'. (412 ms elapsed)
+          Sending 'csa_tree_ADD_TC_OP_1_group_6_1070' to server 'localhost_1_8'...
+            Sent 'csa_tree_ADD_TC_OP_1_group_6_1070' to server 'localhost_1_8'.
+          Received 'csa_tree_SUB_TC_OP_group_4' from server 'localhost_1_0'. (392 ms elapsed)
+          Sending 'csa_tree_9503_1066' to server 'localhost_1_0'...
+            Sent 'csa_tree_9503_1066' to server 'localhost_1_0'.
+          Received 'csa_tree_add_1135_41_group_6' from server 'localhost_1_9'. (379 ms elapsed)
+          Sending 'csa_tree_9503' to server 'localhost_1_9'...
+            Sent 'csa_tree_9503' to server 'localhost_1_9'.
+          Received 'csa_tree_minus_1112_18_group_21866' from server 'localhost_1_14'. (433 ms elapsed)
+          Sending 'csa_tree_1117' to server 'localhost_1_14'...
+            Sent 'csa_tree_1117' to server 'localhost_1_14'.
+          Received 'csa_tree_sub0012672_group_2' from server 'localhost_1_13'. (156 ms elapsed)
+          Sending 'csa_tree_639' to server 'localhost_1_13'...
+            Sent 'csa_tree_639' to server 'localhost_1_13'.
+          Received 'csa_tree_9503_1066' from server 'localhost_1_0'. (157 ms elapsed)
+          Sending 'csa_tree_639_1069' to server 'localhost_1_0'...
+            Sent 'csa_tree_639_1069' to server 'localhost_1_0'.
+          Received 'csa_tree_ADD_TC_OP_1_group_6_1070' from server 'localhost_1_8'. (210 ms elapsed)
+          Sending 'add_unsigned_24_895' to server 'localhost_1_8'...
+            Sent 'add_unsigned_24_895' to server 'localhost_1_8'.
+          Received 'csa_tree_639' from server 'localhost_1_13'. (107 ms elapsed)
+          Sending 'add_unsigned_24_894' to server 'localhost_1_13'...
+            Sent 'add_unsigned_24_894' to server 'localhost_1_13'.
+          Received 'add_unsigned_24_895' from server 'localhost_1_8'. (91 ms elapsed)
+          Sending 'add_unsigned_24_892' to server 'localhost_1_8'...
+            Sent 'add_unsigned_24_892' to server 'localhost_1_8'.
+          Received 'mult_signed' from server 'localhost_1_12'. (834 ms elapsed)
+          Sending 'add_unsigned_24_893' to server 'localhost_1_12'...
+            Sent 'add_unsigned_24_893' to server 'localhost_1_12'.
+          Received 'add_unsigned_24_892' from server 'localhost_1_8'. (94 ms elapsed)
+          Sending 'sub_unsigned_26_1095' to server 'localhost_1_8'...
+            Sent 'sub_unsigned_26_1095' to server 'localhost_1_8'.
+          Received 'add_unsigned_24_893' from server 'localhost_1_12'. (93 ms elapsed)
+          Sending 'sub_unsigned_26_1089' to server 'localhost_1_12'...
+            Sent 'sub_unsigned_26_1089' to server 'localhost_1_12'.
+          Received 'cb_oseq_1391' from server 'localhost_1_11'. (888 ms elapsed)
+          Sending 'sub_unsigned_26_1096' to server 'localhost_1_11'...
+            Sent 'sub_unsigned_26_1096' to server 'localhost_1_11'.
+          Received 'sub_unsigned_26_1096' from server 'localhost_1_11'. (93 ms elapsed)
+          Sending 'sub_unsigned_26_1085' to server 'localhost_1_11'...
+            Sent 'sub_unsigned_26_1085' to server 'localhost_1_11'.
+          Received 'sub_unsigned_26_1089' from server 'localhost_1_12'. (120 ms elapsed)
+          Sending 'sub_unsigned_26_1093' to server 'localhost_1_12'...
+            Sent 'sub_unsigned_26_1093' to server 'localhost_1_12'.
+          Received 'sub_unsigned_26_1095' from server 'localhost_1_8'. (141 ms elapsed)
+          Sending 'sub_unsigned_26_1086' to server 'localhost_1_8'...
+            Sent 'sub_unsigned_26_1086' to server 'localhost_1_8'.
+          Received 'csa_tree_ADD_TC_OP_1_group_6' from server 'localhost_1_10'. (560 ms elapsed)
+          Sending 'sub_unsigned_26_1092' to server 'localhost_1_10'...
+            Sent 'sub_unsigned_26_1092' to server 'localhost_1_10'.
+          Received 'sub_unsigned_26_1085' from server 'localhost_1_11'. (94 ms elapsed)
+          Sending 'sub_unsigned_26_1091' to server 'localhost_1_11'...
+            Sent 'sub_unsigned_26_1091' to server 'localhost_1_11'.
+          Received 'sub_unsigned_26_1092' from server 'localhost_1_10'. (95 ms elapsed)
+          Sending 'sub_unsigned_26_1090' to server 'localhost_1_10'...
+            Sent 'sub_unsigned_26_1090' to server 'localhost_1_10'.
+          Received 'sub_unsigned_26_1093' from server 'localhost_1_12'. (125 ms elapsed)
+          Sending 'sub_unsigned_26_1094' to server 'localhost_1_12'...
+            Sent 'sub_unsigned_26_1094' to server 'localhost_1_12'.
+          Received 'sub_unsigned_26_1086' from server 'localhost_1_8'. (139 ms elapsed)
+          Sending 'sub_unsigned_26_1087' to server 'localhost_1_8'...
+            Sent 'sub_unsigned_26_1087' to server 'localhost_1_8'.
+          Received 'csa_tree_639_1069' from server 'localhost_1_0'. (510 ms elapsed)
+          Sending 'sub_unsigned_26_1088' to server 'localhost_1_0'...
+            Sent 'sub_unsigned_26_1088' to server 'localhost_1_0'.
+          Received 'sub_unsigned_26_1091' from server 'localhost_1_11'. (92 ms elapsed)
+          Received 'add_unsigned_24_894' from server 'localhost_1_13'. (493 ms elapsed)
+          Received 'sub_unsigned_26_1088' from server 'localhost_1_0'. (91 ms elapsed)
+          Received 'sub_unsigned_26_1087' from server 'localhost_1_8'. (134 ms elapsed)
+          Received 'sub_unsigned_26_1094' from server 'localhost_1_12'. (165 ms elapsed)
+          Received 'csa_tree_1117' from server 'localhost_1_14'. (844 ms elapsed)
+          Received 'csa_tree_9503' from server 'localhost_1_9'. (858 ms elapsed)
+          Received 'sub_unsigned_26_1090' from server 'localhost_1_10'. (490 ms elapsed)
         Distributing super-thread jobs: csa_tree_9999 csa_tree_1171 csa_tree_fac76_group_1545 WALLACE_CSA_DUMMY_OP347_group_2 add_unsigned_24 add_signed_carry_1207 add_unsigned_24_889 add_unsigned_24_888 add_unsigned_24_890 add_unsigned_24_891 sub_unsigned_26_1077 sub_unsigned_26_1078 sub_unsigned_26_1075 sub_unsigned_26_1076 sub_unsigned_26_1074 sub_unsigned_26_1080 sub_unsigned_26_1079 sub_unsigned_26_1082 sub_unsigned_26_1083 sub_unsigned_26_1081 sub_unsigned_26_1084 sub_unsigned_26_1073 add_unsigned_24_898 add_unsigned_24_899 mux_ctl_0x_1385 sub_unsigned_26_1099 sub_unsigned_26 mux_ctl_0x_1388
-          Sending 'csa_tree_9999' to server 'localhost_1_10'...
-            Sent 'csa_tree_9999' to server 'localhost_1_10'.
-          Sending 'csa_tree_1171' to server 'localhost_1_9'...
-            Sent 'csa_tree_1171' to server 'localhost_1_9'.
-          Sending 'csa_tree_fac76_group_1545' to server 'localhost_1_12'...
-            Sent 'csa_tree_fac76_group_1545' to server 'localhost_1_12'.
-          Sending 'WALLACE_CSA_DUMMY_OP347_group_2' to server 'localhost_1_11'...
-            Sent 'WALLACE_CSA_DUMMY_OP347_group_2' to server 'localhost_1_11'.
-          Sending 'add_unsigned_24' to server 'localhost_1_14'...
-            Sent 'add_unsigned_24' to server 'localhost_1_14'.
-          Sending 'add_signed_carry_1207' to server 'localhost_1_8'...
-            Sent 'add_signed_carry_1207' to server 'localhost_1_8'.
-          Sending 'add_unsigned_24_889' to server 'localhost_1_13'...
-            Sent 'add_unsigned_24_889' to server 'localhost_1_13'.
-          Sending 'add_unsigned_24_888' to server 'localhost_1_0'...
-            Sent 'add_unsigned_24_888' to server 'localhost_1_0'.
-          Received 'csa_tree_fac76_group_1545' from server 'localhost_1_12'. (109 ms elapsed)
-          Sending 'add_unsigned_24_890' to server 'localhost_1_12'...
-            Sent 'add_unsigned_24_890' to server 'localhost_1_12'.
-          Received 'add_unsigned_24_889' from server 'localhost_1_13'. (99 ms elapsed)
-          Sending 'add_unsigned_24_891' to server 'localhost_1_13'...
-            Sent 'add_unsigned_24_891' to server 'localhost_1_13'.
-          Received 'csa_tree_1171' from server 'localhost_1_9'. (168 ms elapsed)
-          Sending 'sub_unsigned_26_1077' to server 'localhost_1_9'...
-            Sent 'sub_unsigned_26_1077' to server 'localhost_1_9'.
-          Received 'add_unsigned_24_888' from server 'localhost_1_0'. (126 ms elapsed)
-          Sending 'sub_unsigned_26_1078' to server 'localhost_1_0'...
-            Sent 'sub_unsigned_26_1078' to server 'localhost_1_0'.
-          Received 'csa_tree_9999' from server 'localhost_1_10'. (227 ms elapsed)
-          Sending 'sub_unsigned_26_1075' to server 'localhost_1_10'...
-            Sent 'sub_unsigned_26_1075' to server 'localhost_1_10'.
-          Received 'sub_unsigned_26_1078' from server 'localhost_1_0'. (90 ms elapsed)
-          Sending 'sub_unsigned_26_1076' to server 'localhost_1_0'...
-            Sent 'sub_unsigned_26_1076' to server 'localhost_1_0'.
-          Received 'add_unsigned_24_890' from server 'localhost_1_12'. (149 ms elapsed)
-          Sending 'sub_unsigned_26_1074' to server 'localhost_1_12'...
-            Sent 'sub_unsigned_26_1074' to server 'localhost_1_12'.
-          Received 'sub_unsigned_26_1077' from server 'localhost_1_9'. (128 ms elapsed)
-          Sending 'sub_unsigned_26_1080' to server 'localhost_1_9'...
-            Sent 'sub_unsigned_26_1080' to server 'localhost_1_9'.
-          Received 'sub_unsigned_26_1075' from server 'localhost_1_10'. (91 ms elapsed)
-          Sending 'sub_unsigned_26_1079' to server 'localhost_1_10'...
-            Sent 'sub_unsigned_26_1079' to server 'localhost_1_10'.
-          Received 'sub_unsigned_26_1074' from server 'localhost_1_12'. (58 ms elapsed)
-          Sending 'sub_unsigned_26_1082' to server 'localhost_1_12'...
-            Sent 'sub_unsigned_26_1082' to server 'localhost_1_12'.
-          Received 'sub_unsigned_26_1076' from server 'localhost_1_0'. (89 ms elapsed)
-          Sending 'sub_unsigned_26_1083' to server 'localhost_1_0'...
-            Sent 'sub_unsigned_26_1083' to server 'localhost_1_0'.
-          Received 'sub_unsigned_26_1079' from server 'localhost_1_10'. (92 ms elapsed)
-          Sending 'sub_unsigned_26_1081' to server 'localhost_1_10'...
-            Sent 'sub_unsigned_26_1081' to server 'localhost_1_10'.
-          Received 'sub_unsigned_26_1082' from server 'localhost_1_12'. (92 ms elapsed)
+          Sending 'csa_tree_9999' to server 'localhost_1_12'...
+            Sent 'csa_tree_9999' to server 'localhost_1_12'.
+          Sending 'csa_tree_1171' to server 'localhost_1_11'...
+            Sent 'csa_tree_1171' to server 'localhost_1_11'.
+          Sending 'csa_tree_fac76_group_1545' to server 'localhost_1_8'...
+            Sent 'csa_tree_fac76_group_1545' to server 'localhost_1_8'.
+          Sending 'WALLACE_CSA_DUMMY_OP347_group_2' to server 'localhost_1_14'...
+            Sent 'WALLACE_CSA_DUMMY_OP347_group_2' to server 'localhost_1_14'.
+          Sending 'add_unsigned_24' to server 'localhost_1_13'...
+            Sent 'add_unsigned_24' to server 'localhost_1_13'.
+          Sending 'add_signed_carry_1207' to server 'localhost_1_0'...
+            Sent 'add_signed_carry_1207' to server 'localhost_1_0'.
+          Sending 'add_unsigned_24_889' to server 'localhost_1_10'...
+            Sent 'add_unsigned_24_889' to server 'localhost_1_10'.
+          Sending 'add_unsigned_24_888' to server 'localhost_1_9'...
+            Sent 'add_unsigned_24_888' to server 'localhost_1_9'.
+          Received 'csa_tree_1171' from server 'localhost_1_11'. (144 ms elapsed)
+          Sending 'add_unsigned_24_890' to server 'localhost_1_11'...
+            Sent 'add_unsigned_24_890' to server 'localhost_1_11'.
+          Received 'csa_tree_9999' from server 'localhost_1_12'. (171 ms elapsed)
+          Sending 'add_unsigned_24_891' to server 'localhost_1_12'...
+            Sent 'add_unsigned_24_891' to server 'localhost_1_12'.
+          Received 'csa_tree_fac76_group_1545' from server 'localhost_1_8'. (163 ms elapsed)
+          Sending 'sub_unsigned_26_1077' to server 'localhost_1_8'...
+            Sent 'sub_unsigned_26_1077' to server 'localhost_1_8'.
+          Received 'add_unsigned_24_891' from server 'localhost_1_12'. (90 ms elapsed)
+          Sending 'sub_unsigned_26_1078' to server 'localhost_1_12'...
+            Sent 'sub_unsigned_26_1078' to server 'localhost_1_12'.
+          Received 'add_unsigned_24_890' from server 'localhost_1_11'. (131 ms elapsed)
+          Sending 'sub_unsigned_26_1075' to server 'localhost_1_11'...
+            Sent 'sub_unsigned_26_1075' to server 'localhost_1_11'.
+          Received 'sub_unsigned_26_1078' from server 'localhost_1_12'. (129 ms elapsed)
+          Sending 'sub_unsigned_26_1076' to server 'localhost_1_12'...
+            Sent 'sub_unsigned_26_1076' to server 'localhost_1_12'.
+          Received 'sub_unsigned_26_1075' from server 'localhost_1_11'. (130 ms elapsed)
+          Sending 'sub_unsigned_26_1074' to server 'localhost_1_11'...
+            Sent 'sub_unsigned_26_1074' to server 'localhost_1_11'.
+          Received 'sub_unsigned_26_1074' from server 'localhost_1_11'. (87 ms elapsed)
+          Sending 'sub_unsigned_26_1080' to server 'localhost_1_11'...
+            Sent 'sub_unsigned_26_1080' to server 'localhost_1_11'.
+          Received 'sub_unsigned_26_1076' from server 'localhost_1_12'. (133 ms elapsed)
+          Sending 'sub_unsigned_26_1079' to server 'localhost_1_12'...
+            Sent 'sub_unsigned_26_1079' to server 'localhost_1_12'.
+          Received 'add_unsigned_24' from server 'localhost_1_13'. (503 ms elapsed)
+          Sending 'sub_unsigned_26_1082' to server 'localhost_1_13'...
+            Sent 'sub_unsigned_26_1082' to server 'localhost_1_13'.
+          Received 'add_unsigned_24_888' from server 'localhost_1_9'. (508 ms elapsed)
+          Sending 'sub_unsigned_26_1083' to server 'localhost_1_9'...
+            Sent 'sub_unsigned_26_1083' to server 'localhost_1_9'.
+          Received 'WALLACE_CSA_DUMMY_OP347_group_2' from server 'localhost_1_14'. (542 ms elapsed)
+          Sending 'sub_unsigned_26_1081' to server 'localhost_1_14'...
+            Sent 'sub_unsigned_26_1081' to server 'localhost_1_14'.
+          Received 'sub_unsigned_26_1079' from server 'localhost_1_12'. (89 ms elapsed)
           Sending 'sub_unsigned_26_1084' to server 'localhost_1_12'...
             Sent 'sub_unsigned_26_1084' to server 'localhost_1_12'.
-          Received 'sub_unsigned_26_1080' from server 'localhost_1_9'. (133 ms elapsed)
+          Received 'sub_unsigned_26_1083' from server 'localhost_1_9'. (92 ms elapsed)
           Sending 'sub_unsigned_26_1073' to server 'localhost_1_9'...
             Sent 'sub_unsigned_26_1073' to server 'localhost_1_9'.
-          Received 'sub_unsigned_26_1083' from server 'localhost_1_0'. (131 ms elapsed)
-          Sending 'add_unsigned_24_898' to server 'localhost_1_0'...
-            Sent 'add_unsigned_24_898' to server 'localhost_1_0'.
-          Received 'sub_unsigned_26_1073' from server 'localhost_1_9'. (93 ms elapsed)
-          Sending 'add_unsigned_24_899' to server 'localhost_1_9'...
-            Sent 'add_unsigned_24_899' to server 'localhost_1_9'.
-          Received 'sub_unsigned_26_1084' from server 'localhost_1_12'. (108 ms elapsed)
-          Sending 'mux_ctl_0x_1385' to server 'localhost_1_12'...
-            Sent 'mux_ctl_0x_1385' to server 'localhost_1_12'.
-          Received 'sub_unsigned_26_1081' from server 'localhost_1_10'. (121 ms elapsed)
-          Sending 'sub_unsigned_26_1099' to server 'localhost_1_10'...
-            Sent 'sub_unsigned_26_1099' to server 'localhost_1_10'.
-          Received 'add_unsigned_24_899' from server 'localhost_1_9'. (97 ms elapsed)
-          Sending 'sub_unsigned_26' to server 'localhost_1_9'...
-            Sent 'sub_unsigned_26' to server 'localhost_1_9'.
-          Received 'mux_ctl_0x_1385' from server 'localhost_1_12'. (138 ms elapsed)
+          Received 'sub_unsigned_26_1080' from server 'localhost_1_11'. (164 ms elapsed)
+          Sending 'add_unsigned_24_898' to server 'localhost_1_11'...
+            Sent 'add_unsigned_24_898' to server 'localhost_1_11'.
+          Received 'sub_unsigned_26_1084' from server 'localhost_1_12'. (90 ms elapsed)
+          Sending 'add_unsigned_24_899' to server 'localhost_1_12'...
+            Sent 'add_unsigned_24_899' to server 'localhost_1_12'.
+          Received 'sub_unsigned_26_1081' from server 'localhost_1_14'. (137 ms elapsed)
+          Sending 'mux_ctl_0x_1385' to server 'localhost_1_14'...
+            Sent 'mux_ctl_0x_1385' to server 'localhost_1_14'.
+          Received 'sub_unsigned_26_1073' from server 'localhost_1_9'. (88 ms elapsed)
+          Sending 'sub_unsigned_26_1099' to server 'localhost_1_9'...
+            Sent 'sub_unsigned_26_1099' to server 'localhost_1_9'.
+          Received 'add_unsigned_24_898' from server 'localhost_1_11'. (92 ms elapsed)
+          Sending 'sub_unsigned_26' to server 'localhost_1_11'...
+            Sent 'sub_unsigned_26' to server 'localhost_1_11'.
+          Received 'add_unsigned_24_899' from server 'localhost_1_12'. (91 ms elapsed)
           Sending 'mux_ctl_0x_1388' to server 'localhost_1_12'...
             Sent 'mux_ctl_0x_1388' to server 'localhost_1_12'.
-          Received 'add_unsigned_24_898' from server 'localhost_1_0'. (187 ms elapsed)
-          Received 'add_unsigned_24_891' from server 'localhost_1_13'. (532 ms elapsed)
-          Received 'sub_unsigned_26' from server 'localhost_1_9'. (89 ms elapsed)
-          Received 'mux_ctl_0x_1388' from server 'localhost_1_12'. (137 ms elapsed)
-          Received 'WALLACE_CSA_DUMMY_OP347_group_2' from server 'localhost_1_11'. (899 ms elapsed)
-          Received 'add_unsigned_24' from server 'localhost_1_14'. (898 ms elapsed)
-          Received 'sub_unsigned_26_1099' from server 'localhost_1_10'. (491 ms elapsed)
-          Received 'add_signed_carry_1207' from server 'localhost_1_8'. (1293 ms elapsed)
+          Received 'sub_unsigned_26_1099' from server 'localhost_1_9'. (90 ms elapsed)
+          Received 'mux_ctl_0x_1388' from server 'localhost_1_12'. (97 ms elapsed)
+          Received 'add_signed_carry_1207' from server 'localhost_1_0'. (893 ms elapsed)
+          Received 'add_unsigned_24_889' from server 'localhost_1_10'. (891 ms elapsed)
+          Received 'sub_unsigned_26_1082' from server 'localhost_1_13'. (489 ms elapsed)
+          Received 'sub_unsigned_26_1077' from server 'localhost_1_8'. (889 ms elapsed)
+          Received 'mux_ctl_0x_1385' from server 'localhost_1_14'. (503 ms elapsed)
+          Received 'sub_unsigned_26' from server 'localhost_1_11'. (489 ms elapsed)
         Distributing super-thread jobs: csa_tree_fac76_group_10448 csa_tree_fac75_group_10451 csa_tree_fac71_group_1543 csa_tree_fac72_group_1540 cb_part_1396
-          Sending 'csa_tree_fac76_group_10448' to server 'localhost_1_10'...
-            Sent 'csa_tree_fac76_group_10448' to server 'localhost_1_10'.
-          Sending 'csa_tree_fac75_group_10451' to server 'localhost_1_9'...
-            Sent 'csa_tree_fac75_group_10451' to server 'localhost_1_9'.
-          Sending 'csa_tree_fac71_group_1543' to server 'localhost_1_12'...
-            Sent 'csa_tree_fac71_group_1543' to server 'localhost_1_12'.
-          Sending 'csa_tree_fac72_group_1540' to server 'localhost_1_11'...
-            Sent 'csa_tree_fac72_group_1540' to server 'localhost_1_11'.
-          Sending 'cb_part_1396' to server 'localhost_1_14'...
-            Sent 'cb_part_1396' to server 'localhost_1_14'.
-          Received 'cb_part_1396' from server 'localhost_1_14'. (96 ms elapsed)
-          Received 'csa_tree_fac76_group_10448' from server 'localhost_1_10'. (167 ms elapsed)
-          Received 'csa_tree_fac75_group_10451' from server 'localhost_1_9'. (195 ms elapsed)
-          Received 'csa_tree_fac71_group_1543' from server 'localhost_1_12'. (560 ms elapsed)
-          Received 'csa_tree_fac72_group_1540' from server 'localhost_1_11'. (584 ms elapsed)
+          Sending 'csa_tree_fac76_group_10448' to server 'localhost_1_12'...
+            Sent 'csa_tree_fac76_group_10448' to server 'localhost_1_12'.
+          Sending 'csa_tree_fac75_group_10451' to server 'localhost_1_11'...
+            Sent 'csa_tree_fac75_group_10451' to server 'localhost_1_11'.
+          Sending 'csa_tree_fac71_group_1543' to server 'localhost_1_8'...
+            Sent 'csa_tree_fac71_group_1543' to server 'localhost_1_8'.
+          Sending 'csa_tree_fac72_group_1540' to server 'localhost_1_14'...
+            Sent 'csa_tree_fac72_group_1540' to server 'localhost_1_14'.
+          Sending 'cb_part_1396' to server 'localhost_1_13'...
+            Sent 'cb_part_1396' to server 'localhost_1_13'.
+          Received 'csa_tree_fac76_group_10448' from server 'localhost_1_12'. (205 ms elapsed)
+          Received 'cb_part_1396' from server 'localhost_1_13'. (129 ms elapsed)
+          Received 'csa_tree_fac75_group_10451' from server 'localhost_1_11'. (253 ms elapsed)
+          Received 'csa_tree_fac71_group_1543' from server 'localhost_1_8'. (518 ms elapsed)
+          Received 'csa_tree_fac72_group_1540' from server 'localhost_1_14'. (982 ms elapsed)
         Distributing super-thread jobs: cb_seq_1390 add_unsigned_24_897 add_unsigned_24_896
-          Sending 'cb_seq_1390' to server 'localhost_1_10'...
-            Sent 'cb_seq_1390' to server 'localhost_1_10'.
-          Sending 'add_unsigned_24_897' to server 'localhost_1_9'...
-            Sent 'add_unsigned_24_897' to server 'localhost_1_9'.
-          Sending 'add_unsigned_24_896' to server 'localhost_1_12'...
-            Sent 'add_unsigned_24_896' to server 'localhost_1_12'.
-          Received 'add_unsigned_24_897' from server 'localhost_1_9'. (90 ms elapsed)
-          Received 'add_unsigned_24_896' from server 'localhost_1_12'. (91 ms elapsed)
-          Received 'cb_seq_1390' from server 'localhost_1_10'. (916 ms elapsed)
+          Sending 'cb_seq_1390' to server 'localhost_1_12'...
+            Sent 'cb_seq_1390' to server 'localhost_1_12'.
+          Sending 'add_unsigned_24_897' to server 'localhost_1_11'...
+            Sent 'add_unsigned_24_897' to server 'localhost_1_11'.
+          Sending 'add_unsigned_24_896' to server 'localhost_1_8'...
+            Sent 'add_unsigned_24_896' to server 'localhost_1_8'.
+          Received 'add_unsigned_24_897' from server 'localhost_1_11'. (91 ms elapsed)
+          Received 'add_unsigned_24_896' from server 'localhost_1_8'. (92 ms elapsed)
+          Received 'cb_seq_1390' from server 'localhost_1_12'. (925 ms elapsed)
         Distributing super-thread jobs: cb_part_1398
-          Sending 'cb_part_1398' to server 'localhost_1_10'...
-            Sent 'cb_part_1398' to server 'localhost_1_10'.
-          Received 'cb_part_1398' from server 'localhost_1_10'. (48 ms elapsed)
+          Sending 'cb_part_1398' to server 'localhost_1_12'...
+            Sent 'cb_part_1398' to server 'localhost_1_12'.
+          Received 'cb_part_1398' from server 'localhost_1_12'. (49 ms elapsed)
         Distributing super-thread jobs: cb_seq
-          Sending 'cb_seq' to server 'localhost_1_10'...
-            Sent 'cb_seq' to server 'localhost_1_10'.
-          Received 'cb_seq' from server 'localhost_1_10'. (358 ms elapsed)
+          Sending 'cb_seq' to server 'localhost_1_12'...
+            Sent 'cb_seq' to server 'localhost_1_12'.
+          Received 'cb_seq' from server 'localhost_1_12'. (373 ms elapsed)
  
 Global mapping target info
 ==========================
@@ -6543,222 +6543,222 @@ Target path end-point (Pin: RC_CG_HIER_INST21/RC_CGIC_INST/E (CKLNQD1BWP30P140/E
 
 Multi-threaded Technology Mapping (8 threads per ST process, 8 of 28 CPUs usable)
         Distributing super-thread jobs: cb_seq
-          Sending 'cb_seq' to server 'localhost_1_10'...
-            Sent 'cb_seq' to server 'localhost_1_10'.
-          Received 'cb_seq' from server 'localhost_1_10'. (1390 ms elapsed)
+          Sending 'cb_seq' to server 'localhost_1_12'...
+            Sent 'cb_seq' to server 'localhost_1_12'.
+          Received 'cb_seq' from server 'localhost_1_12'. (1393 ms elapsed)
         Distributing super-thread jobs: cb_part_1398
-          Sending 'cb_part_1398' to server 'localhost_1_10'...
-            Sent 'cb_part_1398' to server 'localhost_1_10'.
-          Received 'cb_part_1398' from server 'localhost_1_10'. (185 ms elapsed)
+          Sending 'cb_part_1398' to server 'localhost_1_12'...
+            Sent 'cb_part_1398' to server 'localhost_1_12'.
+          Received 'cb_part_1398' from server 'localhost_1_12'. (185 ms elapsed)
         Distributing super-thread jobs: cb_seq_1390
-          Sending 'cb_seq_1390' to server 'localhost_1_10'...
-            Sent 'cb_seq_1390' to server 'localhost_1_10'.
-          Received 'cb_seq_1390' from server 'localhost_1_10'. (3064 ms elapsed)
+          Sending 'cb_seq_1390' to server 'localhost_1_12'...
+            Sent 'cb_seq_1390' to server 'localhost_1_12'.
+          Received 'cb_seq_1390' from server 'localhost_1_12'. (3089 ms elapsed)
         Distributing super-thread jobs: add_unsigned_24_896 add_unsigned_24_897
-          Sending 'add_unsigned_24_896' to server 'localhost_1_10'...
-            Sent 'add_unsigned_24_896' to server 'localhost_1_10'.
-          Sending 'add_unsigned_24_897' to server 'localhost_1_9'...
-            Sent 'add_unsigned_24_897' to server 'localhost_1_9'.
-          Received 'add_unsigned_24_896' from server 'localhost_1_10'. (449 ms elapsed)
-          Received 'add_unsigned_24_897' from server 'localhost_1_9'. (629 ms elapsed)
+          Sending 'add_unsigned_24_896' to server 'localhost_1_12'...
+            Sent 'add_unsigned_24_896' to server 'localhost_1_12'.
+          Sending 'add_unsigned_24_897' to server 'localhost_1_11'...
+            Sent 'add_unsigned_24_897' to server 'localhost_1_11'.
+          Received 'add_unsigned_24_896' from server 'localhost_1_12'. (449 ms elapsed)
+          Received 'add_unsigned_24_897' from server 'localhost_1_11'. (629 ms elapsed)
         Distributing super-thread jobs: csa_tree_fac76_group_10448 csa_tree_fac75_group_10451 csa_tree_fac72_group_1540 csa_tree_fac71_group_1543 cb_part_1396
-          Sending 'csa_tree_fac76_group_10448' to server 'localhost_1_10'...
-            Sent 'csa_tree_fac76_group_10448' to server 'localhost_1_10'.
-          Sending 'csa_tree_fac75_group_10451' to server 'localhost_1_9'...
-            Sent 'csa_tree_fac75_group_10451' to server 'localhost_1_9'.
-          Sending 'csa_tree_fac72_group_1540' to server 'localhost_1_12'...
-            Sent 'csa_tree_fac72_group_1540' to server 'localhost_1_12'.
-          Sending 'csa_tree_fac71_group_1543' to server 'localhost_1_11'...
-            Sent 'csa_tree_fac71_group_1543' to server 'localhost_1_11'.
-          Sending 'cb_part_1396' to server 'localhost_1_14'...
-            Sent 'cb_part_1396' to server 'localhost_1_14'.
-          Received 'cb_part_1396' from server 'localhost_1_14'. (416 ms elapsed)
-          Received 'csa_tree_fac76_group_10448' from server 'localhost_1_10'. (1164 ms elapsed)
-          Received 'csa_tree_fac75_group_10451' from server 'localhost_1_9'. (1333 ms elapsed)
-          Received 'csa_tree_fac71_group_1543' from server 'localhost_1_11'. (1448 ms elapsed)
-          Received 'csa_tree_fac72_group_1540' from server 'localhost_1_12'. (1689 ms elapsed)
+          Sending 'csa_tree_fac76_group_10448' to server 'localhost_1_12'...
+            Sent 'csa_tree_fac76_group_10448' to server 'localhost_1_12'.
+          Sending 'csa_tree_fac75_group_10451' to server 'localhost_1_11'...
+            Sent 'csa_tree_fac75_group_10451' to server 'localhost_1_11'.
+          Sending 'csa_tree_fac72_group_1540' to server 'localhost_1_8'...
+            Sent 'csa_tree_fac72_group_1540' to server 'localhost_1_8'.
+          Sending 'csa_tree_fac71_group_1543' to server 'localhost_1_14'...
+            Sent 'csa_tree_fac71_group_1543' to server 'localhost_1_14'.
+          Sending 'cb_part_1396' to server 'localhost_1_13'...
+            Sent 'cb_part_1396' to server 'localhost_1_13'.
+          Received 'cb_part_1396' from server 'localhost_1_13'. (368 ms elapsed)
+          Received 'csa_tree_fac76_group_10448' from server 'localhost_1_12'. (1196 ms elapsed)
+          Received 'csa_tree_fac75_group_10451' from server 'localhost_1_11'. (1364 ms elapsed)
+          Received 'csa_tree_fac71_group_1543' from server 'localhost_1_14'. (1471 ms elapsed)
+          Received 'csa_tree_fac72_group_1540' from server 'localhost_1_8'. (1712 ms elapsed)
         Distributing super-thread jobs: csa_tree_9999 csa_tree_1171 csa_tree_fac76_group_1545 WALLACE_CSA_DUMMY_OP347_group_2 add_unsigned_24 add_signed_carry_1207 add_unsigned_24_891 add_unsigned_24_889 add_unsigned_24_890 add_unsigned_24_888 sub_unsigned_26_1077 sub_unsigned_26_1079 sub_unsigned_26_1082 sub_unsigned_26_1073 sub_unsigned_26_1075 sub_unsigned_26_1078 sub_unsigned_26_1080 sub_unsigned_26_1076 sub_unsigned_26_1074 sub_unsigned_26_1083 sub_unsigned_26_1081 sub_unsigned_26_1084 add_unsigned_24_898 add_unsigned_24_899 mux_ctl_0x_1385 mux_ctl_0x_1388 sub_unsigned_26 sub_unsigned_26_1099
-          Sending 'csa_tree_9999' to server 'localhost_1_10'...
-            Sent 'csa_tree_9999' to server 'localhost_1_10'.
-          Sending 'csa_tree_1171' to server 'localhost_1_9'...
-            Sent 'csa_tree_1171' to server 'localhost_1_9'.
-          Sending 'csa_tree_fac76_group_1545' to server 'localhost_1_12'...
-            Sent 'csa_tree_fac76_group_1545' to server 'localhost_1_12'.
-          Sending 'WALLACE_CSA_DUMMY_OP347_group_2' to server 'localhost_1_11'...
-            Sent 'WALLACE_CSA_DUMMY_OP347_group_2' to server 'localhost_1_11'.
-          Sending 'add_unsigned_24' to server 'localhost_1_14'...
-            Sent 'add_unsigned_24' to server 'localhost_1_14'.
-          Sending 'add_signed_carry_1207' to server 'localhost_1_8'...
-            Sent 'add_signed_carry_1207' to server 'localhost_1_8'.
-          Sending 'add_unsigned_24_891' to server 'localhost_1_13'...
-            Sent 'add_unsigned_24_891' to server 'localhost_1_13'.
-          Sending 'add_unsigned_24_889' to server 'localhost_1_0'...
-            Sent 'add_unsigned_24_889' to server 'localhost_1_0'.
-          Received 'csa_tree_1171' from server 'localhost_1_9'. (401 ms elapsed)
-          Sending 'add_unsigned_24_890' to server 'localhost_1_9'...
-            Sent 'add_unsigned_24_890' to server 'localhost_1_9'.
-          Received 'csa_tree_9999' from server 'localhost_1_10'. (585 ms elapsed)
-          Sending 'add_unsigned_24_888' to server 'localhost_1_10'...
-            Sent 'add_unsigned_24_888' to server 'localhost_1_10'.
-          Received 'add_unsigned_24_889' from server 'localhost_1_0'. (698 ms elapsed)
-          Sending 'sub_unsigned_26_1077' to server 'localhost_1_0'...
-            Sent 'sub_unsigned_26_1077' to server 'localhost_1_0'.
-          Received 'add_unsigned_24_888' from server 'localhost_1_10'. (564 ms elapsed)
-          Sending 'sub_unsigned_26_1079' to server 'localhost_1_10'...
-            Sent 'sub_unsigned_26_1079' to server 'localhost_1_10'.
-          Received 'add_unsigned_24_890' from server 'localhost_1_9'. (762 ms elapsed)
-          Sending 'sub_unsigned_26_1082' to server 'localhost_1_9'...
-            Sent 'sub_unsigned_26_1082' to server 'localhost_1_9'.
-          Received 'csa_tree_fac76_group_1545' from server 'localhost_1_12'. (1156 ms elapsed)
-          Sending 'sub_unsigned_26_1073' to server 'localhost_1_12'...
-            Sent 'sub_unsigned_26_1073' to server 'localhost_1_12'.
-          Received 'WALLACE_CSA_DUMMY_OP347_group_2' from server 'localhost_1_11'. (1163 ms elapsed)
-          Sending 'sub_unsigned_26_1075' to server 'localhost_1_11'...
-            Sent 'sub_unsigned_26_1075' to server 'localhost_1_11'.
-          Received 'add_unsigned_24' from server 'localhost_1_14'. (1197 ms elapsed)
-          Sending 'sub_unsigned_26_1078' to server 'localhost_1_14'...
-            Sent 'sub_unsigned_26_1078' to server 'localhost_1_14'.
-          Received 'sub_unsigned_26_1077' from server 'localhost_1_0'. (474 ms elapsed)
-          Sending 'sub_unsigned_26_1080' to server 'localhost_1_0'...
-            Sent 'sub_unsigned_26_1080' to server 'localhost_1_0'.
-          Received 'sub_unsigned_26_1073' from server 'localhost_1_12'. (493 ms elapsed)
-          Sending 'sub_unsigned_26_1076' to server 'localhost_1_12'...
-            Sent 'sub_unsigned_26_1076' to server 'localhost_1_12'.
-          Received 'sub_unsigned_26_1079' from server 'localhost_1_10'. (524 ms elapsed)
-          Sending 'sub_unsigned_26_1074' to server 'localhost_1_10'...
-            Sent 'sub_unsigned_26_1074' to server 'localhost_1_10'.
-          Received 'sub_unsigned_26_1075' from server 'localhost_1_11'. (500 ms elapsed)
-          Sending 'sub_unsigned_26_1083' to server 'localhost_1_11'...
-            Sent 'sub_unsigned_26_1083' to server 'localhost_1_11'.
-          Received 'sub_unsigned_26_1078' from server 'localhost_1_14'. (918 ms elapsed)
-          Sending 'sub_unsigned_26_1081' to server 'localhost_1_14'...
-            Sent 'sub_unsigned_26_1081' to server 'localhost_1_14'.
-          Received 'sub_unsigned_26_1080' from server 'localhost_1_0'. (536 ms elapsed)
-          Sending 'sub_unsigned_26_1084' to server 'localhost_1_0'...
-            Sent 'sub_unsigned_26_1084' to server 'localhost_1_0'.
-          Received 'sub_unsigned_26_1083' from server 'localhost_1_11'. (876 ms elapsed)
+          Sending 'csa_tree_9999' to server 'localhost_1_12'...
+            Sent 'csa_tree_9999' to server 'localhost_1_12'.
+          Sending 'csa_tree_1171' to server 'localhost_1_11'...
+            Sent 'csa_tree_1171' to server 'localhost_1_11'.
+          Sending 'csa_tree_fac76_group_1545' to server 'localhost_1_8'...
+            Sent 'csa_tree_fac76_group_1545' to server 'localhost_1_8'.
+          Sending 'WALLACE_CSA_DUMMY_OP347_group_2' to server 'localhost_1_14'...
+            Sent 'WALLACE_CSA_DUMMY_OP347_group_2' to server 'localhost_1_14'.
+          Sending 'add_unsigned_24' to server 'localhost_1_13'...
+            Sent 'add_unsigned_24' to server 'localhost_1_13'.
+          Sending 'add_signed_carry_1207' to server 'localhost_1_0'...
+            Sent 'add_signed_carry_1207' to server 'localhost_1_0'.
+          Sending 'add_unsigned_24_891' to server 'localhost_1_10'...
+            Sent 'add_unsigned_24_891' to server 'localhost_1_10'.
+          Sending 'add_unsigned_24_889' to server 'localhost_1_9'...
+            Sent 'add_unsigned_24_889' to server 'localhost_1_9'.
+          Received 'csa_tree_1171' from server 'localhost_1_11'. (363 ms elapsed)
+          Sending 'add_unsigned_24_890' to server 'localhost_1_11'...
+            Sent 'add_unsigned_24_890' to server 'localhost_1_11'.
+          Received 'csa_tree_9999' from server 'localhost_1_12'. (566 ms elapsed)
+          Sending 'add_unsigned_24_888' to server 'localhost_1_12'...
+            Sent 'add_unsigned_24_888' to server 'localhost_1_12'.
+          Received 'add_unsigned_24_889' from server 'localhost_1_9'. (754 ms elapsed)
+          Sending 'sub_unsigned_26_1077' to server 'localhost_1_9'...
+            Sent 'sub_unsigned_26_1077' to server 'localhost_1_9'.
+          Received 'add_unsigned_24_890' from server 'localhost_1_11'. (520 ms elapsed)
+          Sending 'sub_unsigned_26_1079' to server 'localhost_1_11'...
+            Sent 'sub_unsigned_26_1079' to server 'localhost_1_11'.
+          Received 'csa_tree_fac76_group_1545' from server 'localhost_1_8'. (983 ms elapsed)
+          Sending 'sub_unsigned_26_1082' to server 'localhost_1_8'...
+            Sent 'sub_unsigned_26_1082' to server 'localhost_1_8'.
+          Received 'add_unsigned_24' from server 'localhost_1_13'. (1235 ms elapsed)
+          Sending 'sub_unsigned_26_1073' to server 'localhost_1_13'...
+            Sent 'sub_unsigned_26_1073' to server 'localhost_1_13'.
+          Received 'sub_unsigned_26_1077' from server 'localhost_1_9'. (528 ms elapsed)
+          Sending 'sub_unsigned_26_1075' to server 'localhost_1_9'...
+            Sent 'sub_unsigned_26_1075' to server 'localhost_1_9'.
+          Received 'add_unsigned_24_888' from server 'localhost_1_12'. (974 ms elapsed)
+          Sending 'sub_unsigned_26_1078' to server 'localhost_1_12'...
+            Sent 'sub_unsigned_26_1078' to server 'localhost_1_12'.
+          Received 'sub_unsigned_26_1082' from server 'localhost_1_8'. (608 ms elapsed)
+          Sending 'sub_unsigned_26_1080' to server 'localhost_1_8'...
+            Sent 'sub_unsigned_26_1080' to server 'localhost_1_8'.
+          Received 'WALLACE_CSA_DUMMY_OP347_group_2' from server 'localhost_1_14'. (1597 ms elapsed)
+          Sending 'sub_unsigned_26_1076' to server 'localhost_1_14'...
+            Sent 'sub_unsigned_26_1076' to server 'localhost_1_14'.
+          Received 'add_signed_carry_1207' from server 'localhost_1_0'. (1601 ms elapsed)
+          Sending 'sub_unsigned_26_1074' to server 'localhost_1_0'...
+            Sent 'sub_unsigned_26_1074' to server 'localhost_1_0'.
+          Received 'sub_unsigned_26_1078' from server 'localhost_1_12'. (558 ms elapsed)
+          Sending 'sub_unsigned_26_1083' to server 'localhost_1_12'...
+            Sent 'sub_unsigned_26_1083' to server 'localhost_1_12'.
+          Received 'sub_unsigned_26_1080' from server 'localhost_1_8'. (553 ms elapsed)
+          Sending 'sub_unsigned_26_1081' to server 'localhost_1_8'...
+            Sent 'sub_unsigned_26_1081' to server 'localhost_1_8'.
+          Received 'sub_unsigned_26_1076' from server 'localhost_1_14'. (552 ms elapsed)
+          Sending 'sub_unsigned_26_1084' to server 'localhost_1_14'...
+            Sent 'sub_unsigned_26_1084' to server 'localhost_1_14'.
+          Received 'sub_unsigned_26_1079' from server 'localhost_1_11'. (1341 ms elapsed)
           Sending 'add_unsigned_24_898' to server 'localhost_1_11'...
             Sent 'add_unsigned_24_898' to server 'localhost_1_11'.
-          Received 'sub_unsigned_26_1082' from server 'localhost_1_9'. (1412 ms elapsed)
-          Sending 'add_unsigned_24_899' to server 'localhost_1_9'...
-            Sent 'add_unsigned_24_899' to server 'localhost_1_9'.
-          Received 'add_unsigned_24_891' from server 'localhost_1_13'. (2537 ms elapsed)
-          Sending 'mux_ctl_0x_1385' to server 'localhost_1_13'...
-            Sent 'mux_ctl_0x_1385' to server 'localhost_1_13'.
-          Received 'add_signed_carry_1207' from server 'localhost_1_8'. (2651 ms elapsed)
+          Received 'add_unsigned_24_891' from server 'localhost_1_10'. (2312 ms elapsed)
+          Sending 'add_unsigned_24_899' to server 'localhost_1_10'...
+            Sent 'add_unsigned_24_899' to server 'localhost_1_10'.
+          Received 'sub_unsigned_26_1074' from server 'localhost_1_0'. (964 ms elapsed)
+          Sending 'mux_ctl_0x_1385' to server 'localhost_1_0'...
+            Sent 'mux_ctl_0x_1385' to server 'localhost_1_0'.
+          Received 'sub_unsigned_26_1081' from server 'localhost_1_8'. (563 ms elapsed)
           Sending 'mux_ctl_0x_1388' to server 'localhost_1_8'...
             Sent 'mux_ctl_0x_1388' to server 'localhost_1_8'.
-          Received 'mux_ctl_0x_1385' from server 'localhost_1_13'. (295 ms elapsed)
-          Sending 'sub_unsigned_26' to server 'localhost_1_13'...
-            Sent 'sub_unsigned_26' to server 'localhost_1_13'.
-          Received 'sub_unsigned_26_1076' from server 'localhost_1_12'. (1326 ms elapsed)
-          Sending 'sub_unsigned_26_1099' to server 'localhost_1_12'...
-            Sent 'sub_unsigned_26_1099' to server 'localhost_1_12'.
-          Received 'sub_unsigned_26_1074' from server 'localhost_1_10'. (1352 ms elapsed)
-          Received 'sub_unsigned_26_1081' from server 'localhost_1_14'. (931 ms elapsed)
-          Received 'mux_ctl_0x_1388' from server 'localhost_1_8'. (629 ms elapsed)
-          Received 'add_unsigned_24_898' from server 'localhost_1_11'. (854 ms elapsed)
-          Received 'sub_unsigned_26_1084' from server 'localhost_1_0'. (897 ms elapsed)
-          Received 'sub_unsigned_26_1099' from server 'localhost_1_12'. (534 ms elapsed)
-          Received 'sub_unsigned_26' from server 'localhost_1_13'. (958 ms elapsed)
-          Received 'add_unsigned_24_899' from server 'localhost_1_9'. (1260 ms elapsed)
+          Received 'add_unsigned_24_898' from server 'localhost_1_11'. (543 ms elapsed)
+          Sending 'sub_unsigned_26' to server 'localhost_1_11'...
+            Sent 'sub_unsigned_26' to server 'localhost_1_11'.
+          Received 'mux_ctl_0x_1385' from server 'localhost_1_0'. (304 ms elapsed)
+          Sending 'sub_unsigned_26_1099' to server 'localhost_1_0'...
+            Sent 'sub_unsigned_26_1099' to server 'localhost_1_0'.
+          Received 'add_unsigned_24_899' from server 'localhost_1_10'. (526 ms elapsed)
+          Received 'mux_ctl_0x_1388' from server 'localhost_1_8'. (294 ms elapsed)
+          Received 'sub_unsigned_26_1083' from server 'localhost_1_12'. (948 ms elapsed)
+          Received 'sub_unsigned_26_1073' from server 'localhost_1_13'. (1804 ms elapsed)
+          Received 'sub_unsigned_26_1084' from server 'localhost_1_14'. (932 ms elapsed)
+          Received 'sub_unsigned_26' from server 'localhost_1_11'. (546 ms elapsed)
+          Received 'sub_unsigned_26_1099' from server 'localhost_1_0'. (546 ms elapsed)
+          Received 'sub_unsigned_26_1075' from server 'localhost_1_9'. (2553 ms elapsed)
         Distributing super-thread jobs: mult_signed cb_oseq_1391 csa_tree_SUB_TC_OP_4_pad_group_10453 csa_tree_minus_1112_18_group_21866 csa_tree_add_1136_41_group_4 csa_tree_SUB_TC_OP_group_4_1071 csa_tree_SUB_TC_OP_group_4 csa_tree_add_1135_41_group_6 csa_tree_sub0012672_group_2 csa_tree_ADD_TC_OP_1_group_6_1070 csa_tree_ADD_TC_OP_1_group_6 csa_tree_9503_1066 csa_tree_9503 csa_tree_1117 csa_tree_639 csa_tree_639_1069 add_unsigned_24_893 add_unsigned_24_895 add_unsigned_24_894 add_unsigned_24_892 sub_unsigned_26_1089 sub_unsigned_26_1095 sub_unsigned_26_1085 sub_unsigned_26_1092 sub_unsigned_26_1094 sub_unsigned_26_1086 sub_unsigned_26_1093 sub_unsigned_26_1096 sub_unsigned_26_1090 sub_unsigned_26_1088 sub_unsigned_26_1091 sub_unsigned_26_1087
-          Sending 'mult_signed' to server 'localhost_1_10'...
-            Sent 'mult_signed' to server 'localhost_1_10'.
-          Sending 'cb_oseq_1391' to server 'localhost_1_9'...
-            Sent 'cb_oseq_1391' to server 'localhost_1_9'.
-          Sending 'csa_tree_SUB_TC_OP_4_pad_group_10453' to server 'localhost_1_12'...
-            Sent 'csa_tree_SUB_TC_OP_4_pad_group_10453' to server 'localhost_1_12'.
-          Sending 'csa_tree_minus_1112_18_group_21866' to server 'localhost_1_11'...
-            Sent 'csa_tree_minus_1112_18_group_21866' to server 'localhost_1_11'.
-          Sending 'csa_tree_add_1136_41_group_4' to server 'localhost_1_14'...
-            Sent 'csa_tree_add_1136_41_group_4' to server 'localhost_1_14'.
-          Sending 'csa_tree_SUB_TC_OP_group_4_1071' to server 'localhost_1_8'...
-            Sent 'csa_tree_SUB_TC_OP_group_4_1071' to server 'localhost_1_8'.
-          Sending 'csa_tree_SUB_TC_OP_group_4' to server 'localhost_1_13'...
-            Sent 'csa_tree_SUB_TC_OP_group_4' to server 'localhost_1_13'.
-          Sending 'csa_tree_add_1135_41_group_6' to server 'localhost_1_0'...
-            Sent 'csa_tree_add_1135_41_group_6' to server 'localhost_1_0'.
-          Received 'csa_tree_SUB_TC_OP_4_pad_group_10453' from server 'localhost_1_12'. (1112 ms elapsed)
-          Sending 'csa_tree_sub0012672_group_2' to server 'localhost_1_12'...
-            Sent 'csa_tree_sub0012672_group_2' to server 'localhost_1_12'.
-          Received 'csa_tree_SUB_TC_OP_group_4_1071' from server 'localhost_1_8'. (1319 ms elapsed)
-          Sending 'csa_tree_ADD_TC_OP_1_group_6_1070' to server 'localhost_1_8'...
-            Sent 'csa_tree_ADD_TC_OP_1_group_6_1070' to server 'localhost_1_8'.
-          Received 'csa_tree_minus_1112_18_group_21866' from server 'localhost_1_11'. (1619 ms elapsed)
-          Sending 'csa_tree_ADD_TC_OP_1_group_6' to server 'localhost_1_11'...
-            Sent 'csa_tree_ADD_TC_OP_1_group_6' to server 'localhost_1_11'.
-          Received 'csa_tree_add_1136_41_group_4' from server 'localhost_1_14'. (2132 ms elapsed)
-          Sending 'csa_tree_9503_1066' to server 'localhost_1_14'...
-            Sent 'csa_tree_9503_1066' to server 'localhost_1_14'.
-          Received 'csa_tree_add_1135_41_group_6' from server 'localhost_1_0'. (2173 ms elapsed)
+          Sending 'mult_signed' to server 'localhost_1_12'...
+            Sent 'mult_signed' to server 'localhost_1_12'.
+          Sending 'cb_oseq_1391' to server 'localhost_1_11'...
+            Sent 'cb_oseq_1391' to server 'localhost_1_11'.
+          Sending 'csa_tree_SUB_TC_OP_4_pad_group_10453' to server 'localhost_1_8'...
+            Sent 'csa_tree_SUB_TC_OP_4_pad_group_10453' to server 'localhost_1_8'.
+          Sending 'csa_tree_minus_1112_18_group_21866' to server 'localhost_1_14'...
+            Sent 'csa_tree_minus_1112_18_group_21866' to server 'localhost_1_14'.
+          Sending 'csa_tree_add_1136_41_group_4' to server 'localhost_1_13'...
+            Sent 'csa_tree_add_1136_41_group_4' to server 'localhost_1_13'.
+          Sending 'csa_tree_SUB_TC_OP_group_4_1071' to server 'localhost_1_0'...
+            Sent 'csa_tree_SUB_TC_OP_group_4_1071' to server 'localhost_1_0'.
+          Sending 'csa_tree_SUB_TC_OP_group_4' to server 'localhost_1_10'...
+            Sent 'csa_tree_SUB_TC_OP_group_4' to server 'localhost_1_10'.
+          Sending 'csa_tree_add_1135_41_group_6' to server 'localhost_1_9'...
+            Sent 'csa_tree_add_1135_41_group_6' to server 'localhost_1_9'.
+          Received 'csa_tree_SUB_TC_OP_4_pad_group_10453' from server 'localhost_1_8'. (1136 ms elapsed)
+          Sending 'csa_tree_sub0012672_group_2' to server 'localhost_1_8'...
+            Sent 'csa_tree_sub0012672_group_2' to server 'localhost_1_8'.
+          Received 'csa_tree_SUB_TC_OP_group_4' from server 'localhost_1_10'. (1265 ms elapsed)
+          Sending 'csa_tree_ADD_TC_OP_1_group_6_1070' to server 'localhost_1_10'...
+            Sent 'csa_tree_ADD_TC_OP_1_group_6_1070' to server 'localhost_1_10'.
+          Received 'csa_tree_minus_1112_18_group_21866' from server 'localhost_1_14'. (1622 ms elapsed)
+          Sending 'csa_tree_ADD_TC_OP_1_group_6' to server 'localhost_1_14'...
+            Sent 'csa_tree_ADD_TC_OP_1_group_6' to server 'localhost_1_14'.
+          Received 'cb_oseq_1391' from server 'localhost_1_11'. (1710 ms elapsed)
+          Sending 'csa_tree_9503_1066' to server 'localhost_1_11'...
+            Sent 'csa_tree_9503_1066' to server 'localhost_1_11'.
+          Received 'csa_tree_SUB_TC_OP_group_4_1071' from server 'localhost_1_0'. (1802 ms elapsed)
           Sending 'csa_tree_9503' to server 'localhost_1_0'...
             Sent 'csa_tree_9503' to server 'localhost_1_0'.
-          Received 'cb_oseq_1391' from server 'localhost_1_9'. (2548 ms elapsed)
-          Sending 'csa_tree_1117' to server 'localhost_1_9'...
-            Sent 'csa_tree_1117' to server 'localhost_1_9'.
-          Received 'csa_tree_ADD_TC_OP_1_group_6_1070' from server 'localhost_1_8'. (1551 ms elapsed)
-          Sending 'csa_tree_639' to server 'localhost_1_8'...
-            Sent 'csa_tree_639' to server 'localhost_1_8'.
-          Received 'csa_tree_SUB_TC_OP_group_4' from server 'localhost_1_13'. (2919 ms elapsed)
-          Sending 'csa_tree_639_1069' to server 'localhost_1_13'...
-            Sent 'csa_tree_639_1069' to server 'localhost_1_13'.
-          Received 'csa_tree_sub0012672_group_2' from server 'localhost_1_12'. (2019 ms elapsed)
-          Sending 'add_unsigned_24_893' to server 'localhost_1_12'...
-            Sent 'add_unsigned_24_893' to server 'localhost_1_12'.
-          Received 'csa_tree_639_1069' from server 'localhost_1_13'. (208 ms elapsed)
+          Received 'csa_tree_9503' from server 'localhost_1_0'. (697 ms elapsed)
+          Sending 'csa_tree_1117' to server 'localhost_1_0'...
+            Sent 'csa_tree_1117' to server 'localhost_1_0'.
+          Received 'csa_tree_9503_1066' from server 'localhost_1_11'. (1045 ms elapsed)
+          Sending 'csa_tree_639' to server 'localhost_1_11'...
+            Sent 'csa_tree_639' to server 'localhost_1_11'.
+          Received 'csa_tree_ADD_TC_OP_1_group_6' from server 'localhost_1_14'. (1215 ms elapsed)
+          Sending 'csa_tree_639_1069' to server 'localhost_1_14'...
+            Sent 'csa_tree_639_1069' to server 'localhost_1_14'.
+          Received 'csa_tree_add_1135_41_group_6' from server 'localhost_1_9'. (2868 ms elapsed)
+          Sending 'add_unsigned_24_893' to server 'localhost_1_9'...
+            Sent 'add_unsigned_24_893' to server 'localhost_1_9'.
+          Received 'csa_tree_add_1136_41_group_4' from server 'localhost_1_13'. (2952 ms elapsed)
           Sending 'add_unsigned_24_895' to server 'localhost_1_13'...
             Sent 'add_unsigned_24_895' to server 'localhost_1_13'.
-          Received 'csa_tree_1117' from server 'localhost_1_9'. (699 ms elapsed)
-          Sending 'add_unsigned_24_894' to server 'localhost_1_9'...
-            Sent 'add_unsigned_24_894' to server 'localhost_1_9'.
-          Received 'csa_tree_639' from server 'localhost_1_8'. (739 ms elapsed)
-          Sending 'add_unsigned_24_892' to server 'localhost_1_8'...
-            Sent 'add_unsigned_24_892' to server 'localhost_1_8'.
-          Received 'add_unsigned_24_895' from server 'localhost_1_13'. (540 ms elapsed)
-          Sending 'sub_unsigned_26_1089' to server 'localhost_1_13'...
-            Sent 'sub_unsigned_26_1089' to server 'localhost_1_13'.
-          Received 'add_unsigned_24_894' from server 'localhost_1_9'. (557 ms elapsed)
+          Received 'csa_tree_639_1069' from server 'localhost_1_14'. (253 ms elapsed)
+          Sending 'add_unsigned_24_894' to server 'localhost_1_14'...
+            Sent 'add_unsigned_24_894' to server 'localhost_1_14'.
+          Received 'csa_tree_ADD_TC_OP_1_group_6_1070' from server 'localhost_1_10'. (1978 ms elapsed)
+          Sending 'add_unsigned_24_892' to server 'localhost_1_10'...
+            Sent 'add_unsigned_24_892' to server 'localhost_1_10'.
+          Received 'csa_tree_639' from server 'localhost_1_11'. (643 ms elapsed)
+          Sending 'sub_unsigned_26_1089' to server 'localhost_1_11'...
+            Sent 'sub_unsigned_26_1089' to server 'localhost_1_11'.
+          Received 'add_unsigned_24_893' from server 'localhost_1_9'. (519 ms elapsed)
           Sending 'sub_unsigned_26_1095' to server 'localhost_1_9'...
             Sent 'sub_unsigned_26_1095' to server 'localhost_1_9'.
-          Received 'add_unsigned_24_893' from server 'localhost_1_12'. (939 ms elapsed)
-          Sending 'sub_unsigned_26_1085' to server 'localhost_1_12'...
-            Sent 'sub_unsigned_26_1085' to server 'localhost_1_12'.
-          Received 'csa_tree_9503' from server 'localhost_1_0'. (1897 ms elapsed)
-          Sending 'sub_unsigned_26_1092' to server 'localhost_1_0'...
-            Sent 'sub_unsigned_26_1092' to server 'localhost_1_0'.
-          Received 'sub_unsigned_26_1089' from server 'localhost_1_13'. (547 ms elapsed)
-          Sending 'sub_unsigned_26_1094' to server 'localhost_1_13'...
-            Sent 'sub_unsigned_26_1094' to server 'localhost_1_13'.
-          Received 'sub_unsigned_26_1095' from server 'localhost_1_9'. (537 ms elapsed)
-          Sending 'sub_unsigned_26_1086' to server 'localhost_1_9'...
-            Sent 'sub_unsigned_26_1086' to server 'localhost_1_9'.
-          Received 'csa_tree_ADD_TC_OP_1_group_6' from server 'localhost_1_11'. (2703 ms elapsed)
-          Sending 'sub_unsigned_26_1093' to server 'localhost_1_11'...
-            Sent 'sub_unsigned_26_1093' to server 'localhost_1_11'.
-          Received 'sub_unsigned_26_1092' from server 'localhost_1_0'. (570 ms elapsed)
-          Sending 'sub_unsigned_26_1096' to server 'localhost_1_0'...
-            Sent 'sub_unsigned_26_1096' to server 'localhost_1_0'.
-          Received 'csa_tree_9503_1066' from server 'localhost_1_14'. (2617 ms elapsed)
-          Sending 'sub_unsigned_26_1090' to server 'localhost_1_14'...
-            Sent 'sub_unsigned_26_1090' to server 'localhost_1_14'.
-          Received 'add_unsigned_24_892' from server 'localhost_1_8'. (1323 ms elapsed)
-          Sending 'sub_unsigned_26_1088' to server 'localhost_1_8'...
-            Sent 'sub_unsigned_26_1088' to server 'localhost_1_8'.
-          Received 'sub_unsigned_26_1096' from server 'localhost_1_0'. (576 ms elapsed)
-          Sending 'sub_unsigned_26_1091' to server 'localhost_1_0'...
-            Sent 'sub_unsigned_26_1091' to server 'localhost_1_0'.
-          Received 'sub_unsigned_26_1088' from server 'localhost_1_8'. (1115 ms elapsed)
+          Received 'add_unsigned_24_892' from server 'localhost_1_10'. (525 ms elapsed)
+          Sending 'sub_unsigned_26_1085' to server 'localhost_1_10'...
+            Sent 'sub_unsigned_26_1085' to server 'localhost_1_10'.
+          Received 'add_unsigned_24_895' from server 'localhost_1_13'. (940 ms elapsed)
+          Sending 'sub_unsigned_26_1092' to server 'localhost_1_13'...
+            Sent 'sub_unsigned_26_1092' to server 'localhost_1_13'.
+          Received 'sub_unsigned_26_1095' from server 'localhost_1_9'. (567 ms elapsed)
+          Sending 'sub_unsigned_26_1094' to server 'localhost_1_9'...
+            Sent 'sub_unsigned_26_1094' to server 'localhost_1_9'.
+          Received 'add_unsigned_24_894' from server 'localhost_1_14'. (932 ms elapsed)
+          Sending 'sub_unsigned_26_1086' to server 'localhost_1_14'...
+            Sent 'sub_unsigned_26_1086' to server 'localhost_1_14'.
+          Received 'csa_tree_1117' from server 'localhost_1_0'. (1914 ms elapsed)
+          Sending 'sub_unsigned_26_1093' to server 'localhost_1_0'...
+            Sent 'sub_unsigned_26_1093' to server 'localhost_1_0'.
+          Received 'sub_unsigned_26_1086' from server 'localhost_1_14'. (822 ms elapsed)
+          Sending 'sub_unsigned_26_1096' to server 'localhost_1_14'...
+            Sent 'sub_unsigned_26_1096' to server 'localhost_1_14'.
+          Received 'sub_unsigned_26_1094' from server 'localhost_1_9'. (849 ms elapsed)
+          Sending 'sub_unsigned_26_1090' to server 'localhost_1_9'...
+            Sent 'sub_unsigned_26_1090' to server 'localhost_1_9'.
+          Received 'sub_unsigned_26_1092' from server 'localhost_1_13'. (953 ms elapsed)
+          Sending 'sub_unsigned_26_1088' to server 'localhost_1_13'...
+            Sent 'sub_unsigned_26_1088' to server 'localhost_1_13'.
+          Received 'sub_unsigned_26_1089' from server 'localhost_1_11'. (1541 ms elapsed)
+          Sending 'sub_unsigned_26_1091' to server 'localhost_1_11'...
+            Sent 'sub_unsigned_26_1091' to server 'localhost_1_11'.
+          Received 'csa_tree_sub0012672_group_2' from server 'localhost_1_8'. (3750 ms elapsed)
           Sending 'sub_unsigned_26_1087' to server 'localhost_1_8'...
             Sent 'sub_unsigned_26_1087' to server 'localhost_1_8'.
-          Received 'sub_unsigned_26_1090' from server 'localhost_1_14'. (1317 ms elapsed)
-          Received 'sub_unsigned_26_1093' from server 'localhost_1_11'. (1757 ms elapsed)
-          Received 'sub_unsigned_26_1086' from server 'localhost_1_9'. (1813 ms elapsed)
-          Received 'sub_unsigned_26_1085' from server 'localhost_1_12'. (2024 ms elapsed)
-          Received 'sub_unsigned_26_1094' from server 'localhost_1_13'. (2138 ms elapsed)
-          Received 'sub_unsigned_26_1091' from server 'localhost_1_0'. (504 ms elapsed)
-          Received 'sub_unsigned_26_1087' from server 'localhost_1_8'. (888 ms elapsed)
-          Received 'mult_signed' from server 'localhost_1_10'. (9632 ms elapsed)
+          Received 'sub_unsigned_26_1085' from server 'localhost_1_10'. (1388 ms elapsed)
+          Received 'sub_unsigned_26_1093' from server 'localhost_1_0'. (550 ms elapsed)
+          Received 'sub_unsigned_26_1088' from server 'localhost_1_13'. (575 ms elapsed)
+          Received 'sub_unsigned_26_1090' from server 'localhost_1_9'. (596 ms elapsed)
+          Received 'sub_unsigned_26_1096' from server 'localhost_1_14'. (898 ms elapsed)
+          Received 'sub_unsigned_26_1091' from server 'localhost_1_11'. (1275 ms elapsed)
+          Received 'sub_unsigned_26_1087' from server 'localhost_1_8'. (1719 ms elapsed)
+          Received 'mult_signed' from server 'localhost_1_12'. (10335 ms elapsed)
  
 Global mapping status
 =====================
@@ -6783,19 +6783,19 @@ Cost Group 'cg_enable_group_clk' target slack:    19 ps
 Target path end-point (Pin: RC_CG_HIER_INST21/RC_CGIC_INST/E (CKLNQD1BWP30P140/E))
 
               Distributing super-thread jobs: cb_seq_1390 cb_seq
-                Sending 'cb_seq_1390' to server 'localhost_1_10'...
-                  Sent 'cb_seq_1390' to server 'localhost_1_10'.
-                Sending 'cb_seq' to server 'localhost_1_9'...
-                  Sent 'cb_seq' to server 'localhost_1_9'.
-                Received 'cb_seq' from server 'localhost_1_9'. (468 ms elapsed)
-                Received 'cb_seq_1390' from server 'localhost_1_10'. (1276 ms elapsed)
+                Sending 'cb_seq_1390' to server 'localhost_1_12'...
+                  Sent 'cb_seq_1390' to server 'localhost_1_12'.
+                Sending 'cb_seq' to server 'localhost_1_11'...
+                  Sent 'cb_seq' to server 'localhost_1_11'.
+                Received 'cb_seq' from server 'localhost_1_11'. (503 ms elapsed)
+                Received 'cb_seq_1390' from server 'localhost_1_12'. (1279 ms elapsed)
               Distributing super-thread jobs: cb_oseq_1391 mult_signed
-                Sending 'cb_oseq_1391' to server 'localhost_1_10'...
-                  Sent 'cb_oseq_1391' to server 'localhost_1_10'.
-                Sending 'mult_signed' to server 'localhost_1_9'...
-                  Sent 'mult_signed' to server 'localhost_1_9'.
-                Received 'mult_signed' from server 'localhost_1_9'. (180 ms elapsed)
-                Received 'cb_oseq_1391' from server 'localhost_1_10'. (438 ms elapsed)
+                Sending 'cb_oseq_1391' to server 'localhost_1_12'...
+                  Sent 'cb_oseq_1391' to server 'localhost_1_12'.
+                Sending 'mult_signed' to server 'localhost_1_11'...
+                  Sent 'mult_signed' to server 'localhost_1_11'.
+                Received 'mult_signed' from server 'localhost_1_11'. (183 ms elapsed)
+                Received 'cb_oseq_1391' from server 'localhost_1_12'. (440 ms elapsed)
 ==================================
 Stage : global_incr_map 
 ==================================
@@ -6841,20 +6841,20 @@ Operation                   Area   Slacks
 +-----------+--------------------+-----+----------------------+---------------------------+
 |   Host    |      Machine       | CPU | Physical Memory (MB) | Peak Physical Memory (MB) |
 +-----------+--------------------+-----+----------------------+---------------------------+
-| localhost | paxos.inf.pucrs.br |  8  |        1756.0        |          3183.1           |
+| localhost | paxos.inf.pucrs.br |  8  |        1728.8        |          2995.0           |
 +-----------+--------------------+-----+----------------------+---------------------------+
 
 +----------------+----------------------+---------------------------+
 |     Server     | Physical Memory (MB) | Peak Physical Memory (MB) |
 +----------------+----------------------+---------------------------+
-| localhost_1_8  |       88.3 [1]       |          [1] [2]          |
-| localhost_1_14 |       88.0 [1]       |          [1] [2]          |
-| localhost_1_11 |       89.2 [1]       |          [1] [2]          |
-| localhost_1_12 |       89.1 [1]       |          [1] [2]          |
-| localhost_1_9  |       98.2 [1]       |          [1] [2]          |
-| localhost_1_10 |      131.7 [1]       |          [1] [2]          |
-| localhost_1_0  |      770.8 [3]       |        1960.1 [3]         |
-| localhost_1_13 |       88.1 [1]       |          [1] [2]          |
+| localhost_1_9  |       84.4 [1]       |          [1] [2]          |
+| localhost_1_12 |      128.9 [1]       |          [1] [2]          |
+| localhost_1_10 |       84.4 [1]       |          [1] [2]          |
+| localhost_1_13 |       84.9 [1]       |          [1] [2]          |
+| localhost_1_14 |       86.1 [1]       |          [1] [2]          |
+| localhost_1_11 |       96.9 [1]       |          [1] [2]          |
+| localhost_1_0  |      754.4 [3]       |        2184.6 [3]         |
+| localhost_1_8  |       87.2 [1]       |          [1] [2]          |
 +----------------+----------------------+---------------------------+
 [1] Memory is included in parent localhost_1_0.
 [2] Peak physical memory is not available for forked background servers.
@@ -6882,22 +6882,22 @@ State Retention instances           0          0.0
 --------------------------------------------------
 
 INFO: skipping constant propagation
-PBS_Techmap-Global Mapping - Elapsed_Time 49, CPU_Time 38.91100500000002
+PBS_Techmap-Global Mapping - Elapsed_Time 50, CPU_Time 40.270996
 stamp 'PBS_Techmap-Global Mapping' being created for table 'pbs_debug'
 
   Total Time (Wall) |  Stage Time (Wall)  |   % (Wall)   |    Date - Time     |  Memory   | Stage
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:00:27(00:00:22) |  00:00:00(00:00:00) |   0.0(  0.0) |   19:43:24 (Oct08) |  637.8 MB | PBS_Generic-Start
+ 00:00:27(00:00:22) |  00:00:00(00:00:00) |   0.0(  0.0) |   14:33:53 (Oct11) |  652.3 MB | PBS_Generic-Start
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:22(00:02:38) |  00:01:55(00:02:16) |  73.0( 72.0) |   19:45:40 (Oct08) |   1.52 GB | PBS_Generic_Opt-Post
+ 00:02:25(00:02:41) |  00:01:58(00:02:19) |  72.7( 72.0) |   14:36:12 (Oct11) |   1.67 GB | PBS_Generic_Opt-Post
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:23(00:02:39) |  00:00:01(00:00:01) |   0.6(  0.5) |   19:45:41 (Oct08) |   1.52 GB | PBS_Generic-Postgen HBO Optimizations
+ 00:02:25(00:02:42) |  00:00:00(00:00:01) |   0.0(  0.5) |   14:36:13 (Oct11) |   1.67 GB | PBS_Generic-Postgen HBO Optimizations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:26(00:02:41) |  00:00:03(00:00:02) |   1.9(  1.1) |   19:45:43 (Oct08) |   1.52 GB | PBS_TechMap-Start
+ 00:02:28(00:02:44) |  00:00:03(00:00:02) |   1.8(  1.0) |   14:36:15 (Oct11) |   1.49 GB | PBS_TechMap-Start
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:26(00:02:42) |  00:00:00(00:00:01) |   0.0(  0.5) |   19:45:44 (Oct08) |   1.51 GB | PBS_TechMap-Premap HBO Optimizations
+ 00:02:29(00:02:45) |  00:00:01(00:00:01) |   0.6(  0.5) |   14:36:16 (Oct11) |   1.49 GB | PBS_TechMap-Premap HBO Optimizations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:03:05(00:03:31) |  00:00:38(00:00:49) |  24.5( 25.9) |   19:46:33 (Oct08) |   1.52 GB | PBS_Techmap-Global Mapping
+ 00:03:09(00:03:35) |  00:00:40(00:00:50) |  24.8( 25.9) |   14:37:06 (Oct11) |   1.50 GB | PBS_Techmap-Global Mapping
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
 Number of threads: 8 * 1   (id: pbs_debug, time_info v1.57)
 Info: (*N*) indicates data that was populated from previously saved time_info database
@@ -6909,59 +6909,58 @@ Warning : The parameter naming style is not LEC-friendly. [CFM-205]
         : To correctly translate the parameter naming style, value of the hdl_parameter_naming_style attr must end with '%d'.  There should not be anything after the '%d' descriptor.  Should there be black boxes in the design, the incorrect translation may induce false negative in LEC comparison.
 Info    : Wrote formal verification information. [CFM-5]
         : Wrote 'fv/Conv/fv_map.fv.json' for netlist 'fv/Conv/fv_map.v.gz'.
-Info    : Existing dofile found. Copied as fv/Conv/rtl_to_fv_map.do~.
 Info    : Wrote dofile. [CFM-1]
         : Dofile is 'fv/Conv/rtl_to_fv_map.do'.
         : Alias mapping flow is enabled.
-PBS_TechMap-Datapath Postmap Operations - Elapsed_Time 3, CPU_Time 2.8825879999999984
+PBS_TechMap-Datapath Postmap Operations - Elapsed_Time 3, CPU_Time 2.880482999999998
 stamp 'PBS_TechMap-Datapath Postmap Operations' being created for table 'pbs_debug'
 
   Total Time (Wall) |  Stage Time (Wall)  |   % (Wall)   |    Date - Time     |  Memory   | Stage
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:00:27(00:00:22) |  00:00:00(00:00:00) |   0.0(  0.0) |   19:43:24 (Oct08) |  637.8 MB | PBS_Generic-Start
+ 00:00:27(00:00:22) |  00:00:00(00:00:00) |   0.0(  0.0) |   14:33:53 (Oct11) |  652.3 MB | PBS_Generic-Start
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:22(00:02:38) |  00:01:55(00:02:16) |  71.7( 70.8) |   19:45:40 (Oct08) |   1.52 GB | PBS_Generic_Opt-Post
+ 00:02:25(00:02:41) |  00:01:58(00:02:19) |  71.5( 70.9) |   14:36:12 (Oct11) |   1.67 GB | PBS_Generic_Opt-Post
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:23(00:02:39) |  00:00:01(00:00:01) |   0.6(  0.5) |   19:45:41 (Oct08) |   1.52 GB | PBS_Generic-Postgen HBO Optimizations
+ 00:02:25(00:02:42) |  00:00:00(00:00:01) |   0.0(  0.5) |   14:36:13 (Oct11) |   1.67 GB | PBS_Generic-Postgen HBO Optimizations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:26(00:02:41) |  00:00:03(00:00:02) |   1.9(  1.0) |   19:45:43 (Oct08) |   1.52 GB | PBS_TechMap-Start
+ 00:02:28(00:02:44) |  00:00:03(00:00:02) |   1.8(  1.0) |   14:36:15 (Oct11) |   1.49 GB | PBS_TechMap-Start
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:26(00:02:42) |  00:00:00(00:00:01) |   0.0(  0.5) |   19:45:44 (Oct08) |   1.51 GB | PBS_TechMap-Premap HBO Optimizations
+ 00:02:29(00:02:45) |  00:00:01(00:00:01) |   0.6(  0.5) |   14:36:16 (Oct11) |   1.49 GB | PBS_TechMap-Premap HBO Optimizations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:03:05(00:03:31) |  00:00:38(00:00:49) |  24.1( 25.5) |   19:46:33 (Oct08) |   1.52 GB | PBS_Techmap-Global Mapping
+ 00:03:09(00:03:35) |  00:00:40(00:00:50) |  24.4( 25.5) |   14:37:06 (Oct11) |   1.50 GB | PBS_Techmap-Global Mapping
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:03:08(00:03:34) |  00:00:02(00:00:03) |   1.8(  1.6) |   19:46:36 (Oct08) |   1.52 GB | PBS_TechMap-Datapath Postmap Operations
+ 00:03:12(00:03:38) |  00:00:02(00:00:03) |   1.7(  1.5) |   14:37:09 (Oct11) |   1.50 GB | PBS_TechMap-Datapath Postmap Operations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
 Number of threads: 8 * 1   (id: pbs_debug, time_info v1.57)
 Info: (*N*) indicates data that was populated from previously saved time_info database
 Info: CPU time includes time of parent + longest thread
-PBS_TechMap-Postmap HBO Optimizations - Elapsed_Time 0, CPU_Time -0.12073299999997289
+PBS_TechMap-Postmap HBO Optimizations - Elapsed_Time 0, CPU_Time -0.12376799999998411
 stamp 'PBS_TechMap-Postmap HBO Optimizations' being created for table 'pbs_debug'
 
   Total Time (Wall) |  Stage Time (Wall)  |   % (Wall)   |    Date - Time     |  Memory   | Stage
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:00:27(00:00:22) |  00:00:00(00:00:00) |   0.0(  0.0) |   19:43:24 (Oct08) |  637.8 MB | PBS_Generic-Start
+ 00:00:27(00:00:22) |  00:00:00(00:00:00) |   0.0(  0.0) |   14:33:53 (Oct11) |  652.3 MB | PBS_Generic-Start
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:22(00:02:38) |  00:01:55(00:02:16) |  71.7( 70.8) |   19:45:40 (Oct08) |   1.52 GB | PBS_Generic_Opt-Post
+ 00:02:25(00:02:41) |  00:01:58(00:02:19) |  71.5( 70.9) |   14:36:12 (Oct11) |   1.67 GB | PBS_Generic_Opt-Post
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:23(00:02:39) |  00:00:01(00:00:01) |   0.6(  0.5) |   19:45:41 (Oct08) |   1.52 GB | PBS_Generic-Postgen HBO Optimizations
+ 00:02:25(00:02:42) |  00:00:00(00:00:01) |   0.0(  0.5) |   14:36:13 (Oct11) |   1.67 GB | PBS_Generic-Postgen HBO Optimizations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:26(00:02:41) |  00:00:03(00:00:02) |   1.9(  1.0) |   19:45:43 (Oct08) |   1.52 GB | PBS_TechMap-Start
+ 00:02:28(00:02:44) |  00:00:03(00:00:02) |   1.8(  1.0) |   14:36:15 (Oct11) |   1.49 GB | PBS_TechMap-Start
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:26(00:02:42) |  00:00:00(00:00:01) |   0.0(  0.5) |   19:45:44 (Oct08) |   1.51 GB | PBS_TechMap-Premap HBO Optimizations
+ 00:02:29(00:02:45) |  00:00:01(00:00:01) |   0.6(  0.5) |   14:36:16 (Oct11) |   1.49 GB | PBS_TechMap-Premap HBO Optimizations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:03:05(00:03:31) |  00:00:38(00:00:49) |  24.1( 25.5) |   19:46:33 (Oct08) |   1.52 GB | PBS_Techmap-Global Mapping
+ 00:03:09(00:03:35) |  00:00:40(00:00:50) |  24.4( 25.5) |   14:37:06 (Oct11) |   1.50 GB | PBS_Techmap-Global Mapping
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:03:08(00:03:34) |  00:00:02(00:00:03) |   1.8(  1.6) |   19:46:36 (Oct08) |   1.52 GB | PBS_TechMap-Datapath Postmap Operations
+ 00:03:12(00:03:38) |  00:00:02(00:00:03) |   1.7(  1.5) |   14:37:09 (Oct11) |   1.50 GB | PBS_TechMap-Datapath Postmap Operations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:03:08(00:03:34) |  00:00:00(00:00:00) |  -0.1(  0.0) |   19:46:36 (Oct08) |   1.52 GB | PBS_TechMap-Postmap HBO Optimizations
+ 00:03:12(00:03:38) |  00:00:00(00:00:00) |  -0.1(  0.0) |   14:37:09 (Oct11) |   1.50 GB | PBS_TechMap-Postmap HBO Optimizations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
 Number of threads: 8 * 1   (id: pbs_debug, time_info v1.57)
 Info: (*N*) indicates data that was populated from previously saved time_info database
 Info: CPU time includes time of parent + longest thread
  Doing ConstProp on design:Conv ... 
 
-IOPT-REDREM: Performing redundancy removal: Detected 91 redundant wires. CPU time 0.072 seconds.
+IOPT-REDREM: Performing redundancy removal: Detected 91 redundant wires. CPU time 0.070 seconds.
 
 
 Test connection status for design: Conv
@@ -6978,29 +6977,29 @@ Clock-gating declone status
 ===========================
 Total number of clock-gating instances before: 43
 Total number of clock-gating instances after : 42
-Time taken by ConstProp Step: 00:00:00
-PBS_TechMap-Postmap Clock Gating - Elapsed_Time 0, CPU_Time 1.0
+Time taken by ConstProp Step: 00:00:01
+PBS_TechMap-Postmap Clock Gating - Elapsed_Time 1, CPU_Time 1.0
 stamp 'PBS_TechMap-Postmap Clock Gating' being created for table 'pbs_debug'
 
   Total Time (Wall) |  Stage Time (Wall)  |   % (Wall)   |    Date - Time     |  Memory   | Stage
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:00:27(00:00:22) |  00:00:00(00:00:00) |   0.0(  0.0) |   19:43:24 (Oct08) |  637.8 MB | PBS_Generic-Start
+ 00:00:27(00:00:22) |  00:00:00(00:00:00) |   0.0(  0.0) |   14:33:53 (Oct11) |  652.3 MB | PBS_Generic-Start
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:22(00:02:38) |  00:01:55(00:02:16) |  71.3( 70.8) |   19:45:40 (Oct08) |   1.52 GB | PBS_Generic_Opt-Post
+ 00:02:25(00:02:41) |  00:01:58(00:02:19) |  71.1( 70.6) |   14:36:12 (Oct11) |   1.67 GB | PBS_Generic_Opt-Post
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:23(00:02:39) |  00:00:01(00:00:01) |   0.6(  0.5) |   19:45:41 (Oct08) |   1.52 GB | PBS_Generic-Postgen HBO Optimizations
+ 00:02:25(00:02:42) |  00:00:00(00:00:01) |   0.0(  0.5) |   14:36:13 (Oct11) |   1.67 GB | PBS_Generic-Postgen HBO Optimizations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:26(00:02:41) |  00:00:03(00:00:02) |   1.8(  1.0) |   19:45:43 (Oct08) |   1.52 GB | PBS_TechMap-Start
+ 00:02:28(00:02:44) |  00:00:03(00:00:02) |   1.8(  1.0) |   14:36:15 (Oct11) |   1.49 GB | PBS_TechMap-Start
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:26(00:02:42) |  00:00:00(00:00:01) |   0.0(  0.5) |   19:45:44 (Oct08) |   1.51 GB | PBS_TechMap-Premap HBO Optimizations
+ 00:02:29(00:02:45) |  00:00:01(00:00:01) |   0.6(  0.5) |   14:36:16 (Oct11) |   1.49 GB | PBS_TechMap-Premap HBO Optimizations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:03:05(00:03:31) |  00:00:38(00:00:49) |  23.9( 25.5) |   19:46:33 (Oct08) |   1.52 GB | PBS_Techmap-Global Mapping
+ 00:03:09(00:03:35) |  00:00:40(00:00:50) |  24.2( 25.4) |   14:37:06 (Oct11) |   1.50 GB | PBS_Techmap-Global Mapping
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:03:08(00:03:34) |  00:00:02(00:00:03) |   1.8(  1.6) |   19:46:36 (Oct08) |   1.52 GB | PBS_TechMap-Datapath Postmap Operations
+ 00:03:12(00:03:38) |  00:00:02(00:00:03) |   1.7(  1.5) |   14:37:09 (Oct11) |   1.50 GB | PBS_TechMap-Datapath Postmap Operations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:03:08(00:03:34) |  00:00:00(00:00:00) |  -0.1(  0.0) |   19:46:36 (Oct08) |   1.52 GB | PBS_TechMap-Postmap HBO Optimizations
+ 00:03:12(00:03:38) |  00:00:00(00:00:00) |  -0.1(  0.0) |   14:37:09 (Oct11) |   1.50 GB | PBS_TechMap-Postmap HBO Optimizations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:03:09(00:03:34) |  00:00:01(00:00:00) |   0.6(  0.0) |   19:46:36 (Oct08) |   1.52 GB | PBS_TechMap-Postmap Clock Gating
+ 00:03:13(00:03:39) |  00:00:01(00:00:01) |   0.6(  0.5) |   14:37:10 (Oct11) |   1.50 GB | PBS_TechMap-Postmap Clock Gating
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
 Number of threads: 8 * 1   (id: pbs_debug, time_info v1.57)
 Info: (*N*) indicates data that was populated from previously saved time_info database
@@ -7060,30 +7059,30 @@ Operation                   Area   Slacks      Slack    Trans      Cap
         setup_dn         0  (        0 /        0 )  0.00
         mb_split         0  (        0 /        0 )  0.00
 
-PBS_TechMap-Postmap Cleanup - Elapsed_Time 2, CPU_Time 1.8861609999999587
+PBS_TechMap-Postmap Cleanup - Elapsed_Time 2, CPU_Time 1.8801179999999817
 stamp 'PBS_TechMap-Postmap Cleanup' being created for table 'pbs_debug'
 
   Total Time (Wall) |  Stage Time (Wall)  |   % (Wall)   |    Date - Time     |  Memory   | Stage
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:00:27(00:00:22) |  00:00:00(00:00:00) |   0.0(  0.0) |   19:43:24 (Oct08) |  637.8 MB | PBS_Generic-Start
+ 00:00:27(00:00:22) |  00:00:00(00:00:00) |   0.0(  0.0) |   14:33:53 (Oct11) |  652.3 MB | PBS_Generic-Start
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:22(00:02:38) |  00:01:55(00:02:16) |  70.5( 70.1) |   19:45:40 (Oct08) |   1.52 GB | PBS_Generic_Opt-Post
+ 00:02:25(00:02:41) |  00:01:58(00:02:19) |  70.3( 69.8) |   14:36:12 (Oct11) |   1.67 GB | PBS_Generic_Opt-Post
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:23(00:02:39) |  00:00:01(00:00:01) |   0.6(  0.5) |   19:45:41 (Oct08) |   1.52 GB | PBS_Generic-Postgen HBO Optimizations
+ 00:02:25(00:02:42) |  00:00:00(00:00:01) |   0.0(  0.5) |   14:36:13 (Oct11) |   1.67 GB | PBS_Generic-Postgen HBO Optimizations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:26(00:02:41) |  00:00:03(00:00:02) |   1.8(  1.0) |   19:45:43 (Oct08) |   1.52 GB | PBS_TechMap-Start
+ 00:02:28(00:02:44) |  00:00:03(00:00:02) |   1.8(  1.0) |   14:36:15 (Oct11) |   1.49 GB | PBS_TechMap-Start
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:26(00:02:42) |  00:00:00(00:00:01) |   0.0(  0.5) |   19:45:44 (Oct08) |   1.51 GB | PBS_TechMap-Premap HBO Optimizations
+ 00:02:29(00:02:45) |  00:00:01(00:00:01) |   0.6(  0.5) |   14:36:16 (Oct11) |   1.49 GB | PBS_TechMap-Premap HBO Optimizations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:03:05(00:03:31) |  00:00:38(00:00:49) |  23.7( 25.3) |   19:46:33 (Oct08) |   1.52 GB | PBS_Techmap-Global Mapping
+ 00:03:09(00:03:35) |  00:00:40(00:00:50) |  24.0( 25.1) |   14:37:06 (Oct11) |   1.50 GB | PBS_Techmap-Global Mapping
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:03:08(00:03:34) |  00:00:02(00:00:03) |   1.8(  1.5) |   19:46:36 (Oct08) |   1.52 GB | PBS_TechMap-Datapath Postmap Operations
+ 00:03:12(00:03:38) |  00:00:02(00:00:03) |   1.7(  1.5) |   14:37:09 (Oct11) |   1.50 GB | PBS_TechMap-Datapath Postmap Operations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:03:08(00:03:34) |  00:00:00(00:00:00) |  -0.1(  0.0) |   19:46:36 (Oct08) |   1.52 GB | PBS_TechMap-Postmap HBO Optimizations
+ 00:03:12(00:03:38) |  00:00:00(00:00:00) |  -0.1(  0.0) |   14:37:09 (Oct11) |   1.50 GB | PBS_TechMap-Postmap HBO Optimizations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:03:09(00:03:34) |  00:00:01(00:00:00) |   0.6(  0.0) |   19:46:36 (Oct08) |   1.52 GB | PBS_TechMap-Postmap Clock Gating
+ 00:03:13(00:03:39) |  00:00:01(00:00:01) |   0.6(  0.5) |   14:37:10 (Oct11) |   1.50 GB | PBS_TechMap-Postmap Clock Gating
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:03:11(00:03:36) |  00:00:01(00:00:02) |   1.1(  1.0) |   19:46:38 (Oct08) |   1.52 GB | PBS_TechMap-Postmap Cleanup
+ 00:03:15(00:03:41) |  00:00:01(00:00:02) |   1.1(  1.0) |   14:37:12 (Oct11) |   1.50 GB | PBS_TechMap-Postmap Cleanup
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
 Number of threads: 8 * 1   (id: pbs_debug, time_info v1.57)
 Info: (*N*) indicates data that was populated from previously saved time_info database
@@ -7093,27 +7092,27 @@ stamp 'PBS_Techmap-Post_MBCI' being created for table 'pbs_debug'
 
   Total Time (Wall) |  Stage Time (Wall)  |   % (Wall)   |    Date - Time     |  Memory   | Stage
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:00:27(00:00:22) |  00:00:00(00:00:00) |   0.0(  0.0) |   19:43:24 (Oct08) |  637.8 MB | PBS_Generic-Start
+ 00:00:27(00:00:22) |  00:00:00(00:00:00) |   0.0(  0.0) |   14:33:53 (Oct11) |  652.3 MB | PBS_Generic-Start
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:22(00:02:38) |  00:01:55(00:02:16) |  70.5( 70.1) |   19:45:40 (Oct08) |   1.52 GB | PBS_Generic_Opt-Post
+ 00:02:25(00:02:41) |  00:01:58(00:02:19) |  70.3( 69.8) |   14:36:12 (Oct11) |   1.67 GB | PBS_Generic_Opt-Post
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:23(00:02:39) |  00:00:01(00:00:01) |   0.6(  0.5) |   19:45:41 (Oct08) |   1.52 GB | PBS_Generic-Postgen HBO Optimizations
+ 00:02:25(00:02:42) |  00:00:00(00:00:01) |   0.0(  0.5) |   14:36:13 (Oct11) |   1.67 GB | PBS_Generic-Postgen HBO Optimizations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:26(00:02:41) |  00:00:03(00:00:02) |   1.8(  1.0) |   19:45:43 (Oct08) |   1.52 GB | PBS_TechMap-Start
+ 00:02:28(00:02:44) |  00:00:03(00:00:02) |   1.8(  1.0) |   14:36:15 (Oct11) |   1.49 GB | PBS_TechMap-Start
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:26(00:02:42) |  00:00:00(00:00:01) |   0.0(  0.5) |   19:45:44 (Oct08) |   1.51 GB | PBS_TechMap-Premap HBO Optimizations
+ 00:02:29(00:02:45) |  00:00:01(00:00:01) |   0.6(  0.5) |   14:36:16 (Oct11) |   1.49 GB | PBS_TechMap-Premap HBO Optimizations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:03:05(00:03:31) |  00:00:38(00:00:49) |  23.7( 25.3) |   19:46:33 (Oct08) |   1.52 GB | PBS_Techmap-Global Mapping
+ 00:03:09(00:03:35) |  00:00:40(00:00:50) |  24.0( 25.1) |   14:37:06 (Oct11) |   1.50 GB | PBS_Techmap-Global Mapping
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:03:08(00:03:34) |  00:00:02(00:00:03) |   1.8(  1.5) |   19:46:36 (Oct08) |   1.52 GB | PBS_TechMap-Datapath Postmap Operations
+ 00:03:12(00:03:38) |  00:00:02(00:00:03) |   1.7(  1.5) |   14:37:09 (Oct11) |   1.50 GB | PBS_TechMap-Datapath Postmap Operations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:03:08(00:03:34) |  00:00:00(00:00:00) |  -0.1(  0.0) |   19:46:36 (Oct08) |   1.52 GB | PBS_TechMap-Postmap HBO Optimizations
+ 00:03:12(00:03:38) |  00:00:00(00:00:00) |  -0.1(  0.0) |   14:37:09 (Oct11) |   1.50 GB | PBS_TechMap-Postmap HBO Optimizations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:03:09(00:03:34) |  00:00:01(00:00:00) |   0.6(  0.0) |   19:46:36 (Oct08) |   1.52 GB | PBS_TechMap-Postmap Clock Gating
+ 00:03:13(00:03:39) |  00:00:01(00:00:01) |   0.6(  0.5) |   14:37:10 (Oct11) |   1.50 GB | PBS_TechMap-Postmap Clock Gating
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:03:11(00:03:36) |  00:00:01(00:00:02) |   1.1(  1.0) |   19:46:38 (Oct08) |   1.52 GB | PBS_TechMap-Postmap Cleanup
+ 00:03:15(00:03:41) |  00:00:01(00:00:02) |   1.1(  1.0) |   14:37:12 (Oct11) |   1.50 GB | PBS_TechMap-Postmap Cleanup
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:03:11(00:03:36) |  00:00:00(00:00:00) |   0.0(  0.0) |   19:46:38 (Oct08) |   1.52 GB | PBS_Techmap-Post_MBCI
+ 00:03:15(00:03:41) |  00:00:00(00:00:00) |   0.0(  0.0) |   14:37:12 (Oct11) |   1.50 GB | PBS_Techmap-Post_MBCI
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
 Number of threads: 8 * 1   (id: pbs_debug, time_info v1.57)
 Info: (*N*) indicates data that was populated from previously saved time_info database
@@ -7123,8 +7122,8 @@ Info: CPU time includes time of parent + longest thread
 ##>----------------------------------------------------------------------------------------
 ##>STEP                           Elapsed       WNS       TNS     Insts      Area    Memory
 ##>----------------------------------------------------------------------------------------
-##>M:Initial                            0         -         -     32351     49644      1519
-##>M:Pre Cleanup                        0         -         -     32351     49644      1519
+##>M:Initial                            1         -         -     32351     49644      1491
+##>M:Pre Cleanup                        1         -         -     32351     49644      1491
 ##>M:Setup                              0         -         -         -         -         -
 ##>M:Launch ST                          0         -         -         -         -         -
 ##>M:Design Partition                   0         -         -         -         -         -
@@ -7138,26 +7137,26 @@ Info: CPU time includes time of parent + longest thread
 ##>M:Timer                              0         -         -         -         -         -
 ##>M:Assembly                           0         -         -         -         -         -
 ##>M:DFT                                0         -         -         -         -         -
-##>M:DP Operations                      3         -         -      9140     11000      1518
-##>M:Const Prop                         0       192         0      9140     11000      1518
-##>M:Cleanup                            2       192         0      9122     10974      1521
-##>M:MBCI                               0         -         -      9122     10974      1521
+##>M:DP Operations                      3         -         -      9140     11000      1497
+##>M:Const Prop                         0       192         0      9140     11000      1497
+##>M:Cleanup                            2       192         0      9122     10974      1499
+##>M:MBCI                               0         -         -      9122     10974      1499
 ##>M:Const Gate Removal                 0         -         -         -         -         -
 ##>M:Misc                              50
 ##>----------------------------------------------------------------------------------------
-##>Total Elapsed                       55
+##>Total Elapsed                       57
 ##>========================================================================================
 
 +-----------+--------------------+-----+----------------------+---------------------------+
 |   Host    |      Machine       | CPU | Physical Memory (MB) | Peak Physical Memory (MB) |
 +-----------+--------------------+-----+----------------------+---------------------------+
-| localhost | paxos.inf.pucrs.br |  1  |        1521.2        |          3183.1           |
+| localhost | paxos.inf.pucrs.br |  1  |        1499.5        |          2995.0           |
 +-----------+--------------------+-----+----------------------+---------------------------+
 
 +---------------+----------------------+---------------------------+
 |    Server     | Physical Memory (MB) | Peak Physical Memory (MB) |
 +---------------+----------------------+---------------------------+
-| localhost_1_0 |        521.8         |          1960.1           |
+| localhost_1_0 |        503.7         |          2184.6           |
 +---------------+----------------------+---------------------------+
 
 Info    : Done mapping. [SYNTH-5]
@@ -7241,7 +7240,7 @@ Incremental optimization status
                            Total  Weighted      Neg      Max       Max 
 Operation                   Area   Slacks      Slack    Trans      Cap 
  init_iopt                 15311        0         0         0        0
-IOPT-REDREM: Performing redundancy removal: Detected 0 redundant wires. CPU time 0.054 seconds.
+IOPT-REDREM: Performing redundancy removal: Detected 0 redundant wires. CPU time 0.052 seconds.
 
 -------------------------------------------------------------------------------
  const_prop                15311        0         0         0        0
@@ -7490,9 +7489,9 @@ Operation                   Area   Slacks      Slack    Trans      Cap
          rem_inv         4  (        2 /        2 )  0.01
         merge_bi       144  (      144 /      144 )  0.38
       rem_inv_qb         8  (        1 /        1 )  0.03
-    seq_res_area        22  (        4 /        4 )  7.77
-        io_phase        70  (       26 /       26 )  0.25
-       gate_comp        14  (        3 /        3 )  0.45
+    seq_res_area        22  (        4 /        4 )  7.93
+        io_phase        70  (       26 /       26 )  0.26
+       gate_comp        14  (        3 /        3 )  0.50
        gcomp_mog        49  (        0 /        0 )  0.34
        glob_area        48  (       38 /       48 )  0.18
        area_down        12  (       12 /       12 )  0.33
@@ -7674,7 +7673,7 @@ Operation                   Area   Slacks      Slack    Trans      Cap
         merge_bi         0  (        0 /        0 )  0.02
       rem_inv_qb         1  (        0 /        0 )  0.00
         io_phase        44  (        0 /        0 )  0.09
-       gate_comp        11  (        0 /        0 )  0.43
+       gate_comp        11  (        0 /        0 )  0.45
        gcomp_mog        49  (        0 /        0 )  0.34
        glob_area        29  (        0 /       29 )  0.07
        area_down         8  (        5 /        5 )  0.18
@@ -7873,7 +7872,7 @@ Info   : PWRA-0009 [PwrInfo] Power Computation Progress Report :  11%  22%
 Info   : PWRA-0002 Finished power computation.
 Info   : PWRA-0007 [PwrInfo] Completed successfully.
        : Info=6, Warn=2, Error=0, Fatal=0
-Output file: /sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12/logical/results/reports/Conv_power_analysis_view_0p81v_125c_capwst_slowest.rpt
+Output file: /tmp/fastconv-asic-if18-tcn9-tcn4-e48b1dac/repo/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12/logical/results/reports/Conv_power_analysis_view_0p81v_125c_capwst_slowest.rpt
 @file(logical_synthesis_body.tcl) 78: set CURRENT_VIEW analysis_view_0p90v_25c_captyp_nominal
 @file(logical_synthesis_body.tcl) 79: set_analysis_view -setup ${CURRENT_VIEW} -hold ${CURRENT_VIEW}
 
@@ -8011,7 +8010,7 @@ Info   : PWRA-0009 [PwrInfo] Power Computation Progress Report :  11%  22%
 Info   : PWRA-0002 Finished power computation.
 Info   : PWRA-0007 Completed successfully.
        : Info=6, Warn=2, Error=0, Fatal=0
-Output file: /sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12/logical/results/reports/Conv_power_analysis_view_0p90v_25c_captyp_nominal.rpt
+Output file: /tmp/fastconv-asic-if18-tcn9-tcn4-e48b1dac/repo/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12/logical/results/reports/Conv_power_analysis_view_0p90v_25c_captyp_nominal.rpt
 @file(logical_synthesis_body.tcl) 83: set CURRENT_VIEW analysis_view_0p99v_m40c_capbst_fastest
 @file(logical_synthesis_body.tcl) 84: set_analysis_view -setup ${CURRENT_VIEW} -hold ${CURRENT_VIEW}
 
@@ -8068,7 +8067,7 @@ Info   : PWRA-0009 [PwrInfo] Power Computation Progress Report :  11%  22%
 Info   : PWRA-0002 Finished power computation.
 Info   : PWRA-0007 Completed successfully.
        : Info=6, Warn=2, Error=0, Fatal=0
-Output file: /sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12/logical/results/reports/Conv_power_analysis_view_0p99v_m40c_capbst_fastest.rpt
+Output file: /tmp/fastconv-asic-if18-tcn9-tcn4-e48b1dac/repo/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12/logical/results/reports/Conv_power_analysis_view_0p99v_m40c_capbst_fastest.rpt
 @file(logical_synthesis_body.tcl) 87: report_timing -lint -verbose > [file join $OUT_FILES reports ${TOP_MODULE}_timing_setup_${CURRENT_VIEW}_verbose.rpt]
 Info    : Timing analysis will be done for this view. [TUI-744]
         : View is 'analysis_view:Conv/analysis_view_0p99v_m40c_capbst_fastest'.
@@ -8138,26 +8137,26 @@ Warning : This command will be obsolete in a next major release. [TUI-37]
 Warning : Attribute design_process_node is not set for this design. [PHYS-1011]
         : Missing data.
         : When attribute design_process_node is not set to an appropriate integer value >=5 and <=250, then Innovus will assume its own default value for the design process node. See the Innovus setDesignMode -process <> command for more information about what this setting does.
-Exporting design data for 'Conv' to /sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12/logical/results/physical_synthesis/work/data...
-%# Begin write_design (10/08 19:47:34, mem=1929.56M)
+Exporting design data for 'Conv' to /tmp/fastconv-asic-if18-tcn9-tcn4-e48b1dac/repo/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12/logical/results/physical_synthesis/work/data...
+%# Begin write_design (10/11 14:38:08, mem=1921.95M)
       flow.cputime  flow.realtime  timing.setup.tns  timing.setup.wns  snapshot
 UM:*                                                                   write_design
 No loop breaker instances found (cdn_loop_breaker).
-File /sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12/logical/results/physical_synthesis/work/data.mmmc.tcl has been written.
+File /tmp/fastconv-asic-if18-tcn9-tcn4-e48b1dac/repo/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12/logical/results/physical_synthesis/work/data.mmmc.tcl has been written.
 Finished SDC export (command execution time mm:ss (real) = 00:01).
-Info: file /sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12/logical/results/physical_synthesis/work/data.constraints_default.sdc has been written
-Info: file /sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12/logical/results/physical_synthesis/work/data.constraints_default.sdc has been written
+Info: file /tmp/fastconv-asic-if18-tcn9-tcn4-e48b1dac/repo/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12/logical/results/physical_synthesis/work/data.constraints_default.sdc has been written
+Info: file /tmp/fastconv-asic-if18-tcn9-tcn4-e48b1dac/repo/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12/logical/results/physical_synthesis/work/data.constraints_default.sdc has been written
 
 Number of user defined NDR nets found: 0
 
 Number of NDR nets found: 0
 Number of nets with minimum layer assignments: 0
 
-** To load the database source /sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12/logical/results/physical_synthesis/work/data.invs_setup.tcl in an Innovus session.
-** To load the database source /sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12/logical/results/physical_synthesis/work/data.genus_setup.tcl in an Genus(TM) Synthesis Solution session.
-Finished exporting design data for 'Conv' (command execution time mm:ss cpu = 00:00, real = 00:03).
+** To load the database source /tmp/fastconv-asic-if18-tcn9-tcn4-e48b1dac/repo/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12/logical/results/physical_synthesis/work/data.invs_setup.tcl in an Innovus session.
+** To load the database source /tmp/fastconv-asic-if18-tcn9-tcn4-e48b1dac/repo/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12/logical/results/physical_synthesis/work/data.genus_setup.tcl in an Genus(TM) Synthesis Solution session.
+Finished exporting design data for 'Conv' (command execution time mm:ss cpu = 00:01, real = 00:03).
 .
-%# End write_design (10/08 19:47:37, total cpu=05:00:00, real=05:00:03, peak res=3183.10M, current mem=1918.56M)
+%# End write_design (10/11 14:38:11, total cpu=05:00:01, real=05:00:03, peak res=2995.00M, current mem=1920.95M)
 @file(logical_synthesis_body.tcl) 111: set CURRENT_VIEW analysis_view_0p90v_25c_captyp_nominal
 @file(logical_synthesis_body.tcl) 112: set_analysis_view -setup ${CURRENT_VIEW} -hold ${CURRENT_VIEW}
 #
@@ -8167,27 +8166,27 @@ Finished exporting design data for 'Conv' (command execution time mm:ss cpu = 00
 # Done activating view: analysis_view:Conv/analysis_view_0p90v_25c_captyp_nominal
 #
 @file(logical_synthesis_body.tcl) 113: write_db [file join $OUT_FILES gate_level ${TOP_MODULE}_logic_mapped.db]
-Finished exporting design database to file '/sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12/logical/results/gate_level/Conv_logic_mapped.db' for 'Conv' (command execution time mm:ss cpu = 00:00, real = 00:00).
+Finished exporting design database to file '/tmp/fastconv-asic-if18-tcn9-tcn4-e48b1dac/repo/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12/logical/results/gate_level/Conv_logic_mapped.db' for 'Conv' (command execution time mm:ss cpu = 00:00, real = 00:00).
 @file(logical_synthesis_body.tcl) 115: exit
 
 Lic Summary:
-[19:47:38.103361] Cdslmd servers: paxos
-[19:47:38.103369] Feature usage summary:
-[19:47:38.103369] Genus_Synthesis
+[14:38:12.121592] Cdslmd servers: paxos
+[14:38:12.121600] Feature usage summary:
+[14:38:12.121601] Genus_Synthesis
 
 
 +-----------+--------------------+-----+----------------------+---------------------------+
 |   Host    |      Machine       | CPU | Physical Memory (MB) | Peak Physical Memory (MB) |
 +-----------+--------------------+-----+----------------------+---------------------------+
-| localhost | paxos.inf.pucrs.br |  1  |        1810.8        |          3183.1           |
+| localhost | paxos.inf.pucrs.br |  1  |        1873.7        |          2995.0           |
 +-----------+--------------------+-----+----------------------+---------------------------+
 
 +---------------+----------------------+---------------------------+
 |    Server     | Physical Memory (MB) | Peak Physical Memory (MB) |
 +---------------+----------------------+---------------------------+
-| localhost_1_0 |        521.7         |          1960.1           |
+| localhost_1_0 |        503.7         |          2184.6           |
 +---------------+----------------------+---------------------------+
 
 Info    : A super-threading server has been shut down normally. [ST-112]
-        : The server 'localhost_1_0' was process '23426' on this host.
+        : The server 'localhost_1_0' was process '1664266' on this host.
         : A super-threaded optimization is complete and a CPU server was successfully shut down.
