@@ -1,4 +1,4 @@
-Flow status: pending
+Flow status: complete
 Configuration: conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-pretransformed-column-nbits16-cin3-cout12
 Source RTL: rtl/conv4x4/conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-pretransformed-column.sv
 Dataset: rtl/conv4x4/data/tcn16/sim/sim-032-3-12-normal-trunc-nbits16/pack_data.sv
@@ -6,3 +6,20 @@ Source SHA-256: 7a12dbaf48593c3bfc0434dc4e48c2232c377f6f9931a605bfbfd739fbeaf118
 Dataset SHA-256: b5723cb51c7b9bf9a341d4cf5bacebc27e3effb44d104ec791da4cf6356cab29
 Parameters: NUM_MULT=18 NBITS=16 N_CHANNEL_IN=3 N_CHANNEL_OUT=12 QUANT=8
 Timing: 2 ns clock period
+Git commit: 471a71b3abbf93d1f1cba5552c49184c9de73217
+Host: paxos.inf.pucrs.br
+Run directory: /tmp/fastconv-tcn16-pretransformed-16b-471a71b3/repo
+Flow command: make flow ARCH=conv4x4 CONFIG=conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-pretransformed-column-nbits16-cin3-cout12
+Start: 2026-10-11T09:55:27-03:00
+Finish: 2026-10-11T10:08:21-03:00
+Exit code: 0
+Tools: Genus 21.12-s068_1 (module cadence/genus/211); Xcelium 23.03-s003 (module cadence/xcelium/2303)
+RTL simulation (Verilator): PASS, 21641 job cycles, 32400 valid writes, 0 golden mismatches
+Gate-level SDF simulation: PASS, 21641 job cycles (43.282 us), 32400 valid writes, 0 golden mismatches
+SDF annotation: 0 errors; 500 SDFNET warnings for absent RECREM timing checks
+Mapped netlist SHA-256: 3f61995079e499c7c1a9a730cf3b16c12ef5fc5112fae52761d7c90b16ef0671
+Nominal SDF SHA-256: 0ea357526d1b8382338f937229aa1c9bb2ae93edf72bea764f958c27e857922c
+Slow-corner area: 25028 cells; cell area 29911.266 um2; total physical area 42766.010 um2
+Slow-corner setup slack: +7 ps; critical path r_output_write_count_reg[0] -> p_output_data_write[47]
+Typical power (SHM/Joules): register 2.43685 mW; logic 5.62055 mW; clock 0.195801 mW; dynamic 8.12421 mW; leakage 0.128987 mW; total 8.25320 mW
+Dataset accuracy note: library R2=0.50141358 against the floating-point reference; this is a low-accuracy 16-bit/no-frac dataset.
