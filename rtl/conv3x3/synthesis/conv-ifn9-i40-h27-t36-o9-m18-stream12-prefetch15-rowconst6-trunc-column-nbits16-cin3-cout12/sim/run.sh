@@ -4,6 +4,7 @@ set -euo pipefail
 SIM_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CONFIG_ROOT="$(cd "$SIM_ROOT/.." && pwd)"
 GIT_ROOT="$(git -C "$CONFIG_ROOT" rev-parse --show-toplevel)"
+cd "$SIM_ROOT"
 
 module purge
 module load cadence/xcelium/2303 > /dev/null 2>&1
