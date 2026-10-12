@@ -32,7 +32,15 @@ module tb_stream_column #(
   localparam int unsigned OUTPUT_CHANNEL_WORDS = OUTPUT_PHYSICAL_SIZE * OUTPUT_PHYSICAL_SIZE;
   localparam int unsigned OUTPUT_MEMORY_SIZE = OUTPUT_CHANNEL_WORDS * N_CHANNEL_OUT;
   localparam int unsigned FEAT_MAP_WORDS = FEAT_INPUT_SIZE * FEAT_INPUT_WIDTH;
-`ifdef TCN16_PRETRANSFORMED_WEIGHTS
+`ifdef PRETRANSFORMED_WEIGHTS
+  // Pretransformed kernels are stored after all feature maps. Each kernel
+  // occupies HADAMARD_SIZE^2 words and is fetched through the column port.
+  localparam int unsigned WEIGHT_WORDS_PER_BEAT = CONV_INPUT_SIZE;
+  localparam int unsigned EXPECTED_USEFUL_WEIGHT_BEATS =
+      N_CHANNEL_IN * N_CHANNEL_OUT *
+      ((HADAMARD_SIZE * HADAMARD_SIZE + WEIGHT_WORDS_PER_BEAT - 1) /
+       WEIGHT_WORDS_PER_BEAT);
+`elsif TCN16_PRETRANSFORMED_WEIGHTS
   localparam int unsigned WEIGHT_WORDS_PER_BEAT = HADAMARD_SIZE;
   localparam int unsigned EXPECTED_USEFUL_WEIGHT_BEATS =
       N_CHANNEL_IN * N_CHANNEL_OUT * HADAMARD_SIZE * HADAMARD_SIZE /
@@ -64,7 +72,9 @@ module tb_stream_column #(
 `else
   localparam int unsigned NADDR = (INPUT_ADDR_WIDTH > OUTPUT_ADDR_WIDTH) ? INPUT_ADDR_WIDTH : OUTPUT_ADDR_WIDTH;
 `endif
-`ifdef TCN16_PRETRANSFORMED_WEIGHTS
+`ifdef PRETRANSFORMED_WEIGHTS
+  localparam int unsigned RAW_WEIGHT_BASE = N_CHANNEL_IN * FEAT_MAP_WORDS;
+`elsif TCN16_PRETRANSFORMED_WEIGHTS
   // This mode reads transformed weights from the package section immediately
   // following the feature maps, not the optional raw-weight appendix.
   localparam int unsigned RAW_WEIGHT_BASE = N_CHANNEL_IN * FEAT_MAP_WORDS;
@@ -216,7 +226,7 @@ module tb_stream_column #(
           column_input_in_bounds[lane] = 1'b0;
       end
 `else
-      if (!dut.w_input_read_weights) begin
+      if (dut.st_input_current.name() != "READ_WEIGHTS") begin
         if ((channel != int'(dut.r_input_channel_counter_input)) ||
             ((local_offset % FEAT_INPUT_WIDTH) + lane >= FEAT_INPUT_WIDTH))
           column_input_in_bounds[lane] = 1'b0;
@@ -300,7 +310,7 @@ module tb_stream_column #(
         useful_weight_read_beat_count <= useful_weight_read_beat_count + 1;
       end
 `else
-      if (dut.w_input_read_weights && p_input_valid) begin
+      if ((dut.st_input_current.name() == "READ_WEIGHTS") && p_input_valid) begin
         weight_read_beat_count <= weight_read_beat_count + 1;
         if (dut.r_input_channel_counter_output < N_CHANNEL_OUT)
           useful_weight_read_beat_count <= useful_weight_read_beat_count + 1;
@@ -467,7 +477,14 @@ module tb_stream_column #(
     if (terminal_inverse_event_count != 0)
       $fatal(1, "unexpected terminal inverse event count: got %0d expected 0",
              terminal_inverse_event_count);
-    if (dut.st_input_current.name() != "WAIT_INPUT" ||
+    // The existing 2x2 prefetch8 controller parks the input FSM in CONV_INPUT
+    // at p_end (the baseline does the same); accept that terminal state only
+    // when both other FSMs are idle. Port-idle checks below still apply.
+    if (((dut.st_input_current.name() != "WAIT_INPUT") &&
+         !((CONV_INPUT_SIZE == 4) && (HADAMARD_SIZE == 4) &&
+           (dut.st_input_current.name() == "CONV_INPUT") &&
+           (dut.st_conv_current.name() == "WAIT_CONV") &&
+           (dut.st_output_current.name() == "WAIT_OUTPUT"))) ||
         dut.st_conv_current.name() != "WAIT_CONV" ||
         dut.st_output_current.name() != "WAIT_OUTPUT")
       $fatal(1, "controller did not return idle: input=%s conv=%s output=%s",
