@@ -1,3 +1,5 @@
+cd "$(dirname "$0")" || exit 1
+
 rm -rf genus.cmd*
 rm -rf genus.log*
 
