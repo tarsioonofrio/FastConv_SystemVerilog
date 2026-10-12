@@ -11,4 +11,5 @@ conv-wpn16-i54-h41-t64-o16-m32-stream16-prefetch18-rowconst8-trunc-column.sv,PAS
 conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv,PASS,8842,17684.000
 conv-wpn16-i60-h25-t32-o16-m16-stream16-prefetch24-rowconst8-trunc-column.sv,PASS,6538,13076.000
 conv-wpn16-i60-h41-t64-o16-m32-stream16-prefetch24-rowconst8-trunc-column.sv,PASS,5386,10772.000
+conv-wpn16-i60-h41-t64-o16-m32-stream16-prefetch24-rowconst8-trunc-column-inverse-acc-reg.sv,PASS,21533,43066.000
 conv-wpn16-pipe-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv,PASS,9985,19970.000

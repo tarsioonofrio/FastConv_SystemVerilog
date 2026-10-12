@@ -1,0 +1,13 @@
+source=rtl/conv4x4/conv-wpn16-i60-h41-t64-o16-m32-stream16-prefetch24-rowconst8-trunc-column-inverse-acc-reg.sv
+source_sha256=6023167648597432a63566c1c2779ef7e9eb2bbadabd738d93763f3c7b9de3b2
+dataset=rtl/conv4x4/data/wpn16/sim/sim-032-3-12-normal-trunc-nbits16/pack_data.sv
+dataset_sha256=55a13381981b4d570f6226615f4f8a0334047717a4c6ce1aecdb887f3851a393
+config=wpn16
+num_mult=32
+prefetch_columns=4
+nbits=16
+n_channel_in=3
+n_channel_out=12
+verilator=5.050
+git_commit=881a73a85b79e1615106f7b48d89d0f4b14b1d71
+result=PASS

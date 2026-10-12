@@ -1,6 +1,9 @@
 # ASIC logical synthesis configuration
 
-RTL: `rtl/conv4x4/conv-wpn16-i60-h41-t64-o16-m32-stream16-prefetch24-rowconst8-trunc-column-direct-acc.sv`.
+RTL: `rtl/conv4x4/archive/wpn16/conv-wpn16-i60-h41-t64-o16-m32-stream16-prefetch24-rowconst8-trunc-column-direct-acc.sv`.
+
+Archived experiment. The files below preserve its logical-synthesis evidence;
+this configuration is not an active runner target.
 
 Top-level overrides: `NUM_MULT=32`, `NBITS=16`, `N_CHANNEL_IN=3`, and `N_CHANNEL_OUT=12`.
 
