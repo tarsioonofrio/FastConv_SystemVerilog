@@ -1,0 +1,9 @@
+source_commit=86a4bbe106fe8c76210af38ef04c3bfb13889391
+hostname=paxos.inf.pucrs.br
+started_at_epoch=1791776632
+finished_at_epoch=1791777405
+exit_code=0
+source=rtl/conv4x4/conv-wpn16-i60-h41-t64-o16-m32-stream16-prefetch24-pretransformed-column.sv
+cfa4e9b9661f31befb6dbb0b56d962142638bc393eb18040539b751780190ba3  /tmp/fastconv-pretrans-synth-86a4bbe/rtl/conv4x4/conv-wpn16-i60-h41-t64-o16-m32-stream16-prefetch24-pretransformed-column.sv
+dataset=rtl/conv4x4/data/wpn16/sim/sim-032-3-12-normal-trunc-nbits16/pack_data.sv
+55a13381981b4d570f6226615f4f8a0334047717a4c6ce1aecdb887f3851a393  /tmp/fastconv-pretrans-synth-86a4bbe/rtl/conv4x4/data/wpn16/sim/sim-032-3-12-normal-trunc-nbits16/pack_data.sv
