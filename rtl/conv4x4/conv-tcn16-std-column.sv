@@ -387,12 +387,11 @@ module Conv
   always_comb begin: WEIGHT_WE_BLOCK
     w_input_weight_en = '0;
     if (st_input_current == READ_WEIGHTS) begin
-      // The generated transform matrix exposes each output column as a
-      // contiguous lane, while the packed weight stream is row-major.
+      // The packed transformed-weight tile is row-major, matching the
+      // Hadamard feature indices and the pretransformed reference path.
       for (int unsigned i = 0; i < WEIGHT_CYCLES; i++)
         if (r_input_count_kernel == WEIGHT_WIDTH'(i))
-          w_input_weight_en[(i % HADAMARD_SIZE) * HADAMARD_SIZE +
-                            (i / HADAMARD_SIZE)] = 1'b1;
+          w_input_weight_en[i] = 1'b1;
     end
   end
 

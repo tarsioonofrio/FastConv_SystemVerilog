@@ -1,8 +1,8 @@
 # Arquiteturas de convolução em uso
 
 Este relatório descreve o padrão streaming por colunas usado como arquitetura
-geral nos algoritmos que não são TCN16 e as duas variantes específicas
-atualmente mantidas para TCN16. O arquivo WPN16 abaixo é o exemplo
+geral nos algoritmos que não são TCN16 e as variantes específicas atualmente
+mantidas para TCN16. O arquivo WPN16 abaixo é o exemplo
 representativo do padrão geral; cada algoritmo e tamanho de kernel tem seu
 próprio RTL gerado com a geometria e a transformada correspondentes.
 
@@ -11,8 +11,9 @@ próprio RTL gerado com a geometria e a transformada correspondentes.
 | Papel | RTL representativo | Ideia principal |
 | --- | --- | --- |
 | Padrão geral | [`conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv`](../rtl/conv4x4/conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv) | Mantém pesos espaciais, calcula sob demanda a linha transformada necessária e processa a matriz de Hadamard em lotes usando MACs paralelos. |
+| TCN16 standard-column | [`conv-tcn16-std-column.sv`](../rtl/conv4x4/conv-tcn16-std-column.sv) | Variante escolhida para a próxima validação; mantém o carregamento vetorial do tile e calcula a transformada dos pesos em execução. Ainda não tem uma campanha ASIC própria. |
 | TCN16 com `frac6` | [`conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-rowconst6-trunc-frac6-column.sv`](../rtl/conv4x4/conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-rowconst6-trunc-frac6-column.sv) | Mantém o cálculo da transformada de pesos no RTL, mas conserva seis bits fracionários para reduzir a perda de precisão da divisão por 576. |
-| TCN16 pretransformed | [`conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-pretransformed-column.sv`](../rtl/conv4x4/conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-pretransformed-column.sv) | Recebe os 36 pesos já transformados no pacote de dados e os armazena no RTL; remove o cálculo da transformada de pesos durante a execução. |
+| TCN16 pretransformed (arquivada) | [`conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-pretransformed-column.sv`](../rtl/conv4x4/archive/tcn16-pretransformed/conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-pretransformed-column.sv) | Variante histórica: recebe os 36 pesos já transformados no pacote de dados e os armazena no RTL; não faz parte do conjunto ativo. |
 
 ## Padrão geral: streaming por colunas com pesos `rowconst`
 
@@ -83,7 +84,7 @@ Para o exemplo
 gerador. Elas não substituem a leitura do RTL: por exemplo, `h` não inclui
 vetores combinacionais e não é uma estimativa de área física.
 
-## Por que existem duas variantes específicas de TCN16
+## Por que foram exploradas duas variantes específicas de TCN16
 
 TCN16 usa uma transformada de pesos 6×6 cuja escala é 576. Como 576 não é uma
 potência de dois, descartar simplesmente o resto da divisão causa erro de
@@ -107,7 +108,7 @@ truncado sem fração. No dataset correspondente, `R² ≈ 0,99868`, contra
 representação/quantização dos pesos; não é uma comparação isolada de
 microarquitetura, pois os pacotes de dados também são diferentes.
 
-### `pretransformed-column`
+### Variante histórica arquivada: `pretransformed-column`
 
 Esta variante desloca a transformada dos pesos para a geração do pacote. O
 RTL lê, em beats vetoriais de seis palavras, os 36 coeficientes já transformados
@@ -124,7 +125,7 @@ completos, além do banco ativo dos MACs. Portanto, `pretransformed` não deve s
 apresentada como substituta de maior precisão da `frac6`; ela é uma alternativa
 de organização do cálculo e do armazenamento.
 
-### Tags das duas variantes TCN16
+### Tags das variantes TCN16 ativa e arquivada
 
 | Tag | `rowconst6-trunc-frac6` | `pretransformed` |
 | --- | --- | --- |

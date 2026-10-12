@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate the WPN16 pretransformed-weight RTL from the active m32 core.
+"""Regenerate the archived WPN16 pretransformed-weight RTL from the active m32 core.
 
 The WPN16 package stores the integer-truncated 8x8 weight transforms directly
 after the feature maps. This generator changes the active row-constant design
@@ -11,7 +11,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "conv4x4/conv-wpn16-i60-h41-t64-o16-m32-stream16-prefetch24-rowconst8-trunc-column.sv"
-DESTINATION = ROOT / "conv4x4/conv-wpn16-i60-h41-t64-o16-m32-stream16-prefetch24-pretransformed-column.sv"
+DESTINATION = ROOT / "conv4x4/archive/wpn16/conv-wpn16-i60-h41-t64-o16-m32-stream16-prefetch24-pretransformed-column.sv"
 
 
 def replace_once(text: str, old: str, new: str) -> str:

@@ -34,8 +34,8 @@ calcula as linhas transformadas conforme são necessárias. Assim, a matriz
 completa aparece como lógica combinacional/temporária; o banco de pesos dos
 MACs mantém somente os coeficientes ativos para o lote atual.
 
-As variantes TCN16 `pretransformed-column` são diferentes: armazenam os 36
-coeficientes transformados completos e carregam os pesos ativos para os MACs.
+As variantes TCN16 `pretransformed-column` (arquivadas) são diferentes:
+armazenam os 36 coeficientes transformados completos e carregam os pesos ativos para os MACs.
 M06, M12 e M18 têm o mesmo banco completo de 36 coeficientes; o número de MACs
 altera a quantidade ativa carregada em paralelo, não a dimensão da
 transformada.
@@ -50,5 +50,5 @@ armazenar a transformada completa.
 - [TCN4](../rtl/conv2x2/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column.sv)
 - [IFN9](../rtl/conv3x3/conv-ifn9-i40-h15-t12-o9-m06-stream12-prefetch15-rowconst6-trunc-column.sv)
 - [TCN9](../rtl/conv3x3/conv-tcn9-i40-h14-t10-o9-m05-stream10-prefetch15-rowconst5-trunc-column.sv)
-- [TCN16 pretransformed](../rtl/conv4x4/conv-tcn16-i60-h15-t12-o16-m06-stream12-prefetch24-pretransformed-column.sv)
+- [TCN16 pretransformed, arquivada](../rtl/conv4x4/archive/tcn16-pretransformed/conv-tcn16-i60-h15-t12-o16-m06-stream12-prefetch24-pretransformed-column.sv)
 - [WPN16](../rtl/conv4x4/conv-wpn16-i60-h41-t64-o16-m32-stream16-prefetch24-rowconst8-trunc-column.sv)
