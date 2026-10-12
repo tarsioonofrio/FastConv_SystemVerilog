@@ -78,14 +78,13 @@ module Conv
   logic [NADDR-1:0] r_input_window_next;
   logic [TILE_WORDS - 1:0] w_input_feat_en;  // write-enable per feature register
   logic w_input_feat_write_valid;
-  // Prefetch bank for the NEW_COLUMNS columns of the next tile.
-  localparam int unsigned PREFETCH_WORDS = NEW_COLUMNS * CONV_INPUT_SIZE;
-  logic [NBITS-1:0] r_input_prefetch[PREFETCH_WORDS-1:0];
+  // Prefetched columns are written directly into their destination positions
+  // in r_input_feat after the current feature transform has been captured.
   logic r_input_prefetch_full;
   logic r_input_prefetch_active;
   logic r_input_prefetch_enabled;
   logic [NADDR-1:0] r_input_prefetch_addr;
-  // Column beat index inside the prefetch bank.
+  // Phase index of the new column beat currently being prefetched.
   localparam int unsigned PREFETCH_PHASE_WIDTH = f_width_min1(NEW_COLUMNS);
   logic [PREFETCH_PHASE_WIDTH-1:0] r_input_prefetch_phase;
   logic w_input_prefetch_commit;
@@ -132,9 +131,8 @@ module Conv
   localparam STREAM_CYCLES = WEIGHT_CYCLES / FIXED_NUM_MULT;
   logic [(f_width_min1(STREAM_CYCLES + 1))-1:0] r_conv_multiply_count;
   // Store the full transformed matrix for the active channel pair. The MAC
-  // bank selects one NUM_MULT-sized batch from this register bank per cycle.
+  // lanes select one NUM_MULT-sized batch directly from this bank per cycle.
   logic [WEIGHT_NBITS-1:0] r_pretransformed_weight[WEIGHT_CYCLES-1:0];
-  logic [WEIGHT_NBITS-1:0] r_input_weight[FIXED_NUM_MULT-1:0];
   logic [WEIGHT_COUNT_WIDTH-1:0] r_weight_row_count;
   logic r_weight_tile_valid;
   logic [NADDR-1:0] r_input_addr_kernel_base;
@@ -147,14 +145,16 @@ module Conv
 
   // Flattened lanes are row-major: each HADAMARD_SIZE lanes form one row.
   localparam int ROW_INDEX_WIDTH = f_width_min1(HADAMARD_SIZE);
-  localparam int PRODUCT_INDEX_WIDTH = f_width_min1(WEIGHT_CYCLES);
-  logic [NBITS-1:0] r_transform_feature_reg [FIXED_NUM_MULT-1:0];
+  // This bank is reused in place: it first holds the full feature transform,
+  // then shifts unprocessed features toward the front while Hadamard products
+  // are written into the tail. InverseRow reads the previous product batch
+  // from that tail, preserving the register boundary without a duplicate bank.
+  logic [NBITS-1:0] r_transform_feature_bank [WEIGHT_CYCLES-1:0];
   logic [ROW_INDEX_WIDTH-1:0] r_inverse_row_idx;
-  // Pipeline register separating the Hadamard products from InverseRow.
-  logic [NBITS-1:0] r_hadamard_product_reg [FIXED_NUM_MULT-1:0];
-  logic [ROW_INDEX_WIDTH-1:0] r_hadamard_product_row_idx_reg;
+  // Valid marks a product batch already registered in the tail of the shared
+  // feature/product bank; row index is derived from r_inverse_row_idx.
   logic r_hadamard_product_valid;
-  logic [PRODUCT_INDEX_WIDTH-1:0] r_transform_product_idx;
+  logic [ROW_INDEX_WIDTH-1:0] w_inverse_batch_row_idx;
   logic [NBITS-1:0] w_inverse_partial_current [FIXED_NUM_MULT/HADAMARD_SIZE*CONV_OUTPUT_SIZE-1:0];
   logic [NBITS-1:0] w_output_acc_next [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
   logic [NBITS-1:0] w_inverse_product_rows [FIXED_NUM_MULT-1:0];
@@ -253,10 +253,9 @@ module Conv
                       ? r_input_addr_kernel
                       : r_input_addr_feat;  // One input-column address per beat.
 
-  // r_input_addr_feat always points at the last column already loaded for the
-  // current tile.  The next window starts one column after it (TRANSFER) and
-  // fetches NEW_COLUMNS columns, either directly (READ_IN) or from the prefetch
-  // bank (commit), so the pointer moves NEW_COLUMNS columns per window.
+  // r_input_addr_feat advances through each column beat. After TRANSFER it
+  // points at the first new column required by the next tile; the prefetch
+  // path reads from that address directly into r_input_feat.
   always_ff @(posedge clk or posedge reset) begin: INPUT_ADDR_POINTER_BLOCK
     if (reset) begin
       r_input_addr_feat <= '0;
@@ -380,27 +379,34 @@ module Conv
                                  w_output_last_channel_output &&
                                  w_output_last_window_acc;
 
-  assign w_input_prefetch_mode = r_input_prefetch_enabled;
+  // The final horizontal window has no following tile to prefetch, even if
+  // the cached enable flag was set by a preceding window.
+  assign w_input_prefetch_mode = r_input_prefetch_enabled &&
+                                 (r_input_window_counter_col <
+                                  WINDOW_ROW_COUNTER_WIDTH'(WINDOW_COUNT_PER_LINE - 1));
 
-  // STREAM_FREEZE lifetime policy: the current feature tile remains stable
-  // until the last transform row has been consumed by the Hadamard stage.
+  // Scheduling boundary for advancing to the next tile. The feature bank can
+  // be refilled earlier because the active convolution uses the captured
+  // r_transform_feature_bank; this release still prevents starting the next
+  // tile before the current Hadamard work is complete.
   assign w_conv_input_release =
                                 (st_conv_current == INVERSE) ||
                                 ((st_conv_current == HADAMARD) &&
                                  (r_conv_multiply_count == $bits(r_conv_multiply_count)'(STREAM_CYCLES - 1)));
 
-  // The next tile may replace the current feature bank only after the
-  // convolution has consumed its final Hadamard row.
+  // The input FSM may consume the prefetched tile only after the current
+  // convolution has reached its release boundary and the full prefetch arrived.
   assign w_input_prefetch_commit = r_input_prefetch_full &&
                                    (w_conv_input_release || w_conv_end ||
                                     ((st_conv_current == WAIT_CONV) &&
                                      (st_output_current inside {RESET_OUTPUT, READ_OUTPUT}))) &&
                                    w_input_write_done;
 
-  // When no prefetch is available (the first tile and the right edge), retain
-  // the stream-freeze shift: the KEEP_COLUMNS rightmost columns of the current
-  // tile become the leftmost columns of the next tile.
-  assign w_input_feature_shift = r_stream_transfer_pending && w_conv_input_release;
+  // TRANSFER is the boundary after the active feature transform has been
+  // captured. Shift the shared columns in HOLD_WRITE before direct reads fill
+  // the next tile; the active convolution now uses r_transform_feature_bank.
+  assign w_input_feature_shift = r_stream_transfer_pending &&
+                                 (st_input_current == HOLD_WRITE) && r_weight_tile_valid;
 
   assign p_end = (st_output_current == WRITE_OUTPUT) &&
                  (r_output_write_count == OUTPUT_RW_COUNT_WIDTH'(OUTPUT_RW_COUNT_MAX)) &&
@@ -489,7 +495,8 @@ module Conv
         w_input_feat_next[lane * CONV_INPUT_SIZE + int'(r_input_beat)] = p_input_data[lane*NBITS +: NBITS];
     end
 
-    // Stream shift: the KEEP_COLUMNS rightmost columns become the leftmost ones.
+    // Move the shared columns before direct prefetch writes begin. The
+    // prefetched beats then fill the right side of the next tile in place.
     if (w_input_feature_shift) begin
       for (int unsigned lane = 0; lane < CONV_INPUT_SIZE; lane++)
         for (int unsigned c = 0; c < KEEP_COLUMNS; c++)
@@ -497,76 +504,58 @@ module Conv
               r_input_feat[lane * CONV_INPUT_SIZE + (CONV_INPUT_SIZE - KEEP_COLUMNS) + c];
     end
 
-    // Prefetch commit: shift plus the NEW_COLUMNS prefetched columns.
-    if (w_input_prefetch_commit) begin
-      for (int unsigned lane = 0; lane < CONV_INPUT_SIZE; lane++) begin
-        for (int unsigned c = 0; c < KEEP_COLUMNS; c++)
-          w_input_feat_next[lane * CONV_INPUT_SIZE + c] =
-              r_input_feat[lane * CONV_INPUT_SIZE + (CONV_INPUT_SIZE - KEEP_COLUMNS) + c];
-        for (int unsigned k = 0; k < NEW_COLUMNS; k++)
-          w_input_feat_next[lane * CONV_INPUT_SIZE + KEEP_COLUMNS + k] =
-              r_input_prefetch[k * CONV_INPUT_SIZE + lane];
-      end
-    end
-
   end
 
   always_comb begin: INPUT_SHIFT_WE_BLOCK  // 'w_input_feat_en' to write into the register bank r_input_feat
     w_input_feat_en = '0;
-    if (w_input_prefetch_commit) begin
-      w_input_feat_en = '1;
-    end else begin
-      if (w_input_feature_shift) begin
-        for (int unsigned lane = 0; lane < CONV_INPUT_SIZE; lane++)
-          for (int unsigned c = 0; c < KEEP_COLUMNS; c++)
-            w_input_feat_en[lane * CONV_INPUT_SIZE + c] = 1'b1;
-      end
-      // The load of a new column happens on a valid beat, after the shift has
-      // already copied the shared columns (the shift precedes the first beat).
-      if (st_input_current == READ_IN && p_input_valid) begin
-        for (int unsigned lane = 0; lane < CONV_INPUT_SIZE; lane++)
-          w_input_feat_en[lane * CONV_INPUT_SIZE + int'(r_input_beat)] = 1'b1;
-      end
+    if (w_input_feature_shift) begin
+      for (int unsigned lane = 0; lane < CONV_INPUT_SIZE; lane++)
+        for (int unsigned c = 0; c < KEEP_COLUMNS; c++)
+          w_input_feat_en[lane * CONV_INPUT_SIZE + c] = 1'b1;
+    end
+    // The load of a new column happens on a valid beat, after the shift has
+    // already copied the shared columns (the shift precedes the first beat).
+    if (st_input_current == READ_IN && p_input_valid) begin
+      for (int unsigned lane = 0; lane < CONV_INPUT_SIZE; lane++)
+        w_input_feat_en[lane * CONV_INPUT_SIZE + int'(r_input_beat)] = 1'b1;
     end
   end
 
-  assign w_input_feat_write_valid = w_input_prefetch_commit || w_input_feature_shift || p_input_valid;
+  assign w_input_feat_write_valid = w_input_feature_shift || p_input_valid;
 
   always_ff @(posedge clk or posedge reset) begin: STREAM_TRANSFER_PENDING_BLOCK
     if (reset)
       r_stream_transfer_pending <= 1'b0;
-    else if (st_input_current == TRANSFER)
+    else if ((st_input_current == TRANSFER) || w_input_prefetch_commit)
       r_stream_transfer_pending <= 1'b1;
     else if (w_input_feature_shift)
       r_stream_transfer_pending <= 1'b0;
   end
 
-  always_ff @(posedge clk or posedge reset) begin: INPUT_PREFETCH_BUFFER_BLOCK
+  always_ff @(posedge clk or posedge reset) begin: INPUT_PREFETCH_CONTROL_BLOCK
     if (reset) begin
-      r_input_prefetch <= '{default: '0};
       r_input_prefetch_full <= 1'b0;
       r_input_prefetch_active <= 1'b0;
       r_input_prefetch_enabled <= 1'b0;
       r_input_prefetch_addr <= '0;
       r_input_prefetch_phase <= '0;
     end else begin
-      // Issue the first new-column read one cycle before TRANSFORM.  The
-      // main tile remains untouched until commit.
+      // Start the next-tile read at the pending-transfer boundary, after the
+      // current feature transform has been captured. The active convolution
+      // uses the transform bank while incoming beats fill r_input_feat.
       // The row-constant variant loads its nine spatial weights after the
       // first input tile.  Do not let the prefetch port steal those reads;
       // start overlapping only once the weight tile is cached.  CONV_INPUT may
       // last several cycles, so issue the prefetch only once per tile.
-      if (st_input_current == CONV_INPUT && r_weight_tile_valid &&
+      if (st_input_current == HOLD_WRITE && r_stream_transfer_pending &&
+          w_input_prefetch_mode && r_weight_tile_valid &&
           !r_input_prefetch_active && !r_input_prefetch_full &&
           (r_input_window_counter_col < WINDOW_ROW_COUNTER_WIDTH'(WINDOW_COUNT_PER_LINE - 1))) begin
         r_input_prefetch_active <= 1'b1;
-        r_input_prefetch_addr <= r_input_addr_feat + NADDR'(FEAT_INPUT_WIDTH);
+        r_input_prefetch_addr <= r_input_addr_feat;
         r_input_prefetch_phase <= '0;
         r_input_prefetch_full <= 1'b0;
       end else if (r_input_prefetch_active && p_input_valid) begin
-        for (int unsigned lane = 0; lane < CONV_INPUT_SIZE; lane++)
-          r_input_prefetch[(int'(r_input_prefetch_phase) * CONV_INPUT_SIZE) + lane] <=
-              p_input_data[lane*NBITS +: NBITS];
         r_input_prefetch_addr <= r_input_prefetch_addr + NADDR'(FEAT_INPUT_WIDTH);  // next column beat
         if (r_input_prefetch_phase == (NEW_COLUMNS - 1)) begin
           r_input_prefetch_active <= 1'b0;
@@ -594,8 +583,14 @@ module Conv
       for (int unsigned i = 0; i < TILE_WORDS; i++)
         r_input_feat[i] <= '0;
     end else begin
-      for (int unsigned i = 0; i < TILE_WORDS; i++)
-        if (w_input_feat_en[i] && w_input_feat_write_valid) r_input_feat[i] <= w_input_feat_next[i];
+      if (r_input_prefetch_active && p_input_valid) begin
+        for (int unsigned lane = 0; lane < CONV_INPUT_SIZE; lane++)
+          r_input_feat[lane * CONV_INPUT_SIZE + KEEP_COLUMNS + int'(r_input_prefetch_phase)] <=
+              p_input_data[lane*NBITS +: NBITS];
+      end else begin
+        for (int unsigned i = 0; i < TILE_WORDS; i++)
+          if (w_input_feat_en[i] && w_input_feat_write_valid) r_input_feat[i] <= w_input_feat_next[i];
+      end
     end
   end
 
@@ -672,56 +667,35 @@ module Conv
     end
   end
 
-  // Register transformed features before Hadamard and register Hadamard
-  // products before the inverse. Each product batch contains ROWS_PER_CYCLE
-  // adjacent Hadamard rows, aligned by its first row index.
+  // Register the transformed feature matrix, then reuse its bank for Hadamard
+  // products. Each cycle computes one batch and writes it into the bank tail;
+  // the inverse consumes the previous tail batch while the next batch runs.
   always_ff @(posedge clk or posedge reset) begin: STREAMING_DATAPATH_BLOCK
     if (reset) begin
-      r_transform_feature_reg <= '{default: '0};
-      r_hadamard_product_reg <= '{default: '0};
-      r_hadamard_product_row_idx_reg <= '0;
+      r_transform_feature_bank <= '{default: '0};
       r_hadamard_product_valid <= 1'b0;
-      r_input_weight          <= '{default: '0};
       // The output-write bank also carries the streaming accumulation state.
       // Sharing this bank removes the duplicate accumulator bank.
       r_output_write              <= '{default: '0};
       r_inverse_row_idx <= '0;
-      r_transform_product_idx <= '0;
     end else begin
       unique case (st_conv_current)
         TRANSFORM: begin
-          for (int unsigned lane = 0; lane < FIXED_NUM_MULT; lane++)
-            r_transform_feature_reg[lane] <= w_conv_transform[lane];
-          // Capture the first stored pretransformed-weight batch after the
-          // complete 6x6 weight tile has been loaded.
-          if (r_weight_tile_valid)
-            for (int unsigned lane = 0; lane < FIXED_NUM_MULT; lane++)
-              r_input_weight[lane] <= r_pretransformed_weight[lane];
+          for (int unsigned index = 0; index < WEIGHT_CYCLES; index++)
+            r_transform_feature_bank[index] <= w_conv_transform[index];
           r_hadamard_product_valid <= 1'b0;
           r_output_write              <= '{default: '0};
           r_inverse_row_idx     <= '0;
-          r_transform_product_idx <= '0;
         end
         HADAMARD: begin
-          r_transform_product_idx <= r_transform_product_idx + PRODUCT_INDEX_WIDTH'(FIXED_NUM_MULT);
-          if (r_transform_product_idx < PRODUCT_INDEX_WIDTH'(WEIGHT_CYCLES - FIXED_NUM_MULT)) begin
-            for (int unsigned lane = 0; lane < FIXED_NUM_MULT; lane++)
-              r_transform_feature_reg[lane] <=
-                  w_conv_transform[r_transform_product_idx + PRODUCT_INDEX_WIDTH'(FIXED_NUM_MULT) + PRODUCT_INDEX_WIDTH'(lane)];
-          end
-          // Capture the next transformed-weight batch at the same pipeline
-          // boundary used by the feature transform. Current weights remain
-          // active through this edge; the next batch is used in the next cycle.
-          if (r_conv_multiply_count < $bits(r_conv_multiply_count)'(STREAM_CYCLES - 1)) begin
-            for (int unsigned lane = 0; lane < FIXED_NUM_MULT; lane++)
-              r_input_weight[lane] <=
-                  r_pretransformed_weight[((int'(r_conv_multiply_count) + 1) * FIXED_NUM_MULT) + lane];
-          end
-          // Register the current Hadamard products. InverseRow consumes this
-          // bank during the following cycle, while the next product row runs.
+          // Consume the next unprocessed feature batch from the bank front.
+          // Shift remaining features forward and commit this cycle's products
+          // into the bank tail. The inverse reads the previous tail batch.
+          for (int unsigned index = 0; index < WEIGHT_CYCLES-FIXED_NUM_MULT; index++)
+            r_transform_feature_bank[index] <= r_transform_feature_bank[index + FIXED_NUM_MULT];
           for (int unsigned lane = 0; lane < FIXED_NUM_MULT; lane++)
-            r_hadamard_product_reg[lane] <= w_hadamard_product_current[lane];
-          r_hadamard_product_row_idx_reg <= r_inverse_row_idx;
+            r_transform_feature_bank[WEIGHT_CYCLES-FIXED_NUM_MULT+lane] <=
+                w_hadamard_product_current[lane];
           r_hadamard_product_valid <= 1'b1;
           if (r_hadamard_product_valid)
             r_output_write <= w_output_acc_next;
@@ -749,12 +723,22 @@ module Conv
   );
 
   for (genvar lane = 0; lane < FIXED_NUM_MULT; lane++) begin: MAC_LANES
-    assign w_transform_feature[lane] = r_transform_feature_reg[lane];
+    // Each cycle's active feature batch is shifted to the bank front.
+    assign w_transform_feature[lane] = r_transform_feature_bank[lane];
     assign w_hadamard_product_current[lane] = w_conv_product[lane];
-    assign w_inverse_product_rows[lane] = r_hadamard_product_reg[lane];
+    assign w_inverse_product_rows[lane] =
+        r_transform_feature_bank[WEIGHT_CYCLES-FIXED_NUM_MULT+lane];
+    logic [WEIGHT_NBITS-1:0] active_weight;
+    always_comb begin
+      if (int'(r_conv_multiply_count) < STREAM_CYCLES)
+        active_weight = r_pretransformed_weight[(int'(r_conv_multiply_count) * FIXED_NUM_MULT) + lane];
+      else
+        active_weight = '0;
+    end
     MultipWideWeight #(.QUANT(QUANT), .NBITS(NBITS), .WEIGHT_NBITS(WEIGHT_NBITS)) multip(
-      .feature(w_transform_feature[lane]), .weight(r_input_weight[lane]), .product(w_conv_product[lane]));
+      .feature(w_transform_feature[lane]), .weight(active_weight), .product(w_conv_product[lane]));
   end
+  assign w_inverse_batch_row_idx = r_inverse_row_idx - ROW_INDEX_WIDTH'(ROWS_PER_CYCLE);
   for (genvar group = 0; group < ROWS_PER_CYCLE; group++) begin: INVERSE_ROW_BATCH
     logic [NBITS-1:0] inverse_input_row [HADAMARD_SIZE-1:0];
     logic [NBITS-1:0] inverse_partial [CONV_OUTPUT_SIZE-1:0];
@@ -770,7 +754,7 @@ module Conv
     end
   end
   InverseRowAccumulate #(.NBITS(NBITS), .ROWS_PER_CYCLE(ROWS_PER_CYCLE)) inverse_row_acc(
-    .inverse_row_idx(r_hadamard_product_row_idx_reg),
+    .inverse_row_idx(w_inverse_batch_row_idx),
     .accumulator_in(r_output_write), .inverse_partial(w_inverse_partial_current),
     .accumulator_out(w_output_acc_next));
   // ----------------------------------------------------------------------------------------------------
@@ -984,120 +968,6 @@ endmodule
 // -----------------------------------------------------------------------------
 // Reference helper retained from the source variant. Conv above does not
 // instantiate this module: its weights are loaded from the pretransformed
-// package section by PRETRANSFORMED_WEIGHT_REG_BLOCK.
-// Uninstantiated integer reference helper retained from the source architecture.
-// The Conv hierarchy above has no weight-transform logic.
-(* use_dsp = "no" *)
-module WeightTransformRowConst #(
-    parameter int NBITS = 20,
-    parameter int ROW_INDEX = 0
-  ) (
-    input  logic signed [NBITS-1:0] pin [8:0],
-    input  logic                    enable,
-    output logic signed [NBITS-1:0] pout [5:0]
-  );
-  timeunit 1ns;
-  timeprecision 1ps;
-
-  // The largest sum of absolute coefficients is 576; keep guard bits so the
-  // exact numerator never overflows before the division.
-  localparam int TRANSFORM_WIDTH = NBITS + 11;
-  localparam int WEIGHT_SCALE = 576;
-
-  logic signed [TRANSFORM_WIDTH-1:0] weight [0:8];
-  logic signed [TRANSFORM_WIDTH-1:0] sum [0:5];
-  logic signed [TRANSFORM_WIDTH-1:0] truncated [0:5];
-
-  function automatic logic signed [TRANSFORM_WIDTH-1:0] f_floor_div(
-      input logic signed [TRANSFORM_WIDTH-1:0] value);
-    logic signed [TRANSFORM_WIDTH-1:0] quotient;
-    begin
-      quotient = value / WEIGHT_SCALE;
-      if ((value % WEIGHT_SCALE) < 0)
-        quotient = quotient - 1;
-      f_floor_div = quotient;
-    end
-  endfunction
-
-  always_comb begin: WEIGHT_TRANSFORM_ROW_CONST_BLOCK
-    for (int unsigned k = 0; k < 9; k++)
-      weight[k] = '0;
-    for (int unsigned k = 0; k < 6; k++) begin
-      sum[k] = '0;
-      truncated[k] = '0;
-      pout[k] = '0;
-    end
-
-    if (enable) begin
-      // Sign-extend before arithmetic so additions do not overflow at NBITS.
-      for (int unsigned k = 0; k < 9; k++)
-        weight[k] = {{(TRANSFORM_WIDTH-NBITS){pin[k][NBITS-1]}}, pin[k]};
-
-      // ROW_INDEX is constant per instance.  This is intentionally not a run-time case
-      // on a signal: only one row's equations remain after elaboration.
-      if (ROW_INDEX == 0) begin
-        sum[0] = (36 * weight[0]);
-        sum[1] = -(24 * weight[0]) - (24 * weight[1]) - (24 * weight[2]);
-        sum[2] = -(24 * weight[0]) + (24 * weight[1]) - (24 * weight[2]);
-        sum[3] = (6 * weight[0]) + (12 * weight[1]) + (24 * weight[2]);
-        sum[4] = (6 * weight[0]) - (12 * weight[1]) + (24 * weight[2]);
-        sum[5] = (144 * weight[2]);
-      end else if (ROW_INDEX == 1) begin
-        sum[0] = -(24 * weight[0]) - (24 * weight[3]) - (24 * weight[6]);
-        sum[1] = (16 * weight[0]) + (16 * weight[1]) + (16 * weight[2]) + (16 * weight[3]) + (16 * weight[4]) + (16 * weight[5]) + (16 * weight[6]) + (16 * weight[7]) + (16 * weight[8]);
-        sum[2] = (16 * weight[0]) - (16 * weight[1]) + (16 * weight[2]) + (16 * weight[3]) - (16 * weight[4]) + (16 * weight[5]) + (16 * weight[6]) - (16 * weight[7]) + (16 * weight[8]);
-        sum[3] = -(4 * weight[0]) - (8 * weight[1]) - (16 * weight[2]) - (4 * weight[3]) - (8 * weight[4]) - (16 * weight[5]) - (4 * weight[6]) - (8 * weight[7]) - (16 * weight[8]);
-        sum[4] = -(4 * weight[0]) + (8 * weight[1]) - (16 * weight[2]) - (4 * weight[3]) + (8 * weight[4]) - (16 * weight[5]) - (4 * weight[6]) + (8 * weight[7]) - (16 * weight[8]);
-        sum[5] = -(96 * weight[2]) - (96 * weight[5]) - (96 * weight[8]);
-      end else if (ROW_INDEX == 2) begin
-        sum[0] = -(24 * weight[0]) + (24 * weight[3]) - (24 * weight[6]);
-        sum[1] = (16 * weight[0]) + (16 * weight[1]) + (16 * weight[2]) - (16 * weight[3]) - (16 * weight[4]) - (16 * weight[5]) + (16 * weight[6]) + (16 * weight[7]) + (16 * weight[8]);
-        sum[2] = (16 * weight[0]) - (16 * weight[1]) + (16 * weight[2]) - (16 * weight[3]) + (16 * weight[4]) - (16 * weight[5]) + (16 * weight[6]) - (16 * weight[7]) + (16 * weight[8]);
-        sum[3] = -(4 * weight[0]) - (8 * weight[1]) - (16 * weight[2]) + (4 * weight[3]) + (8 * weight[4]) + (16 * weight[5]) - (4 * weight[6]) - (8 * weight[7]) - (16 * weight[8]);
-        sum[4] = -(4 * weight[0]) + (8 * weight[1]) - (16 * weight[2]) + (4 * weight[3]) - (8 * weight[4]) + (16 * weight[5]) - (4 * weight[6]) + (8 * weight[7]) - (16 * weight[8]);
-        sum[5] = -(96 * weight[2]) + (96 * weight[5]) - (96 * weight[8]);
-      end else if (ROW_INDEX == 3) begin
-        sum[0] = (6 * weight[0]) + (12 * weight[3]) + (24 * weight[6]);
-        sum[1] = -(4 * weight[0]) - (4 * weight[1]) - (4 * weight[2]) - (8 * weight[3]) - (8 * weight[4]) - (8 * weight[5]) - (16 * weight[6]) - (16 * weight[7]) - (16 * weight[8]);
-        sum[2] = -(4 * weight[0]) + (4 * weight[1]) - (4 * weight[2]) - (8 * weight[3]) + (8 * weight[4]) - (8 * weight[5]) - (16 * weight[6]) + (16 * weight[7]) - (16 * weight[8]);
-        sum[3] = weight[0] + (2 * weight[1]) + (4 * weight[2]) + (2 * weight[3]) + (4 * weight[4]) + (8 * weight[5]) + (4 * weight[6]) + (8 * weight[7]) + (16 * weight[8]);
-        sum[4] = weight[0] - (2 * weight[1]) + (4 * weight[2]) + (2 * weight[3]) - (4 * weight[4]) + (8 * weight[5]) + (4 * weight[6]) - (8 * weight[7]) + (16 * weight[8]);
-        sum[5] = (24 * weight[2]) + (48 * weight[5]) + (96 * weight[8]);
-      end else if (ROW_INDEX == 4) begin
-        sum[0] = (6 * weight[0]) - (12 * weight[3]) + (24 * weight[6]);
-        sum[1] = -(4 * weight[0]) - (4 * weight[1]) - (4 * weight[2]) + (8 * weight[3]) + (8 * weight[4]) + (8 * weight[5]) - (16 * weight[6]) - (16 * weight[7]) - (16 * weight[8]);
-        sum[2] = -(4 * weight[0]) + (4 * weight[1]) - (4 * weight[2]) + (8 * weight[3]) - (8 * weight[4]) + (8 * weight[5]) - (16 * weight[6]) + (16 * weight[7]) - (16 * weight[8]);
-        sum[3] = weight[0] + (2 * weight[1]) + (4 * weight[2]) - (2 * weight[3]) - (4 * weight[4]) - (8 * weight[5]) + (4 * weight[6]) + (8 * weight[7]) + (16 * weight[8]);
-        sum[4] = weight[0] - (2 * weight[1]) + (4 * weight[2]) - (2 * weight[3]) + (4 * weight[4]) - (8 * weight[5]) + (4 * weight[6]) - (8 * weight[7]) + (16 * weight[8]);
-        sum[5] = (24 * weight[2]) - (48 * weight[5]) + (96 * weight[8]);
-      end else if (ROW_INDEX == 5) begin
-        sum[0] = (144 * weight[6]);
-        sum[1] = -(96 * weight[6]) - (96 * weight[7]) - (96 * weight[8]);
-        sum[2] = -(96 * weight[6]) + (96 * weight[7]) - (96 * weight[8]);
-        sum[3] = (24 * weight[6]) + (48 * weight[7]) + (96 * weight[8]);
-        sum[4] = (24 * weight[6]) - (48 * weight[7]) + (96 * weight[8]);
-        sum[5] = (576 * weight[8]);
-      end
-
-      // Floor division by the constant weight scale.
-      truncated[0] = f_floor_div(sum[0]);
-      truncated[1] = f_floor_div(sum[1]);
-      truncated[2] = f_floor_div(sum[2]);
-      truncated[3] = f_floor_div(sum[3]);
-      truncated[4] = f_floor_div(sum[4]);
-      truncated[5] = f_floor_div(sum[5]);
-
-      // The output slice preserves the NBITS wrap contract of the datapath.
-      pout[0] = truncated[0][NBITS-1:0];
-      pout[1] = truncated[1][NBITS-1:0];
-      pout[2] = truncated[2][NBITS-1:0];
-      pout[3] = truncated[3][NBITS-1:0];
-      pout[4] = truncated[4][NBITS-1:0];
-      pout[5] = truncated[5][NBITS-1:0];
-    end
-  end
-endmodule
-
 // -----------------------------------------------------------------------------
 // Row-streamed inverse transform.  With M the Hadamard product matrix, the
 // output is Y = A0^T * M * A1.  InverseRow computes one row of M * A1 and

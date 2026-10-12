@@ -1,6 +1,6 @@
 # ASIC workload: TCN16, Cin=3, Cout=12, NBITS=16
 
-Source RTL: `rtl/conv4x4/conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-pretransformed-column.sv`.
+Source RTL: `rtl/conv4x4/archive/tcn16-pretransformed/conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-pretransformed-column.sv`.
 
 Workload package: `rtl/conv4x4/data/tcn16/sim/sim-032-3-12-normal-trunc-nbits16/pack_data.sv`.
 

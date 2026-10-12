@@ -45,8 +45,8 @@ module tb;
   logic p_output_en;
   logic p_output_wr;
   logic [NADDR-1:0] p_output_addr;
-  logic [NBITS-1:0] p_output_data_write;
-  logic [NBITS-1:0] p_output_data_read;
+  logic [CONV_OUTPUT_SIZE*NBITS-1:0] p_output_data_write;
+  logic [CONV_OUTPUT_SIZE*NBITS-1:0] p_output_data_read;
   logic p_output_valid;
 
   function automatic bit output_pixel_in_bounds(input int unsigned address);
@@ -135,12 +135,18 @@ module tb;
     .p_output_valid(p_output_valid), .p_end(p_end)
   );
 
-  Memory #(.NADDR(NADDR), .NBITS(NBITS), .LATENCY(LATENCY), .ROM(0)) memory_output (
-    .clk(clk), .reset(reset), .chip_en(p_output_en),
-    .wr_en(p_output_wr && output_pixel_in_bounds(p_output_addr)),
-    .address(p_output_addr), .data_in(p_output_data_write),
-    .data_out(p_output_data_read), .data_valid(p_output_valid)
-  );
+  // The output memory transfers a vertical column: lane addresses are
+  // separated by the physical output-map row stride.
+  always_comb begin: OUTPUT_COLUMN_MEMORY_READ_BLOCK
+    for (int unsigned lane = 0; lane < CONV_OUTPUT_SIZE; lane++) begin
+      if ((p_output_addr + lane * OUTPUT_PHYSICAL_SIZE) < OUTPUT_MEMORY_SIZE)
+        p_output_data_read[lane*NBITS +: NBITS] =
+            output_bank[p_output_addr + lane * OUTPUT_PHYSICAL_SIZE];
+      else
+        p_output_data_read[lane*NBITS +: NBITS] = '0;
+    end
+  end
+  assign p_output_valid = p_output_en;
 
   logic [CONV_INPUT_SIZE-1:0] input_data_valid;
   generate
@@ -167,8 +173,12 @@ module tb;
   end
 
 
-  // Validate inverse transitions and all valid writes through the Memory instances.
+  // Validate inverse transitions and every lane of each output-column write.
   always_ff @(posedge clk or posedge reset) begin
+    integer valid_words_this_beat;
+    integer invalid_words_this_beat;
+    integer errors_this_beat;
+    integer lane_address;
     if (reset) begin
       conv_inverse_check_idx <= 0;
       output_error_count <= 0;
@@ -194,20 +204,31 @@ module tb;
       if (p_input_en && !input_vector_in_bounds)
         input_out_of_range_count <= input_out_of_range_count + 1;
       if (p_output_en && p_output_wr) begin
-        if (output_pixel_in_bounds(p_output_addr)) begin
-          write_count <= write_count + 1;
-          output_bank[p_output_addr] <= p_output_data_write;
-          if ((dut.r_output_channel_counter_input == (N_CHANNEL_IN - 1)) &&
-              ($signed(p_output_data_write) != $signed(expected_output_value(p_output_addr)))) begin
-            output_error_count <= output_error_count + 1;
-            if (output_error_count < 8)
-              $display("ERROR WRITE GOLDEN: time=%0t addr=%0d got=%0d expected=%0d",
-                       $realtime, p_output_addr, $signed(p_output_data_write),
-                       expected_output_value(p_output_addr));
+        valid_words_this_beat = 0;
+        invalid_words_this_beat = 0;
+        errors_this_beat = 0;
+        for (int unsigned lane = 0; lane < CONV_OUTPUT_SIZE; lane++) begin
+          lane_address = p_output_addr + lane * OUTPUT_PHYSICAL_SIZE;
+          if (output_pixel_in_bounds(lane_address)) begin
+            valid_words_this_beat = valid_words_this_beat + 1;
+            output_bank[lane_address] <= p_output_data_write[lane*NBITS +: NBITS];
+            if ((dut.r_output_channel_counter_input == (N_CHANNEL_IN - 1)) &&
+                ($signed(p_output_data_write[lane*NBITS +: NBITS]) !=
+                 $signed(expected_output_value(lane_address)))) begin
+              errors_this_beat = errors_this_beat + 1;
+              if ((output_error_count + errors_this_beat) <= 8)
+                $display("ERROR WRITE GOLDEN: time=%0t addr=%0d got=%0d expected=%0d",
+                         $realtime, lane_address,
+                         $signed(p_output_data_write[lane*NBITS +: NBITS]),
+                         expected_output_value(lane_address));
+            end
+          end else begin
+            invalid_words_this_beat = invalid_words_this_beat + 1;
           end
-        end else begin
-          output_out_of_range_count <= output_out_of_range_count + 1;
         end
+        write_count <= write_count + valid_words_this_beat;
+        output_out_of_range_count <= output_out_of_range_count + invalid_words_this_beat;
+        output_error_count <= output_error_count + errors_this_beat;
       end
     end
   end
@@ -253,6 +274,9 @@ module tb;
     $display("Job execution time: %0.3f ns (%0.6f us), %0d cycles",
              job_execution_time, job_execution_time / 1000.0, job_execution_cycles);
     repeat (20) @(posedge clk);
+    $display("4x4 simulation summary: inverse_tiles=%0d cycles=%0d valid_writes=%0d input_samples_clipped=%0d invalid_output_words=%0d golden_mismatches=%0d",
+             conv_inverse_check_idx, cycle_count, write_count,
+             input_out_of_range_count, output_out_of_range_count, output_error_count);
     if (output_error_count != 0)
       $fatal(1, "output golden mismatch count: %0d", output_error_count);
     if (conv_inverse_check_idx != EXPECTED_INVERSE_COUNT)

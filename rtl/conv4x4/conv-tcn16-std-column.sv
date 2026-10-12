@@ -33,8 +33,8 @@ module Conv
     output logic p_output_en,                      // Enables access to the output RAM port
     output logic p_output_wr,                      // Write strobe for the output RAM port
     output logic [NADDR-1:0] p_output_addr,        // Address issued to the output RAM
-    output logic [NBITS-1:0] p_output_data_write,  // Data driven into the output RAM on writes
-    input  logic [NBITS-1:0] p_output_data_read,   // Data captured from the output RAM on reads
+    output logic [CONV_OUTPUT_SIZE*NBITS-1:0] p_output_data_write, // One output column per write beat
+    input  logic [CONV_OUTPUT_SIZE*NBITS-1:0] p_output_data_read,  // One output column per read beat
     input  logic p_output_valid                    // Read-valid flag from the output RAM
   );
 
@@ -69,10 +69,7 @@ module Conv
   logic [WINDOW_ROW_COUNTER_WIDTH-1:0] r_input_window_counter_col;
 
   localparam ADDR_INPUT_COUNTER_WIDTH = f_width_min1(CONV_INPUT_SIZE);
-  localparam INPUT_FEAT_INDEX_WIDTH = f_width_min1(CONV_INPUT_SIZE * CONV_INPUT_SIZE);
   logic [ADDR_INPUT_COUNTER_WIDTH-1:0] w_input_base_feat;
-  logic [ADDR_INPUT_COUNTER_WIDTH-1:0] r_input_addr_count;
-  logic [INPUT_FEAT_INDEX_WIDTH-1:0] w_input_feat_wr_index;
 
   localparam CHANNEL_INPUT_COUNTER_WIDTH = f_width_min1(N_CHANNEL_IN + 1);
   logic [CHANNEL_INPUT_COUNTER_WIDTH-1:0] r_input_channel_counter_input;
@@ -100,8 +97,9 @@ module Conv
   logic [(f_width_min1((STATE_MULT * NUM_MULT) - 1) + 1)-1:0] r_conv_idx_out[NUM_MULT-1:0];
   logic w_conv_end;
 
-  localparam OUTPUT_RW_COUNT_MAX = (CONV_OUTPUT_SIZE * CONV_OUTPUT_SIZE) - 1;
-  localparam OUTPUT_RW_COUNT_WIDTH = f_width_min1(CONV_OUTPUT_SIZE * CONV_OUTPUT_SIZE);
+  // Each output-memory beat transfers one complete vertical output column.
+  localparam OUTPUT_RW_COUNT_MAX = CONV_OUTPUT_SIZE - 1;
+  localparam OUTPUT_RW_COUNT_WIDTH = f_width_min1(CONV_OUTPUT_SIZE);
   logic [OUTPUT_RW_COUNT_WIDTH-1:0] r_output_read_count;
   logic [OUTPUT_RW_COUNT_WIDTH-1:0] r_output_write_count;
   logic [NBITS-1:0] r_output_write [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
@@ -244,12 +242,14 @@ module Conv
       READ_WEIGHTS:
         if (w_input_weight_done) st_input_next = READ_IN_6A;
         else if (w_input_last_channel_output) st_input_next = WAIT_INPUT;  //end processing
-      READ_IN_6A: if (r_input_addr_count == (CONV_INPUT_SIZE - 1)) st_input_next = READ_IN_6B;
-      READ_IN_6B: if (r_input_addr_count == (CONV_INPUT_SIZE - 1)) st_input_next = READ_IN_6C;
-      READ_IN_6C: if (r_input_addr_count == (CONV_INPUT_SIZE - 1)) st_input_next = READ_IN_6D;
-      READ_IN_6D: if (r_input_addr_count == (CONV_INPUT_SIZE - 1)) st_input_next = READ_IN_6E;
-      READ_IN_6E: if (r_input_addr_count == (CONV_INPUT_SIZE - 1)) st_input_next = READ_IN_6F;
-      READ_IN_6F: if (r_input_addr_count == (CONV_INPUT_SIZE - 1)) st_input_next = CONV_INPUT;
+      // Each state consumes one complete column beat (six feature words).
+      // Advance only when the memory reports that this vector is valid.
+      READ_IN_6A: if (p_input_valid) st_input_next = READ_IN_6B;
+      READ_IN_6B: if (p_input_valid) st_input_next = READ_IN_6C;
+      READ_IN_6C: if (p_input_valid) st_input_next = READ_IN_6D;
+      READ_IN_6D: if (p_input_valid) st_input_next = READ_IN_6E;
+      READ_IN_6E: if (p_input_valid) st_input_next = READ_IN_6F;
+      READ_IN_6F: if (p_input_valid) st_input_next = CONV_INPUT;
       CONV_INPUT: st_input_next = TRANSFER;
       TRANSFER: st_input_next = HOLD_WRITE;  // p_start the convolution
       HOLD_WRITE:
@@ -282,24 +282,6 @@ module Conv
   // -------------------------------------------------------------------------
   // READING REGISTERS
   // -------------------------------------------------------------------------
-
-  always_ff @(posedge clk or posedge reset) begin: INPUT_READ_COUNTER_BLOCK
-    if (reset) begin
-      r_input_addr_count <= 0;
-    end else begin
-      if (st_input_current == READ_WEIGHTS) begin
-        r_input_addr_count <= 0;
-      end
-      else if (st_input_current inside {READ_IN_6A, READ_IN_6B, READ_IN_6C, READ_IN_6D, READ_IN_6E, READ_IN_6F}) begin
-        // Keep the original six-cycle row cadence so input and output FSM
-        // handshakes remain aligned with the scalar std architecture.
-        if (r_input_addr_count == (CONV_INPUT_SIZE - 1))
-          r_input_addr_count <= 0;
-        else
-          r_input_addr_count <= r_input_addr_count + 1'b1;
-      end
-    end
-  end
 
   assign w_input_base_feat = (st_input_current == READ_IN_6A) ? 0 :
                              (st_input_current == READ_IN_6B) ? 1 :
@@ -357,8 +339,7 @@ module Conv
     for (int unsigned i = 0; i < (CONV_INPUT_SIZE * CONV_INPUT_SIZE); i++)
       w_input_feat_next[i] = '0;
 
-    if ((st_input_current inside {READ_IN_6A, READ_IN_6B, READ_IN_6C, READ_IN_6D, READ_IN_6E, READ_IN_6F}) &&
-        (r_input_addr_count == 0)) begin
+    if (st_input_current inside {READ_IN_6A, READ_IN_6B, READ_IN_6C, READ_IN_6D, READ_IN_6E, READ_IN_6F}) begin
       for (int unsigned lane = 0; lane < CONV_INPUT_SIZE; lane++)
         w_input_feat_next[w_input_base_feat + lane * CONV_INPUT_SIZE] =
             p_input_data[lane*NBITS +: NBITS];
@@ -380,14 +361,9 @@ module Conv
     end
   end
 
-  assign w_input_feat_wr_index = INPUT_FEAT_INDEX_WIDTH'(w_input_base_feat) +
-                                 (INPUT_FEAT_INDEX_WIDTH'(r_input_addr_count) *
-                                  INPUT_FEAT_INDEX_WIDTH'(CONV_INPUT_SIZE));
-
   always_comb begin: INPUT_SHIFT_WE_BLOCK  // 'w_input_feat_en' to write into the register bank r_input_feat
     w_input_feat_en = '0;
-    if ((st_input_current inside {READ_IN_6A, READ_IN_6B, READ_IN_6C, READ_IN_6D, READ_IN_6E, READ_IN_6F}) &&
-        (r_input_addr_count == 0)) begin
+    if (st_input_current inside {READ_IN_6A, READ_IN_6B, READ_IN_6C, READ_IN_6D, READ_IN_6E, READ_IN_6F}) begin
       for (int unsigned lane = 0; lane < CONV_INPUT_SIZE; lane++)
         w_input_feat_en[w_input_base_feat + lane * CONV_INPUT_SIZE] = 1'b1;
     end else if (st_input_current == TRANSFER) begin
@@ -686,7 +662,9 @@ module Conv
         // r_output_write <= '{default: '0};
         r_output_read <= '{default: '0};
       end else if ((st_output_current == READ_OUTPUT) && p_output_valid) begin
-        r_output_read[r_output_read_count] <= p_output_data_read;
+        for (int unsigned lane = 0; lane < CONV_OUTPUT_SIZE; lane++)
+          r_output_read[(lane * CONV_OUTPUT_SIZE) + r_output_read_count] <=
+              p_output_data_read[lane*NBITS +: NBITS];
       end
       if (st_conv_current == INVERSE)
         r_output_write <= w_conv_inverse;
@@ -735,37 +713,36 @@ module Conv
       if (st_output_current != READ_OUTPUT) begin
         r_output_addr_offset_read <= '0;
       end else begin
-        // Prepare offset for next READ cycle without lookup table.
+        // Advance horizontally by one column beat in the output tile.
         if (r_output_read_count == OUTPUT_RW_COUNT_WIDTH'(OUTPUT_RW_COUNT_MAX))
           r_output_addr_offset_read <= r_output_addr_offset_read;
         else
-        if ((r_output_read_count % CONV_OUTPUT_SIZE) == (CONV_OUTPUT_SIZE - 1))
-          r_output_addr_offset_read <= r_output_addr_offset_read - OUTPUT_ADDR_OFFSET_WIDTH'(((CONV_OUTPUT_SIZE - 1) * OUTPUT_PHYSICAL_SIZE) - 1);
-        else
-          r_output_addr_offset_read <= r_output_addr_offset_read + OUTPUT_ADDR_OFFSET_WIDTH'(OUTPUT_PHYSICAL_SIZE);
+          r_output_addr_offset_read <= r_output_addr_offset_read + OUTPUT_ADDR_OFFSET_WIDTH'(1);
       end
 
       if (st_output_current != WRITE_OUTPUT) begin
         r_output_addr_offset_write <= '0;
       end else begin
-        // Prepare offset for next WRITE cycle without lookup table.
+        // Advance horizontally by one column beat in the output tile.
         if (r_output_write_count == OUTPUT_RW_COUNT_WIDTH'(OUTPUT_RW_COUNT_MAX))
           r_output_addr_offset_write <= r_output_addr_offset_write;
         else
-        if ((r_output_write_count % CONV_OUTPUT_SIZE) == (CONV_OUTPUT_SIZE - 1))
-          r_output_addr_offset_write <= r_output_addr_offset_write - OUTPUT_ADDR_OFFSET_WIDTH'(((CONV_OUTPUT_SIZE - 1) * OUTPUT_PHYSICAL_SIZE) - 1);
-        else
-          r_output_addr_offset_write <= r_output_addr_offset_write + OUTPUT_ADDR_OFFSET_WIDTH'(OUTPUT_PHYSICAL_SIZE);
+          r_output_addr_offset_write <= r_output_addr_offset_write + OUTPUT_ADDR_OFFSET_WIDTH'(1);
       end
     end
   end
 
   assign w_output_addr = NADDR'(r_output_addr_channel) + NADDR'(r_output_addr_col) + NADDR'(r_output_addr_row);
-  assign p_output_data_write = r_output_write[r_output_write_count] + r_output_read[r_output_write_count];
+  always_comb begin: OUTPUT_COLUMN_DATA_BLOCK
+    for (int unsigned lane = 0; lane < CONV_OUTPUT_SIZE; lane++)
+      p_output_data_write[lane*NBITS +: NBITS] =
+          r_output_write[(lane * CONV_OUTPUT_SIZE) + r_output_write_count] +
+          r_output_read[(lane * CONV_OUTPUT_SIZE) + r_output_write_count];
+  end
   assign p_output_addr = (st_output_current == READ_OUTPUT) ?
     (w_output_addr + NADDR'(r_output_addr_offset_read)) :
     (w_output_addr + NADDR'(r_output_addr_offset_write));  // p_input_addr mux
-  // Keep read enabled through index 8 so the 9th output element is fetched.
+  // Keep read enabled through the final output-column beat.
   assign p_output_en = (((st_output_current == READ_OUTPUT) && r_output_read_count <= OUTPUT_RW_COUNT_WIDTH'(OUTPUT_RW_COUNT_MAX)) || (st_output_current == WRITE_OUTPUT)) ? '1 : '0;
   // Keep write enabled for every WRITE_OUTPUT beat, including the final window/channel.
   assign p_output_wr = (st_output_current == WRITE_OUTPUT) ? '1 : '0;
