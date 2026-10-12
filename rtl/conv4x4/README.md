@@ -11,12 +11,13 @@ assume that every current 4x4 configuration uses the historical 20-bit,
 
 ## Active RTL set
 
-The root directory keeps the selected variants only: TCN16 standard-column,
-TCN16 `frac6` rowconst-column at 6/12/18 multipliers, and WPN16 i60/prefetch24
-rowconst-column at 8/16/32 multipliers. Pretransformed variants are archived
-under `archive/` together with their RTL, synthesis configurations, simulation
-results, and reports. The active ASIC configuration list is documented in
-[`synthesis/README.md`](synthesis/README.md).
+The root directory keeps the selected variants: TCN16 standard-column,
+TCN16 `frac6` rowconst-column at 6/12/18 multipliers, WPN16 i60/prefetch24
+rowconst-column at 8/16/32 multipliers, and the integer pretransformed-column
+pair at TCN16 m18 and WPN16 m32. The latter pair uses a separate registered
+Hadamard-product bank before the inverse stage. Their synthesis configurations
+and historical flow results remain under `archive/synthesis/`; the active ASIC
+configuration list is documented in [`synthesis/README.md`](synthesis/README.md).
 
 The testbench instantiates the same `Memory` models used by `conv3x3` and
 `conv2x2`. It starts one complete convolution, checks the output address range,

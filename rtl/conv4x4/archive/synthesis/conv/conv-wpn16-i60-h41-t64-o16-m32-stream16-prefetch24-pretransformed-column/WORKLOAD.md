@@ -1,6 +1,6 @@
 # ASIC workload: Cin=3, Cout=12
 
-RTL: `rtl/conv4x4/archive/wpn16/conv-wpn16-i60-h41-t64-o16-m32-stream16-prefetch24-pretransformed-column.sv`.
+RTL: `rtl/conv4x4/conv-wpn16-i60-h41-t64-o16-m32-stream16-prefetch24-pretransformed-column.sv`.
 
 Workload package: `rtl/conv4x4/data/wpn16/sim/sim-032-3-12-normal-trunc-nbits16/pack_data.sv`.
 
