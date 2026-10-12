@@ -1,6 +1,8 @@
 `timescale 1ns/1ps
 
-module tb;
+module tb #(
+  parameter int unsigned WEIGHT_FRAC_BITS = 0
+);
   import pack_data::*;
   import pack_param::*;
   import pack_mux_mult::*;
@@ -10,7 +12,7 @@ module tb;
   localparam real CLOCK_PERIOD_NS = 2.0;
 
   localparam int unsigned FEAT_INPUT_WIDTH = FEAT_INPUT_SIZE;
-  localparam int unsigned NBITS = 16;
+  localparam int unsigned NBITS = pack_data::NBITS;
   localparam int unsigned LATENCY = 1;
   localparam int unsigned ROM = 1;
   localparam int unsigned INPUT_MEMORY_SIZE = $size(const_data);
@@ -124,7 +126,8 @@ module tb;
     .FEAT_INPUT_SIZE(FEAT_INPUT_SIZE), .FEAT_INPUT_WIDTH(FEAT_INPUT_SIZE),
     .NADDR(NADDR), .NBITS(NBITS), .QUANT(QUANT_BITS),
     .CONV_OUTPUT_SIZE(CONV_OUTPUT_SIZE), .CONV_INPUT_SIZE(CONV_INPUT_SIZE),
-    .HADAMARD_SIZE(HADAMARD_SIZE), .NUM_MULT(NUM_MULT)
+    .HADAMARD_SIZE(HADAMARD_SIZE), .NUM_MULT(NUM_MULT), .STATE_MULT(STATE_MULT),
+    .WEIGHT_FRAC_BITS(WEIGHT_FRAC_BITS)
   ) dut (
 `endif
     .clk(clk), .reset(reset), .p_start(p_start), .p_input_en(p_input_en),

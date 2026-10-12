@@ -1,5 +1,7 @@
 /*
-   TCN16 standard architecture with a six-word input-column interface.
+   Standard architecture with a six-word input-column interface.
+   WEIGHT_FRAC_BITS selects the fixed-point representation of the loaded,
+   pretransformed weights: zero for WPN16 and six for TCN16 frac6.
 */
 `timescale 1ns / 1ps
 
@@ -17,7 +19,8 @@ module Conv
     parameter int unsigned CONV_INPUT_SIZE     = 6,
     parameter int unsigned HADAMARD_SIZE       = 6,
     parameter int unsigned NUM_MULT            = 6,
-    parameter int unsigned STATE_MULT          = 6
+    parameter int unsigned STATE_MULT          = 6,
+    parameter int unsigned WEIGHT_FRAC_BITS    = 0
   ) (
     input  logic clk,
     input  logic reset,
@@ -80,7 +83,8 @@ module Conv
   // REGISTER BANK FOR THE WEIGHTS ////////////////////////////////////////////
   localparam WEIGHT_CYCLES = HADAMARD_SIZE * HADAMARD_SIZE;
   localparam WEIGHT_WIDTH = f_width_min1(WEIGHT_CYCLES + 1);
-  logic [NBITS-1:0] r_input_weight[WEIGHT_CYCLES-1:0];
+  localparam WEIGHT_NBITS = NBITS + WEIGHT_FRAC_BITS;
+  logic [WEIGHT_NBITS-1:0] r_input_weight[WEIGHT_CYCLES-1:0];
   logic [WEIGHT_CYCLES-1:0] w_input_weight_en;
   logic [WEIGHT_WIDTH-1:0] r_input_count_kernel;
   logic w_input_weight_done;
@@ -403,7 +407,8 @@ module Conv
       // A new weight load has priority over the final HADAMARD rotation.
       for (int unsigned i = 0; i < WEIGHT_CYCLES; i++)
         if (w_input_weight_en[i])
-          r_input_weight[i] <= p_input_data[0 +: NBITS];
+          r_input_weight[i] <= {{WEIGHT_FRAC_BITS{p_input_data[NBITS-1]}},
+                                p_input_data[0 +: NBITS]};
     end else if (st_conv_current == HADAMARD) begin         // transform weights into a circular queue
       for (int unsigned i = 0; i < (WEIGHT_CYCLES-NUM_MULT); i++) begin
         r_input_weight[i] <= r_input_weight[i + NUM_MULT];
@@ -414,7 +419,8 @@ module Conv
     end else begin
       for (int unsigned i = 0; i < WEIGHT_CYCLES; i++)
         if (w_input_weight_en[i])
-          r_input_weight[i] <= p_input_data[0 +: NBITS];
+          r_input_weight[i] <= {{WEIGHT_FRAC_BITS{p_input_data[NBITS-1]}},
+                                p_input_data[0 +: NBITS]};
     end
   end
 
@@ -513,9 +519,10 @@ module Conv
 
   generate
     for (genvar i = 0; i < NUM_MULT; i++) begin : MULTIP_BLOCK    /// only the first 6 indices
-      Multip #(
-        .QUANT(QUANT),
-        .NBITS(NBITS)
+      MultipWideWeight #(
+        .QUANT(QUANT + WEIGHT_FRAC_BITS),
+        .NBITS(NBITS),
+        .WEIGHT_NBITS(WEIGHT_NBITS)
       )
       multip(
         .feature(r_conv_temp[i]),

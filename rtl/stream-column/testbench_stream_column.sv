@@ -117,6 +117,11 @@ module tb_stream_column #(
   int valid_output_word_count;
   int weight_read_beat_count;
   int useful_weight_read_beat_count;
+  // Memory-access counters for the energy model (beats on the memory ports;
+  // a beat moves CONV_INPUT_SIZE words in and CONV_OUTPUT_SIZE words out).
+  int input_read_beat_count;
+  int output_read_beat_count;
+  int output_write_beat_count;
   int cycle_count;
   int end_cycle;  // cycle at which p_end first rises (active job length)
   realtime job_start_time;
@@ -283,12 +288,22 @@ module tb_stream_column #(
       valid_output_word_count <= 0;
       weight_read_beat_count <= 0;
       useful_weight_read_beat_count <= 0;
+      input_read_beat_count <= 0;
+      output_read_beat_count <= 0;
+      output_write_beat_count <= 0;
       cycle_count <= 0;
       end_cycle <= 0;
       conv_end_d <= 1'b0;
       output_bank <= '{default: '0};
     end else begin
       cycle_count <= cycle_count + 1;
+
+      if (p_input_en && p_input_valid)
+        input_read_beat_count <= input_read_beat_count + 1;
+      if (p_output_en && !p_output_wr)
+        output_read_beat_count <= output_read_beat_count + 1;
+      if (p_output_en && p_output_wr)
+        output_write_beat_count <= output_write_beat_count + 1;
 
       if (p_end && end_cycle == 0)
         end_cycle <= cycle_count;
@@ -496,6 +511,21 @@ module tb_stream_column #(
       $fatal(1, "unexpected useful weight read beats: got %0d expected %0d",
              useful_weight_read_beat_count, EXPECTED_USEFUL_WEIGHT_BEATS);
 
+    begin
+      integer access_file;
+      access_file = $fopen("access_counts.txt", "w");
+      if (access_file == 0)
+        $fatal(1, "could not open access_counts.txt for writing");
+      $fdisplay(access_file, "input_words_per_beat=%0d", CONV_INPUT_SIZE);
+      $fdisplay(access_file, "output_words_per_beat=%0d", CONV_OUTPUT_SIZE);
+      $fdisplay(access_file, "input_read_beats=%0d", input_read_beat_count);
+      $fdisplay(access_file, "weight_read_beats=%0d", weight_read_beat_count);
+      $fdisplay(access_file, "feature_read_beats=%0d", input_read_beat_count - weight_read_beat_count);
+      $fdisplay(access_file, "output_read_beats=%0d", output_read_beat_count);
+      $fdisplay(access_file, "output_write_beats=%0d", output_write_beat_count);
+      $fdisplay(access_file, "valid_output_words=%0d", valid_output_word_count);
+      $fclose(access_file);
+    end
     $display("stream-column simulation passed: tile=%0dx%0d hadamard=%0d out=%0d inverse_tiles=%0d terminal_inverse_events=%0d cycles_to_end=%0d cycles=%0d weight_read_beats=%0d useful_weight_beats=%0d valid_writes=%0d input_clipped_beats=%0d output_clipped_words=%0d",
              CONV_INPUT_SIZE, CONV_INPUT_SIZE, HADAMARD_SIZE, CONV_OUTPUT_SIZE,
              inverse_tile_count, terminal_inverse_event_count, end_cycle, cycle_count, weight_read_beat_count,
