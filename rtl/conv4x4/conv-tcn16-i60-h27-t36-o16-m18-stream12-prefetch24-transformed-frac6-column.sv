@@ -55,9 +55,6 @@ module Conv
       (((HADAMARD_SIZE * HADAMARD_SIZE) % NUM_MULT) != 0)) begin: NUM_MULT_CHECK
     $error("NUM_MULT (%0d) must be a positive whole number of Hadamard rows", NUM_MULT);
   end
-  if (NUM_MULT != 18) begin: SHARED_LANE_SCHEDULE_CHECK
-    $error("This shared-lane inverse schedule is specific to NUM_MULT=18");
-  end
   if (CONV_INPUT_SIZE != CONV_OUTPUT_SIZE + CONV_KERNEL_SIZE - 1) begin: TILE_GEOMETRY_CHECK
     $error("CONV_INPUT_SIZE (%0d) must equal CONV_OUTPUT_SIZE + CONV_KERNEL_SIZE - 1", CONV_INPUT_SIZE);
   end
@@ -140,6 +137,7 @@ module Conv
   // Store the full transformed matrix for the active channel pair. The MAC
   // bank selects one NUM_MULT-sized batch from this register bank per cycle.
   logic [WEIGHT_NBITS-1:0] r_pretransformed_weight[WEIGHT_CYCLES-1:0];
+  logic [WEIGHT_NBITS-1:0] r_input_weight[FIXED_NUM_MULT-1:0];
   logic [WEIGHT_COUNT_WIDTH-1:0] r_weight_row_count;
   logic r_weight_tile_valid;
   logic [NADDR-1:0] r_input_addr_kernel_base;
@@ -152,13 +150,18 @@ module Conv
 
   // Flattened lanes are row-major: each HADAMARD_SIZE lanes form one row.
   localparam int ROW_INDEX_WIDTH = f_width_min1(HADAMARD_SIZE);
-  // Capture the complete 6x6 feature transform as a temporal barrier. Each
-  // 18-lane Hadamard batch then overwrites its own half with products, which
-  // the following inverse batch consumes before the next half is overwritten.
-  logic [NBITS-1:0] r_transform_feature_reg [TILE_WORDS-1:0];
+  localparam int PRODUCT_INDEX_WIDTH = f_width_min1(WEIGHT_CYCLES);
+  logic [NBITS-1:0] r_transform_feature_reg [FIXED_NUM_MULT-1:0];
   logic [ROW_INDEX_WIDTH-1:0] r_inverse_row_idx;
+  // Pipeline register separating the Hadamard products from InverseRow.
+  logic [NBITS-1:0] r_hadamard_product_reg [FIXED_NUM_MULT-1:0];
+  logic [ROW_INDEX_WIDTH-1:0] r_hadamard_product_row_idx_reg;
+  logic r_hadamard_product_valid;
+  logic [PRODUCT_INDEX_WIDTH-1:0] r_transform_product_idx;
   logic [NBITS-1:0] w_inverse_partial_current [FIXED_NUM_MULT/HADAMARD_SIZE*CONV_OUTPUT_SIZE-1:0];
   logic [NBITS-1:0] w_output_acc_next [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
+  logic [NBITS-1:0] w_inverse_product_rows [FIXED_NUM_MULT-1:0];
+  logic [NBITS-1:0] w_hadamard_product_current [FIXED_NUM_MULT-1:0];
   logic [NBITS-1:0] w_transform_feature [FIXED_NUM_MULT-1:0];
 
   localparam OUTPUT_RW_COUNT_MAX = CONV_OUTPUT_SIZE - 1;
@@ -382,11 +385,12 @@ module Conv
 
   assign w_input_prefetch_mode = r_input_prefetch_enabled;
 
-  // STREAM_FREEZE lifetime policy: retain the feature tile through the final
-  // registered Hadamard batch and its inverse accumulation.
+  // STREAM_FREEZE lifetime policy: the current feature tile remains stable
+  // until the last transform row has been consumed by the Hadamard stage.
   assign w_conv_input_release =
-                                ((st_conv_current == INVERSE) &&
-                                 (r_conv_multiply_count == $bits(r_conv_multiply_count)'(STREAM_CYCLES)));
+                                (st_conv_current == INVERSE) ||
+                                ((st_conv_current == HADAMARD) &&
+                                 (r_conv_multiply_count == $bits(r_conv_multiply_count)'(STREAM_CYCLES - 1)));
 
   // The next tile may replace the current feature bank only after the
   // convolution has consumed its final Hadamard row.
@@ -631,20 +635,18 @@ module Conv
       end
       TRANSFORM:
         // The first tile remains here while the nine raw weights are read.
-        // For subsequent windows the cached weight tile is already valid, so
-        // the first selected transform batch can run on the next cycle.
+        // For subsequent windows the cached tile is already valid, so the
+        // first transformed row is consumed on the next cycle.
         if (r_weight_tile_valid)
           st_conv_next = HADAMARD;
       HADAMARD: begin
-        // The shared lane bank is occupied by products during INVERSE, so
-        // each MAC batch is followed by one inverse/accumulation cycle.
-        st_conv_next = INVERSE;
+        if (r_conv_multiply_count == $bits(r_conv_multiply_count)'(STREAM_CYCLES - 1)) begin
+          st_conv_next = INVERSE;
+        end else
+          st_conv_next = HADAMARD;
       end
       INVERSE:
-        if (r_conv_multiply_count == $bits(r_conv_multiply_count)'(STREAM_CYCLES))
-          st_conv_next = WAIT_CONV;
-        else
-          st_conv_next = HADAMARD;
+        st_conv_next = WAIT_CONV;
       default: st_conv_next = WAIT_CONV;
     endcase
   end
@@ -656,8 +658,7 @@ module Conv
     if (reset)
       w_conv_end <= 0;
     else begin
-      if ((st_conv_current == INVERSE) &&
-          (r_conv_multiply_count == $bits(r_conv_multiply_count)'(STREAM_CYCLES)))
+      if (st_conv_current == INVERSE)
         w_conv_end <= 1;
       else if (st_output_current == WRITE_OUTPUT)
         w_conv_end <= 0;
@@ -675,32 +676,65 @@ module Conv
     end
   end
 
-  // Capture all transformed features, then reuse each 18-word half for the
-  // corresponding Hadamard products. The inverse consumes that half next.
+  // Register transformed features before Hadamard and register Hadamard
+  // products before the inverse. Each product batch contains ROWS_PER_CYCLE
+  // adjacent Hadamard rows, aligned by its first row index.
   always_ff @(posedge clk or posedge reset) begin: STREAMING_DATAPATH_BLOCK
     if (reset) begin
       r_transform_feature_reg <= '{default: '0};
+      r_hadamard_product_reg <= '{default: '0};
+      r_hadamard_product_row_idx_reg <= '0;
+      r_hadamard_product_valid <= 1'b0;
+      r_input_weight          <= '{default: '0};
       // The output-write bank also carries the streaming accumulation state.
       // Sharing this bank removes the duplicate accumulator bank.
       r_output_write              <= '{default: '0};
       r_inverse_row_idx <= '0;
+      r_transform_product_idx <= '0;
     end else begin
       unique case (st_conv_current)
         TRANSFORM: begin
+          for (int unsigned lane = 0; lane < FIXED_NUM_MULT; lane++)
+            r_transform_feature_reg[lane] <= w_conv_transform[lane];
+          // Capture the first stored pretransformed-weight batch after the
+          // complete 6x6 weight tile has been loaded.
+          if (r_weight_tile_valid)
+            for (int unsigned lane = 0; lane < FIXED_NUM_MULT; lane++)
+              r_input_weight[lane] <= r_pretransformed_weight[lane];
+          r_hadamard_product_valid <= 1'b0;
           r_output_write              <= '{default: '0};
           r_inverse_row_idx     <= '0;
-          for (int unsigned feature = 0; feature < TILE_WORDS; feature++)
-            r_transform_feature_reg[feature] <= w_conv_transform[feature];
+          r_transform_product_idx <= '0;
         end
         HADAMARD: begin
+          r_transform_product_idx <= r_transform_product_idx + PRODUCT_INDEX_WIDTH'(FIXED_NUM_MULT);
+          if (r_transform_product_idx < PRODUCT_INDEX_WIDTH'(WEIGHT_CYCLES - FIXED_NUM_MULT)) begin
+            for (int unsigned lane = 0; lane < FIXED_NUM_MULT; lane++)
+              r_transform_feature_reg[lane] <=
+                  w_conv_transform[r_transform_product_idx + PRODUCT_INDEX_WIDTH'(FIXED_NUM_MULT) + PRODUCT_INDEX_WIDTH'(lane)];
+          end
+          // Capture the next transformed-weight batch at the same pipeline
+          // boundary used by the feature transform. Current weights remain
+          // active through this edge; the next batch is used in the next cycle.
+          if (r_conv_multiply_count < $bits(r_conv_multiply_count)'(STREAM_CYCLES - 1)) begin
+            for (int unsigned lane = 0; lane < FIXED_NUM_MULT; lane++)
+              r_input_weight[lane] <=
+                  r_pretransformed_weight[((int'(r_conv_multiply_count) + 1) * FIXED_NUM_MULT) + lane];
+          end
+          // Register the current Hadamard products. InverseRow consumes this
+          // bank during the following cycle, while the next product row runs.
           for (int unsigned lane = 0; lane < FIXED_NUM_MULT; lane++)
-            r_transform_feature_reg[(int'(r_conv_multiply_count) * FIXED_NUM_MULT) + lane] <=
-                w_conv_product[lane];
+            r_hadamard_product_reg[lane] <= w_hadamard_product_current[lane];
+          r_hadamard_product_row_idx_reg <= r_inverse_row_idx;
+          r_hadamard_product_valid <= 1'b1;
+          if (r_hadamard_product_valid)
+            r_output_write <= w_output_acc_next;
+          r_inverse_row_idx <= r_inverse_row_idx + ROW_INDEX_WIDTH'(ROWS_PER_CYCLE);
         end
         INVERSE: begin
-          r_output_write <= w_output_acc_next;
-          if (r_conv_multiply_count != $bits(r_conv_multiply_count)'(STREAM_CYCLES))
-            r_inverse_row_idx <= r_inverse_row_idx + ROW_INDEX_WIDTH'(ROWS_PER_CYCLE);
+          if (r_hadamard_product_valid)
+            r_output_write <= w_output_acc_next;
+          r_hadamard_product_valid <= 1'b0;
         end
         default: begin end
       endcase
@@ -719,114 +753,34 @@ module Conv
   );
 
   for (genvar lane = 0; lane < FIXED_NUM_MULT; lane++) begin: MAC_LANES
-    logic [WEIGHT_NBITS-1:0] active_weight;
-    always_comb begin: MAC_OPERAND_SELECT_BLOCK
-      w_transform_feature[lane] = '0;
-      active_weight = '0;
-      if (r_conv_multiply_count < $bits(r_conv_multiply_count)'(STREAM_CYCLES)) begin
-        w_transform_feature[lane] =
-            r_transform_feature_reg[(int'(r_conv_multiply_count) * FIXED_NUM_MULT) + lane];
-        active_weight =
-            r_pretransformed_weight[(int'(r_conv_multiply_count) * FIXED_NUM_MULT) + lane];
-      end
-    end
+    assign w_transform_feature[lane] = r_transform_feature_reg[lane];
+    assign w_hadamard_product_current[lane] = w_conv_product[lane];
+    assign w_inverse_product_rows[lane] = r_hadamard_product_reg[lane];
     MultipWideWeight #(
       .QUANT(QUANT + WEIGHT_FRAC_BITS),
       .NBITS(NBITS),
       .WEIGHT_NBITS(WEIGHT_NBITS)
     ) multip(
-      .feature(w_transform_feature[lane]),
-      .weight(active_weight),
-      .product(w_conv_product[lane]));
+      .feature(w_transform_feature[lane]), .weight(r_input_weight[lane]), .product(w_conv_product[lane]));
   end
   for (genvar group = 0; group < ROWS_PER_CYCLE; group++) begin: INVERSE_ROW_BATCH
-    always_comb begin: INVERSE_ROW_COMBINATIONAL_BLOCK
-      w_inverse_partial_current[group * CONV_OUTPUT_SIZE + 0] =
-          r_transform_feature_reg[(int'(r_inverse_row_idx) * HADAMARD_SIZE) +
-                                  (group * HADAMARD_SIZE) + 0] +
-          r_transform_feature_reg[(int'(r_inverse_row_idx) * HADAMARD_SIZE) +
-                                  (group * HADAMARD_SIZE) + 1] +
-          r_transform_feature_reg[(int'(r_inverse_row_idx) * HADAMARD_SIZE) +
-                                  (group * HADAMARD_SIZE) + 2] +
-          r_transform_feature_reg[(int'(r_inverse_row_idx) * HADAMARD_SIZE) +
-                                  (group * HADAMARD_SIZE) + 3] +
-          r_transform_feature_reg[(int'(r_inverse_row_idx) * HADAMARD_SIZE) +
-                                  (group * HADAMARD_SIZE) + 4];
-      w_inverse_partial_current[group * CONV_OUTPUT_SIZE + 1] =
-          r_transform_feature_reg[(int'(r_inverse_row_idx) * HADAMARD_SIZE) +
-                                  (group * HADAMARD_SIZE) + 1] -
-          r_transform_feature_reg[(int'(r_inverse_row_idx) * HADAMARD_SIZE) +
-                                  (group * HADAMARD_SIZE) + 2] +
-          (2 * r_transform_feature_reg[(int'(r_inverse_row_idx) * HADAMARD_SIZE) +
-                                       (group * HADAMARD_SIZE) + 3]) -
-          (2 * r_transform_feature_reg[(int'(r_inverse_row_idx) * HADAMARD_SIZE) +
-                                       (group * HADAMARD_SIZE) + 4]);
-      w_inverse_partial_current[group * CONV_OUTPUT_SIZE + 2] =
-          r_transform_feature_reg[(int'(r_inverse_row_idx) * HADAMARD_SIZE) +
-                                  (group * HADAMARD_SIZE) + 1] +
-          r_transform_feature_reg[(int'(r_inverse_row_idx) * HADAMARD_SIZE) +
-                                  (group * HADAMARD_SIZE) + 2] +
-          (4 * r_transform_feature_reg[(int'(r_inverse_row_idx) * HADAMARD_SIZE) +
-                                       (group * HADAMARD_SIZE) + 3]) +
-          (4 * r_transform_feature_reg[(int'(r_inverse_row_idx) * HADAMARD_SIZE) +
-                                       (group * HADAMARD_SIZE) + 4]);
-      w_inverse_partial_current[group * CONV_OUTPUT_SIZE + 3] =
-          r_transform_feature_reg[(int'(r_inverse_row_idx) * HADAMARD_SIZE) +
-                                  (group * HADAMARD_SIZE) + 1] -
-          r_transform_feature_reg[(int'(r_inverse_row_idx) * HADAMARD_SIZE) +
-                                  (group * HADAMARD_SIZE) + 2] +
-          (8 * r_transform_feature_reg[(int'(r_inverse_row_idx) * HADAMARD_SIZE) +
-                                       (group * HADAMARD_SIZE) + 3]) -
-          (8 * r_transform_feature_reg[(int'(r_inverse_row_idx) * HADAMARD_SIZE) +
-                                       (group * HADAMARD_SIZE) + 4]) +
-          r_transform_feature_reg[(int'(r_inverse_row_idx) * HADAMARD_SIZE) +
-                                  (group * HADAMARD_SIZE) + 5];
+    logic [NBITS-1:0] inverse_input_row [HADAMARD_SIZE-1:0];
+    logic [NBITS-1:0] inverse_partial [CONV_OUTPUT_SIZE-1:0];
+    for (genvar column = 0; column < HADAMARD_SIZE; column++) begin: INVERSE_ROW_COLUMN
+      assign inverse_input_row[column] =
+          w_inverse_product_rows[group * HADAMARD_SIZE + column];
+    end
+    InverseRow #(.NBITS(NBITS)) inverse_row(
+      .inverse_input_row(inverse_input_row), .inverse_partial(inverse_partial));
+    for (genvar output_column = 0; output_column < CONV_OUTPUT_SIZE; output_column++) begin: INVERSE_PARTIAL_FLATTEN
+      assign w_inverse_partial_current[group * CONV_OUTPUT_SIZE + output_column] =
+          inverse_partial[output_column];
     end
   end
-  always_comb begin: INVERSE_ACCUMULATE_COMBINATIONAL_BLOCK
-    for (int unsigned pixel = 0; pixel < CONV_OUTPUT_SIZE * CONV_OUTPUT_SIZE; pixel++)
-      w_output_acc_next[pixel] = r_output_write[pixel];
-
-    // The m18 schedule processes rows 0-2, then rows 3-5. This is the inline
-    // A0^T accumulation across the active three-row batch.
-    case (r_inverse_row_idx)
-      0: begin
-        for (int unsigned column = 0; column < CONV_OUTPUT_SIZE; column++) begin
-          w_output_acc_next[column] = r_output_write[column] +
-              w_inverse_partial_current[column] +
-              w_inverse_partial_current[CONV_OUTPUT_SIZE + column] +
-              w_inverse_partial_current[2 * CONV_OUTPUT_SIZE + column];
-          w_output_acc_next[CONV_OUTPUT_SIZE + column] = r_output_write[CONV_OUTPUT_SIZE + column] +
-              w_inverse_partial_current[CONV_OUTPUT_SIZE + column] -
-              w_inverse_partial_current[2 * CONV_OUTPUT_SIZE + column];
-          w_output_acc_next[2 * CONV_OUTPUT_SIZE + column] = r_output_write[2 * CONV_OUTPUT_SIZE + column] +
-              w_inverse_partial_current[CONV_OUTPUT_SIZE + column] +
-              w_inverse_partial_current[2 * CONV_OUTPUT_SIZE + column];
-          w_output_acc_next[3 * CONV_OUTPUT_SIZE + column] = r_output_write[3 * CONV_OUTPUT_SIZE + column] +
-              w_inverse_partial_current[CONV_OUTPUT_SIZE + column] -
-              w_inverse_partial_current[2 * CONV_OUTPUT_SIZE + column];
-        end
-      end
-      3: begin
-        for (int unsigned column = 0; column < CONV_OUTPUT_SIZE; column++) begin
-          w_output_acc_next[column] = r_output_write[column] +
-              w_inverse_partial_current[column] +
-              w_inverse_partial_current[CONV_OUTPUT_SIZE + column];
-          w_output_acc_next[CONV_OUTPUT_SIZE + column] = r_output_write[CONV_OUTPUT_SIZE + column] +
-              (2 * w_inverse_partial_current[column]) -
-              (2 * w_inverse_partial_current[CONV_OUTPUT_SIZE + column]);
-          w_output_acc_next[2 * CONV_OUTPUT_SIZE + column] = r_output_write[2 * CONV_OUTPUT_SIZE + column] +
-              (4 * w_inverse_partial_current[column]) +
-              (4 * w_inverse_partial_current[CONV_OUTPUT_SIZE + column]);
-          w_output_acc_next[3 * CONV_OUTPUT_SIZE + column] = r_output_write[3 * CONV_OUTPUT_SIZE + column] +
-              (8 * w_inverse_partial_current[column]) -
-              (8 * w_inverse_partial_current[CONV_OUTPUT_SIZE + column]) +
-              w_inverse_partial_current[2 * CONV_OUTPUT_SIZE + column];
-        end
-      end
-      default: begin end
-    endcase
-  end
+  InverseRowAccumulate #(.NBITS(NBITS), .ROWS_PER_CYCLE(ROWS_PER_CYCLE)) inverse_row_acc(
+    .inverse_row_idx(r_hadamard_product_row_idx_reg),
+    .accumulator_in(r_output_write), .inverse_partial(w_inverse_partial_current),
+    .accumulator_out(w_output_acc_next));
   // ----------------------------------------------------------------------------------------------------
   // -------  PART 4 - OUTPUT FSM AND READ/WRITE COUNTER -------------------------------------------------
   // ----------------------------------------------------------------------------------------------------
@@ -1033,4 +987,483 @@ module Conv
   // Keep write enabled for every WRITE_OUTPUT beat, including the final window/channel.
   assign p_output_wr = (st_output_current == WRITE_OUTPUT) ? '1 : '0;
 
+endmodule
+
+// -----------------------------------------------------------------------------
+// Reference helper retained from the source variant. Conv above does not
+// instantiate this module: its weights are loaded from the pretransformed
+// package section by PRETRANSFORMED_WEIGHT_REG_BLOCK.
+// Uninstantiated integer reference helper retained from the source architecture.
+// The Conv hierarchy above has no weight-transform logic.
+(* use_dsp = "no" *)
+module WeightTransformRowConst #(
+    parameter int NBITS = 20,
+    parameter int ROW_INDEX = 0
+  ) (
+    input  logic signed [NBITS-1:0] pin [8:0],
+    input  logic                    enable,
+    output logic signed [NBITS-1:0] pout [5:0]
+  );
+  timeunit 1ns;
+  timeprecision 1ps;
+
+  // The largest sum of absolute coefficients is 576; keep guard bits so the
+  // exact numerator never overflows before the division.
+  localparam int TRANSFORM_WIDTH = NBITS + 11;
+  localparam int WEIGHT_SCALE = 576;
+
+  logic signed [TRANSFORM_WIDTH-1:0] weight [0:8];
+  logic signed [TRANSFORM_WIDTH-1:0] sum [0:5];
+  logic signed [TRANSFORM_WIDTH-1:0] truncated [0:5];
+
+  function automatic logic signed [TRANSFORM_WIDTH-1:0] f_floor_div(
+      input logic signed [TRANSFORM_WIDTH-1:0] value);
+    logic signed [TRANSFORM_WIDTH-1:0] quotient;
+    begin
+      quotient = value / WEIGHT_SCALE;
+      if ((value % WEIGHT_SCALE) < 0)
+        quotient = quotient - 1;
+      f_floor_div = quotient;
+    end
+  endfunction
+
+  always_comb begin: WEIGHT_TRANSFORM_ROW_CONST_BLOCK
+    for (int unsigned k = 0; k < 9; k++)
+      weight[k] = '0;
+    for (int unsigned k = 0; k < 6; k++) begin
+      sum[k] = '0;
+      truncated[k] = '0;
+      pout[k] = '0;
+    end
+
+    if (enable) begin
+      // Sign-extend before arithmetic so additions do not overflow at NBITS.
+      for (int unsigned k = 0; k < 9; k++)
+        weight[k] = {{(TRANSFORM_WIDTH-NBITS){pin[k][NBITS-1]}}, pin[k]};
+
+      // ROW_INDEX is constant per instance.  This is intentionally not a run-time case
+      // on a signal: only one row's equations remain after elaboration.
+      if (ROW_INDEX == 0) begin
+        sum[0] = (36 * weight[0]);
+        sum[1] = -(24 * weight[0]) - (24 * weight[1]) - (24 * weight[2]);
+        sum[2] = -(24 * weight[0]) + (24 * weight[1]) - (24 * weight[2]);
+        sum[3] = (6 * weight[0]) + (12 * weight[1]) + (24 * weight[2]);
+        sum[4] = (6 * weight[0]) - (12 * weight[1]) + (24 * weight[2]);
+        sum[5] = (144 * weight[2]);
+      end else if (ROW_INDEX == 1) begin
+        sum[0] = -(24 * weight[0]) - (24 * weight[3]) - (24 * weight[6]);
+        sum[1] = (16 * weight[0]) + (16 * weight[1]) + (16 * weight[2]) + (16 * weight[3]) + (16 * weight[4]) + (16 * weight[5]) + (16 * weight[6]) + (16 * weight[7]) + (16 * weight[8]);
+        sum[2] = (16 * weight[0]) - (16 * weight[1]) + (16 * weight[2]) + (16 * weight[3]) - (16 * weight[4]) + (16 * weight[5]) + (16 * weight[6]) - (16 * weight[7]) + (16 * weight[8]);
+        sum[3] = -(4 * weight[0]) - (8 * weight[1]) - (16 * weight[2]) - (4 * weight[3]) - (8 * weight[4]) - (16 * weight[5]) - (4 * weight[6]) - (8 * weight[7]) - (16 * weight[8]);
+        sum[4] = -(4 * weight[0]) + (8 * weight[1]) - (16 * weight[2]) - (4 * weight[3]) + (8 * weight[4]) - (16 * weight[5]) - (4 * weight[6]) + (8 * weight[7]) - (16 * weight[8]);
+        sum[5] = -(96 * weight[2]) - (96 * weight[5]) - (96 * weight[8]);
+      end else if (ROW_INDEX == 2) begin
+        sum[0] = -(24 * weight[0]) + (24 * weight[3]) - (24 * weight[6]);
+        sum[1] = (16 * weight[0]) + (16 * weight[1]) + (16 * weight[2]) - (16 * weight[3]) - (16 * weight[4]) - (16 * weight[5]) + (16 * weight[6]) + (16 * weight[7]) + (16 * weight[8]);
+        sum[2] = (16 * weight[0]) - (16 * weight[1]) + (16 * weight[2]) - (16 * weight[3]) + (16 * weight[4]) - (16 * weight[5]) + (16 * weight[6]) - (16 * weight[7]) + (16 * weight[8]);
+        sum[3] = -(4 * weight[0]) - (8 * weight[1]) - (16 * weight[2]) + (4 * weight[3]) + (8 * weight[4]) + (16 * weight[5]) - (4 * weight[6]) - (8 * weight[7]) - (16 * weight[8]);
+        sum[4] = -(4 * weight[0]) + (8 * weight[1]) - (16 * weight[2]) + (4 * weight[3]) - (8 * weight[4]) + (16 * weight[5]) - (4 * weight[6]) + (8 * weight[7]) - (16 * weight[8]);
+        sum[5] = -(96 * weight[2]) + (96 * weight[5]) - (96 * weight[8]);
+      end else if (ROW_INDEX == 3) begin
+        sum[0] = (6 * weight[0]) + (12 * weight[3]) + (24 * weight[6]);
+        sum[1] = -(4 * weight[0]) - (4 * weight[1]) - (4 * weight[2]) - (8 * weight[3]) - (8 * weight[4]) - (8 * weight[5]) - (16 * weight[6]) - (16 * weight[7]) - (16 * weight[8]);
+        sum[2] = -(4 * weight[0]) + (4 * weight[1]) - (4 * weight[2]) - (8 * weight[3]) + (8 * weight[4]) - (8 * weight[5]) - (16 * weight[6]) + (16 * weight[7]) - (16 * weight[8]);
+        sum[3] = weight[0] + (2 * weight[1]) + (4 * weight[2]) + (2 * weight[3]) + (4 * weight[4]) + (8 * weight[5]) + (4 * weight[6]) + (8 * weight[7]) + (16 * weight[8]);
+        sum[4] = weight[0] - (2 * weight[1]) + (4 * weight[2]) + (2 * weight[3]) - (4 * weight[4]) + (8 * weight[5]) + (4 * weight[6]) - (8 * weight[7]) + (16 * weight[8]);
+        sum[5] = (24 * weight[2]) + (48 * weight[5]) + (96 * weight[8]);
+      end else if (ROW_INDEX == 4) begin
+        sum[0] = (6 * weight[0]) - (12 * weight[3]) + (24 * weight[6]);
+        sum[1] = -(4 * weight[0]) - (4 * weight[1]) - (4 * weight[2]) + (8 * weight[3]) + (8 * weight[4]) + (8 * weight[5]) - (16 * weight[6]) - (16 * weight[7]) - (16 * weight[8]);
+        sum[2] = -(4 * weight[0]) + (4 * weight[1]) - (4 * weight[2]) + (8 * weight[3]) - (8 * weight[4]) + (8 * weight[5]) - (16 * weight[6]) + (16 * weight[7]) - (16 * weight[8]);
+        sum[3] = weight[0] + (2 * weight[1]) + (4 * weight[2]) - (2 * weight[3]) - (4 * weight[4]) - (8 * weight[5]) + (4 * weight[6]) + (8 * weight[7]) + (16 * weight[8]);
+        sum[4] = weight[0] - (2 * weight[1]) + (4 * weight[2]) - (2 * weight[3]) + (4 * weight[4]) - (8 * weight[5]) + (4 * weight[6]) - (8 * weight[7]) + (16 * weight[8]);
+        sum[5] = (24 * weight[2]) - (48 * weight[5]) + (96 * weight[8]);
+      end else if (ROW_INDEX == 5) begin
+        sum[0] = (144 * weight[6]);
+        sum[1] = -(96 * weight[6]) - (96 * weight[7]) - (96 * weight[8]);
+        sum[2] = -(96 * weight[6]) + (96 * weight[7]) - (96 * weight[8]);
+        sum[3] = (24 * weight[6]) + (48 * weight[7]) + (96 * weight[8]);
+        sum[4] = (24 * weight[6]) - (48 * weight[7]) + (96 * weight[8]);
+        sum[5] = (576 * weight[8]);
+      end
+
+      // Floor division by the constant weight scale.
+      truncated[0] = f_floor_div(sum[0]);
+      truncated[1] = f_floor_div(sum[1]);
+      truncated[2] = f_floor_div(sum[2]);
+      truncated[3] = f_floor_div(sum[3]);
+      truncated[4] = f_floor_div(sum[4]);
+      truncated[5] = f_floor_div(sum[5]);
+
+      // The output slice preserves the NBITS wrap contract of the datapath.
+      pout[0] = truncated[0][NBITS-1:0];
+      pout[1] = truncated[1][NBITS-1:0];
+      pout[2] = truncated[2][NBITS-1:0];
+      pout[3] = truncated[3][NBITS-1:0];
+      pout[4] = truncated[4][NBITS-1:0];
+      pout[5] = truncated[5][NBITS-1:0];
+    end
+  end
+endmodule
+
+// -----------------------------------------------------------------------------
+// Row-streamed inverse transform.  With M the Hadamard product matrix, the
+// output is Y = A0^T * M * A1.  InverseRow computes one row of M * A1 and
+// InverseRowAccumulate adds A0[row][i] times that row to output row i.
+// All arithmetic wraps at NBITS (modular), matching the golden model.
+// -----------------------------------------------------------------------------
+module InverseRow #(
+    parameter int NBITS = 20,
+    parameter int HADAMARD_SIZE = 6,
+    parameter int CONV_OUTPUT_SIZE = 4
+  ) (
+    input  logic [NBITS-1:0] inverse_input_row [HADAMARD_SIZE-1:0],
+    output logic [NBITS-1:0] inverse_partial [CONV_OUTPUT_SIZE-1:0]
+  );
+  timeunit 1ns;
+  timeprecision 1ps;
+
+  assign inverse_partial[0] = inverse_input_row[0] + inverse_input_row[1] + inverse_input_row[2] + inverse_input_row[3] + inverse_input_row[4];
+  assign inverse_partial[1] = inverse_input_row[1] - inverse_input_row[2] + (2 * inverse_input_row[3]) - (2 * inverse_input_row[4]);
+  assign inverse_partial[2] = inverse_input_row[1] + inverse_input_row[2] + (4 * inverse_input_row[3]) + (4 * inverse_input_row[4]);
+  assign inverse_partial[3] = inverse_input_row[1] - inverse_input_row[2] + (8 * inverse_input_row[3]) - (8 * inverse_input_row[4]) + inverse_input_row[5];
+endmodule
+
+module InverseRowAccumulate #(
+    parameter int NBITS = 20,
+    parameter int HADAMARD_SIZE = 6,
+    parameter int CONV_OUTPUT_SIZE = 4,
+    parameter int ROWS_PER_CYCLE = 1,
+    parameter int ROW_INDEX_WIDTH = (HADAMARD_SIZE <= 1) ? 1 : $clog2(HADAMARD_SIZE)
+  ) (
+    input  logic [ROW_INDEX_WIDTH-1:0] inverse_row_idx,
+    input  logic [NBITS-1:0] accumulator_in [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0],
+    input  logic [NBITS-1:0] inverse_partial [ROWS_PER_CYCLE*CONV_OUTPUT_SIZE-1:0],
+    output logic [NBITS-1:0] accumulator_out [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0]
+  );
+  timeunit 1ns;
+  timeprecision 1ps;
+
+  localparam int OUTPUT_PIXELS = CONV_OUTPUT_SIZE * CONV_OUTPUT_SIZE;
+
+  // Decode the batch base once, then select one statically expanded sum.
+  // This avoids both a runtime row-index adder per batch and a procedural
+  // read-modify-write chain on accumulator_out, which Vivado mis-mapped for
+  // some multi-row configurations in post-synthesis functional simulation.
+  generate
+    if (ROWS_PER_CYCLE == 1) begin: INVERSE_SUM_1
+      always_comb begin: INVERSE_ROW_ACCUMULATE_BLOCK
+        accumulator_out[0] = accumulator_in[0];
+        accumulator_out[1] = accumulator_in[1];
+        accumulator_out[2] = accumulator_in[2];
+        accumulator_out[3] = accumulator_in[3];
+        accumulator_out[4] = accumulator_in[4];
+        accumulator_out[5] = accumulator_in[5];
+        accumulator_out[6] = accumulator_in[6];
+        accumulator_out[7] = accumulator_in[7];
+        accumulator_out[8] = accumulator_in[8];
+        accumulator_out[9] = accumulator_in[9];
+        accumulator_out[10] = accumulator_in[10];
+        accumulator_out[11] = accumulator_in[11];
+        accumulator_out[12] = accumulator_in[12];
+        accumulator_out[13] = accumulator_in[13];
+        accumulator_out[14] = accumulator_in[14];
+        accumulator_out[15] = accumulator_in[15];
+        case (inverse_row_idx)
+          0: begin
+            accumulator_out[0] = accumulator_in[0] + inverse_partial[0];
+            accumulator_out[1] = accumulator_in[1] + inverse_partial[1];
+            accumulator_out[2] = accumulator_in[2] + inverse_partial[2];
+            accumulator_out[3] = accumulator_in[3] + inverse_partial[3];
+            accumulator_out[4] = accumulator_in[4];
+            accumulator_out[5] = accumulator_in[5];
+            accumulator_out[6] = accumulator_in[6];
+            accumulator_out[7] = accumulator_in[7];
+            accumulator_out[8] = accumulator_in[8];
+            accumulator_out[9] = accumulator_in[9];
+            accumulator_out[10] = accumulator_in[10];
+            accumulator_out[11] = accumulator_in[11];
+            accumulator_out[12] = accumulator_in[12];
+            accumulator_out[13] = accumulator_in[13];
+            accumulator_out[14] = accumulator_in[14];
+            accumulator_out[15] = accumulator_in[15];
+          end
+          1: begin
+            accumulator_out[0] = accumulator_in[0] + inverse_partial[0];
+            accumulator_out[1] = accumulator_in[1] + inverse_partial[1];
+            accumulator_out[2] = accumulator_in[2] + inverse_partial[2];
+            accumulator_out[3] = accumulator_in[3] + inverse_partial[3];
+            accumulator_out[4] = accumulator_in[4] + inverse_partial[0];
+            accumulator_out[5] = accumulator_in[5] + inverse_partial[1];
+            accumulator_out[6] = accumulator_in[6] + inverse_partial[2];
+            accumulator_out[7] = accumulator_in[7] + inverse_partial[3];
+            accumulator_out[8] = accumulator_in[8] + inverse_partial[0];
+            accumulator_out[9] = accumulator_in[9] + inverse_partial[1];
+            accumulator_out[10] = accumulator_in[10] + inverse_partial[2];
+            accumulator_out[11] = accumulator_in[11] + inverse_partial[3];
+            accumulator_out[12] = accumulator_in[12] + inverse_partial[0];
+            accumulator_out[13] = accumulator_in[13] + inverse_partial[1];
+            accumulator_out[14] = accumulator_in[14] + inverse_partial[2];
+            accumulator_out[15] = accumulator_in[15] + inverse_partial[3];
+          end
+          2: begin
+            accumulator_out[0] = accumulator_in[0] + inverse_partial[0];
+            accumulator_out[1] = accumulator_in[1] + inverse_partial[1];
+            accumulator_out[2] = accumulator_in[2] + inverse_partial[2];
+            accumulator_out[3] = accumulator_in[3] + inverse_partial[3];
+            accumulator_out[4] = accumulator_in[4] - inverse_partial[0];
+            accumulator_out[5] = accumulator_in[5] - inverse_partial[1];
+            accumulator_out[6] = accumulator_in[6] - inverse_partial[2];
+            accumulator_out[7] = accumulator_in[7] - inverse_partial[3];
+            accumulator_out[8] = accumulator_in[8] + inverse_partial[0];
+            accumulator_out[9] = accumulator_in[9] + inverse_partial[1];
+            accumulator_out[10] = accumulator_in[10] + inverse_partial[2];
+            accumulator_out[11] = accumulator_in[11] + inverse_partial[3];
+            accumulator_out[12] = accumulator_in[12] - inverse_partial[0];
+            accumulator_out[13] = accumulator_in[13] - inverse_partial[1];
+            accumulator_out[14] = accumulator_in[14] - inverse_partial[2];
+            accumulator_out[15] = accumulator_in[15] - inverse_partial[3];
+          end
+          3: begin
+            accumulator_out[0] = accumulator_in[0] + inverse_partial[0];
+            accumulator_out[1] = accumulator_in[1] + inverse_partial[1];
+            accumulator_out[2] = accumulator_in[2] + inverse_partial[2];
+            accumulator_out[3] = accumulator_in[3] + inverse_partial[3];
+            accumulator_out[4] = accumulator_in[4] + (2 * inverse_partial[0]);
+            accumulator_out[5] = accumulator_in[5] + (2 * inverse_partial[1]);
+            accumulator_out[6] = accumulator_in[6] + (2 * inverse_partial[2]);
+            accumulator_out[7] = accumulator_in[7] + (2 * inverse_partial[3]);
+            accumulator_out[8] = accumulator_in[8] + (4 * inverse_partial[0]);
+            accumulator_out[9] = accumulator_in[9] + (4 * inverse_partial[1]);
+            accumulator_out[10] = accumulator_in[10] + (4 * inverse_partial[2]);
+            accumulator_out[11] = accumulator_in[11] + (4 * inverse_partial[3]);
+            accumulator_out[12] = accumulator_in[12] + (8 * inverse_partial[0]);
+            accumulator_out[13] = accumulator_in[13] + (8 * inverse_partial[1]);
+            accumulator_out[14] = accumulator_in[14] + (8 * inverse_partial[2]);
+            accumulator_out[15] = accumulator_in[15] + (8 * inverse_partial[3]);
+          end
+          4: begin
+            accumulator_out[0] = accumulator_in[0] + inverse_partial[0];
+            accumulator_out[1] = accumulator_in[1] + inverse_partial[1];
+            accumulator_out[2] = accumulator_in[2] + inverse_partial[2];
+            accumulator_out[3] = accumulator_in[3] + inverse_partial[3];
+            accumulator_out[4] = accumulator_in[4] - (2 * inverse_partial[0]);
+            accumulator_out[5] = accumulator_in[5] - (2 * inverse_partial[1]);
+            accumulator_out[6] = accumulator_in[6] - (2 * inverse_partial[2]);
+            accumulator_out[7] = accumulator_in[7] - (2 * inverse_partial[3]);
+            accumulator_out[8] = accumulator_in[8] + (4 * inverse_partial[0]);
+            accumulator_out[9] = accumulator_in[9] + (4 * inverse_partial[1]);
+            accumulator_out[10] = accumulator_in[10] + (4 * inverse_partial[2]);
+            accumulator_out[11] = accumulator_in[11] + (4 * inverse_partial[3]);
+            accumulator_out[12] = accumulator_in[12] - (8 * inverse_partial[0]);
+            accumulator_out[13] = accumulator_in[13] - (8 * inverse_partial[1]);
+            accumulator_out[14] = accumulator_in[14] - (8 * inverse_partial[2]);
+            accumulator_out[15] = accumulator_in[15] - (8 * inverse_partial[3]);
+          end
+          5: begin
+            accumulator_out[0] = accumulator_in[0];
+            accumulator_out[1] = accumulator_in[1];
+            accumulator_out[2] = accumulator_in[2];
+            accumulator_out[3] = accumulator_in[3];
+            accumulator_out[4] = accumulator_in[4];
+            accumulator_out[5] = accumulator_in[5];
+            accumulator_out[6] = accumulator_in[6];
+            accumulator_out[7] = accumulator_in[7];
+            accumulator_out[8] = accumulator_in[8];
+            accumulator_out[9] = accumulator_in[9];
+            accumulator_out[10] = accumulator_in[10];
+            accumulator_out[11] = accumulator_in[11];
+            accumulator_out[12] = accumulator_in[12] + inverse_partial[0];
+            accumulator_out[13] = accumulator_in[13] + inverse_partial[1];
+            accumulator_out[14] = accumulator_in[14] + inverse_partial[2];
+            accumulator_out[15] = accumulator_in[15] + inverse_partial[3];
+          end
+          default: begin end
+        endcase
+      end
+    end
+    else if (ROWS_PER_CYCLE == 2) begin: INVERSE_SUM_2
+      always_comb begin: INVERSE_ROW_ACCUMULATE_BLOCK
+        accumulator_out[0] = accumulator_in[0];
+        accumulator_out[1] = accumulator_in[1];
+        accumulator_out[2] = accumulator_in[2];
+        accumulator_out[3] = accumulator_in[3];
+        accumulator_out[4] = accumulator_in[4];
+        accumulator_out[5] = accumulator_in[5];
+        accumulator_out[6] = accumulator_in[6];
+        accumulator_out[7] = accumulator_in[7];
+        accumulator_out[8] = accumulator_in[8];
+        accumulator_out[9] = accumulator_in[9];
+        accumulator_out[10] = accumulator_in[10];
+        accumulator_out[11] = accumulator_in[11];
+        accumulator_out[12] = accumulator_in[12];
+        accumulator_out[13] = accumulator_in[13];
+        accumulator_out[14] = accumulator_in[14];
+        accumulator_out[15] = accumulator_in[15];
+        case (inverse_row_idx)
+          0: begin
+            accumulator_out[0] = accumulator_in[0] + inverse_partial[0] + inverse_partial[4];
+            accumulator_out[1] = accumulator_in[1] + inverse_partial[1] + inverse_partial[5];
+            accumulator_out[2] = accumulator_in[2] + inverse_partial[2] + inverse_partial[6];
+            accumulator_out[3] = accumulator_in[3] + inverse_partial[3] + inverse_partial[7];
+            accumulator_out[4] = accumulator_in[4] + inverse_partial[4];
+            accumulator_out[5] = accumulator_in[5] + inverse_partial[5];
+            accumulator_out[6] = accumulator_in[6] + inverse_partial[6];
+            accumulator_out[7] = accumulator_in[7] + inverse_partial[7];
+            accumulator_out[8] = accumulator_in[8] + inverse_partial[4];
+            accumulator_out[9] = accumulator_in[9] + inverse_partial[5];
+            accumulator_out[10] = accumulator_in[10] + inverse_partial[6];
+            accumulator_out[11] = accumulator_in[11] + inverse_partial[7];
+            accumulator_out[12] = accumulator_in[12] + inverse_partial[4];
+            accumulator_out[13] = accumulator_in[13] + inverse_partial[5];
+            accumulator_out[14] = accumulator_in[14] + inverse_partial[6];
+            accumulator_out[15] = accumulator_in[15] + inverse_partial[7];
+          end
+          2: begin
+            accumulator_out[0] = accumulator_in[0] + inverse_partial[0] + inverse_partial[4];
+            accumulator_out[1] = accumulator_in[1] + inverse_partial[1] + inverse_partial[5];
+            accumulator_out[2] = accumulator_in[2] + inverse_partial[2] + inverse_partial[6];
+            accumulator_out[3] = accumulator_in[3] + inverse_partial[3] + inverse_partial[7];
+            accumulator_out[4] = accumulator_in[4] - inverse_partial[0] + (2 * inverse_partial[4]);
+            accumulator_out[5] = accumulator_in[5] - inverse_partial[1] + (2 * inverse_partial[5]);
+            accumulator_out[6] = accumulator_in[6] - inverse_partial[2] + (2 * inverse_partial[6]);
+            accumulator_out[7] = accumulator_in[7] - inverse_partial[3] + (2 * inverse_partial[7]);
+            accumulator_out[8] = accumulator_in[8] + inverse_partial[0] + (4 * inverse_partial[4]);
+            accumulator_out[9] = accumulator_in[9] + inverse_partial[1] + (4 * inverse_partial[5]);
+            accumulator_out[10] = accumulator_in[10] + inverse_partial[2] + (4 * inverse_partial[6]);
+            accumulator_out[11] = accumulator_in[11] + inverse_partial[3] + (4 * inverse_partial[7]);
+            accumulator_out[12] = accumulator_in[12] - inverse_partial[0] + (8 * inverse_partial[4]);
+            accumulator_out[13] = accumulator_in[13] - inverse_partial[1] + (8 * inverse_partial[5]);
+            accumulator_out[14] = accumulator_in[14] - inverse_partial[2] + (8 * inverse_partial[6]);
+            accumulator_out[15] = accumulator_in[15] - inverse_partial[3] + (8 * inverse_partial[7]);
+          end
+          4: begin
+            accumulator_out[0] = accumulator_in[0] + inverse_partial[0];
+            accumulator_out[1] = accumulator_in[1] + inverse_partial[1];
+            accumulator_out[2] = accumulator_in[2] + inverse_partial[2];
+            accumulator_out[3] = accumulator_in[3] + inverse_partial[3];
+            accumulator_out[4] = accumulator_in[4] - (2 * inverse_partial[0]);
+            accumulator_out[5] = accumulator_in[5] - (2 * inverse_partial[1]);
+            accumulator_out[6] = accumulator_in[6] - (2 * inverse_partial[2]);
+            accumulator_out[7] = accumulator_in[7] - (2 * inverse_partial[3]);
+            accumulator_out[8] = accumulator_in[8] + (4 * inverse_partial[0]);
+            accumulator_out[9] = accumulator_in[9] + (4 * inverse_partial[1]);
+            accumulator_out[10] = accumulator_in[10] + (4 * inverse_partial[2]);
+            accumulator_out[11] = accumulator_in[11] + (4 * inverse_partial[3]);
+            accumulator_out[12] = accumulator_in[12] - (8 * inverse_partial[0]) + inverse_partial[4];
+            accumulator_out[13] = accumulator_in[13] - (8 * inverse_partial[1]) + inverse_partial[5];
+            accumulator_out[14] = accumulator_in[14] - (8 * inverse_partial[2]) + inverse_partial[6];
+            accumulator_out[15] = accumulator_in[15] - (8 * inverse_partial[3]) + inverse_partial[7];
+          end
+          default: begin end
+        endcase
+      end
+    end
+    else if (ROWS_PER_CYCLE == 3) begin: INVERSE_SUM_3
+      always_comb begin: INVERSE_ROW_ACCUMULATE_BLOCK
+        accumulator_out[0] = accumulator_in[0];
+        accumulator_out[1] = accumulator_in[1];
+        accumulator_out[2] = accumulator_in[2];
+        accumulator_out[3] = accumulator_in[3];
+        accumulator_out[4] = accumulator_in[4];
+        accumulator_out[5] = accumulator_in[5];
+        accumulator_out[6] = accumulator_in[6];
+        accumulator_out[7] = accumulator_in[7];
+        accumulator_out[8] = accumulator_in[8];
+        accumulator_out[9] = accumulator_in[9];
+        accumulator_out[10] = accumulator_in[10];
+        accumulator_out[11] = accumulator_in[11];
+        accumulator_out[12] = accumulator_in[12];
+        accumulator_out[13] = accumulator_in[13];
+        accumulator_out[14] = accumulator_in[14];
+        accumulator_out[15] = accumulator_in[15];
+        case (inverse_row_idx)
+          0: begin
+            accumulator_out[0] = accumulator_in[0] + inverse_partial[0] + inverse_partial[4] + inverse_partial[8];
+            accumulator_out[1] = accumulator_in[1] + inverse_partial[1] + inverse_partial[5] + inverse_partial[9];
+            accumulator_out[2] = accumulator_in[2] + inverse_partial[2] + inverse_partial[6] + inverse_partial[10];
+            accumulator_out[3] = accumulator_in[3] + inverse_partial[3] + inverse_partial[7] + inverse_partial[11];
+            accumulator_out[4] = accumulator_in[4] + inverse_partial[4] - inverse_partial[8];
+            accumulator_out[5] = accumulator_in[5] + inverse_partial[5] - inverse_partial[9];
+            accumulator_out[6] = accumulator_in[6] + inverse_partial[6] - inverse_partial[10];
+            accumulator_out[7] = accumulator_in[7] + inverse_partial[7] - inverse_partial[11];
+            accumulator_out[8] = accumulator_in[8] + inverse_partial[4] + inverse_partial[8];
+            accumulator_out[9] = accumulator_in[9] + inverse_partial[5] + inverse_partial[9];
+            accumulator_out[10] = accumulator_in[10] + inverse_partial[6] + inverse_partial[10];
+            accumulator_out[11] = accumulator_in[11] + inverse_partial[7] + inverse_partial[11];
+            accumulator_out[12] = accumulator_in[12] + inverse_partial[4] - inverse_partial[8];
+            accumulator_out[13] = accumulator_in[13] + inverse_partial[5] - inverse_partial[9];
+            accumulator_out[14] = accumulator_in[14] + inverse_partial[6] - inverse_partial[10];
+            accumulator_out[15] = accumulator_in[15] + inverse_partial[7] - inverse_partial[11];
+          end
+          3: begin
+            accumulator_out[0] = accumulator_in[0] + inverse_partial[0] + inverse_partial[4];
+            accumulator_out[1] = accumulator_in[1] + inverse_partial[1] + inverse_partial[5];
+            accumulator_out[2] = accumulator_in[2] + inverse_partial[2] + inverse_partial[6];
+            accumulator_out[3] = accumulator_in[3] + inverse_partial[3] + inverse_partial[7];
+            accumulator_out[4] = accumulator_in[4] + (2 * inverse_partial[0]) - (2 * inverse_partial[4]);
+            accumulator_out[5] = accumulator_in[5] + (2 * inverse_partial[1]) - (2 * inverse_partial[5]);
+            accumulator_out[6] = accumulator_in[6] + (2 * inverse_partial[2]) - (2 * inverse_partial[6]);
+            accumulator_out[7] = accumulator_in[7] + (2 * inverse_partial[3]) - (2 * inverse_partial[7]);
+            accumulator_out[8] = accumulator_in[8] + (4 * inverse_partial[0]) + (4 * inverse_partial[4]);
+            accumulator_out[9] = accumulator_in[9] + (4 * inverse_partial[1]) + (4 * inverse_partial[5]);
+            accumulator_out[10] = accumulator_in[10] + (4 * inverse_partial[2]) + (4 * inverse_partial[6]);
+            accumulator_out[11] = accumulator_in[11] + (4 * inverse_partial[3]) + (4 * inverse_partial[7]);
+            accumulator_out[12] = accumulator_in[12] + (8 * inverse_partial[0]) - (8 * inverse_partial[4]) + inverse_partial[8];
+            accumulator_out[13] = accumulator_in[13] + (8 * inverse_partial[1]) - (8 * inverse_partial[5]) + inverse_partial[9];
+            accumulator_out[14] = accumulator_in[14] + (8 * inverse_partial[2]) - (8 * inverse_partial[6]) + inverse_partial[10];
+            accumulator_out[15] = accumulator_in[15] + (8 * inverse_partial[3]) - (8 * inverse_partial[7]) + inverse_partial[11];
+          end
+          default: begin end
+        endcase
+      end
+    end
+    else if (ROWS_PER_CYCLE == 6) begin: INVERSE_SUM_6
+      always_comb begin: INVERSE_ROW_ACCUMULATE_BLOCK
+        accumulator_out[0] = accumulator_in[0];
+        accumulator_out[1] = accumulator_in[1];
+        accumulator_out[2] = accumulator_in[2];
+        accumulator_out[3] = accumulator_in[3];
+        accumulator_out[4] = accumulator_in[4];
+        accumulator_out[5] = accumulator_in[5];
+        accumulator_out[6] = accumulator_in[6];
+        accumulator_out[7] = accumulator_in[7];
+        accumulator_out[8] = accumulator_in[8];
+        accumulator_out[9] = accumulator_in[9];
+        accumulator_out[10] = accumulator_in[10];
+        accumulator_out[11] = accumulator_in[11];
+        accumulator_out[12] = accumulator_in[12];
+        accumulator_out[13] = accumulator_in[13];
+        accumulator_out[14] = accumulator_in[14];
+        accumulator_out[15] = accumulator_in[15];
+        case (inverse_row_idx)
+          0: begin
+            accumulator_out[0] = accumulator_in[0] + inverse_partial[0] + inverse_partial[4] + inverse_partial[8] + inverse_partial[12] + inverse_partial[16];
+            accumulator_out[1] = accumulator_in[1] + inverse_partial[1] + inverse_partial[5] + inverse_partial[9] + inverse_partial[13] + inverse_partial[17];
+            accumulator_out[2] = accumulator_in[2] + inverse_partial[2] + inverse_partial[6] + inverse_partial[10] + inverse_partial[14] + inverse_partial[18];
+            accumulator_out[3] = accumulator_in[3] + inverse_partial[3] + inverse_partial[7] + inverse_partial[11] + inverse_partial[15] + inverse_partial[19];
+            accumulator_out[4] = accumulator_in[4] + inverse_partial[4] - inverse_partial[8] + (2 * inverse_partial[12]) - (2 * inverse_partial[16]);
+            accumulator_out[5] = accumulator_in[5] + inverse_partial[5] - inverse_partial[9] + (2 * inverse_partial[13]) - (2 * inverse_partial[17]);
+            accumulator_out[6] = accumulator_in[6] + inverse_partial[6] - inverse_partial[10] + (2 * inverse_partial[14]) - (2 * inverse_partial[18]);
+            accumulator_out[7] = accumulator_in[7] + inverse_partial[7] - inverse_partial[11] + (2 * inverse_partial[15]) - (2 * inverse_partial[19]);
+            accumulator_out[8] = accumulator_in[8] + inverse_partial[4] + inverse_partial[8] + (4 * inverse_partial[12]) + (4 * inverse_partial[16]);
+            accumulator_out[9] = accumulator_in[9] + inverse_partial[5] + inverse_partial[9] + (4 * inverse_partial[13]) + (4 * inverse_partial[17]);
+            accumulator_out[10] = accumulator_in[10] + inverse_partial[6] + inverse_partial[10] + (4 * inverse_partial[14]) + (4 * inverse_partial[18]);
+            accumulator_out[11] = accumulator_in[11] + inverse_partial[7] + inverse_partial[11] + (4 * inverse_partial[15]) + (4 * inverse_partial[19]);
+            accumulator_out[12] = accumulator_in[12] + inverse_partial[4] - inverse_partial[8] + (8 * inverse_partial[12]) - (8 * inverse_partial[16]) + inverse_partial[20];
+            accumulator_out[13] = accumulator_in[13] + inverse_partial[5] - inverse_partial[9] + (8 * inverse_partial[13]) - (8 * inverse_partial[17]) + inverse_partial[21];
+            accumulator_out[14] = accumulator_in[14] + inverse_partial[6] - inverse_partial[10] + (8 * inverse_partial[14]) - (8 * inverse_partial[18]) + inverse_partial[22];
+            accumulator_out[15] = accumulator_in[15] + inverse_partial[7] - inverse_partial[11] + (8 * inverse_partial[15]) - (8 * inverse_partial[19]) + inverse_partial[23];
+          end
+          default: begin end
+        endcase
+      end
+    end
+    else begin: INVERSE_SUM_UNSUPPORTED
+      always_comb begin: INVERSE_ROW_ACCUMULATE_BLOCK
+        for (int unsigned i = 0; i < OUTPUT_PIXELS; i++)
+          accumulator_out[i] = accumulator_in[i];
+      end
+    end
+  endgenerate
 endmodule
