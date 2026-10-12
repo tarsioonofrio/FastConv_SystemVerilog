@@ -37,17 +37,20 @@ clean:
 	rm -rf $(OBJDIR) dump.fst dump.vcd
 
 # ---------------------------------------------------------------------------
-# Standard column architecture. The RTL is shared by WPN16 (integer weights)
-# and TCN16 frac6 (six fractional weight bits); the workload package selects
-# the matching transformed-weight data, while STD_COLUMN_WEIGHT_FRAC_BITS
-# selects the MAC scaling in the RTL.
+# Standard column architecture. CONFIG selects the algorithm-specific RTL and
+# testbench; TCN16 may use fractional pretransformed weights, while WPN16 loads
+# pretransformed integer weights without fractional extension.
 STD_COLUMN_WEIGHT_FRAC_BITS ?= 0
-STD_COLUMN_SRC = $(SRCDIR)/conv-tcn16-std-column.sv
-STD_COLUMN_TB = $(SRCDIR)/testbench_tcn16_std_column.sv
+STD_COLUMN_SRC ?= $(SRCDIR)/conv-$(CONFIG)-std-column.sv
+STD_COLUMN_TB ?= $(SRCDIR)/testbench_$(CONFIG)_std_column.sv
 STD_COLUMN_OBJDIR = obj_dir/std-column-$(CONFIG)-m$(NUM_MULT)-frac$(STD_COLUMN_WEIGHT_FRAC_BITS)
 STD_COLUMN_BIN = $(STD_COLUMN_OBJDIR)/Vtb
 STD_COLUMN_FILES = $(DATA) $(PACK_DEF) $(PARAM) $(MUX) $(CSA) $(MULTIP) $(MATRICES) $(MEM) $(STD_COLUMN_SRC) $(STD_COLUMN_TB)
-STD_COLUMN_VERILATOR = verilator -j 0 -DSIMULATION --timing --top-module tb -GWEIGHT_FRAC_BITS=$(STD_COLUMN_WEIGHT_FRAC_BITS) -Wno-fatal --Mdir $(STD_COLUMN_OBJDIR)
+STD_COLUMN_TB_PARAMS = -GWEIGHT_FRAC_BITS=$(STD_COLUMN_WEIGHT_FRAC_BITS)
+ifeq ($(CONFIG),wpn16)
+STD_COLUMN_TB_PARAMS =
+endif
+STD_COLUMN_VERILATOR = verilator -j 0 -DSIMULATION --timing --top-module tb $(STD_COLUMN_TB_PARAMS) -Wno-fatal --Mdir $(STD_COLUMN_OBJDIR)
 
 std-column: $(STD_COLUMN_BIN)
 
