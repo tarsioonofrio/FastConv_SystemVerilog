@@ -1,0 +1,23 @@
+{
+  "artifacts": {
+    "library_r2": 0.7386119196358556,
+    "pack_data_sha256": "f9e6144e97e6590a05c89bd952e5c1d56ce15b0a8d57aaeb5126d90441f85c7f"
+  },
+  "generator": {
+    "method": "generate_trunc_frac8_nbits16.py with WEIGHT_FRAC_BITS=6, NBITS=16, CHANNEL_IN=3, CHANNEL_OUT=12",
+    "project": "fast-convolution-rtl",
+    "revision": "5c021aabc87136efb03a329d86f3e833af1abd42"
+  },
+  "workload": {
+    "channel_in": 3,
+    "channel_out": 12,
+    "image_side": 32,
+    "kernel_size": 3,
+    "nbits": 16,
+    "quant_bits": 8,
+    "seed": 0,
+    "truncated_weight_transform": true,
+    "weight_transform_frac_bits": 6,
+    "weight_transform_scale": 576
+  }
+}
