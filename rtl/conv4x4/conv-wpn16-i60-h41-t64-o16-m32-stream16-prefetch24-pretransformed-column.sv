@@ -148,18 +148,12 @@ module Conv
   logic w_conv_end;
   logic w_conv_input_release;
 
-  // Flattened lanes are row-major: each HADAMARD_SIZE lanes form one row.
-  localparam int ROW_INDEX_WIDTH = f_width_min1(HADAMARD_SIZE);
   // WPN16 transforms the 6x6 input tile into a full 8x8 Hadamard feature tile.
   logic [NBITS-1:0] r_transform_feature_reg [WEIGHT_CYCLES-1:0];
-  logic [ROW_INDEX_WIDTH-1:0] r_inverse_row_idx;
-  // Pipeline register separating the Hadamard products from InverseRow.
-  logic [NBITS-1:0] r_hadamard_product_reg [FIXED_NUM_MULT-1:0];
-  logic [ROW_INDEX_WIDTH-1:0] r_hadamard_product_row_idx_reg;
-  logic r_hadamard_product_valid;
-  logic [NBITS-1:0] w_inverse_partial_current [FIXED_NUM_MULT/HADAMARD_SIZE*CONV_OUTPUT_SIZE-1:0];
+  // Store the complete 8x8 Hadamard matrix over the two 32-MAC cycles.
+  logic [NBITS-1:0] r_hadamard_product_reg [WEIGHT_CYCLES-1:0];
+  logic [NBITS-1:0] w_inverse_transform [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
   logic [NBITS-1:0] w_output_acc_next [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
-  logic [NBITS-1:0] w_inverse_product_rows [FIXED_NUM_MULT-1:0];
   logic [NBITS-1:0] w_hadamard_product_current [FIXED_NUM_MULT-1:0];
   logic [NBITS-1:0] w_transform_feature [FIXED_NUM_MULT-1:0];
 
@@ -681,12 +675,9 @@ module Conv
     if (reset) begin
       r_transform_feature_reg <= '{default: '0};
       r_hadamard_product_reg <= '{default: '0};
-      r_hadamard_product_row_idx_reg <= '0;
-      r_hadamard_product_valid <= 1'b0;
       // The output-write bank also carries the streaming accumulation state.
       // Sharing this bank removes the duplicate accumulator bank.
       r_output_write              <= '{default: '0};
-      r_inverse_row_idx <= '0;
     end else begin
       unique case (st_conv_current)
         TRANSFORM: begin
@@ -694,25 +685,16 @@ module Conv
           // their operands from this bank without rewriting it between cycles.
           for (int unsigned feature = 0; feature < WEIGHT_CYCLES; feature++)
             r_transform_feature_reg[feature] <= w_conv_transform[feature];
-          r_hadamard_product_valid <= 1'b0;
           r_output_write              <= '{default: '0};
-          r_inverse_row_idx     <= '0;
         end
         HADAMARD: begin
-          // The product bank is the temporal barrier: inverse accumulation
-          // consumes the previous batch while this cycle computes the next.
+          // Fill the full row-major 8x8 product matrix in two 32-lane batches.
           for (int unsigned lane = 0; lane < FIXED_NUM_MULT; lane++)
-            r_hadamard_product_reg[lane] <= w_hadamard_product_current[lane];
-          r_hadamard_product_row_idx_reg <= r_inverse_row_idx;
-          r_hadamard_product_valid <= 1'b1;
-          if (r_hadamard_product_valid)
-            r_output_write <= w_output_acc_next;
-          r_inverse_row_idx <= r_inverse_row_idx + ROW_INDEX_WIDTH'(ROWS_PER_CYCLE);
+            r_hadamard_product_reg[(int'(r_conv_multiply_count) * FIXED_NUM_MULT) + lane] <=
+                w_hadamard_product_current[lane];
         end
         INVERSE: begin
-          if (r_hadamard_product_valid)
-            r_output_write <= w_output_acc_next;
-          r_hadamard_product_valid <= 1'b0;
+          r_output_write <= w_output_acc_next;
         end
         default: begin end
       endcase
@@ -734,30 +716,27 @@ module Conv
     assign w_transform_feature[lane] =
         r_transform_feature_reg[(int'(r_conv_multiply_count) * FIXED_NUM_MULT) + lane];
     assign w_hadamard_product_current[lane] = w_conv_product[lane];
-    assign w_inverse_product_rows[lane] = r_hadamard_product_reg[lane];
     Multip #(.QUANT(QUANT), .NBITS(NBITS)) multip(
       .feature(w_transform_feature[lane]),
       .weight(r_weight_pretransformed[(int'(r_conv_multiply_count) * FIXED_NUM_MULT) + lane]),
       .product(w_conv_product[lane]));
   end
-  for (genvar group = 0; group < ROWS_PER_CYCLE; group++) begin: INVERSE_ROW_BATCH
-    logic [NBITS-1:0] inverse_input_row [HADAMARD_SIZE-1:0];
-    logic [NBITS-1:0] inverse_partial [CONV_OUTPUT_SIZE-1:0];
-    for (genvar column = 0; column < HADAMARD_SIZE; column++) begin: INVERSE_ROW_COLUMN
-      assign inverse_input_row[column] =
-          w_inverse_product_rows[group * HADAMARD_SIZE + column];
-    end
-    InverseRow #(.NBITS(NBITS)) inverse_row(
-      .inverse_input_row(inverse_input_row), .inverse_partial(inverse_partial));
-    for (genvar output_column = 0; output_column < CONV_OUTPUT_SIZE; output_column++) begin: INVERSE_PARTIAL_FLATTEN
-      assign w_inverse_partial_current[group * CONV_OUTPUT_SIZE + output_column] =
-          inverse_partial[output_column];
-    end
+  InverseFull #(
+    .NBITS(NBITS),
+    .CONV_OUTPUT_SIZE(CONV_OUTPUT_SIZE),
+    .CONV_INPUT_SIZE(CONV_INPUT_SIZE),
+    .HADAMARD_SIZE(HADAMARD_SIZE)
+  ) inverse_transform(
+    .pin(r_hadamard_product_reg),
+    .pout(w_inverse_transform)
+  );
+  always_comb begin: INVERSE_OUTPUT_ACCUMULATE_BLOCK
+    for (int unsigned output_index = 0;
+         output_index < CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE;
+         output_index++)
+      w_output_acc_next[output_index] =
+          r_output_write[output_index] + w_inverse_transform[output_index];
   end
-  InverseRowAccumulate #(.NBITS(NBITS), .ROWS_PER_CYCLE(ROWS_PER_CYCLE)) inverse_row_acc(
-    .inverse_row_idx(r_hadamard_product_row_idx_reg),
-    .accumulator_in(r_output_write), .inverse_partial(w_inverse_partial_current),
-    .accumulator_out(w_output_acc_next));
   // ----------------------------------------------------------------------------------------------------
   // -------  PART 4 - OUTPUT FSM AND READ/WRITE COUNTER -------------------------------------------------
   // ----------------------------------------------------------------------------------------------------
@@ -967,417 +946,74 @@ module Conv
 endmodule
 
 // -----------------------------------------------------------------------------
-// Row-streamed inverse transform.  With M the Hadamard product matrix, the
-// output is Y = A0^T * M * A1.  InverseRow computes one row of M * A1 and
-// InverseRowAccumulate adds A0[row][i] times that row to output row i.
-// All arithmetic wraps at NBITS (modular), matching the golden model.
+// Full-matrix inverse transform. With M as the registered 8x8 Hadamard product
+// matrix, compute Y = A0^T * M * A1 in one combinational stage. Arithmetic wraps
+// at NBITS, matching the canonical fixed-width datapath.
 // -----------------------------------------------------------------------------
-module InverseRow #(
-    parameter int NBITS = 20,
-    parameter int HADAMARD_SIZE = 8,
-    parameter int CONV_OUTPUT_SIZE = 4
-  ) (
-    input  logic [NBITS-1:0] inverse_input_row [HADAMARD_SIZE-1:0],
-    output logic [NBITS-1:0] inverse_partial [CONV_OUTPUT_SIZE-1:0]
-  );
-  timeunit 1ns;
-  timeprecision 1ps;
-
-  assign inverse_partial[0] = inverse_input_row[0] + inverse_input_row[1] + inverse_input_row[2] + inverse_input_row[4] + inverse_input_row[5];
-  assign inverse_partial[1] = inverse_input_row[2] + inverse_input_row[3] + inverse_input_row[5] + inverse_input_row[6];
-  assign inverse_partial[2] = inverse_input_row[1] + inverse_input_row[2] - inverse_input_row[4] - inverse_input_row[5];
-  assign inverse_partial[3] = inverse_input_row[2] + inverse_input_row[3] - inverse_input_row[5] - inverse_input_row[6] + inverse_input_row[7];
-endmodule
-
-module InverseRowAccumulate #(
-    parameter int NBITS = 20,
-    parameter int HADAMARD_SIZE = 8,
+module InverseFull #(
+    parameter int NBITS = 16,
     parameter int CONV_OUTPUT_SIZE = 4,
-    parameter int ROWS_PER_CYCLE = 1,
-    parameter int ROW_INDEX_WIDTH = (HADAMARD_SIZE <= 1) ? 1 : $clog2(HADAMARD_SIZE)
+    parameter int CONV_INPUT_SIZE = 6,
+    parameter int HADAMARD_SIZE = 8
   ) (
-    input  logic [ROW_INDEX_WIDTH-1:0] inverse_row_idx,
-    input  logic [NBITS-1:0] accumulator_in [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0],
-    input  logic [NBITS-1:0] inverse_partial [ROWS_PER_CYCLE*CONV_OUTPUT_SIZE-1:0],
-    output logic [NBITS-1:0] accumulator_out [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0]
+    input  logic [NBITS-1:0] pin [HADAMARD_SIZE*HADAMARD_SIZE-1:0],
+    output logic [NBITS-1:0] pout [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0]
   );
   timeunit 1ns;
   timeprecision 1ps;
 
-  localparam int OUTPUT_PIXELS = CONV_OUTPUT_SIZE * CONV_OUTPUT_SIZE;
+  logic [NBITS-1:0] partial [CONV_INPUT_SIZE*HADAMARD_SIZE-1:0];
 
-  // Decode the batch base once, then select one statically expanded sum.
-  // This avoids both a runtime row-index adder per batch and a procedural
-  // read-modify-write chain on accumulator_out, which Vivado mis-mapped for
-  // some multi-row configurations in post-synthesis functional simulation.
-  generate
-    if (ROWS_PER_CYCLE == 1) begin: INVERSE_SUM_1
-      always_comb begin: INVERSE_ROW_ACCUMULATE_BLOCK
-        accumulator_out[0] = accumulator_in[0];
-        accumulator_out[1] = accumulator_in[1];
-        accumulator_out[2] = accumulator_in[2];
-        accumulator_out[3] = accumulator_in[3];
-        accumulator_out[4] = accumulator_in[4];
-        accumulator_out[5] = accumulator_in[5];
-        accumulator_out[6] = accumulator_in[6];
-        accumulator_out[7] = accumulator_in[7];
-        accumulator_out[8] = accumulator_in[8];
-        accumulator_out[9] = accumulator_in[9];
-        accumulator_out[10] = accumulator_in[10];
-        accumulator_out[11] = accumulator_in[11];
-        accumulator_out[12] = accumulator_in[12];
-        accumulator_out[13] = accumulator_in[13];
-        accumulator_out[14] = accumulator_in[14];
-        accumulator_out[15] = accumulator_in[15];
-        case (inverse_row_idx)
-          0: begin
-            accumulator_out[0] = accumulator_in[0] + inverse_partial[0];
-            accumulator_out[1] = accumulator_in[1] + inverse_partial[1];
-            accumulator_out[2] = accumulator_in[2] + inverse_partial[2];
-            accumulator_out[3] = accumulator_in[3] + inverse_partial[3];
-            accumulator_out[4] = accumulator_in[4];
-            accumulator_out[5] = accumulator_in[5];
-            accumulator_out[6] = accumulator_in[6];
-            accumulator_out[7] = accumulator_in[7];
-            accumulator_out[8] = accumulator_in[8];
-            accumulator_out[9] = accumulator_in[9];
-            accumulator_out[10] = accumulator_in[10];
-            accumulator_out[11] = accumulator_in[11];
-            accumulator_out[12] = accumulator_in[12];
-            accumulator_out[13] = accumulator_in[13];
-            accumulator_out[14] = accumulator_in[14];
-            accumulator_out[15] = accumulator_in[15];
-          end
-          1: begin
-            accumulator_out[0] = accumulator_in[0] + inverse_partial[0];
-            accumulator_out[1] = accumulator_in[1] + inverse_partial[1];
-            accumulator_out[2] = accumulator_in[2] + inverse_partial[2];
-            accumulator_out[3] = accumulator_in[3] + inverse_partial[3];
-            accumulator_out[4] = accumulator_in[4];
-            accumulator_out[5] = accumulator_in[5];
-            accumulator_out[6] = accumulator_in[6];
-            accumulator_out[7] = accumulator_in[7];
-            accumulator_out[8] = accumulator_in[8] + inverse_partial[0];
-            accumulator_out[9] = accumulator_in[9] + inverse_partial[1];
-            accumulator_out[10] = accumulator_in[10] + inverse_partial[2];
-            accumulator_out[11] = accumulator_in[11] + inverse_partial[3];
-            accumulator_out[12] = accumulator_in[12];
-            accumulator_out[13] = accumulator_in[13];
-            accumulator_out[14] = accumulator_in[14];
-            accumulator_out[15] = accumulator_in[15];
-          end
-          2: begin
-            accumulator_out[0] = accumulator_in[0] + inverse_partial[0];
-            accumulator_out[1] = accumulator_in[1] + inverse_partial[1];
-            accumulator_out[2] = accumulator_in[2] + inverse_partial[2];
-            accumulator_out[3] = accumulator_in[3] + inverse_partial[3];
-            accumulator_out[4] = accumulator_in[4] + inverse_partial[0];
-            accumulator_out[5] = accumulator_in[5] + inverse_partial[1];
-            accumulator_out[6] = accumulator_in[6] + inverse_partial[2];
-            accumulator_out[7] = accumulator_in[7] + inverse_partial[3];
-            accumulator_out[8] = accumulator_in[8] + inverse_partial[0];
-            accumulator_out[9] = accumulator_in[9] + inverse_partial[1];
-            accumulator_out[10] = accumulator_in[10] + inverse_partial[2];
-            accumulator_out[11] = accumulator_in[11] + inverse_partial[3];
-            accumulator_out[12] = accumulator_in[12] + inverse_partial[0];
-            accumulator_out[13] = accumulator_in[13] + inverse_partial[1];
-            accumulator_out[14] = accumulator_in[14] + inverse_partial[2];
-            accumulator_out[15] = accumulator_in[15] + inverse_partial[3];
-          end
-          3: begin
-            accumulator_out[0] = accumulator_in[0];
-            accumulator_out[1] = accumulator_in[1];
-            accumulator_out[2] = accumulator_in[2];
-            accumulator_out[3] = accumulator_in[3];
-            accumulator_out[4] = accumulator_in[4] + inverse_partial[0];
-            accumulator_out[5] = accumulator_in[5] + inverse_partial[1];
-            accumulator_out[6] = accumulator_in[6] + inverse_partial[2];
-            accumulator_out[7] = accumulator_in[7] + inverse_partial[3];
-            accumulator_out[8] = accumulator_in[8];
-            accumulator_out[9] = accumulator_in[9];
-            accumulator_out[10] = accumulator_in[10];
-            accumulator_out[11] = accumulator_in[11];
-            accumulator_out[12] = accumulator_in[12] + inverse_partial[0];
-            accumulator_out[13] = accumulator_in[13] + inverse_partial[1];
-            accumulator_out[14] = accumulator_in[14] + inverse_partial[2];
-            accumulator_out[15] = accumulator_in[15] + inverse_partial[3];
-          end
-          4: begin
-            accumulator_out[0] = accumulator_in[0] + inverse_partial[0];
-            accumulator_out[1] = accumulator_in[1] + inverse_partial[1];
-            accumulator_out[2] = accumulator_in[2] + inverse_partial[2];
-            accumulator_out[3] = accumulator_in[3] + inverse_partial[3];
-            accumulator_out[4] = accumulator_in[4];
-            accumulator_out[5] = accumulator_in[5];
-            accumulator_out[6] = accumulator_in[6];
-            accumulator_out[7] = accumulator_in[7];
-            accumulator_out[8] = accumulator_in[8] - inverse_partial[0];
-            accumulator_out[9] = accumulator_in[9] - inverse_partial[1];
-            accumulator_out[10] = accumulator_in[10] - inverse_partial[2];
-            accumulator_out[11] = accumulator_in[11] - inverse_partial[3];
-            accumulator_out[12] = accumulator_in[12];
-            accumulator_out[13] = accumulator_in[13];
-            accumulator_out[14] = accumulator_in[14];
-            accumulator_out[15] = accumulator_in[15];
-          end
-          5: begin
-            accumulator_out[0] = accumulator_in[0] + inverse_partial[0];
-            accumulator_out[1] = accumulator_in[1] + inverse_partial[1];
-            accumulator_out[2] = accumulator_in[2] + inverse_partial[2];
-            accumulator_out[3] = accumulator_in[3] + inverse_partial[3];
-            accumulator_out[4] = accumulator_in[4] + inverse_partial[0];
-            accumulator_out[5] = accumulator_in[5] + inverse_partial[1];
-            accumulator_out[6] = accumulator_in[6] + inverse_partial[2];
-            accumulator_out[7] = accumulator_in[7] + inverse_partial[3];
-            accumulator_out[8] = accumulator_in[8] - inverse_partial[0];
-            accumulator_out[9] = accumulator_in[9] - inverse_partial[1];
-            accumulator_out[10] = accumulator_in[10] - inverse_partial[2];
-            accumulator_out[11] = accumulator_in[11] - inverse_partial[3];
-            accumulator_out[12] = accumulator_in[12] - inverse_partial[0];
-            accumulator_out[13] = accumulator_in[13] - inverse_partial[1];
-            accumulator_out[14] = accumulator_in[14] - inverse_partial[2];
-            accumulator_out[15] = accumulator_in[15] - inverse_partial[3];
-          end
-          6: begin
-            accumulator_out[0] = accumulator_in[0];
-            accumulator_out[1] = accumulator_in[1];
-            accumulator_out[2] = accumulator_in[2];
-            accumulator_out[3] = accumulator_in[3];
-            accumulator_out[4] = accumulator_in[4] + inverse_partial[0];
-            accumulator_out[5] = accumulator_in[5] + inverse_partial[1];
-            accumulator_out[6] = accumulator_in[6] + inverse_partial[2];
-            accumulator_out[7] = accumulator_in[7] + inverse_partial[3];
-            accumulator_out[8] = accumulator_in[8];
-            accumulator_out[9] = accumulator_in[9];
-            accumulator_out[10] = accumulator_in[10];
-            accumulator_out[11] = accumulator_in[11];
-            accumulator_out[12] = accumulator_in[12] - inverse_partial[0];
-            accumulator_out[13] = accumulator_in[13] - inverse_partial[1];
-            accumulator_out[14] = accumulator_in[14] - inverse_partial[2];
-            accumulator_out[15] = accumulator_in[15] - inverse_partial[3];
-          end
-          7: begin
-            accumulator_out[0] = accumulator_in[0];
-            accumulator_out[1] = accumulator_in[1];
-            accumulator_out[2] = accumulator_in[2];
-            accumulator_out[3] = accumulator_in[3];
-            accumulator_out[4] = accumulator_in[4];
-            accumulator_out[5] = accumulator_in[5];
-            accumulator_out[6] = accumulator_in[6];
-            accumulator_out[7] = accumulator_in[7];
-            accumulator_out[8] = accumulator_in[8];
-            accumulator_out[9] = accumulator_in[9];
-            accumulator_out[10] = accumulator_in[10];
-            accumulator_out[11] = accumulator_in[11];
-            accumulator_out[12] = accumulator_in[12] + inverse_partial[0];
-            accumulator_out[13] = accumulator_in[13] + inverse_partial[1];
-            accumulator_out[14] = accumulator_in[14] + inverse_partial[2];
-            accumulator_out[15] = accumulator_in[15] + inverse_partial[3];
-          end
-          default: begin end
-        endcase
-      end
-    end
-    else if (ROWS_PER_CYCLE == 2) begin: INVERSE_SUM_2
-      always_comb begin: INVERSE_ROW_ACCUMULATE_BLOCK
-        accumulator_out[0] = accumulator_in[0];
-        accumulator_out[1] = accumulator_in[1];
-        accumulator_out[2] = accumulator_in[2];
-        accumulator_out[3] = accumulator_in[3];
-        accumulator_out[4] = accumulator_in[4];
-        accumulator_out[5] = accumulator_in[5];
-        accumulator_out[6] = accumulator_in[6];
-        accumulator_out[7] = accumulator_in[7];
-        accumulator_out[8] = accumulator_in[8];
-        accumulator_out[9] = accumulator_in[9];
-        accumulator_out[10] = accumulator_in[10];
-        accumulator_out[11] = accumulator_in[11];
-        accumulator_out[12] = accumulator_in[12];
-        accumulator_out[13] = accumulator_in[13];
-        accumulator_out[14] = accumulator_in[14];
-        accumulator_out[15] = accumulator_in[15];
-        case (inverse_row_idx)
-          0: begin
-            accumulator_out[0] = accumulator_in[0] + inverse_partial[0] + inverse_partial[4];
-            accumulator_out[1] = accumulator_in[1] + inverse_partial[1] + inverse_partial[5];
-            accumulator_out[2] = accumulator_in[2] + inverse_partial[2] + inverse_partial[6];
-            accumulator_out[3] = accumulator_in[3] + inverse_partial[3] + inverse_partial[7];
-            accumulator_out[4] = accumulator_in[4];
-            accumulator_out[5] = accumulator_in[5];
-            accumulator_out[6] = accumulator_in[6];
-            accumulator_out[7] = accumulator_in[7];
-            accumulator_out[8] = accumulator_in[8] + inverse_partial[4];
-            accumulator_out[9] = accumulator_in[9] + inverse_partial[5];
-            accumulator_out[10] = accumulator_in[10] + inverse_partial[6];
-            accumulator_out[11] = accumulator_in[11] + inverse_partial[7];
-            accumulator_out[12] = accumulator_in[12];
-            accumulator_out[13] = accumulator_in[13];
-            accumulator_out[14] = accumulator_in[14];
-            accumulator_out[15] = accumulator_in[15];
-          end
-          2: begin
-            accumulator_out[0] = accumulator_in[0] + inverse_partial[0];
-            accumulator_out[1] = accumulator_in[1] + inverse_partial[1];
-            accumulator_out[2] = accumulator_in[2] + inverse_partial[2];
-            accumulator_out[3] = accumulator_in[3] + inverse_partial[3];
-            accumulator_out[4] = accumulator_in[4] + inverse_partial[0] + inverse_partial[4];
-            accumulator_out[5] = accumulator_in[5] + inverse_partial[1] + inverse_partial[5];
-            accumulator_out[6] = accumulator_in[6] + inverse_partial[2] + inverse_partial[6];
-            accumulator_out[7] = accumulator_in[7] + inverse_partial[3] + inverse_partial[7];
-            accumulator_out[8] = accumulator_in[8] + inverse_partial[0];
-            accumulator_out[9] = accumulator_in[9] + inverse_partial[1];
-            accumulator_out[10] = accumulator_in[10] + inverse_partial[2];
-            accumulator_out[11] = accumulator_in[11] + inverse_partial[3];
-            accumulator_out[12] = accumulator_in[12] + inverse_partial[0] + inverse_partial[4];
-            accumulator_out[13] = accumulator_in[13] + inverse_partial[1] + inverse_partial[5];
-            accumulator_out[14] = accumulator_in[14] + inverse_partial[2] + inverse_partial[6];
-            accumulator_out[15] = accumulator_in[15] + inverse_partial[3] + inverse_partial[7];
-          end
-          4: begin
-            accumulator_out[0] = accumulator_in[0] + inverse_partial[0] + inverse_partial[4];
-            accumulator_out[1] = accumulator_in[1] + inverse_partial[1] + inverse_partial[5];
-            accumulator_out[2] = accumulator_in[2] + inverse_partial[2] + inverse_partial[6];
-            accumulator_out[3] = accumulator_in[3] + inverse_partial[3] + inverse_partial[7];
-            accumulator_out[4] = accumulator_in[4] + inverse_partial[4];
-            accumulator_out[5] = accumulator_in[5] + inverse_partial[5];
-            accumulator_out[6] = accumulator_in[6] + inverse_partial[6];
-            accumulator_out[7] = accumulator_in[7] + inverse_partial[7];
-            accumulator_out[8] = accumulator_in[8] - inverse_partial[0] - inverse_partial[4];
-            accumulator_out[9] = accumulator_in[9] - inverse_partial[1] - inverse_partial[5];
-            accumulator_out[10] = accumulator_in[10] - inverse_partial[2] - inverse_partial[6];
-            accumulator_out[11] = accumulator_in[11] - inverse_partial[3] - inverse_partial[7];
-            accumulator_out[12] = accumulator_in[12] - inverse_partial[4];
-            accumulator_out[13] = accumulator_in[13] - inverse_partial[5];
-            accumulator_out[14] = accumulator_in[14] - inverse_partial[6];
-            accumulator_out[15] = accumulator_in[15] - inverse_partial[7];
-          end
-          6: begin
-            accumulator_out[0] = accumulator_in[0];
-            accumulator_out[1] = accumulator_in[1];
-            accumulator_out[2] = accumulator_in[2];
-            accumulator_out[3] = accumulator_in[3];
-            accumulator_out[4] = accumulator_in[4] + inverse_partial[0];
-            accumulator_out[5] = accumulator_in[5] + inverse_partial[1];
-            accumulator_out[6] = accumulator_in[6] + inverse_partial[2];
-            accumulator_out[7] = accumulator_in[7] + inverse_partial[3];
-            accumulator_out[8] = accumulator_in[8];
-            accumulator_out[9] = accumulator_in[9];
-            accumulator_out[10] = accumulator_in[10];
-            accumulator_out[11] = accumulator_in[11];
-            accumulator_out[12] = accumulator_in[12] - inverse_partial[0] + inverse_partial[4];
-            accumulator_out[13] = accumulator_in[13] - inverse_partial[1] + inverse_partial[5];
-            accumulator_out[14] = accumulator_in[14] - inverse_partial[2] + inverse_partial[6];
-            accumulator_out[15] = accumulator_in[15] - inverse_partial[3] + inverse_partial[7];
-          end
-          default: begin end
-        endcase
-      end
-    end
-    else if (ROWS_PER_CYCLE == 4) begin: INVERSE_SUM_4
-      always_comb begin: INVERSE_ROW_ACCUMULATE_BLOCK
-        accumulator_out[0] = accumulator_in[0];
-        accumulator_out[1] = accumulator_in[1];
-        accumulator_out[2] = accumulator_in[2];
-        accumulator_out[3] = accumulator_in[3];
-        accumulator_out[4] = accumulator_in[4];
-        accumulator_out[5] = accumulator_in[5];
-        accumulator_out[6] = accumulator_in[6];
-        accumulator_out[7] = accumulator_in[7];
-        accumulator_out[8] = accumulator_in[8];
-        accumulator_out[9] = accumulator_in[9];
-        accumulator_out[10] = accumulator_in[10];
-        accumulator_out[11] = accumulator_in[11];
-        accumulator_out[12] = accumulator_in[12];
-        accumulator_out[13] = accumulator_in[13];
-        accumulator_out[14] = accumulator_in[14];
-        accumulator_out[15] = accumulator_in[15];
-        case (inverse_row_idx)
-          0: begin
-            accumulator_out[0] = accumulator_in[0] + inverse_partial[0] + inverse_partial[4] + inverse_partial[8];
-            accumulator_out[1] = accumulator_in[1] + inverse_partial[1] + inverse_partial[5] + inverse_partial[9];
-            accumulator_out[2] = accumulator_in[2] + inverse_partial[2] + inverse_partial[6] + inverse_partial[10];
-            accumulator_out[3] = accumulator_in[3] + inverse_partial[3] + inverse_partial[7] + inverse_partial[11];
-            accumulator_out[4] = accumulator_in[4] + inverse_partial[8] + inverse_partial[12];
-            accumulator_out[5] = accumulator_in[5] + inverse_partial[9] + inverse_partial[13];
-            accumulator_out[6] = accumulator_in[6] + inverse_partial[10] + inverse_partial[14];
-            accumulator_out[7] = accumulator_in[7] + inverse_partial[11] + inverse_partial[15];
-            accumulator_out[8] = accumulator_in[8] + inverse_partial[4] + inverse_partial[8];
-            accumulator_out[9] = accumulator_in[9] + inverse_partial[5] + inverse_partial[9];
-            accumulator_out[10] = accumulator_in[10] + inverse_partial[6] + inverse_partial[10];
-            accumulator_out[11] = accumulator_in[11] + inverse_partial[7] + inverse_partial[11];
-            accumulator_out[12] = accumulator_in[12] + inverse_partial[8] + inverse_partial[12];
-            accumulator_out[13] = accumulator_in[13] + inverse_partial[9] + inverse_partial[13];
-            accumulator_out[14] = accumulator_in[14] + inverse_partial[10] + inverse_partial[14];
-            accumulator_out[15] = accumulator_in[15] + inverse_partial[11] + inverse_partial[15];
-          end
-          4: begin
-            accumulator_out[0] = accumulator_in[0] + inverse_partial[0] + inverse_partial[4];
-            accumulator_out[1] = accumulator_in[1] + inverse_partial[1] + inverse_partial[5];
-            accumulator_out[2] = accumulator_in[2] + inverse_partial[2] + inverse_partial[6];
-            accumulator_out[3] = accumulator_in[3] + inverse_partial[3] + inverse_partial[7];
-            accumulator_out[4] = accumulator_in[4] + inverse_partial[4] + inverse_partial[8];
-            accumulator_out[5] = accumulator_in[5] + inverse_partial[5] + inverse_partial[9];
-            accumulator_out[6] = accumulator_in[6] + inverse_partial[6] + inverse_partial[10];
-            accumulator_out[7] = accumulator_in[7] + inverse_partial[7] + inverse_partial[11];
-            accumulator_out[8] = accumulator_in[8] - inverse_partial[0] - inverse_partial[4];
-            accumulator_out[9] = accumulator_in[9] - inverse_partial[1] - inverse_partial[5];
-            accumulator_out[10] = accumulator_in[10] - inverse_partial[2] - inverse_partial[6];
-            accumulator_out[11] = accumulator_in[11] - inverse_partial[3] - inverse_partial[7];
-            accumulator_out[12] = accumulator_in[12] - inverse_partial[4] - inverse_partial[8] + inverse_partial[12];
-            accumulator_out[13] = accumulator_in[13] - inverse_partial[5] - inverse_partial[9] + inverse_partial[13];
-            accumulator_out[14] = accumulator_in[14] - inverse_partial[6] - inverse_partial[10] + inverse_partial[14];
-            accumulator_out[15] = accumulator_in[15] - inverse_partial[7] - inverse_partial[11] + inverse_partial[15];
-          end
-          default: begin end
-        endcase
-      end
-    end
-    else if (ROWS_PER_CYCLE == 8) begin: INVERSE_SUM_8
-      always_comb begin: INVERSE_ROW_ACCUMULATE_BLOCK
-        accumulator_out[0] = accumulator_in[0];
-        accumulator_out[1] = accumulator_in[1];
-        accumulator_out[2] = accumulator_in[2];
-        accumulator_out[3] = accumulator_in[3];
-        accumulator_out[4] = accumulator_in[4];
-        accumulator_out[5] = accumulator_in[5];
-        accumulator_out[6] = accumulator_in[6];
-        accumulator_out[7] = accumulator_in[7];
-        accumulator_out[8] = accumulator_in[8];
-        accumulator_out[9] = accumulator_in[9];
-        accumulator_out[10] = accumulator_in[10];
-        accumulator_out[11] = accumulator_in[11];
-        accumulator_out[12] = accumulator_in[12];
-        accumulator_out[13] = accumulator_in[13];
-        accumulator_out[14] = accumulator_in[14];
-        accumulator_out[15] = accumulator_in[15];
-        case (inverse_row_idx)
-          0: begin
-            accumulator_out[0] = accumulator_in[0] + inverse_partial[0] + inverse_partial[4] + inverse_partial[8] + inverse_partial[16] + inverse_partial[20];
-            accumulator_out[1] = accumulator_in[1] + inverse_partial[1] + inverse_partial[5] + inverse_partial[9] + inverse_partial[17] + inverse_partial[21];
-            accumulator_out[2] = accumulator_in[2] + inverse_partial[2] + inverse_partial[6] + inverse_partial[10] + inverse_partial[18] + inverse_partial[22];
-            accumulator_out[3] = accumulator_in[3] + inverse_partial[3] + inverse_partial[7] + inverse_partial[11] + inverse_partial[19] + inverse_partial[23];
-            accumulator_out[4] = accumulator_in[4] + inverse_partial[8] + inverse_partial[12] + inverse_partial[20] + inverse_partial[24];
-            accumulator_out[5] = accumulator_in[5] + inverse_partial[9] + inverse_partial[13] + inverse_partial[21] + inverse_partial[25];
-            accumulator_out[6] = accumulator_in[6] + inverse_partial[10] + inverse_partial[14] + inverse_partial[22] + inverse_partial[26];
-            accumulator_out[7] = accumulator_in[7] + inverse_partial[11] + inverse_partial[15] + inverse_partial[23] + inverse_partial[27];
-            accumulator_out[8] = accumulator_in[8] + inverse_partial[4] + inverse_partial[8] - inverse_partial[16] - inverse_partial[20];
-            accumulator_out[9] = accumulator_in[9] + inverse_partial[5] + inverse_partial[9] - inverse_partial[17] - inverse_partial[21];
-            accumulator_out[10] = accumulator_in[10] + inverse_partial[6] + inverse_partial[10] - inverse_partial[18] - inverse_partial[22];
-            accumulator_out[11] = accumulator_in[11] + inverse_partial[7] + inverse_partial[11] - inverse_partial[19] - inverse_partial[23];
-            accumulator_out[12] = accumulator_in[12] + inverse_partial[8] + inverse_partial[12] - inverse_partial[20] - inverse_partial[24] + inverse_partial[28];
-            accumulator_out[13] = accumulator_in[13] + inverse_partial[9] + inverse_partial[13] - inverse_partial[21] - inverse_partial[25] + inverse_partial[29];
-            accumulator_out[14] = accumulator_in[14] + inverse_partial[10] + inverse_partial[14] - inverse_partial[22] - inverse_partial[26] + inverse_partial[30];
-            accumulator_out[15] = accumulator_in[15] + inverse_partial[11] + inverse_partial[15] - inverse_partial[23] - inverse_partial[27] + inverse_partial[31];
-          end
-          default: begin end
-        endcase
-      end
-    end
-    else begin: INVERSE_SUM_UNSUPPORTED
-      always_comb begin: INVERSE_ROW_ACCUMULATE_BLOCK
-        for (int unsigned i = 0; i < OUTPUT_PIXELS; i++)
-          accumulator_out[i] = accumulator_in[i];
-      end
-    end
-  endgenerate
+  // First inverse dimension: M * A1.
+  assign partial[0]  = pin[0]  + pin[1]  + pin[2]  + pin[4]  + pin[5];
+  assign partial[1]  = pin[2]  + pin[3]  + pin[5]  + pin[6];
+  assign partial[2]  = pin[1]  + pin[2]  - pin[4]  - pin[5];
+  assign partial[3]  = pin[2]  + pin[3]  + pin[7]  - pin[5]  - pin[6];
+  assign partial[4]  = pin[8]  + pin[9]  + pin[10] + pin[12] + pin[13];
+  assign partial[5]  = pin[10] + pin[11] + pin[13] + pin[14];
+  assign partial[6]  = pin[9]  + pin[10] - pin[12] - pin[13];
+  assign partial[7]  = pin[10] + pin[11] + pin[15] - pin[13] - pin[14];
+  assign partial[8]  = pin[16] + pin[17] + pin[18] + pin[20] + pin[21];
+  assign partial[9]  = pin[18] + pin[19] + pin[21] + pin[22];
+  assign partial[10] = pin[17] + pin[18] - pin[20] - pin[21];
+  assign partial[11] = pin[18] + pin[19] + pin[23] - pin[21] - pin[22];
+  assign partial[12] = pin[24] + pin[25] + pin[26] + pin[28] + pin[29];
+  assign partial[13] = pin[26] + pin[27] + pin[29] + pin[30];
+  assign partial[14] = pin[25] + pin[26] - pin[28] - pin[29];
+  assign partial[15] = pin[26] + pin[27] + pin[31] - pin[29] - pin[30];
+  assign partial[16] = pin[32] + pin[33] + pin[34] + pin[36] + pin[37];
+  assign partial[17] = pin[34] + pin[35] + pin[37] + pin[38];
+  assign partial[18] = pin[33] + pin[34] - pin[36] - pin[37];
+  assign partial[19] = pin[34] + pin[35] + pin[39] - pin[37] - pin[38];
+  assign partial[20] = pin[40] + pin[41] + pin[42] + pin[44] + pin[45];
+  assign partial[21] = pin[42] + pin[43] + pin[45] + pin[46];
+  assign partial[22] = pin[41] + pin[42] - pin[44] - pin[45];
+  assign partial[23] = pin[42] + pin[43] + pin[47] - pin[45] - pin[46];
+  assign partial[24] = pin[48] + pin[49] + pin[50] + pin[52] + pin[53];
+  assign partial[25] = pin[50] + pin[51] + pin[53] + pin[54];
+  assign partial[26] = pin[49] + pin[50] - pin[52] - pin[53];
+  assign partial[27] = pin[50] + pin[51] + pin[55] - pin[53] - pin[54];
+  assign partial[28] = pin[56] + pin[57] + pin[58] + pin[60] + pin[61];
+  assign partial[29] = pin[58] + pin[59] + pin[61] + pin[62];
+  assign partial[30] = pin[57] + pin[58] - pin[60] - pin[61];
+  assign partial[31] = pin[58] + pin[59] + pin[63] - pin[61] - pin[62];
+
+  // Combine the eight inverse rows in the same output-lane order as the
+  // former ROWS_PER_CYCLE=4 accumulator, but in one full-matrix expression.
+  assign pout[0]  = partial[0]  + partial[4]  + partial[8]  + partial[16] + partial[20];
+  assign pout[1]  = partial[1]  + partial[5]  + partial[9]  + partial[17] + partial[21];
+  assign pout[2]  = partial[2]  + partial[6]  + partial[10] + partial[18] + partial[22];
+  assign pout[3]  = partial[3]  + partial[7]  + partial[11] + partial[19] + partial[23];
+  assign pout[4]  = partial[8]  + partial[12] + partial[20] + partial[24];
+  assign pout[5]  = partial[9]  + partial[13] + partial[21] + partial[25];
+  assign pout[6]  = partial[10] + partial[14] + partial[22] + partial[26];
+  assign pout[7]  = partial[11] + partial[15] + partial[23] + partial[27];
+  assign pout[8]  = partial[4]  + partial[8]  - partial[16] - partial[20];
+  assign pout[9]  = partial[5]  + partial[9]  - partial[17] - partial[21];
+  assign pout[10] = partial[6]  + partial[10] - partial[18] - partial[22];
+  assign pout[11] = partial[7]  + partial[11] - partial[19] - partial[23];
+  assign pout[12] = partial[8]  + partial[12] - partial[20] - partial[24] + partial[28];
+  assign pout[13] = partial[9]  + partial[13] - partial[21] - partial[25] + partial[29];
+  assign pout[14] = partial[10] + partial[14] - partial[22] - partial[26] + partial[30];
+  assign pout[15] = partial[11] + partial[15] - partial[23] - partial[27] + partial[31];
 endmodule
