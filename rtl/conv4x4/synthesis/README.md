@@ -11,11 +11,17 @@ The active TCN16 synthesis set has one characterized 6/12/18-MAC family:
 - `rowconst6-trunc-frac6-column`, evaluated with the matching
   `trunc-frac6-nbits20` package.
 
-The TCN16 standard-column RTL is the selected source for the next functional
-and ASIC validation, but does not yet have a matching synthesis configuration.
-All pretransformed RTL variants and their synthesis configurations are archived
-under `../archive/`; they are not part of the active architecture set. Each
-active ASIC configuration directory uses the exact basename of its RTL.
+The standard-column RTLs now have logical-synthesis configurations:
+
+- `conv-tcn16-std-column`: 18 MACs, Cin=3/Cout=12, NBITS=20, frac6 weights.
+- `conv-wpn16-std-column`: 32 MACs, Cin=3/Cout=12, NBITS=16, integer weights.
+
+These two directories currently define the Genus logical synthesis stage only;
+they intentionally do not imply that gate-level simulation or power has been
+validated for the standard-column testbenches. All pretransformed RTL variants
+and their synthesis configurations are archived under `../archive/`; they are
+not part of the active architecture set. Each active ASIC configuration
+directory uses the exact basename of its RTL.
 Previous TCN16 synthesis campaigns, including older truncation variants and
 legacy `conv.sv` configurations, remain under `../archive/synthesis/` and must
 not be presented as results for an active variant without matching provenance.

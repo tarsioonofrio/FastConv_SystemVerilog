@@ -41,6 +41,7 @@ module tb #(
   logic [NBITS-1:0] p_input_data_mem [0:CONV_INPUT_SIZE-1];
   logic [CONV_INPUT_SIZE-1:0] input_sample_in_bounds;
   logic input_vector_in_bounds;
+  logic [NADDR-1:0] input_bounds_addr;
   logic [NADDR-1:0] input_channel_offset;
   logic [NBITS-1:0] p_input_data_write;
   logic p_input_valid;
@@ -99,17 +100,19 @@ module tb #(
   logic in_inverse_d;
 
   assign p_input_data_write = '0;
-  // Remove the channel base before checking the physical feature-map bounds.
-  assign input_channel_offset = dut.r_input_addr_feat % (FEAT_INPUT_SIZE * FEAT_INPUT_WIDTH);
-  // r_input_addr_feat already points at the row selected by the current
-  // READ_IN_6* state.  Do not add w_input_base_feat a second time here: that
-  // falsely clipped rows 4 and 5 of every 6x6 tile.
+  // The normal input FSM advances r_input_addr_feat for each accepted beat.
+  // During prefetch, the external address comes from its independent pointer,
+  // so use that address when clipping padded feature-map samples.
+  always_comb begin
+    input_bounds_addr = dut.r_input_prefetch_active ? dut.r_input_prefetch_addr : dut.r_input_addr_feat;
+  end
+  assign input_channel_offset = input_bounds_addr % (FEAT_INPUT_SIZE * FEAT_INPUT_WIDTH);
   always_comb begin
     for (int unsigned lane = 0; lane < CONV_INPUT_SIZE; lane++) begin
       input_sample_in_bounds[lane] = (CONV_OUTPUT_SIZE == 4) ?
           (((input_channel_offset % FEAT_INPUT_WIDTH) + lane < FEAT_INPUT_WIDTH) &&
            ((input_channel_offset / FEAT_INPUT_WIDTH) < FEAT_INPUT_SIZE) &&
-           ((dut.r_input_addr_feat / (FEAT_INPUT_SIZE * FEAT_INPUT_WIDTH)) == dut.r_input_channel_counter_input)) : 1'b1;
+           ((input_bounds_addr / (FEAT_INPUT_SIZE * FEAT_INPUT_WIDTH)) == dut.r_input_channel_counter_input)) : 1'b1;
       p_input_data[lane*NBITS +: NBITS] = input_sample_in_bounds[lane] ? p_input_data_mem[lane] : '0;
     end
   end

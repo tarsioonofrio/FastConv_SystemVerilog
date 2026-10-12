@@ -82,11 +82,28 @@ module Conv
 
   // REGISTER BANK FOR THE WEIGHTS ////////////////////////////////////////////
   localparam WEIGHT_CYCLES = HADAMARD_SIZE * HADAMARD_SIZE;
-  localparam WEIGHT_WIDTH = f_width_min1(WEIGHT_CYCLES + 1);
+  // The input memory bus already carries one complete feature column. Reuse
+  // that width to load a complete Hadamard-weight column per memory beat.
+  localparam int unsigned WEIGHT_WORDS_PER_BEAT = HADAMARD_SIZE;
+  localparam int unsigned WEIGHT_READ_BEATS = WEIGHT_CYCLES / WEIGHT_WORDS_PER_BEAT;
+  localparam WEIGHT_WIDTH = f_width_min1(WEIGHT_READ_BEATS + 1);
   localparam WEIGHT_NBITS = NBITS + WEIGHT_FRAC_BITS;
   logic [WEIGHT_NBITS-1:0] r_input_weight[WEIGHT_CYCLES-1:0];
   logic [WEIGHT_CYCLES-1:0] w_input_weight_en;
   logic [WEIGHT_WIDTH-1:0] r_input_count_kernel;
+
+  // Once the current transform is captured, fetch the four columns needed by
+  // the next horizontal tile while the current result is being accumulated
+  // and written. The active feature bank is therefore not read by the
+  // prefetch path until its transform has crossed into r_conv_temp.
+  localparam int unsigned KEEP_COLUMNS = CONV_INPUT_SIZE - CONV_OUTPUT_SIZE;
+  localparam int unsigned PREFETCH_COLUMNS = CONV_OUTPUT_SIZE;
+  localparam int unsigned PREFETCH_PHASE_WIDTH = f_width_min1(PREFETCH_COLUMNS);
+  logic r_input_prefetch_active;
+  logic r_input_prefetch_full;
+  logic [NADDR-1:0] r_input_prefetch_addr;
+  logic [PREFETCH_PHASE_WIDTH-1:0] r_input_prefetch_phase;
+  logic w_input_prefetch_commit;
   logic w_input_weight_done;
   logic w_input_write_done;
 
@@ -186,10 +203,12 @@ module Conv
   // -------  PART 1 - ADDRESS TO ACCESS THE IFMAP AND WEIGHT MEMORY ------------------------------------
   // ----------------------------------------------------------------------------------------------------
 
-  assign p_input_en   = (st_input_current inside {READ_WEIGHTS, READ_IN_6A, READ_IN_6B, READ_IN_6C, READ_IN_6D, READ_IN_6E, READ_IN_6F});
+  assign p_input_en   = r_input_prefetch_active ||
+                        (st_input_current inside {READ_WEIGHTS, READ_IN_6A, READ_IN_6B, READ_IN_6C, READ_IN_6D, READ_IN_6E, READ_IN_6F});
   // Feature reads return the six consecutive words selected by this base address.
   // Weight reads use the low NBITS slice of the same shared input bus.
-  assign p_input_addr = (st_input_current == READ_WEIGHTS) ? r_input_addr_kernel : r_input_addr_feat;
+  assign p_input_addr = r_input_prefetch_active ? r_input_prefetch_addr :
+                        (st_input_current == READ_WEIGHTS) ? r_input_addr_kernel : r_input_addr_feat;
 
   always_ff @(posedge clk or posedge reset) begin: INPUT_ADDR_POINTER_BLOCK
     if (reset) begin
@@ -198,6 +217,10 @@ module Conv
     end
     else if ((st_input_current == READ_IN_6A && st_input_next == READ_IN_6B) || (st_input_current == READ_IN_6B && st_input_next == READ_IN_6C) || (st_input_current == READ_IN_6C && st_input_next == READ_IN_6D) || (st_input_current == READ_IN_6D && st_input_next == READ_IN_6E) || (st_input_current == READ_IN_6E && st_input_next == READ_IN_6F) || st_input_current == TRANSFER)
       r_input_addr_feat <= r_input_addr_feat + NADDR'(FEAT_INPUT_WIDTH);    // change internal p_input_addr in the state transition or in the TRANSFER state (CAUTION: PE)
+    else if (w_input_prefetch_commit)
+      // Leave the pointer at the last prefetched column. The following
+      // TRANSFER advances it to the first column for the tile after next.
+      r_input_addr_feat <= r_input_addr_feat + NADDR'((PREFETCH_COLUMNS - 1) * FEAT_INPUT_WIDTH);
     else if (st_input_current == NEXT_ROW_INPUT && !w_input_last_window_acc) begin  // when change the line, the read pointer moves 'r_input_window_next'
       r_input_addr_feat <= r_input_window_next + NADDR'(r_input_channel_counter_input * FEAT_INPUT_SIZE * FEAT_INPUT_WIDTH);  // restart for the first line
       r_input_window_next <= r_input_window_next + CONV_OUTPUT_SIZE;
@@ -225,7 +248,7 @@ module Conv
     else if (st_input_current == WAIT_INPUT && st_input_next == ADDRESS_INPUT)    // initializes only ONCE the weight p_input_addr (after the IFMAPs in the memory) (CAUTION: PE)
       r_input_addr_kernel <= NADDR'(N_CHANNEL_IN * FEAT_INPUT_SIZE * FEAT_INPUT_WIDTH);
     else if (st_input_current == READ_WEIGHTS)
-      r_input_addr_kernel <= r_input_addr_kernel + 1;  // next weight
+      r_input_addr_kernel <= r_input_addr_kernel + NADDR'(WEIGHT_WORDS_PER_BEAT);
   end
 
   // ----------------------------------------------------------------------------------------------------
@@ -258,7 +281,12 @@ module Conv
       TRANSFER: st_input_next = HOLD_WRITE;  // p_start the convolution
       HOLD_WRITE:
         if (w_input_last_window_col && w_input_write_done) st_input_next = NEXT_ROW_INPUT;
-          else if (w_input_write_done) st_input_next = READ_IN_6C;
+        else if (!w_input_last_window_col && r_input_prefetch_full) begin
+          if (st_output_current == WRITE_OUTPUT &&
+              r_output_write_count == OUTPUT_RW_COUNT_WIDTH'(OUTPUT_RW_COUNT_MAX))
+            st_input_next = CONV_INPUT;
+        end else if (!w_input_last_window_col && !r_input_prefetch_active && w_input_write_done)
+          st_input_next = READ_IN_6C;
         else st_input_next = HOLD_WRITE;
       NEXT_ROW_INPUT:
         if (w_input_last_window_acc) st_input_next = ADDRESS_INPUT;
@@ -267,7 +295,7 @@ module Conv
     endcase
   end
 
-  assign w_input_weight_done = (r_input_count_kernel == WEIGHT_WIDTH'(WEIGHT_CYCLES - 1));
+  assign w_input_weight_done = (r_input_count_kernel == WEIGHT_WIDTH'(WEIGHT_READ_BEATS - 1));
   // Release after the consumer has started the first tile or completed a
   // later tile; releasing during RESET_OUTPUT would allow the first inverse
   // result to be overwritten before its first write beat.
@@ -300,7 +328,7 @@ module Conv
   // r_input_channel_counter_output: number of the current OFMAP channel being processed
   // r_input_window_counter_acc: number of convolutions in a given IFMAP channel
   // r_input_window_counter_col :  number of horizontal convolutions in a given IFMAP channel - detect the last line
-  // r_input_count_kernel:        number of weights read from memory
+  // r_input_count_kernel:        index of the current vector weight beat
   always_ff @(posedge clk or posedge reset) begin: INPUT_CONTROL_COUNTERS_BLOCK
     if (reset) begin
       r_input_count_kernel           <= 0;
@@ -331,7 +359,7 @@ module Conv
       end
 
       if (st_input_current == READ_WEIGHTS) begin
-        r_input_count_kernel <= r_input_count_kernel + 1;
+        r_input_count_kernel <= r_input_count_kernel + 1'b1;
       end
     end
   end
@@ -381,11 +409,53 @@ module Conv
     if (reset)
       for (int unsigned i = 0; i < (CONV_INPUT_SIZE * CONV_INPUT_SIZE); i++)
         r_input_feat[i] <= '0;
-    else
+    else if (r_input_prefetch_active && p_input_valid) begin
+      for (int unsigned lane = 0; lane < CONV_INPUT_SIZE; lane++)
+        r_input_feat[lane * CONV_INPUT_SIZE + KEEP_COLUMNS + int'(r_input_prefetch_phase)] <=
+            p_input_data[lane*NBITS +: NBITS];
+    end else
       for (int unsigned i = 0; i < (CONV_INPUT_SIZE * CONV_INPUT_SIZE); i++)
         if (w_input_feat_en[i] && w_input_feat_write_valid)
           r_input_feat[i] <= w_input_feat_next[i];
   end
+
+  always_ff @(posedge clk or posedge reset) begin: INPUT_PREFETCH_CONTROL_BLOCK
+    if (reset) begin
+      r_input_prefetch_active <= 1'b0;
+      r_input_prefetch_full <= 1'b0;
+      r_input_prefetch_addr <= '0;
+      r_input_prefetch_phase <= '0;
+    end else begin
+      // TRANSFER has already shifted the shared columns and captured the
+      // current feature transform before this state is reached.
+      if (st_input_current == HOLD_WRITE && !w_input_last_window_col &&
+          !r_input_prefetch_active && !r_input_prefetch_full) begin
+        r_input_prefetch_active <= 1'b1;
+        r_input_prefetch_full <= 1'b0;
+        r_input_prefetch_addr <= r_input_addr_feat;
+        r_input_prefetch_phase <= '0;
+      end else if (r_input_prefetch_active && p_input_valid) begin
+        r_input_prefetch_addr <= r_input_prefetch_addr + NADDR'(FEAT_INPUT_WIDTH);
+        if (r_input_prefetch_phase == PREFETCH_PHASE_WIDTH'(PREFETCH_COLUMNS - 1)) begin
+          r_input_prefetch_active <= 1'b0;
+          r_input_prefetch_full <= 1'b1;
+        end else begin
+          r_input_prefetch_phase <= r_input_prefetch_phase + 1'b1;
+        end
+      end
+
+      if (w_input_prefetch_commit || st_input_current == NEXT_ROW_INPUT ||
+          st_input_current == ADDRESS_INPUT) begin
+        r_input_prefetch_active <= 1'b0;
+        r_input_prefetch_full <= 1'b0;
+      end
+    end
+  end
+
+  assign w_input_prefetch_commit = r_input_prefetch_full &&
+      (st_input_current == HOLD_WRITE) && !w_input_last_window_col &&
+      (st_output_current == WRITE_OUTPUT) &&
+      (r_output_write_count == OUTPUT_RW_COUNT_WIDTH'(OUTPUT_RW_COUNT_MAX));
 
   // Weight register bank with per-entry write-enable.
   always_comb begin: WEIGHT_WE_BLOCK
@@ -393,9 +463,8 @@ module Conv
     if (st_input_current == READ_WEIGHTS) begin
       // The packed transformed-weight tile is row-major, matching the
       // Hadamard feature indices and the pretransformed reference path.
-      for (int unsigned i = 0; i < WEIGHT_CYCLES; i++)
-        if (r_input_count_kernel == WEIGHT_WIDTH'(i))
-          w_input_weight_en[i] = 1'b1;
+      for (int unsigned lane = 0; lane < WEIGHT_WORDS_PER_BEAT; lane++)
+        w_input_weight_en[(r_input_count_kernel * WEIGHT_WORDS_PER_BEAT) + lane] = 1'b1;
     end
   end
 
@@ -407,8 +476,8 @@ module Conv
       // A new weight load has priority over the final HADAMARD rotation.
       for (int unsigned i = 0; i < WEIGHT_CYCLES; i++)
         if (w_input_weight_en[i])
-          r_input_weight[i] <= {{WEIGHT_FRAC_BITS{p_input_data[NBITS-1]}},
-                                p_input_data[0 +: NBITS]};
+          r_input_weight[i] <= {{WEIGHT_FRAC_BITS{p_input_data[((i % WEIGHT_WORDS_PER_BEAT) * NBITS) + NBITS - 1]}},
+                                p_input_data[(i % WEIGHT_WORDS_PER_BEAT) * NBITS +: NBITS]};
     end else if (st_conv_current == HADAMARD) begin         // transform weights into a circular queue
       for (int unsigned i = 0; i < (WEIGHT_CYCLES-NUM_MULT); i++) begin
         r_input_weight[i] <= r_input_weight[i + NUM_MULT];
@@ -419,8 +488,8 @@ module Conv
     end else begin
       for (int unsigned i = 0; i < WEIGHT_CYCLES; i++)
         if (w_input_weight_en[i])
-          r_input_weight[i] <= {{WEIGHT_FRAC_BITS{p_input_data[NBITS-1]}},
-                                p_input_data[0 +: NBITS]};
+          r_input_weight[i] <= {{WEIGHT_FRAC_BITS{p_input_data[((i % WEIGHT_WORDS_PER_BEAT) * NBITS) + NBITS - 1]}},
+                                p_input_data[(i % WEIGHT_WORDS_PER_BEAT) * NBITS +: NBITS]};
     end
   end
 
@@ -440,6 +509,11 @@ module Conv
     st_conv_next = st_conv_current;  // default prevents latch inference
     priority case (st_conv_current)
       WAIT_CONV: begin
+        // Potential optimization, currently disabled: start TRANSFORM during
+        // HOLD_WRITE when w_input_prefetch_commit is asserted. It overlapped
+        // next-tile transformation with the final output write and measured
+        // 5032 cycles (vs. 5536 for prefetch alone), with golden passing. Keep
+        // the simpler CONV_INPUT launch until that schedule is selected.
         if (st_input_current == CONV_INPUT) begin
           st_conv_next = TRANSFORM;  // starts the convolution after moving data to the convolution register bank
         end
