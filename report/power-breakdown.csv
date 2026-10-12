@@ -95,14 +95,6 @@ Conv4x4-conv-wpn16-i60-h25-t32-o16-m16-stream16-prefetch24-rowconst8-trunc-colum
 Conv4x4-conv-wpn16-i60-h25-t32-o16-m16-stream16-prefetch24-rowconst8-trunc-column-nbits16-cin3-cout12,clock,0.189826,2.2566498451589125
 Conv4x4-conv-wpn16-i60-h25-t32-o16-m16-stream16-prefetch24-rowconst8-trunc-column-nbits16-cin3-cout12,pad,0.0,0.0
 Conv4x4-conv-wpn16-i60-h25-t32-o16-m16-stream16-prefetch24-rowconst8-trunc-column-nbits16-cin3-cout12,pm,0.0,0.0
-Conv4x4-conv-wpn16-i60-h41-t64-o16-m32-stream16-prefetch24-pretransformed-featurebank-column-cin3-cout12,memory,0.0,0.0
-Conv4x4-conv-wpn16-i60-h41-t64-o16-m32-stream16-prefetch24-pretransformed-featurebank-column-cin3-cout12,register,2.75316,17.61199567562035
-Conv4x4-conv-wpn16-i60-h41-t64-o16-m32-stream16-prefetch24-pretransformed-featurebank-column-cin3-cout12,latch,0.0,0.0
-Conv4x4-conv-wpn16-i60-h41-t64-o16-m32-stream16-prefetch24-pretransformed-featurebank-column-cin3-cout12,logic,12.6721,81.0635671014502
-Conv4x4-conv-wpn16-i60-h41-t64-o16-m32-stream16-prefetch24-pretransformed-featurebank-column-cin3-cout12,bbox,0.0,0.0
-Conv4x4-conv-wpn16-i60-h41-t64-o16-m32-stream16-prefetch24-pretransformed-featurebank-column-cin3-cout12,clock,0.207048,1.324488399019978
-Conv4x4-conv-wpn16-i60-h41-t64-o16-m32-stream16-prefetch24-pretransformed-featurebank-column-cin3-cout12,pad,0.0,0.0
-Conv4x4-conv-wpn16-i60-h41-t64-o16-m32-stream16-prefetch24-pretransformed-featurebank-column-cin3-cout12,pm,0.0,0.0
 Conv4x4-conv-wpn16-i60-h41-t64-o16-m32-stream16-prefetch24-rowconst8-trunc-column-nbits16-cin3-cout12,memory,0.0,0.0
 Conv4x4-conv-wpn16-i60-h41-t64-o16-m32-stream16-prefetch24-rowconst8-trunc-column-nbits16-cin3-cout12,register,2.94654,30.85062386202896
 Conv4x4-conv-wpn16-i60-h41-t64-o16-m32-stream16-prefetch24-rowconst8-trunc-column-nbits16-cin3-cout12,latch,0.0,0.0

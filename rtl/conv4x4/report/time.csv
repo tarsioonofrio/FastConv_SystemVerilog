@@ -5,5 +5,4 @@ Conv4x4-conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-rowconst6-trunc-frac6
 Conv4x4-conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-transformed-frac6-column-cin3-cout12,Conv4x4-conv,18,32,,43282.0,21641
 Conv4x4-conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column-nbits16-cin3-cout12,Conv4x4,08,32,,70714.0,35357
 Conv4x4-conv-wpn16-i60-h25-t32-o16-m16-stream16-prefetch24-rowconst8-trunc-column-nbits16-cin3-cout12,Conv4x4,16,32,,52282.0,26141
-Conv4x4-conv-wpn16-i60-h41-t64-o16-m32-stream16-prefetch24-pretransformed-featurebank-column-cin3-cout12,Conv4x4,32,32,,47676.0,23838
 Conv4x4-conv-wpn16-i60-h41-t64-o16-m32-stream16-prefetch24-rowconst8-trunc-column-nbits16-cin3-cout12,Conv4x4,32,32,,43066.0,21533
