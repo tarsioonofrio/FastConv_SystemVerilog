@@ -1,0 +1,7 @@
+-define NADDR=16
+-define LATENCY=1
+-define QUANT=8
+-define ASIC_CAPTURE_SHM
+-define NBITS=16
+-define PRETRANSFORMED_WEIGHTS
+-define ASIC_NUM_MULT=8
