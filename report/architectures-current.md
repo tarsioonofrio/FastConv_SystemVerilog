@@ -1,23 +1,30 @@
-# Arquiteturas de convolução em uso
+# Arquiteturas de convolução usadas no paper ISCAS 2027
 
-Este relatório descreve o padrão streaming por colunas usado como arquitetura
-geral nos algoritmos que não são TCN16 e as variantes específicas atualmente
-mantidas para TCN16. O arquivo WPN16 abaixo é o exemplo
-representativo do padrão geral; cada algoritmo e tamanho de kernel tem seu
-próprio RTL gerado com a geometria e a transformada correspondentes.
+Este guia explica o padrão de datapath e distingue os três baselines 4×4 do
+paper. Para uma pessoa que vem do artigo, o [guia de navegação ISCAS](iscas2027/README.md)
+é o ponto de entrada mais direto: ele liga cada rótulo do paper a uma fonte
+SystemVerilog, configuração ASIC, dataset e resultado.
 
-## Visão geral
+## Mapa dos baselines do paper
 
-| Papel | RTL representativo | Ideia principal |
+| Rótulo no paper | Fonte representativa | O que muda |
 | --- | --- | --- |
-| Padrão geral | [`conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv`](../rtl/conv4x4/conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column.sv) | Mantém pesos espaciais, calcula sob demanda a linha transformada necessária e processa a matriz de Hadamard em lotes usando MACs paralelos. |
-| TCN16 standard-column | [`conv-tcn16-std-column.sv`](../rtl/conv4x4/conv-tcn16-std-column.sv) | Variante escolhida para a próxima validação; mantém o carregamento vetorial do tile e calcula a transformada dos pesos em execução. Ainda não tem uma campanha ASIC própria. |
-| TCN16 com `frac6` | [`conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-rowconst6-trunc-frac6-column.sv`](../rtl/conv4x4/conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-rowconst6-trunc-frac6-column.sv) | Mantém o cálculo da transformada de pesos no RTL, mas conserva seis bits fracionários para reduzir a perda de precisão da divisão por 576. |
-| TCN16 pretransformed (arquivada) | [`conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-pretransformed-column.sv`](../rtl/conv4x4/archive/tcn16-pretransformed/conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-pretransformed-column.sv) | Variante histórica: recebe os 36 pesos já transformados no pacote de dados e os armazena no RTL; não faz parte do conjunto ativo. |
+| `WPff` | [`WPN16 4×4, 32 MACs`](../rtl/conv4x4/conv-wpn16-i60-h41-t64-o16-m32-stream16-prefetch24-rowconst8-trunc-column.sv) | Transformada polinomial, 16 bits, pesos espaciais transformados em execução. |
+| `TCff` | [`TCN16 rowconst6 + frac6`](../rtl/conv4x4/archive/conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-rowconst6-trunc-frac6-column.sv) | Transformada de pesos Toom-Cook no core; pacote de palavras de 20 bits e parâmetro de transformação `frac6`. A fonte foi arquivada, mas o fluxo ASIC usado no paper continua ativo e completo. |
+| `TCpre` | [`TCN16 transformed-frac6`](../rtl/conv4x4/conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-transformed-frac6-column.sv) | Pesos transformados fora do core; pacote de palavras de 20 bits e mesmo parâmetro `frac6`; é o baseline pretransformed selecionado no paper. |
+| `IF` | [`IFN9 3×3, 18 MACs`](../rtl/conv3x3/conv-ifn9-i40-h27-t36-o9-m18-stream12-prefetch15-rowconst6-trunc-column.sv) | Família IF, com transformação de pesos em execução, 16 bits. |
+| `TCtt` | [`TCN9 3×3, 5 MACs`](../rtl/conv3x3/conv-tcn9-i40-h14-t10-o9-m05-stream10-prefetch15-rowconst5-trunc-column.sv) | Família Toom-Cook 3×3, 16 bits. |
+| `TCtw` | [`TCN4 2×2, 8 MACs`](../rtl/conv2x2/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column.sv) | Família Toom-Cook 2×2, 16 bits. |
 
-## Padrão geral: streaming por colunas com pesos `rowconst`
+As linhas acima identificam o ponto selecionado na tabela ASIC, não todas as
+variantes existentes. A Tabela de Designs do paper também lista varreduras de
+MACs: WPff 8/16/32, TCff e TCpre 6/12/18, IF 6/12/18, TCtt 5 e TCtw 4/8.
 
-O datapath do exemplo WPN16 segue esta sequência:
+## Padrão geral: streaming por colunas com `rowconst`
+
+O padrão de referência mantém os pesos espaciais no core, transforma as linhas
+necessárias conforme o escalonamento e compartilha um banco de MACs entre os
+produtos Hadamard. Para o exemplo WPN16 4×4, o fluxo de dados é:
 
 ```text
 colunas de entrada
@@ -28,7 +35,7 @@ transformada C das features (8×8)
         ↓
 registrador de features transformadas
         ↓
-produtos Hadamard em 8 MACs
+produtos Hadamard em 8 MACs por lote
         ↓
 registrador dos produtos
         ↓
@@ -39,125 +46,78 @@ acumulador do tile de saída 4×4
 escrita vetorial por coluna
 ```
 
-Uma transferência de entrada carrega uma coluna com seis palavras, e a interface
-de saída lê/escreve uma coluna com quatro palavras. Para avançar ao tile
-horizontal seguinte, duas colunas do tile atual são reutilizadas e quatro novas
-colunas são buscadas. O banco de prefetch armazena essas quatro colunas antes
-que o tile atual termine, reduzindo a espera entre tiles.
+Uma transferência de entrada carrega uma coluna com seis palavras; a interface
+de saída lê/escreve uma coluna com quatro palavras. Ao avançar o tile, parte das
+colunas é reutilizada e as novas são buscadas pelo prefetch. No padrão
+`rowconst`, o core não precisa guardar simultaneamente os `K×K` coeficientes
+transformados do kernel: calcula a linha necessária e mantém apenas o lote
+ativo para os MACs. O pipeline tem fronteiras registradas entre transformação,
+Hadamard e inversa; não é uma única cadeia combinacional de ponta a ponta.
 
-Os nove pesos espaciais do filtro são mantidos no core. `WeightTransformRowConst`
-implementa as equações de uma linha da transformada com coeficientes constantes;
-somente as linhas necessárias ao próximo lote são habilitadas. Assim, o RTL não
-precisa manter simultaneamente um banco registrado com os 64 coeficientes
-transformados de uma matriz 8×8. A transformada completa continua existindo
-matematicamente, mas suas linhas são produzidas conforme o escalonamento dos
-MACs.
+## Como ler as tags do RTL
 
-O pipeline registra as features transformadas antes dos MACs e registra os
-produtos Hadamard antes da inversa. A inversa é calculada incrementalmente por
-linha, e seus resultados atualizam o acumulador do tile de saída. Esses bancos
-de fronteira separam os estágios de transformação, multiplicação e inversa; não
-se deve interpretar o streaming como uma única cadeia combinacional de ponta a
-ponta.
+Exemplo: `conv-wpn16-i60-h41-t64-o16-m32-stream16-prefetch24-rowconst8-trunc-column`.
 
-### Como ler as tags do nome
-
-Para o exemplo
-`conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column`:
-
-| Tag | Significado neste padrão | Valor do exemplo |
+| Tag | Significado neste padrão | Exemplo |
 | --- | --- | ---: |
-| `conv` | Módulo controlador de convolução. | — |
-| `wpn16` | Algoritmo de Winograd indicado pelo RTL/dataset. | — |
-| `iNN` | Palavras nos bancos de entrada: tile de features mais banco de prefetch. | `36 + 24 = 60` |
-| `hNN` | Palavras nominais do armazenamento de pesos `rowconst`: pesos espaciais mais pesos transformados ativos para os MACs. | `9 + 8 = 17` |
-| `tNN` | Palavras registradas nas duas fronteiras de dados: features transformadas e produtos Hadamard. | `8 + 8 = 16` |
+| `wpn16` | Algoritmo/família matemática indicado pelo RTL e pelo dataset. | — |
+| `iNN` | Palavras nominais no armazenamento de entrada: tile de features + prefetch. | `36 + 24 = 60` |
+| `hNN` | Contagem nominal do armazenamento de pesos `rowconst`: pesos espaciais + palavras transformadas ativas. | `9 + 32 = 41` |
+| `tNN` | Palavras nas fronteiras registradas de dados, aqui features transformadas + produtos Hadamard. | `32 + 32 = 64` |
 | `oNN` | Palavras do tile de saída. | `4 × 4 = 16` |
-| `mNN` | Número de lanes/MACs paralelos. | `8` |
-| `streamNN` | `2 × HADAMARD_SIZE`; permanece constante quando se altera o número de MACs dentro da mesma família. | `2 × 8 = 16` |
-| `prefetchNN` | Número de palavras antecipadas: colunas novas × altura do tile de entrada. | `4 × 6 = 24` |
-| `rowconstNN` | Dimensão de Hadamard e número de coeficientes calculados por linha da transformada de pesos. | `8` |
-| `trunc` | Coeficientes transformados são quantizados por truncamento/floor conforme a escala do algoritmo; não implica, por si só, bits fracionários adicionais. | — |
-| `column` | Interface de memória vetorial: uma coluna de entrada/saída por transferência, em vez de uma única palavra escalar. | 6 entradas / 4 saídas por beat |
+| `mNN` | Número de lanes/MACs paralelos. | `32` |
+| `streamNN` | Duas vezes a dimensão da transformada Hadamard nesta família. | `2 × 8 = 16` |
+| `prefetchNN` | Palavras antecipadas: quatro colunas novas × seis linhas. | `24` |
+| `rowconstNN` | Dimensão da transformada e número de coeficientes calculados por linha. | `8` |
+| `trunc` | Transformada de pesos quantizada por truncamento/floor, segundo a escala do algoritmo. | — |
+| `column` | Transferência vetorial por coluna, em vez de uma palavra escalar por beat. | `6 in / 4 out` |
 
-`i`, `h` e `t` são contagens nominais de palavras conforme a convenção do
-gerador. Elas não substituem a leitura do RTL: por exemplo, `h` não inclui
-vetores combinacionais e não é uma estimativa de área física.
+Essas tags são uma convenção de nome e não substituem a inspeção do RTL. Em
+particular, para `TCpre` o `h27` foi herdado do padrão online e não descreve o
+armazenamento físico da arquitetura transformada. Consulte o [relatório de
+tamanho das representações de pesos](weight-representation-size.md) ou o RTL
+antes de interpretar uma tag como contagem física de registradores.
 
-## Por que foram exploradas duas variantes específicas de TCN16
+## Por que o paper tem dois TCN16 4×4
 
-TCN16 usa uma transformada de pesos 6×6 cuja escala é 576. Como 576 não é uma
-potência de dois, descartar simplesmente o resto da divisão causa erro de
-quantização considerável. O relatório de qualidade do dataset sem fração
-registra `R² ≈ 0,742`; por isso foram exploradas duas opções com contratos
-numéricos e custos de implementação diferentes.
+A transformada de kernel TCN16 tem escala 576, que não é potência de dois. A
+truncagem simples em 16 bits degrada a precisão; no paper, `TCff` e `TCpre`
+usam o mesmo pacote de 20 bits com a configuração de transformação
+`WEIGHT_TRANSFORM_FRAC_BITS=6`.
+O dataset usado pelos dois é
+[`sim-032-3-12-normal-trunc-frac6-nbits20`](../rtl/conv4x4/data/tcn16/sim/sim-032-3-12-normal-trunc-frac6-nbits20/).
+Seu `R²` publicado é 0,9985. Assim, a comparação entre `TCff` e `TCpre` isola
+principalmente onde a transformação do kernel é executada, e não uma diferença
+de precisão.
 
-### `rowconst6-trunc-frac6-column`
+### `TCff`: transformação do kernel dentro do core
 
-Esta variante preserva o cálculo da transformada no circuito: guarda os nove
-pesos espaciais e calcula cada linha 6-wide quando ela é necessária. Antes da
-divisão pela escala 576, o numerador é deslocado seis bits à esquerda; o
-resultado é floor-dividido e armazenado com seis bits fracionários adicionais.
-O multiplicador usa a escala de quantização ajustada (`QUANT + 6`). Isso
-recupera precisão sem guardar previamente a matriz 6×6 completa no pacote como
-fonte de pesos do core.
+O RTL guarda os pesos espaciais e calcula sob demanda uma linha de seis
+coeficientes transformados. O numerador é escalado por `2^6` antes da divisão
+por 576, preservando os seis bits fracionários. O ponto do paper usa 18 MACs.
+Embora a fonte esteja hoje em `rtl/conv4x4/archive/`, a configuração ativa
+[`TCff m18`](../rtl/conv4x4/synthesis/conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-rowconst6-trunc-frac6-column-cin3-cout12/)
+aponta para ela em `list-file.txt`; seus artefatos de síntese, simulação SDF e
+power são a evidência usada no relatório.
 
-Foi desenvolvida para responder ao problema de qualidade numérica do TCN16
-truncado sem fração. No dataset correspondente, `R² ≈ 0,99868`, contra
-`R² ≈ 0,74204` no dataset TCN16 truncado sem `frac6`. Essa diferença é de
-representação/quantização dos pesos; não é uma comparação isolada de
-microarquitetura, pois os pacotes de dados também são diferentes.
+### `TCpre`: transformação do kernel antes da execução
 
-### Variante histórica arquivada: `pretransformed-column`
+O ponto selecionado é
+[`transformed-frac6-column`](../rtl/conv4x4/conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-transformed-frac6-column.sv),
+com 18 MACs. Os pesos chegam transformados ao datapath, removendo do core a
+lógica da transformação do kernel, mas exigindo armazenamento/tráfego da
+representação transformada. Ele usa o mesmo pacote de 20 bits e `frac6` de
+`TCff`; não confundir com versões antigas `pretransformed` sem fração que
+permanecem arquivadas.
 
-Esta variante desloca a transformada dos pesos para a geração do pacote. O
-RTL lê, em beats vetoriais de seis palavras, os 36 coeficientes já transformados
-e floor-truncados de cada filtro 6×6, guarda a matriz completa e carrega dela o
-lote de até `NUM_MULT` pesos usado pelos MACs naquele ciclo. A transformada das
-features continua ocorrendo no RTL; o que sai do caminho em tempo de execução é
-somente o cálculo da transformada dos pesos.
+## Leituras seguintes
 
-Foi desenvolvida para separar o custo de cálculo/carregamento dos pesos do
-datapath ativo e permitir caracterizar a alternativa em que o pré-processamento
-é feito fora do core. O trade-off é explícito: não há os seis bits fracionários
-da variante anterior, e o RTL passa a armazenar os 36 pesos transformados
-completos, além do banco ativo dos MACs. Portanto, `pretransformed` não deve ser
-apresentada como substituta de maior precisão da `frac6`; ela é uma alternativa
-de organização do cálculo e do armazenamento.
-
-### Tags das variantes TCN16 ativa e arquivada
-
-| Tag | `rowconst6-trunc-frac6` | `pretransformed` |
-| --- | --- | --- |
-| `tcn16` | Algoritmo TCN16; transformada de pesos e features 6×6. | Mesmo algoritmo e mesma geometria. |
-| `i60` | 36 palavras do tile de entrada + 24 de prefetch. | Igual. |
-| `h27` | 9 pesos espaciais + 18 pesos transformados ativos (`NUM_MULT=18`). | **Tag herdada da convenção da rowconst**: fisicamente há 36 pesos transformados armazenados mais 18 no banco ativo; portanto `h27` não conta todo o armazenamento de pesos desta variante. |
-| `t36` | 18 features transformadas + 18 produtos registrados. | Igual. |
-| `o16` | Tile de saída 4×4. | Igual. |
-| `m18` | 18 MACs; como `HADAMARD_SIZE=6`, processa três linhas Hadamard por ciclo. | Igual. |
-| `stream12` | `2 × 6`, conforme a convenção de nomes do gerador. | Igual. |
-| `prefetch24` | Quatro novas colunas × seis linhas. | Igual. |
-| `rowconst6` | Calcula sob demanda uma linha de seis coeficientes da transformada de pesos. | Não descreve o datapath desta variante; ela usa pesos pretransformados. O sufixo não aparece no nome. |
-| `trunc-frac6` | Floor da transformada com seis bits fracionários preservados. | Não se aplica: dataset contém pesos já transformados e truncados sem fração adicional. |
-| `pretransformed` | Não se aplica. | Os 36 pesos transformados são fornecidos pelo pacote e registrados no core. |
-| `column` | Transferências vetoriais por coluna. | Igual. |
-
-O campo `h27` da variante pretransformed merece atenção ao comparar nomes: ele
-continua descrevendo a conta herdada `9 + 18`, mas a implementação não mantém os
-nove pesos espaciais; mantém os 36 coeficientes pretransformados e os 18 pesos
-ativos dos MACs, totalizando 54 palavras de armazenamento de pesos. Para
-comparações de armazenamento, use a estrutura RTL ou o [relatório de tamanho
-das representações de pesos](weight-representation-size.md), não apenas a tag
-`h`.
-
-## Relatórios e fontes
-
-- [README das arquiteturas 4×4](../rtl/conv4x4/README.md) — variantes ativas e
-  localização dos fluxos.
-- [Tamanho das representações de pesos](weight-representation-size.md) —
-  quantidade matemática de coeficientes espaciais/transformados e estratégia de
+- [Guia de navegação do paper ISCAS 2027](iscas2027/README.md): tabelas/figuras,
+  configurações e evidência por resultado.
+- [Tamanho das representações de pesos](weight-representation-size.md):
+  quantidade de coeficientes espaciais e transformados e estratégia de
   armazenamento.
-- [Qualidade dos datasets](functional-quality.csv) — métricas dos datasets
-  ativos; a comparação TCN16 `frac6`/sem fração usa pacotes diferentes.
-- [Fluxo ASIC TCN16 `frac6`](../rtl/conv4x4/report/tcn16-frac6-mac-sweep.md) e
-  [fluxo ASIC TCN16 pretransformed sem fração](../rtl/conv4x4/report/tcn16-pretransformed-nofrac-asic-power-20261008.md) — resultados de campanha, não uma comparação controlada de apenas uma tag.
+- [Qualidade funcional dos datasets](functional-quality.csv): métricas
+  calculadas para os datasets referenciados por configurações executadas.
+- [README das arquiteturas 4×4](../rtl/conv4x4/README.md): fontes ativas e
+  organização dos fluxos.

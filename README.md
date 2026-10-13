@@ -76,6 +76,11 @@ replace their scripts or change their result formats.
 
 ## Where to find results
 
+If you arrived here from the ISCAS 2027 paper, start with the
+[paper-to-repository guide](report/iscas2027/README.md). It maps each paper
+label to the exact RTL, dataset, synthesis configuration, and evidence used in
+the paper tables and figures.
+
 There are two levels of reports:
 
 - **Consolidated comparison tables:** `report/` contains the repository-wide
