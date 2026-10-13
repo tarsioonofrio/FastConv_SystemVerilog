@@ -1,4 +1,4 @@
-# FastConv 4x4 TCN16 controller
+# FastConv 4x4 architectures
 
 This folder contains the F(4x4, 3x3) TCN16 Winograd controller. Its external
 interface is intentionally the same as the 2x2 and 3x3 controllers: the DUT
@@ -9,15 +9,21 @@ Package width and fractional precision depend on the selected dataset; do not
 assume that every current 4x4 configuration uses the historical 20-bit,
 8-fractional-bit package.
 
-## Active RTL set
+## Current top-level RTL candidates
 
-The root directory keeps the selected variants: TCN16 standard-column,
-TCN16 `frac6` rowconst-column at 6/12/18 multipliers, WPN16 i60/prefetch24
-rowconst-column at 8/16/32 multipliers, and the integer pretransformed-column
-pair at TCN16 m18 and WPN16 m32. The latter pair uses a separate registered
-Hadamard-product bank before the inverse stage. Their synthesis configurations
-and historical flow results remain under `archive/synthesis/`; the active ASIC
-configuration list is documented in [`synthesis/README.md`](synthesis/README.md).
+The root contains the current selectable candidates: TCN16 transformed-frac6
+m18; WPN16 rowconst m8/m16/m32; and WPN16 m32 variants with an inverse
+accumulator register, transformed-column, and transformed-rowstream-column
+datapaths. The two WPN16 transformed variants are experiments and should not
+be treated as the selected baseline without checking their validation and
+flow evidence. The exact mapping from root-level RTL to synthesis configs is
+printed by `make audit-layout`.
+
+Retired RTL is under `archive/`. A config under `synthesis/` may deliberately
+reference an archived source; `list-file.txt` and `rtl-top-file.txt` are the
+authoritative provenance. This distinction matters because a config directory
+can contain historical results even when its source is no longer a root-level
+candidate.
 
 The testbench instantiates the same `Memory` models used by `conv3x3` and
 `conv2x2`. It starts one complete convolution, checks the output address range,

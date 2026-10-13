@@ -5,7 +5,21 @@ same external `Conv` interface and the same generated dataset, but each source
 file is compiled separately because every file declares the top-level module
 `Conv`.
 
-## RTL variants
+## Current top-level RTL candidates
+
+The selectable sources currently at the directory root are:
+
+| Source | Flow status |
+| --- | --- |
+| `conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column.sv` | Active 4-MAC column candidate |
+| `conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column.sv` | Active 8-MAC column candidate |
+| `conv-i24-h13-t08-o4-m08-stream08-prefetch8-pretransformed-column.sv` | Active 8-MAC pretransformed candidate |
+
+Use `make audit-layout` to see which synthesis manifests reference each root
+source. The catalog below is a historical architecture record and may mention
+sources now stored under `archive/`.
+
+## Historical architecture catalog
 
 | Source | Architecture | MAC configurations |
 | --- | --- | --- |
