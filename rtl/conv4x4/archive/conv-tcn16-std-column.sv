@@ -19,7 +19,7 @@ module Conv
     parameter int unsigned CONV_INPUT_SIZE     = 6,
     parameter int unsigned HADAMARD_SIZE       = 6,
     parameter int unsigned NUM_MULT            = 6,
-    parameter int unsigned STATE_MULT          = 6,
+    parameter int unsigned STATE_MULT          = (HADAMARD_SIZE * HADAMARD_SIZE) / NUM_MULT,
     parameter int unsigned WEIGHT_FRAC_BITS    = 0
   ) (
     input  logic clk,
@@ -111,9 +111,9 @@ module Conv
   logic [NBITS-1:0] w_conv_transform [HADAMARD_SIZE*HADAMARD_SIZE-1:0];
   logic [NBITS-1:0] w_conv_inverse [CONV_OUTPUT_SIZE*CONV_OUTPUT_SIZE-1:0];
   logic signed [NBITS-1+QUANT:0] w_conv_product [NUM_MULT-1:0];  // QUANT more bits for the multipliers
-  // The mux input selects one of STATE_MULT lanes.  Use exactly the
-  // minimum width needed for that count; the previous ``+ 1`` created a
-  // two-bit signal for STATE_MULT=2 and triggered a ModelSim port warning.
+  // The mux input selects one of STATE_MULT lanes. Use exactly the minimum
+  // width needed for that count; STATE_MULT defaults to the number of
+  // Hadamard groups implied by NUM_MULT (for example, two groups at m18).
   logic [f_width_min1(STATE_MULT)-1:0] r_conv_idx_in;
   logic [(f_width_min1((STATE_MULT * NUM_MULT) - 1) + 1)-1:0] r_conv_idx_out[NUM_MULT-1:0];
   logic w_conv_end;
