@@ -1,32 +1,41 @@
-# ASIC synthesis results
+# ASIC synthesis configurations
 
-This directory contains the active synthesis configurations for the selected
-4x4 RTL variants. The active WPN16 set is limited to the three i60/prefetch24
-column RTLs at 8, 16, and 32 multipliers. For each RTL, both the original
-20-bit run and the 16-bit run are retained; the `-nbits16` suffix identifies
-the latter.
+This is the canonical home for 4x4 ASIC configs that participate in the
+default report scope. Use `make list-configs ARCH=conv4x4` to see the current
+directory set. The configuration directory is an experiment identity; its
+name can include workload and precision suffixes in addition to the RTL stem.
 
-The active TCN16 synthesis set has one characterized 6/12/18-MAC family:
+The tree currently contains TCN16 rowconst and transformed-frac6 flows,
+standard-column setup configs, and WPN16 8/16/32-MAC flows, including
+transformed and inverse-accumulator experiments. Do not assume every listed
+config has a completed flow: check the stage logs and exit-code files. The
+exact source, dataset, defines, and top are recorded in the config's
+`list-file.txt`, `list-define.txt`, `rtl-top-file.txt`, and `top-module.txt`.
+Some preserved configs intentionally reference RTL under `../archive/`; their
+results remain reproducible but are not necessarily results for a current
+root-level RTL candidate.
 
-- `rowconst6-trunc-frac6-column`, evaluated with the matching
-  `trunc-frac6-nbits20` package.
+Each config keeps its own flow scripts and evidence:
 
-The standard-column RTLs now have logical-synthesis configurations:
+```text
+<configuration>/
+|-- list-file.txt
+|-- list-define.txt
+|-- rtl-top-file.txt
+|-- top-module.txt
+|-- testbench-file.txt
+|-- logical/
+|-- sim/
+|-- power/
+`-- scripts/
+```
 
-- `conv-tcn16-std-column`: 18 MACs, Cin=3/Cout=12, NBITS=20, frac6 weights.
-- `conv-wpn16-std-column`: 32 MACs, Cin=3/Cout=12, NBITS=16, integer weights.
+Run stages in order (`logical/run.sh`, `sim/run.sh`, then `power/run.sh`) or
+select the exact config with the repository-level Makefile. The reports under
+`rtl/conv4x4/report/` are summaries generated from executed configs; raw logs,
+netlists, and power files stay with their producing config.
 
-These two directories currently define the Genus logical synthesis stage only;
-they intentionally do not imply that gate-level simulation or power has been
-validated for the standard-column testbenches. All pretransformed RTL variants
-and their synthesis configurations are archived under `../archive/`; they are
-not part of the active architecture set. Each active ASIC configuration
-directory uses the exact basename of its RTL.
-Previous TCN16 synthesis campaigns, including older truncation variants and
-legacy `conv.sv` configurations, remain under `../archive/synthesis/` and must
-not be presented as results for an active variant without matching provenance.
-
-Other archived campaigns in `../archive/synthesis/` include WPN16 i54/prefetch18,
-the pipelined and operand-isolation experiments, and the legacy ASIC sweeps.
-Nothing was deleted; reports and logs remain with their original configuration
-directories.
+Historical and retired runs are under `../archive/synthesis/`. They are not
+included in default reports. Avoid moving a source or dataset independently
+of the config that records it; run `make audit-layout` after organization
+changes to verify all manifest references.

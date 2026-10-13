@@ -22,7 +22,7 @@ CONFIG_ROOT = rtl/$(ARCH)/synthesis/$(CONFIG)
 REPORT_ARGS ?=
 METRICS_ARGS ?=
 
-.PHONY: help report metrics sim sim-all require-tmux require-asic-selection \
+.PHONY: help report metrics audit-layout sim sim-all require-tmux require-asic-selection \
 	check-asic-runners synth gate-sim power flow list-configs
 
 help:
@@ -32,6 +32,7 @@ help:
 	  'Reports:' \
 	  '  make report [REPORT_ARGS="..."]  # active rtl/conv?x?/synthesis only' \
 	  '  make metrics' \
+	  '  make audit-layout                # read-only RTL/config/dataset reference check' \
 	  '' \
 	  'RTL simulation:' \
 	  '  make sim ARCH=conv2x2 VARIANT=std' \
@@ -56,6 +57,9 @@ report:
 
 metrics:
 	$(PYTHON) scripts/metrics.py $(METRICS_ARGS)
+
+audit-layout:
+	$(PYTHON) scripts/audit-layout.py
 
 # Run one selected functional RTL simulation. The 3x3/4x4 targets use the
 # active streaming-column Makefile flow; 2x2 offers its standard and column
