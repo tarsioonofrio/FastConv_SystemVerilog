@@ -1,0 +1,927 @@
+host=paxos.inf.pucrs.br
+commit=14e120403a4aa39e6a922fba4432dda787c40a79
+===== STAGE logical: conv3x3 / conv-ifn9-i35-h21-t24-o9-m12-stream12-prefetch10-rowconst6-trunc-column-nbits16-cin3-cout12 =====
+
+	XCELIUM 2303 module was removed
+
+
+	GENUS 21.1 module was removed
+
+2026/10/08 19:35:00 WARNING This OS does not appear to be a Cadence supported Linux configuration.
+2026/10/08 19:35:00 For more info, please run CheckSysConf in <cdsRoot/tools.lnx86/bin/checkSysConf <productId>
+No DISPLAY environment variable set.
+GUI mode requires a valid DISPLAY.
+Reverting to shell mode.
+
+TMPDIR is being set to /tmp/genus_temp_4181859_paxos.inf.pucrs.br_tarsio.onofrio_R8CRWR
+Cadence Genus(TM) Synthesis Solution.
+Copyright 2022 Cadence Design Systems, Inc. All rights reserved worldwide.
+Cadence and the Cadence logo are registered trademarks and Genus is a trademark
+of Cadence Design Systems, Inc. in the United States and other countries.
+
+[19:35:01.503705] Configured Lic search path (20.02-s004): 5280@paxos.inf.pucrs.br
+
+Version: 21.12-s068_1, built Fri Mar 04 09:12:46 PST 2022
+Options: -files logical_synthesis.tcl 
+Date:    Thu Oct 08 19:35:01 2026
+Host:    paxos.inf.pucrs.br (x86_64 w/Linux 4.18.0-553.155.1.el8_10.x86_64) (14cores*28cpus*1physical cpu*Intel(R) Core(TM) i9-7940X CPU @ 3.10GHz 19712KB) (131170900KB)
+PID:     4181859
+OS:      Rocky Linux release 8.10 (Green Obsidian)
+
+
+[19:35:01.017226] Periodic Lic check successful
+[19:35:01.017232] Feature usage summary:
+[19:35:01.017233] Genus_Synthesis
+Checking out license: Genus_Synthesis
+
+
+***********************************************************************************************************
+***********************************************************************************************************
+
+
+
+Loading tool scripts...
+Finished loading tool scripts (8 seconds elapsed).
+
+#@ Processing -files option
+@genus 1> source logical_synthesis.tcl
+#@ Begin verbose source ./logical_synthesis.tcl
+@file(logical_synthesis.tcl) 10: set LOGICAL_ROOT [file normalize [file dirname [info script]]]
+@file(logical_synthesis.tcl) 11: set CONFIG_ROOT [file normalize [file join $LOGICAL_ROOT ..]]
+@file(logical_synthesis.tcl) 12: set GIT_ROOT [exec git -C $CONFIG_ROOT rev-parse --show-toplevel]
+@file(logical_synthesis.tcl) 13: set OUT_FILES [file normalize [file join $LOGICAL_ROOT results]]
+@file(logical_synthesis.tcl) 17: set TOP_MODULE system
+@file(logical_synthesis.tcl) 18: set top_file [file join $CONFIG_ROOT top-module.txt]
+@file(logical_synthesis.tcl) 19: if {[file exists $top_file]} {
+    set fp_top [open $top_file r]
+    while {[gets $fp_top line] >= 0} {
+        set line_trim [string trim $line]
+        if {$line_trim ne "" && ![string match "#*" $line_trim]} {
+            set TOP_MODULE $line_trim
+            break
+        }
+    }
+    close $fp_top
+}
+@file(logical_synthesis.tcl) 33: set TOP_PARAMETERS [list]
+@file(logical_synthesis.tcl) 34: set parameters_file [file join $CONFIG_ROOT top-parameters.txt]
+@file(logical_synthesis.tcl) 35: if {[file exists $parameters_file]} {
+    set fp_parameters [open $parameters_file r]
+    while {[gets $fp_parameters line] >= 0} {
+        set line_trim [string trim $line]
+        if {$line_trim ne "" && ![string match "#*" $line_trim]} {
+            if {![regexp {^([A-Za-z_][A-Za-z0-9_]*)=(.+)$} $line_trim -> parameter_name parameter_value]} {
+                error "invalid top parameter override in $parameters_file: $line_trim"
+            }
+            lappend TOP_PARAMETERS [list $parameter_name $parameter_value]
+        }
+    }
+    close $fp_parameters
+}
+@file(logical_synthesis.tcl) 51: proc resolve_project_file ...
+@file(logical_synthesis.tcl) 63: set file_list_path [file join $CONFIG_ROOT list-file.txt]
+@file(logical_synthesis.tcl) 64: set HDL_FILES [list]
+@file(logical_synthesis.tcl) 65: if {[file exists $file_list_path]} {
+    set fp [open $file_list_path r]
+    while {[gets $fp line] >= 0} {
+        set line_trim [string trim $line]
+        if {$line_trim eq "" || [string match "#*" $line_trim]} {
+            continue
+        }
+        lappend HDL_FILES [resolve_project_file $line_trim $CONFIG_ROOT $GIT_ROOT]
+    }
+    close $fp
+}
+@file(logical_synthesis.tcl) 78: set defines_file [file join $CONFIG_ROOT list-define.txt]
+@file(logical_synthesis.tcl) 79: set DEFINE_FLAGS [list]
+@file(logical_synthesis.tcl) 80: if {[file exists $defines_file]} {
+    set fp_def [open $defines_file r]
+    while {[gets $fp_def line] >= 0} {
+        set line_trim [string trim $line]
+        if {$line_trim eq "" || [string match "#*" $line_trim]} {
+            continue
+        }
+        if {[string match "-define *" $line_trim]} {
+            set line_trim [string trim [string range $line_trim 8 end]]
+        }
+        if {$line_trim ne ""} {
+            lappend DEFINE_FLAGS $line_trim
+        }
+    }
+    close $fp_def
+}
+@file(logical_synthesis.tcl) 97: source [file join $CONFIG_ROOT scripts logical_synthesis_body.tcl]
+Sourcing '/sim/tarsio/FastConv_SystemVerilog/rtl/conv3x3/synthesis/conv-ifn9-i35-h21-t24-o9-m12-stream12-prefetch10-rowconst6-trunc-column-nbits16-cin3-cout12/scripts/logical_synthesis_body.tcl' (Thu Oct 08 19:35:09 -03 2026)...
+#@ Begin verbose source /sim/tarsio/FastConv_SystemVerilog/rtl/conv3x3/synthesis/conv-ifn9-i35-h21-t24-o9-m12-stream12-prefetch10-rowconst6-trunc-column-nbits16-cin3-cout12/scripts/logical_synthesis_body.tcl
+@file(logical_synthesis_body.tcl) 5: puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+@file(logical_synthesis_body.tcl) 6: puts "Load the pdk using MMMC"
+Load the pdk using MMMC
+@file(logical_synthesis_body.tcl) 7: puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+@file(logical_synthesis_body.tcl) 8: read_mmmc [file join $CONFIG_ROOT scripts mmmc_tsmc_28_bv.tcl]
+  Setting attribute of root '/': 'is_read_mmmc_flow' = true
+Sourcing '/sim/tarsio/FastConv_SystemVerilog/rtl/conv3x3/synthesis/conv-ifn9-i35-h21-t24-o9-m12-stream12-prefetch10-rowconst6-trunc-column-nbits16-cin3-cout12/scripts/mmmc_tsmc_28_bv.tcl' (Thu Oct 08 19:35:09 -03 2026)...
+#@ Begin verbose source /sim/tarsio/FastConv_SystemVerilog/rtl/conv3x3/synthesis/conv-ifn9-i35-h21-t24-o9-m12-stream12-prefetch10-rowconst6-trunc-column-nbits16-cin3-cout12/scripts/mmmc_tsmc_28_bv.tcl
+@file(mmmc_tsmc_28_bv.tcl) 2: set CONSTRAINTS_PATH [file join $CONFIG_ROOT scripts]
+@file(mmmc_tsmc_28_bv.tcl) 8: set LIB_PATH /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End
+@file(mmmc_tsmc_28_bv.tcl) 9: set TECH_PATH /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Back_End
+@file(mmmc_tsmc_28_bv.tcl) 16: create_library_set -name libset_0p81v_125c \
+    -timing  "${LIB_PATH}/timing_power_noise/NLDM/tcbn28hpcplusbwp30p140_180a/tcbn28hpcplusbwp30p140ssg0p81v125c.lib"
+@file(mmmc_tsmc_28_bv.tcl) 20: create_library_set -name libset_0p90v_25c \
+    -timing  "${LIB_PATH}/timing_power_noise/NLDM/tcbn28hpcplusbwp30p140_180a/tcbn28hpcplusbwp30p140tt0p9v25c.lib"
+@file(mmmc_tsmc_28_bv.tcl) 24: create_library_set -name libset_0p99v_m40c \
+    -timing  "${LIB_PATH}/timing_power_noise/NLDM/tcbn28hpcplusbwp30p140_180a/tcbn28hpcplusbwp30p140ffg0p99vm40c.lib"
+@file(mmmc_tsmc_28_bv.tcl) 32: create_opcond -name opcond_0p81v_125c -voltage 0.81 -temperature 125.0
+@file(mmmc_tsmc_28_bv.tcl) 33: create_opcond -name opcond_0p90v_25c  -voltage 0.90 -temperature  25.0
+@file(mmmc_tsmc_28_bv.tcl) 34: create_opcond -name opcond_0p99v_m40c -voltage 0.99 -temperature -40.0
+@file(mmmc_tsmc_28_bv.tcl) 41: create_timing_condition -name timing_cond_0p81v_125c \
+    -opcond         opcond_0p81v_125c \
+    -library_sets { libset_0p81v_125c }
+@file(mmmc_tsmc_28_bv.tcl) 45: create_timing_condition -name timing_cond_0p90v_25c \
+    -opcond         opcond_0p90v_25c \
+    -library_sets { libset_0p90v_25c }
+@file(mmmc_tsmc_28_bv.tcl) 49: create_timing_condition -name timing_cond_0p99v_m40c \
+    -opcond         opcond_0p99v_m40c \
+    -library_sets { libset_0p99v_m40c }
+@file(mmmc_tsmc_28_bv.tcl) 58:  create_rc_corner -name rc_corner_125c_capwst \
+    -temperature 125.0 \
+     -qrc_tech ${TECH_PATH}/qrc/RC_QRC_crn28hpc+_1p09m+ut-alrdl_5x1y1z1u_rcworst/qrcTechFile
+@file(mmmc_tsmc_28_bv.tcl) 62:  create_rc_corner -name rc_corner_25c_captyp \
+     -temperature 25.0 \
+    -qrc_tech ${TECH_PATH}/qrc/RC_QRC_crn28hpc+_1p09m+ut-alrdl_5x1y1z1u_typical/qrcTechFile
+@file(mmmc_tsmc_28_bv.tcl) 66:  create_rc_corner -name rc_corner_m40c_capbst \
+     -temperature -40.0 \
+     -qrc_tech ${TECH_PATH}/qrc/RC_QRC_crn28hpc+_1p09m+ut-alrdl_5x1y1z1u_rcbest/qrcTechFile
+@file(mmmc_tsmc_28_bv.tcl) 75: create_delay_corner -name delay_corner_0p81v_125c_capwst \
+    -timing_condition timing_cond_0p81v_125c \
+     -rc_corner rc_corner_125c_capwst
+@file(mmmc_tsmc_28_bv.tcl) 79: create_delay_corner -name delay_corner_0p90v_25c_captyp \
+    -timing_condition timing_cond_0p90v_25c \
+     -rc_corner rc_corner_25c_captyp
+@file(mmmc_tsmc_28_bv.tcl) 83: create_delay_corner -name delay_corner_0p99v_m40c_capbst \
+    -timing_condition timing_cond_0p99v_m40c \
+     -rc_corner rc_corner_m40c_capbst
+@file(mmmc_tsmc_28_bv.tcl) 91: create_constraint_mode -name constraints_default \
+    -sdc_files "${CONSTRAINTS_PATH}/constraints.sdc"
+@file(mmmc_tsmc_28_bv.tcl) 99: create_analysis_view -name analysis_view_0p81v_125c_capwst_slowest \
+    -constraint_mode constraints_default \
+    -delay_corner delay_corner_0p81v_125c_capwst
+@file(mmmc_tsmc_28_bv.tcl) 103: create_analysis_view -name analysis_view_0p90v_25c_captyp_nominal \
+    -constraint_mode constraints_default \
+    -delay_corner delay_corner_0p90v_25c_captyp
+@file(mmmc_tsmc_28_bv.tcl) 107: create_analysis_view -name analysis_view_0p99v_m40c_capbst_fastest \
+    -constraint_mode constraints_default \
+    -delay_corner delay_corner_0p99v_m40c_capbst
+@file(mmmc_tsmc_28_bv.tcl) 115: set_analysis_view -setup { analysis_view_0p81v_125c_capwst_slowest } \
+                  -hold  { analysis_view_0p99v_m40c_capbst_fastest }
+
+Threads Configured:3
+
+  Message Summary for Library tcbn28hpcplusbwp30p140ssg0p81v125c.lib:
+  *******************************************************************
+  Missing a function attribute in the output pin definition. [LBR-518]: 1
+  An unsupported construct was detected in this library. [LBR-40]: 1
+  *******************************************************************
+ 
+Info    : Created nominal operating condition. [LBR-412]
+        : Operating condition '_nominal_' was created for the PVT values (1.000000, 0.810000, 125.000000) in library 'tcbn28hpcplusbwp30p140ssg0p81v125c.lib'.
+        : The nominal operating condition is represented, either by the nominal PVT values specified in the library source (via nom_process,nom_voltage and nom_temperature respectively), or by the default PVT values (1.0,1.0,1.0).
+Warning : Library cell has no output pins defined. [LBR-9]
+        : Library cell 'ANTENNABWP30P140' must have an output pin.
+        : Add the missing output pin(s), then reload the library. Else the library cell will be marked as timing model i.e. unusable. Timing_model means that the cell does not have any defined function. If there is no output pin, Genus will mark library cell as unusable i.e. the attribute 'usable' will be marked to 'false' on the libcell. Therefore, the cell is not used for mapping and it will not be picked up from the library for synthesis. If you query the attribute 'unusable_reason' on the libcell; result will be: 'Library cell has no output pins.'Note: The message LBR-9 is only for the logical pins and not for the power_ground pins. Genus will depend upon the output function defined in the pin group (output pin) of the cell, to use it for mapping. The pg_pin will not have any function defined.
+Warning : Library cell has no output pins defined. [LBR-9]
+        : Library cell 'ANTENNABWP30P140' must have an output pin.
+Warning : Library cell has no output pins defined. [LBR-9]
+        : Library cell 'BOUNDARY_LEFTBWP30P140' must have an output pin.
+Warning : Library cell has no output pins defined. [LBR-9]
+        : Library cell 'BOUNDARY_LEFTBWP30P140' must have an output pin.
+Warning : Library cell has no output pins defined. [LBR-9]
+        : Library cell 'BOUNDARY_RIGHTBWP30P140' must have an output pin.
+Warning : Library cell has no output pins defined. [LBR-9]
+        : Library cell 'BOUNDARY_RIGHTBWP30P140' must have an output pin.
+Warning : Unusable clock gating integrated cell found at the time of loading libraries. This warning happens because a particular library cell is defined as 'clock_gating_integrated_cell', but 'dont_use' attribute is defined as true in the liberty library. To make Genus use this cell for clock gating insertion, 'dont_use' attribute should be set to false. [LBR-101]
+        : Clock gating integrated cell name: 'CKLHQD20BWP30P140'
+        : To make the cell usable, change the value of 'dont_use' attribute to false.
+Warning : Unusable clock gating integrated cell found at the time of loading libraries. This warning happens because a particular library cell is defined as 'clock_gating_integrated_cell', but 'dont_use' attribute is defined as true in the liberty library. To make Genus use this cell for clock gating insertion, 'dont_use' attribute should be set to false. [LBR-101]
+        : Clock gating integrated cell name: 'CKLHQD24BWP30P140'
+Warning : Unusable clock gating integrated cell found at the time of loading libraries. This warning happens because a particular library cell is defined as 'clock_gating_integrated_cell', but 'dont_use' attribute is defined as true in the liberty library. To make Genus use this cell for clock gating insertion, 'dont_use' attribute should be set to false. [LBR-101]
+        : Clock gating integrated cell name: 'CKLNQD20BWP30P140'
+Warning : Unusable clock gating integrated cell found at the time of loading libraries. This warning happens because a particular library cell is defined as 'clock_gating_integrated_cell', but 'dont_use' attribute is defined as true in the liberty library. To make Genus use this cell for clock gating insertion, 'dont_use' attribute should be set to false. [LBR-101]
+        : Clock gating integrated cell name: 'CKLNQD24BWP30P140'
+Warning : Library cell has no output pins defined. [LBR-9]
+        : Library cell 'DCAP16BWP30P140' must have an output pin.
+Warning : Library cell has no output pins defined. [LBR-9]
+        : Library cell 'DCAP16BWP30P140' must have an output pin.
+Warning : Library cell has no output pins defined. [LBR-9]
+        : Library cell 'DCAP32BWP30P140' must have an output pin.
+Warning : Library cell has no output pins defined. [LBR-9]
+        : Library cell 'DCAP32BWP30P140' must have an output pin.
+Warning : Library cell has no output pins defined. [LBR-9]
+        : Library cell 'DCAP4BWP30P140' must have an output pin.
+Warning : Library cell has no output pins defined. [LBR-9]
+        : Library cell 'DCAP4BWP30P140' must have an output pin.
+Warning : Library cell has no output pins defined. [LBR-9]
+        : Library cell 'DCAP64BWP30P140' must have an output pin.
+Warning : Library cell has no output pins defined. [LBR-9]
+        : Library cell 'DCAP64BWP30P140' must have an output pin.
+Warning : Library cell has no output pins defined. [LBR-9]
+        : Library cell 'DCAP8BWP30P140' must have an output pin.
+Warning : Library cell has no output pins defined. [LBR-9]
+        : Library cell 'DCAP8BWP30P140' must have an output pin.
+Warning : Library cell has no output pins defined. [LBR-9]
+        : Library cell 'FILL16BWP30P140' must have an output pin.
+Warning : Library cell has no output pins defined. [LBR-9]
+        : Library cell 'FILL16BWP30P140' must have an output pin.
+Warning : Library cell has no output pins defined. [LBR-9]
+        : Library cell 'FILL2BWP30P140' must have an output pin.
+Warning : Library cell has no output pins defined. [LBR-9]
+        : Library cell 'FILL2BWP30P140' must have an output pin.
+Warning : Maximum message print count reached. [MESG-11]
+        : Maximum print count of '20' reached for message 'LBR-9'.
+Info    : Set default library domain. [LBR-109]
+        : The default library domain is 'library_domain:timing_cond_0p81v_125c'.
+  Library has 530 usable logic and 349 usable sequential lib-cells.
+@file(mmmc_tsmc_28_bv.tcl) 122: read_physical -lefs "${TECH_PATH}/lef/tsmcn28_9lm5X1Y1Z1UUTRDL.tlef  ${TECH_PATH}/lef/tcbn28hpcplusbwp30p140_110a/lef/tcbn28hpcplusbwp30p140.lef"
+
+  According to lef_library, there are total 10 routing layers [ V(5) / H(5) ]
+
+Warning : The variant range of wire parameters is too large. An example of wire parameters are, a WIDTH for layer, PITCH for layer, MINSPACING for layers, etc. [PHYS-12]
+        : The variant range (0.05, 2) of 'WIDTH' for layers 'M6' and 'AP' is too large.
+        : Check the consistency of the parameters, and see if you can ignore this message or you're using different LEF file with wrong parameters.
+Warning : The variant range of wire parameters is too large. An example of wire parameters are, a WIDTH for layer, PITCH for layer, MINSPACING for layers, etc. [PHYS-12]
+        : The variant range (0.1, 4.5) of 'PITCH' for layers 'M4' and 'AP' is too large.
+Warning : The variant range of wire parameters is too large. An example of wire parameters are, a WIDTH for layer, PITCH for layer, MINSPACING for layers, etc. [PHYS-12]
+        : The variant range (0.05, 2) of 'MINSPACING' for layers 'M1' and 'AP' is too large.
+Warning : Physical cell not defined in library. [PHYS-279]
+        : The physical (LEF) cell ISOHID1BWP30P140 cannot be found in library.
+        : Ensure that the proper library files are available and have been imported.
+Warning : Physical cell not defined in library. [PHYS-279]
+        : The physical (LEF) cell ISOHID2BWP30P140 cannot be found in library.
+Warning : Physical cell not defined in library. [PHYS-279]
+        : The physical (LEF) cell ISOHID4BWP30P140 cannot be found in library.
+Warning : Physical cell not defined in library. [PHYS-279]
+        : The physical (LEF) cell ISOHID8BWP30P140 cannot be found in library.
+Warning : Physical cell not defined in library. [PHYS-279]
+        : The physical (LEF) cell ISOLOD1BWP30P140 cannot be found in library.
+Warning : Physical cell not defined in library. [PHYS-279]
+        : The physical (LEF) cell ISOLOD2BWP30P140 cannot be found in library.
+Warning : Physical cell not defined in library. [PHYS-279]
+        : The physical (LEF) cell ISOLOD4BWP30P140 cannot be found in library.
+Warning : Physical cell not defined in library. [PHYS-279]
+        : The physical (LEF) cell ISOLOD8BWP30P140 cannot be found in library.
+Warning : Physical cell not defined in library. [PHYS-279]
+        : The physical (LEF) cell ISOSRHID2BWP30P140 cannot be found in library.
+Warning : Physical cell not defined in library. [PHYS-279]
+        : The physical (LEF) cell ISOSRHID4BWP30P140 cannot be found in library.
+Warning : Physical cell not defined in library. [PHYS-279]
+        : The physical (LEF) cell ISOSRHID8BWP30P140 cannot be found in library.
+Warning : Physical cell not defined in library. [PHYS-279]
+        : The physical (LEF) cell ISOSRLOD2BWP30P140 cannot be found in library.
+Warning : Physical cell not defined in library. [PHYS-279]
+        : The physical (LEF) cell ISOSRLOD4BWP30P140 cannot be found in library.
+Warning : Physical cell not defined in library. [PHYS-279]
+        : The physical (LEF) cell ISOSRLOD8BWP30P140 cannot be found in library.
+Warning : Physical cell not defined in library. [PHYS-279]
+        : The physical (LEF) cell LVLHLCD1BWP30P140 cannot be found in library.
+Warning : Physical cell not defined in library. [PHYS-279]
+        : The physical (LEF) cell LVLHLCD2BWP30P140 cannot be found in library.
+Warning : Physical cell not defined in library. [PHYS-279]
+        : The physical (LEF) cell LVLHLCD4BWP30P140 cannot be found in library.
+Warning : Physical cell not defined in library. [PHYS-279]
+        : The physical (LEF) cell LVLHLCD8BWP30P140 cannot be found in library.
+Warning : Physical cell not defined in library. [PHYS-279]
+        : The physical (LEF) cell LVLHLCLOD1BWP30P140 cannot be found in library.
+Warning : Physical cell not defined in library. [PHYS-279]
+        : The physical (LEF) cell LVLHLCLOD2BWP30P140 cannot be found in library.
+Warning : Maximum message print count reached. [MESG-11]
+        : Maximum print count of '20' reached for message 'PHYS-279'.
+#@ End verbose source /sim/tarsio/FastConv_SystemVerilog/rtl/conv3x3/synthesis/conv-ifn9-i35-h21-t24-o9-m12-stream12-prefetch10-rowconst6-trunc-column-nbits16-cin3-cout12/scripts/mmmc_tsmc_28_bv.tcl
+@file(logical_synthesis_body.tcl) 10: puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+@file(logical_synthesis_body.tcl) 11: puts "Configuration of the Genus"
+Configuration of the Genus
+@file(logical_synthesis_body.tcl) 12: puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+@file(logical_synthesis_body.tcl) 13: set_multi_cpu_usage -local_cpu 8
+@file(logical_synthesis_body.tcl) 14: set_db lp_default_probability 0.5
+  Setting attribute of root '/': 'lp_default_probability' = 0.50000
+@file(logical_synthesis_body.tcl) 15: set_db syn_global_effort high
+  Setting attribute of root '/': 'syn_global_effort' = high
+@file(logical_synthesis_body.tcl) 16: set_db auto_ungroup none
+  Setting attribute of root '/': 'auto_ungroup' = none
+@file(logical_synthesis_body.tcl) 17: set_db hdl_parameter_naming_style ""
+  Setting attribute of root '/': 'hdl_parameter_naming_style' = 
+@file(logical_synthesis_body.tcl) 18: set_db interconnect_mode ple
+  Setting attribute of root '/': 'interconnect_mode' = ple
+@file(logical_synthesis_body.tcl) 19: set_db hdl_error_on_latch true
+  Setting attribute of root '/': 'hdl_error_on_latch' = true
+@file(logical_synthesis_body.tcl) 21: puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+@file(logical_synthesis_body.tcl) 22: puts "Control Clock Gating"
+Control Clock Gating
+@file(logical_synthesis_body.tcl) 23: puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+@file(logical_synthesis_body.tcl) 24: set_db lp_insert_clock_gating true
+Warning : The 'lp_insert_clock_gating' attribute should be set before elaboration. [POPT-104]
+        : The design 'design:__default_mmmc_spec' is already read. The attribute will not be set.
+        : Setting the 'lp_insert_clock_gating' attribute before elaboration will result in an optimal clock-gated design.
+  Setting attribute of root '/': 'lp_insert_clock_gating' = true
+@file(logical_synthesis_body.tcl) 26: puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+@file(logical_synthesis_body.tcl) 27: puts "Load hdl files"
+Load hdl files
+@file(logical_synthesis_body.tcl) 28: puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+@file(logical_synthesis_body.tcl) 29: if {[llength $DEFINE_FLAGS] > 0} {
+    set DEFINE_STRING [join $DEFINE_FLAGS " "]
+    read_hdl -define $DEFINE_STRING -sv {*}$HDL_FILES
+} else {
+    read_hdl -sv {*}$HDL_FILES
+}
+(* use_dsp = "no" *)
+   |
+Warning : Unused attribute. [VLOGPT-506]
+        : Attribute 'use_dsp' in file '/sim/tarsio/FastConv_SystemVerilog/rtl/conv3x3/conv-ifn9-i35-h21-t24-o9-m12-stream12-prefetch10-rowconst6-trunc-column.sv' on line 1034, column 4.
+@file(logical_synthesis_body.tcl) 37: puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+@file(logical_synthesis_body.tcl) 38: puts "Elaboration"
+Elaboration
+@file(logical_synthesis_body.tcl) 39: puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+@file(logical_synthesis_body.tcl) 40: if {[llength $TOP_PARAMETERS] > 0} {
+    puts "Elaborating $TOP_MODULE with parameter overrides: $TOP_PARAMETERS"
+    elaborate -parameters $TOP_PARAMETERS $TOP_MODULE
+} else {
+    elaborate ${TOP_MODULE}
+}
+Elaborating Conv with parameter overrides: {NUM_MULT 12} {NBITS 16} {N_CHANNEL_IN 3} {N_CHANNEL_OUT 12}
+Info    : Elaborating Design. [ELAB-1]
+        : Elaborating top-level block 'Conv' from file '/sim/tarsio/FastConv_SystemVerilog/rtl/conv3x3/conv-ifn9-i35-h21-t24-o9-m12-stream12-prefetch10-rowconst6-trunc-column.sv'.
+Warning : Removing unused register. [CDFG-508]
+        : Removing unused latch register 'weight[8]' in module 'WeightTransformRowConst' in file '/sim/tarsio/FastConv_SystemVerilog/rtl/conv3x3/conv-ifn9-i35-h21-t24-o9-m12-stream12-prefetch10-rowconst6-trunc-column.sv' on line 1051.
+        : Genus removes the flip-flop or latch inferred for an unused signal or variable. To preserve the flip-flop or latch, set the hdl_preserve_unused_registers attribute to true or use a pragma in the RTL.
+Warning : Removing unused register. [CDFG-508]
+        : Removing unused latch register 'weight[7]' in module 'WeightTransformRowConst' in file '/sim/tarsio/FastConv_SystemVerilog/rtl/conv3x3/conv-ifn9-i35-h21-t24-o9-m12-stream12-prefetch10-rowconst6-trunc-column.sv' on line 1051.
+Warning : Removing unused register. [CDFG-508]
+        : Removing unused latch register 'weight[6]' in module 'WeightTransformRowConst' in file '/sim/tarsio/FastConv_SystemVerilog/rtl/conv3x3/conv-ifn9-i35-h21-t24-o9-m12-stream12-prefetch10-rowconst6-trunc-column.sv' on line 1051.
+Warning : Removing unused register. [CDFG-508]
+        : Removing unused latch register 'weight[5]' in module 'WeightTransformRowConst' in file '/sim/tarsio/FastConv_SystemVerilog/rtl/conv3x3/conv-ifn9-i35-h21-t24-o9-m12-stream12-prefetch10-rowconst6-trunc-column.sv' on line 1051.
+Warning : Removing unused register. [CDFG-508]
+        : Removing unused latch register 'weight[4]' in module 'WeightTransformRowConst' in file '/sim/tarsio/FastConv_SystemVerilog/rtl/conv3x3/conv-ifn9-i35-h21-t24-o9-m12-stream12-prefetch10-rowconst6-trunc-column.sv' on line 1051.
+Warning : Removing unused register. [CDFG-508]
+        : Removing unused latch register 'weight[3]' in module 'WeightTransformRowConst' in file '/sim/tarsio/FastConv_SystemVerilog/rtl/conv3x3/conv-ifn9-i35-h21-t24-o9-m12-stream12-prefetch10-rowconst6-trunc-column.sv' on line 1051.
+Warning : Removing unused register. [CDFG-508]
+        : Removing unused latch register 'weight[8]' in module 'WeightTransformRowConst_0' in file '/sim/tarsio/FastConv_SystemVerilog/rtl/conv3x3/conv-ifn9-i35-h21-t24-o9-m12-stream12-prefetch10-rowconst6-trunc-column.sv' on line 1051.
+Warning : Removing unused register. [CDFG-508]
+        : Removing unused latch register 'weight[7]' in module 'WeightTransformRowConst_0' in file '/sim/tarsio/FastConv_SystemVerilog/rtl/conv3x3/conv-ifn9-i35-h21-t24-o9-m12-stream12-prefetch10-rowconst6-trunc-column.sv' on line 1051.
+Warning : Removing unused register. [CDFG-508]
+        : Removing unused latch register 'weight[6]' in module 'WeightTransformRowConst_0' in file '/sim/tarsio/FastConv_SystemVerilog/rtl/conv3x3/conv-ifn9-i35-h21-t24-o9-m12-stream12-prefetch10-rowconst6-trunc-column.sv' on line 1051.
+Warning : Removing unused register. [CDFG-508]
+        : Removing unused latch register 'weight[2]' in module 'WeightTransformRowConst_0' in file '/sim/tarsio/FastConv_SystemVerilog/rtl/conv3x3/conv-ifn9-i35-h21-t24-o9-m12-stream12-prefetch10-rowconst6-trunc-column.sv' on line 1051.
+Warning : Removing unused register. [CDFG-508]
+        : Removing unused latch register 'weight[1]' in module 'WeightTransformRowConst_0' in file '/sim/tarsio/FastConv_SystemVerilog/rtl/conv3x3/conv-ifn9-i35-h21-t24-o9-m12-stream12-prefetch10-rowconst6-trunc-column.sv' on line 1051.
+Warning : Removing unused register. [CDFG-508]
+        : Removing unused latch register 'weight[0]' in module 'WeightTransformRowConst_0' in file '/sim/tarsio/FastConv_SystemVerilog/rtl/conv3x3/conv-ifn9-i35-h21-t24-o9-m12-stream12-prefetch10-rowconst6-trunc-column.sv' on line 1051.
+Warning : Removing unused register. [CDFG-508]
+        : Removing unused latch register 'weight[5]' in module 'WeightTransformRowConst_1' in file '/sim/tarsio/FastConv_SystemVerilog/rtl/conv3x3/conv-ifn9-i35-h21-t24-o9-m12-stream12-prefetch10-rowconst6-trunc-column.sv' on line 1051.
+Warning : Removing unused register. [CDFG-508]
+        : Removing unused latch register 'weight[4]' in module 'WeightTransformRowConst_1' in file '/sim/tarsio/FastConv_SystemVerilog/rtl/conv3x3/conv-ifn9-i35-h21-t24-o9-m12-stream12-prefetch10-rowconst6-trunc-column.sv' on line 1051.
+Warning : Removing unused register. [CDFG-508]
+        : Removing unused latch register 'weight[3]' in module 'WeightTransformRowConst_1' in file '/sim/tarsio/FastConv_SystemVerilog/rtl/conv3x3/conv-ifn9-i35-h21-t24-o9-m12-stream12-prefetch10-rowconst6-trunc-column.sv' on line 1051.
+Warning : Removing unused register. [CDFG-508]
+        : Removing unused latch register 'weight[2]' in module 'WeightTransformRowConst_1' in file '/sim/tarsio/FastConv_SystemVerilog/rtl/conv3x3/conv-ifn9-i35-h21-t24-o9-m12-stream12-prefetch10-rowconst6-trunc-column.sv' on line 1051.
+Warning : Removing unused register. [CDFG-508]
+        : Removing unused latch register 'weight[1]' in module 'WeightTransformRowConst_1' in file '/sim/tarsio/FastConv_SystemVerilog/rtl/conv3x3/conv-ifn9-i35-h21-t24-o9-m12-stream12-prefetch10-rowconst6-trunc-column.sv' on line 1051.
+Warning : Removing unused register. [CDFG-508]
+        : Removing unused latch register 'weight[0]' in module 'WeightTransformRowConst_1' in file '/sim/tarsio/FastConv_SystemVerilog/rtl/conv3x3/conv-ifn9-i35-h21-t24-o9-m12-stream12-prefetch10-rowconst6-trunc-column.sv' on line 1051.
+Warning : Removing unused register. [CDFG-508]
+        : Removing unused latch register 'weight[8]' in module 'WeightTransformRowConst_2' in file '/sim/tarsio/FastConv_SystemVerilog/rtl/conv3x3/conv-ifn9-i35-h21-t24-o9-m12-stream12-prefetch10-rowconst6-trunc-column.sv' on line 1051.
+Warning : Removing unused register. [CDFG-508]
+        : Removing unused latch register 'weight[7]' in module 'WeightTransformRowConst_2' in file '/sim/tarsio/FastConv_SystemVerilog/rtl/conv3x3/conv-ifn9-i35-h21-t24-o9-m12-stream12-prefetch10-rowconst6-trunc-column.sv' on line 1051.
+Warning : Maximum message print count reached. [MESG-11]
+        : Maximum print count of '20' reached for message 'CDFG-508'.
+Info    : Done Elaborating Design. [ELAB-3]
+        : Done elaborating 'Conv'.
+Checking for analog nets...
+Check completed for analog nets.
+Checking for source RTL...
+Check completed for source RTL.
+Running Unified Mux Engine Tricks...
+Completed Unified Mux Engine Tricks
+--------------------------------------------------------
+| Trick             | Accepts | Rejects | Runtime (ms) | 
+--------------------------------------------------------
+| ume_constant_bmux |       0 |       0 |         0.00 | 
+--------------------------------------------------------
+Starting clip mux common data inputs [v1.0] (stage: post_elab, startdef: Conv, recur: true)
+Completed clip mux common data inputs (accepts: 0, rejects: 0, runtime: 0.002s)
+Starting clip the non-user hierarchies [v2.0] (stage: post_elab, startdef: Conv, recur: true)
+Completed clip the non-user hierarchies (accepts: 1, rejects: 0, runtime: 0.002s)
+UM:   flow.cputime  flow.realtime  timing.setup.tns  timing.setup.wns  snapshot
+UM:*                                                                   elaborate
+@file(logical_synthesis_body.tcl) 46: init_design
+Started checking and loading power intent for design Conv...
+============================================================
+No power intent for design 'Conv'.
+Completed checking and loading power intent for design Conv (runtime:0.00s memory_usage:0.00M peak_memory:0.00M).
+=================================================================================================================
+#
+# Reading SDC /sim/tarsio/FastConv_SystemVerilog/rtl/conv3x3/synthesis/conv-ifn9-i35-h21-t24-o9-m12-stream12-prefetch10-rowconst6-trunc-column-nbits16-cin3-cout12/scripts/constraints.sdc for view:analysis_view_0p81v_125c_capwst_slowest (constraint_mode:constraints_default)
+#
+Warning : Unsupported SDC command option. [SDC-201] [set_input_delay]
+        : The set_input_delay command is not supported on ports which have a clock already defined 'port:Conv/clk'.
+        : The current version does not support this SDC command option.  However, future versions may be enhanced to support this option.
+Statistics for commands executed by read_sdc:
+ "all_inputs"               - successful      2 , failed      0 (runtime  0.00)
+ "all_outputs"              - successful      2 , failed      0 (runtime  0.00)
+ "create_clock"             - successful      1 , failed      0 (runtime  0.00)
+ "get_lib_pins"             - successful      1 , failed      0 (runtime  0.01)
+ "get_ports"                - successful      2 , failed      0 (runtime  0.00)
+ "load_of"                  - successful      1 , failed      0 (runtime  0.00)
+ "set_driving_cell"         - successful      1 , failed      0 (runtime  0.01)
+ "set_false_path"           - successful      1 , failed      0 (runtime  0.00)
+ "set_input_delay"          - successful      1 , failed      0 (runtime  0.00)
+ "set_load"                 - successful      1 , failed      0 (runtime  0.00)
+ "set_load_unit"            - successful      1 , failed      0 (runtime  0.00)
+ "set_output_delay"         - successful      1 , failed      0 (runtime  0.00)
+ "set_time_unit"            - successful      1 , failed      0 (runtime  0.00)
+read_sdc completed in 00:00:01 (hh:mm:ss)
+
+  According to qrc_tech_file, there are total 10 routing layers [ V(5) / H(5) ]
+
+Warning : The variant range of wire parameters is too large. An example of wire parameters are, a WIDTH for layer, PITCH for layer, MINSPACING for layers, etc. [PHYS-12]
+        : The variant range (0.045, 1.8) of 'WIDTH' for layers 'M6' and 'AP' is too large.
+
+  According to qrc_tech_file, there are total 10 routing layers [ V(5) / H(5) ]
+
+Warning : The variant range of wire parameters is too large. An example of wire parameters are, a WIDTH for layer, PITCH for layer, MINSPACING for layers, etc. [PHYS-12]
+        : The variant range (0.045, 1.8) of 'WIDTH' for layers 'M6' and 'AP' is too large.
+
+  According to qrc_tech_file, there are total 10 routing layers [ V(5) / H(5) ]
+
+Warning : The variant range of wire parameters is too large. An example of wire parameters are, a WIDTH for layer, PITCH for layer, MINSPACING for layers, etc. [PHYS-12]
+        : The variant range (0.045, 1.8) of 'WIDTH' for layers 'M6' and 'AP' is too large.
+
+  According to qrc_tech_file, there are total 10 routing layers [ V(5) / H(5) ]
+
+Warning : The variant range of wire parameters is too large. An example of wire parameters are, a WIDTH for layer, PITCH for layer, MINSPACING for layers, etc. [PHYS-12]
+        : The variant range (0.045, 1.8) of 'WIDTH' for layers 'M6' and 'AP' is too large.
+  Setting attribute of root '/': 'read_qrc_tech_file_rc_corner' = true
+@file(logical_synthesis_body.tcl) 48: if {[info exists DEBUG_PRESERVE_CONV_DATAPATH] && $DEBUG_PRESERVE_CONV_DATAPATH} {
+    puts "Debug: preserve Conv datapath observability"
+    set_db delete_unloaded_insts false
+    set_db optimize_constant_0_flops false
+}
+@file(logical_synthesis_body.tcl) 54: puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+@file(logical_synthesis_body.tcl) 55: puts "Synthesis - mapping and optimization"
+Synthesis - mapping and optimization
+@file(logical_synthesis_body.tcl) 56: puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+@file(logical_synthesis_body.tcl) 57: syn_generic
+##Generic Timing Info for library domain: timing_cond_0p81v_125c typical gate delay: 20.1 ps std_slew: 6.8 ps std_load: 1.6 fF
+Starting mux data reorder optimization [v1.0] (stage: pre_to_gen_setup, startdef: Conv, recur: true)
+Info    : Deleting instances not driving any primary outputs. [GLO-34]
+        : Deleting 64 hierarchical instances.
+        : Optimizations such as constant propagation or redundancy removal could change the connections so a hierarchical instance does not drive any primary outputs anymore. To see the list of deleted hierarchical instances, set the 'information_level' attribute to 2 or above. If the message is truncated set the message attribute 'truncate' to false to see the complete list. To prevent this optimization, set the 'delete_unloaded_insts' root/subdesign attribute to 'false' or 'preserve' instance attribute to 'true'.
+Info    : Deleting instances not driving any primary outputs. [GLO-34]
+        : Deleting 64 hierarchical instances.
+Info    : Deleting instances not driving any primary outputs. [GLO-34]
+        : Deleting 64 hierarchical instances.
+Info    : Deleting instances not driving any primary outputs. [GLO-34]
+        : Deleting 64 hierarchical instances.
+Info    : Deleting instances not driving any primary outputs. [GLO-34]
+        : Deleting 64 hierarchical instances.
+Info    : Deleting instances not driving any primary outputs. [GLO-34]
+        : Deleting 64 hierarchical instances.
+Info    : Deleting instances not driving any primary outputs. [GLO-34]
+        : Deleting 64 hierarchical instances.
+Info    : Deleting instances not driving any primary outputs. [GLO-34]
+        : Deleting 4 hierarchical instances.
+Info    : Deleting instances not driving any primary outputs. [GLO-34]
+        : Deleting 64 hierarchical instances.
+Info    : Deleting instances not driving any primary outputs. [GLO-34]
+        : Deleting 4 hierarchical instances.
+Info    : Deleting instances not driving any primary outputs. [GLO-34]
+        : Deleting 64 hierarchical instances.
+Info    : Deleting instances not driving any primary outputs. [GLO-34]
+        : Deleting 4 hierarchical instances.
+Info    : Deleting instances not driving any primary outputs. [GLO-34]
+        : Deleting 64 hierarchical instances.
+Info    : Deleting instances not driving any primary outputs. [GLO-34]
+        : Deleting 4 hierarchical instances.
+Info    : Deleting instances not driving any primary outputs. [GLO-34]
+        : Deleting 64 hierarchical instances.
+Info    : Deleting instances not driving any primary outputs. [GLO-34]
+        : Deleting 4 hierarchical instances.
+Info    : Deleting instances not driving any primary outputs. [GLO-34]
+        : Deleting 64 hierarchical instances.
+Info    : Deleting instances not driving any primary outputs. [GLO-34]
+        : Deleting 4 hierarchical instances.
+Info    : Deleting instances not driving any primary outputs. [GLO-34]
+        : Deleting 4 hierarchical instances.
+Info    : Deleting instances not driving any primary outputs. [GLO-34]
+        : Deleting 4 hierarchical instances.
+Warning : Maximum message print count reached. [MESG-11]
+        : Maximum print count of '20' reached for message 'GLO-34'.
+Completed mux data reorder optimization (accepts: 24, rejects: 0, runtime: 0.848s)
+Current PLE settings:
+
+Aspect ratio        : 1.000
+Shrink factor       : 0.900
+Scale of res/length : 1.000
+Scale of cap/length : 1.000
+Net derating factor : 1.000
+Thermal factor      : 1.253
+Via Resistance      : 16.501 ohm (from qrc_tech_file)
+Site size           : 1.040 um (from lef [tech+cell])
+
+                                   Capacitance  
+  Layer                             / Length         Data source:
+Name        Direction Utilization  (pF/micron)       qrc_tech_file
+------------------------------------------------
+M1              V         0.00        0.000210  
+M2              H         1.00        0.000184  
+M3              V         1.00        0.000138  
+M4              H         1.00        0.000137  
+M5              V         1.00        0.000138  
+M6              H         1.00        0.000133  
+M7              V         1.00        0.000194  
+M8              H         1.00        0.000322  
+M9              V         1.00        0.000582  
+AP              H         1.00        0.000334  
+
+                                    Resistance   
+  Layer                              / Length         Data source:
+Name        Direction Utilization  (ohm/micron)       qrc_tech_file
+-------------------------------------------------
+M1              V         0.00        14.633762  
+M2              H         1.00        14.861223  
+M3              V         1.00        14.861223  
+M4              H         1.00        14.861223  
+M5              V         1.00        14.861223  
+M6              H         1.00        14.861223  
+M7              V         1.00         3.005090  
+M8              H         1.00         0.111088  
+M9              V         1.00         0.004928  
+AP              H         1.00         0.009992  
+
+                                        Area     
+  Layer                               / Length        Data source:
+Name        Direction Utilization     (micron)        lef_library
+-------------------------------------------------
+M1              V         0.00         0.050000  
+M2              H         1.00         0.050000  
+M3              V         1.00         0.050000  
+M4              H         1.00         0.050000  
+M5              V         1.00         0.050000  
+M6              H         1.00         0.050000  
+M7              V         1.00         0.100000  
+M8              H         1.00         0.400000  
+M9              V         1.00         2.000000  
+AP              H         1.00         2.000000  
+
+Info    : Synthesizing. [SYNTH-1]
+        : Synthesizing 'Conv' to generic gates using 'high' effort.
+PBS_Generic-Start - Elapsed_Time 0, CPU_Time 0.0
+stamp 'PBS_Generic-Start' being created for table 'pbs_debug'
+
+  Total Time (Wall) |  Stage Time (Wall)  |   % (Wall)   |    Date - Time     |  Memory   | Stage
+--------------------+---------------------+--------------+--------------------+-----------+----------------------
+ 00:00:29(00:00:24) |  00:00:00(00:00:00) |   0.0(  0.0) |   19:35:29 (Oct08) |  636.9 MB | PBS_Generic-Start
+--------------------+---------------------+--------------+--------------------+-----------+----------------------
+Number of threads: 8 * 1   (id: pbs_debug, time_info v1.57)
+Info: (*N*) indicates data that was populated from previously saved time_info database
+Info: CPU time includes time of parent + longest thread
+TNS Restructuring config: no_value at stage: generic applied.
+Info    : Partition Based Synthesis execution skipped. [PHYS-752]
+        : Design size is less than the partition size '100000' for distributed generic optimization to kick in.
+Starting mux data reorder optimization [v1.0] (stage: pre_to_gen_setup, startdef: Conv, recur: true)
+Completed mux data reorder optimization (accepts: 0, rejects: 0, runtime: 0.030s)
+Starting mux data reorder optimization [v1.0] (stage: post_to_gen_setup, startdef: Conv, recur: true)
+Completed mux data reorder optimization (accepts: 0, rejects: 0, runtime: 0.009s)
+Current PLE settings:
+
+Aspect ratio        : 1.000
+Shrink factor       : 0.900
+Scale of res/length : 1.000
+Scale of cap/length : 1.000
+Net derating factor : 1.000
+Thermal factor      : 1.253
+Via Resistance      : 16.501 ohm (from qrc_tech_file)
+Site size           : 1.040 um (from lef [tech+cell])
+
+                                   Capacitance  
+  Layer                             / Length         Data source:
+Name        Direction Utilization  (pF/micron)       qrc_tech_file
+------------------------------------------------
+M1              V         0.00        0.000210  
+M2              H         1.00        0.000184  
+M3              V         1.00        0.000138  
+M4              H         1.00        0.000137  
+M5              V         1.00        0.000138  
+M6              H         1.00        0.000133  
+M7              V         1.00        0.000194  
+M8              H         1.00        0.000322  
+M9              V         1.00        0.000582  
+AP              H         1.00        0.000334  
+
+                                    Resistance   
+  Layer                              / Length         Data source:
+Name        Direction Utilization  (ohm/micron)       qrc_tech_file
+-------------------------------------------------
+M1              V         0.00        14.633762  
+M2              H         1.00        14.861223  
+M3              V         1.00        14.861223  
+M4              H         1.00        14.861223  
+M5              V         1.00        14.861223  
+M6              H         1.00        14.861223  
+M7              V         1.00         3.005090  
+M8              H         1.00         0.111088  
+M9              V         1.00         0.004928  
+AP              H         1.00         0.009992  
+
+                                        Area     
+  Layer                               / Length        Data source:
+Name        Direction Utilization     (micron)        lef_library
+-------------------------------------------------
+M1              V         0.00         0.050000  
+M2              H         1.00         0.050000  
+M3              V         1.00         0.050000  
+M4              H         1.00         0.050000  
+M5              V         1.00         0.050000  
+M6              H         1.00         0.050000  
+M7              V         1.00         0.100000  
+M8              H         1.00         0.400000  
+M9              V         1.00         2.000000  
+AP              H         1.00         2.000000  
+
+Running Unified Mux Engine Tricks...
+Completed Unified Mux Engine Tricks
+--------------------------------------------
+| Trick | Accepts | Rejects | Runtime (ms) | 
+--------------------------------------------
+--------------------------------------------
+Starting infer macro optimization [v1.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
+Completed infer macro optimization (accepts: 0, rejects: 33, runtime: 0.096s)
+Starting decode mux sandwich optimization [v2.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
+Completed decode mux sandwich optimization (accepts: 0, rejects: 0, runtime: 0.001s)
+Starting decode mux optimization [v1.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
+Completed decode mux optimization (accepts: 0, rejects: 0, runtime: 0.000s)
+Starting chop wide muxes [v1.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
+Completed chop wide muxes (accepts: 0, rejects: 0, runtime: 0.002s)
+Starting common data mux cascade opt [v1.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
+Completed common data mux cascade opt (accepts: 0, rejects: 0, runtime: 0.002s)
+Starting mux input consolidation [v1.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
+Completed mux input consolidation (accepts: 0, rejects: 0, runtime: 0.006s)
+Starting priority mux optimization [v1.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
+Completed priority mux optimization (accepts: 0, rejects: 0, runtime: 1.272s)
+Starting constant-data mux optimization [v1.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
+Completed constant-data mux optimization (accepts: 0, rejects: 0, runtime: 0.003s)
+Starting chain-to-tree inequality transform [v2.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
+Completed chain-to-tree inequality transform (accepts: 0, rejects: 0, runtime: 0.113s)
+Starting reconvergence optimization [v1.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
+Completed reconvergence optimization (accepts: 0, rejects: 0, runtime: 0.000s)
+Starting logic restructure optimization [v1.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
+Completed logic restructure optimization (accepts: 0, rejects: 0, runtime: 0.007s)
+Starting common select mux optimization [v1.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
+Completed common select mux optimization (accepts: 0, rejects: 1, runtime: 0.005s)
+Starting identity transform [v3.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
+Completed identity transform (accepts: 0, rejects: 2, runtime: 0.008s)
+Starting reduce operator chain [v1.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
+Completed reduce operator chain (accepts: 0, rejects: 0, runtime: 0.001s)
+Starting common data mux cascade opt [v1.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
+Completed common data mux cascade opt (accepts: 0, rejects: 0, runtime: 0.002s)
+Starting mux input consolidation [v1.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
+Completed mux input consolidation (accepts: 0, rejects: 0, runtime: 0.005s)
+Starting optimize datapath elements [v1.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
+Completed optimize datapath elements (accepts: 0, rejects: 0, runtime: 0.000s)
+Starting datapath recasting [v1.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
+Completed datapath recasting (accepts: 0, rejects: 0, runtime: 0.001s)
+Starting clip mux common data inputs [v1.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
+Completed clip mux common data inputs (accepts: 0, rejects: 0, runtime: 0.001s)
+Starting clip the non-user hierarchies [v2.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
+Completed clip the non-user hierarchies (accepts: 0, rejects: 0, runtime: 0.001s)
+Running Unified Mux Engine Tricks...
+Completed Unified Mux Engine Tricks
+--------------------------------------------------
+| Trick       | Accepts | Rejects | Runtime (ms) | 
+--------------------------------------------------
+| ume_runtime |       0 |       0 |         0.00 | 
+--------------------------------------------------
+Number of big hc bmuxes before = 12
+Number of non-ctl's : 29
+mux_543_307 mux_543_4288 mux_543_4298 mux_543_4308 mux_543_4318 mux_cmbsop__477_27 mux_cmbsop__477_310 mux_cmbsop__477_314 mux_543_4276 mux_543_4284 mux_543_4294 mux_543_4304 mux_543_4314 mux_543_4278 mux_543_4286 mux_543_4296 mux_543_4306 mux_543_4316 mux_543_4280 mux_543_4290 mux_543_4300 mux_543_4310 mux_543_4282 mux_543_4292 mux_543_4302 mux_543_4312 mux_w_input_feat_en_531_4320 mux_w_input_feat_en_534_4322 mux_w_input_feat_en_541_4324 
+SOP DEBUG : Module= Conv, Cluster= ctl_477_27, ctl= 29, Non-ctl= 29
+Selected impl_type 0 (ctl + 1-hot mux form) for sop cluster ctl_477_27.
+Number of non-ctl's : 4
+mux_cmbsop__686_34 mux_cmbsop__686_433 mux_w_weight_row_enable_773_4326 mux_w_weight_row_enable_776_4328 
+SOP DEBUG : Module= Conv, Cluster= ctl_686_34, ctl= 4, Non-ctl= 4
+Selected impl_type 0 (ctl + 1-hot mux form) for sop cluster ctl_686_34.
+Info    : Pre-processed datapath logic. [DPOPT-6]
+        : Pre-processing optimizations applied to datapath logic in 'Conv':
+          live_trim(2) sop(2) output_trim(27) 
+Info    : Optimizing datapath logic. [DPOPT-1]
+        : Optimizing datapath logic in 'Conv'.
+Info    : Implementing datapath configurations. [DPOPT-3]
+        : Implementing datapath configurations for 'CDN_DP_region_0_0'
+CSAGen Prep Share:0 Re-Write:1 Speculation: 0
+MaxCSA: Successfully built Maximal CSA Expression Expr0
+MaxCSA: Successfully built Maximal CSA Expression Expr1
+MaxCSA: Successfully built Maximal CSA Expression Expr2
+MaxCSA: Successfully built Maximal CSA Expression Expr3
+CDN_DP_region_0_0 level = 0 loads = 1 drivers = 0
+CDN_DP_region_0_0_c0 in Conv: area: 4937588655 ,dp = 11 mux = 9 sg = slow         worst_clk_period: -1.0000 
+    wns: 0  norm_wns:  -1.0000 
+    fail_endp: -1 
+    tns:  0  tns_per_endp:  -1.0000   norm_tns_per_endp:  -1.0000 
+    tns_sense_max:  -1.0000  tns_sense_avg:  -1.0000   tns_sense_num: -1
+ skipped
+CDN_DP_region_0_0_c1 in Conv: area: 4794592050 ,dp = 6 mux = 9 sg = fast         worst_clk_period: -1.0000 
+    wns: 0  norm_wns:  -1.0000 
+    fail_endp: -1 
+    tns:  0  tns_per_endp:  -1.0000   norm_tns_per_endp:  -1.0000 
+    tns_sense_max:  -1.0000  tns_sense_avg:  -1.0000   tns_sense_num: -1
+ is current best
+CDN_DP_region_0_0_c2 in Conv: area: 4794592050 ,dp = 6 mux = 9 sg = very_slow    worst_clk_period: -1.0000 
+    wns: 0  norm_wns:  -1.0000 
+    fail_endp: -1 
+    tns:  0  tns_per_endp:  -1.0000   norm_tns_per_endp:  -1.0000 
+    tns_sense_max:  -1.0000  tns_sense_avg:  -1.0000   tns_sense_num: -1
+ is current best
+CDN_DP_region_0_0_c3 in Conv: area: 4794592050 ,dp = 6 mux = 9 sg = very_fast    worst_clk_period: -1.0000 
+    wns: 0  norm_wns:  -1.0000 
+    fail_endp: -1 
+    tns:  0  tns_per_endp:  -1.0000   norm_tns_per_endp:  -1.0000 
+    tns_sense_max:  -1.0000  tns_sense_avg:  -1.0000   tns_sense_num: -1
+ is current best
+CDN_DP_region_0_0_c4 in Conv: area: 4794592050 ,dp = 6 mux = 9 sg = very_fast    worst_clk_period: -1.0000 
+    wns: 0  norm_wns:  -1.0000 
+    fail_endp: -1 
+    tns:  0  tns_per_endp:  -1.0000   norm_tns_per_endp:  -1.0000 
+    tns_sense_max:  -1.0000  tns_sense_avg:  -1.0000   tns_sense_num: -1
+ is current best
+CDN_DP_region_0_0_c5 in Conv: area: 4794592050 ,dp = 6 mux = 9 sg = very_fast    worst_clk_period: -1.0000 
+    wns: 0  norm_wns:  -1.0000 
+    fail_endp: -1 
+    tns:  0  tns_per_endp:  -1.0000   norm_tns_per_endp:  -1.0000 
+    tns_sense_max:  -1.0000  tns_sense_avg:  -1.0000   tns_sense_num: -1
+ is current best
+CDN_DP_region_0_0_c6 in Conv: area: 4794592050 ,dp = 6 mux = 9 sg = very_fast    worst_clk_period: -1.0000 
+    wns: 0  norm_wns:  -1.0000 
+    fail_endp: -1 
+    tns:  0  tns_per_endp:  -1.0000   norm_tns_per_endp:  -1.0000 
+    tns_sense_max:  -1.0000  tns_sense_avg:  -1.0000   tns_sense_num: -1
+ is current best
+CDN_DP_region_0_0_c7 in Conv: area: 4797395905 ,dp = 6 mux = 9 sg = very_fast    worst_clk_period: -1.0000 
+    wns: 0  norm_wns:  -1.0000 
+    fail_endp: -1 
+    tns:  0  tns_per_endp:  -1.0000   norm_tns_per_endp:  -1.0000 
+    tns_sense_max:  -1.0000  tns_sense_avg:  -1.0000   tns_sense_num: -1
+
+Best config: CDN_DP_region_0_0_c6 in Conv: area: 4794592050 ,dp = 6 mux = 9 sg = very_fast    worst_clk_period: -1.0000 
+    wns: 0  norm_wns:  -1.0000 
+    fail_endp: -1 
+    tns:  0  tns_per_endp:  -1.0000   norm_tns_per_endp:  -1.0000 
+    tns_sense_max:  -1.0000  tns_sense_avg:  -1.0000   tns_sense_num: -1
+  Smallest config area : 4794592050.  Fastest config wns;  0
+##>+----------------------------------------------------------------------------------------------------------------------------------------------------------------+
+##>Summary table of configs (Best config is CDN_DP_region_0_0_c6)
+##>+----------------------------------------------------------------------------------------------------------------------------------------------------------------+
+##>                     0                  1                  2                  3                  4                  5                  6                  7            
+##>+----------------------------------------------------------------------------------------------------------------------------------------------------------------+
+##>           Area       4937588655         4794592050         4794592050         4794592050         4794592050         4794592050         4794592050         4797395905  
+##>            WNS          +766.60            +767.40            +767.40            +767.40            +767.40            +767.40            +767.40            +767.40  
+##>            TNS                0                  0                  0                  0                  0                  0                  0                  0  
+##>    Num Rewrite                0                  0                  0                  0                  0                  0                  0                  1  
+##>     Num Factor                0                  0                  0                  0                  0                  0                  0                  0  
+##>      Num Share                0                  0                  0                  0                  0                  0                  0                  0  
+##>   Num CmultCse                0                  0                  0                  0                  0                  0                  0                  0  
+##>   Num Downsize                0                  0                  0                  0                  0                  0                  0                  0  
+##>  Num Speculate                0                  0                  0                  0                  0                  0                  0                  0  
+##>     Runtime(s)                0                  0                  0                  0                  0                  0                  0                  0  
++----------------------------------------------------------------------------------------------------------------------------------------------------------------+
+##>
+##>
+##>+------------------------------------------------------------------------------------------------------------------------------------------------------------+
+##>Optimization Step DEBUG Table for config CDN_DP_region_0_0_c6
+##>
+##>                          Step                        Area   ( % Chg)        WNS (Change)        TNS (Change)          Runtime (s)        Comment                   
+##>+------------------------------------------------------------------------------------------------------------------------------------------------------------+
+##>createMaxCarrySave              START             4937588655 (      )    107374949.00 (        )             0 (        )              
+##> datapath_rewrite_one_def       START             4937588655 ( +0.00)    107374949.00 (   +0.00)             0 (       0)              
+##>  fast_cse_elim                 START             4937588655 ( +0.00)    107374949.00 (   +0.00)             0 (       0)              
+##>                                  END             4797395905 ( -2.84)    107374949.80 (   +0.80)             0 (       0)           0  
+##>  fast_cse_elim                 START             4797395905 ( +0.00)    107374949.80 (   +0.00)             0 (       0)              
+##>                                  END             4797395905 ( +0.00)    107374949.80 (   +0.00)             0 (       0)           0  
+##>                                  END             4797395905 ( -2.84)    107374949.80 (   +0.80)             0 (       0)           0  
+##> dpopt_share_one_def            START             4797395905 ( +0.00)    107374949.80 (   +0.00)             0 (       0)              
+##>                                  END             4797395905 ( +0.00)    107374949.80 (   +0.00)             0 (       0)           0  
+##> csa_opto                       START             4797395905 ( +0.00)    214748364.70 (+107373414.90)             0 (       0)              
+##>                                  END             4805807470 ( +0.18)    214748364.70 (   +0.00)             0 (       0)           0  
+##>                                  END             4805807470 ( -2.67)    214748364.70 (+107373415.70)             0 (       0)           0  
+##>canonicalize_by_names           START             4805807470 ( +0.00)    214748364.70 (   +0.00)             0 (       0)              
+##>                                  END             4805807470 ( +0.00)    214748364.70 (   +0.00)             0 (       0)           0  
+##>datapath_rewrite_post_csa_one_  START             4805807470 ( +0.00)    214748364.70 (   +0.00)             0 (       0)              
+##>                                  END             4805807470 ( +0.00)    214748364.70 (   +0.00)             0 (       0)           0  
+##>datapath_csa_factoring_one_gde  START             4805807470 ( +0.00)    214748364.70 (   +0.00)             0 (       0)              
+##>                                  END             4805807470 ( +0.00)    214748364.70 (   +0.00)             0 (       0)           0  
+##>dpopt_share_one_def             START             4805807470 ( +0.00)    214748364.70 (   +0.00)             0 (       0)              
+##>                                  END             4805807470 ( +0.00)    214748364.70 (   +0.00)             0 (       0)           0  
+##>datapath_rewrite_post_share     START             4805807470 ( +0.00)    214748364.70 (   +0.00)             0 (       0)              
+##>                                  END             4805807470 ( +0.00)    214748364.70 (   +0.00)             0 (       0)           0  
+##>dp_combine_const_mult_with_com  START             4805807470 ( +0.00)    214748364.70 (   +0.00)             0 (       0)              
+##>                                  END             4805807470 ( +0.00)    214748364.70 (   +0.00)             0 (       0)           0  
+##>speculate_in_gdef               START             4805807470 ( +0.00)    214748364.70 (   +0.00)             0 (       0)              
+##> pre_speculate_mux_merge        START             4805807470 ( +0.00)    214748364.70 (   +0.00)             0 (       0)              
+##>                                  END             4805807470 ( +0.00)    214748364.70 (   +0.00)             0 (       0)           0  
+##>                                  END             4805807470 ( +0.00)    214748364.70 (   +0.00)             0 (       0)           0  
+##>dp_operator_level_decompositio  START             4805807470 ( +0.00)    214748364.70 (   +0.00)             0 (       0)              
+##>                                  END             4805807470 ( +0.00)    214748364.70 (   +0.00)             0 (       0)           0  
+##>selective_flatten_dp_config     START             4805807470 ( +0.00)    214748364.70 (   +0.00)             0 (       0)              
+##>                                  END             4805807470 ( +0.00)    214748364.70 (   +0.00)             0 (       0)           0  
+##>createMaxCarrySave              START             4805807470 ( +0.00)    214748364.70 (   +0.00)             0 (       0)              
+##> datapath_rewrite_one_def       START             4805807470 ( +0.00)    214748364.70 (   +0.00)             0 (       0)              
+##>  fast_cse_elim                 START             4805807470 ( +0.00)    214748364.70 (   +0.00)             0 (       0)              
+##>                                  END             4805807470 ( +0.00)    214748364.70 (   +0.00)             0 (       0)           0  
+##>  fast_cse_elim                 START             4805807470 ( +0.00)    214748364.70 (   +0.00)             0 (       0)              
+##>                                  END             4805807470 ( +0.00)    214748364.70 (   +0.00)             0 (       0)           0  
+##>                                  END             4805807470 ( +0.00)    214748364.70 (   +0.00)             0 (       0)           0  
+##> dpopt_share_one_def            START             4805807470 ( +0.00)    214748364.70 (   +0.00)             0 (       0)              
+##>                                  END             4805807470 ( +0.00)    214748364.70 (   +0.00)             0 (       0)           0  
+##> csa_opto                       START             4805807470 ( +0.00)    214748364.70 (   +0.00)             0 (       0)              
+##>                                  END             4805807470 ( +0.00)    214748364.70 (   +0.00)             0 (       0)           0  
+##>                                  END             4805807470 ( +0.00)    214748364.70 (   +0.00)             0 (       0)           0  
+##>context_based_simplify          START             4794592050 ( -0.23)    214748364.70 (   +0.00)             0 (       0)              
+##>                                  END             4794592050 ( +0.00)    214748364.70 (   +0.00)             0 (       0)           0  
+##>group_csa_final_adder_dp        START             4794592050 ( +0.00)    214748364.70 (   +0.00)             0 (       0)              
+##>                                  END             4794592050 ( +0.00)    214748364.70 (   +0.00)             0 (       0)           0  
+##>dpopt_flatten_critical_muxes_i  START             4794592050 ( +0.00)    214748364.70 (   +0.00)             0 (       0)              
+##>                                  END             4794592050 ( +0.00)    214748364.70 (   +0.00)             0 (       0)           0  
+##>speculate_in_gdef               START             4794592050 ( +0.00)    214748364.70 (   +0.00)             0 (       0)              
+##> pre_speculate_mux_merge        START             4794592050 ( +0.00)    214748364.70 (   +0.00)             0 (       0)              
+##>                                  END             4794592050 ( +0.00)    214748364.70 (   +0.00)             0 (       0)           0  
+##>                                  END             4794592050 ( +0.00)    214748364.70 (   +0.00)             0 (       0)           0  
+##>create_score                    START             4794592050 ( +0.00)      767.40 (-214747597.30)             0 (       0)              
+##>                                  END             4794592050 ( +0.00)      767.40 (   +0.00)             0 (       0)           0  
+##>+------------------------------------------------------------------------------------------------------------------------------------------------------------+
+Committed config: CDN_DP_region_0_0_c6
+Info    : Done implementing datapath configurations. [DPOPT-4]
+        : Selected 'very_fast' configuration 6 for module 'CDN_DP_region_0_0'.
+          Optimizations applied to 'very_fast' configuration:
+            rewriting(0), factoring(0), sharing(0), cmultcse(0), downsizing(0), speculation(0)
+Info    : Implementing datapath configurations. [DPOPT-3]
+        : Implementing datapath configurations for 'CDN_DP_region_2_0'
+CSAGen Prep Share:0 Re-Write:0 Speculation: 0
+MaxCSA: Successfully built Maximal CSA Expression Expr4
+MaxCSA: Successfully built Maximal CSA Expression Expr5
+MaxCSA: Successfully built Maximal CSA Expression Expr6
+Info    : Accepted resource sharing opportunity. [RTLOPT-30]
+        : Merged the following sets of instances in 'CDN_DP_region_2_0_c7 in InverseRowAccumulate':
+	  (ADD_TC_OP_3, final_adder_ADD_TC_OP_5)
+
+Info    : Accepted resource sharing opportunity. [RTLOPT-30]
+        : Merged the following sets of instances in 'CDN_DP_region_2_0_c7 in InverseRowAccumulate':
+	  (ADD_TC_OP_31, final_adder_ADD_TC_OP_35)
+
+Info    : Accepted resource sharing opportunity. [RTLOPT-30]
+        : Merged the following sets of instances in 'CDN_DP_region_2_0_c7 in InverseRowAccumulate':
+	  (ADD_TC_OP_37, final_adder_ADD_TC_OP_41)
+
+Info    : Accepted resource sharing opportunity. [RTLOPT-30]
+        : Merged the following sets of instances in 'CDN_DP_region_2_0_c7 in InverseRowAccumulate':
+	  (ADD_TC_OP, ADD_TC_OP_2)
+
+Info    : Accepted resource sharing opportunity. [RTLOPT-30]
+        : Merged the following sets of instances in 'CDN_DP_region_2_0_c7 in InverseRowAccumulate':
+	  (ADD_TC_OP30, ADD_TC_OP_34)
+
+Info    : Accepted resource sharing opportunity. [RTLOPT-30]
+        : Merged the following sets of instances in 'CDN_DP_region_2_0_c7 in InverseRowAccumulate':
+	  (ADD_TC_OP_40, ADD_TC_OP36)
+
+Info    : Accepted resource sharing opportunity. [RTLOPT-30]
+        : Merged the following sets of instances in 'CDN_DP_region_2_0_c1 in InverseRowAccumulate':
+	  (ADD_UNS_OP, final_adder_add_1290_52)
+
+Info    : Accepted resource sharing opportunity. [RTLOPT-30]
+        : Merged the following sets of instances in 'CDN_DP_region_2_0_c1 in InverseRowAccumulate':
+	  (ADD_UNS_OP2, final_adder_add_1291_52)
+
+Info    : Accepted resource sharing opportunity. [RTLOPT-30]
+        : Merged the following sets of instances in 'CDN_DP_region_2_0_c1 in InverseRowAccumulate':
+	  (add_1284_52, add_1273_52)
+
+Info    : Accepted resource sharing opportunity. [RTLOPT-30]
+        : Merged the following sets of instances in 'CDN_DP_region_2_0_c1 in InverseRowAccumulate':
+	  (add_1285_52, add_1274_52)
+
+Info    : Accepted resource sharing opportunity. [RTLOPT-30]
+        : Merged the following sets of instances in 'CDN_DP_region_2_0_c1 in InverseRowAccumulate':
+	  (add_1286_52, add_1275_52)
+
+Info    : Accepted resource sharing opportunity. [RTLOPT-30]
+        : Merged the following sets of instances in 'CDN_DP_region_2_0_c1 in InverseRowAccumulate':
+	  (ADD_UNS_OP4, final_adder_add_1292_52)
+

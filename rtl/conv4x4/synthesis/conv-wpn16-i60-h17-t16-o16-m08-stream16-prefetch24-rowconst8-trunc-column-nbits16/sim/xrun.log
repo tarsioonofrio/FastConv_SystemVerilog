@@ -1,7 +1,7 @@
 xrun(64): 23.03-s003: (c) Copyright 1995-2023 Cadence Design Systems, Inc.
-TOOL:	xrun(64)	23.03-s003: Started on Oct 07, 2026 at 01:43:36 -03
+TOOL:	xrun(64)	23.03-s003: Started on Oct 09, 2026 at 00:44:39 -03
 xrun
-	-f /tmp/fastconv-nbits16-fde3bb1d/rtl/conv4x4/synthesis/conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column-nbits16/sim/args.txt
+	-f /sim/tarsio/FastConv_SystemVerilog/rtl/conv4x4/synthesis/conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column-nbits16/sim/args.txt
 		-smartorder
 		-work work
 		-top tb_stream_column
@@ -10,17 +10,17 @@ xrun
 		-sdf_cmd_file sdf_cmd.cmd
 		-timescale 1ns/1ps
 		/pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v
-	/tmp/fastconv-nbits16-fde3bb1d/rtl/csa/csa_lib.sv
-	/tmp/fastconv-nbits16-fde3bb1d/rtl/multip/multip.sv
-	/tmp/fastconv-nbits16-fde3bb1d/contrib/rtl/pack-def/pack_def.sv
-	/tmp/fastconv-nbits16-fde3bb1d/rtl/conv4x4/data/wpn16/sim/sim-032-3-3-normal-trunc-nbits16/pack_data.sv
-	/tmp/fastconv-nbits16-fde3bb1d/rtl/conv4x4/pack-param/wpn16/pack_param.sv
-	/tmp/fastconv-nbits16-fde3bb1d/rtl/conv4x4/mux-mult/wpn16/mux_mult_08.sv
-	/tmp/fastconv-nbits16-fde3bb1d/rtl/conv4x4/mult-matrices/wpn16/mult_matrices.sv
-	/tmp/fastconv-nbits16-fde3bb1d/rtl/mem/mem.sv
-	/tmp/fastconv-nbits16-fde3bb1d/rtl/stream-column/testbench_stream_column.sv
-	/tmp/fastconv-nbits16-fde3bb1d/rtl/conv4x4/synthesis/conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column-nbits16/logical/results/gate_level/Conv_logic_mapped.v
-	-f /tmp/fastconv-nbits16-fde3bb1d/rtl/conv4x4/synthesis/conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column-nbits16/list-define.txt
+	/sim/tarsio/FastConv_SystemVerilog/rtl/csa/csa_lib.sv
+	/sim/tarsio/FastConv_SystemVerilog/rtl/multip/multip.sv
+	/sim/tarsio/FastConv_SystemVerilog/contrib/rtl/pack-def/pack_def.sv
+	/sim/tarsio/FastConv_SystemVerilog/rtl/conv4x4/data/wpn16/sim/sim-032-3-3-normal-trunc-nbits16/pack_data.sv
+	/sim/tarsio/FastConv_SystemVerilog/rtl/conv4x4/pack-param/wpn16/pack_param.sv
+	/sim/tarsio/FastConv_SystemVerilog/rtl/conv4x4/mux-mult/wpn16/mux_mult_08.sv
+	/sim/tarsio/FastConv_SystemVerilog/rtl/conv4x4/mult-matrices/wpn16/mult_matrices.sv
+	/sim/tarsio/FastConv_SystemVerilog/rtl/mem/mem.sv
+	/sim/tarsio/FastConv_SystemVerilog/rtl/stream-column/testbench_stream_column.sv
+	/sim/tarsio/FastConv_SystemVerilog/rtl/conv4x4/synthesis/conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column-nbits16/logical/results/gate_level/Conv_logic_mapped.v
+	-f /sim/tarsio/FastConv_SystemVerilog/rtl/conv4x4/synthesis/conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column-nbits16/list-define.txt
 		-define NADDR=16
 		-define LATENCY=1
 		-define QUANT=8
@@ -2505,7 +2505,7 @@ file: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital
 		errors: 0, warnings: 0
 	primitive work.tsmc_xbuf:v
 		errors: 0, warnings: 0
-file: /tmp/fastconv-nbits16-fde3bb1d/rtl/csa/csa_lib.sv
+file: /sim/tarsio/FastConv_SystemVerilog/rtl/csa/csa_lib.sv
 	module work.FA:sv
 		errors: 0, warnings: 0
 	module work.CSA_1:sv
@@ -2532,26 +2532,28 @@ file: /tmp/fastconv-nbits16-fde3bb1d/rtl/csa/csa_lib.sv
 		errors: 0, warnings: 0
 	module work.CSA_18:sv
 		errors: 0, warnings: 0
-file: /tmp/fastconv-nbits16-fde3bb1d/rtl/multip/multip.sv
+file: /sim/tarsio/FastConv_SystemVerilog/rtl/multip/multip.sv
 	module work.Multip:sv
+		errors: 0, warnings: 0
+	module work.MultipWideWeight:sv
 		errors: 0, warnings: 0
 	module work.MultipDspPipe:sv
 		errors: 0, warnings: 0
-file: /tmp/fastconv-nbits16-fde3bb1d/contrib/rtl/pack-def/pack_def.sv
+file: /sim/tarsio/FastConv_SystemVerilog/contrib/rtl/pack-def/pack_def.sv
 	package work.pack_def:sv
 		errors: 0, warnings: 0
-file: /tmp/fastconv-nbits16-fde3bb1d/rtl/conv4x4/data/wpn16/sim/sim-032-3-3-normal-trunc-nbits16/pack_data.sv
+file: /sim/tarsio/FastConv_SystemVerilog/rtl/conv4x4/data/wpn16/sim/sim-032-3-3-normal-trunc-nbits16/pack_data.sv
 	package work.pack_data:sv
 		errors: 0, warnings: 0
-file: /tmp/fastconv-nbits16-fde3bb1d/rtl/conv4x4/pack-param/wpn16/pack_param.sv
+file: /sim/tarsio/FastConv_SystemVerilog/rtl/conv4x4/pack-param/wpn16/pack_param.sv
 	package work.pack_param:sv
 		errors: 0, warnings: 0
-file: /tmp/fastconv-nbits16-fde3bb1d/rtl/conv4x4/mux-mult/wpn16/mux_mult_08.sv
+file: /sim/tarsio/FastConv_SystemVerilog/rtl/conv4x4/mux-mult/wpn16/mux_mult_08.sv
 	package work.pack_mux_mult:sv
 		errors: 0, warnings: 0
 	module work.MuxMult:sv
 		errors: 0, warnings: 0
-file: /tmp/fastconv-nbits16-fde3bb1d/rtl/conv4x4/mult-matrices/wpn16/mult_matrices.sv
+file: /sim/tarsio/FastConv_SystemVerilog/rtl/conv4x4/mult-matrices/wpn16/mult_matrices.sv
 	module work.Transform:sv
 		errors: 0, warnings: 0
 	module work.Inverse:sv
@@ -2564,13 +2566,13 @@ file: /tmp/fastconv-nbits16-fde3bb1d/rtl/conv4x4/mult-matrices/wpn16/mult_matric
 		errors: 0, warnings: 0
 	module work.MatrixA0:sv
 		errors: 0, warnings: 0
-file: /tmp/fastconv-nbits16-fde3bb1d/rtl/mem/mem.sv
+file: /sim/tarsio/FastConv_SystemVerilog/rtl/mem/mem.sv
 	module work.Memory:sv
 		errors: 0, warnings: 0
-file: /tmp/fastconv-nbits16-fde3bb1d/rtl/stream-column/testbench_stream_column.sv
+file: /sim/tarsio/FastConv_SystemVerilog/rtl/stream-column/testbench_stream_column.sv
 	module work.tb_stream_column:sv
 		errors: 0, warnings: 0
-file: /tmp/fastconv-nbits16-fde3bb1d/rtl/conv4x4/synthesis/conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column-nbits16/logical/results/gate_level/Conv_logic_mapped.v
+file: /sim/tarsio/FastConv_SystemVerilog/rtl/conv4x4/synthesis/conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-trunc-column-nbits16/logical/results/gate_level/Conv_logic_mapped.v
 	module work.InverseRow:v
 		errors: 0, warnings: 0
 	module work.Multip:v
@@ -3630,13 +3632,13 @@ xmvlog_cg: *W,DLCPTH (/home/tarsio.onofrio/cds.lib,15): cds.lib Invalid path '/s
 			streams:   0, words:     0
 		work.XOR3UD1BWP30P140:v <0x27870304>
 			streams:   0, words:     0
-		work.tb_stream_column:sv <0x541ab1b3>
-			streams:  45, words: 40168
+		work.tb_stream_column:sv <0x035356d9>
+			streams:  45, words: 40338
 		work.pack_data:sv <0x374d46e3>
 			streams:   5, words:  2186
 		work.pack_param:sv <0x7ad466c8>
 			streams:   1, words:   708
-		work.Conv:v <0x5998ee9e>
+		work.Conv:v <0x3f0df8ab>
 			streams:   1, words:  3854
 	Building instance specific data structures.
 	Loading native compiled code:     .................... Done
@@ -10352,18 +10354,6 @@ Warning!  Glitch suppression
             Time: 2089089 PS
 
 Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 2091105 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[5][4] 
-            Time: 2091096 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 2091105 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[5][2] 
-            Time: 2091096 PS
-
-Warning!  Glitch suppression
            Scheduled event for delayed signal of net "D" at time 2113127 PS was canceled!
             File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
            Scope: tb_stream_column.dut.\r_input_prefetch_reg[5][7] 
@@ -15570,36 +15560,6 @@ Warning!  Glitch suppression
             File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
            Scope: tb_stream_column.dut.\r_input_prefetch_reg[5][5] 
             Time: 4053096 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 4055100 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[4][7] 
-            Time: 4055089 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 4055100 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[4][6] 
-            Time: 4055089 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 4055100 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[3][4] 
-            Time: 4055089 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 4055100 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[3][1] 
-            Time: 4055089 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 4055100 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[2][2] 
-            Time: 4055089 PS
 
 Warning!  Glitch suppression
            Scheduled event for delayed signal of net "D" at time 4077128 PS was canceled!
@@ -21984,18 +21944,6 @@ Warning!  Glitch suppression
             File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
            Scope: tb_stream_column.dut.\r_input_prefetch_reg[5][4] 
             Time: 6015096 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 6019105 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[5][3] 
-            Time: 6019096 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 6019105 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[5][0] 
-            Time: 6019096 PS
 
 Warning!  Glitch suppression
            Scheduled event for delayed signal of net "D" at time 6041127 PS was canceled!
@@ -33818,12 +33766,6 @@ Warning!  Glitch suppression
             Time: 9945089 PS
 
 Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 9947105 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[5][3] 
-            Time: 9947096 PS
-
-Warning!  Glitch suppression
            Scheduled event for delayed signal of net "D" at time 9969128 PS was canceled!
             File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
            Scope: tb_stream_column.dut.\r_input_prefetch_reg[4][6] 
@@ -40194,18 +40136,6 @@ Warning!  Glitch suppression
             File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
            Scope: tb_stream_column.dut.\r_input_prefetch_reg[4][7] 
             Time: 11905240 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 11911100 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[4][4] 
-            Time: 11911089 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 11911100 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[3][1] 
-            Time: 11911089 PS
 
 Warning!  Glitch suppression
            Scheduled event for delayed signal of net "D" at time 11933127 PS was canceled!
@@ -58179,6 +58109,6 @@ Warning!  Glitch suppression
 Job execution time: 17686.000 ns (17.686000 us), 8843 cycles
 stream-column simulation passed: tile=6x6 hadamard=8 out=4 inverse_tiles=0 terminal_inverse_events=0 cycles_to_end=8883 cycles=8886 weight_read_beats=27 useful_weight_beats=27 valid_writes=8100 input_clipped_beats=432 output_clipped_words=1116
 Simulation complete via $finish(1) at time 17793 NS + 0
-/tmp/fastconv-nbits16-fde3bb1d/rtl/stream-column/testbench_stream_column.sv:454     $finish;
+/sim/tarsio/FastConv_SystemVerilog/rtl/stream-column/testbench_stream_column.sv:476     $finish;
 xcelium> exit
-TOOL:	xrun(64)	23.03-s003: Exiting on Oct 07, 2026 at 01:43:49 -03  (total: 00:00:13)
+TOOL:	xrun(64)	23.03-s003: Exiting on Oct 09, 2026 at 00:44:55 -03  (total: 00:00:16)

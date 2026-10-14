@@ -1,0 +1,4 @@
+config	started	finished	exit_code	status
+rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12	2026-10-08T19:17:11-03:00	2026-10-08T19:22:37-03:00	0	PASS
+rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12	2026-10-08T19:22:37-03:00	2026-10-08T19:28:03-03:00	0	PASS
+rtl/conv3x3/synthesis/conv-ifn9-i35-h15-t12-o9-m06-stream12-prefetch10-rowconst6-trunc-column-nbits16-cin3-cout12	2026-10-08T19:28:03-03:00	2026-10-08T19:35:00-03:00	0	PASS

@@ -1,0 +1,9 @@
+===== START rtl/conv3x3/synthesis/conv-tcn9-i40-h14-t10-o9-m05-stream10-prefetch15-rowconst5-trunc-column-nbits16-cin3-cout12 / logical at 2026-10-08T20:59:57-03:00 =====
+===== END rtl/conv3x3/synthesis/conv-tcn9-i40-h14-t10-o9-m05-stream10-prefetch15-rowconst5-trunc-column-nbits16-cin3-cout12 FAIL exit=246 at 2026-10-08T20:59:58-03:00 =====
+===== START rtl/conv4x4/synthesis/conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-rowconst6-trunc-frac6-column-cin3-cout12 / logical at 2026-10-08T20:59:58-03:00 =====
+===== END rtl/conv4x4/synthesis/conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-rowconst6-trunc-frac6-column-cin3-cout12 FAIL exit=127 at 2026-10-08T20:59:58-03:00 =====
+===== START rtl/conv4x4/synthesis/conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-pretransformed-column-cin3-cout12 / logical at 2026-10-08T20:59:58-03:00 =====
+===== END rtl/conv4x4/synthesis/conv-tcn16-i60-h27-t36-o16-m18-stream12-prefetch24-pretransformed-column-cin3-cout12 FAIL exit=127 at 2026-10-08T20:59:58-03:00 =====
+===== START rtl/conv4x4/synthesis/conv-wpn16-i60-h41-t64-o16-m32-stream16-prefetch24-rowconst8-trunc-column-nbits16-cin3-cout12 / logical at 2026-10-08T20:59:58-03:00 =====
+===== END rtl/conv4x4/synthesis/conv-wpn16-i60-h41-t64-o16-m32-stream16-prefetch24-rowconst8-trunc-column-nbits16-cin3-cout12 FAIL exit=246 at 2026-10-08T20:59:59-03:00 =====
+Selected flows completed with failures; inspect rtl/CIN3_COUT12_SELECTED4_STATUS.tsv

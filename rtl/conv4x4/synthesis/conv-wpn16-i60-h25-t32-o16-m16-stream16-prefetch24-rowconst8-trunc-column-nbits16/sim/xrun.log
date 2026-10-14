@@ -1,7 +1,7 @@
 xrun(64): 23.03-s003: (c) Copyright 1995-2023 Cadence Design Systems, Inc.
-TOOL:	xrun(64)	23.03-s003: Started on Oct 07, 2026 at 01:56:20 -03
+TOOL:	xrun(64)	23.03-s003: Started on Oct 09, 2026 at 00:57:45 -03
 xrun
-	-f /tmp/fastconv-nbits16-fde3bb1d/rtl/conv4x4/synthesis/conv-wpn16-i60-h25-t32-o16-m16-stream16-prefetch24-rowconst8-trunc-column-nbits16/sim/args.txt
+	-f /sim/tarsio/FastConv_SystemVerilog/rtl/conv4x4/synthesis/conv-wpn16-i60-h25-t32-o16-m16-stream16-prefetch24-rowconst8-trunc-column-nbits16/sim/args.txt
 		-smartorder
 		-work work
 		-top tb_stream_column
@@ -10,17 +10,17 @@ xrun
 		-sdf_cmd_file sdf_cmd.cmd
 		-timescale 1ns/1ps
 		/pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v
-	/tmp/fastconv-nbits16-fde3bb1d/rtl/csa/csa_lib.sv
-	/tmp/fastconv-nbits16-fde3bb1d/rtl/multip/multip.sv
-	/tmp/fastconv-nbits16-fde3bb1d/contrib/rtl/pack-def/pack_def.sv
-	/tmp/fastconv-nbits16-fde3bb1d/rtl/conv4x4/data/wpn16/sim/sim-032-3-3-normal-trunc-nbits16/pack_data.sv
-	/tmp/fastconv-nbits16-fde3bb1d/rtl/conv4x4/pack-param/wpn16/pack_param.sv
-	/tmp/fastconv-nbits16-fde3bb1d/rtl/conv4x4/mux-mult/wpn16/mux_mult_16.sv
-	/tmp/fastconv-nbits16-fde3bb1d/rtl/conv4x4/mult-matrices/wpn16/mult_matrices.sv
-	/tmp/fastconv-nbits16-fde3bb1d/rtl/mem/mem.sv
-	/tmp/fastconv-nbits16-fde3bb1d/rtl/stream-column/testbench_stream_column.sv
-	/tmp/fastconv-nbits16-fde3bb1d/rtl/conv4x4/synthesis/conv-wpn16-i60-h25-t32-o16-m16-stream16-prefetch24-rowconst8-trunc-column-nbits16/logical/results/gate_level/Conv_logic_mapped.v
-	-f /tmp/fastconv-nbits16-fde3bb1d/rtl/conv4x4/synthesis/conv-wpn16-i60-h25-t32-o16-m16-stream16-prefetch24-rowconst8-trunc-column-nbits16/list-define.txt
+	/sim/tarsio/FastConv_SystemVerilog/rtl/csa/csa_lib.sv
+	/sim/tarsio/FastConv_SystemVerilog/rtl/multip/multip.sv
+	/sim/tarsio/FastConv_SystemVerilog/contrib/rtl/pack-def/pack_def.sv
+	/sim/tarsio/FastConv_SystemVerilog/rtl/conv4x4/data/wpn16/sim/sim-032-3-3-normal-trunc-nbits16/pack_data.sv
+	/sim/tarsio/FastConv_SystemVerilog/rtl/conv4x4/pack-param/wpn16/pack_param.sv
+	/sim/tarsio/FastConv_SystemVerilog/rtl/conv4x4/mux-mult/wpn16/mux_mult_16.sv
+	/sim/tarsio/FastConv_SystemVerilog/rtl/conv4x4/mult-matrices/wpn16/mult_matrices.sv
+	/sim/tarsio/FastConv_SystemVerilog/rtl/mem/mem.sv
+	/sim/tarsio/FastConv_SystemVerilog/rtl/stream-column/testbench_stream_column.sv
+	/sim/tarsio/FastConv_SystemVerilog/rtl/conv4x4/synthesis/conv-wpn16-i60-h25-t32-o16-m16-stream16-prefetch24-rowconst8-trunc-column-nbits16/logical/results/gate_level/Conv_logic_mapped.v
+	-f /sim/tarsio/FastConv_SystemVerilog/rtl/conv4x4/synthesis/conv-wpn16-i60-h25-t32-o16-m16-stream16-prefetch24-rowconst8-trunc-column-nbits16/list-define.txt
 		-define NADDR=16
 		-define LATENCY=1
 		-define QUANT=8
@@ -2505,7 +2505,7 @@ file: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital
 		errors: 0, warnings: 0
 	primitive work.tsmc_xbuf:v
 		errors: 0, warnings: 0
-file: /tmp/fastconv-nbits16-fde3bb1d/rtl/csa/csa_lib.sv
+file: /sim/tarsio/FastConv_SystemVerilog/rtl/csa/csa_lib.sv
 	module work.FA:sv
 		errors: 0, warnings: 0
 	module work.CSA_1:sv
@@ -2532,26 +2532,28 @@ file: /tmp/fastconv-nbits16-fde3bb1d/rtl/csa/csa_lib.sv
 		errors: 0, warnings: 0
 	module work.CSA_18:sv
 		errors: 0, warnings: 0
-file: /tmp/fastconv-nbits16-fde3bb1d/rtl/multip/multip.sv
+file: /sim/tarsio/FastConv_SystemVerilog/rtl/multip/multip.sv
 	module work.Multip:sv
+		errors: 0, warnings: 0
+	module work.MultipWideWeight:sv
 		errors: 0, warnings: 0
 	module work.MultipDspPipe:sv
 		errors: 0, warnings: 0
-file: /tmp/fastconv-nbits16-fde3bb1d/contrib/rtl/pack-def/pack_def.sv
+file: /sim/tarsio/FastConv_SystemVerilog/contrib/rtl/pack-def/pack_def.sv
 	package work.pack_def:sv
 		errors: 0, warnings: 0
-file: /tmp/fastconv-nbits16-fde3bb1d/rtl/conv4x4/data/wpn16/sim/sim-032-3-3-normal-trunc-nbits16/pack_data.sv
+file: /sim/tarsio/FastConv_SystemVerilog/rtl/conv4x4/data/wpn16/sim/sim-032-3-3-normal-trunc-nbits16/pack_data.sv
 	package work.pack_data:sv
 		errors: 0, warnings: 0
-file: /tmp/fastconv-nbits16-fde3bb1d/rtl/conv4x4/pack-param/wpn16/pack_param.sv
+file: /sim/tarsio/FastConv_SystemVerilog/rtl/conv4x4/pack-param/wpn16/pack_param.sv
 	package work.pack_param:sv
 		errors: 0, warnings: 0
-file: /tmp/fastconv-nbits16-fde3bb1d/rtl/conv4x4/mux-mult/wpn16/mux_mult_16.sv
+file: /sim/tarsio/FastConv_SystemVerilog/rtl/conv4x4/mux-mult/wpn16/mux_mult_16.sv
 	package work.pack_mux_mult:sv
 		errors: 0, warnings: 0
 	module work.MuxMult:sv
 		errors: 0, warnings: 0
-file: /tmp/fastconv-nbits16-fde3bb1d/rtl/conv4x4/mult-matrices/wpn16/mult_matrices.sv
+file: /sim/tarsio/FastConv_SystemVerilog/rtl/conv4x4/mult-matrices/wpn16/mult_matrices.sv
 	module work.Transform:sv
 		errors: 0, warnings: 0
 	module work.Inverse:sv
@@ -2564,13 +2566,13 @@ file: /tmp/fastconv-nbits16-fde3bb1d/rtl/conv4x4/mult-matrices/wpn16/mult_matric
 		errors: 0, warnings: 0
 	module work.MatrixA0:sv
 		errors: 0, warnings: 0
-file: /tmp/fastconv-nbits16-fde3bb1d/rtl/mem/mem.sv
+file: /sim/tarsio/FastConv_SystemVerilog/rtl/mem/mem.sv
 	module work.Memory:sv
 		errors: 0, warnings: 0
-file: /tmp/fastconv-nbits16-fde3bb1d/rtl/stream-column/testbench_stream_column.sv
+file: /sim/tarsio/FastConv_SystemVerilog/rtl/stream-column/testbench_stream_column.sv
 	module work.tb_stream_column:sv
 		errors: 0, warnings: 0
-file: /tmp/fastconv-nbits16-fde3bb1d/rtl/conv4x4/synthesis/conv-wpn16-i60-h25-t32-o16-m16-stream16-prefetch24-rowconst8-trunc-column-nbits16/logical/results/gate_level/Conv_logic_mapped.v
+file: /sim/tarsio/FastConv_SystemVerilog/rtl/conv4x4/synthesis/conv-wpn16-i60-h25-t32-o16-m16-stream16-prefetch24-rowconst8-trunc-column-nbits16/logical/results/gate_level/Conv_logic_mapped.v
 	module work.InverseRow:v
 		errors: 0, warnings: 0
 	module work.InverseRow_595:v
@@ -3508,7 +3510,7 @@ xmvlog_cg: *W,DLCPTH (/home/tarsio.onofrio/cds.lib,15): cds.lib Invalid path '/s
 			streams:   6, words:  2578
 		work.DFCND2BWP30P140:v <0x02f175c9>
 			streams:   0, words:     0
-		work.DFCND1BWP30P140:v <0x078d9a8f>
+		work.DFCND1BWP30P140:v <0x5a9859c2>
 			streams:   0, words:     0
 		work.XOR3UD1BWP30P140:v <0x00a2cf98>
 			streams:   0, words:     0
@@ -3517,6 +3519,8 @@ xmvlog_cg: *W,DLCPTH (/home/tarsio.onofrio/cds.lib,15): cds.lib Invalid path '/s
 		work.CKMUX2D0BWP30P140:v <0x2cefdc21>
 			streams:   0, words:     0
 		work.EDFCND1BWP30P140:v <0x757111f4>
+			streams:   0, words:     0
+		work.DFCND1BWP30P140:v <0x188552d9>
 			streams:   0, words:     0
 		work.EDFCND1BWP30P140:v <0x708cce2e>
 			streams:   0, words:     0
@@ -3668,13 +3672,13 @@ xmvlog_cg: *W,DLCPTH (/home/tarsio.onofrio/cds.lib,15): cds.lib Invalid path '/s
 			streams:   0, words:     0
 		work.XOR3UD1BWP30P140:v <0x27870304>
 			streams:   0, words:     0
-		work.tb_stream_column:sv <0x31511009>
-			streams:  45, words: 40168
+		work.tb_stream_column:sv <0x64828b4e>
+			streams:  45, words: 40338
 		work.pack_data:sv <0x374d46e3>
 			streams:   5, words:  2186
 		work.pack_param:sv <0x7ad466c8>
 			streams:   1, words:   708
-		work.Conv:v <0x02e7fde9>
+		work.Conv:v <0x0de007a7>
 			streams:   1, words:  3854
 	Building instance specific data structures.
 	Loading native compiled code:     .................... Done
@@ -3938,42 +3942,6 @@ Warning!  Glitch suppression
             File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
            Scope: tb_stream_column.dut.\r_input_prefetch_reg[2][5] 
             Time: 125095 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 127101 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[4][4] 
-            Time: 127092 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 127101 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[3][6] 
-            Time: 127092 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 127101 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[3][1] 
-            Time: 127092 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 127104 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[4][7] 
-            Time: 127093 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 127104 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[3][0] 
-            Time: 127093 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 127104 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[2][1] 
-            Time: 127093 PS
 
 Warning!  Glitch suppression
            Scheduled event for delayed signal of net "D" at time 141130 PS was canceled!
@@ -5440,36 +5408,6 @@ Warning!  Glitch suppression
             Time: 1577089 PS
 
 Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 1579104 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[5][4] 
-            Time: 1579095 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 1579104 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[5][2] 
-            Time: 1579095 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 1579105 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[4][3] 
-            Time: 1579095 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 1579105 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[4][0] 
-            Time: 1579095 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 1579106 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[2][7] 
-            Time: 1579095 PS
-
-Warning!  Glitch suppression
            Scheduled event for delayed signal of net "D" at time 1593127 PS was canceled!
             File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
            Scope: tb_stream_column.dut.\r_input_prefetch_reg[5][7] 
@@ -6782,36 +6720,6 @@ Warning!  Glitch suppression
             File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
            Scope: tb_stream_column.dut.\r_input_prefetch_reg[3][6] 
             Time: 3029095 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 3031098 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[4][7] 
-            Time: 3031089 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 3031098 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[4][6] 
-            Time: 3031089 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 3031098 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[3][4] 
-            Time: 3031089 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 3031098 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[3][1] 
-            Time: 3031089 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 3031099 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[2][2] 
-            Time: 3031089 PS
 
 Warning!  Glitch suppression
            Scheduled event for delayed signal of net "D" at time 3045127 PS was canceled!
@@ -8372,84 +8280,6 @@ Warning!  Glitch suppression
             File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
            Scope: tb_stream_column.dut.\r_input_prefetch_reg[4][2] 
             Time: 4481093 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 4483104 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[5][3] 
-            Time: 4483095 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 4483104 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[5][0] 
-            Time: 4483095 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 4483105 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[4][15] 
-            Time: 4483095 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 4483105 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[4][14] 
-            Time: 4483095 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 4483105 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[4][13] 
-            Time: 4483095 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 4483105 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[4][12] 
-            Time: 4483095 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 4483105 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[4][11] 
-            Time: 4483095 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 4483105 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[4][10] 
-            Time: 4483095 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 4483105 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[4][9] 
-            Time: 4483095 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 4483105 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[4][8] 
-            Time: 4483095 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 4483105 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[4][4] 
-            Time: 4483095 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 4483106 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[2][5] 
-            Time: 4483095 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 4483106 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[2][2] 
-            Time: 4483095 PS
 
 Warning!  Glitch suppression
            Scheduled event for delayed signal of net "D" at time 4497127 PS was canceled!
@@ -10126,78 +9956,6 @@ Warning!  Glitch suppression
             Time: 5933095 PS
 
 Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 5935100 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[5][5] 
-            Time: 5935092 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 5935100 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[5][1] 
-            Time: 5935092 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 5935101 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[4][4] 
-            Time: 5935092 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 5935101 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[3][2] 
-            Time: 5935092 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 5935103 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[5][3] 
-            Time: 5935093 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 5935104 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[4][15] 
-            Time: 5935093 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 5935104 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[4][14] 
-            Time: 5935093 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 5935104 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[4][13] 
-            Time: 5935093 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 5935104 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[4][12] 
-            Time: 5935093 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 5935104 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[4][11] 
-            Time: 5935093 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 5935104 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[4][10] 
-            Time: 5935093 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 5935105 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[2][2] 
-            Time: 5935093 PS
-
-Warning!  Glitch suppression
            Scheduled event for delayed signal of net "D" at time 5949127 PS was canceled!
             File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
            Scope: tb_stream_column.dut.\r_input_prefetch_reg[5][7] 
@@ -11450,48 +11208,6 @@ Warning!  Glitch suppression
             File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
            Scope: tb_stream_column.dut.\r_input_prefetch_reg[4][5] 
             Time: 7385089 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 7387104 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[5][3] 
-            Time: 7387095 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 7387105 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[4][7] 
-            Time: 7387095 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 7387105 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[4][2] 
-            Time: 7387095 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 7387105 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[3][1] 
-            Time: 7387095 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 7387106 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[2][6] 
-            Time: 7387095 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 7387106 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[2][5] 
-            Time: 7387095 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 7387106 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[2][2] 
-            Time: 7387095 PS
 
 Warning!  Glitch suppression
            Scheduled event for delayed signal of net "D" at time 7401127 PS was canceled!
@@ -13096,18 +12812,6 @@ Warning!  Glitch suppression
             Time: 8837095 PS
 
 Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 8839098 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[4][4] 
-            Time: 8839089 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 8839098 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[3][1] 
-            Time: 8839089 PS
-
-Warning!  Glitch suppression
            Scheduled event for delayed signal of net "D" at time 8853127 PS was canceled!
             File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
            Scope: tb_stream_column.dut.\r_input_prefetch_reg[5][7] 
@@ -14686,18 +14390,6 @@ Warning!  Glitch suppression
             Time: 10289093 PS
 
 Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 10291105 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[3][4] 
-            Time: 10291095 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 10291105 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[3][2] 
-            Time: 10291095 PS
-
-Warning!  Glitch suppression
            Scheduled event for delayed signal of net "D" at time 10305127 PS was canceled!
             File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
            Scope: tb_stream_column.dut.\r_input_prefetch_reg[5][7] 
@@ -15896,90 +15588,6 @@ Warning!  Glitch suppression
             File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
            Scope: tb_stream_column.dut.\r_input_prefetch_reg[2][5] 
             Time: 11739089 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 11743104 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[3][8] 
-            Time: 11743093 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 11743104 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[3][4] 
-            Time: 11743093 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 11743104 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[3][2] 
-            Time: 11743093 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 11743104 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[3][0] 
-            Time: 11743093 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 11743105 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[2][15] 
-            Time: 11743093 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 11743105 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[2][14] 
-            Time: 11743093 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 11743105 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[2][13] 
-            Time: 11743093 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 11743105 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[2][12] 
-            Time: 11743093 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 11743105 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[2][11] 
-            Time: 11743093 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 11743105 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[2][10] 
-            Time: 11743093 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 11743105 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[2][9] 
-            Time: 11743093 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 11743105 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[2][6] 
-            Time: 11743093 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 11743105 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[2][5] 
-            Time: 11743093 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "D" at time 11743105 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 6576
-           Scope: tb_stream_column.dut.\r_input_prefetch_reg[2][3] 
-            Time: 11743093 PS
 
 Warning!  Glitch suppression
            Scheduled event for delayed signal of net "D" at time 11757127 PS was canceled!
@@ -17351,6 +16959,6 @@ Warning!  Glitch suppression
 Job execution time: 13078.000 ns (13.078000 us), 6539 cycles
 stream-column simulation passed: tile=6x6 hadamard=8 out=4 inverse_tiles=0 terminal_inverse_events=0 cycles_to_end=6579 cycles=6582 weight_read_beats=27 useful_weight_beats=27 valid_writes=8100 input_clipped_beats=432 output_clipped_words=1116
 Simulation complete via $finish(1) at time 13185 NS + 0
-/tmp/fastconv-nbits16-fde3bb1d/rtl/stream-column/testbench_stream_column.sv:454     $finish;
+/sim/tarsio/FastConv_SystemVerilog/rtl/stream-column/testbench_stream_column.sv:476     $finish;
 xcelium> exit
-TOOL:	xrun(64)	23.03-s003: Exiting on Oct 07, 2026 at 01:56:34 -03  (total: 00:00:14)
+TOOL:	xrun(64)	23.03-s003: Exiting on Oct 09, 2026 at 00:58:04 -03  (total: 00:00:19)

@@ -3,19 +3,19 @@ Copyright 2022 Cadence Design Systems, Inc. All rights reserved worldwide.
 Cadence and the Cadence logo are registered trademarks and Genus is a trademark
 of Cadence Design Systems, Inc. in the United States and other countries.
 
-[21:46:20.503673] Configured Lic search path (20.02-s004): 5280@paxos.inf.pucrs.br
+[23:11:28.503689] Configured Lic search path (20.02-s004): 5280@paxos.inf.pucrs.br
 
 Version: 21.12-s068_1, built Fri Mar 04 09:12:46 PST 2022
 Options: -files logical_synthesis.tcl 
-Date:    Tue Oct 06 21:46:20 2026
+Date:    Thu Oct 08 23:11:28 2026
 Host:    paxos.inf.pucrs.br (x86_64 w/Linux 4.18.0-553.155.1.el8_10.x86_64) (14cores*28cpus*1physical cpu*Intel(R) Core(TM) i9-7940X CPU @ 3.10GHz 19712KB) (131170900KB)
-PID:     2925182
+PID:     312379
 OS:      Rocky Linux release 8.10 (Green Obsidian)
 
 
-[21:46:20.108592] Periodic Lic check successful
-[21:46:20.108603] Feature usage summary:
-[21:46:20.108603] Genus_Synthesis
+[23:11:28.398746] Periodic Lic check successful
+[23:11:28.398752] Feature usage summary:
+[23:11:28.398752] Genus_Synthesis
 Checking out license: Genus_Synthesis
 
 
@@ -95,8 +95,8 @@ Finished loading tool scripts (8 seconds elapsed).
     close $fp_def
 }
 @file(logical_synthesis.tcl) 97: source [file join $CONFIG_ROOT scripts logical_synthesis_body.tcl]
-Sourcing '/tmp/fastconv-nbits16-fde3bb1d/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column-nbits16/scripts/logical_synthesis_body.tcl' (Tue Oct 06 21:46:28 -03 2026)...
-#@ Begin verbose source /tmp/fastconv-nbits16-fde3bb1d/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column-nbits16/scripts/logical_synthesis_body.tcl
+Sourcing '/sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column-nbits16/scripts/logical_synthesis_body.tcl' (Thu Oct 08 23:11:37 -03 2026)...
+#@ Begin verbose source /sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column-nbits16/scripts/logical_synthesis_body.tcl
 @file(logical_synthesis_body.tcl) 5: puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 @file(logical_synthesis_body.tcl) 6: puts "Load the pdk using MMMC"
@@ -105,8 +105,8 @@ Load the pdk using MMMC
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 @file(logical_synthesis_body.tcl) 8: read_mmmc [file join $CONFIG_ROOT scripts mmmc_tsmc_28_bv.tcl]
   Setting attribute of root '/': 'is_read_mmmc_flow' = true
-Sourcing '/tmp/fastconv-nbits16-fde3bb1d/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column-nbits16/scripts/mmmc_tsmc_28_bv.tcl' (Tue Oct 06 21:46:28 -03 2026)...
-#@ Begin verbose source /tmp/fastconv-nbits16-fde3bb1d/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column-nbits16/scripts/mmmc_tsmc_28_bv.tcl
+Sourcing '/sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column-nbits16/scripts/mmmc_tsmc_28_bv.tcl' (Thu Oct 08 23:11:37 -03 2026)...
+#@ Begin verbose source /sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column-nbits16/scripts/mmmc_tsmc_28_bv.tcl
 @file(mmmc_tsmc_28_bv.tcl) 2: set CONSTRAINTS_PATH [file join $CONFIG_ROOT scripts]
 @file(mmmc_tsmc_28_bv.tcl) 8: set LIB_PATH /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End
 @file(mmmc_tsmc_28_bv.tcl) 9: set TECH_PATH /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Back_End
@@ -280,7 +280,7 @@ Warning : Physical cell not defined in library. [PHYS-279]
         : The physical (LEF) cell LVLHLCLOD2BWP30P140 cannot be found in library.
 Warning : Maximum message print count reached. [MESG-11]
         : Maximum print count of '20' reached for message 'PHYS-279'.
-#@ End verbose source /tmp/fastconv-nbits16-fde3bb1d/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column-nbits16/scripts/mmmc_tsmc_28_bv.tcl
+#@ End verbose source /sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column-nbits16/scripts/mmmc_tsmc_28_bv.tcl
 @file(logical_synthesis_body.tcl) 10: puts "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 @file(logical_synthesis_body.tcl) 11: puts "Configuration of the Genus"
@@ -337,43 +337,43 @@ Elaboration
 }
 Elaborating Conv with parameter overrides: {NUM_MULT 4} {NBITS 16}
 Info    : Elaborating Design. [ELAB-1]
-        : Elaborating top-level block 'Conv' from file '/tmp/fastconv-nbits16-fde3bb1d/rtl/conv2x2/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column.sv'.
+        : Elaborating top-level block 'Conv' from file '/sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column.sv'.
 Warning : Removing unused register. [CDFG-508]
-        : Removing unused latch register 'weight[8]' in module 'WeightTransformRowConst' in file '/tmp/fastconv-nbits16-fde3bb1d/rtl/conv2x2/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column.sv' on line 1064.
+        : Removing unused latch register 'weight[8]' in module 'WeightTransformRowConst' in file '/sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column.sv' on line 1064.
         : Genus removes the flip-flop or latch inferred for an unused signal or variable. To preserve the flip-flop or latch, set the hdl_preserve_unused_registers attribute to true or use a pragma in the RTL.
 Warning : Removing unused register. [CDFG-508]
-        : Removing unused latch register 'weight[7]' in module 'WeightTransformRowConst' in file '/tmp/fastconv-nbits16-fde3bb1d/rtl/conv2x2/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column.sv' on line 1064.
+        : Removing unused latch register 'weight[7]' in module 'WeightTransformRowConst' in file '/sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column.sv' on line 1064.
 Warning : Removing unused register. [CDFG-508]
-        : Removing unused latch register 'weight[6]' in module 'WeightTransformRowConst' in file '/tmp/fastconv-nbits16-fde3bb1d/rtl/conv2x2/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column.sv' on line 1064.
+        : Removing unused latch register 'weight[6]' in module 'WeightTransformRowConst' in file '/sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column.sv' on line 1064.
 Warning : Removing unused register. [CDFG-508]
-        : Removing unused latch register 'weight[5]' in module 'WeightTransformRowConst' in file '/tmp/fastconv-nbits16-fde3bb1d/rtl/conv2x2/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column.sv' on line 1064.
+        : Removing unused latch register 'weight[5]' in module 'WeightTransformRowConst' in file '/sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column.sv' on line 1064.
 Warning : Removing unused register. [CDFG-508]
-        : Removing unused latch register 'weight[4]' in module 'WeightTransformRowConst' in file '/tmp/fastconv-nbits16-fde3bb1d/rtl/conv2x2/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column.sv' on line 1064.
+        : Removing unused latch register 'weight[4]' in module 'WeightTransformRowConst' in file '/sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column.sv' on line 1064.
 Warning : Removing unused register. [CDFG-508]
-        : Removing unused latch register 'weight[3]' in module 'WeightTransformRowConst' in file '/tmp/fastconv-nbits16-fde3bb1d/rtl/conv2x2/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column.sv' on line 1064.
+        : Removing unused latch register 'weight[3]' in module 'WeightTransformRowConst' in file '/sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column.sv' on line 1064.
 Warning : Removing unused register. [CDFG-508]
-        : Removing unused latch register 'weight[5]' in module 'WeightTransformRowConst_2' in file '/tmp/fastconv-nbits16-fde3bb1d/rtl/conv2x2/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column.sv' on line 1064.
+        : Removing unused latch register 'weight[5]' in module 'WeightTransformRowConst_2' in file '/sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column.sv' on line 1064.
 Warning : Removing unused register. [CDFG-508]
-        : Removing unused latch register 'weight[4]' in module 'WeightTransformRowConst_2' in file '/tmp/fastconv-nbits16-fde3bb1d/rtl/conv2x2/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column.sv' on line 1064.
+        : Removing unused latch register 'weight[4]' in module 'WeightTransformRowConst_2' in file '/sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column.sv' on line 1064.
 Warning : Removing unused register. [CDFG-508]
-        : Removing unused latch register 'weight[3]' in module 'WeightTransformRowConst_2' in file '/tmp/fastconv-nbits16-fde3bb1d/rtl/conv2x2/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column.sv' on line 1064.
+        : Removing unused latch register 'weight[3]' in module 'WeightTransformRowConst_2' in file '/sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column.sv' on line 1064.
 Warning : Removing unused register. [CDFG-508]
-        : Removing unused latch register 'weight[2]' in module 'WeightTransformRowConst_2' in file '/tmp/fastconv-nbits16-fde3bb1d/rtl/conv2x2/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column.sv' on line 1064.
+        : Removing unused latch register 'weight[2]' in module 'WeightTransformRowConst_2' in file '/sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column.sv' on line 1064.
 Warning : Removing unused register. [CDFG-508]
-        : Removing unused latch register 'weight[1]' in module 'WeightTransformRowConst_2' in file '/tmp/fastconv-nbits16-fde3bb1d/rtl/conv2x2/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column.sv' on line 1064.
+        : Removing unused latch register 'weight[1]' in module 'WeightTransformRowConst_2' in file '/sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column.sv' on line 1064.
 Warning : Removing unused register. [CDFG-508]
-        : Removing unused latch register 'weight[0]' in module 'WeightTransformRowConst_2' in file '/tmp/fastconv-nbits16-fde3bb1d/rtl/conv2x2/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column.sv' on line 1064.
+        : Removing unused latch register 'weight[0]' in module 'WeightTransformRowConst_2' in file '/sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column.sv' on line 1064.
 Warning : Connected signal is wider than module port. [CDFG-464]
-        : Signal width (24) does not match width of output port 'product' (16) of instance 'multip0' of module 'Multip' in file '/tmp/fastconv-nbits16-fde3bb1d/rtl/conv2x2/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column.sv' on line 817.
+        : Signal width (24) does not match width of output port 'product' (16) of instance 'multip0' of module 'Multip' in file '/sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column.sv' on line 817.
         : This may cause simulation mismatches between the original and synthesized designs.
 Warning : Connected signal is wider than module port. [CDFG-464]
-        : Signal width (24) does not match width of output port 'product' (16) of instance 'multip1' of module 'Multip' in file '/tmp/fastconv-nbits16-fde3bb1d/rtl/conv2x2/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column.sv' on line 819.
+        : Signal width (24) does not match width of output port 'product' (16) of instance 'multip1' of module 'Multip' in file '/sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column.sv' on line 819.
 Warning : Connected signal is wider than module port. [CDFG-464]
-        : Signal width (24) does not match width of output port 'product' (16) of instance 'multip2' of module 'Multip' in file '/tmp/fastconv-nbits16-fde3bb1d/rtl/conv2x2/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column.sv' on line 821.
+        : Signal width (24) does not match width of output port 'product' (16) of instance 'multip2' of module 'Multip' in file '/sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column.sv' on line 821.
 Warning : Connected signal is wider than module port. [CDFG-464]
-        : Signal width (24) does not match width of output port 'product' (16) of instance 'multip3' of module 'Multip' in file '/tmp/fastconv-nbits16-fde3bb1d/rtl/conv2x2/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column.sv' on line 823.
+        : Signal width (24) does not match width of output port 'product' (16) of instance 'multip3' of module 'Multip' in file '/sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column.sv' on line 823.
 Warning : Unreachable statements for case item. [CDFG-472]
-        : Case item 'default' in module 'InverseRowAccumulate' in file '/tmp/fastconv-nbits16-fde3bb1d/rtl/conv2x2/mult-matrices/stream/tcn4/mult_matrices.sv' on line 70.
+        : Case item 'default' in module 'InverseRowAccumulate' in file '/sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/mult-matrices/stream/tcn4/mult_matrices.sv' on line 70.
 Info    : Done Elaborating Design. [ELAB-3]
         : Done elaborating 'Conv'.
 Checking for analog nets...
@@ -400,7 +400,7 @@ No power intent for design 'Conv'.
 Completed checking and loading power intent for design Conv (runtime:0.00s memory_usage:0.00M peak_memory:0.00M).
 =================================================================================================================
 #
-# Reading SDC /tmp/fastconv-nbits16-fde3bb1d/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column-nbits16/scripts/constraints.sdc for view:analysis_view_0p81v_125c_capwst_slowest (constraint_mode:constraints_default)
+# Reading SDC /sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column-nbits16/scripts/constraints.sdc for view:analysis_view_0p81v_125c_capwst_slowest (constraint_mode:constraints_default)
 #
 Warning : Unsupported SDC command option. [SDC-201] [set_input_delay]
         : The set_input_delay command is not supported on ports which have a clock already defined 'port:Conv/clk'.
@@ -410,9 +410,9 @@ Statistics for commands executed by read_sdc:
  "all_outputs"              - successful      2 , failed      0 (runtime  0.00)
  "create_clock"             - successful      1 , failed      0 (runtime  0.00)
  "get_lib_pins"             - successful      1 , failed      0 (runtime  0.01)
- "get_ports"                - successful      2 , failed      0 (runtime  0.01)
+ "get_ports"                - successful      2 , failed      0 (runtime  0.00)
  "load_of"                  - successful      1 , failed      0 (runtime  0.00)
- "set_driving_cell"         - successful      1 , failed      0 (runtime  0.00)
+ "set_driving_cell"         - successful      1 , failed      0 (runtime  0.01)
  "set_false_path"           - successful      1 , failed      0 (runtime  0.00)
  "set_input_delay"          - successful      1 , failed      0 (runtime  0.00)
  "set_load"                 - successful      1 , failed      0 (runtime  0.00)
@@ -498,7 +498,7 @@ Info    : Deleting instances not driving any primary outputs. [GLO-34]
         : Deleting 2 hierarchical instances.
 Warning : Maximum message print count reached. [MESG-11]
         : Maximum print count of '20' reached for message 'GLO-34'.
-Completed mux data reorder optimization (accepts: 30, rejects: 0, runtime: 0.191s)
+Completed mux data reorder optimization (accepts: 30, rejects: 0, runtime: 0.197s)
 Current PLE settings:
 
 Aspect ratio        : 1.000
@@ -562,7 +562,7 @@ stamp 'PBS_Generic-Start' being created for table 'pbs_debug'
 
   Total Time (Wall) |  Stage Time (Wall)  |   % (Wall)   |    Date - Time     |  Memory   | Stage
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:00:25(00:00:21) |  00:00:00(00:00:00) |   0.0(  0.0) |   21:46:45 (Oct06) |  626.0 MB | PBS_Generic-Start
+ 00:00:26(00:00:22) |  00:00:00(00:00:00) |   0.0(  0.0) |   23:11:54 (Oct08) |  658.8 MB | PBS_Generic-Start
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
 Number of threads: 8 * 1   (id: pbs_debug, time_info v1.57)
 Info: (*N*) indicates data that was populated from previously saved time_info database
@@ -571,9 +571,9 @@ TNS Restructuring config: no_value at stage: generic applied.
 Info    : Partition Based Synthesis execution skipped. [PHYS-752]
         : Design size is less than the partition size '100000' for distributed generic optimization to kick in.
 Starting mux data reorder optimization [v1.0] (stage: pre_to_gen_setup, startdef: Conv, recur: true)
-Completed mux data reorder optimization (accepts: 0, rejects: 0, runtime: 0.019s)
+Completed mux data reorder optimization (accepts: 0, rejects: 0, runtime: 0.035s)
 Starting mux data reorder optimization [v1.0] (stage: post_to_gen_setup, startdef: Conv, recur: true)
-Completed mux data reorder optimization (accepts: 0, rejects: 0, runtime: 0.007s)
+Completed mux data reorder optimization (accepts: 0, rejects: 0, runtime: 0.008s)
 Current PLE settings:
 
 Aspect ratio        : 1.000
@@ -637,9 +637,9 @@ Completed Unified Mux Engine Tricks
 --------------------------------------------
 --------------------------------------------
 Starting infer macro optimization [v1.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
-Completed infer macro optimization (accepts: 0, rejects: 30, runtime: 0.038s)
+Completed infer macro optimization (accepts: 0, rejects: 30, runtime: 0.047s)
 Starting decode mux sandwich optimization [v2.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
-Completed decode mux sandwich optimization (accepts: 0, rejects: 0, runtime: 0.000s)
+Completed decode mux sandwich optimization (accepts: 0, rejects: 0, runtime: 0.001s)
 Starting decode mux optimization [v1.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
 Completed decode mux optimization (accepts: 0, rejects: 0, runtime: 0.000s)
 Starting chop wide muxes [v1.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
@@ -649,17 +649,17 @@ Completed common data mux cascade opt (accepts: 0, rejects: 0, runtime: 0.001s)
 Starting mux input consolidation [v1.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
 Completed mux input consolidation (accepts: 0, rejects: 0, runtime: 0.002s)
 Starting priority mux optimization [v1.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
-Completed priority mux optimization (accepts: 0, rejects: 0, runtime: 0.661s)
+Completed priority mux optimization (accepts: 0, rejects: 0, runtime: 0.761s)
 Starting constant-data mux optimization [v1.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
-Completed constant-data mux optimization (accepts: 2, rejects: 2, runtime: 0.054s)
+Completed constant-data mux optimization (accepts: 2, rejects: 2, runtime: 0.059s)
 Starting chain-to-tree inequality transform [v2.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
-Completed chain-to-tree inequality transform (accepts: 0, rejects: 0, runtime: 0.044s)
+Completed chain-to-tree inequality transform (accepts: 0, rejects: 0, runtime: 0.056s)
 Starting reconvergence optimization [v1.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
 Completed reconvergence optimization (accepts: 0, rejects: 0, runtime: 0.001s)
 Starting logic restructure optimization [v1.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
 Completed logic restructure optimization (accepts: 0, rejects: 0, runtime: 0.003s)
 Starting common select mux optimization [v1.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
-Completed common select mux optimization (accepts: 0, rejects: 2, runtime: 0.003s)
+Completed common select mux optimization (accepts: 0, rejects: 2, runtime: 0.004s)
 Starting identity transform [v3.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
 Completed identity transform (accepts: 0, rejects: 2, runtime: 0.003s)
 Starting reduce operator chain [v1.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
@@ -669,7 +669,7 @@ Completed common data mux cascade opt (accepts: 0, rejects: 0, runtime: 0.001s)
 Starting mux input consolidation [v1.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
 Completed mux input consolidation (accepts: 0, rejects: 0, runtime: 0.002s)
 Starting optimize datapath elements [v1.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
-Completed optimize datapath elements (accepts: 0, rejects: 0, runtime: 0.000s)
+Completed optimize datapath elements (accepts: 0, rejects: 0, runtime: 0.001s)
 Starting datapath recasting [v1.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
 Completed datapath recasting (accepts: 0, rejects: 0, runtime: 0.000s)
 Starting clip mux common data inputs [v1.0] (stage: pre_rtlopt, startdef: Conv, recur: true)
@@ -681,7 +681,7 @@ Completed Unified Mux Engine Tricks
 --------------------------------------------------
 | Trick       | Accepts | Rejects | Runtime (ms) | 
 --------------------------------------------------
-| ume_runtime |       0 |       0 |         0.00 | 
+| ume_runtime |       0 |       0 |         1.00 | 
 --------------------------------------------------
 Number of big hc bmuxes before = 0
 Number of non-ctl's : 11
@@ -1176,7 +1176,7 @@ Best config: CDN_DP_region_12_0_c7 in WeightTransformRowConst_1: area: 104387521
 ##>   Num CmultCse                0                  0                  0                  0                  0                  0                  0                  0  
 ##>   Num Downsize                0                  0                  0                  0                  0                  0                  0                  0  
 ##>  Num Speculate                0                  0                  0                  0                  0                  0                  0                  0  
-##>     Runtime(s)                0                  1                  1                  1                  1                  1                  1                  3  
+##>     Runtime(s)                0                  1                  1                  1                  1                  1                  1                  2  
 +----------------------------------------------------------------------------------------------------------------------------------------------------------------+
 ##>
 ##>
@@ -2004,7 +2004,7 @@ Best config: CDN_DP_region_10_0_c6 in WeightTransformRowConst: area: 4455325595 
 ##>   Num CmultCse                0                  0                  0                  0                  0                  0                  0                  0  
 ##>   Num Downsize                0                  0                  0                  0                  0                  0                  0                  0  
 ##>  Num Speculate                0                  0                  0                  0                  0                  0                  0                  0  
-##>     Runtime(s)                0                  0                  0                  0                  0                  0                  0                  1  
+##>     Runtime(s)                0                  0                  0                  0                  0                  0                  0                  0  
 +----------------------------------------------------------------------------------------------------------------------------------------------------------------+
 ##>
 ##>
@@ -4504,13 +4504,13 @@ Info    : Done optimizing datapath logic. [DPOPT-2]
         : Done optimizing datapath logic in 'Conv'.
 Number of big hc bmuxes after = 0
 Starting logic reduction [v1.0] (stage: post_rtlopt, startdef: Conv, recur: true)
-Completed logic reduction (accepts: 0, rejects: 0, runtime: 0.000s)
+Completed logic reduction (accepts: 0, rejects: 0, runtime: 0.001s)
 Starting mux data reorder optimization [v1.0] (stage: post_rtlopt, startdef: Conv, recur: true)
-Completed mux data reorder optimization (accepts: 0, rejects: 0, runtime: 0.006s)
+Completed mux data reorder optimization (accepts: 0, rejects: 0, runtime: 0.007s)
 Starting mux speculation [v1.0] (stage: post_muxopt, startdef: Conv, recur: true)
 Starting speculation optimization
 Completed speculation optimization (accepts:0)
-Completed mux speculation (accepts: 0, rejects: 0, runtime: 0.454s)
+Completed mux speculation (accepts: 0, rejects: 0, runtime: 0.480s)
 ==================================
 Stage : to_generic 
 ==================================
@@ -4869,14 +4869,14 @@ Excluded from State Retention    1029        100.0
 State Retention instances           0          0.0
 --------------------------------------------------
 
-PBS_Generic_Opt-Post - Elapsed_Time 99, CPU_Time 100.965187
+PBS_Generic_Opt-Post - Elapsed_Time 100, CPU_Time 101.51717400000001
 stamp 'PBS_Generic_Opt-Post' being created for table 'pbs_debug'
 
   Total Time (Wall) |  Stage Time (Wall)  |   % (Wall)   |    Date - Time     |  Memory   | Stage
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:00:25(00:00:21) |  00:00:00(00:00:00) |   0.0(  0.0) |   21:46:45 (Oct06) |  626.0 MB | PBS_Generic-Start
+ 00:00:26(00:00:22) |  00:00:00(00:00:00) |   0.0(  0.0) |   23:11:54 (Oct08) |  658.8 MB | PBS_Generic-Start
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:05(00:02:00) |  00:01:40(00:01:39) | 100.0(100.0) |   21:48:24 (Oct06) |   1.02 GB | PBS_Generic_Opt-Post
+ 00:02:07(00:02:02) |  00:01:41(00:01:40) | 100.0(100.0) |   23:13:34 (Oct08) |   1.12 GB | PBS_Generic_Opt-Post
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
 Number of threads: 8 * 1   (id: pbs_debug, time_info v1.57)
 Info: (*N*) indicates data that was populated from previously saved time_info database
@@ -4886,11 +4886,11 @@ stamp 'PBS_Generic-Postgen HBO Optimizations' being created for table 'pbs_debug
 
   Total Time (Wall) |  Stage Time (Wall)  |   % (Wall)   |    Date - Time     |  Memory   | Stage
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:00:25(00:00:21) |  00:00:00(00:00:00) |   0.0(  0.0) |   21:46:45 (Oct06) |  626.0 MB | PBS_Generic-Start
+ 00:00:26(00:00:22) |  00:00:00(00:00:00) |   0.0(  0.0) |   23:11:54 (Oct08) |  658.8 MB | PBS_Generic-Start
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:05(00:02:00) |  00:01:40(00:01:39) | 100.0( 99.0) |   21:48:24 (Oct06) |   1.02 GB | PBS_Generic_Opt-Post
+ 00:02:07(00:02:02) |  00:01:41(00:01:40) | 100.0( 99.0) |   23:13:34 (Oct08) |   1.12 GB | PBS_Generic_Opt-Post
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:05(00:02:01) |  00:00:00(00:00:01) |   0.0(  1.0) |   21:48:25 (Oct06) |   1.02 GB | PBS_Generic-Postgen HBO Optimizations
+ 00:02:07(00:02:03) |  00:00:00(00:00:01) |   0.0(  1.0) |   23:13:35 (Oct08) |   1.04 GB | PBS_Generic-Postgen HBO Optimizations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
 Number of threads: 8 * 1   (id: pbs_debug, time_info v1.57)
 Info: (*N*) indicates data that was populated from previously saved time_info database
@@ -4901,7 +4901,7 @@ Info: CPU time includes time of parent + longest thread
 ##>----------------------------------------------------------------------------------------
 ##>STEP                           Elapsed       WNS       TNS     Insts      Area    Memory
 ##>----------------------------------------------------------------------------------------
-##>G:Initial                            1         -         -     30787     48234       629
+##>G:Initial                            1         -         -     30787     48234       658
 ##>G:Setup                              0         -         -         -         -         -
 ##>G:Launch ST                          0         -         -         -         -         -
 ##>G:Design Partition                   0         -         -         -         -         -
@@ -4915,10 +4915,10 @@ Info: CPU time includes time of parent + longest thread
 ##>G:Timer                              0         -         -         -         -         -
 ##>G:Assembly                           0         -         -         -         -         -
 ##>G:DFT                                0         -         -         -         -         -
-##>G:Const Prop                         1         -         -     24313     37691      1022
-##>G:Misc                              98
+##>G:Const Prop                         1         -         -     24313     37691      1041
+##>G:Misc                             100
 ##>----------------------------------------------------------------------------------------
-##>Total Elapsed                      100
+##>Total Elapsed                      102
 ##>========================================================================================
 Info    : Done synthesizing. [SYNTH-2]
         : Done synthesizing 'Conv' to generic gates.
@@ -4993,13 +4993,13 @@ stamp 'PBS_TechMap-Start' being created for table 'pbs_debug'
 
   Total Time (Wall) |  Stage Time (Wall)  |   % (Wall)   |    Date - Time     |  Memory   | Stage
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:00:25(00:00:21) |  00:00:00(00:00:00) |   0.0(  0.0) |   21:46:45 (Oct06) |  626.0 MB | PBS_Generic-Start
+ 00:00:26(00:00:22) |  00:00:00(00:00:00) |   0.0(  0.0) |   23:11:54 (Oct08) |  658.8 MB | PBS_Generic-Start
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:05(00:02:00) |  00:01:40(00:01:39) |  97.1( 97.1) |   21:48:24 (Oct06) |   1.02 GB | PBS_Generic_Opt-Post
+ 00:02:07(00:02:02) |  00:01:41(00:01:40) |  97.1( 97.1) |   23:13:34 (Oct08) |   1.12 GB | PBS_Generic_Opt-Post
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:05(00:02:01) |  00:00:00(00:00:01) |   0.0(  1.0) |   21:48:25 (Oct06) |   1.02 GB | PBS_Generic-Postgen HBO Optimizations
+ 00:02:07(00:02:03) |  00:00:00(00:00:01) |   0.0(  1.0) |   23:13:35 (Oct08) |   1.04 GB | PBS_Generic-Postgen HBO Optimizations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:08(00:02:03) |  00:00:03(00:00:02) |   2.9(  2.0) |   21:48:27 (Oct06) |   1.01 GB | PBS_TechMap-Start
+ 00:02:10(00:02:05) |  00:00:03(00:00:02) |   2.9(  1.9) |   23:13:37 (Oct08) |   1.04 GB | PBS_TechMap-Start
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
 Number of threads: 8 * 1   (id: pbs_debug, time_info v1.57)
 Info: (*N*) indicates data that was populated from previously saved time_info database
@@ -5009,15 +5009,15 @@ stamp 'PBS_TechMap-Premap HBO Optimizations' being created for table 'pbs_debug'
 
   Total Time (Wall) |  Stage Time (Wall)  |   % (Wall)   |    Date - Time     |  Memory   | Stage
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:00:25(00:00:21) |  00:00:00(00:00:00) |   0.0(  0.0) |   21:46:45 (Oct06) |  626.0 MB | PBS_Generic-Start
+ 00:00:26(00:00:22) |  00:00:00(00:00:00) |   0.0(  0.0) |   23:11:54 (Oct08) |  658.8 MB | PBS_Generic-Start
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:05(00:02:00) |  00:01:40(00:01:39) |  97.1( 96.1) |   21:48:24 (Oct06) |   1.02 GB | PBS_Generic_Opt-Post
+ 00:02:07(00:02:02) |  00:01:41(00:01:40) |  97.1( 96.2) |   23:13:34 (Oct08) |   1.12 GB | PBS_Generic_Opt-Post
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:05(00:02:01) |  00:00:00(00:00:01) |   0.0(  1.0) |   21:48:25 (Oct06) |   1.02 GB | PBS_Generic-Postgen HBO Optimizations
+ 00:02:07(00:02:03) |  00:00:00(00:00:01) |   0.0(  1.0) |   23:13:35 (Oct08) |   1.04 GB | PBS_Generic-Postgen HBO Optimizations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:08(00:02:03) |  00:00:03(00:00:02) |   2.9(  1.9) |   21:48:27 (Oct06) |   1.01 GB | PBS_TechMap-Start
+ 00:02:10(00:02:05) |  00:00:03(00:00:02) |   2.9(  1.9) |   23:13:37 (Oct08) |   1.04 GB | PBS_TechMap-Start
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:08(00:02:04) |  00:00:00(00:00:01) |   0.0(  1.0) |   21:48:28 (Oct06) |   1.01 GB | PBS_TechMap-Premap HBO Optimizations
+ 00:02:10(00:02:06) |  00:00:00(00:00:01) |   0.0(  1.0) |   23:13:38 (Oct08) |   1.04 GB | PBS_TechMap-Premap HBO Optimizations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
 Number of threads: 8 * 1   (id: pbs_debug, time_info v1.57)
 Info: (*N*) indicates data that was populated from previously saved time_info database
@@ -5177,22 +5177,22 @@ State Retention instances           0          0.0
 --------------------------------------------------
 
 INFO: skipping constant propagation
-PBS_Techmap-Global Mapping - Elapsed_Time 88, CPU_Time 91.41108499999993
+PBS_Techmap-Global Mapping - Elapsed_Time 88, CPU_Time 91.91363900000005
 stamp 'PBS_Techmap-Global Mapping' being created for table 'pbs_debug'
 
   Total Time (Wall) |  Stage Time (Wall)  |   % (Wall)   |    Date - Time     |  Memory   | Stage
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:00:25(00:00:21) |  00:00:00(00:00:00) |   0.0(  0.0) |   21:46:45 (Oct06) |  626.0 MB | PBS_Generic-Start
+ 00:00:26(00:00:22) |  00:00:00(00:00:00) |   0.0(  0.0) |   23:11:54 (Oct08) |  658.8 MB | PBS_Generic-Start
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:05(00:02:00) |  00:01:40(00:01:39) |  51.7( 51.8) |   21:48:24 (Oct06) |   1.02 GB | PBS_Generic_Opt-Post
+ 00:02:07(00:02:02) |  00:01:41(00:01:40) |  51.7( 52.1) |   23:13:34 (Oct08) |   1.12 GB | PBS_Generic_Opt-Post
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:05(00:02:01) |  00:00:00(00:00:01) |   0.0(  0.5) |   21:48:25 (Oct06) |   1.02 GB | PBS_Generic-Postgen HBO Optimizations
+ 00:02:07(00:02:03) |  00:00:00(00:00:01) |   0.0(  0.5) |   23:13:35 (Oct08) |   1.04 GB | PBS_Generic-Postgen HBO Optimizations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:08(00:02:03) |  00:00:03(00:00:02) |   1.5(  1.0) |   21:48:27 (Oct06) |   1.01 GB | PBS_TechMap-Start
+ 00:02:10(00:02:05) |  00:00:03(00:00:02) |   1.5(  1.0) |   23:13:37 (Oct08) |   1.04 GB | PBS_TechMap-Start
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:08(00:02:04) |  00:00:00(00:00:01) |   0.0(  0.5) |   21:48:28 (Oct06) |   1.01 GB | PBS_TechMap-Premap HBO Optimizations
+ 00:02:10(00:02:06) |  00:00:00(00:00:01) |   0.0(  0.5) |   23:13:38 (Oct08) |   1.04 GB | PBS_TechMap-Premap HBO Optimizations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:03:40(00:03:32) |  00:01:31(00:01:28) |  46.8( 46.1) |   21:49:56 (Oct06) |   1.02 GB | PBS_Techmap-Global Mapping
+ 00:03:42(00:03:34) |  00:01:31(00:01:28) |  46.8( 45.8) |   23:15:06 (Oct08) |   1.05 GB | PBS_Techmap-Global Mapping
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
 Number of threads: 8 * 1   (id: pbs_debug, time_info v1.57)
 Info: (*N*) indicates data that was populated from previously saved time_info database
@@ -5207,55 +5207,55 @@ Info    : Wrote formal verification information. [CFM-5]
 Info    : Wrote dofile. [CFM-1]
         : Dofile is 'fv/Conv/rtl_to_fv_map.do'.
         : Alias mapping flow is enabled.
-PBS_TechMap-Datapath Postmap Operations - Elapsed_Time 3, CPU_Time 1.9134439999999984
+PBS_TechMap-Datapath Postmap Operations - Elapsed_Time 3, CPU_Time 1.9029039999999782
 stamp 'PBS_TechMap-Datapath Postmap Operations' being created for table 'pbs_debug'
 
   Total Time (Wall) |  Stage Time (Wall)  |   % (Wall)   |    Date - Time     |  Memory   | Stage
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:00:25(00:00:21) |  00:00:00(00:00:00) |   0.0(  0.0) |   21:46:45 (Oct06) |  626.0 MB | PBS_Generic-Start
+ 00:00:26(00:00:22) |  00:00:00(00:00:00) |   0.0(  0.0) |   23:11:54 (Oct08) |  658.8 MB | PBS_Generic-Start
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:05(00:02:00) |  00:01:40(00:01:39) |  51.2( 51.0) |   21:48:24 (Oct06) |   1.02 GB | PBS_Generic_Opt-Post
+ 00:02:07(00:02:02) |  00:01:41(00:01:40) |  51.2( 51.3) |   23:13:34 (Oct08) |   1.12 GB | PBS_Generic_Opt-Post
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:05(00:02:01) |  00:00:00(00:00:01) |   0.0(  0.5) |   21:48:25 (Oct06) |   1.02 GB | PBS_Generic-Postgen HBO Optimizations
+ 00:02:07(00:02:03) |  00:00:00(00:00:01) |   0.0(  0.5) |   23:13:35 (Oct08) |   1.04 GB | PBS_Generic-Postgen HBO Optimizations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:08(00:02:03) |  00:00:03(00:00:02) |   1.5(  1.0) |   21:48:27 (Oct06) |   1.01 GB | PBS_TechMap-Start
+ 00:02:10(00:02:05) |  00:00:03(00:00:02) |   1.5(  1.0) |   23:13:37 (Oct08) |   1.04 GB | PBS_TechMap-Start
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:08(00:02:04) |  00:00:00(00:00:01) |   0.0(  0.5) |   21:48:28 (Oct06) |   1.01 GB | PBS_TechMap-Premap HBO Optimizations
+ 00:02:10(00:02:06) |  00:00:00(00:00:01) |   0.0(  0.5) |   23:13:38 (Oct08) |   1.04 GB | PBS_TechMap-Premap HBO Optimizations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:03:40(00:03:32) |  00:01:31(00:01:28) |  46.3( 45.4) |   21:49:56 (Oct06) |   1.02 GB | PBS_Techmap-Global Mapping
+ 00:03:42(00:03:34) |  00:01:31(00:01:28) |  46.3( 45.1) |   23:15:06 (Oct08) |   1.05 GB | PBS_Techmap-Global Mapping
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:03:42(00:03:35) |  00:00:01(00:00:03) |   1.0(  1.5) |   21:49:59 (Oct06) |   1.02 GB | PBS_TechMap-Datapath Postmap Operations
+ 00:03:44(00:03:37) |  00:00:01(00:00:03) |   1.0(  1.5) |   23:15:09 (Oct08) |   1.05 GB | PBS_TechMap-Datapath Postmap Operations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
 Number of threads: 8 * 1   (id: pbs_debug, time_info v1.57)
 Info: (*N*) indicates data that was populated from previously saved time_info database
 Info: CPU time includes time of parent + longest thread
-PBS_TechMap-Postmap HBO Optimizations - Elapsed_Time 0, CPU_Time 0.903396999999984
+PBS_TechMap-Postmap HBO Optimizations - Elapsed_Time 0, CPU_Time 0.8966060000000198
 stamp 'PBS_TechMap-Postmap HBO Optimizations' being created for table 'pbs_debug'
 
   Total Time (Wall) |  Stage Time (Wall)  |   % (Wall)   |    Date - Time     |  Memory   | Stage
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:00:25(00:00:21) |  00:00:00(00:00:00) |   0.0(  0.0) |   21:46:45 (Oct06) |  626.0 MB | PBS_Generic-Start
+ 00:00:26(00:00:22) |  00:00:00(00:00:00) |   0.0(  0.0) |   23:11:54 (Oct08) |  658.8 MB | PBS_Generic-Start
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:05(00:02:00) |  00:01:40(00:01:39) |  50.9( 51.0) |   21:48:24 (Oct06) |   1.02 GB | PBS_Generic_Opt-Post
+ 00:02:07(00:02:02) |  00:01:41(00:01:40) |  51.0( 51.3) |   23:13:34 (Oct08) |   1.12 GB | PBS_Generic_Opt-Post
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:05(00:02:01) |  00:00:00(00:00:01) |   0.0(  0.5) |   21:48:25 (Oct06) |   1.02 GB | PBS_Generic-Postgen HBO Optimizations
+ 00:02:07(00:02:03) |  00:00:00(00:00:01) |   0.0(  0.5) |   23:13:35 (Oct08) |   1.04 GB | PBS_Generic-Postgen HBO Optimizations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:08(00:02:03) |  00:00:03(00:00:02) |   1.5(  1.0) |   21:48:27 (Oct06) |   1.01 GB | PBS_TechMap-Start
+ 00:02:10(00:02:05) |  00:00:03(00:00:02) |   1.5(  1.0) |   23:13:37 (Oct08) |   1.04 GB | PBS_TechMap-Start
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:08(00:02:04) |  00:00:00(00:00:01) |   0.0(  0.5) |   21:48:28 (Oct06) |   1.01 GB | PBS_TechMap-Premap HBO Optimizations
+ 00:02:10(00:02:06) |  00:00:00(00:00:01) |   0.0(  0.5) |   23:13:38 (Oct08) |   1.04 GB | PBS_TechMap-Premap HBO Optimizations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:03:40(00:03:32) |  00:01:31(00:01:28) |  46.1( 45.4) |   21:49:56 (Oct06) |   1.02 GB | PBS_Techmap-Global Mapping
+ 00:03:42(00:03:34) |  00:01:31(00:01:28) |  46.1( 45.1) |   23:15:06 (Oct08) |   1.05 GB | PBS_Techmap-Global Mapping
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:03:42(00:03:35) |  00:00:01(00:00:03) |   1.0(  1.5) |   21:49:59 (Oct06) |   1.02 GB | PBS_TechMap-Datapath Postmap Operations
+ 00:03:44(00:03:37) |  00:00:01(00:00:03) |   1.0(  1.5) |   23:15:09 (Oct08) |   1.05 GB | PBS_TechMap-Datapath Postmap Operations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:03:43(00:03:35) |  00:00:00(00:00:00) |   0.5(  0.0) |   21:49:59 (Oct06) |   1.02 GB | PBS_TechMap-Postmap HBO Optimizations
+ 00:03:45(00:03:37) |  00:00:00(00:00:00) |   0.5(  0.0) |   23:15:09 (Oct08) |   1.05 GB | PBS_TechMap-Postmap HBO Optimizations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
 Number of threads: 8 * 1   (id: pbs_debug, time_info v1.57)
 Info: (*N*) indicates data that was populated from previously saved time_info database
 Info: CPU time includes time of parent + longest thread
  Doing ConstProp on design:Conv ... 
 
-IOPT-REDREM: Performing redundancy removal: Detected 45 redundant wires. CPU time 0.045 seconds.
+IOPT-REDREM: Performing redundancy removal: Detected 45 redundant wires. CPU time 0.047 seconds.
 
 
 Test connection status for design: Conv
@@ -5272,29 +5272,29 @@ Clock-gating declone status
 ===========================
 Total number of clock-gating instances before: 42
 Total number of clock-gating instances after : 41
-Time taken by ConstProp Step: 00:00:00
-PBS_TechMap-Postmap Clock Gating - Elapsed_Time 0, CPU_Time 0.0
+Time taken by ConstProp Step: 00:00:01
+PBS_TechMap-Postmap Clock Gating - Elapsed_Time 1, CPU_Time 0.0
 stamp 'PBS_TechMap-Postmap Clock Gating' being created for table 'pbs_debug'
 
   Total Time (Wall) |  Stage Time (Wall)  |   % (Wall)   |    Date - Time     |  Memory   | Stage
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:00:25(00:00:21) |  00:00:00(00:00:00) |   0.0(  0.0) |   21:46:45 (Oct06) |  626.0 MB | PBS_Generic-Start
+ 00:00:26(00:00:22) |  00:00:00(00:00:00) |   0.0(  0.0) |   23:11:54 (Oct08) |  658.8 MB | PBS_Generic-Start
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:05(00:02:00) |  00:01:40(00:01:39) |  50.9( 51.0) |   21:48:24 (Oct06) |   1.02 GB | PBS_Generic_Opt-Post
+ 00:02:07(00:02:02) |  00:01:41(00:01:40) |  51.0( 51.0) |   23:13:34 (Oct08) |   1.12 GB | PBS_Generic_Opt-Post
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:05(00:02:01) |  00:00:00(00:00:01) |   0.0(  0.5) |   21:48:25 (Oct06) |   1.02 GB | PBS_Generic-Postgen HBO Optimizations
+ 00:02:07(00:02:03) |  00:00:00(00:00:01) |   0.0(  0.5) |   23:13:35 (Oct08) |   1.04 GB | PBS_Generic-Postgen HBO Optimizations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:08(00:02:03) |  00:00:03(00:00:02) |   1.5(  1.0) |   21:48:27 (Oct06) |   1.01 GB | PBS_TechMap-Start
+ 00:02:10(00:02:05) |  00:00:03(00:00:02) |   1.5(  1.0) |   23:13:37 (Oct08) |   1.04 GB | PBS_TechMap-Start
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:08(00:02:04) |  00:00:00(00:00:01) |   0.0(  0.5) |   21:48:28 (Oct06) |   1.01 GB | PBS_TechMap-Premap HBO Optimizations
+ 00:02:10(00:02:06) |  00:00:00(00:00:01) |   0.0(  0.5) |   23:13:38 (Oct08) |   1.04 GB | PBS_TechMap-Premap HBO Optimizations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:03:40(00:03:32) |  00:01:31(00:01:28) |  46.1( 45.4) |   21:49:56 (Oct06) |   1.02 GB | PBS_Techmap-Global Mapping
+ 00:03:42(00:03:34) |  00:01:31(00:01:28) |  46.1( 44.9) |   23:15:06 (Oct08) |   1.05 GB | PBS_Techmap-Global Mapping
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:03:42(00:03:35) |  00:00:01(00:00:03) |   1.0(  1.5) |   21:49:59 (Oct06) |   1.02 GB | PBS_TechMap-Datapath Postmap Operations
+ 00:03:44(00:03:37) |  00:00:01(00:00:03) |   1.0(  1.5) |   23:15:09 (Oct08) |   1.05 GB | PBS_TechMap-Datapath Postmap Operations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:03:43(00:03:35) |  00:00:00(00:00:00) |   0.5(  0.0) |   21:49:59 (Oct06) |   1.02 GB | PBS_TechMap-Postmap HBO Optimizations
+ 00:03:45(00:03:37) |  00:00:00(00:00:00) |   0.5(  0.0) |   23:15:09 (Oct08) |   1.05 GB | PBS_TechMap-Postmap HBO Optimizations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:03:43(00:03:35) |  00:00:00(00:00:00) |   0.0(  0.0) |   21:49:59 (Oct06) |   1.02 GB | PBS_TechMap-Postmap Clock Gating
+ 00:03:45(00:03:38) |  00:00:00(00:00:01) |   0.0(  0.5) |   23:15:10 (Oct08) |   1.05 GB | PBS_TechMap-Postmap Clock Gating
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
 Number of threads: 8 * 1   (id: pbs_debug, time_info v1.57)
 Info: (*N*) indicates data that was populated from previously saved time_info database
@@ -5354,30 +5354,30 @@ Operation                   Area   Slacks      Slack    Trans      Cap
         setup_dn         0  (        0 /        0 )  0.00
         mb_split         0  (        0 /        0 )  0.00
 
-PBS_TechMap-Postmap Cleanup - Elapsed_Time 2, CPU_Time 1.9119890000000055
+PBS_TechMap-Postmap Cleanup - Elapsed_Time 1, CPU_Time 1.911453999999992
 stamp 'PBS_TechMap-Postmap Cleanup' being created for table 'pbs_debug'
 
   Total Time (Wall) |  Stage Time (Wall)  |   % (Wall)   |    Date - Time     |  Memory   | Stage
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:00:25(00:00:21) |  00:00:00(00:00:00) |   0.0(  0.0) |   21:46:45 (Oct06) |  626.0 MB | PBS_Generic-Start
+ 00:00:26(00:00:22) |  00:00:00(00:00:00) |   0.0(  0.0) |   23:11:54 (Oct08) |  658.8 MB | PBS_Generic-Start
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:05(00:02:00) |  00:01:40(00:01:39) |  50.5( 50.5) |   21:48:24 (Oct06) |   1.02 GB | PBS_Generic_Opt-Post
+ 00:02:07(00:02:02) |  00:01:41(00:01:40) |  50.5( 50.8) |   23:13:34 (Oct08) |   1.12 GB | PBS_Generic_Opt-Post
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:05(00:02:01) |  00:00:00(00:00:01) |   0.0(  0.5) |   21:48:25 (Oct06) |   1.02 GB | PBS_Generic-Postgen HBO Optimizations
+ 00:02:07(00:02:03) |  00:00:00(00:00:01) |   0.0(  0.5) |   23:13:35 (Oct08) |   1.04 GB | PBS_Generic-Postgen HBO Optimizations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:08(00:02:03) |  00:00:03(00:00:02) |   1.5(  1.0) |   21:48:27 (Oct06) |   1.01 GB | PBS_TechMap-Start
+ 00:02:10(00:02:05) |  00:00:03(00:00:02) |   1.5(  1.0) |   23:13:37 (Oct08) |   1.04 GB | PBS_TechMap-Start
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:08(00:02:04) |  00:00:00(00:00:01) |   0.0(  0.5) |   21:48:28 (Oct06) |   1.01 GB | PBS_TechMap-Premap HBO Optimizations
+ 00:02:10(00:02:06) |  00:00:00(00:00:01) |   0.0(  0.5) |   23:13:38 (Oct08) |   1.04 GB | PBS_TechMap-Premap HBO Optimizations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:03:40(00:03:32) |  00:01:31(00:01:28) |  45.7( 44.9) |   21:49:56 (Oct06) |   1.02 GB | PBS_Techmap-Global Mapping
+ 00:03:42(00:03:34) |  00:01:31(00:01:28) |  45.7( 44.7) |   23:15:06 (Oct08) |   1.05 GB | PBS_Techmap-Global Mapping
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:03:42(00:03:35) |  00:00:01(00:00:03) |   1.0(  1.5) |   21:49:59 (Oct06) |   1.02 GB | PBS_TechMap-Datapath Postmap Operations
+ 00:03:44(00:03:37) |  00:00:01(00:00:03) |   0.9(  1.5) |   23:15:09 (Oct08) |   1.05 GB | PBS_TechMap-Datapath Postmap Operations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:03:43(00:03:35) |  00:00:00(00:00:00) |   0.5(  0.0) |   21:49:59 (Oct06) |   1.02 GB | PBS_TechMap-Postmap HBO Optimizations
+ 00:03:45(00:03:37) |  00:00:00(00:00:00) |   0.4(  0.0) |   23:15:09 (Oct08) |   1.05 GB | PBS_TechMap-Postmap HBO Optimizations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:03:43(00:03:35) |  00:00:00(00:00:00) |   0.0(  0.0) |   21:49:59 (Oct06) |   1.02 GB | PBS_TechMap-Postmap Clock Gating
+ 00:03:45(00:03:38) |  00:00:00(00:00:01) |   0.0(  0.5) |   23:15:10 (Oct08) |   1.05 GB | PBS_TechMap-Postmap Clock Gating
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:03:45(00:03:37) |  00:00:01(00:00:02) |   1.0(  1.0) |   21:50:01 (Oct06) |   1.02 GB | PBS_TechMap-Postmap Cleanup
+ 00:03:47(00:03:39) |  00:00:01(00:00:01) |   1.0(  0.5) |   23:15:11 (Oct08) |   1.05 GB | PBS_TechMap-Postmap Cleanup
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
 Number of threads: 8 * 1   (id: pbs_debug, time_info v1.57)
 Info: (*N*) indicates data that was populated from previously saved time_info database
@@ -5387,27 +5387,27 @@ stamp 'PBS_Techmap-Post_MBCI' being created for table 'pbs_debug'
 
   Total Time (Wall) |  Stage Time (Wall)  |   % (Wall)   |    Date - Time     |  Memory   | Stage
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:00:25(00:00:21) |  00:00:00(00:00:00) |   0.0(  0.0) |   21:46:45 (Oct06) |  626.0 MB | PBS_Generic-Start
+ 00:00:26(00:00:22) |  00:00:00(00:00:00) |   0.0(  0.0) |   23:11:54 (Oct08) |  658.8 MB | PBS_Generic-Start
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:05(00:02:00) |  00:01:40(00:01:39) |  50.5( 50.5) |   21:48:24 (Oct06) |   1.02 GB | PBS_Generic_Opt-Post
+ 00:02:07(00:02:02) |  00:01:41(00:01:40) |  50.5( 50.8) |   23:13:34 (Oct08) |   1.12 GB | PBS_Generic_Opt-Post
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:05(00:02:01) |  00:00:00(00:00:01) |   0.0(  0.5) |   21:48:25 (Oct06) |   1.02 GB | PBS_Generic-Postgen HBO Optimizations
+ 00:02:07(00:02:03) |  00:00:00(00:00:01) |   0.0(  0.5) |   23:13:35 (Oct08) |   1.04 GB | PBS_Generic-Postgen HBO Optimizations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:08(00:02:03) |  00:00:03(00:00:02) |   1.5(  1.0) |   21:48:27 (Oct06) |   1.01 GB | PBS_TechMap-Start
+ 00:02:10(00:02:05) |  00:00:03(00:00:02) |   1.5(  1.0) |   23:13:37 (Oct08) |   1.04 GB | PBS_TechMap-Start
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:02:08(00:02:04) |  00:00:00(00:00:01) |   0.0(  0.5) |   21:48:28 (Oct06) |   1.01 GB | PBS_TechMap-Premap HBO Optimizations
+ 00:02:10(00:02:06) |  00:00:00(00:00:01) |   0.0(  0.5) |   23:13:38 (Oct08) |   1.04 GB | PBS_TechMap-Premap HBO Optimizations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:03:40(00:03:32) |  00:01:31(00:01:28) |  45.7( 44.9) |   21:49:56 (Oct06) |   1.02 GB | PBS_Techmap-Global Mapping
+ 00:03:42(00:03:34) |  00:01:31(00:01:28) |  45.7( 44.7) |   23:15:06 (Oct08) |   1.05 GB | PBS_Techmap-Global Mapping
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:03:42(00:03:35) |  00:00:01(00:00:03) |   1.0(  1.5) |   21:49:59 (Oct06) |   1.02 GB | PBS_TechMap-Datapath Postmap Operations
+ 00:03:44(00:03:37) |  00:00:01(00:00:03) |   0.9(  1.5) |   23:15:09 (Oct08) |   1.05 GB | PBS_TechMap-Datapath Postmap Operations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:03:43(00:03:35) |  00:00:00(00:00:00) |   0.5(  0.0) |   21:49:59 (Oct06) |   1.02 GB | PBS_TechMap-Postmap HBO Optimizations
+ 00:03:45(00:03:37) |  00:00:00(00:00:00) |   0.4(  0.0) |   23:15:09 (Oct08) |   1.05 GB | PBS_TechMap-Postmap HBO Optimizations
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:03:43(00:03:35) |  00:00:00(00:00:00) |   0.0(  0.0) |   21:49:59 (Oct06) |   1.02 GB | PBS_TechMap-Postmap Clock Gating
+ 00:03:45(00:03:38) |  00:00:00(00:00:01) |   0.0(  0.5) |   23:15:10 (Oct08) |   1.05 GB | PBS_TechMap-Postmap Clock Gating
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:03:45(00:03:37) |  00:00:01(00:00:02) |   1.0(  1.0) |   21:50:01 (Oct06) |   1.02 GB | PBS_TechMap-Postmap Cleanup
+ 00:03:47(00:03:39) |  00:00:01(00:00:01) |   1.0(  0.5) |   23:15:11 (Oct08) |   1.05 GB | PBS_TechMap-Postmap Cleanup
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
- 00:03:45(00:03:37) |  00:00:00(00:00:00) |   0.0(  0.0) |   21:50:01 (Oct06) |   1.02 GB | PBS_Techmap-Post_MBCI
+ 00:03:47(00:03:39) |  00:00:00(00:00:00) |   0.0(  0.0) |   23:15:11 (Oct08) |   1.05 GB | PBS_Techmap-Post_MBCI
 --------------------+---------------------+--------------+--------------------+-----------+----------------------
 Number of threads: 8 * 1   (id: pbs_debug, time_info v1.57)
 Info: (*N*) indicates data that was populated from previously saved time_info database
@@ -5417,8 +5417,8 @@ Info: CPU time includes time of parent + longest thread
 ##>----------------------------------------------------------------------------------------
 ##>STEP                           Elapsed       WNS       TNS     Insts      Area    Memory
 ##>----------------------------------------------------------------------------------------
-##>M:Initial                            1         -         -     24313     37691      1011
-##>M:Pre Cleanup                        1         -         -     24313     37691      1011
+##>M:Initial                            0         -         -     24313     37691      1041
+##>M:Pre Cleanup                        0         -         -     24313     37691      1041
 ##>M:Setup                              0         -         -         -         -         -
 ##>M:Launch ST                          0         -         -         -         -         -
 ##>M:Design Partition                   0         -         -         -         -         -
@@ -5432,12 +5432,12 @@ Info: CPU time includes time of parent + longest thread
 ##>M:Timer                              0         -         -         -         -         -
 ##>M:Assembly                           0         -         -         -         -         -
 ##>M:DFT                                0         -         -         -         -         -
-##>M:DP Operations                      3         -         -      7300      8608      1015
-##>M:Const Prop                         0       192         0      7300      8608      1015
-##>M:Cleanup                            2       192         0      7290      8592      1015
-##>M:MBCI                               0         -         -      7290      8592      1015
+##>M:DP Operations                      3         -         -      7300      8608      1046
+##>M:Const Prop                         0       192         0      7300      8608      1046
+##>M:Cleanup                            1       192         0      7290      8592      1050
+##>M:MBCI                               0         -         -      7290      8592      1050
 ##>M:Const Gate Removal                 0         -         -         -         -         -
-##>M:Misc                              87
+##>M:Misc                              90
 ##>----------------------------------------------------------------------------------------
 ##>Total Elapsed                       94
 ##>========================================================================================
@@ -5768,15 +5768,15 @@ Operation                   Area   Slacks      Slack    Trans      Cap
 -----------------------------------------------------------
            undup         1  (        1 /        1 )  0.01
          rem_buf         6  (        6 /        6 )  0.04
-         rem_inv         4  (        4 /        4 )  0.01
-        merge_bi       130  (      130 /      130 )  0.29
+         rem_inv         4  (        4 /        4 )  0.02
+        merge_bi       130  (      130 /      130 )  0.30
       rem_inv_qb         9  (        2 /        2 )  0.04
-    seq_res_area        21  (        4 /        4 )  8.44
-        io_phase        71  (       41 /       41 )  0.26
+    seq_res_area        21  (        4 /        4 )  8.48
+        io_phase        71  (       41 /       41 )  0.27
        gate_comp        10  (        3 /        3 )  0.33
-       gcomp_mog        49  (        0 /        0 )  0.31
+       gcomp_mog        49  (        0 /        0 )  0.32
        glob_area        54  (       48 /       54 )  0.15
-       area_down        16  (       12 /       12 )  0.32
+       area_down        16  (       12 /       12 )  0.33
       size_n_buf         1  (        1 /        1 )  0.05
   gate_deco_area         0  (        0 /        0 )  0.02
          rem_buf         1  (        1 /        1 )  0.01
@@ -5958,7 +5958,7 @@ Operation                   Area   Slacks      Slack    Trans      Cap
        gate_comp         7  (        0 /        0 )  0.32
        gcomp_mog        49  (        0 /        0 )  0.30
        glob_area        30  (        0 /       30 )  0.06
-       area_down         9  (        4 /        4 )  0.17
+       area_down         9  (        4 /        4 )  0.18
       size_n_buf         0  (        0 /        0 )  0.02
   gate_deco_area         0  (        0 /        0 )  0.00
 
@@ -6150,7 +6150,7 @@ Info   : PWRA-0009 [PwrInfo] Power Computation Progress Report :  15%  29%
 Info   : PWRA-0002 Finished power computation.
 Info   : PWRA-0007 [PwrInfo] Completed successfully.
        : Info=6, Warn=2, Error=0, Fatal=0
-Output file: /tmp/fastconv-nbits16-fde3bb1d/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column-nbits16/logical/results/reports/Conv_power_analysis_view_0p81v_125c_capwst_slowest.rpt
+Output file: /sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column-nbits16/logical/results/reports/Conv_power_analysis_view_0p81v_125c_capwst_slowest.rpt
 @file(logical_synthesis_body.tcl) 78: set CURRENT_VIEW analysis_view_0p90v_25c_captyp_nominal
 @file(logical_synthesis_body.tcl) 79: set_analysis_view -setup ${CURRENT_VIEW} -hold ${CURRENT_VIEW}
 
@@ -6288,7 +6288,7 @@ Info   : PWRA-0009 [PwrInfo] Power Computation Progress Report :  15%  29%
 Info   : PWRA-0002 Finished power computation.
 Info   : PWRA-0007 Completed successfully.
        : Info=6, Warn=2, Error=0, Fatal=0
-Output file: /tmp/fastconv-nbits16-fde3bb1d/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column-nbits16/logical/results/reports/Conv_power_analysis_view_0p90v_25c_captyp_nominal.rpt
+Output file: /sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column-nbits16/logical/results/reports/Conv_power_analysis_view_0p90v_25c_captyp_nominal.rpt
 @file(logical_synthesis_body.tcl) 83: set CURRENT_VIEW analysis_view_0p99v_m40c_capbst_fastest
 @file(logical_synthesis_body.tcl) 84: set_analysis_view -setup ${CURRENT_VIEW} -hold ${CURRENT_VIEW}
 
@@ -6345,7 +6345,7 @@ Info   : PWRA-0009 [PwrInfo] Power Computation Progress Report :  15%  29%
 Info   : PWRA-0002 Finished power computation.
 Info   : PWRA-0007 Completed successfully.
        : Info=6, Warn=2, Error=0, Fatal=0
-Output file: /tmp/fastconv-nbits16-fde3bb1d/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column-nbits16/logical/results/reports/Conv_power_analysis_view_0p99v_m40c_capbst_fastest.rpt
+Output file: /sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column-nbits16/logical/results/reports/Conv_power_analysis_view_0p99v_m40c_capbst_fastest.rpt
 @file(logical_synthesis_body.tcl) 87: report_timing -lint -verbose > [file join $OUT_FILES reports ${TOP_MODULE}_timing_setup_${CURRENT_VIEW}_verbose.rpt]
 Info    : Timing analysis will be done for this view. [TUI-744]
         : View is 'analysis_view:Conv/analysis_view_0p99v_m40c_capbst_fastest'.
@@ -6415,26 +6415,26 @@ Warning : This command will be obsolete in a next major release. [TUI-37]
 Warning : Attribute design_process_node is not set for this design. [PHYS-1011]
         : Missing data.
         : When attribute design_process_node is not set to an appropriate integer value >=5 and <=250, then Innovus will assume its own default value for the design process node. See the Innovus setDesignMode -process <> command for more information about what this setting does.
-Exporting design data for 'Conv' to /tmp/fastconv-nbits16-fde3bb1d/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column-nbits16/logical/results/physical_synthesis/work/data...
-%# Begin write_design (10/06 21:50:50, mem=1901.34M)
+Exporting design data for 'Conv' to /sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column-nbits16/logical/results/physical_synthesis/work/data...
+%# Begin write_design (10/08 23:16:01, mem=1908.72M)
       flow.cputime  flow.realtime  timing.setup.tns  timing.setup.wns  snapshot
 UM:*                                                                   write_design
 No loop breaker instances found (cdn_loop_breaker).
-File /tmp/fastconv-nbits16-fde3bb1d/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column-nbits16/logical/results/physical_synthesis/work/data.mmmc.tcl has been written.
-Finished SDC export (command execution time mm:ss (real) = 00:01).
-Info: file /tmp/fastconv-nbits16-fde3bb1d/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column-nbits16/logical/results/physical_synthesis/work/data.constraints_default.sdc has been written
-Info: file /tmp/fastconv-nbits16-fde3bb1d/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column-nbits16/logical/results/physical_synthesis/work/data.constraints_default.sdc has been written
+File /sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column-nbits16/logical/results/physical_synthesis/work/data.mmmc.tcl has been written.
+Finished SDC export (command execution time mm:ss (real) = 00:00).
+Info: file /sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column-nbits16/logical/results/physical_synthesis/work/data.constraints_default.sdc has been written
+Info: file /sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column-nbits16/logical/results/physical_synthesis/work/data.constraints_default.sdc has been written
 
 Number of user defined NDR nets found: 0
 
 Number of NDR nets found: 0
 Number of nets with minimum layer assignments: 0
 
-** To load the database source /tmp/fastconv-nbits16-fde3bb1d/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column-nbits16/logical/results/physical_synthesis/work/data.invs_setup.tcl in an Innovus session.
-** To load the database source /tmp/fastconv-nbits16-fde3bb1d/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column-nbits16/logical/results/physical_synthesis/work/data.genus_setup.tcl in an Genus(TM) Synthesis Solution session.
+** To load the database source /sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column-nbits16/logical/results/physical_synthesis/work/data.invs_setup.tcl in an Innovus session.
+** To load the database source /sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column-nbits16/logical/results/physical_synthesis/work/data.genus_setup.tcl in an Genus(TM) Synthesis Solution session.
 Finished exporting design data for 'Conv' (command execution time mm:ss cpu = 00:01, real = 00:02).
 .
-%# End write_design (10/06 21:50:52, total cpu=05:00:01, real=05:00:02, peak res=1309.80M, current mem=1904.34M)
+%# End write_design (10/08 23:16:03, total cpu=05:00:01, real=05:00:02, peak res=1337.70M, current mem=1910.72M)
 @file(logical_synthesis_body.tcl) 111: set CURRENT_VIEW analysis_view_0p90v_25c_captyp_nominal
 @file(logical_synthesis_body.tcl) 112: set_analysis_view -setup ${CURRENT_VIEW} -hold ${CURRENT_VIEW}
 #
@@ -6444,11 +6444,11 @@ Finished exporting design data for 'Conv' (command execution time mm:ss cpu = 00
 # Done activating view: analysis_view:Conv/analysis_view_0p90v_25c_captyp_nominal
 #
 @file(logical_synthesis_body.tcl) 113: write_db [file join $OUT_FILES gate_level ${TOP_MODULE}_logic_mapped.db]
-Finished exporting design database to file '/tmp/fastconv-nbits16-fde3bb1d/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column-nbits16/logical/results/gate_level/Conv_logic_mapped.db' for 'Conv' (command execution time mm:ss cpu = 00:00, real = 00:00).
+Finished exporting design database to file '/sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column-nbits16/logical/results/gate_level/Conv_logic_mapped.db' for 'Conv' (command execution time mm:ss cpu = 00:00, real = 00:00).
 @file(logical_synthesis_body.tcl) 115: exit
 
 Lic Summary:
-[21:50:53.472131] Cdslmd servers: paxos
-[21:50:53.472139] Feature usage summary:
-[21:50:53.472139] Genus_Synthesis
+[23:16:04.447506] Cdslmd servers: paxos
+[23:16:04.447514] Feature usage summary:
+[23:16:04.447515] Genus_Synthesis
 

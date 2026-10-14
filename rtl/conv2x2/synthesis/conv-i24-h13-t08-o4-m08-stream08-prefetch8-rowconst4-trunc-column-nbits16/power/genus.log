@@ -3,19 +3,19 @@ Copyright 2022 Cadence Design Systems, Inc. All rights reserved worldwide.
 Cadence and the Cadence logo are registered trademarks and Genus is a trademark
 of Cadence Design Systems, Inc. in the United States and other countries.
 
-[09:10:06.503681] Configured Lic search path (20.02-s004): 5280@paxos.inf.pucrs.br
+[07:42:48.503753] Configured Lic search path (20.02-s004): 5280@paxos.inf.pucrs.br
 
 Version: 21.12-s068_1, built Fri Mar 04 09:12:46 PST 2022
 Options: -files power.tcl 
-Date:    Wed Oct 07 09:10:06 2026
+Date:    Fri Oct 09 07:42:48 2026
 Host:    paxos.inf.pucrs.br (x86_64 w/Linux 4.18.0-553.155.1.el8_10.x86_64) (14cores*28cpus*1physical cpu*Intel(R) Core(TM) i9-7940X CPU @ 3.10GHz 19712KB) (131170900KB)
-PID:     3213953
+PID:     444239
 OS:      Rocky Linux release 8.10 (Green Obsidian)
 
 
-[09:10:06.375538] Periodic Lic check successful
-[09:10:06.375544] Feature usage summary:
-[09:10:06.375545] Genus_Synthesis
+[07:42:48.042721] Periodic Lic check successful
+[07:42:48.042723] Feature usage summary:
+[07:42:48.042723] Genus_Synthesis
 Checking out license: Genus_Synthesis
 
 
@@ -49,8 +49,8 @@ Finished loading tool scripts (8 seconds elapsed).
 @file(power.tcl) 21: set DB_FILE [file normalize [file join $CONFIG_ROOT logical results gate_level ${TOP_MODULE}_logic_mapped.db]]
 @file(power.tcl) 22: set SHM [file normalize [file join $CONFIG_ROOT sim dut.shm]]
 @file(power.tcl) 24: source [file join $CONFIG_ROOT scripts power.tcl]
-Sourcing '/tmp/fastconv-nbits16-fde3bb1d/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16/scripts/power.tcl' (Wed Oct 07 09:10:14 -03 2026)...
-#@ Begin verbose source /tmp/fastconv-nbits16-fde3bb1d/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16/scripts/power.tcl
+Sourcing '/sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16/scripts/power.tcl' (Fri Oct 09 07:42:56 -03 2026)...
+#@ Begin verbose source /sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16/scripts/power.tcl
 @file(power.tcl) 5: set START_TIME 0ns
 @file(power.tcl) 6: set CONSTRAINTS_PATH [file join $CONFIG_ROOT scripts]
 @file(power.tcl) 8: set LIB_PATH /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End
@@ -73,7 +73,7 @@ Sourcing '/tmp/fastconv-nbits16-fde3bb1d/rtl/conv2x2/synthesis/conv-i24-h13-t08-
     -delay_corner delay_corner_0p90v_25c_captyp
 @file(power.tcl) 28: set CURRENT_VIEW analysis_view_0p90v_25c_captyp_nominal
 @file(power.tcl) 29: read_db ${DB_FILE}
-Reading database file '/tmp/fastconv-nbits16-fde3bb1d/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16/logical/results/gate_level/Conv_logic_mapped.db'.
+Reading database file '/sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16/logical/results/gate_level/Conv_logic_mapped.db'.
 
 Threads Configured:3
 
@@ -429,20 +429,20 @@ Warning : The variant range of wire parameters is too large. An example of wire 
 Checking out license: Joules_RTL_Power
 License 'Joules_RTL_Power' (main version: 21.1, alternate version: 21.1) checkout failed.
 
-[09:10:36.231091] Periodic Lic check successful
-[09:10:36.231099] Feature usage summary:
-[09:10:36.231099] Genus_Synthesis
-[09:10:36.231099] Joules_XL
+[07:43:17.323624] Periodic Lic check successful
+[07:43:17.323632] Feature usage summary:
+[07:43:17.323632] Genus_Synthesis
+[07:43:17.323633] Joules_XL
 Checking out license: Joules_XL
 Info   : STIM-0001 [StimInfo] read_stimulus effective options 
        : -file :
-       : /tmp/fastconv-nbits16-fde3bb1d/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16/sim/dut.shm
+       : /sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16/sim/dut.shm
        : -dut_instance : tb_prefetch8_column.dut
        : -format : shm(auto determined)
        : -start : 0ns
 Info   : STIM-0001 Design top is Conv
 Info   : STIM-0001 Started reading input stimulus file
-       : /tmp/fastconv-nbits16-fde3bb1d/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16/sim/dut.shm
+       : /sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16/sim/dut.shm
 Info   : STIM-0001 Found top instance /tb_prefetch8_column/dut
 Info   : STIM-0001 [StimInfo] Design Hierarchy Parsing Progress Report :   0%   1%   2%   3%   4%   5%   6% 100%
 Info   : STIM-0002 [StimInfo] Finished design hierarchy parsing.
@@ -500,12 +500,12 @@ Info   : PWRA-0009 [PwrInfo] Power Computation Progress Report :  11%  22%
 Info   : PWRA-0002 Finished power computation.
 Info   : PWRA-0007 [PwrInfo] Completed successfully.
        : Info=6, Warn=0, Error=0, Fatal=0
-Output file: /tmp/fastconv-nbits16-fde3bb1d/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16/power/power_evaluation.txt
+Output file: /sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16/power/power_evaluation.txt
 @file(power.tcl) 33: exit
 
 Lic Summary:
-[09:10:37.384873] Cdslmd servers: paxos
-[09:10:37.384881] Feature usage summary:
-[09:10:37.384882] Genus_Synthesis
-[09:10:37.384882] Joules_XL
+[07:43:19.056931] Cdslmd servers: paxos
+[07:43:19.056939] Feature usage summary:
+[07:43:19.056944] Genus_Synthesis
+[07:43:19.056944] Joules_XL
 

@@ -3,19 +3,19 @@ Copyright 2022 Cadence Design Systems, Inc. All rights reserved worldwide.
 Cadence and the Cadence logo are registered trademarks and Genus is a trademark
 of Cadence Design Systems, Inc. in the United States and other countries.
 
-[19:47:48.503817] Configured Lic search path (20.02-s004): 5280@paxos.inf.pucrs.br
+[13:22:46.503697] Configured Lic search path (20.02-s004): 5280@paxos.inf.pucrs.br
 
 Version: 21.12-s068_1, built Fri Mar 04 09:12:46 PST 2022
 Options: -files power.tcl 
-Date:    Thu Oct 08 19:47:48 2026
+Date:    Sat Oct 10 13:22:46 2026
 Host:    paxos.inf.pucrs.br (x86_64 w/Linux 4.18.0-553.155.1.el8_10.x86_64) (14cores*28cpus*1physical cpu*Intel(R) Core(TM) i9-7940X CPU @ 3.10GHz 19712KB) (131170900KB)
-PID:     27920
+PID:     1403707
 OS:      Rocky Linux release 8.10 (Green Obsidian)
 
 
-[19:47:48.052482] Periodic Lic check successful
-[19:47:48.052488] Feature usage summary:
-[19:47:48.052489] Genus_Synthesis
+[13:22:46.094522] Periodic Lic check successful
+[13:22:46.094528] Feature usage summary:
+[13:22:46.094529] Genus_Synthesis
 Checking out license: Genus_Synthesis
 
 
@@ -49,7 +49,7 @@ Finished loading tool scripts (8 seconds elapsed).
 @file(power.tcl) 21: set DB_FILE [file normalize [file join $CONFIG_ROOT logical results gate_level ${TOP_MODULE}_logic_mapped.db]]
 @file(power.tcl) 22: set SHM [file normalize [file join $CONFIG_ROOT sim dut.shm]]
 @file(power.tcl) 24: source [file join $CONFIG_ROOT scripts power.tcl]
-Sourcing '/sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12/scripts/power.tcl' (Thu Oct 08 19:47:57 -03 2026)...
+Sourcing '/sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12/scripts/power.tcl' (Sat Oct 10 13:22:54 -03 2026)...
 #@ Begin verbose source /sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/synthesis/conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12/scripts/power.tcl
 @file(power.tcl) 5: set START_TIME 0ns
 @file(power.tcl) 6: set CONSTRAINTS_PATH [file join $CONFIG_ROOT scripts]
@@ -429,10 +429,10 @@ Warning : The variant range of wire parameters is too large. An example of wire 
 Checking out license: Joules_RTL_Power
 License 'Joules_RTL_Power' (main version: 21.1, alternate version: 21.1) checkout failed.
 
-[19:48:18.452722] Periodic Lic check successful
-[19:48:18.452729] Feature usage summary:
-[19:48:18.452730] Genus_Synthesis
-[19:48:18.452730] Joules_XL
+[13:23:14.059816] Periodic Lic check successful
+[13:23:14.059827] Feature usage summary:
+[13:23:14.059827] Genus_Synthesis
+[13:23:14.059832] Joules_XL
 Checking out license: Joules_XL
 Info   : STIM-0001 [StimInfo] read_stimulus effective options 
        : -file :
@@ -504,8 +504,8 @@ Output file: /sim/tarsio/FastConv_SystemVerilog/rtl/conv2x2/synthesis/conv-i24-h
 @file(power.tcl) 33: exit
 
 Lic Summary:
-[19:48:20.120426] Cdslmd servers: paxos
-[19:48:20.120442] Feature usage summary:
-[19:48:20.120443] Genus_Synthesis
-[19:48:20.120443] Joules_XL
+[13:23:16.163497] Cdslmd servers: paxos
+[13:23:16.163514] Feature usage summary:
+[13:23:16.163514] Genus_Synthesis
+[13:23:16.163515] Joules_XL
 
