@@ -16,9 +16,22 @@ lido separadamente dos resultados medidos pelo fluxo de síntese.
 O fluxo descrito no paper é Cadence Genus 21.12 em TSMC 28 nm, com alvo de
 500 MHz; Xcelium 23.03 executa a simulação gate-level com SDF, e Joules estima
 potência no corner típico (TT, 0,90 V, 25 °C). A área é de células
-standard-cell, sem área de routing. Os resultados de SAURIA e WinoCNN também
-aparecem no paper, mas são referências externas e não têm RTL/configuração
-FastConv neste repositório.
+standard-cell, sem área de routing. Além das variantes FastConv, o estudo também
+usou os repositórios locais de SAURIA e WinoCNN como referências externas. Eles
+não fazem parte da árvore FastConv nem usam as configurações de síntese daqui.
+
+## Repositórios externos usados no ISCAS 2027
+
+| Repositório local | Papel no estudo | Escopo e ressalvas |
+| --- | --- | --- |
+| `/home/tarsio/gaph/sauria` | Baseline de convolução direta, sintetizado para arrays de 9, 20 e 36 MACs com operandos de 16 bits. | Inclui controle, core, feeders, array sistólico e gerenciador de somas parciais; SRAMs locais são black boxes e DMA/barramento são modelados pelo testbench. O tempo é medido por simulação gate-level na fronteira interna do acelerador. |
+| `/home/tarsio/gaph/WinoCNN` | Referência contextual baseada na implementação HLS mínima suportada, `F(2x2,3x3)`, com 2 PEs e 32 multiplicadores. | O power foi estimado pelo Genus com atividade gate-level funcional, não timing-accurate; só 37% dos timing checks SDF foram anotados. As 153 RAMs internas (~5 Mbit) permaneceram black boxes e foram excluídas da área e potência. O golden foi correspondido com features de 5 bits e pesos de 4 bits. |
+
+Esses resultados são usados no paper, mas não foram produzidos pelos runners nem
+pelos relatórios FastConv deste repositório. Suas fronteiras de medição,
+precisão e tratamento de memória diferem; compare-os como pontos de referência
+no espaço de projeto, não como medições perfeitamente equivalentes às variantes
+FastConv. As descrições acima seguem a metodologia reportada no artigo.
 
 ## Do nome no paper ao código
 
