@@ -21,7 +21,8 @@ endmodule
 module MultipWideWeight #(
     parameter int QUANT = 8,
     parameter int NBITS = 20,
-    parameter int WEIGHT_NBITS = NBITS
+    parameter int WEIGHT_NBITS = NBITS,
+    parameter bit ROUND = 1'b0
 ) (
     input logic [NBITS-1:0] feature,
     input logic [WEIGHT_NBITS-1:0] weight,
@@ -33,7 +34,15 @@ module MultipWideWeight #(
   logic signed [NBITS+QUANT-1:0] partial_product;
 
   assign partial_product = (NBITS + QUANT)'($signed(feature) * $signed(weight));
-  assign product = NBITS'(partial_product[NBITS+QUANT-1:QUANT]);
+  if (ROUND) begin: PRODUCT_ROUND_BLOCK
+    logic [NBITS+QUANT-1:0] rounded_product;
+
+    assign rounded_product =
+        partial_product + ((NBITS + QUANT)'(1) << (QUANT - 1));
+    assign product = NBITS'(rounded_product[NBITS+QUANT-1:QUANT]);
+  end else begin: PRODUCT_TRUNCATE_BLOCK
+    assign product = NBITS'(partial_product[NBITS+QUANT-1:QUANT]);
+  end
 endmodule
 
 // Two-stage registered multiply for FPGA timing experiments. The first

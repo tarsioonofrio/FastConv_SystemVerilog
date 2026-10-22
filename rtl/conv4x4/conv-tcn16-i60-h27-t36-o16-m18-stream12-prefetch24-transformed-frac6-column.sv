@@ -25,7 +25,14 @@ module Conv
     parameter int unsigned CONV_INPUT_SIZE     = 6,
     parameter int unsigned HADAMARD_SIZE       = 6,
     // Number of parallel multipliers; must be a whole number of Hadamard rows.
-    parameter int unsigned NUM_MULT            = 18
+    parameter int unsigned NUM_MULT            = 18,
+    // Round each wide product before discarding the fractional bits.
+    parameter bit PRODUCT_ROUND =
+`ifdef PRODUCT_ROUND
+        1'b1
+`else
+        1'b0
+`endif
   ) (
     input  logic clk,
     input  logic reset,
@@ -759,7 +766,8 @@ module Conv
     MultipWideWeight #(
       .QUANT(QUANT + WEIGHT_FRAC_BITS),
       .NBITS(NBITS),
-      .WEIGHT_NBITS(WEIGHT_NBITS)
+      .WEIGHT_NBITS(WEIGHT_NBITS),
+      .ROUND(PRODUCT_ROUND)
     ) multip(
       .feature(w_transform_feature[lane]), .weight(r_input_weight[lane]), .product(w_conv_product[lane]));
   end
