@@ -1,0 +1,23 @@
+{
+  "artifacts": {
+    "library_r2": 0.9999686230817946,
+    "pack_data_sha256": "e6a5a803094e96cc7b767536b59dd26813a5f94a751dbbfd5bae415d81a408ec"
+  },
+  "generator": {
+    "method": "fast_convolution.cli sim",
+    "project": "fast-convolution-rtl"
+  },
+  "workload": {
+    "channel_in": 3,
+    "channel_out": 12,
+    "extra_frac_bits": 0,
+    "image_side": 32,
+    "kernel_size": 3,
+    "nbits": 16,
+    "quant_bits": 8,
+    "rounding": "nearest",
+    "truncated_weight_transform": true,
+    "weight_transform_frac_bits": 0,
+    "weight_transform_scale": 16
+  }
+}
