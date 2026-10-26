@@ -1,0 +1,17 @@
+# ASIC workload: WPN16 pretransformed, Cin=3, Cout=12, NBITS=18, F=2, G=2, nearest rounding
+
+Source RTL: `rtl/conv4x4/conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-transformed-round-column.sv`
+with `ROUND=1`, `WEIGHT_FRAC_BITS=2`, `EXTRA_FRAC_BITS=2`. The 64 transformed weights of each kernel
+are read from the package through the six-word input column port (eleven beats, two padding words ignored).
+Products are shifted by `QUANT+F-G`; the final rounded shift of G bits is applied only on the last input
+channel write.
+
+Workload package: `rtl/conv4x4/data/wpn16/sim/sim-032-3-12-normal-trunc-frac2-extra2-round-nbits18/pack_data.sv`
+(fast-convolution-rtl `--rounding nearest`; transformed weights keep 2 fractional bits and
+2 deferred bits are removed by the final output shift).
+
+Top overrides: `NUM_MULT=8`, `NBITS=18`, `N_CHANNEL_IN=3`, `N_CHANNEL_OUT=12`,
+`WEIGHT_FRAC_BITS=2`, `EXTRA_FRAC_BITS=2`, `ROUND=1`.
+
+This is a separate configuration so the row-constant netlist, simulation and power evidence remain
+unchanged. Synthesis was not run for this configuration.
