@@ -1,0 +1,4 @@
+#%Module1.0
+# Alias for hosts whose Cadence modules lack the cadence/ prefix (e.g. gaphs04).
+# The Makefile adds this directory only when cadence/genus/211 is not available.
+module load genus/211

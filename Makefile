@@ -95,6 +95,12 @@ sim: require-tmux
 sim-all: require-tmux
 	./scripts/run-root-rtl-simulations.sh
 
+# Each ASIC stage runs from its own folder (the run.sh scripts use relative paths and delete genus.* in the
+# current directory) inside a login shell, so `module` is defined. Hosts whose Cadence modules lack the cadence/
+# prefix (e.g. gaphs04) get the aliases in scripts/modulefiles; hosts that have cadence/genus/211 are unchanged.
+asic_stage = cd "$(CONFIG_ROOT)/$(1)" && bash -lc 'if ! module is-avail cadence/genus/211 2>/dev/null; then \
+  module use "$(CURDIR)/scripts/modulefiles"; fi; bash run.sh'
+
 require-tmux:
 	@if [[ -z "$${TMUX:-}" ]]; then \
 	  echo 'This is a long-running task. Start tmux first, then run make again.' >&2; \
@@ -116,15 +122,15 @@ check-asic-runners: require-asic-selection
 
 synth: require-tmux require-asic-selection
 	@test -f "$(CONFIG_ROOT)/logical/run.sh" || { echo 'Missing logical/run.sh in $(CONFIG_ROOT).' >&2; exit 2; }
-	@bash "$(CONFIG_ROOT)/logical/run.sh"
+	@$(call asic_stage,logical)
 
 gate-sim: require-tmux require-asic-selection
 	@test -f "$(CONFIG_ROOT)/sim/run.sh" || { echo 'Missing sim/run.sh in $(CONFIG_ROOT).' >&2; exit 2; }
-	@bash "$(CONFIG_ROOT)/sim/run.sh"
+	@$(call asic_stage,sim)
 
 power: require-tmux require-asic-selection
 	@test -f "$(CONFIG_ROOT)/power/run.sh" || { echo 'Missing power/run.sh in $(CONFIG_ROOT).' >&2; exit 2; }
-	@bash "$(CONFIG_ROOT)/power/run.sh"
+	@$(call asic_stage,power)
 
 # Keep the flow sequential: power consumes the simulation activity and mapped
 # netlist created by the preceding stages. A failure stops the remaining steps.
