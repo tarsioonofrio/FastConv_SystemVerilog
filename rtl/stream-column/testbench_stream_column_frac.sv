@@ -23,11 +23,23 @@ module tb_stream_column #(
   parameter bit          ROUND             = 1'b1,
   parameter int unsigned WEIGHT_FRAC_BITS  = 0,
   parameter int unsigned EXTRA_FRAC_BITS   = 0
+`ifdef TAPWISE
+  ,
+  // Tap-wise quantizer knobs; INPUT_TRANSFORM_BITS is 18 for the tcn16
+  // Toom-Cook transform and 16 for the WP/bit-shift transforms.
+  parameter int unsigned TAP_BITS = pack_data::TAP_BITS,
+  parameter int unsigned TAP_SHIFT_V_BITS = 4,
+  parameter int unsigned TAP_SHIFT_P_BITS = 5,
+  parameter int unsigned INPUT_TRANSFORM_BITS = 16
+`endif
 );
   import pack_data::*;
   import pack_param::*;
 
   localparam int unsigned NBITS = pack_data::NBITS;
+`ifdef TAPWISE
+  localparam int unsigned TAP_POSITIONS = pack_data::TAP_POSITIONS;
+`endif
   localparam int unsigned FEAT_INPUT_WIDTH = FEAT_INPUT_SIZE;
   localparam int unsigned LATENCY = 1;
   localparam int unsigned INPUT_MEMORY_SIZE = $size(const_data);
@@ -107,6 +119,10 @@ module tb_stream_column #(
   logic [CONV_OUTPUT_SIZE*NBITS-1:0] p_output_data_write;
   logic [CONV_OUTPUT_SIZE*NBITS-1:0] p_output_data_read;
   logic p_output_valid;
+`ifdef TAPWISE
+  logic [TAP_POSITIONS*TAP_SHIFT_V_BITS-1:0] p_tap_shift_v;
+  logic [TAP_POSITIONS*TAP_SHIFT_P_BITS-1:0] p_tap_shift_p;
+`endif
 
   logic [NADDR-1:0] column_input_addr [0:CONV_INPUT_SIZE-1];
   logic [NBITS-1:0] column_input_word [0:CONV_INPUT_SIZE-1];
@@ -156,6 +172,19 @@ module tb_stream_column #(
   end
 `endif
 
+`ifdef TAPWISE
+  // Per-position tap-wise shift tables from the workload package. The DUT
+  // captures them on p_start, so they stay runtime data.
+  always_comb begin: TAP_SHIFT_TABLE_BLOCK
+    for (int unsigned k = 0; k < TAP_POSITIONS; k++) begin
+      p_tap_shift_v[k*TAP_SHIFT_V_BITS +: TAP_SHIFT_V_BITS] =
+          TAP_SHIFT_V_BITS'(const_tap_shift_v[k]);
+      p_tap_shift_p[k*TAP_SHIFT_P_BITS +: TAP_SHIFT_P_BITS] =
+          TAP_SHIFT_P_BITS'(const_tap_shift_p[k]);
+    end
+  end
+`endif
+
 `ifdef GATE_LEVEL
   // The mapped gate-level netlist has fixed parameters, so elaboration must
   // instantiate it without RTL parameter overrides.
@@ -174,7 +203,14 @@ module tb_stream_column #(
     .HADAMARD_SIZE(HADAMARD_SIZE),
     .NUM_MULT(NUM_MULT),
     .ROUND(ROUND),
+`ifdef TAPWISE
+    .TAP_BITS(TAP_BITS),
+    .TAP_SHIFT_V_BITS(TAP_SHIFT_V_BITS),
+    .TAP_SHIFT_P_BITS(TAP_SHIFT_P_BITS),
+    .INPUT_TRANSFORM_BITS(INPUT_TRANSFORM_BITS),
+`else
     .WEIGHT_FRAC_BITS(WEIGHT_FRAC_BITS),
+`endif
     .EXTRA_FRAC_BITS(EXTRA_FRAC_BITS)
 `ifdef WPN16_PIPE_WEIGHT_TRANSFORM
     , .PIPE_WEIGHT_TRANSFORM(1'b1)
@@ -202,6 +238,10 @@ module tb_stream_column #(
     .p_output_data_write(p_output_data_write),
     .p_output_data_read(p_output_data_read),
     .p_output_valid(p_output_valid)
+`ifdef TAPWISE
+    , .p_tap_shift_v(p_tap_shift_v)
+    , .p_tap_shift_p(p_tap_shift_p)
+`endif
   );
 
   // Every lane reads the word at address + lane, so a beat returns CONV_INPUT_SIZE
