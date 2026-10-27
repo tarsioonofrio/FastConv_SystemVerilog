@@ -1,0 +1,22 @@
+{
+  "generator": {
+    "method": "gen_real_workload.py (payload real) + fast_convolution.simulation.run_simulation",
+    "project": "fast-convolution-rtl b10428b + fast-conv/frentes/precisao-quantizada/piloto"
+  },
+  "workload": {
+    "channel_in": 16,
+    "channel_out": 16,
+    "extra_frac_bits": 0,
+    "image_side": 32,
+    "kernel_size": 3,
+    "nbits": 20,
+    "quant_bits": 8,
+    "rounding": "nearest",
+    "truncated_weight_transform": true,
+    "weight_transform_frac_bits": 6,
+    "weight_transform_scale": 576,
+    "layer": "layer1.0.conv1",
+    "image": 0,
+    "scaling": "max to the sim-032-3-12-normal range"
+  }
+}
