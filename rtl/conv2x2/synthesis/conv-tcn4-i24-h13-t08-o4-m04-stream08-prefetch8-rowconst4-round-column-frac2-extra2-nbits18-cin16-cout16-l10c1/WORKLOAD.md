@@ -1,0 +1,13 @@
+# ASIC workload: Cin=16, Cout=16, NBITS=18, F=2, G=2, nearest rounding
+
+Source RTL: `rtl/conv2x2/conv-tcn4-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-round-column.sv` with `ROUND=1`, `WEIGHT_FRAC_BITS=2`, `EXTRA_FRAC_BITS=2`, `ROUND=1`.
+
+Workload package: `rtl/conv2x2/data/tcn4/sim/sim-032-16-16-l10c1-trunc-frac2-extra2-round-nbits18/pack_data.sv`
+(fast-convolution-rtl `--rounding nearest`; transformed weights keep 2 fractional bits and
+2 deferred bits are removed by the final output shift).
+
+Top overrides: `NUM_MULT=4`, `NBITS=18`, `N_CHANNEL_IN=16`, `N_CHANNEL_OUT=16`,
+`WEIGHT_FRAC_BITS=2`, `EXTRA_FRAC_BITS=2`, `ROUND=1`.
+
+This is a separate configuration so the original netlist, simulation and power evidence remain
+unchanged. Synthesis was not run for this configuration.
