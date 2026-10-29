@@ -2,8 +2,9 @@
 
 This repository holds the RTL, datasets, ASIC flow configurations and evidence behind
 
-> "Trading Multiplications for Simpler Transforms: Area and Energy Efficiency of Polynomial Winograd
-> Convolution," submitted to the *IEEE International Symposium on Circuits and Systems (ISCAS)*, 2027.
+> T. O. da Silva and F. G. Moraes, "Trading Multiplications for Simpler Transforms: Area and Energy
+> Efficiency of Polynomial Winograd Convolution," submitted to the *IEEE International Symposium on Circuits
+> and Systems (ISCAS)*, 2027.
 
 FastConv is a streaming 2-D convolution core (3×3 kernel, stride 1) whose datapath is a fast-convolution
 algorithm: Toom-Cook (TC), Inspection Factorization (IF) or the Winograd polynomial (WP) construction.
