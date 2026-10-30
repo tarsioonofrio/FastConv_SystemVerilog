@@ -217,5 +217,5 @@ ResNet-18 (`-cin16-cout16-l10c1`, layer1.0.conv1). Their datasets are generated 
 
 ## License
 
-No license file has been added yet; until one is, the authors keep all rights. Third-party material under
-`contrib/` keeps its original terms. The standard-cell library is not distributed.
+MIT License (`LICENSE`), copyright © 2024–2026 Társio Onofrio da Silva. Third-party material under `contrib/`
+keeps its original terms. The standard-cell library is not distributed.
