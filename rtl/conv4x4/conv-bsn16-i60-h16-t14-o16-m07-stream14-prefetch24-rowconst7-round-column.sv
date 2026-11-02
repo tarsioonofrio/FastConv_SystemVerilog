@@ -59,8 +59,9 @@ module Conv
   localparam int unsigned EXTRA_SHIFT = (EXTRA_FRAC_BITS == 0) ? 1 : EXTRA_FRAC_BITS;
 
   // Elaboration checks for the fixed geometry of this streaming variant.
-  if ((NUM_MULT < HADAMARD_SIZE) || ((NUM_MULT % HADAMARD_SIZE) != 0) ||
-      (((HADAMARD_SIZE * HADAMARD_SIZE) % NUM_MULT) != 0)) begin: NUM_MULT_CHECK
+  // NUM_MULT only has to be a whole number of Hadamard rows.  It does not have
+  // to divide the 49 products: when it does not, the last row batch is partial.
+  if ((NUM_MULT < HADAMARD_SIZE) || ((NUM_MULT % HADAMARD_SIZE) != 0)) begin: NUM_MULT_CHECK
     $error("NUM_MULT (%0d) must be a positive whole number of Hadamard rows", NUM_MULT);
   end
   if (CONV_INPUT_SIZE != CONV_OUTPUT_SIZE + CONV_KERNEL_SIZE - 1) begin: TILE_GEOMETRY_CHECK
@@ -137,7 +138,9 @@ module Conv
   localparam int RAW_WEIGHT_BASE = (N_CHANNEL_IN * FEAT_INPUT_SIZE * FEAT_INPUT_WIDTH) +
                                    (N_CHANNEL_IN * N_CHANNEL_OUT * WEIGHT_CYCLES);
   // Process ROWS_PER_CYCLE Hadamard rows in parallel per streaming cycle.
-  localparam STREAM_CYCLES = WEIGHT_CYCLES / FIXED_NUM_MULT;
+  // HADAMARD_SIZE rows may not be a multiple of ROWS_PER_CYCLE, so round up:
+  // the final batch is partial and its spare lanes are driven with zero.
+  localparam STREAM_CYCLES = (HADAMARD_SIZE + ROWS_PER_CYCLE - 1) / ROWS_PER_CYCLE;
   logic [(f_width_min1(STREAM_CYCLES + 1))-1:0] r_conv_multiply_count;
   // The spatial weights are retained for the complete tile. The MAC weight
   // bank holds ROWS_PER_CYCLE transformed rows for the active batch.
@@ -703,13 +706,26 @@ module Conv
     end else begin
       unique case (st_conv_current)
         TRANSFORM: begin
-          for (int unsigned lane = 0; lane < FIXED_NUM_MULT; lane++)
-            r_transform_feature_reg[lane] <= w_conv_transform[lane];
+          // Lanes whose flat product index falls outside the 49-entry transform
+          // are outside the tile; drive them with zero instead of reading past
+          // w_conv_transform (only possible when NUM_MULT > HADAMARD_SIZE^2).
+          for (int unsigned lane = 0; lane < FIXED_NUM_MULT; lane++) begin
+            if (lane < WEIGHT_CYCLES)
+              r_transform_feature_reg[lane] <= w_conv_transform[lane];
+            else
+              r_transform_feature_reg[lane] <= '0;
+          end
           // Capture the first transformed weight batch after the raw spatial
           // tile is complete. TRANSFORM is held during the first weight read.
+          // A lane above the last Hadamard row is a spare lane of a partial
+          // batch and must not index w_weight_row.
           if (r_weight_tile_valid)
-            for (int unsigned lane = 0; lane < FIXED_NUM_MULT; lane++)
-              r_input_weight[lane] <= w_weight_row[lane / HADAMARD_SIZE][lane % HADAMARD_SIZE];
+            for (int unsigned lane = 0; lane < FIXED_NUM_MULT; lane++) begin
+              if ((lane / HADAMARD_SIZE) < HADAMARD_SIZE)
+                r_input_weight[lane] <= w_weight_row[lane / HADAMARD_SIZE][lane % HADAMARD_SIZE];
+              else
+                r_input_weight[lane] <= '0;
+            end
           r_hadamard_product_valid <= 1'b0;
           r_output_write              <= '{default: '0};
           r_inverse_row_idx     <= '0;
@@ -717,19 +733,36 @@ module Conv
         end
         HADAMARD: begin
           r_transform_product_idx <= r_transform_product_idx + PRODUCT_INDEX_WIDTH'(FIXED_NUM_MULT);
-          if (r_transform_product_idx < PRODUCT_INDEX_WIDTH'(WEIGHT_CYCLES - FIXED_NUM_MULT)) begin
-            for (int unsigned lane = 0; lane < FIXED_NUM_MULT; lane++)
-              r_transform_feature_reg[lane] <=
-                  w_conv_transform[r_transform_product_idx + PRODUCT_INDEX_WIDTH'(FIXED_NUM_MULT) + PRODUCT_INDEX_WIDTH'(lane)];
+          // Advance the feature batch while a whole NUM_MULT-wide batch still
+          // fits in the 49-entry transform.  The int cast keeps the comparison
+          // correct when NUM_MULT is not a divisor of WEIGHT_CYCLES.
+          if ((int'(r_transform_product_idx) + int'(FIXED_NUM_MULT)) < int'(WEIGHT_CYCLES)) begin
+            for (int unsigned lane = 0; lane < FIXED_NUM_MULT; lane++) begin
+              // The last batch can be partial: lanes whose flat index reaches
+              // past the transform hold zero so the product is zero too.
+              if ((int'(r_transform_product_idx) + int'(FIXED_NUM_MULT) + int'(lane)) < int'(WEIGHT_CYCLES))
+                r_transform_feature_reg[lane] <=
+                    w_conv_transform[int'(r_transform_product_idx) + int'(FIXED_NUM_MULT) + int'(lane)];
+              else
+                r_transform_feature_reg[lane] <= '0;
+            end
           end
           // Capture the next transformed row batch at the same pipeline
           // boundary used by the feature transform. Current weights remain
           // active through this edge; the next batch is used in the next cycle.
           if (r_conv_multiply_count < $bits(r_conv_multiply_count)'(STREAM_CYCLES - 1)) begin
-            for (int unsigned lane = 0; lane < FIXED_NUM_MULT; lane++)
-              r_input_weight[lane] <=
-                  w_weight_row[((int'(r_conv_multiply_count) + 1) * ROWS_PER_CYCLE) +
-                               (lane / HADAMARD_SIZE)][lane % HADAMARD_SIZE];
+            for (int unsigned lane = 0; lane < FIXED_NUM_MULT; lane++) begin
+              // Rows past the last Hadamard row belong to the partial batch;
+              // zero weight keeps them out of the inverse accumulation and
+              // keeps w_weight_row inside its bounds.
+              if ((((int'(r_conv_multiply_count) + 1) * int'(ROWS_PER_CYCLE)) +
+                   int'(lane / HADAMARD_SIZE)) < int'(HADAMARD_SIZE))
+                r_input_weight[lane] <=
+                    w_weight_row[((int'(r_conv_multiply_count) + 1) * ROWS_PER_CYCLE) +
+                                 (lane / HADAMARD_SIZE)][lane % HADAMARD_SIZE];
+              else
+                r_input_weight[lane] <= '0;
+            end
           end
           // Register the current Hadamard products. InverseRow consumes this
           // bank during the following cycle, while the next product row runs.
@@ -770,12 +803,15 @@ module Conv
     w_weight_row_enable = '0;
     if ((st_conv_current == TRANSFORM) && r_weight_tile_valid) begin
       for (int unsigned row = 0; row < ROWS_PER_CYCLE; row++)
-        w_weight_row_enable[row] = 1'b1;
+        if (row < HADAMARD_SIZE)
+          w_weight_row_enable[row] = 1'b1;
     end else if ((st_conv_current == HADAMARD) &&
                  (r_conv_multiply_count < $bits(r_conv_multiply_count)'(STREAM_CYCLES - 1))) begin
       next_row_base = (int'(r_conv_multiply_count) + 1) * ROWS_PER_CYCLE;
       for (int unsigned row = 0; row < ROWS_PER_CYCLE; row++)
-        w_weight_row_enable[next_row_base + row] = 1'b1;
+        // The final batch can be partial: do not enable a row past the tile.
+        if ((next_row_base + row) < HADAMARD_SIZE)
+          w_weight_row_enable[next_row_base + row] = 1'b1;
     end
   end
 
