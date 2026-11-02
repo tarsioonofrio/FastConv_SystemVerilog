@@ -1,0 +1,8 @@
+input_words_per_beat=4
+output_words_per_beat=2
+input_read_beats=16128
+weight_read_beats=768
+feature_read_beats=15360
+output_read_beats=26400
+output_write_beats=12800
+valid_output_words=25600

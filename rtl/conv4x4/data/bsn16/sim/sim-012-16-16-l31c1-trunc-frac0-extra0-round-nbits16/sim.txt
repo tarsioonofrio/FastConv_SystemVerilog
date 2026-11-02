@@ -1,0 +1,21 @@
+Feature: None
+Weights: None
+Bias enabled: False
+Image side: 12
+Quantization bits: 8
+Exact scaled weight transform: False
+Truncated weight transform: True
+Rounding: nearest
+Weight transform fractional bits: 0
+Extra fractional bits: 0
+Weight transform scale: 16
+R2: 0.9997808899713405
+
+Totals
+Naive
+Convolutions: 1600
+Multiplications: 14400
+Additions: 12800
+Fast
+Convolutions: 144
+Multiplications: 7056
