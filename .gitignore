@@ -57,3 +57,8 @@ logs/
 .ipynb_checkpoints/
 tmp/
 .env
+
+# Saídas de EDA geradas a cada execução
+genus.log*
+genus.cmd*
+access_counts.txt
