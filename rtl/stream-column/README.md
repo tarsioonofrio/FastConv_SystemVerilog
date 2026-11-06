@@ -294,3 +294,10 @@ expected=-1613`), então o testbench de fato detecta erro numérico.
   escala qualquer, `--nbits`, o gate do defeito legado e os testes
   `test_simulation_nbits.py` e `test_simulation_3x3_truncated.py`) estão no
   working tree daquele repositório e não foram commitadas.
+
+## Transformada de pesos em duas passadas
+
+`gen_twopass.py` deriva de um RTL rowconst uma variante `twopass`, com a transformada separável e hardware compartilhado
+entre as linhas. A saída é idêntica bit a bit à da rowconst. Com `--magic`, o Toom-Cook troca a divisão por 576 por um
+recíproco exato (`twopassmagic`). O método está no cabeçalho do script, e os resultados e o roteiro de reprodução estão no
+hub, em `frentes/precisao-quantizada/piloto/duas_passadas.md` e `REPRODUZIR-duas-passadas.md`.
