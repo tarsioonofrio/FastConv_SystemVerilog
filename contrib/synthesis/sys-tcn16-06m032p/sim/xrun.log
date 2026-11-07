@@ -2923,12 +2923,7 @@ Warning!  Glitch suppression
            Scope: tb.dut.conv.\r_feat_reg[29][15] 
             Time: 152255372 PS
 
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "SN" at time 182515393 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 8922
-           Scope: tb.dut.conv.\r_feat_reg[5][15] 
-            Time: 182515371 PS
-
+[resumo-glitch] demais avisos 'Warning!  Glitch suppression' omitidos; total no fim do arquivo; log completo em xrun.full.log (fora do git)
 *** TIME 183755.094000 ***
 
 
@@ -2963,3 +2958,4 @@ Simulation complete via $finish(1) at time 210765 NS + 0
 /sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv:236     $finish;
 xcelium> exit
 TOOL:	xrun(64)	23.03-s003: Exiting on Jan 28, 2026 at 04:42:03 -03  (total: 00:00:29)
+[resumo-glitch] avisos 'Warning!  Glitch suppression': 11 (mantidos os 10 primeiros)

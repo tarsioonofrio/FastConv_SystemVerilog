@@ -2943,60 +2943,7 @@ Warning!  Glitch suppression
            Scope: tb.dut.conv.\r_feat_reg[0][15] 
             Time: 76095374 PS
 
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "SN" at time 82485395 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 8922
-           Scope: tb.dut.conv.\r_feat_reg[0][15] 
-            Time: 82485374 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "SN" at time 114415332 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 8922
-           Scope: tb.dut.conv.\r_feat_reg[46][19] 
-            Time: 114415305 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "SN" at time 129955394 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 8922
-           Scope: tb.dut.conv.\r_feat_reg[0][16] 
-            Time: 129955374 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "SN" at time 138185394 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 8922
-           Scope: tb.dut.conv.\r_feat_reg[0][6] 
-            Time: 138185374 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "SN" at time 138685395 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 8922
-           Scope: tb.dut.conv.\r_feat_reg[0][15] 
-            Time: 138685374 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "SN" at time 145605395 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 8922
-           Scope: tb.dut.conv.\r_feat_reg[0][12] 
-            Time: 145605372 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "SN" at time 165445394 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 8922
-           Scope: tb.dut.conv.\r_feat_reg[0][12] 
-            Time: 165445374 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "SN" at time 176505332 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 8922
-           Scope: tb.dut.conv.\r_feat_reg[46][19] 
-            Time: 176505305 PS
-
-Warning!  Glitch suppression
-           Scheduled event for delayed signal of net "SN" at time 184535394 PS was canceled!
-            File: /pdk/tsmc/PDK28/PDK_TSMC28_bv/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front_End/verilog/tcbn28hpcplusbwp30p140_110a/tcbn28hpcplusbwp30p140.v, line = 8922
-           Scope: tb.dut.conv.\r_feat_reg[0][14] 
-            Time: 184535372 PS
-
+[resumo-glitch] demais avisos 'Warning!  Glitch suppression' omitidos; total no fim do arquivo; log completo em xrun.full.log (fora do git)
 *** TIME 186455.094000 ***
 
 
@@ -3031,3 +2978,4 @@ Simulation complete via $finish(1) at time 213465 NS + 0
 /sim/tarsio/FastConv_SystemVerilog/rtl/system/testbench.sv:236     $finish;
 xcelium> exit
 TOOL:	xrun(64)	23.03-s003: Exiting on Jan 30, 2026 at 01:27:03 -03  (total: 00:00:34)
+[resumo-glitch] avisos 'Warning!  Glitch suppression': 19 (mantidos os 10 primeiros)

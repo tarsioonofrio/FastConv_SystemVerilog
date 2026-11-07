@@ -126,7 +126,8 @@ synth: require-tmux require-asic-selection
 
 gate-sim: require-tmux require-asic-selection
 	@test -f "$(CONFIG_ROOT)/sim/run.sh" || { echo 'Missing sim/run.sh in $(CONFIG_ROOT).' >&2; exit 2; }
-	@$(call asic_stage,sim)
+	@st=0; ( $(call asic_stage,sim) ) || st=$$?; \
+	  python3 scripts/resume_xrun_log.py "$(CONFIG_ROOT)/sim/xrun.log" || true; exit $$st
 
 power: require-tmux require-asic-selection
 	@test -f "$(CONFIG_ROOT)/power/run.sh" || { echo 'Missing power/run.sh in $(CONFIG_ROOT).' >&2; exit 2; }

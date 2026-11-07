@@ -4,7 +4,6 @@ vsim*
 work
 xcelium*
 xrun.history
-xrun.log
 *.cache
 *.vcd
 *.saif
@@ -58,7 +57,7 @@ logs/
 tmp/
 .env
 
-# Saídas de EDA geradas a cada execução
-genus.log*
-genus.cmd*
-access_counts.txt
+# Logs de EDA ficam versionados em texto; a cópia completa de um log resumido
+# por scripts/resume_xrun_log.py fica só local.
+*.full.log
+*.full.txt
