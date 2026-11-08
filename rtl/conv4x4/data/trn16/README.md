@@ -39,3 +39,24 @@ O `fast-conv` não tem gerador para matrizes arbitrárias, e `gen_stream_column.
 ```bash
 bash rtl/conv4x4/data/trn16/reproduz.sh   # na raiz do repositório, dentro do tmux; termina com FALHAS: 0
 ```
+
+## Vazão e camadas da ResNet-18 (2026-11-07)
+
+14 configs rowconst-round a mais, para pôr o `trn16` nas varreduras de vazão e de camadas do hub
+(`frentes/precisao-quantizada/piloto`, seções "Vazão máxima e memória" e "Camadas da ResNet-18"):
+
+- `NUM_MULT` = 16 e 32 (`-mult16`, `-mult32`) em `cin16-cout16-l10c1`;
+- 1, 2 e 4 lotes nas camadas layer1.0.conv1, layer2.1.conv1, layer3.1.conv1 e layer4.1.conv1, no mapa inteiro
+  (sufixos `-l10c1-s42`, `-l21c1-s22`, `-l31c1-s12`, `-l41c1-s7`).
+
+Como foi gerado:
+
+1. Goldens: `gen_real_workload.py --alg trn16 --nbits 16 --layer <camada> --side 0` (hub, Python do `fast-convolution-rtl`)
+   para as 4 camadas: `sim/sim-042-…-l10c1-…`, `sim-022-…-l21c1-…`, `sim-012-…-l31c1-…`, `sim-007-…-l41c1-…`.
+2. Configs: `prep_camadas.py` (hub, venv do piloto), que copia a config `cin16-cout16-l10c1` e troca `NUM_MULT` e a carga.
+3. `bash -l scripts/run_flow_list.sh` sobre `flow-vazao-camadas.list`, dividida em duas listas de linhas alternadas e
+   rodada em duas sessões tmux em paralelo (`fastconv-flow-trn16-vazao-{a,b}-20261107`).
+
+Resultado: as 14 passaram na simulação RTL, com folga ≥ 0 e na simulação de portas. Comparação com WP e bit-shift em
+`trn_vazao.md` (hub, `trn_vazao.py`): com o mesmo número de multiplicadores e a mesma vazão que o WP, 11% a 13% menos área
+lógica e de 5% a 20% menos energia lógica por saída.
