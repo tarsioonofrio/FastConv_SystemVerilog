@@ -3,19 +3,19 @@ Copyright 2022 Cadence Design Systems, Inc. All rights reserved worldwide.
 Cadence and the Cadence logo are registered trademarks and Genus is a trademark
 of Cadence Design Systems, Inc. in the United States and other countries.
 
-[22:38:43.503729] Configured Lic search path (20.02-s004): 5280@paxos.inf.pucrs.br
+[16:54:24.503729] Configured Lic search path (20.02-s004): 5280@paxos.inf.pucrs.br
 
 Version: 21.12-s068_1, built Fri Mar 04 09:12:46 PST 2022
 Options: -files power.tcl 
-Date:    Tue Oct 27 22:38:43 2026
+Date:    Sun Nov 08 16:54:24 2026
 Host:    gaphs04.portoalegre.pucrsnet.br (x86_64 w/Linux 4.18.0-553.176.1.el8_10.x86_64) (24cores*32cpus*1physical cpu*Intel(R) Core(TM) i9-14900 36864KB) (65304832KB)
-PID:     785614
+PID:     89834
 OS:      Rocky Linux release 8.10 (Green Obsidian)
 
 
-[22:38:43.057000] periodic Lic check successful
-[22:38:43.057000] Feature usage summary:
-[22:38:43.057001]   Genus_Synthesis
+[16:54:24.434634] periodic Lic check successful
+[16:54:24.434634] Feature usage summary:
+[16:54:24.434635]   Genus_Synthesis
 Checking out license: Genus_Synthesis
 
 
@@ -25,7 +25,7 @@ Checking out license: Genus_Synthesis
 
 
 Loading tool scripts...
-Finished loading tool scripts (3 seconds elapsed).
+Finished loading tool scripts (4 seconds elapsed).
 
 #@ Processing -files option
 @genus 1> source power.tcl
@@ -49,7 +49,7 @@ Finished loading tool scripts (3 seconds elapsed).
 @file(power.tcl) 20: set DB_FILE [file normalize [file join $CONFIG_ROOT logical results gate_level ${TOP_MODULE}_logic_mapped.db]]
 @file(power.tcl) 21: set SHM [file normalize [file join $CONFIG_ROOT sim dut.shm]]
 @file(power.tcl) 22: source [file join $CONFIG_ROOT scripts power.tcl]
-Sourcing '/sim/tarsio.onofrio/fast-conv/submodules/FastConv_SystemVerilog/rtl/conv4x4/synthesis/conv-dcn16-i60-h21-t24-o16-m12-stream24-prefetch24-rowconst12-round-column-frac0-extra0-nbits16-mult48-cin16-cout16-l10c1/scripts/power.tcl' (Tue Oct 27 22:38:46 -03 2026)...
+Sourcing '/sim/tarsio.onofrio/fast-conv/submodules/FastConv_SystemVerilog/rtl/conv4x4/synthesis/conv-dcn16-i60-h21-t24-o16-m12-stream24-prefetch24-rowconst12-round-column-frac0-extra0-nbits16-mult48-cin16-cout16-l10c1/scripts/power.tcl' (Sun Nov 08 16:54:28 -03 2026)...
 #@ Begin verbose source /sim/tarsio.onofrio/fast-conv/submodules/FastConv_SystemVerilog/rtl/conv4x4/synthesis/conv-dcn16-i60-h21-t24-o16-m12-stream24-prefetch24-rowconst12-round-column-frac0-extra0-nbits16-mult48-cin16-cout16-l10c1/scripts/power.tcl
 @file(power.tcl) 4: set START_TIME 0ns
 @file(power.tcl) 5: set CONSTRAINTS_PATH [file join $CONFIG_ROOT scripts]
@@ -429,10 +429,10 @@ Warning : The variant range of wire parameters is too large. An example of wire 
 Checking out license: Joules_RTL_Power
 License 'Joules_RTL_Power' (main version: 21.1, alternate version: 21.1) checkout failed.
 
-[22:38:56.411810] Periodic Lic check successful
-[22:38:56.411819] Feature usage summary:
-[22:38:56.411819] Genus_Synthesis
-[22:38:56.411819] Joules_XL
+[16:54:38.327803] Periodic Lic check successful
+[16:54:38.327810] Feature usage summary:
+[16:54:38.327810] Genus_Synthesis
+[16:54:38.327810] Joules_XL
 Checking out license: Joules_XL
 Info   : STIM-0001 [StimInfo] read_stimulus effective options 
        : -file :
@@ -505,14 +505,14 @@ Primary Ports
   I/O                      0           0            0      0        N/A 
 Sequential Outputs                                                      
   Memory                   0           0            0      0        N/A 
-  Flop                  3771           0            0   3771    100.00% 
+  Flop                  3770           0            0   3770    100.00% 
   Latch                    0           0            0      0        N/A 
   Arch ICGC                0           0            0      0        N/A 
   Inferred ICGC           54           0            0     54    100.00% 
   Total ICGC              54           0            0     54    100.00% 
 Drivers                                                                 
-  Driver nets          38736           0            0  38736    100.00% 
-  RTL Driver nets      30137           0            0  30137    100.00% 
+  Driver nets          38750           0            0  38750    100.00% 
+  RTL Driver nets      30140           0            0  30140    100.00% 
 DFT                                                                     
   Input Ports              0           0            0      0        N/A 
   Flop Outputs             0           0            0      0        N/A 
@@ -539,7 +539,7 @@ Info   : ACTP-0001 Timing initialization ended
 Info   : PWRA-0002 [PwrInfo] Skipping activity propagation due to -skip_ap
        : option....
 Info   : PWRA-0002 Started 'average' power computation from attr values.
-Info   : PWRA-0009 [PwrInfo] Power Computation Progress Report :   3%   6%   9%  12%  15%  18%  21%  24%  27%  30%  33%  36%  39%  42%  45%  48%  51%  54%  57%  60%  63%  66%  69%  72%  75%  78%  81%  84%  87%  90%  93% 100%
+Info   : PWRA-0009 [PwrInfo] Power Computation Progress Report :   3%   6%   9%  12%  15%  18%  21%  24%  27%  30%  33%  36%  39%  42%  45%  48%  51%  54%  57%  60%  63%  66%  69%  72%  75%  78%  81%  84%  87%  90%  93%  96% 100%
 Info   : PWRA-0002 Finished power computation.
 Info   : PWRA-0007 [PwrInfo] Completed successfully.
        : Info=6, Warn=0, Error=0, Fatal=0
@@ -547,8 +547,8 @@ Output file: /sim/tarsio.onofrio/fast-conv/submodules/FastConv_SystemVerilog/rtl
 @file(power.tcl) 29: exit
 
 Lic Summary:
-[22:39:31.474131] Cdslmd servers: paxos
-[22:39:31.474139] Feature usage summary:
-[22:39:31.474139] Genus_Synthesis
-[22:39:31.474144] Joules_XL
+[16:55:15.417121] Cdslmd servers: paxos
+[16:55:15.417128] Feature usage summary:
+[16:55:15.417128] Genus_Synthesis
+[16:55:15.417128] Joules_XL
 

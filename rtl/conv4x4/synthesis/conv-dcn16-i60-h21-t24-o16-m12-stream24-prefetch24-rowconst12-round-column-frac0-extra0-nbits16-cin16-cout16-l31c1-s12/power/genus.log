@@ -3,19 +3,19 @@ Copyright 2022 Cadence Design Systems, Inc. All rights reserved worldwide.
 Cadence and the Cadence logo are registered trademarks and Genus is a trademark
 of Cadence Design Systems, Inc. in the United States and other countries.
 
-[23:54:11.503681] Configured Lic search path (20.02-s004): 5280@paxos.inf.pucrs.br
+[16:50:03.503673] Configured Lic search path (20.02-s004): 5280@paxos.inf.pucrs.br
 
 Version: 21.12-s068_1, built Fri Mar 04 09:12:46 PST 2022
 Options: -files power.tcl 
-Date:    Sat Oct 31 23:54:11 2026
+Date:    Sun Nov 08 16:50:03 2026
 Host:    gaphs04.portoalegre.pucrsnet.br (x86_64 w/Linux 4.18.0-553.176.1.el8_10.x86_64) (24cores*32cpus*1physical cpu*Intel(R) Core(TM) i9-14900 36864KB) (65304832KB)
-PID:     3049887
+PID:     85913
 OS:      Rocky Linux release 8.10 (Green Obsidian)
 
 
-[23:54:11.082448] Periodic Lic check successful
-[23:54:11.082451] Feature usage summary:
-[23:54:11.082451] Genus_Synthesis
+[16:50:03.246930] periodic Lic check successful
+[16:50:03.246931] Feature usage summary:
+[16:50:03.246931] Genus_Synthesis
 Checking out license: Genus_Synthesis
 
 
@@ -25,7 +25,7 @@ Checking out license: Genus_Synthesis
 
 
 Loading tool scripts...
-Finished loading tool scripts (3 seconds elapsed).
+Finished loading tool scripts (4 seconds elapsed).
 
 #@ Processing -files option
 @genus 1> source power.tcl
@@ -49,7 +49,7 @@ Finished loading tool scripts (3 seconds elapsed).
 @file(power.tcl) 20: set DB_FILE [file normalize [file join $CONFIG_ROOT logical results gate_level ${TOP_MODULE}_logic_mapped.db]]
 @file(power.tcl) 21: set SHM [file normalize [file join $CONFIG_ROOT sim dut.shm]]
 @file(power.tcl) 22: source [file join $CONFIG_ROOT scripts power.tcl]
-Sourcing '/sim/tarsio.onofrio/fast-conv/submodules/FastConv_SystemVerilog/rtl/conv4x4/synthesis/conv-dcn16-i60-h21-t24-o16-m12-stream24-prefetch24-rowconst12-round-column-frac0-extra0-nbits16-cin16-cout16-l31c1-s12/scripts/power.tcl' (Sat Oct 31 23:54:14 -03 2026)...
+Sourcing '/sim/tarsio.onofrio/fast-conv/submodules/FastConv_SystemVerilog/rtl/conv4x4/synthesis/conv-dcn16-i60-h21-t24-o16-m12-stream24-prefetch24-rowconst12-round-column-frac0-extra0-nbits16-cin16-cout16-l31c1-s12/scripts/power.tcl' (Sun Nov 08 16:50:07 -03 2026)...
 #@ Begin verbose source /sim/tarsio.onofrio/fast-conv/submodules/FastConv_SystemVerilog/rtl/conv4x4/synthesis/conv-dcn16-i60-h21-t24-o16-m12-stream24-prefetch24-rowconst12-round-column-frac0-extra0-nbits16-cin16-cout16-l31c1-s12/scripts/power.tcl
 @file(power.tcl) 4: set START_TIME 0ns
 @file(power.tcl) 5: set CONSTRAINTS_PATH [file join $CONFIG_ROOT scripts]
@@ -429,10 +429,10 @@ Warning : The variant range of wire parameters is too large. An example of wire 
 Checking out license: Joules_RTL_Power
 License 'Joules_RTL_Power' (main version: 21.1, alternate version: 21.1) checkout failed.
 
-[23:54:24.522898] Periodic Lic check successful
-[23:54:24.522904] Feature usage summary:
-[23:54:24.522904] Genus_Synthesis
-[23:54:24.522904] Joules_XL
+[16:50:17.259824] Periodic Lic check successful
+[16:50:17.259827] Feature usage summary:
+[16:50:17.259827] Genus_Synthesis
+[16:50:17.259832] Joules_XL
 Checking out license: Joules_XL
 Info   : STIM-0001 [StimInfo] read_stimulus effective options 
        : -file :
@@ -463,14 +463,14 @@ Primary Ports
   I/O                      0           0            0      0        N/A 
 Sequential Outputs                                                      
   Memory                   0           0            0      0        N/A 
-  Flop                  2524           0            0   2524    100.00% 
+  Flop                  2521           0            0   2521    100.00% 
   Latch                    0           0            0      0        N/A 
   Arch ICGC                0           0            0      0        N/A 
-  Inferred ICGC           53           0            0     53    100.00% 
-  Total ICGC              53           0            0     53    100.00% 
+  Inferred ICGC           52           0            0     52    100.00% 
+  Total ICGC              52           0            0     52    100.00% 
 Drivers                                                                 
-  Driver nets          16349           0            0  16349    100.00% 
-  RTL Driver nets       9655           0            0   9655    100.00% 
+  Driver nets          16275           0            0  16275    100.00% 
+  RTL Driver nets       9583           0            0   9583    100.00% 
 DFT                                                                     
   Input Ports              0           0            0      0        N/A 
   Flop Outputs             0           0            0      0        N/A 
@@ -497,7 +497,7 @@ Info   : ACTP-0001 Timing initialization ended
 Info   : PWRA-0002 [PwrInfo] Skipping activity propagation due to -skip_ap
        : option....
 Info   : PWRA-0002 Started 'average' power computation from attr values.
-Info   : PWRA-0009 [PwrInfo] Power Computation Progress Report :   6%  13%  20%  27%  34%  41%  48%  55%  62%  69%  76%  82%  89% 100%
+Info   : PWRA-0009 [PwrInfo] Power Computation Progress Report :   6%  13%  20%  27%  34%  41%  48%  55%  62%  69%  76%  83%  90% 100%
 Info   : PWRA-0002 Finished power computation.
 Info   : PWRA-0007 [PwrInfo] Completed successfully.
        : Info=6, Warn=0, Error=0, Fatal=0
@@ -505,8 +505,8 @@ Output file: /sim/tarsio.onofrio/fast-conv/submodules/FastConv_SystemVerilog/rtl
 @file(power.tcl) 29: exit
 
 Lic Summary:
-[23:54:29.075665] Cdslmd servers: paxos
-[23:54:29.075675] Feature usage summary:
-[23:54:29.075675] Genus_Synthesis
-[23:54:29.075675] Joules_XL
+[16:50:22.156443] Cdslmd servers: paxos
+[16:50:22.156451] Feature usage summary:
+[16:50:22.156451] Genus_Synthesis
+[16:50:22.156456] Joules_XL
 

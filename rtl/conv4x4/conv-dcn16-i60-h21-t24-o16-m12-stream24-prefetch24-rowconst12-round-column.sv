@@ -727,8 +727,8 @@ module Conv
           if (r_conv_multiply_count < $bits(r_conv_multiply_count)'(STREAM_CYCLES - 1)) begin
             for (int unsigned lane = 0; lane < FIXED_NUM_MULT; lane++)
               r_input_weight[lane] <=
-                  w_weight_row[((int'(r_conv_multiply_count) + 1) * ROWS_PER_CYCLE) +
-                               (lane / HADAMARD_SIZE)][lane % HADAMARD_SIZE];
+                  w_weight_row[(((int'(r_conv_multiply_count) + 1) * ROWS_PER_CYCLE) +
+                                (lane / HADAMARD_SIZE)) % HADAMARD_SIZE][lane % HADAMARD_SIZE];
           end
           // Register the current Hadamard products. InverseRow consumes this
           // bank during the following cycle, while the next product row runs.
@@ -774,7 +774,7 @@ module Conv
                  (r_conv_multiply_count < $bits(r_conv_multiply_count)'(STREAM_CYCLES - 1))) begin
       next_row_base = (int'(r_conv_multiply_count) + 1) * ROWS_PER_CYCLE;
       for (int unsigned row = 0; row < ROWS_PER_CYCLE; row++)
-        w_weight_row_enable[next_row_base + row] = 1'b1;
+        w_weight_row_enable[(next_row_base + row) % HADAMARD_SIZE] = 1'b1;
     end
   end
 

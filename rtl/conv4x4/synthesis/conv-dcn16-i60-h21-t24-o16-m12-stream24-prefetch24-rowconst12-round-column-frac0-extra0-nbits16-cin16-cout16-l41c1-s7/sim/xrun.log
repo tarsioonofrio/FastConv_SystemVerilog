@@ -1,5 +1,5 @@
 xrun(64): 23.03-s003: (c) Copyright 1995-2023 Cadence Design Systems, Inc.
-TOOL:	xrun(64)	23.03-s003: Started on Oct 31, 2026 at 23:57:18 -03
+TOOL:	xrun(64)	23.03-s003: Started on Nov 08, 2026 at 16:53:35 -03
 xrun
 	-f /sim/tarsio.onofrio/fast-conv/submodules/FastConv_SystemVerilog/rtl/conv4x4/synthesis/conv-dcn16-i60-h21-t24-o16-m12-stream24-prefetch24-rowconst12-round-column-frac0-extra0-nbits16-cin16-cout16-l41c1-s7/sim/args.txt
 		-smartorder
@@ -2578,27 +2578,27 @@ file: /sim/tarsio.onofrio/fast-conv/submodules/FastConv_SystemVerilog/rtl/conv4x
 		errors: 0, warnings: 0
 	module work.MultipWideWeight:v
 		errors: 0, warnings: 0
-	module work.MultipWideWeight_577:v
+	module work.MultipWideWeight_545:v
 		errors: 0, warnings: 0
-	module work.MultipWideWeight_576:v
+	module work.MultipWideWeight_544:v
 		errors: 0, warnings: 0
-	module work.MultipWideWeight_575:v
+	module work.MultipWideWeight_543:v
 		errors: 0, warnings: 0
-	module work.MultipWideWeight_574:v
+	module work.MultipWideWeight_542:v
 		errors: 0, warnings: 0
-	module work.MultipWideWeight_573:v
+	module work.MultipWideWeight_541:v
 		errors: 0, warnings: 0
-	module work.MultipWideWeight_572:v
+	module work.MultipWideWeight_540:v
 		errors: 0, warnings: 0
-	module work.MultipWideWeight_571:v
+	module work.MultipWideWeight_539:v
 		errors: 0, warnings: 0
-	module work.MultipWideWeight_570:v
+	module work.MultipWideWeight_538:v
 		errors: 0, warnings: 0
-	module work.MultipWideWeight_569:v
+	module work.MultipWideWeight_537:v
 		errors: 0, warnings: 0
-	module work.MultipWideWeight_568:v
+	module work.MultipWideWeight_536:v
 		errors: 0, warnings: 0
-	module work.MultipWideWeight_567:v
+	module work.MultipWideWeight_535:v
 		errors: 0, warnings: 0
 	module work.RC_CG_MOD:v
 		errors: 0, warnings: 0
@@ -2921,6 +2921,8 @@ DEFINE unifast_ver  /sim/tarsio/reports-conv3x3-ifn9-explore-149bd5be/simlibs_un
 |
 xmsdfc: *W,DLCPTH (/home/tarsio.onofrio/cds.lib,15): cds.lib Invalid path '/sim/tarsio/reports-conv3x3-ifn9-explore-149bd5be/simlibs_unisim/unifast_ver' (cds.lib command ignored).
 	Reading SDF file from location "../logical/results/gate_level/Conv_analysis_view_0p90v_25c_captyp_nominal.sdf"
+	Compiled SDF file "Conv_analysis_view_0p90v_25c_captyp_nominal.sdf.X" older than source SDF file "../logical/results/gate_level/Conv_analysis_view_0p90v_25c_captyp_nominal.sdf".
+	Recompiling.
 	Writing compiled SDF file to "Conv_analysis_view_0p90v_25c_captyp_nominal.sdf.X".
 xmelab: *W,FLFNOF: No SDF file specified, but annotation parameters were present, in SDF annotation command file sdf_cmd.cmd, line 6.
 	Annotating SDF timing data:
@@ -3432,27 +3434,28 @@ xmelab: *W,SDFNET: Unable to annotate to non-existent timing check (RECREM (pose
 xmelab: *W,SDFNET: Unable to annotate to non-existent timing check (RECREM (posedge CDN) (COND D_SDFCHK (posedge CP)) (-26) (38)) of instance tb_stream_column.dut.\r_input_feat_reg[25][2]  of module DFCNQD1BWP30P140 <../logical/results/gate_level/Conv_analysis_view_0p90v_25c_captyp_nominal.sdf, line 142657>.
 xmelab: *W,SDFNET: Unable to annotate to non-existent timing check (RECREM (posedge CDN) (COND D_SDFCHK (posedge CP)) (-26) (38)) of instance tb_stream_column.dut.\r_input_feat_reg[25][3]  of module DFCNQD1BWP30P140 <../logical/results/gate_level/Conv_analysis_view_0p90v_25c_captyp_nominal.sdf, line 142678>.
 xmelab: *W,MXWARN: Reached maximum warning limit for 'SDFNET'(1000).
-	Annotation completed with 0 Errors and 2367 Warnings
+	Annotation completed with 0 Errors and 2370 Warnings
 xmelab: *W,NTCNNC: Non-convergence of negative timing check values in instance tb_stream_column.dut.r_hadamard_product_valid_reg.
 xmelab: *W,NTCNNC: Non-convergence of negative timing check values in instance tb_stream_column.dut.r_input_prefetch_active_reg.
+xmelab: *W,NTCNNC: Non-convergence of negative timing check values in instance tb_stream_column.dut.r_input_prefetch_full_reg.
 xmelab: *W,NTCNNC: Non-convergence of negative timing check values in instance tb_stream_column.dut.\r_input_window_counter_col_reg[0] .
 xmelab: *W,NTCNNC: Non-convergence of negative timing check values in instance tb_stream_column.dut.\r_input_window_counter_col_reg[1] .
 xmelab: *W,NTCNNC: Non-convergence of negative timing check values in instance tb_stream_column.dut.r_stream_transfer_pending_reg.
+xmelab: *W,NTCNNC: Non-convergence of negative timing check values in instance tb_stream_column.dut.\st_conv_current_reg[0] .
 xmelab: *W,NTCNNC: Non-convergence of negative timing check values in instance tb_stream_column.dut.w_conv_end_reg.
 xmelab: *W,NTCNNC: Non-convergence of negative timing check values in instance tb_stream_column.dut.\r_input_channel_counter_output_reg[1] .
 xmelab: *W,NTCNNC: Non-convergence of negative timing check values in instance tb_stream_column.dut.\r_output_addr_channel_reg[9] .
 xmelab: *W,NTCNNC: Non-convergence of negative timing check values in instance tb_stream_column.dut.\r_output_channel_counter_input_reg[1] .
 xmelab: *W,NTCNNC: Non-convergence of negative timing check values in instance tb_stream_column.dut.\r_output_channel_counter_output_reg[1] .
-xmelab: *W,NTCNNC: Non-convergence of negative timing check values in instance tb_stream_column.dut.r_input_prefetch_full_reg.
 	SDF statistics: 
-		 No. of Pathdelays = 134662  	 No. of Disabled Pathdelays = 0        Annotated = 100.00% (134662/134662) 
-		 No. of Tchecks    = 29252   	 No. of Disabled Tchecks    = 0        Annotated = 17.35% (5074/29252) 
+		 No. of Pathdelays = 134844  	 No. of Disabled Pathdelays = 0        Annotated = 100.00% (134844/134844) 
+		 No. of Tchecks    = 29292   	 No. of Disabled Tchecks    = 0        Annotated = 17.36% (5084/29292) 
 				        Total(T) 	   Disabled(D) 	    Annotated(A)	  Percentage(A/(T-D))
-		 Path Delays	        134662	             0	            134662	                100.00
-		       $hold	          2367	             0	                 0	                  0.00
-		      $width	         19340	             0	                 0	                  0.00
-		   $recovery	          2367	             0	                 0	                  0.00
-		  $setuphold	          5178	             0	              5074	                 97.99
+		 Path Delays	        134844	             0	            134844	                100.00
+		       $hold	          2370	             0	                 0	                  0.00
+		      $width	         19364	             0	                 0	                  0.00
+		   $recovery	          2370	             0	                 0	                  0.00
+		  $setuphold	          5188	             0	              5084	                 98.00
 	Building instance overlay tables: .................... Done
 	Generating native compiled code:
 DEFINE unisim  /tmp/fastconv-p3f-d0282f55/rtl/conv2x2/fpga_zcu104/conv-i16-h16-t16-o4-m08-std/reports/p3_funcsim/simlibs_func/unisim
@@ -3502,17 +3505,13 @@ DEFINE unifast_ver  /sim/tarsio/reports-conv3x3-ifn9-explore-149bd5be/simlibs_un
 xmvlog_cg: *W,DLCPTH (/home/tarsio.onofrio/cds.lib,15): cds.lib Invalid path '/sim/tarsio/reports-conv3x3-ifn9-explore-149bd5be/simlibs_unisim/unifast_ver' (cds.lib command ignored).
 		work.Memory:sv <0x64dced40>
 			streams:   6, words:  2578
-		work.DFCND2BWP30P140:v <0x02f175c9>
-			streams:   0, words:     0
 		work.OA211D1BWP30P140:v <0x16d4bf96>
+			streams:   0, words:     0
+		work.OAI21D0P7BWP30P140:v <0x3cf582d6>
 			streams:   0, words:     0
 		work.DFCND4BWP30P140:v <0x65ee2e13>
 			streams:   0, words:     0
-		work.EDFCND1BWP30P140:v <0x757111f4>
-			streams:   0, words:     0
-		work.DFCND1BWP30P140:v <0x188552d9>
-			streams:   0, words:     0
-		work.OAI22D0P7BWP30P140:v <0x6dd2b869>
+		work.OAI22D0P7BWP30P140:v <0x78412540>
 			streams:   0, words:     0
 		work.OAI222D1BWP30P140:v <0x685af4a5>
 			streams:   0, words:     0
@@ -3520,13 +3519,15 @@ xmvlog_cg: *W,DLCPTH (/home/tarsio.onofrio/cds.lib,15): cds.lib Invalid path '/s
 			streams:   0, words:     0
 		work.OAI22D1BWP30P140:v <0x16b7d8a3>
 			streams:   0, words:     0
-		work.OA211D1BWP30P140:v <0x71b9e1ba>
-			streams:   0, words:     0
 		work.OAI222D1BWP30P140:v <0x569e4343>
 			streams:   0, words:     0
 		work.OAI221D1BWP30P140:v <0x10dfa861>
 			streams:   0, words:     0
+		work.OA211D1BWP30P140:v <0x71b9e1ba>
+			streams:   0, words:     0
 		work.DFCNQD2BWP30P140:v <0x787e2026>
+			streams:   0, words:     0
+		work.DFCND1BWP30P140:v <0x188552d9>
 			streams:   0, words:     0
 		work.DFCND1BWP30P140:v <0x078d9a8f>
 			streams:   0, words:     0
@@ -3538,25 +3539,25 @@ xmvlog_cg: *W,DLCPTH (/home/tarsio.onofrio/cds.lib,15): cds.lib Invalid path '/s
 			streams:   0, words:     0
 		work.DFSND1BWP30P140:v <0x060fd004>
 			streams:   0, words:     0
-		work.OA21D1BWP30P140:v <0x2bc08df6>
-			streams:   0, words:     0
 		work.MUX2NUD1BWP30P140:v <0x012256f9>
 			streams:   0, words:     0
 		work.XNR2UD1BWP30P140:v <0x61c32a5b>
 			streams:   0, words:     0
-		work.AOI21D1BWP30P140:v <0x256d675e>
-			streams:   0, words:     0
-		work.OAI32D1BWP30P140:v <0x36360d47>
+		work.OA21D1BWP30P140:v <0x2bc08df6>
 			streams:   0, words:     0
 		work.MOAI22D1BWP30P140:v <0x0bedd75d>
 			streams:   0, words:     0
 		work.AOI211D1BWP30P140:v <0x28a16fcf>
+			streams:   0, words:     0
+		work.AOI211D1BWP30P140:v <0x4fcc31e3>
 			streams:   0, words:     0
 		work.AOI32D1BWP30P140:v <0x287d65d4>
 			streams:   0, words:     0
 		work.XOR2UD1BWP30P140:v <0x667fe57a>
 			streams:   0, words:     0
 		work.AO22D0BWP30P140:v <0x47907290>
+			streams:   0, words:     0
+		work.SDFCNQD1BWP30P140:v <0x44e8c54b>
 			streams:   0, words:     0
 		work.DFSNQD2BWP30P140:v <0x308f7d2a>
 			streams:   0, words:     0
@@ -3566,39 +3567,41 @@ xmvlog_cg: *W,DLCPTH (/home/tarsio.onofrio/cds.lib,15): cds.lib Invalid path '/s
 			streams:   0, words:     0
 		work.EDFCNQD1BWP30P140:v <0x0e15b2f3>
 			streams:   0, words:     0
-		work.AOI211D1BWP30P140:v <0x4fcc31e3>
-			streams:   0, words:     0
 		work.OAI31D1BWP30P140:v <0x37dc5ba9>
 			streams:   0, words:     0
 		work.CKMUX2D0BWP30P140:v <0x2cefdc21>
 			streams:   0, words:     0
 		work.IAO21D1BWP30P140:v <0x6985f353>
 			streams:   0, words:     0
-		work.AOI31D1BWP30P140:v <0x060147ae>
+		work.OAI32D1BWP30P140:v <0x6f977d9f>
+			streams:   0, words:     0
+		work.AOI21D1BWP30P140:v <0x256d675e>
 			streams:   0, words:     0
 		work.OAI31D1BWP30P140:v <0x09791916>
+			streams:   0, words:     0
+		work.AOI31D1BWP30P140:v <0x060147ae>
 			streams:   0, words:     0
 		work.MUX2NUD1BWP30P140:v <0x664f08d5>
 			streams:   0, words:     0
 		work.MAOI22D1BWP30P140:v <0x168a045d>
 			streams:   0, words:     0
-		work.OA22D1BWP30P140:v <0x4f1a818e>
-			streams:   0, words:     0
-		work.AOI21D1BWP30P140:v <0x198431f4>
+		work.OA22D1BWP30P140:v <0x65d4aa72>
 			streams:   0, words:     0
 		work.OA21D1BWP30P140:v <0x1729db5c>
 			streams:   0, words:     0
 		work.AO21D1BWP30P140:v <0x7b105604>
 			streams:   0, words:     0
-		work.OAI221D1BWP30P140:v <0x0c6b4821>
+		work.AOI21D1BWP30P140:v <0x198431f4>
 			streams:   0, words:     0
-		work.OAI211D1BWP30P140:v <0x17c47f5e>
+		work.OAI221D1BWP30P140:v <0x0c6b4821>
 			streams:   0, words:     0
 		work.OAI21D1BWP30P140:v <0x1c9ef0e7>
 			streams:   0, words:     0
-		work.IOA21D1BWP30P140:v <0x2dc90db9>
+		work.OAI211D1BWP30P140:v <0x17c47f5e>
 			streams:   0, words:     0
 		work.OAI211D1BWP30P140:v <0x70a92172>
+			streams:   0, words:     0
+		work.IOA21D1BWP30P140:v <0x2dc90db9>
 			streams:   0, words:     0
 		work.MOAI22D1BWP30P140:v <0x2cc81bc1>
 			streams:   0, words:     0
@@ -3662,34 +3665,34 @@ xmvlog_cg: *W,DLCPTH (/home/tarsio.onofrio/cds.lib,15): cds.lib Invalid path '/s
 			streams:   0, words:     0
 		work.XNR3UD1BWP30P140:v <0x13c50e01>
 			streams:   0, words:     0
-		work.tb_stream_column:sv <0x6e008e0b>
+		work.tb_stream_column:sv <0x37031f3c>
 			streams:  48, words: 46855
 		work.pack_data:sv <0x6750f7d8>
 			streams:   5, words:  2186
 		work.pack_param:sv <0x041724ea>
 			streams:   1, words:   708
-		work.Conv:v <0x08aaff81>
+		work.Conv:v <0x4f82e1e8>
 			streams:   1, words:  4006
 	Building instance specific data structures.
 	Loading native compiled code:     .................... Done
 	Design hierarchy summary:
 		                     Instances  Unique
-		Modules:                 14558     170
+		Modules:                 14518     172
 		Verilog packages:            2       2
-		UDPs:                    26750       4
-		Primitives:              67313       6
-		Timing outputs:          16184      64
+		UDPs:                    26778       4
+		Primitives:              67223       6
+		Timing outputs:          16140      64
 		Registers:                2365      87
-		Scalar wires:            23967       -
+		Scalar wires:            23922       -
 		Expanded wires:            256       5
 		Vectored wires:             24       -
 		Always blocks:              35      10
 		Initial blocks:             10      10
 		Cont. assignments:           2       7
 		Pseudo assignments:         57       -
-		Timing checks:           34430    4432
-		Interconnect:            44456       -
-		Delayed tcheck signals:   4652    1824
+		Timing checks:           34480    4440
+		Interconnect:            44407       -
+		Delayed tcheck signals:   4654    1827
 		Simulation timescale:      1ps
 	Writing initial simulation snapshot: work.tb_stream_column:sv
 DEFINE unisim  /tmp/fastconv-p3f-d0282f55/rtl/conv2x2/fpga_zcu104/conv-i16-h16-t16-o4-m08-std/reports/p3_funcsim/simlibs_func/unisim
@@ -3807,5 +3810,5 @@ stream-column simulation passed: tile=6x6 hadamard=12 out=4 inverse_tiles=0 term
 Simulation complete via $finish(1) at time 44149 NS + 0
 /sim/tarsio.onofrio/fast-conv/submodules/FastConv_SystemVerilog/rtl/stream-column/testbench_stream_column_frac.sv:582     $finish;
 xcelium> exit
-TOOL:	xrun(64)	23.03-s003: Exiting on Oct 31, 2026 at 23:57:24 -03  (total: 00:00:06)
-[resumo-glitch] avisos 'Warning!  Glitch suppression': 8996 (mantidos os 10 primeiros)
+TOOL:	xrun(64)	23.03-s003: Exiting on Nov 08, 2026 at 16:53:42 -03  (total: 00:00:07)
+[resumo-glitch] avisos 'Warning!  Glitch suppression': 10374 (mantidos os 10 primeiros)

@@ -81,7 +81,13 @@ module tb_stream_column #(
   // The mapped ASIC core keeps its default fixed address width; RTL runs use
   // the minimum width required by this workload.
 `ifdef GATE_LEVEL
+`ifdef ASIC_NADDR
+  // Core synthesized with a wider address (top-parameters NADDR), e.g. dcn16 at
+  // 42x42: the raw weights sit above 2^16 after the reserved H^2 section.
+  localparam int unsigned NADDR = `ASIC_NADDR;
+`else
   localparam int unsigned NADDR = 16;
+`endif
 `elsif ASIC_TCN16_M12
   localparam int unsigned NADDR = 16;
 `elsif ASIC_TCN16_M18
