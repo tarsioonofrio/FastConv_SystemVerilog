@@ -8,7 +8,9 @@ Mapeamento (convenção da busca: sum_p A[p][i]·B[p][j]·C[k][p] = [k == i+j]):
   A (saída)          = B da busca.
 Confere a identidade em frações (com Q·B no lugar de A) antes de gravar; B e C precisam ser ternárias.
 
-    python from_result.py <F4-3-...result.json> <make_custom_build.py de saída> <nome do gerador> <docstring curto>
+    python from_result.py <F4-3-...result.json> <make_custom_build.py de saída> <nome do gerador> <docstring curto> [molde]
+
+O molde padrão é o make_custom_build.py do bsc16 (bit-shift); para o ternário, use o do trn16 (mesma estrutura).
 """
 import json
 import re
@@ -23,7 +25,7 @@ def lst(M):
     return "[\n" + "".join(f"    {list(r)},\n" for r in M) + "]"
 
 
-def main(res, out, gen, doc):
+def main(res, out, gen, doc, molde=None):
     m = json.loads(Path(res).read_text())["matrices"]
     A = [[Fr(v) for v in r] for r in m["A"]]
     Bo = [[int(Fr(v)) for v in r] for r in m["B"]]
@@ -43,14 +45,14 @@ def main(res, out, gen, doc):
             for j in range(len(Bo[0])):
                 s = sum(Fr(Q[p][0], Q[p][1]) * Bw[p][i] * Bo[p][j] * C[k][p] for p in range(n))
                 assert s == (1 if k == i + j else 0), (k, i, j, s)
-    t = MOLDE.read_text()
+    t = Path(molde or MOLDE).read_text()
     t = re.sub(r'^"""Materialise.*?\n\n', f'"""{doc}\n\n', t, count=1, flags=re.S | re.M)
     for nome, M in (("C", C), ("Q", Q), ("B", Bw), ("A", Bo)):
         t = re.sub(rf"^{nome} = \[\n.*?^\]", f"{nome} = {lst(M)}", t, count=1, flags=re.S | re.M)
-    t = t.replace("manual_bitshift_cost458_f4_3", gen)
+    t = re.sub(r'"generator": "[^"]*"', f'"generator": "{gen}"', t)
     Path(out).write_text(t)
     print(f"ok: {n} produtos, identidade conferida, {out}")
 
 
 if __name__ == "__main__":
-    main(*sys.argv[1:5])
+    main(*sys.argv[1:6])
