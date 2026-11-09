@@ -73,7 +73,7 @@ energia.
 **Pergunta:** em uma variante de no máximo 2 estados de multiplicação, compensa dividir uma linha do Hadamard entre os estados, com 25 multiplicadores em vez de 28?
 
 **RTL:** `gen_m25.py` gera `conv-bsh16-...-m25-2state-...` a partir do RTL de 7 multiplicadores em duas passadas. O estado 0 faz as linhas 0 a 2 e as colunas 0 a 3 da linha 3;
-o estado 1 faz as linhas 4 a 6 e as colunas 4 a 6 da linha 3, e a lane 24 fica parada. Uma pilha de 4 palavras (`r_row3_hold`) guarda a primeira parte da linha 3 até a inversa.
+o estado 1 faz as linhas 4 a 6 e as colunas 4 a 6 da linha 3, e a lane 24 fica parada. Um registrador de 4 palavras (`r_row3_hold`) guarda a primeira parte da linha 3 até a inversa.
 
 **Fluxo:** `derive_configs_m25.sh` cria as configs; `run_m25.sh` faz a simulação RTL com os defines da síntese (`scripts/rtl_sim_config.sh`, porque `run_flow_list.sh` simula com NUM_MULT = 7, que este RTL rejeita) e o fluxo:
 
