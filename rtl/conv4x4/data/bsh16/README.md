@@ -67,3 +67,29 @@ transformadas caiu 929 µm² contra 983 previstos (no `bsc16`, o modelo tinha pr
 multiplicadores subiu 7,3% sobre o `bsn16`, contra 4,3% previstos pela atividade. A energia ficou 1% acima da do `bsn16`,
 no limite da faixa prevista: a identidade troca área por um pouco de energia, e o `bsn16` continua o bit-shift de menor
 energia.
+
+## Dois estados de multiplicação: 25 multiplicadores (2026-11-09)
+
+**Pergunta:** em uma variante de no máximo 2 estados de multiplicação, compensa dividir uma linha do Hadamard entre os estados, com 25 multiplicadores em vez de 28?
+
+**RTL:** `gen_m25.py` gera `conv-bsh16-...-m25-2state-...` a partir do RTL de 7 multiplicadores em duas passadas. O estado 0 faz as linhas 0 a 2 e as colunas 0 a 3 da linha 3;
+o estado 1 faz as linhas 4 a 6 e as colunas 4 a 6 da linha 3, e a lane 24 fica parada. Uma pilha de 4 palavras (`r_row3_hold`) guarda a primeira parte da linha 3 até a inversa.
+
+**Fluxo:** `derive_configs_m25.sh` cria as configs; `run_m25.sh` faz a simulação RTL com os defines da síntese (`scripts/rtl_sim_config.sh`, porque `run_flow_list.sh` simula com NUM_MULT = 7, que este RTL rejeita) e o fluxo:
+
+    bash rtl/conv4x4/data/bsh16/derive_configs_m25.sh
+    tmux new-session -d -s fastconv-m25-<carga>-20261109 "bash -l rtl/conv4x4/data/bsh16/run_m25.sh rtl/conv4x4/data/bsh16/flow-m25-<carga>.list <logs>"
+
+**Resultado** (tabela no hub, `frentes/precisao-quantizada/piloto/estados_f43.md`): as 4 configs passam na simulação RTL, no fluxo (folga ≥ 0) e na simulação de portas.
+
+| carga | versão | área (µm²) | ciclos | E/saída (pJ) |
+|---|---|---|---|---|
+| sintética | 7 mult. | 28.390 | 33.096 | 37,1 |
+| sintética | 28 mult., 2 estados | 49.580 | 21.576 | 41,4 |
+| sintética | 25 mult., 2 estados | 46.403 | 21.576 | 39,7 |
+| real | 7 mult. | 28.432 | 235.056 | 128,8 |
+| real | 28 mult., 2 estados | 49.566 | 153.136 | 144,2 |
+| real | 25 mult., 2 estados | 46.451 | 153.136 | 142,9 |
+
+- 25 contra 28: mesmos ciclos, área −6,3% a −6,4%, energia −0,9% a −3,9%.
+- 25 contra 7: 3,57 vezes os multiplicadores e só 1,53 vez a vazão, porque cada tile leva 9,36 ciclos em vez de 14,36. Saem 5 ciclos de multiplicação e ficam 7,36 ciclos por tile que não dependem do número de multiplicadores (leitura, transformada, inversa, escrita).
