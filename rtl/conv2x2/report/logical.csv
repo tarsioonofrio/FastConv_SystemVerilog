@@ -1,3 +1,21 @@
 Project,nome,mult,extra,Cell Count,Cell Area um^2,Net Area um^2,Total Area um^2,Flop Count
 Conv2x2-conv-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12,Conv2x2,04,,7111,8533.35,3366.332,11899.682,1035
 Conv2x2-conv-i24-h13-t08-o4-m08-stream08-prefetch8-rowconst4-trunc-column-nbits16-cin3-cout12,Conv2x2,08,,8909,10840.536,4283.865,15124.401,1224
+Conv2x2-conv-tcn4-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-round-column-frac0-extra0-nbits16-cin16-cout16-l10c1,Conv2x2-conv,04,,7029,8519.49,3309.562,11829.052,1042
+Conv2x2-conv-tcn4-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-round-column-frac0-extra0-nbits16-cin16-cout16-l10c1-s42,Conv2x2-conv,04,,7158,8683.164,3374.617,12057.781,1046
+Conv2x2-conv-tcn4-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-round-column-frac0-extra0-nbits16-cin16-cout16-l21c1-s22,Conv2x2-conv,04,,7127,8627.976,3360.989,11988.965,1034
+Conv2x2-conv-tcn4-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-round-column-frac0-extra0-nbits16-cin16-cout16-l31c1-s12,Conv2x2-conv,04,,7039,8488.116,3316.658,11804.774,1022
+Conv2x2-conv-tcn4-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-round-column-frac0-extra0-nbits16-cin16-cout16-l41c1-s7,Conv2x2-conv,04,,7018,8461.53,3310.914,11772.444,1014
+Conv2x2-conv-tcn4-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-round-column-frac0-extra0-nbits16-cin3-cout12,Conv2x2-conv,04,,7008,8492.778,3302.732,11795.51,1036
+Conv2x2-conv-tcn4-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-round-column-frac0-extra0-nbits16-mult16-cin16-cout16-l10c1,Conv2x2-conv,04,,12452,15296.526,6077.154,21373.68,1612
+Conv2x2-conv-tcn4-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-round-column-frac0-extra0-nbits16-mult16-cin16-cout16-l10c1-s42,Conv2x2-conv,04,,12585,15461.586,6142.843,21604.429,1616
+Conv2x2-conv-tcn4-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-round-column-frac0-extra0-nbits16-mult16-cin16-cout16-l21c1-s22,Conv2x2-conv,04,,12541,15403.374,6125.942,21529.316,1604
+Conv2x2-conv-tcn4-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-round-column-frac0-extra0-nbits16-mult16-cin16-cout16-l31c1-s12,Conv2x2-conv,04,,12456,15264.396,6081.753,21346.149,1592
+Conv2x2-conv-tcn4-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-round-column-frac0-extra0-nbits16-mult16-cin16-cout16-l41c1-s7,Conv2x2-conv,04,,12437,15237.684,6077.122,21314.806,1584
+Conv2x2-conv-tcn4-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-round-column-frac0-extra0-nbits16-mult8-cin16-cout16-l10c1,Conv2x2-conv,04,,8704,10891.944,4228.939,15120.883,1231
+Conv2x2-conv-tcn4-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-round-column-frac0-extra0-nbits16-mult8-cin16-cout16-l10c1-s42,Conv2x2-conv,04,,8842,11060.28,4296.012,15356.292,1235
+Conv2x2-conv-tcn4-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-round-column-frac0-extra0-nbits16-mult8-cin16-cout16-l21c1-s22,Conv2x2-conv,04,,8804,11001.564,4280.864,15282.428,1223
+Conv2x2-conv-tcn4-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-round-column-frac0-extra0-nbits16-mult8-cin16-cout16-l31c1-s12,Conv2x2-conv,04,,8711,10862.082,4234.909,15096.991,1211
+Conv2x2-conv-tcn4-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-round-column-frac0-extra0-nbits16-mult8-cin16-cout16-l41c1-s7,Conv2x2-conv,04,,8695,10834.362,4231.157,15065.519,1203
+Conv2x2-conv-tcn4-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-round-column-frac2-extra2-nbits18-cin16-cout16-l10c1,Conv2x2-conv,04,,7989,9800.658,3816.742,13617.4,1154
+Conv2x2-conv-tcn4-i24-h13-t08-o4-m04-stream08-prefetch8-rowconst4-round-column-frac2-extra2-nbits18-cin3-cout12,Conv2x2-conv,04,,7962,9772.056,3808.178,13580.234,1148

@@ -2021,6 +2021,14 @@ def write_mac_scaling(report_dir):
     df[columns].to_csv(Path(report_dir) / "mac-scaling.csv", index=False)
 
 
+def sdf_annotated(root):
+    for candidate in ["sim/xrun.log", "sim/sim.log", "sim.log"]:
+        log = root / candidate
+        if log.exists() and re.search(r"Annotation completed with 0 Errors", log.read_text(errors="replace")):
+            return True
+    return False
+
+
 def write_flow_status(report_dir, records):
     rows = []
     for record in records:
@@ -2032,7 +2040,9 @@ def write_flow_status(report_dir, records):
         power = (root / "power" / "power_evaluation.txt").exists()
         gate_level = root / "logical" / "results" / "gate_level"
         netlist = any(gate_level.rglob("*_logic_mapped.v"))
-        sdf = any(gate_level.rglob("*.sdf"))
+        # The SDF files are not versioned (.gitignore), so a fresh clone has none; the
+        # versioned gate-level log records the back-annotation, which is the evidence kept.
+        sdf = any(gate_level.rglob("*.sdf")) or sdf_annotated(root)
         rows.append({"Project": format_project_name(project_label(record)), "simulation_log": sim, "logical_area": area, "flop_report": clock, "power_report": power, "mapped_netlist": netlist, "sdf": sdf, "complete": all([sim, area, clock, power, netlist, sdf])})
     pd.DataFrame(rows).to_csv(Path(report_dir) / "flow-status.csv", index=False)
 
