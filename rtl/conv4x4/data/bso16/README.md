@@ -31,7 +31,7 @@ está confirmado; se cair menos, o modelo de atividade não extrapola.
 `gera.sh` (na raiz do repositório, no tmux): os passos do `bsh16` com `identidade.json` no lugar do `.result.json`
 (`from_result.py`, `fast-conv`, `derive_rtl.py` sobre o RTL do `bsn16`, `gen_twopass.py`, `derive_configs.sh`, goldens).
 `identidade.json`: `sinais_ordem.py --rtl bsn16 --json-output <aqui>` (venv do piloto). Fluxo:
-`bash -l scripts/run_flow_list.sh rtl/conv4x4/data/bso16/flow.list <logs>` (só as duas configs da carga real).
+`bash -l scripts/run_flow_list.sh rtl/conv4x4/data/bso16/flow.list <logs>` (só as duas configs da carga real). O `derive_configs.sh` também cria as duas da carga sintética `cin3-cout12`, que nunca rodaram e foram tiradas do repositório em 2026-11-11 (não tinham resultado e carregavam logs copiados de outra config).
 
 ## Resultado (2026-11-08)
 

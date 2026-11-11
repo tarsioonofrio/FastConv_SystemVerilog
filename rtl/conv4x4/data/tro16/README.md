@@ -32,7 +32,7 @@ está confirmado; se cair menos, o modelo de atividade não extrapola.
 (`from_result.py` com o molde do `trn16`, `fast-conv`, `gen_stream_column.py` e `derive_rtl.py` sobre o RTL do
 `wpn16`, `gen_twopass.py`, `derive_configs.sh`, golden da carga real).
 `identidade.json`: `sinais_ordem.py --rtl trn16 --json-output <aqui>` (venv do piloto). Fluxo:
-`bash -l scripts/run_flow_list.sh rtl/conv4x4/data/tro16/flow.list <logs>` (só as duas configs da carga real).
+`bash -l scripts/run_flow_list.sh rtl/conv4x4/data/tro16/flow.list <logs>` (só as duas configs da carga real). O `derive_configs.sh` também cria as duas da carga sintética `cin3-cout12`, que nunca rodaram e foram tiradas do repositório em 2026-11-11 (não tinham resultado e carregavam logs copiados de outra config).
 
 ## Resultado (2026-11-08)
 

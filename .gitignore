@@ -61,3 +61,6 @@ tmp/
 # por scripts/resume_xrun_log.py fica só local.
 *.full.log
 *.full.txt
+
+# Diretórios de job do PBS criados na pasta de execução.
+.pbs_*/
