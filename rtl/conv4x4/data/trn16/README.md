@@ -2,7 +2,7 @@
 
 Pesos, entrada e saída usam só -1, 0 e 1, com escala 1. A identidade vem de
 `winograd-identities/results/searches/evencost-20261104/F4-3-bit-shift-8.result.json` (custo 340). Resultados em
-`frentes/precisao-quantizada/piloto/duas_passadas.md`, no hub.
+`frentes/precisao-quantizada/piloto/subexpression.md`, no hub.
 
 ## Mapeamento das matrizes
 
@@ -24,7 +24,7 @@ O `fast-conv` não tem gerador para matrizes arbitrárias, e `gen_stream_column.
 3. `sv/` é copiado para `mult-matrices/trn16`, `mux-mult/trn16` e `pack-param/trn16`.
 4. `gen_stream_column.py data/trn16/config/build.json trn16 <saída> 8 4` gera o RTL, e `derive_rtl.py` transplanta a parte
    da identidade no RTL round do `wpn16`.
-5. `gen_twopass.py` deriva a versão em duas passadas.
+5. `gen_subexpression.py` deriva a versão subexpression.
 6. `derive_configs.sh` cria as 4 configs a partir das configs `wpn16`.
 7. Goldens: `fast-conv -p . sim normal --image-side 32 -i 3 -o 12 -d 0 --truncated-weight-transform --rounding nearest
    --weight-frac-bits 0 --extra-frac-bits 0 --nbits 16`, com a pasta `sim/sim` renomeada para
@@ -57,6 +57,6 @@ Como foi gerado:
 3. `bash -l scripts/run_flow_list.sh` sobre `flow-vazao-camadas.list`, dividida em duas listas de linhas alternadas e
    rodada em duas sessões tmux em paralelo (`fastconv-flow-trn16-vazao-{a,b}-20261107`).
 
-Resultado: as 14 passaram na simulação RTL, com folga ≥ 0 e na simulação de portas. Comparação com WP e bit-shift em
+Resultado: as 14 passaram na simulação RTL, com folga ≥ 0 e na simulação de portas. Comparação com WP e bit-shift-ternary em
 `trn_vazao.md` (hub, `trn_vazao.py`): com o mesmo número de multiplicadores e a mesma vazão que o WP, 11% a 13% menos área
 lógica e de 5% a 20% menos energia lógica por saída.

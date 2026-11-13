@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Gera o bsh16 (F(4,3) bit-shift de 7 produtos da campanha hw-20261107) pela receita do bsc16, sem ferramentas EDA.
+# Gera o bsh16 (F(4,3) bit-shift-ternary de 7 produtos da campanha hw-20261107) pela receita do bsc16, sem ferramentas EDA.
 # Rode no tmux, na raiz do FastConv_SystemVerilog:  bash rtl/conv4x4/data/bsh16/gera.sh
 set -eu
 export OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1
@@ -13,7 +13,7 @@ BSN=conv-bsn16-i60-h16-t14-o16-m07-stream14-prefetch24-rowconst7-round-column.sv
 
 # 0. matrizes da busca -> make_custom_build.py (confere a identidade em frações)
 python3 "$D/from_result.py" "$RES" "$D/make_custom_build.py" manual_bitshift_hw_f4_3 \
-  "Materialise the bsh16 F(4,3) build (bit-shift, 7 products, winograd-identities hw-20261107
+  "Materialise the bsh16 F(4,3) build (bit-shift-ternary, 7 products, winograd-identities hw-20261107
 F4-3-bs-hw7, calibrated hardware cost 12658) from explicit matrices."
 
 # 1-2. build, CSA e SV pelo fast-conv
@@ -33,10 +33,10 @@ cp sv/mult_matrices.sv sv/mult_matrices_csa.sv "$L/mult-matrices/bsh16/"
 cp sv/mux_mult_*.sv "$L/mux-mult/bsh16/"
 cp sv/pack_param.sv "$L/pack-param/bsh16/"
 
-# 4-5. RTL rowconst (tabelas trocadas no bsn16) e duas passadas
+# 4-5. RTL rowconst (tabelas trocadas no bsn16) e subexpression
 cd "$L"
 "$PY" "$D/derive_rtl.py" "$BSN" "$D/make_custom_build.py" "$N-round-column.sv"
-"$PY" ../stream-column/gen_twopass.py "$N-round-column.sv" > /dev/null
+"$PY" ../stream-column/gen_subexpression.py "$N-round-column.sv" > /dev/null
 
 # 6. configs ASIC
 cd "$R"; bash "$D/derive_configs.sh"

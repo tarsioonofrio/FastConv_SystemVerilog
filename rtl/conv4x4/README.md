@@ -22,11 +22,11 @@ before synthesis and the measured result.
 |---|---|---:|---|
 | `tcn16` | Toom-Cook, fractional transforms (weights scaled by 576) | 6 | ISCAS 2027 baseline (`TCff`, `TCpre`) |
 | `wpn16` | Winograd polynomial, transforms add and shift | 8 | ISCAS 2027 (`WPff`) |
-| `bsn16` | bit-shift: weights with factors 1, 1/2, 1/4; input and output in -1, 0, 1 | 7 | first 7-product identity (`winograd-identities`) |
-| `bsc16` | bit-shift, lowest transform cost 458 | 7 | `data/bsc16/README.md` |
-| `bsh16` | bit-shift chosen by the synthesis-calibrated cost | 7 | `data/bsh16/README.md` (also the `m25-2state` variant) |
+| `bsn16` | bit-shift-ternary: weights with factors 1, 1/2, 1/4; input and output in -1, 0, 1 | 7 | first 7-product identity (`winograd-identities`) |
+| `bsc16` | bit-shift-ternary, lowest transform cost 458 | 7 | `data/bsc16/README.md` |
+| `bsh16` | bit-shift-ternary chosen by the synthesis-calibrated cost | 7 | `data/bsh16/README.md` (also the `m25-2state` variant) |
 | `bso16` | `bsn16` with term signs and order chosen for low activity | 7 | `data/bso16/README.md` |
-| `trn16` | ternary: every coefficient in -1, 0, 1 | 8 | `data/trn16/README.md`; best area, energy and error among the two-pass versions |
+| `trn16` | ternary: every coefficient in -1, 0, 1 | 8 | `data/trn16/README.md`; best area, energy and error among the subexpression versions |
 | `tro16` | `trn16` with term signs and order chosen for low activity | 8 | `data/tro16/README.md` |
 | `dcn16` | direct convolution written as a selection bilinear (transforms are wiring) | 12 | `data/dcn16/README.md`; reference for the sweeps |
 
@@ -35,7 +35,7 @@ Suffixes after the multiplier count `m<N>`:
 | Suffix | Meaning |
 |---|---|
 | `rowconst<K>-trunc` / `-round` | weight transform computed on chip, row by row, truncated or rounded |
-| `twopass` | separable weight transform with shared hardware (`../stream-column/gen_twopass.py`); `twopassmagic` divides by an exact reciprocal |
+| `subexpression` | separable weight transform with shared hardware (`../stream-column/gen_subexpression.py`); `subexpressionmagic` divides by an exact reciprocal |
 | `transformed` | weights transformed offline (`../stream-column/gen_pretransformed_column.py`) |
 | `transformed-tapwise` | offline weights with 8-bit requantization per tap |
 | `m25-2state` | `bsh16` with at most 2 multiplication states and one Hadamard row split between them (`data/bsh16/gen_m25.py`) |

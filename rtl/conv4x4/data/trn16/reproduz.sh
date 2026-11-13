@@ -30,9 +30,9 @@ for f in config/build.json config/gen.json sv/pack_param.sv sv/mux_mult_08.sv bu
 cd "$L" || exit 1
 "$PY" ../stream-column/gen_stream_column.py "$T/data/config/build.json" trn16 "$T/gen.sv" 8 4 > /dev/null
 "$PY" "$D/derive_rtl.py" "$W" "$T/gen.sv" "$T/$N-round-column.sv"
-"$PY" ../stream-column/gen_twopass.py "$T/$N-round-column.sv" > /dev/null
+"$PY" ../stream-column/gen_subexpression.py "$T/$N-round-column.sv" > /dev/null
 compara "$T/$N-round-column.sv" "$N-round-column.sv" "RTL rowconst"
-compara "$T/$N-twopass-round-column.sv" "$N-twopass-round-column.sv" "RTL duas passadas"
+compara "$T/$N-subexpression-round-column.sv" "$N-subexpression-round-column.sv" "RTL subexpression"
 
 # 3. configs ASIC
 cd "$R" || exit 1

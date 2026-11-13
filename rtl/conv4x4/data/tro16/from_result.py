@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Escreve make_custom_build.py de um F(4,3) bit-shift a partir de um .result.json do winograd-identities, usando o
+"""Escreve make_custom_build.py de um F(4,3) bit-shift-ternary a partir de um .result.json do winograd-identities, usando o
 make_custom_build.py do bsc16 como molde (troca só as listas C, Q, B, A, o docstring e o nome do gerador).
 
 Mapeamento (convenção da busca: sum_p A[p][i]·B[p][j]·C[k][p] = [k == i+j]):
@@ -10,7 +10,7 @@ Confere a identidade em frações (com Q·B no lugar de A) antes de gravar; B e 
 
     python from_result.py <F4-3-...result.json> <make_custom_build.py de saída> <nome do gerador> <docstring curto> [molde]
 
-O molde padrão é o make_custom_build.py do bsc16 (bit-shift); para o ternário, use o do trn16 (mesma estrutura).
+O molde padrão é o make_custom_build.py do bsc16 (bit-shift-ternary); para o ternário, use o do trn16 (mesma estrutura).
 """
 import json
 import re

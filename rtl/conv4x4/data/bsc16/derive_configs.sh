@@ -6,7 +6,7 @@ S=rtl/conv4x4/synthesis
 OUT=${1:-$S}
 BS=conv-bsn16-i60-h16-t14-o16-m07-stream14-prefetch24-rowconst7
 BC=conv-bsc16-i60-h16-t14-o16-m07-stream14-prefetch24-rowconst7
-for v in "" "twopass-"; do for load in cin3-cout12 cin16-cout16-l10c1; do
+for v in "" "subexpression-"; do for load in cin3-cout12 cin16-cout16-l10c1; do
   s=$BS-${v}round-column-frac0-extra0-nbits16-$load
   d=$OUT/$BC-${v}round-column-frac0-extra0-nbits16-$load
   git ls-files "$S/$s" |

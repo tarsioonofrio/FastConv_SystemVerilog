@@ -1,7 +1,7 @@
 {
   "dataset": {
     "algorithm": "wpn16",
-    "architecture": "conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-round-column-frac0-extra0-nbits16-cin16-cout16-l41c1-s7; conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-round-column-frac0-extra0-nbits16-mult16-cin16-cout16-l41c1-s7; conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-round-column-frac0-extra0-nbits16-mult32-cin16-cout16-l41c1-s7; conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-twopass-round-column-frac0-extra0-nbits16-cin16-cout16-l41c1-s7; conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-twopass-round-column-frac0-extra0-nbits16-mult16-cin16-cout16-l41c1-s7; conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-twopass-round-column-frac0-extra0-nbits16-mult32-cin16-cout16-l41c1-s7",
+    "architecture": "conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-round-column-frac0-extra0-nbits16-cin16-cout16-l41c1-s7; conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-round-column-frac0-extra0-nbits16-mult16-cin16-cout16-l41c1-s7; conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-round-column-frac0-extra0-nbits16-mult32-cin16-cout16-l41c1-s7; conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-subexpression-round-column-frac0-extra0-nbits16-cin16-cout16-l41c1-s7; conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-subexpression-round-column-frac0-extra0-nbits16-mult16-cin16-cout16-l41c1-s7; conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-subexpression-round-column-frac0-extra0-nbits16-mult32-cin16-cout16-l41c1-s7",
     "bias_enabled": false,
     "count": 400,
     "dataset": "rtl/conv4x4/data/wpn16/sim/sim-007-16-16-l41c1-trunc-frac0-extra0-round-nbits16",

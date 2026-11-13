@@ -26,7 +26,7 @@ module tb_stream_column #(
 `ifdef TAPWISE
   ,
   // Tap-wise quantizer knobs; INPUT_TRANSFORM_BITS is 18 for the tcn16
-  // Toom-Cook transform and 16 for the WP/bit-shift transforms.
+  // Toom-Cook transform and 16 for the WP/bit-shift-ternary transforms.
   parameter int unsigned TAP_BITS = pack_data::TAP_BITS,
   parameter int unsigned TAP_SHIFT_V_BITS = 4,
   parameter int unsigned TAP_SHIFT_P_BITS = 5,

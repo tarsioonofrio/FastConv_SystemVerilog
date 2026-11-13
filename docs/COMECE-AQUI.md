@@ -14,7 +14,7 @@ juntas, calculam exatamente a mesma convolução.
 
 A pergunta da pesquisa é qual identidade gasta menos área e energia em hardware. Menos produtos economizam multiplicadores,
 mas costumam exigir transformadas com frações (Toom-Cook). Transformadas só com somas e deslocamentos (Winograd polinomial,
-"bit-shift", ternária) gastam mais produtos e menos lógica. O artigo do ISCAS 2027 mostrou que o WP 4×4, com 64
+"bit-shift-ternary", ternária) gastam mais produtos e menos lógica. O artigo do ISCAS 2027 mostrou que o WP 4×4, com 64
 multiplicações, ocupa 64,6% menos área que o Toom-Cook 4×4, com 36. O trabalho atual testa identidades novas achadas por
 busca (`bsn16`, `bsc16`, `bsh16`, `trn16`, ...) no mesmo controlador, com cargas reais da ResNet-18.
 
@@ -85,7 +85,7 @@ Rode tudo na raiz do repositório, dentro do tmux.
 
    Esperado: `stream-column simulation passed: ... cycles_to_end=21573`.
 
-2. **O mesmo para o `trn16` com carga real** (`conv-trn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-twopass-round-column-frac0-extra0-nbits16-cin16-cout16-l10c1`).
+2. **O mesmo para o `trn16` com carga real** (`conv-trn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-subexpression-round-column-frac0-extra0-nbits16-cin16-cout16-l10c1`).
    Esperado: `passed`, `cycles_to_end=251437`.
 
 3. **Controle negativo:** o mesmo comando do item 2 com `-GROUND=0` no fim tem que **falhar**, com
@@ -107,7 +107,7 @@ Rode tudo na raiz do repositório, dentro do tmux.
    config original em `report/merged.csv`. Devem coincidir, porque a síntese do Genus é determinística com as mesmas
    entradas. Apague a cópia depois.
 
-6. **Ler um RTL gerado:** abra `rtl/conv4x4/conv-trn16-...-twopass-round-column.sv` e ache as três transformadas, os 8
+6. **Ler um RTL gerado:** abra `rtl/conv4x4/conv-trn16-...-subexpression-round-column.sv` e ache as três transformadas, os 8
    multiplicadores e a acumulação da inversa. Compare com as matrizes de `rtl/conv4x4/data/trn16/make_custom_build.py`.
 
 ## 6. Como o repositório se organiza (resumo)

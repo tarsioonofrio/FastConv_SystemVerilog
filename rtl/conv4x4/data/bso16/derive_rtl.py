@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Monta o RTL rowconst round do bso16 a partir do bsn16 round.
 
-O bso16 tem a mesma forma do bsn16 (F(4,3) bit-shift, 7 produtos, fatores 1, 1/2 e 1/4), só com outra identidade. O RTL
+O bso16 tem a mesma forma do bsn16 (F(4,3) bit-shift-ternary, 7 produtos, fatores 1, 1/2 e 1/4), só com outra identidade. O RTL
 round do bsn16 guarda a identidade em tabelas: QN, QD e B em WeightTransformRowConst (pesos) e A em InverseRow e
 InverseRowAccumulate (saída). A transformada de entrada vem de mult-matrices/<alg>/mult_matrices.sv, gerado pelo
 fast-conv. Este script troca só essas tabelas e o nome do algoritmo; as matrizes são lidas de make_custom_build.py.

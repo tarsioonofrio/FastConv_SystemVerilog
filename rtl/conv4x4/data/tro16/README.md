@@ -11,7 +11,7 @@ de sinal), então a área deve mudar pouco e a potência dos multiplicadores dev
 
 ## Previsão (registrada em 2026-11-08, antes da síntese)
 
-Duas passadas, carga real `cin16-cout16-l10c1`, contra o `trn16` (22.037 µm², 125,6 pJ/saída, multiplicadores 0,991 mW):
+Subexpression, carga real `cin16-cout16-l10c1`, contra o `trn16` (22.037 µm², 125,6 pJ/saída, multiplicadores 0,991 mW):
 
 | | `trn16` | `tro16` previsto |
 |---|---|---|
@@ -30,7 +30,7 @@ está confirmado; se cair menos, o modelo de atividade não extrapola.
 
 `gera.sh` (na raiz do repositório, no tmux): os passos do `trn16` (`reproduz.sh`) com `identidade.json`
 (`from_result.py` com o molde do `trn16`, `fast-conv`, `gen_stream_column.py` e `derive_rtl.py` sobre o RTL do
-`wpn16`, `gen_twopass.py`, `derive_configs.sh`, golden da carga real).
+`wpn16`, `gen_subexpression.py`, `derive_configs.sh`, golden da carga real).
 `identidade.json`: `sinais_ordem.py --rtl trn16 --json-output <aqui>` (venv do piloto). Fluxo:
 `bash -l scripts/run_flow_list.sh rtl/conv4x4/data/tro16/flow.list <logs>` (só as duas configs da carga real). O `derive_configs.sh` também cria as duas da carga sintética `cin3-cout12`, que nunca rodaram e foram tiradas do repositório em 2026-11-11 (não tinham resultado e carregavam logs copiados de outra config).
 
@@ -38,7 +38,7 @@ está confirmado; se cair menos, o modelo de atividade não extrapola.
 
 As duas configs passaram na simulação RTL, no fluxo ASIC (folga ≥ 0) e na simulação de portas. Tabelas no hub:
 `frentes/precisao-quantizada/piloto/teste_sinais.md` (`teste_sinais.py`, potência por bloco de `potencia_hier/tro-two.txt`)
-e `duas_passadas.md`. Duas passadas, carga real:
+e `subexpression.md`. Subexpression, carga real:
 
 | | `trn16` | `tro16` previsto | `tro16` medido |
 |---|---|---|---|

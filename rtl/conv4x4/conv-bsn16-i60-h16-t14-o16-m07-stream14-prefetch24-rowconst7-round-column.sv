@@ -4,7 +4,7 @@
 
    Algorithm: bsn16   input tile 6x6   Hadamard 7x7   output tile 4x4
    Adapted from the WPN16 row-constant streaming controller for the 7-product
-   bit-shift F(4,3) identity (HADAMARD_SIZE = 7, NUM_MULT = 7).  The control
+   bit-shift-ternary F(4,3) identity (HADAMARD_SIZE = 7, NUM_MULT = 7).  The control
    structure is unchanged; only the constant row transform, the inverse row
    transform and the geometry defaults follow the bsn16 matrices.
 */

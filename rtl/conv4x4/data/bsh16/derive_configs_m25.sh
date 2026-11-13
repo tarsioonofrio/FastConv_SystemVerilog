@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # Cria as configs de 2 estados do bsh16 (25 multiplicadores e, para comparar, 28) copiando as entradas das configs de 7 multiplicadores
-# em duas passadas, sem resultados nem logs. Uso, na raiz do repositório: derive_configs_m25.sh
+# subexpression, sem resultados nem logs. Uso, na raiz do repositório: derive_configs_m25.sh
 set -eu
 S=rtl/conv4x4/synthesis
-B=conv-bsh16-i60-h16-t14-o16-m07-stream14-prefetch24-rowconst7-twopass-round-column-frac0-extra0-nbits16
-M25=conv-bsh16-i60-h16-t14-o16-m25-2state-prefetch24-rowconst7-twopass-round-column-frac0-extra0-nbits16
+B=conv-bsh16-i60-h16-t14-o16-m07-stream14-prefetch24-rowconst7-subexpression-round-column-frac0-extra0-nbits16
+M25=conv-bsh16-i60-h16-t14-o16-m25-2state-prefetch24-rowconst7-subexpression-round-column-frac0-extra0-nbits16
 for load in cin3-cout12 cin16-cout16-l10c1; do
   for var in m25 m28; do
     s=$B-$load

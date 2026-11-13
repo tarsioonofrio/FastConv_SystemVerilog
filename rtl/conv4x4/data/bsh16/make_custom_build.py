@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Materialise the bsh16 F(4,3) build (bit-shift, 7 products, winograd-identities hw-20261107
+"""Materialise the bsh16 F(4,3) build (bit-shift-ternary, 7 products, winograd-identities hw-20261107
 F4-3-bs-hw7, calibrated hardware cost 12658) from explicit matrices.
 
 The upstream CLI has no constructor for arbitrary (C, q, B, A) matrices, so

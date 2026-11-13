@@ -1,7 +1,7 @@
 {
   "dataset": {
     "algorithm": "tro16",
-    "architecture": "conv-tro16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-round-column-frac0-extra0-nbits16-cin16-cout16-l10c1; conv-tro16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-twopass-round-column-frac0-extra0-nbits16-cin16-cout16-l10c1",
+    "architecture": "conv-tro16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-round-column-frac0-extra0-nbits16-cin16-cout16-l10c1; conv-tro16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8-subexpression-round-column-frac0-extra0-nbits16-cin16-cout16-l10c1",
     "bias_enabled": false,
     "count": 14400,
     "dataset": "rtl/conv4x4/data/tro16/sim/sim-032-16-16-l10c1-trunc-frac0-extra0-round-nbits16",

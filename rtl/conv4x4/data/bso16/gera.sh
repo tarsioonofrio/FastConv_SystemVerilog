@@ -33,10 +33,10 @@ cp sv/mult_matrices.sv sv/mult_matrices_csa.sv "$L/mult-matrices/bso16/"
 cp sv/mux_mult_*.sv "$L/mux-mult/bso16/"
 cp sv/pack_param.sv "$L/pack-param/bso16/"
 
-# 4-5. RTL rowconst (tabelas trocadas no bsn16) e duas passadas
+# 4-5. RTL rowconst (tabelas trocadas no bsn16) e subexpression
 cd "$L"
 "$PY" "$D/derive_rtl.py" "$BSN" "$D/make_custom_build.py" "$N-round-column.sv"
-"$PY" ../stream-column/gen_twopass.py "$N-round-column.sv" > /dev/null
+"$PY" ../stream-column/gen_subexpression.py "$N-round-column.sv" > /dev/null
 
 # 6. configs ASIC
 cd "$R"; bash "$D/derive_configs.sh"

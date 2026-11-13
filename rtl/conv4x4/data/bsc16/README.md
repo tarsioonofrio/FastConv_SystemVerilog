@@ -1,4 +1,4 @@
-# `bsc16`: F(4,3) bit-shift de 7 produtos, custo 458
+# `bsc16`: F(4,3) bit-shift-ternary de 7 produtos, custo 458
 
 Mesma forma do `bsn16` (7 produtos, pesos com fatores 1, 1/2 e 1/4, entrada e saída em -1, 0, 1), com a identidade de menor
 custo de transformadas achada pela campanha `reducao-20261105` do `winograd-identities`:
@@ -24,8 +24,8 @@ custo de transformadas achada pela campanha `reducao-20261105` do `winograd-iden
 3. `sv/` copiado para `mult-matrices/bsc16`, `mux-mult/bsc16` e `pack-param/bsc16`.
 4. `derive_rtl.py <RTL rowconst7 round do bsn16> make_custom_build.py <destino>`: troca as tabelas QN, QD, B e A e o nome.
    Aplicado à identidade do `bsn16`, reproduz o RTL do `bsn16`.
-5. `rtl/stream-column/gen_twopass.py` deriva a versão em duas passadas.
-6. `derive_configs.sh` cria as 4 configs (rowconst e duas passadas × `cin3-cout12` e `cin16-cout16-l10c1`) a partir das
+5. `rtl/stream-column/gen_subexpression.py` deriva a versão subexpression.
+6. `derive_configs.sh` cria as 4 configs (rowconst e subexpression × `cin3-cout12` e `cin16-cout16-l10c1`) a partir das
    configs `bsn16`.
 7. Goldens: `fast-conv -p . sim normal --image-side 32 -i 3 -o 12 -d 0 --truncated-weight-transform --rounding nearest
    --weight-frac-bits 0 --extra-frac-bits 0 --nbits 16`, com `sim/sim` renomeada para
@@ -40,15 +40,15 @@ Python: o do `fast-convolution-rtl` (`.venv`) nos passos 1, 2 e 7; `frentes/prec
 ## Resultado (2026-11-07)
 
 As 4 configs passaram na simulação de portas, com folga ≥ 0. Tabela completa em
-`frentes/precisao-quantizada/piloto/duas_passadas.md`, no hub, gerada por `duas_passadas.py`. Na carga real (ResNet-18,
+`frentes/precisao-quantizada/piloto/subexpression.md`, no hub, gerada por `subexpression.py`. Na carga real (ResNet-18,
 16 x 16 canais, 16 bits):
 
 | Versão | `bsn16` (custo 484) | `bsc16` (custo 458) |
 |---|---|---|
 | rowconst: área, energia por saída | 36.208 µm², 127,9 pJ | 36.012 µm², 129,9 pJ |
-| duas passadas: área, energia por saída | 29.289 µm², 127,5 pJ | 28.947 µm², 131,4 pJ |
-| transformada de entrada (`trf`), duas passadas | 7.906 µm² | 7.326 µm² |
-| transformada de pesos, duas passadas | 1.751 µm² | 1.950 µm² |
+| subexpression: área, energia por saída | 29.289 µm², 127,5 pJ | 28.947 µm², 131,4 pJ |
+| transformada de entrada (`trf`), subexpression | 7.906 µm² | 7.326 µm² |
+| transformada de pesos, subexpression | 1.751 µm² | 1.950 µm² |
 | erro relativo (`erro_carga_real.py`) | 0,0131 | 0,0129 |
 
 O custo 458 mede só as transformadas de entrada e saída. A de entrada encolheu 7%, mas a de pesos cresceu, porque a nova

@@ -6,10 +6,10 @@ S=rtl/conv4x4/synthesis
 OUT=${1:-$S}
 WP=conv-wpn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8
 TR=conv-trn16-i60-h17-t16-o16-m08-stream16-prefetch24-rowconst8
-for v in "" "twopass-"; do for load in cin3-cout12 cin16-cout16-l10c1; do
+for v in "" "subexpression-"; do for load in cin3-cout12 cin16-cout16-l10c1; do
   s=$WP-${v}round-column-frac0-extra0-nbits16-$load
   d=$OUT/$TR-${v}round-column-frac0-extra0-nbits16-$load
-  git ls-files "$S/$s" | grep -v -E '/logical/results|/logical/reports|xrun\.log|power_evaluation|execution_time|access_counts' |
+  git ls-files "$S/$s" | grep -v -E '/logical/results|/logical/reports|xrun\.log|power_evaluation|execution_time|access_counts|genus\.(log|cmd)' |
   while read -r f; do r=${f#"$S/$s/"}; mkdir -p "$d/$(dirname "$r")"; cp "$f" "$d/$r"; done
   grep -rl wpn16 "$d" | xargs -r sed -i 's/wpn16/trn16/g'
 done; done

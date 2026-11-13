@@ -30,11 +30,11 @@ cp sv/mult_matrices.sv sv/mult_matrices_csa.sv "$L/mult-matrices/tro16/"
 cp sv/mux_mult_*.sv "$L/mux-mult/tro16/"
 cp sv/pack_param.sv "$L/pack-param/tro16/"
 
-# 2. RTL: gen_stream_column.py para as tabelas, sobre o RTL round do wpn16; duas passadas
+# 2. RTL: gen_stream_column.py para as tabelas, sobre o RTL round do wpn16; subexpression
 cd "$L"
 "$PY" ../stream-column/gen_stream_column.py "$D/config/build.json" tro16 /tmp/tro16-gen.$$.sv 8 4 > /dev/null
 "$PY" "$D/derive_rtl.py" "$W" /tmp/tro16-gen.$$.sv "$N-round-column.sv"; rm -f /tmp/tro16-gen.$$.sv
-"$PY" ../stream-column/gen_twopass.py "$N-round-column.sv" > /dev/null
+"$PY" ../stream-column/gen_subexpression.py "$N-round-column.sv" > /dev/null
 
 # 3. configs ASIC
 cd "$R"; bash "$D/derive_configs.sh"

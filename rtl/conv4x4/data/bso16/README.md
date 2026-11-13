@@ -1,6 +1,6 @@
 # `bso16`: a identidade do `bsn16` com sinais e ordem dos termos escolhidos para baixa atividade
 
-Mesmas matrizes do `bsn16` (F(4,3) bit-shift, 7 produtos), a menos de duas liberdades que não mudam a identidade: a
+Mesmas matrizes do `bsn16` (F(4,3) bit-shift-ternary, 7 produtos), a menos de duas liberdades que não mudam a identidade: a
 ordem dos termos (linhas do Hadamard) e os sinais por termo, (A_p, B_p, C_p) -> (a·A_p, a·c·B_p, c·C_p). No RTL, a lane q
 recebe a coluna q do tile transformado e a linha p avança a cada ciclo; os sinais e a ordem mudam os bits que trocam entre
 operandos consecutivos dos multiplicadores. `sinais_ordem.py` (hub, `frentes/precisao-quantizada/piloto`) escolheu sinais
@@ -11,7 +11,7 @@ de sinal), então a área deve mudar pouco e a potência dos multiplicadores dev
 
 ## Previsão (registrada em 2026-11-08, antes da síntese)
 
-Duas passadas, carga real `cin16-cout16-l10c1`, contra o `bsn16` (29.289 µm², 127,5 pJ/saída, multiplicadores 0,764 mW):
+Subexpression, carga real `cin16-cout16-l10c1`, contra o `bsn16` (29.289 µm², 127,5 pJ/saída, multiplicadores 0,764 mW):
 
 | | `bsn16` | `bso16` previsto |
 |---|---|---|
@@ -29,7 +29,7 @@ está confirmado; se cair menos, o modelo de atividade não extrapola.
 ## Como foi gerado (2026-11-08)
 
 `gera.sh` (na raiz do repositório, no tmux): os passos do `bsh16` com `identidade.json` no lugar do `.result.json`
-(`from_result.py`, `fast-conv`, `derive_rtl.py` sobre o RTL do `bsn16`, `gen_twopass.py`, `derive_configs.sh`, goldens).
+(`from_result.py`, `fast-conv`, `derive_rtl.py` sobre o RTL do `bsn16`, `gen_subexpression.py`, `derive_configs.sh`, goldens).
 `identidade.json`: `sinais_ordem.py --rtl bsn16 --json-output <aqui>` (venv do piloto). Fluxo:
 `bash -l scripts/run_flow_list.sh rtl/conv4x4/data/bso16/flow.list <logs>` (só as duas configs da carga real). O `derive_configs.sh` também cria as duas da carga sintética `cin3-cout12`, que nunca rodaram e foram tiradas do repositório em 2026-11-11 (não tinham resultado e carregavam logs copiados de outra config).
 
@@ -37,7 +37,7 @@ está confirmado; se cair menos, o modelo de atividade não extrapola.
 
 As duas configs passaram na simulação RTL, no fluxo ASIC (folga ≥ 0) e na simulação de portas. Tabelas no hub:
 `frentes/precisao-quantizada/piloto/teste_sinais.md` (`teste_sinais.py`, potência por bloco de `potencia_hier/bso-two.txt`)
-e `duas_passadas.md`. Duas passadas, carga real:
+e `subexpression.md`. Subexpression, carga real:
 
 | | `bsn16` | `bso16` previsto | `bso16` medido |
 |---|---|---|---|

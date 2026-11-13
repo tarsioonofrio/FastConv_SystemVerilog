@@ -1,4 +1,4 @@
-# `bsh16`: F(4,3) bit-shift de 7 produtos escolhida pelo custo calibrado
+# `bsh16`: F(4,3) bit-shift-ternary de 7 produtos escolhida pelo custo calibrado
 
 Mesma forma do `bsn16` e do `bsc16` (7 produtos, pesos com fatores 1, 1/2 e 1/4, entrada e saída em -1, 0, 1), com a
 identidade de menor custo calibrado na síntese achada pela campanha `hw-20261107` do `winograd-identities`:
@@ -11,7 +11,7 @@ O modelo foi calibrado nos 7 RTLs já sintetizados; esta identidade foi escolhid
 
 ## Previsão (registrada em 2026-11-08, antes da síntese)
 
-Versão de duas passadas, carga real `cin16-cout16-l10c1`, contra o `bsn16` (29.289 µm², 127,5 pJ/saída) e o `bsc16`
+Versão subexpression, carga real `cin16-cout16-l10c1`, contra o `bsn16` (29.289 µm², 127,5 pJ/saída) e o `bsc16`
 (28.947 µm², 131,4 pJ/saída). `custo_candidatos.md` no hub:
 
 | | `bsn16` | `bsc16` | `bsh16` |
@@ -38,8 +38,8 @@ Se a área sair menor que a dos dois e a energia ficar abaixo da do `bsc16`, o m
 1. `fast-conv init`, `quant shift -b 8`, `make_custom_build.py` e `build 2d bind nest` (com `gen.json` trocado por
    `tolimlin_4x3` durante o comando).
 2. `sv/` copiado para `mult-matrices/bsh16`, `mux-mult/bsh16` e `pack-param/bsh16`.
-3. `derive_rtl.py` (cópia do `bsc16` com o nome trocado) sobre o RTL rowconst round do `bsn16`; `gen_twopass.py`.
-4. `derive_configs.sh`: as 4 configs (rowconst e duas passadas × `cin3-cout12` e `cin16-cout16-l10c1`).
+3. `derive_rtl.py` (cópia do `bsc16` com o nome trocado) sobre o RTL rowconst round do `bsn16`; `gen_subexpression.py`.
+4. `derive_configs.sh`: as 4 configs (rowconst e subexpression × `cin3-cout12` e `cin16-cout16-l10c1`).
 5. Goldens: `fast-conv sim normal` (aleatório) e `gen_real_workload.py --alg bsh16 --nbits 16 --cin 16 --cout 16` (hub).
 
 Depois: `bash -l scripts/run_flow_list.sh rtl/conv4x4/data/bsh16/flow.list <pasta de logs>`, no tmux
@@ -50,8 +50,8 @@ Python: o do `fast-convolution-rtl` (`.venv`) nos passos 1 e 5; `frentes/precisa
 ## Resultado (2026-11-08)
 
 As 4 configs passaram na simulação RTL, no fluxo ASIC (folga ≥ 0) e na simulação de portas. Tabelas no hub:
-`frentes/precisao-quantizada/piloto/duas_passadas.md` (`duas_passadas.py`) e `teste_bsh16.md` (`teste_bsh16.py`, com a
-potência por bloco de `potencia_hier/bsh-two.txt`). Carga real, duas passadas:
+`frentes/precisao-quantizada/piloto/subexpression.md` (`subexpression.py`) e `teste_bsh16.md` (`teste_bsh16.py`, com a
+potência por bloco de `potencia_hier/bsh-two.txt`). Carga real, subexpression:
 
 | | `bsn16` | `bsc16` | `bsh16` | previsto para o `bsh16` |
 |---|---|---|---|---|
@@ -65,14 +65,14 @@ potência por bloco de `potencia_hier/bsh-two.txt`). Carga real, duas passadas:
 O modelo acertou a ordem: o `bsh16` tem a menor área dos três e energia entre a do `bsn16` e a do `bsc16`. A soma das duas
 transformadas caiu 929 µm² contra 983 previstos (no `bsc16`, o modelo tinha previsto 785 e o medido foi 382). A potência dos
 multiplicadores subiu 7,3% sobre o `bsn16`, contra 4,3% previstos pela atividade. A energia ficou 1% acima da do `bsn16`,
-no limite da faixa prevista: a identidade troca área por um pouco de energia, e o `bsn16` continua o bit-shift de menor
+no limite da faixa prevista: a identidade troca área por um pouco de energia, e o `bsn16` continua o bit-shift-ternary de menor
 energia.
 
 ## Dois estados de multiplicação: 25 multiplicadores (2026-11-09)
 
 **Pergunta:** em uma variante de no máximo 2 estados de multiplicação, compensa dividir uma linha do Hadamard entre os estados, com 25 multiplicadores em vez de 28?
 
-**RTL:** `gen_m25.py` gera `conv-bsh16-...-m25-2state-...` a partir do RTL de 7 multiplicadores em duas passadas. O estado 0 faz as linhas 0 a 2 e as colunas 0 a 3 da linha 3;
+**RTL:** `gen_m25.py` gera `conv-bsh16-...-m25-2state-...` a partir do RTL subexpression de 7 multiplicadores. O estado 0 faz as linhas 0 a 2 e as colunas 0 a 3 da linha 3;
 o estado 1 faz as linhas 4 a 6 e as colunas 4 a 6 da linha 3, e a lane 24 fica parada. Um registrador de 4 palavras (`r_row3_hold`) guarda a primeira parte da linha 3 até a inversa.
 
 **Fluxo:** `derive_configs_m25.sh` cria as configs; `run_m25.sh` faz a simulação RTL com os defines da síntese (`scripts/rtl_sim_config.sh`, porque `run_flow_list.sh` simula com NUM_MULT = 7, que este RTL rejeita) e o fluxo:

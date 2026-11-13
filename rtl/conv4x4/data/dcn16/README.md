@@ -51,7 +51,7 @@ Nas execuções reais o `% HADAMARD_SIZE` não muda nada (o índice já está na
 - A correção foi aplicada ao RTL versionado, e as 16 configs da direta foram ressintetizadas
   (`flow-idxfix.list`; `bash -l scripts/run_flow_list.sh rtl/conv4x4/data/dcn16/flow-idxfix.list <logs>`, em duas
   listas paralelas no tmux).
-- Os outros RTLs rowconst (WP, `trn16`, bit-shift, TC) têm a mesma forma de índice e passam na simulação de portas em
+- Os outros RTLs rowconst (WP, `trn16`, bit-shift-ternary, TC) têm a mesma forma de índice e passam na simulação de portas em
   todas as configs sintetizadas. Por isso não foram mudados, mas um RTL novo deve usar a forma corrigida.
 
 ### Resultado da ressíntese com o índice corrigido

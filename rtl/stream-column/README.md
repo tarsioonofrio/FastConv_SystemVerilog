@@ -295,9 +295,14 @@ expected=-1613`), então o testbench de fato detecta erro numérico.
   `test_simulation_nbits.py` e `test_simulation_3x3_truncated.py`) estão no
   working tree daquele repositório e não foram commitadas.
 
-## Transformada de pesos em duas passadas
+## Transformada de pesos subexpression
 
-`gen_twopass.py` deriva de um RTL rowconst uma variante `twopass`, com a transformada separável e hardware compartilhado
+`gen_subexpression.py` deriva de um RTL rowconst uma variante `subexpression`, com a transformada separável e hardware compartilhado
 entre as linhas. A saída é idêntica bit a bit à da rowconst. Com `--magic`, o Toom-Cook troca a divisão por 576 por um
-recíproco exato (`twopassmagic`). O método está no cabeçalho do script, e os resultados e o roteiro de reprodução estão no
-hub, em `frentes/precisao-quantizada/piloto/duas_passadas.md` e `REPRODUZIR-duas-passadas.md`.
+recíproco exato (`subexpressionmagic`). O método está no cabeçalho do script, e os resultados e o roteiro de reprodução estão no
+hub, em `frentes/precisao-quantizada/piloto/subexpression.md` e `REPRODUZIR-subexpression.md`.
+
+Nome antigo: até 2026-11-13 a variante se chamava `twopass` (duas passadas), o gerador `gen_twopass.py` e o módulo
+`WeightTransformTwoPass`. Os logs, netlists e relatórios das ferramentas (`*.log`, `*.v`, `Conv_area.rpt`,
+`power_evaluation.txt`) gerados antes disso ficam como saíram e ainda trazem o nome antigo; as pastas das configs foram
+renomeadas.

@@ -44,7 +44,7 @@ module Conv
     parameter int unsigned TAP_SHIFT_V_BITS    = 4,
     // Width of the signed per-position product shift table.
     parameter int unsigned TAP_SHIFT_P_BITS    = 5,
-    // Width of the input transform datapath (TC 18, WP and bit-shift 16).
+    // Width of the input transform datapath (TC 18, WP and bit-shift-ternary 16).
     parameter int unsigned INPUT_TRANSFORM_BITS = 18,
     // Fractional bits removed by the final output shift.
     parameter int unsigned EXTRA_FRAC_BITS     = 0
