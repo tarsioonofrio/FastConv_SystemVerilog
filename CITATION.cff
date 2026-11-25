@@ -3,8 +3,8 @@ message: "If you use this RTL or its evidence, please cite the paper below."
 title: "FastConv: fast-convolution accelerators in SystemVerilog"
 type: software
 authors:
-  - family-names: Onofrio
-    given-names: Társio
+  - family-names: da Silva
+    given-names: Társio Onofrio
     affiliation: "Pontifical Catholic University of Rio Grande do Sul (PUCRS)"
 repository-code: "https://github.com/tarsioonofrio/FastConv_SystemVerilog"
 license: MIT
@@ -19,8 +19,8 @@ preferred-citation:
   type: conference-paper
   title: "Trading Multiplications for Simpler Transforms: Area and Energy Efficiency of Polynomial Winograd Convolution"
   authors:
-    - family-names: Onofrio
-      given-names: Társio
+    - family-names: da Silva
+      given-names: Társio Onofrio
     - family-names: Moraes
       given-names: Fernando Gehm
   collection-title: "IEEE International Symposium on Circuits and Systems (ISCAS)"
