@@ -1,0 +1,28 @@
+cff-version: 1.2.0
+message: "If you use this RTL or its evidence, please cite the paper below."
+title: "FastConv: fast-convolution accelerators in SystemVerilog"
+type: software
+authors:
+  - family-names: Onofrio
+    given-names: Társio
+    affiliation: "Pontifical Catholic University of Rio Grande do Sul (PUCRS)"
+repository-code: "https://github.com/tarsioonofrio/FastConv_SystemVerilog"
+license: MIT
+keywords:
+  - fast convolution
+  - Winograd
+  - Toom-Cook
+  - CNN accelerator
+  - SystemVerilog
+  - ASIC
+preferred-citation:
+  type: conference-paper
+  title: "Trading Multiplications for Simpler Transforms: Area and Energy Efficiency of Polynomial Winograd Convolution"
+  authors:
+    - family-names: Onofrio
+      given-names: Társio
+    - family-names: Moraes
+      given-names: Fernando Gehm
+  collection-title: "IEEE International Symposium on Circuits and Systems (ISCAS)"
+  year: 2027
+  notes: "Submitted."

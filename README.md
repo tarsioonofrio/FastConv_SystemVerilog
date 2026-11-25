@@ -2,7 +2,7 @@
 
 This repository holds the RTL, datasets, ASIC flow configurations and evidence behind
 
-> T. O. da Silva and F. G. Moraes, "Trading Multiplications for Simpler Transforms: Area and Energy
+> T. Onofrio and F. G. Moraes, "Trading Multiplications for Simpler Transforms: Area and Energy
 > Efficiency of Polynomial Winograd Convolution," submitted to the *IEEE International Symposium on Circuits
 > and Systems (ISCAS)*, 2027.
 
